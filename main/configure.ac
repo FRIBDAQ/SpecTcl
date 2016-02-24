@@ -769,6 +769,7 @@ AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
+####################################### Checks for Qt 
 
 # Check for Qt libraries
 PKG_CHECK_MODULES(QT, [QtCore, QtGui, QtNetwork], [], [AC_MSG_ERROR([Qt libraries are required.])])
@@ -789,6 +790,20 @@ AC_CHECK_PROGS(RCC, [rcc])
    AC_MSG_ERROR([Qt utility programs moc, uic, and rcc are required.])
 fi
 
+# Retrieve Qt compilation and linker flags
+QT_CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork`"
+QT_LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork`"
+QT_LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork`"
+
+AC_SUBST(QT_CPPFLAGS)
+AC_SUBST(QT_LDFLAGS)
+AC_SUBST(QT_LIBS)
+AC_SUBST(MOC)
+AC_SUBST(UIC)
+AC_SUBST(RCC)
+
+
+######################################## Checks for Root 
 
 AC_CHECK_PROG(ROOTCONFIGDFLT, [root-config], [root-config], [], [$PATH])
 AC_MSG_NOTICE([root-config search found : $ROOTCONFIGDFLT])
@@ -817,16 +832,17 @@ ROOT_LDFLAGS=`$ROOTCONFIG --glibs`
 AC_SUBST(ROOT_CFLAGS)
 AC_SUBST(ROOT_LDFLAGS)
 
+######################################  Checks for jsoncpp
 
 # Check for Qt libraries
 PKG_CHECK_MODULES(JSONCPP, [jsoncpp], [], [AC_MSG_ERROR([jsoncpp package must be installed])])
 
-# Retrieve Qt compilation and linker flags
-CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork` $CPPFLAGS"
-LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork` $LDFLAGS"
-LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork` $LIBS"
-
-
+JSONCPP_CPPFLAGS="`$PKG_CONFIG --incdir`"
+JSONCPP_LDFLAGS="`$PKG_CONFIG --libs`"
+JSONCPP_LIBS="`$PKG_CONFIG --libs`"
+AC_SUBST(JSONCPP_CPPFLAGS)
+AC_SUBST(JSONCPP_LDFLAGS)
+AC_SUBST(JSONCPP_LIBS)
 
 # mandb:
 
@@ -879,10 +895,6 @@ AC_SUBST(MANDOCBOOK)
   AC_SUBST(GDLDSW)
 
 
-AC_SUBST(MOC)
-AC_SUBST(UIC)
-AC_SUBST(RCC)
-
 # create output files.
 
 AC_OUTPUT(Makefile 
@@ -924,9 +936,5 @@ AC_OUTPUT(Makefile
           vmusb/MakefileSkel 
           spectra/Makefile
           spectra/src/Makefile
-          spectra/spectcljson/Makefile
-          spectra/jsoncpp/Makefile
-          spectra/jsoncpp/include/Makefile
-          spectra/jsoncpp/src/Makefile
-          spectra/jsoncpp/src/lib_json/Makefile )
+          spectra/spectcljson/Makefile)
           
