@@ -784,10 +784,18 @@ if ! `$PKG_CONFIG --atleast-version=4.6.0 QtCore`; then
 fi
 
 AC_CHECK_PROGS(MOC, [moc-qt5 moc-qt4 moc])
+if test "x$MOC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program moc is required.])
+fi
+
 AC_CHECK_PROGS(UIC, [uic-qt5 uic-qt4 uic])
+if test "x$UIC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program uic is required.])
+fi
+
 AC_CHECK_PROGS(RCC, [rcc])
- if test -z "$MOC" || test -z "$UIC" || test -z "$RCC"; then
-   AC_MSG_ERROR([Qt utility programs moc, uic, and rcc are required.])
+if test "x$RCC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program rcc is required.])
 fi
 
 # Retrieve Qt compilation and linker flags
@@ -806,17 +814,13 @@ AC_SUBST(RCC)
 ######################################## Checks for Root 
 
 AC_CHECK_PROG(ROOTCONFIGDFLT, [root-config], [root-config], [], [$PATH])
-AC_MSG_NOTICE([root-config search found : $ROOTCONFIGDFLT])
+
 
 # override of default version
 AC_ARG_WITH([rootsys],
 	AS_HELP_STRING([--with-rootsys], [Path to ROOT install directory (a.k.a. ROOTSYS)]))
 
-AC_MSG_NOTICE([with_rootsys is now $with_rootsys])
-
 AC_PATH_PROG([ROOTCONFIG], [root-config], [notfound], [$with_rootsys/bin:$PATH])
-#if test "x$with_rootsys" != "xno" -a "x$with_rootsys" != "xyes" -a "x$with_rootsys" != "x" ; then
-#fi
 
 if test "x$ROOTCONFIG" = "xnotfound" ; then 
   ROOTCONFIG=$ROOTCONFIGDFLT
@@ -825,6 +829,8 @@ fi
 
 if test -z "$ROOTCONFIG" ; then
   AC_MSG_ERROR([Unable to locate root-config that is is required.])
+else 
+  AC_MSG_NOTICE([Using root-config ... $ROOTCONFIG])
 fi
 
 ROOT_CFLAGS=`$ROOTCONFIG --cflags`
@@ -838,6 +844,7 @@ AC_SUBST(ROOT_LIBRARY_DIR)
 
 # Check for Qt libraries
 PKG_CHECK_MODULES(JSONCPP, [jsoncpp], [], [AC_MSG_ERROR([jsoncpp package must be installed])])
+AC_MSG_RESULT([$JSONCPP])
 
 AC_SUBST(JSONCPP_CFLAGS)
 AC_SUBST(JSONCPP_LIBS)
