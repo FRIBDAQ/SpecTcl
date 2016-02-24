@@ -934,5 +934,6 @@ AC_OUTPUT(Makefile
           vmusb/MakefileSkel 
           spectra/Makefile
           spectra/src/Makefile
+          spectra/test/Makefile
           spectra/spectcljson/Makefile)
           
