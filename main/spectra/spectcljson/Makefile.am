@@ -26,7 +26,6 @@ libSpecTclJson_la_CXXFLAGS = @ROOT_CFLAGS@ \
 														 @JSONCPP_CFLAGS@ 
 
 libSpecTclJson_la_LIBADD = @ROOT_LDFLAGS@ \
-													 @JSONCPP_LDFLAGS@ \
 													 @JSONCPP_LIBS@
 														 
 

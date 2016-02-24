@@ -828,20 +828,18 @@ if test -z "$ROOTCONFIG" ; then
 fi
 
 ROOT_CFLAGS=`$ROOTCONFIG --cflags`
-ROOT_LDFLAGS=`$ROOTCONFIG --glibs`
+ROOT_LDFLAGS="`$ROOTCONFIG --glibs` -lQtGSI"
+ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)
 AC_SUBST(ROOT_LDFLAGS)
+AC_SUBST(ROOT_LIBRARY_DIR)
 
 ######################################  Checks for jsoncpp
 
 # Check for Qt libraries
 PKG_CHECK_MODULES(JSONCPP, [jsoncpp], [], [AC_MSG_ERROR([jsoncpp package must be installed])])
 
-JSONCPP_CPPFLAGS="`$PKG_CONFIG --incdir`"
-JSONCPP_LDFLAGS="`$PKG_CONFIG --libs`"
-JSONCPP_LIBS="`$PKG_CONFIG --libs`"
-AC_SUBST(JSONCPP_CPPFLAGS)
-AC_SUBST(JSONCPP_LDFLAGS)
+AC_SUBST(JSONCPP_CFLAGS)
 AC_SUBST(JSONCPP_LIBS)
 
 # mandb:

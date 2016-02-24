@@ -1,5 +1,7 @@
 
 
+lib_LTLIBRARIES = libSpectra.la
+
 bin_PROGRAMS = spectra
 
 noinst_HEADERS =  QRootCanvas.h  \
@@ -44,7 +46,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   ConnectionTester.h \
   TabbedMultiSpectrumView.h 
 
-spectra_SOURCES = \
+libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
   QRootDialog.cpp \
   QRootApplication.cpp \
@@ -82,6 +84,25 @@ spectra_SOURCES = \
   MultiSpectrumView.cpp \
   ConnectionTester.cpp \
   TabbedMultiSpectrumView.cpp \
+	moc_ControlPanel.cpp \
+	moc_GeometrySelector.cpp \
+	moc_ListRequestHandler.cpp \
+	moc_GateEditComHandler.cpp \
+	moc_QRootCanvas.cpp \
+	moc_ContentRequestHandler.cpp \
+	moc_QRootApplication.cpp \
+	moc_HistogramView.cpp \
+	moc_MultiSpectrumView.cpp \
+	moc_GateBuilder1DDialog.cpp \
+	moc_ConnectServer.cpp \
+	moc_QRootWindow.cpp \
+	moc_mainwindow.cpp \
+	moc_TGo4CreateNewHistogram.cpp \
+	moc_SpecTclRESTInterface.cpp \
+	moc_SpectrumViewer.cpp \
+	moc_GateBuilderDialog.cpp \
+  moc_QRootDialog.cpp \
+	moc_TabbedMultiSpectrumView.cpp \
   moc_GSlice.cpp \
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
@@ -89,6 +110,8 @@ spectra_SOURCES = \
   moc_GateListRequestHandler.cpp \
   moc_QTLine.cpp \
   moc_ConnectionTester.cpp \
+	moc_HistogramList.cpp \
+	moc_DockableGateManager.cpp \
 	qrc_resources.cpp
 
 spectraFORMS =  mainwindow.ui  \
@@ -117,13 +140,45 @@ BUILT_SOURCES = ui_mainwindow.h \
 								ui_GateBuilder1DDialog.h \
 								ui_ControlPanel.h \
 								ui_GeometrySelector.h \
-								ui_TabbedMultiSpectrumView.h
+								ui_TabbedMultiSpectrumView.h \
+								moc_ControlPanel.cpp \
+								moc_GeometrySelector.cpp \
+								moc_ListRequestHandler.cpp \
+								moc_GateEditComHandler.cpp \
+								moc_QRootCanvas.cpp \
+								moc_ContentRequestHandler.cpp \
+								moc_QRootApplication.cpp \
+								moc_HistogramView.cpp \
+								moc_MultiSpectrumView.cpp \
+								moc_GateBuilder1DDialog.cpp \
+								moc_ConnectServer.cpp \
+								moc_QRootWindow.cpp \
+								moc_mainwindow.cpp \
+								moc_TGo4CreateNewHistogram.cpp \
+								moc_SpecTclRESTInterface.cpp \
+								moc_SpectrumViewer.cpp \
+								moc_GateBuilderDialog.cpp \
+								moc_QRootDialog.cpp \
+								moc_TabbedMultiSpectrumView.cpp \
+								moc_GSlice.cpp \
+								moc_GGate.cpp \
+								moc_SpecTclInterface.cpp  \
+								moc_CommonResponseHandler.cpp \
+								moc_GateListRequestHandler.cpp \
+								moc_QTLine.cpp \
+								moc_ConnectionTester.cpp \
+								qrc_resources.cpp
 
-spectra_CXXFLAGS = @ROOT_CFLAGS@ \
-									 -I@top_srcdir@/spectra/spectcljson
+libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
+									 -I@top_srcdir@/spectra/spectcljson \
+									 @JSONCPP_CFLAGS@ \
+									 @QT_CPPFLAGS@
 
-spectra_LDADD = @ROOT_LDFLAGS@ \
-								@top_builddir@/spectra/spectcljson/libSpecTclJson.la
+libSpectra_la_LIBADD = @ROOT_LDFLAGS@ \
+								@top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+								@JSONCPP_LIBS@ \
+								@QT_LDFLAGS@ \
+								@QT_LDFLAGS@ @QT_LIBS@
 
 moc_%.cpp : %.h
 		@MOC@ -o$@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(MOC_CPPFLAGS) $<
@@ -132,5 +187,17 @@ ui_%.h : %.ui
 	@UIC@ -o $@ $<
 
 qrc_%.cpp : %.qrc
-	@RCC@ -o $@ $<
+	@RCC@ -name $(basename $(notdir $<)) -o $@ $<
+
+spectra_SOURCES = main.cpp
+spectra_CXXFLAGS = @ROOT_CFLAGS@  \
+									 -I@top_srcdir@/spectra/spectcljson \
+									 @JSONCPP_CFLAGS@ \
+									 @QT_CPPFLAGS@
+
+spectra_LDADD = @builddir@/libSpectra.la \
+								@ROOT_LDFLAGS@ \
+								@JSONCPP_LIBS@ \
+								@QT_LDFLAGS@ @QT_LIBS@ 
+spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
