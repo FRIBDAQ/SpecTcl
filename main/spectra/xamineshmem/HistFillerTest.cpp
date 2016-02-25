@@ -108,11 +108,7 @@ class HistFillerTest : public CppUnit::TestFixture
         }
     }
 
-    // test the ability to fill a TH1F histogram with 32 bit data
-    void fill1D_0() {
-        create1DSpectrum<uint32_t>(); // 32 bit data
-
-        TH1F hist("hist", "asdf", 4, 0, 3);
+    void assert1DFillWorks(TH1& hist) {
         x2r::HistFiller filler;
         filler.fill(hist, m_spec1d);
 
@@ -124,6 +120,29 @@ class HistFillerTest : public CppUnit::TestFixture
               double(3), hist.GetBinContent(3));
         EQMSG("Fill sets the correct content for last bin",
               double(4), hist.GetBinContent(4));
+    }
+
+    void assert2DFillWorks(TH2& hist) {
+
+        x2r::HistFiller filler;
+        filler.fill(hist, m_spec2d);
+
+        for (int xb=1; xb<=3; ++xb) {
+            for (int yb=1; yb<=3; ++yb) {
+                string msg = "fill sets correct content for bin (";
+                msg += to_string(xb) + "," + to_string(yb) + ")";
+                EQMSG(msg.c_str(), double((yb-1)*3+xb), hist.GetBinContent(xb, yb));
+            }
+        }
+    }
+
+    // test the ability to fill a TH1F histogram with 32 bit data
+    void fill1D_0() {
+        create1DSpectrum<uint32_t>(); // 32 bit data
+
+        TH1F hist("hist", "asdf", 4, 0, 3);
+
+        assert1DFillWorks(hist);
     }
 
     // test filling of TH1F with 16-bit data
@@ -131,18 +150,8 @@ class HistFillerTest : public CppUnit::TestFixture
         create1DSpectrum<uint16_t>(); // 16 bit data
 
         TH1F hist("hist", "asdf", 4, 0, 3);
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec1d);
 
-        EQMSG("Fill sets the correct content for first bin",
-              double(1), hist.GetBinContent(1));
-        EQMSG("Fill sets the correct content for bin 1",
-              double(2), hist.GetBinContent(2));
-        EQMSG("Fill sets the correct content for bin 2",
-              double(3), hist.GetBinContent(3));
-        EQMSG("Fill sets the correct content for last bin",
-              double(4), hist.GetBinContent(4));
-
+        assert1DFillWorks(hist);
     }
 
     // test filling of TH1D with uint16_t data
@@ -150,18 +159,8 @@ class HistFillerTest : public CppUnit::TestFixture
         create1DSpectrum<uint16_t>();
 
         TH1D hist("hist", "asdf", 4, 0, 3);
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec1d);
 
-        EQMSG("Fill sets the correct content for first bin",
-              double(1), hist.GetBinContent(1));
-        EQMSG("Fill sets the correct content for bin 1",
-              double(2), hist.GetBinContent(2));
-        EQMSG("Fill sets the correct content for bin 2",
-              double(3), hist.GetBinContent(3));
-        EQMSG("Fill sets the correct content for last bin",
-              double(4), hist.GetBinContent(4));
-
+        assert1DFillWorks(hist);
     }
 
     //test the ability to fill a 2d histogram with 32-bit data
@@ -170,16 +169,7 @@ class HistFillerTest : public CppUnit::TestFixture
 
         TH2F hist("hist", "asdf", 3, 0, 2, 3, 0, 2);
 
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec2d);
-
-        for (int xb=1; xb<=3; ++xb) {
-            for (int yb=1; yb<=3; ++yb) {
-                string msg = "fill sets correct content for bin (";
-                msg += to_string(xb) + "," + to_string(yb) + ")";
-                EQMSG(msg.c_str(), double((yb-1)*3+xb), hist.GetBinContent(xb, yb));
-            }
-        }
+        assert2DFillWorks(hist);
     }
 
     //test the ability to fill a TH2F histogram with 16-bit data
@@ -188,16 +178,7 @@ class HistFillerTest : public CppUnit::TestFixture
 
         TH2F hist("hist", "asdf", 3, 0, 2, 3, 0, 2);
 
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec2d);
-
-        for (int xb=1; xb<=3; ++xb) {
-            for (int yb=1; yb<=3; ++yb) {
-                string msg = "fill sets correct content for bin (";
-                msg += to_string(xb) + "," + to_string(yb) + ")";
-                EQMSG(msg.c_str(), double((yb-1)*3+xb), hist.GetBinContent(xb, yb));
-            }
-        }
+        assert2DFillWorks(hist);
     }
 
     //test the ability to fill a TH2F histogram with 8-bit data
@@ -206,16 +187,7 @@ class HistFillerTest : public CppUnit::TestFixture
 
         TH2F hist("hist", "asdf", 3, 0, 2, 3, 0, 2);
 
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec2d);
-
-        for (int xb=1; xb<=3; ++xb) {
-            for (int yb=1; yb<=3; ++yb) {
-                string msg = "fill sets correct content for bin (";
-                msg += to_string(xb) + "," + to_string(yb) + ")";
-                EQMSG(msg.c_str(), double((yb-1)*3+xb), hist.GetBinContent(xb, yb));
-            }
-        }
+        assert2DFillWorks(hist);
     }
 
     //test the ability to fill a TH2D histogram with 8-bit data
@@ -224,16 +196,7 @@ class HistFillerTest : public CppUnit::TestFixture
 
         TH2D hist("hist", "asdf", 3, 0, 2, 3, 0, 2);
 
-        x2r::HistFiller filler;
-        filler.fill(hist, m_spec2d);
-
-        for (int xb=1; xb<=3; ++xb) {
-            for (int yb=1; yb<=3; ++yb) {
-                string msg = "fill sets correct content for bin (";
-                msg += to_string(xb) + "," + to_string(yb) + ")";
-                EQMSG(msg.c_str(), double((yb-1)*3+xb), hist.GetBinContent(xb, yb));
-            }
-        }
+        assert2DFillWorks(hist);
     }
 };
 
