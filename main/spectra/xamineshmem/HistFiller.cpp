@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 
+#include <iostream>
 
 extern spec_shared* xamine_shared;
 
@@ -19,6 +20,8 @@ namespace x2r
 
     void HistFiller::fill(TH1 &rHist, int id) {
         if (rHist.GetDimension() != spectrumDimension(id)) {
+            std::cout << rHist.GetDimension() << std::endl;
+            std::cout << spectrumDimension(id) << std::endl;
             throw std::runtime_error("HistFiller::fill() Spectrum dimension does not match ROOT hist dimension.");
         }
 
@@ -41,7 +44,7 @@ namespace x2r
         TAxis* pXaxis = rHist.GetXaxis();
 
         for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
-                unsigned int content = xamine_shared->getchannel(id, xbin);
+                unsigned int content = xamine_shared->getchannel(id, xbin-1);
                 rHist.SetBinContent(xbin, content);
         }
     }
@@ -57,9 +60,10 @@ namespace x2r
         TAxis* pXaxis = rHist.GetXaxis();
         TAxis* pYaxis = rHist.GetYaxis();
 
-        for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
-            for (int ybin=pYaxis->GetFirst(); ybin<=pYaxis->GetLast(); ybin++) {
-                unsigned int content = xamine_shared->getchannel(id, xbin, ybin);
+        for (int ybin=pYaxis->GetFirst(); ybin<=pYaxis->GetLast(); ybin++) {
+            for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
+                unsigned int content = xamine_shared->getchannel(id, xbin-1, ybin-1);
+                std::cout << content << std::endl;
                 rHist.SetBinContent(xbin, ybin, content);
             }
         }
