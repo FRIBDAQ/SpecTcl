@@ -1,14 +1,20 @@
 #include "HistFiller.h"
 
 #include <TH1.h>
+#include <TH2.h>
 #include <dispshare.h>
 
 #include <stdexcept>
 
-namespace XToR
+
+extern spec_shared* xamine_shared;
+
+namespace x2r
 {
     void HistFiller::fill(TH1 &rHist, std::string name) {
-        fill(rHist, ::getspecid(name.data()));
+        char* pName = const_cast<char*>(name.c_str());
+        int id = xamine_shared->getspecid(pName);
+        fill(rHist, id);
     }
 
     void HistFiller::fill(TH1 &rHist, int id) {
@@ -26,7 +32,7 @@ namespace XToR
     }
 
     void HistFiller::fill1D(TH1& rHist, int id) {
-        int nx = ::getxdim(id);
+        int nx = xamine_shared->getxdim(id);
 
         if (nx != rHist.GetNbinsX()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
@@ -35,14 +41,14 @@ namespace XToR
         TAxis* pXaxis = rHist.GetXaxis();
 
         for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
-                unsigned int content = ::getchannel(id, xbin);
+                unsigned int content = xamine_shared->getchannel(id, xbin);
                 rHist.SetBinContent(xbin, content);
         }
     }
 
-    void HistFiller::fill2D(TH1& rHist, int id) {
-        int nx = ::getxdim(id);
-        int ny = ::getydim(id);
+    void HistFiller::fill2D(TH2& rHist, int id) {
+        int nx = xamine_shared->getxdim(id);
+        int ny = xamine_shared->getydim(id);
 
         if (nx != rHist.GetNbinsX() || ny != rHist.GetNbinsY()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
@@ -53,14 +59,14 @@ namespace XToR
 
         for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
             for (int ybin=pYaxis->GetFirst(); ybin<=pYaxis->GetLast(); ybin++) {
-                unsigned int content = ::getchannel(id, xbin, ybin);
+                unsigned int content = xamine_shared->getchannel(id, xbin, ybin);
                 rHist.SetBinContent(xbin, ybin, content);
             }
         }
     }
 
     int HistFiller::spectrumDimension(int id) {
-        spec_type type = ::gettype(id);
+        spec_type type = xamine_shared->gettype(id);
 
         int dim = 0;
         switch (type) {

@@ -16,8 +16,8 @@ namespace x2r
         void fill(TH1 &rHist, int id);
 
     private:
-        void fill1D(TH1& rHist, unsigned int* pData);
-        void fill2D(TH2& rHist, unsigned int* pData);
+        void fill1D(TH1& rHist, int id);
+        void fill2D(TH2& rHist, int id);
         int spectrumDimension(int id);
     };
 
