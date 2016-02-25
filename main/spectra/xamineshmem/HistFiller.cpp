@@ -63,7 +63,6 @@ namespace x2r
         for (int ybin=pYaxis->GetFirst(); ybin<=pYaxis->GetLast(); ybin++) {
             for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
                 unsigned int content = xamine_shared->getchannel(id, xbin-1, ybin-1);
-                std::cout << content << std::endl;
                 rHist.SetBinContent(xbin, ybin, content);
             }
         }
