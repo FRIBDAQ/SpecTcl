@@ -41,6 +41,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <stdexcept>
 
 using namespace std;
 
@@ -55,12 +56,15 @@ HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 {
     ui->setupUi(this);
 
+    if (! connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
+                  this, SLOT(onHistogramListChanged())) ) {
+        throw runtime_error("HistogramView() failed to connect SpecTclInterface::histogramListChanged() to slot");
+    }
 
-    connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
-            this, SLOT(onHistogramListChanged()));
-
-    connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
-            this,SLOT(onDoubleClick(QModelIndex)));
+    if (! connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
+                  this,SLOT(onDoubleClick(QModelIndex))) ) {
+        throw runtime_error("HistogramView() failed to connect HistogramList::doubleClicked() to slot");
+    }
 }
 
 HistogramView::~HistogramView()
@@ -70,7 +74,21 @@ HistogramView::~HistogramView()
 
 void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
+    if (m_pSpecTcl) {
+        if (! disconnect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
+                   this, SLOT(onHistogramListChanged())) ) {
+            std::cout << "Failed to disconnect SpecTclInterface::histogramListChanged() from slot" << std::endl;
+        }
+    }
+
     m_pSpecTcl = pSpecTcl;
+
+
+    if (! connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
+            this, SLOT(onHistogramListChanged())) ) {
+        throw runtime_error("HistogramView() failed to connect SpecTclInterface::histogramListChanged() to slot");
+    }
+
 }
 
 void HistogramView::onHistogramListChanged()

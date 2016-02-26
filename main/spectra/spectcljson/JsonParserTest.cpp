@@ -7,12 +7,15 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <algorithm>
+#include <iterator>
 #include "HistInfo.h"
 #include "BinInfo.h"
 #include "ParameterInfo.h"
 
 #include "config.h"
+#include "Asserts.h"
 
 #define private public
 #define protected public
@@ -21,6 +24,17 @@
 #undef private
 
 using namespace std;
+
+
+ostream& operator<<(ostream& str, const SpJs::BinInfo& info) {
+    str << "( "
+        << info.s_xbin << ", "
+        << info.s_ybin << ", "
+        << info.s_zbin << ", "
+        << info.s_value << ")";
+    return str;
+}
+
 
 class JsonParserTest : public CppUnit::TestFixture {
   public:
@@ -119,7 +133,15 @@ void JsonParserTest::parseContentCmd_0 ()
                                         {8,0,0,2.}};
 
 
-  CPPUNIT_ASSERT( expected == parsedResult.getValues() );
+  auto& values = parsedResult.getValues();
+
+  for (int i=0; i<min(expected.size(), values.size()); ++i) {
+      std::string msg("Parsed result should have same value for index ");
+      msg += to_string(i);
+      EQMSG( msg.c_str(), expected[i].s_xbin,  values[i].s_xbin);
+      EQMSG( msg.c_str(), expected[i].s_value,  values[i].s_value);
+  }
+
   CPPUNIT_ASSERT( 4        == parsedResult.getUnderflow(0) );
   CPPUNIT_ASSERT( 1156269  == parsedResult.getOverflow(0) );
 

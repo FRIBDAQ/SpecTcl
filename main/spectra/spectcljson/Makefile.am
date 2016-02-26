@@ -43,7 +43,8 @@ unittests_SOURCES = GateInfoTest.cpp \
 
 unittests_CXXFLAGS = @JSONCPP_CFLAGS@ \
 										 @ROOT_CFLAGS@ \
-										 @CPPUNIT_CFLAGS@
+										 @CPPUNIT_CFLAGS@ \
+										 -I@top_srcdir@/Utility
 
 unittests_CPPFLAGS = -DJSON_TEST_DIR='"@srcdir@/json"'
 

@@ -26,10 +26,12 @@ public:
     virtual void deleteGate(const QString& name);
 
     virtual void enableGatePolling(bool enable);
+    virtual bool gatePollingEnabled() const;
 
     virtual GateList* getGateList();
 
     virtual void enableHistogramInfoPolling(bool enable);
+    virtual bool histogramInfoPollingEnabled() const;
 
     virtual HistogramList* getHistogramList();
 
@@ -37,10 +39,10 @@ public:
     virtual void requestHistContentUpdate(TPad* pPad);
     virtual void requestHistContentUpdate(const QString& hName);
 
-signals:
-    void gateListChanged();
-    void histogramListChanged();
-    void histogramContentUpdated(HistogramBundle* pBundle);
+public slots:
+    void onHistogramContentUpdated(HistogramBundle *pBundle);
+    void onHistogramListChanged();
+    void onGateListChanged();
 
 private:
     std::unique_ptr<SpecTclRESTInterface> m_pRESTInterface;

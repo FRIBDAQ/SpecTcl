@@ -72,10 +72,12 @@ public:
     virtual void deleteGate(const QString& name) = 0;
 
     virtual void enableGatePolling(bool enable) = 0;
+    virtual bool gatePollingEnabled() const = 0;
 
     virtual GateList* getGateList() = 0;
 
     virtual void enableHistogramInfoPolling(bool enable) = 0;
+    virtual bool histogramInfoPollingEnabled() const = 0;
 
     virtual HistogramList* getHistogramList() = 0;
    

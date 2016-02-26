@@ -275,6 +275,7 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 {
+    cout << "drawing " << (void*)pBundle << std::endl;
   if (pBundle) {
       getCurrentCanvas()->cd();
       if (pBundle->hist()) {

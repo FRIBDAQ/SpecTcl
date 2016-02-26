@@ -99,6 +99,8 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             msg = msg.arg(QString(exc.what()));
             QMessageBox::warning(0,title,msg);
         }
+    } else {
+        std::cout << "Reply indicated error : " << error << std::endl;
     }
 }
 
@@ -110,6 +112,7 @@ void ListRequestHandler::onDownloadProgress(qint64, qint64)
 
 void ListRequestHandler::onTimeout()
 {
+    std::cout << "timeout " << std::endl;
   emit parseCompleted(std::vector<SpJs::HistInfo>());
 }
 

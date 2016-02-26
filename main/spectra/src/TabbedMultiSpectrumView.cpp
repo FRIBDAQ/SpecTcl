@@ -87,6 +87,17 @@ void TabbedMultiSpectrumView::setCurrentCanvas(QWidget *pCanvas)
 void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
     m_pSpecTcl = pSpecTcl;
+
+    // tell all of the spectrumviews in the tabs
+    int nTabs = ui->pTabWidget->count();
+    for (int tab=0; tab<nTabs; ++tab) {
+
+        auto pView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(tab));
+        if (pView) {
+            pView->setSpecTclInterface(m_pSpecTcl);
+        }
+
+    }
 }
 
 void TabbedMultiSpectrumView::refreshAll()

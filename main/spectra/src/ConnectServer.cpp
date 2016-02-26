@@ -88,6 +88,9 @@ void ConnectDialog::onAccept() {
             m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
         }
     }
+
+    GlobalSettings::setSessionMode(selectedMode);
+
 }
 
 void ConnectDialog::cacheServerSettings() {

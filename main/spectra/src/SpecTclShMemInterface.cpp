@@ -7,6 +7,15 @@ SpecTclShMemInterface::SpecTclShMemInterface() :
     SpecTclInterface(),
     m_pRESTInterface(new SpecTclRESTInterface)
 {
+    connect(m_pRESTInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+            this, SLOT( onHistogramContentUpdated(HistogramBundle*)));
+
+    connect(m_pRESTInterface.get(), SIGNAL(histogramListChanged()),
+            this, SLOT(onHistogramListChanged()));
+
+    connect(m_pRESTInterface.get(), SIGNAL(gateListChanged()),
+            this, SLOT(onGateListChanged()));
+
 }
 
 SpecTclShMemInterface::~SpecTclShMemInterface()
@@ -53,9 +62,13 @@ void SpecTclShMemInterface::enableGatePolling(bool enable)
     m_pRESTInterface->enableGatePolling(enable);
 }
 
+bool SpecTclShMemInterface::gatePollingEnabled() const {
+    return m_pRESTInterface->gatePollingEnabled();
+}
+
 GateList* SpecTclShMemInterface::getGateList()
 {
-    m_pRESTInterface->getGateList();
+    return m_pRESTInterface->getGateList();
 }
 
 void SpecTclShMemInterface::enableHistogramInfoPolling(bool enable)
@@ -63,9 +76,14 @@ void SpecTclShMemInterface::enableHistogramInfoPolling(bool enable)
     m_pRESTInterface->enableHistogramInfoPolling(enable);
 }
 
+bool SpecTclShMemInterface::histogramInfoPollingEnabled() const
+{
+    return m_pRESTInterface->histogramInfoPollingEnabled();
+}
+
 HistogramList* SpecTclShMemInterface::getHistogramList()
 {
-    m_pRESTInterface->getHistogramList();
+    return m_pRESTInterface->getHistogramList();
 }
 
 void SpecTclShMemInterface::requestHistContentUpdate(QRootCanvas *pCanvas)
@@ -83,4 +101,16 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
 
 }
 
- } // namespace VIewer
+void SpecTclShMemInterface::onHistogramContentUpdated(HistogramBundle *pBundle) {
+    emit histogramContentUpdated(pBundle);
+}
+
+void SpecTclShMemInterface::onHistogramListChanged() {
+    emit histogramListChanged();
+}
+
+void SpecTclShMemInterface::onGateListChanged() {
+    emit gateListChanged();
+}
+
+} // namespace VIewer

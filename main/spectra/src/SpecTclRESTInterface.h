@@ -67,7 +67,10 @@ public:
     void deleteGate(const QString& name);
 
     void enableGatePolling(bool enable);
+    bool gatePollingEnabled() const { return pollGates;}
+
     void enableHistogramInfoPolling(bool enable);
+    bool histogramInfoPollingEnabled() const { return pollHistInfo;}
 
     GateList* getGateList() { return m_pGateList.get(); }
     HistogramList* getHistogramList() { return m_pHistList.get(); }

@@ -52,9 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
     setWindowIconText("Spectra");
 
-    GlobalSettings::setSessionMode(0);
+    GlobalSettings::setSessionMode(1);
     auto pInterface = SpecTclInterfaceFactory().create(SpecTclInterfaceFactory::Hybrid);
-    setSpecTclInterface( std::move(pInterface) );
+    m_pSpecTcl = std::shared_ptr<SpecTclInterface>( std::move(pInterface) );
 
     m_pView = new TabbedMultiSpectrumView(m_pSpecTcl, ui->frame);
     std::unique_ptr<SpecTclInterfaceObserver>
@@ -121,9 +121,16 @@ void MainWindow::createDockWindows()
 
 void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
 {
+    bool gatePollingEnabled = m_pSpecTcl->gatePollingEnabled();
+    bool histPollingEnabled = m_pSpecTcl->histogramInfoPollingEnabled();
+
     std::shared_ptr<SpecTclInterface> pShared( std::move(pInterface) );
     m_pSpecTcl = pShared;
 
+    m_pSpecTcl->enableGatePolling(gatePollingEnabled);
+    m_pSpecTcl->enableHistogramInfoPolling(histPollingEnabled);
+
+    // tell all of the dependent objects that the SpecTcl interface has changed.
     notifyObservers();
 }
 

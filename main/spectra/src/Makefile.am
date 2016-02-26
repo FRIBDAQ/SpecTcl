@@ -187,6 +187,11 @@ libSpectra_la_LIBADD = @ROOT_LDFLAGS@ \
 								@QT_LDFLAGS@ \
 								@QT_LDFLAGS@ @QT_LIBS@
 
+clean-local:
+	rm -f moc_*.cpp
+	rm -f ui_*.h
+	rm -f qrc_*.cpp
+
 moc_%.cpp : %.h
 		@MOC@ -o$@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(MOC_CPPFLAGS) $<
 
