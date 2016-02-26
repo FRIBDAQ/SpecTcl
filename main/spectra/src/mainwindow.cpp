@@ -29,9 +29,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramView.h"
 #include "DockableGateManager.h"
 #include "TGo4CreateNewHistogram.h"
-#include "SpecTclRESTInterface.h"
+#include "SpecTclInterfaceFactory.h"
+#include "SpecTclInterface.h"
+#include "SpecTclInterfaceObserver.h"
 #include "ControlPanel.h"
 #include "TabbedMultiSpectrumView.h"
+#include "GlobalSettings.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -49,16 +52,32 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
     setWindowIconText("Spectra");
 
-    m_pSpecTcl = new SpecTclRESTInterface();
+    GlobalSettings::setSessionMode(0);
+    auto pInterface = SpecTclInterfaceFactory().create(SpecTclInterfaceFactory::Hybrid);
+    setSpecTclInterface( std::move(pInterface) );
 
     m_pView = new TabbedMultiSpectrumView(m_pSpecTcl, ui->frame);
+    std::unique_ptr<SpecTclInterfaceObserver>
+         pViewObs(new GenericSpecTclInterfaceObserver<SpectrumView>(*m_pView));
+    addSpecTclInterfaceObserver(std::move(pViewObs));
+
     m_pControls = new ControlPanel(m_pSpecTcl, m_pView, ui->frame);
+    std::unique_ptr<SpecTclInterfaceObserver>
+         pControlObs(new GenericSpecTclInterfaceObserver<ControlPanel>(*m_pControls));
+    addSpecTclInterfaceObserver(std::move(pControlObs));
 
     ui->gridLayout->addWidget(m_pView);
     ui->gridLayout->addWidget(m_pControls);
 
     m_histView = new HistogramView(m_pSpecTcl, this);
+    std::unique_ptr<SpecTclInterfaceObserver>
+         pHistViewObs(new GenericSpecTclInterfaceObserver<HistogramView>(*m_histView));
+    addSpecTclInterfaceObserver(std::move(pHistViewObs));
+
     m_gateView = new DockableGateManager(*m_pView, m_pSpecTcl, this);
+    std::unique_ptr<SpecTclInterfaceObserver>
+         pGateViewObs(new GenericSpecTclInterfaceObserver<DockableGateManager>(*m_gateView));
+    addSpecTclInterfaceObserver(std::move(pGateViewObs));
 
     // start polling for  histogram information
     m_pSpecTcl->enableHistogramInfoPolling(true);
@@ -76,12 +95,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_pControls, SIGNAL(geometryChanged(int, int)), 
             m_pView, SLOT(onGeometryChanged(int, int)));
-    connect(m_pSpecTcl, SIGNAL(histogramContentUpdated(HistogramBundle*)),
+    connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
 }
 
 void MainWindow::onConnect() {
-    ConnectDialog dialog;
+    ConnectDialog dialog(*this);
     dialog.exec();
 }
 
@@ -98,6 +117,19 @@ void MainWindow::createDockWindows()
 
     addDockWidget(Qt::LeftDockWidgetArea,m_histView);
     addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
+}
+
+void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
+{
+    std::shared_ptr<SpecTclInterface> pShared( std::move(pInterface) );
+    m_pSpecTcl = pShared;
+
+    notifyObservers();
+}
+
+void MainWindow::addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver)
+{
+    m_interfaceObservers.insert(m_interfaceObservers.end(), std::move(pObserver));
 }
 
 void MainWindow::dockHistograms()
@@ -130,6 +162,14 @@ void MainWindow::onNewHistogram()
     QString errmsg(exc.what());
     QMessageBox::warning(this, "Unable to create histograms", errmsg);
   }
+}
+
+void MainWindow::notifyObservers() {
+
+    for(auto& pObserver : m_interfaceObservers) {
+        pObserver->update(m_pSpecTcl);
+    }
+
 }
 
 } // end of namespace

@@ -47,7 +47,7 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
+HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
     ui(new Ui::HistogramView),
     m_req(new ListRequestHandler(this)),
@@ -56,7 +56,7 @@ HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
     ui->setupUi(this);
 
 
-    connect(m_pSpecTcl, SIGNAL(histogramListChanged()),
+    connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
             this, SLOT(onHistogramListChanged()));
 
     connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
@@ -66,6 +66,11 @@ HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
 HistogramView::~HistogramView()
 {
   delete ui;
+}
+
+void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
 }
 
 void HistogramView::onHistogramListChanged()

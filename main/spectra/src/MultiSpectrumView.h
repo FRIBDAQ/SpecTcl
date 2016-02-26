@@ -34,7 +34,7 @@ class MultiSpectrumView : public SpectrumView
 {
     Q_OBJECT
 public:
-    explicit MultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
+    explicit MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent = 0);
 
   /*!
      * \brief getRowCount
@@ -64,6 +64,8 @@ public:
     void keyPressEvent(QKeyEvent *);
 
     virtual void mouseDoubleClickEvent(QMouseEvent* evt);
+
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
 public slots:
     /*!
@@ -116,7 +118,7 @@ public slots:
 private:
     std::unique_ptr<QGridLayout> m_pLayout;
     std::multimap<HistogramBundle*, QRootCanvas*> m_histMap;
-    SpecTclInterface *m_pSpecTcl;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
 //    std::vector<std::unique_ptr<QRootCanvas> > m_canvases;
     QRootCanvas* m_pCurrentCanvas;
     int m_currentNRows;

@@ -30,6 +30,7 @@
 #include <QModelIndex>
 
 #include <vector>
+#include <memory>
 
 class QListWidgetItem;
 class TH1;
@@ -52,8 +53,11 @@ class HistogramView : public QDockWidget
     Q_OBJECT
     
 public:
-    explicit HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
+    explicit HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                           QWidget *parent = 0);
     ~HistogramView();
+
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
 signals:
     void histSelected(HistogramBundle* hist);
@@ -72,7 +76,7 @@ private:
 private:
     Ui::HistogramView *ui;
     ListRequestHandler* m_req;
-    SpecTclInterface* m_pSpecTcl;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
 };
 
 } // end of namespace

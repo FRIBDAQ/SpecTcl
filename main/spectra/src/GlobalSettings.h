@@ -48,7 +48,7 @@ private:
 public:
     static QSettings* getInstance() {
         if (m_instance==nullptr) {
-            m_instance = new QSettings("Viewer","NSCL");
+            m_instance = new QSettings("Spectra","NSCL");
         }
 
         return m_instance;
@@ -67,6 +67,9 @@ public:
 
     static void setPollInterval(int milliseconds);
     static int getPollInterval();
+
+    static void setSessionMode(int typeId);
+    static int getSessionMode();
 };
 
 } // end of namespace

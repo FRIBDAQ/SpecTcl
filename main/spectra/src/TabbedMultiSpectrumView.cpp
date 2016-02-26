@@ -12,7 +12,8 @@ using namespace std;
 namespace Viewer
 {
 
-TabbedMultiSpectrumView::TabbedMultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent) :
+TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pSpecTcl,
+                                                 QWidget *parent) :
     SpectrumView(parent),
     ui(new Ui::TabbedMultiSpectrumView),
     m_pCurrentView(nullptr),
@@ -80,6 +81,12 @@ void TabbedMultiSpectrumView::onGeometryChanged(int row, int col)
 void TabbedMultiSpectrumView::setCurrentCanvas(QWidget *pCanvas)
 {
     m_pCurrentView->setCurrentCanvas(pCanvas);
+}
+
+
+void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
 }
 
 void TabbedMultiSpectrumView::refreshAll()

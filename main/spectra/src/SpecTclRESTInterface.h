@@ -54,6 +54,7 @@ class SpecTclRESTInterface : public SpecTclInterface
   Q_OBJECT
 public:
     SpecTclRESTInterface();
+    virtual ~SpecTclRESTInterface();
 
     void addGate(const GSlice& slice);
     void editGate(const GSlice& slice);

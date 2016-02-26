@@ -71,6 +71,10 @@ SpecTclRESTInterface::SpecTclRESTInterface()
           this, SLOT(onHistogramContentUpdated(HistogramBundle*)));
 }
 
+SpecTclRESTInterface::~SpecTclRESTInterface()
+{
+}
+
 void SpecTclRESTInterface::addGate(const GSlice &slice)
 {
     // at the moment editing and creating use the same command

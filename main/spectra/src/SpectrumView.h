@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include <vector>
+#include <memory>
 
 class TH1;
 
@@ -12,6 +13,7 @@ class QMouseEvent;
 namespace Viewer
 {
 
+class SpecTclInterface;
 class QRootCanvas;
 class HistogramBundle;
 
@@ -120,6 +122,17 @@ public:
     virtual void update() { QWidget::update(); }
 
     /*!
+     * \brief setSpecTclInterface
+     *
+     * All derived classes will probably depend on a SpecTclInterface.
+     * This method essentially sets the expectation that any derived class
+     * might be passed an interface and deal with it appropriately.
+     *
+     * \param pSpecTcl
+     */
+    virtual void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl) = 0;
+
+    /*!
      * \brief getAllHists in a pane
      * \param pCanvas - canvas containing histograms
      * \return a vector of histograms
@@ -128,6 +141,7 @@ public:
      * given pane.
      */
     static std::vector<TH1*> getAllHists(QRootCanvas* pCanvas);
+
 };
 
 } // end of namespace

@@ -26,6 +26,7 @@
 #include <QDockWidget>
 #include <vector>
 #include <map>
+#include <memory>
 
 namespace SpJs {
   class GateInfo;
@@ -66,12 +67,13 @@ public:
      *  \param parent     parent widget
      */
     explicit DockableGateManager(SpectrumView& viewer,
-                                 SpecTclInterface* pSpecTcl,
+                                 std::shared_ptr<SpecTclInterface> pSpecTcl,
                                  QWidget *parent = 0);
 
     /*! Destructor */
     virtual ~DockableGateManager();
 
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
     //////// SLOTS /////////////
 public slots:
@@ -121,7 +123,7 @@ private:
 private:
     Ui::DockableGateManager*  ui;
     SpectrumView&             m_view;
-    SpecTclInterface*         m_pSpecTcl;
+    std::shared_ptr<SpecTclInterface>         m_pSpecTcl;
     std::map<QString, int>    m_gateRowMap;
 };
 

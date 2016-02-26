@@ -25,6 +25,9 @@
 
 #include <QMainWindow>
 
+#include <memory>
+#include <list>
+
 namespace Ui {
 class MainWindow;
 }
@@ -36,12 +39,12 @@ class SpectrumView;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
+class SpecTclInterfaceObserver;
 class ControlPanel;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -49,19 +52,28 @@ public:
 
     void createDockWindows();
 
+    void setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface);
+
+    void addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver);
+
+    void notifyObservers();
+
 public slots:
     void onConnect();
     void dockHistograms();
     void dockGates();
     void onNewHistogram();
 
+
 private:
-    Ui::MainWindow *ui;
-    SpectrumView* m_pView;
-    HistogramView* m_histView;
-    DockableGateManager* m_gateView;
-    SpecTclInterface* m_pSpecTcl;
-    ControlPanel* m_pControls;
+    Ui::MainWindow                    *ui;
+    SpectrumView                      *m_pView;
+    HistogramView                     *m_histView;
+    DockableGateManager               *m_gateView;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
+    ControlPanel                      *m_pControls;
+
+    std::list<std::unique_ptr<SpecTclInterfaceObserver>> m_interfaceObservers;
 };
 
 } // end of namespace

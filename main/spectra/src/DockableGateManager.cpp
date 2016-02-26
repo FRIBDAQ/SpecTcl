@@ -53,7 +53,7 @@ namespace Viewer
 {
 
 DockableGateManager::DockableGateManager(SpectrumView& view,
-                                         SpecTclInterface* pSpecTcl,
+                                         std::shared_ptr<SpecTclInterface> pSpecTcl,
                                          QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockableGateManager),
@@ -68,6 +68,11 @@ DockableGateManager::DockableGateManager(SpectrumView& view,
 DockableGateManager::~DockableGateManager()
 {
     delete ui;
+}
+
+void DockableGateManager::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
 }
 
 void DockableGateManager::launchAddGateDialog()
@@ -467,7 +472,7 @@ void DockableGateManager::connectSignals()
   connect(ui->deleteButton, SIGNAL(clicked()),
           this, SLOT(deleteGate()));
 
-  connect(m_pSpecTcl, SIGNAL(gateListChanged()),
+  connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
           this, SLOT(onGateListChanged()));
 }
 

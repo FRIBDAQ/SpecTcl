@@ -176,7 +176,7 @@ void ContentRequestHandler::updateRequest()
         ++iter;
     }
 
-};
+}
 
 QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &request)
 {

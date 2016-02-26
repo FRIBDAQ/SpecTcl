@@ -6,21 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>438</width>
-    <height>75</height>
+    <width>367</width>
+    <height>116</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Connect to server analysis</string>
   </property>
-  <layout class="QGridLayout">
-   <property name="margin">
-    <number>7</number>
-   </property>
-   <property name="spacing">
-    <number>3</number>
-   </property>
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Session Type</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="localRadioBtn">
+       <property name="text">
+        <string>Local</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="remoteRadioBtn">
+       <property name="text">
+        <string>Remote</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="TextLabel2_2">
@@ -106,13 +125,26 @@
         <number>10000</number>
        </property>
        <property name="value">
-        <number>8000</number>
+        <number>8080</number>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QHBoxLayout">
      <item>
       <spacer name="spacer257">
@@ -139,7 +171,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Connect</string>
+        <string>Accept</string>
        </property>
       </widget>
      </item>

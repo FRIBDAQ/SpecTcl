@@ -12,7 +12,8 @@ using namespace std;
 namespace Viewer
 {
 
-ControlPanel::ControlPanel(SpecTclInterface *pSpecTcl, SpectrumView *pView, QWidget *parent) :
+ControlPanel::ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                           SpectrumView *pView, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ControlPanel),
     m_pGeoSelector(new GeometrySelector(this)),
@@ -36,6 +37,11 @@ ControlPanel::ControlPanel(SpecTclInterface *pSpecTcl, SpectrumView *pView, QWid
 ControlPanel::~ControlPanel()
 {
     delete ui;
+}
+
+void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
 }
 
 void ControlPanel::onUpdateSelected()

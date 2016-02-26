@@ -62,7 +62,7 @@ void DockableGateManagerTest::onGateListChanged_0()
 {
   // ensure that the existing list items do not delete if they are 
   // just updated.
-  SpecTclInterface* pSpecTcl = new SpecTclRESTInterface;
+  std::shared_ptr<SpecTclInterface> pSpecTcl(new SpecTclRESTInterface);
   pSpecTcl->enableGatePolling(false);
   auto* pList = pSpecTcl->getGateList();
 
@@ -101,7 +101,7 @@ void DockableGateManagerTest::onGateListChanged_1()
 {
   // ensure that the existing list items do not delete if they are 
   // just updated.
-  SpecTclInterface* pSpecTcl = new SpecTclRESTInterface;
+  std::shared_ptr<SpecTclInterface> pSpecTcl(new SpecTclRESTInterface);
   pSpecTcl->enableGatePolling(false);
   auto* pList = pSpecTcl->getGateList();
 

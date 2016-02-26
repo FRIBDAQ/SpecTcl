@@ -59,6 +59,7 @@ class SpecTclInterface : public QObject
 
 public:
     SpecTclInterface();
+    virtual ~SpecTclInterface() {}
 
     virtual void addGate(const GSlice& slice) = 0;
     virtual void editGate(const GSlice& slice) = 0;

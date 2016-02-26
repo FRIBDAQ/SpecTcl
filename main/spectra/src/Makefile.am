@@ -44,7 +44,10 @@ noinst_HEADERS =  QRootCanvas.h  \
   SpectrumView.h \
   MultiSpectrumView.h \
   ConnectionTester.h \
-  TabbedMultiSpectrumView.h 
+  TabbedMultiSpectrumView.h \
+  SpecTclInterfaceFactory.h \
+  SpecTclShMemInterface.h \
+  SpecTclInterfaceObserver.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -84,6 +87,8 @@ libSpectra_la_SOURCES = \
   MultiSpectrumView.cpp \
   ConnectionTester.cpp \
   TabbedMultiSpectrumView.cpp \
+  SpecTclInterfaceFactory.cpp \
+  SpecTclShMemInterface.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -112,6 +117,7 @@ libSpectra_la_SOURCES = \
   moc_ConnectionTester.cpp \
 	moc_HistogramList.cpp \
 	moc_DockableGateManager.cpp \
+	moc_SpecTclShMemInterface.cpp \
 	qrc_resources.cpp
 
 spectraFORMS =  mainwindow.ui  \
@@ -167,6 +173,7 @@ BUILT_SOURCES = ui_mainwindow.h \
 								moc_GateListRequestHandler.cpp \
 								moc_QTLine.cpp \
 								moc_ConnectionTester.cpp \
+								moc_SpecTclShMemInterface.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \

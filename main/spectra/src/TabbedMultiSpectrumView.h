@@ -2,8 +2,11 @@
 #define TABBEDMULTISPECTRUMVIEW_H
 
 #include "SpectrumView.h"
+#include "SpecTclInterfaceObserver.h"
 
 #include <QWidget>
+
+#include <memory>
 
 class QPushButton;
 
@@ -22,7 +25,8 @@ class TabbedMultiSpectrumView : public SpectrumView
     Q_OBJECT
     
 public:
-    explicit TabbedMultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
+    explicit TabbedMultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                     QWidget *parent = 0);
     ~TabbedMultiSpectrumView();
 
   MultiSpectrumView* addTab(const QString& title);
@@ -32,6 +36,8 @@ public:
   virtual int getColumnCount() const;
   virtual QRootCanvas* getCurrentCanvas();
   virtual std::vector<QRootCanvas*> getAllCanvases();
+
+  void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
 signals:
   void visibleGeometryChanged(int row, int col);
@@ -54,9 +60,10 @@ private:
 private:
     Ui::TabbedMultiSpectrumView *ui;
     MultiSpectrumView* m_pCurrentView;
-    SpecTclInterface* m_pSpecTcl;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     QPushButton*      m_pAddButton;
 };
+
 
 }
 #endif // TABBEDMULTISPECTRUMVIEW_H

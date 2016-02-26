@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 namespace Ui {
 class ControlPanel;
 }
@@ -18,8 +20,11 @@ class ControlPanel : public QWidget
     Q_OBJECT
     
 public:
-    explicit ControlPanel(SpecTclInterface* pSpecTcl, SpectrumView* pView, QWidget *parent = 0);
+    explicit ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                          SpectrumView* pView, QWidget *parent = 0);
     ~ControlPanel();
+
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
 public slots:
     void onUpdateSelected();
@@ -36,7 +41,7 @@ signals:
 private:
     Ui::ControlPanel *ui;
     GeometrySelector* m_pGeoSelector;
-    SpecTclInterface* m_pSpecTcl;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     SpectrumView* m_pView;
 };
 

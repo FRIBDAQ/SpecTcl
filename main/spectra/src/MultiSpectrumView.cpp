@@ -20,7 +20,8 @@ using namespace std;
 namespace Viewer
 {
 
-MultiSpectrumView::MultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent) :
+MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                     QWidget *parent) :
     SpectrumView(parent),
     m_pLayout(new QGridLayout(this)),
     m_histMap(),
@@ -70,6 +71,11 @@ vector<QRootCanvas*> MultiSpectrumView::getAllCanvases()
   return canvases;
 }
 
+
+void MultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
+}
 
 void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
 {

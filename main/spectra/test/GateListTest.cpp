@@ -265,7 +265,7 @@ void GateListTest::synchronize_4()
 
 }
 
-void GateListTest::removeCut1D_0() 
+void GateListTest::removeCut1D_0()
 {
   using SpJs::Slice;
   Slice* pSlice(new Slice("test", "xparam", 0, 1));

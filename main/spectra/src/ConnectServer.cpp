@@ -37,22 +37,57 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ConnectServer.h"
 #include "ui_ConnectServer.h"
 #include "GlobalSettings.h"
+#include "SpecTclInterfaceFactory.h"
+#include "SpecTclInterface.h"
+
+#include <QButtonGroup>
+
 
 namespace Viewer
 {
 
-ConnectDialog::ConnectDialog( QWidget* parent )
+ConnectDialog::ConnectDialog( MainWindow& rMain, QWidget* parent )
    : QDialog( parent ),
-   ui(new Ui::ConnectDialog)
+   ui(new Ui::ConnectDialog),
+   m_pMain(&rMain)
 {
-   setObjectName("Go4ConnectServer");
    ui->setupUi(this);
+
+   m_pButtonGroup = new QButtonGroup(this);
+   m_pButtonGroup->addButton(ui->remoteRadioBtn, 0);
+   m_pButtonGroup->addButton(ui->localRadioBtn, 1);
+   m_pButtonGroup->setExclusive(true);
+
+   int mode = GlobalSettings::getSessionMode();
+   if (mode == 0) {
+       ui->remoteRadioBtn->setChecked(true);
+   } else {
+       ui->localRadioBtn->setChecked(true);
+   }
 
    ui->HostName->setText(GlobalSettings::getServerHost());
    ui->PortNumber->setValue(GlobalSettings::getServerPort());
 
-   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(cacheServerSettings()));
+   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(onAccept()));
    connect(ui->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
+}
+
+
+void ConnectDialog::onAccept() {
+    cacheServerSettings();
+
+    int selectedMode = m_pButtonGroup->checkedId();
+
+    int currentMode = GlobalSettings::getSessionMode();
+
+    if (currentMode != selectedMode) {
+        SpecTclInterfaceFactory factory;
+        if (selectedMode == 0) {
+            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::REST));
+        } else {
+            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+        }
+    }
 }
 
 void ConnectDialog::cacheServerSettings() {

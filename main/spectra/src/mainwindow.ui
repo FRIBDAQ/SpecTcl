@@ -14,7 +14,7 @@
    <string>Spectra</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/icons/resources/spectra_logo_48x48.png</normaloff>:/icons/resources/spectra_logo_48x48.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
@@ -107,7 +107,7 @@
   </action>
   <action name="actionConnect">
    <property name="text">
-    <string>Connect</string>
+    <string>Configure</string>
    </property>
   </action>
   <action name="actionHIstograms">
@@ -127,9 +127,7 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>MainWindow</sender>

@@ -36,9 +36,10 @@
 #ifndef ConnectDialog_H
 #define ConnectDialog_H
 
+#include "mainwindow.h"
+
 #include <QDialog>
-
-
+#include <QButtonGroup>
 
 // forward declare
 namespace Ui {
@@ -53,13 +54,17 @@ class ConnectDialog : public QDialog
     Q_OBJECT
 
 public:
-    ConnectDialog( QWidget* parent = 0 );
+    ConnectDialog( MainWindow& rMain, QWidget* parent = 0 );
 
 public slots:
-    void cacheServerSettings();
+    void onAccept();
 
 private:
-    Ui::ConnectDialog* ui;
+    void cacheServerSettings();
+
+    Ui::ConnectDialog*  ui;
+    MainWindow*         m_pMain;
+    QButtonGroup*       m_pButtonGroup;
 };
 
 } // end of namespace

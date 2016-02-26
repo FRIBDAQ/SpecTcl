@@ -5,7 +5,10 @@ lib_LTLIBRARIES = libXamineToRoot.la
 x2rdir=@incdir@/x2r
 x2r_INCLUDES = HistFiller.h
 
-libXamineToRoot_la_SOURCES = HistFiller.cpp ../../Display/dispshare.h ../../Display/spectra.cc ../../Display/shared.cc
+libXamineToRoot_la_SOURCES = HistFiller.cpp \
+                              @top_srcdir@/Display/dispshare.h \
+                              @top_srcdir@/Display/spectra.cc \
+                              @top_srcdir@/Display/shared.cc
 
 libXamineToRoot_la_CXXFLAGS = @ROOT_CFLAGS@ \
                               -I@top_srcdir@/Display
