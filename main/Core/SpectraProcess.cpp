@@ -61,9 +61,15 @@ std::string CSpectraProcess::generatePath() const {
     defaultSpectraPath += "/bin/spectra";
 
     // environment variable overrides
-    std::string spectraPath = std::getenv("SPECTRA_EXECUTABLE_PATH");
-    if ( spectraPath.empty() )
+    std::string spectraPath;
+    const char* envPath = std::getenv("SPECTRA_EXECUTABLE_PATH");
+    if (envPath) {
+        spectraPath = envPath;
+    }
+
+    if (spectraPath.empty()) {
         spectraPath = defaultSpectraPath;
+    }
 
     return spectraPath;
 }
