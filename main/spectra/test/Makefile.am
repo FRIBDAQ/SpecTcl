@@ -11,7 +11,8 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										HistogramListTest.cpp \
 										QTLineTest.cpp \
 										TestRunner.cpp \
-										MainWindowTest.cpp
+										MainWindowTest.cpp \
+										CanvasOpsTest.cpp
 
 
 unittests_LDFLAGS = @ROOT_LDFLAGS@ \

@@ -47,7 +47,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   TabbedMultiSpectrumView.h \
   SpecTclInterfaceFactory.h \
   SpecTclShMemInterface.h \
-  SpecTclInterfaceObserver.h
+  SpecTclInterfaceObserver.h \
+  CanvasOps.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -89,6 +90,7 @@ libSpectra_la_SOURCES = \
   TabbedMultiSpectrumView.cpp \
   SpecTclInterfaceFactory.cpp \
   SpecTclShMemInterface.cpp \
+  CanvasOps.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
