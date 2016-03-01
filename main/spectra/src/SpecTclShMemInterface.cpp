@@ -8,9 +8,6 @@
 
 #include <QMessageBox>
 
-#include "Benchmark.h"
-#include <chrono>
-
 #include <iostream>
 
 namespace Viewer {
@@ -111,8 +108,6 @@ void SpecTclShMemInterface::requestHistContentUpdate(QRootCanvas *pCanvas)
 
 void SpecTclShMemInterface::requestHistContentUpdate(TPad *pPad)
 {
-
-    Benchmark<1, std::chrono::high_resolution_clock> bm;
 
     Q_ASSERT( pPad != nullptr );
 
