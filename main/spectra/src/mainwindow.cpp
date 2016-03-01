@@ -125,6 +125,7 @@ void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterfac
     bool histPollingEnabled = m_pSpecTcl->histogramInfoPollingEnabled();
 
     std::shared_ptr<SpecTclInterface> pShared( std::move(pInterface) );
+
     m_pSpecTcl = pShared;
 
     m_pSpecTcl->enableGatePolling(gatePollingEnabled);
@@ -132,6 +133,11 @@ void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterfac
 
     // tell all of the dependent objects that the SpecTcl interface has changed.
     notifyObservers();
+
+    // connect the new signal-slots
+    connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+            m_pView, SLOT(update(HistogramBundle*)));
+
 }
 
 void MainWindow::addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver)

@@ -943,5 +943,5 @@ AC_OUTPUT(Makefile
           spectra/src/Makefile
           spectra/test/Makefile
           spectra/spectcljson/Makefile
-          spectra/xamineshmem/Makefile)
+          spectra/Xamine2Root/Makefile)
           

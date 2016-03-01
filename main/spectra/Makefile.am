@@ -1,3 +1,3 @@
-SUBDIRS = spectcljson xamineshmem src test
+SUBDIRS = spectcljson Xamine2Root src test
 
 ACLOCAL_AMFLAGS = -I m4

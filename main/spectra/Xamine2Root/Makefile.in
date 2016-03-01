@@ -54,7 +54,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = unittests$(EXEEXT)
 TESTS = unittests$(EXEEXT)
-subdir = spectra/xamineshmem
+subdir = spectra/Xamine2Root
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
@@ -98,20 +98,20 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libXamineToRoot_la_DEPENDENCIES = @top_builddir@/Display/libXamine.la
-am_libXamineToRoot_la_OBJECTS = libXamineToRoot_la-HistFiller.lo \
-	libXamineToRoot_la-spectra.lo libXamineToRoot_la-shared.lo
-libXamineToRoot_la_OBJECTS = $(am_libXamineToRoot_la_OBJECTS)
-libXamineToRoot_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+libXamine2Root_la_DEPENDENCIES = @top_builddir@/Display/libXamine.la
+am_libXamine2Root_la_OBJECTS = libXamine2Root_la-HistFiller.lo \
+	libXamine2Root_la-spectra.lo libXamine2Root_la-shared.lo
+libXamine2Root_la_OBJECTS = $(am_libXamine2Root_la_OBJECTS)
+libXamine2Root_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 PROGRAMS = $(bin_PROGRAMS)
 am_unittests_OBJECTS = unittests-TestRunner.$(OBJEXT) \
 	unittests-HistFillerTest.$(OBJEXT)
 unittests_OBJECTS = $(am_unittests_OBJECTS)
 unittests_DEPENDENCIES = @top_builddir@/Display/libXamine.la \
-	@builddir@/libXamineToRoot.la
+	@builddir@/libXamine2Root.la
 unittests_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(unittests_CXXFLAGS) \
 	$(CXXFLAGS) $(unittests_LDFLAGS) $(LDFLAGS) -o $@
@@ -137,8 +137,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libXamineToRoot_la_SOURCES) $(unittests_SOURCES)
-DIST_SOURCES = $(libXamineToRoot_la_SOURCES) $(unittests_SOURCES)
+SOURCES = $(libXamine2Root_la_SOURCES) $(unittests_SOURCES)
+DIST_SOURCES = $(libXamine2Root_la_SOURCES) $(unittests_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -332,18 +332,18 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-lib_LTLIBRARIES = libXamineToRoot.la
-x2rdir = @incdir@/x2r
+lib_LTLIBRARIES = libXamine2Root.la
+x2rdir = @incdir@/Xamine2Root
 x2r_INCLUDES = HistFiller.h
-libXamineToRoot_la_SOURCES = HistFiller.cpp \
+libXamine2Root_la_SOURCES = HistFiller.cpp \
                               @top_srcdir@/Display/dispshare.h \
                               @top_srcdir@/Display/spectra.cc \
                               @top_srcdir@/Display/shared.cc
 
-libXamineToRoot_la_CXXFLAGS = @ROOT_CFLAGS@ \
+libXamine2Root_la_CXXFLAGS = @ROOT_CFLAGS@ \
                               -I@top_srcdir@/Display
 
-libXamineToRoot_la_LIBADD = @ROOT_LDFLAGS@ \
+libXamine2Root_la_LIBADD = @ROOT_LDFLAGS@ \
                             @top_builddir@/Display/libXamine.la
 
 unittests_SOURCES = TestRunner.cpp HistFillerTest.cpp
@@ -354,7 +354,7 @@ unittests_CXXFLAGS = @ROOT_CFLAGS@ \
 
 unittests_LDADD = @ROOT_LDFLAGS@ \
 										@top_builddir@/Display/libXamine.la \
-										@builddir@/libXamineToRoot.la \
+										@builddir@/libXamine2Root.la \
 										@CPPUNIT_LIBS@ \
 										@TCL_LIBS@ 
 
@@ -372,9 +372,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign spectra/xamineshmem/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign spectra/Xamine2Root/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign spectra/xamineshmem/Makefile
+	  $(AUTOMAKE) --foreign spectra/Xamine2Root/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -425,8 +425,8 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libXamineToRoot.la: $(libXamineToRoot_la_OBJECTS) $(libXamineToRoot_la_DEPENDENCIES) $(EXTRA_libXamineToRoot_la_DEPENDENCIES) 
-	$(libXamineToRoot_la_LINK) -rpath $(libdir) $(libXamineToRoot_la_OBJECTS) $(libXamineToRoot_la_LIBADD) $(LIBS)
+libXamine2Root.la: $(libXamine2Root_la_OBJECTS) $(libXamine2Root_la_DEPENDENCIES) $(EXTRA_libXamine2Root_la_DEPENDENCIES) 
+	$(libXamine2Root_la_LINK) -rpath $(libdir) $(libXamine2Root_la_OBJECTS) $(libXamine2Root_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -483,9 +483,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamineToRoot_la-HistFiller.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamineToRoot_la-shared.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamineToRoot_la-spectra.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamine2Root_la-HistFiller.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamine2Root_la-shared.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libXamine2Root_la-spectra.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unittests-HistFillerTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unittests-TestRunner.Po@am__quote@
 
@@ -510,26 +510,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
-libXamineToRoot_la-HistFiller.lo: HistFiller.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -MT libXamineToRoot_la-HistFiller.lo -MD -MP -MF $(DEPDIR)/libXamineToRoot_la-HistFiller.Tpo -c -o libXamineToRoot_la-HistFiller.lo `test -f 'HistFiller.cpp' || echo '$(srcdir)/'`HistFiller.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamineToRoot_la-HistFiller.Tpo $(DEPDIR)/libXamineToRoot_la-HistFiller.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='HistFiller.cpp' object='libXamineToRoot_la-HistFiller.lo' libtool=yes @AMDEPBACKSLASH@
+libXamine2Root_la-HistFiller.lo: HistFiller.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -MT libXamine2Root_la-HistFiller.lo -MD -MP -MF $(DEPDIR)/libXamine2Root_la-HistFiller.Tpo -c -o libXamine2Root_la-HistFiller.lo `test -f 'HistFiller.cpp' || echo '$(srcdir)/'`HistFiller.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamine2Root_la-HistFiller.Tpo $(DEPDIR)/libXamine2Root_la-HistFiller.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='HistFiller.cpp' object='libXamine2Root_la-HistFiller.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamineToRoot_la-HistFiller.lo `test -f 'HistFiller.cpp' || echo '$(srcdir)/'`HistFiller.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamine2Root_la-HistFiller.lo `test -f 'HistFiller.cpp' || echo '$(srcdir)/'`HistFiller.cpp
 
-libXamineToRoot_la-spectra.lo: @top_srcdir@/Display/spectra.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -MT libXamineToRoot_la-spectra.lo -MD -MP -MF $(DEPDIR)/libXamineToRoot_la-spectra.Tpo -c -o libXamineToRoot_la-spectra.lo `test -f '@top_srcdir@/Display/spectra.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/spectra.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamineToRoot_la-spectra.Tpo $(DEPDIR)/libXamineToRoot_la-spectra.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='@top_srcdir@/Display/spectra.cc' object='libXamineToRoot_la-spectra.lo' libtool=yes @AMDEPBACKSLASH@
+libXamine2Root_la-spectra.lo: @top_srcdir@/Display/spectra.cc
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -MT libXamine2Root_la-spectra.lo -MD -MP -MF $(DEPDIR)/libXamine2Root_la-spectra.Tpo -c -o libXamine2Root_la-spectra.lo `test -f '@top_srcdir@/Display/spectra.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/spectra.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamine2Root_la-spectra.Tpo $(DEPDIR)/libXamine2Root_la-spectra.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='@top_srcdir@/Display/spectra.cc' object='libXamine2Root_la-spectra.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamineToRoot_la-spectra.lo `test -f '@top_srcdir@/Display/spectra.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/spectra.cc
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamine2Root_la-spectra.lo `test -f '@top_srcdir@/Display/spectra.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/spectra.cc
 
-libXamineToRoot_la-shared.lo: @top_srcdir@/Display/shared.cc
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -MT libXamineToRoot_la-shared.lo -MD -MP -MF $(DEPDIR)/libXamineToRoot_la-shared.Tpo -c -o libXamineToRoot_la-shared.lo `test -f '@top_srcdir@/Display/shared.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/shared.cc
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamineToRoot_la-shared.Tpo $(DEPDIR)/libXamineToRoot_la-shared.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='@top_srcdir@/Display/shared.cc' object='libXamineToRoot_la-shared.lo' libtool=yes @AMDEPBACKSLASH@
+libXamine2Root_la-shared.lo: @top_srcdir@/Display/shared.cc
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -MT libXamine2Root_la-shared.lo -MD -MP -MF $(DEPDIR)/libXamine2Root_la-shared.Tpo -c -o libXamine2Root_la-shared.lo `test -f '@top_srcdir@/Display/shared.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/shared.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libXamine2Root_la-shared.Tpo $(DEPDIR)/libXamine2Root_la-shared.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='@top_srcdir@/Display/shared.cc' object='libXamine2Root_la-shared.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamineToRoot_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamineToRoot_la-shared.lo `test -f '@top_srcdir@/Display/shared.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/shared.cc
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libXamine2Root_la_CXXFLAGS) $(CXXFLAGS) -c -o libXamine2Root_la-shared.lo `test -f '@top_srcdir@/Display/shared.cc' || echo '$(srcdir)/'`@top_srcdir@/Display/shared.cc
 
 unittests-TestRunner.o: TestRunner.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unittests_CXXFLAGS) $(CXXFLAGS) -MT unittests-TestRunner.o -MD -MP -MF $(DEPDIR)/unittests-TestRunner.Tpo -c -o unittests-TestRunner.o `test -f 'TestRunner.cpp' || echo '$(srcdir)/'`TestRunner.cpp

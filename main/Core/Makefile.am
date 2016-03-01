@@ -327,7 +327,7 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 											 @top_builddir@/Tape/libtape.la \
-											 @LIBTCLPLUS_LDFLAGS@
+											 @LIBTCLPLUS_LDFLAGS@ \
 												@TCL_LIBS@
 
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm

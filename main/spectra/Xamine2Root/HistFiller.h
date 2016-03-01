@@ -6,7 +6,7 @@
 class TH1;
 class TH2;
 
-namespace x2r
+namespace Xamine2Root
 {
     /*! brief Reads shared memory contents into ROOT histogram
      */

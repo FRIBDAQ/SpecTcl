@@ -109,7 +109,7 @@ class HistFillerTest : public CppUnit::TestFixture
     }
 
     void assert1DFillWorks(TH1& hist) {
-        x2r::HistFiller filler;
+        Xamine2Root::HistFiller filler;
         filler.fill(hist, m_spec1d);
 
         EQMSG("Fill sets the correct content for first bin",
@@ -124,7 +124,7 @@ class HistFillerTest : public CppUnit::TestFixture
 
     void assert2DFillWorks(TH2& hist) {
 
-        x2r::HistFiller filler;
+        Xamine2Root::HistFiller filler;
         filler.fill(hist, m_spec2d);
 
         for (int xb=1; xb<=3; ++xb) {

@@ -178,14 +178,22 @@ BUILT_SOURCES = ui_mainwindow.h \
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
 									 -I@top_srcdir@/spectra/spectcljson \
+									 -I@top_srcdir@/spectra \
+									 -I@top_srcdir@/Display \
 									 @JSONCPP_CFLAGS@ \
-									 @QT_CPPFLAGS@
+									 @QT_CPPFLAGS@ \
+									 @TCL_CPPFLAGS@
 
-libSpectra_la_LIBADD = @ROOT_LDFLAGS@ \
-								@top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+libSpectra_la_LIBADD = @top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+								@top_builddir@/spectra/Xamine2Root/libXamine2Root.la \
+								@top_builddir@/Display/libXamine.la \
 								@JSONCPP_LIBS@ \
 								@QT_LDFLAGS@ \
-								@QT_LDFLAGS@ @QT_LIBS@
+								@QT_LIBS@ \
+								@TCL_LIBS@ \
+								@ROOT_LDFLAGS@
+
+libSpectra_la_LDFLAGS = -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
 clean-local:
 	rm -f moc_*.cpp
@@ -208,8 +216,10 @@ spectra_CXXFLAGS = @ROOT_CFLAGS@  \
 									 @QT_CPPFLAGS@
 
 spectra_LDADD = @builddir@/libSpectra.la \
+								@top_builddir@/Display/libXamine.la \
 								@ROOT_LDFLAGS@ \
 								@JSONCPP_LIBS@ \
-								@QT_LDFLAGS@ @QT_LIBS@ 
+								@QT_LDFLAGS@ @QT_LIBS@ \
+								@TCL_LIBS@
 spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
 

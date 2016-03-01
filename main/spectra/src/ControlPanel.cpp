@@ -46,7 +46,9 @@ void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTc
 
 void ControlPanel::onUpdateSelected()
 {
+  std::cout << "onUpdateSelected" << std::endl;
   if (m_pSpecTcl) {
+      std::cout << "onUpdateSelected" << std::endl;
       m_pSpecTcl->requestHistContentUpdate(m_pView->getCurrentCanvas());
   }
 }

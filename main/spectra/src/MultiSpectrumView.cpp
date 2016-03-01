@@ -4,6 +4,7 @@
 #include "SpecTclInterface.h"
 
 #include <TPad.h>
+#include <TH1.h>
 
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -19,7 +20,6 @@ using namespace std;
 
 namespace Viewer
 {
-
 MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
                                      QWidget *parent) :
     SpectrumView(parent),
