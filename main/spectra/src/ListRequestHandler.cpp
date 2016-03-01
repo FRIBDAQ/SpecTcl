@@ -100,7 +100,7 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             QMessageBox::warning(0,title,msg);
         }
     } else {
-        std::cout << "Reply indicated error : " << error << std::endl;
+//        std::cout << "Reply indicated error : " << error << std::endl;
     }
 }
 

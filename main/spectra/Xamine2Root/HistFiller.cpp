@@ -15,7 +15,7 @@ namespace Xamine2Root
     void HistFiller::fill(TH1 &rHist, std::string name) {
         char* pName = const_cast<char*>(name.c_str());
         int id = xamine_shared->getspecid(pName);
-        std::cout << name << " --> " << id << std::endl;
+
         fill(rHist, id);
     }
 
@@ -40,10 +40,6 @@ namespace Xamine2Root
 
         int nx = xamine_shared->getxdim(id);
 
-        cout << "HistFiller::fill1D() " << endl;
-        cout << "name = " << rHist.GetName() << endl;
-        cout << "shmem nx=" << nx << endl;
-        cout << "root  nx=" << rHist.GetNbinsX() << endl;
         if (nx != rHist.GetNbinsX()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
         }
@@ -62,9 +58,6 @@ namespace Xamine2Root
         int nx = xamine_shared->getxdim(id);
         int ny = xamine_shared->getydim(id);
 
-        cout << "HistFiller::fill2D() " << endl;
-        cout << "shmem : nx=" << nx << " ny=" << ny << endl;
-        cout << "root  : nx=" << rHist.GetNbinsX() << " ny=" << rHist.GetNbinsY() << endl;
         if (nx != rHist.GetNbinsX() || ny != rHist.GetNbinsY()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
         }
@@ -82,8 +75,6 @@ namespace Xamine2Root
 
     int HistFiller::spectrumDimension(int id) {
         spec_type type = xamine_shared->gettype(id);
-
-        std::cout << "type = " << type << std::endl;
 
         int dim = 0;
         switch (type) {

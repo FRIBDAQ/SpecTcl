@@ -104,7 +104,6 @@ HistogramList* SpecTclShMemInterface::getHistogramList()
 void SpecTclShMemInterface::requestHistContentUpdate(QRootCanvas *pCanvas)
 {
     Q_ASSERT( pCanvas != nullptr );
-    std::cout << "hist content update for qrootcanvas" << std::endl;
 
     // update all histograms in this canvas
     requestHistContentUpdate(pCanvas->getCanvas());
@@ -116,7 +115,6 @@ void SpecTclShMemInterface::requestHistContentUpdate(TPad *pPad)
     Benchmark<1, std::chrono::high_resolution_clock> bm;
 
     Q_ASSERT( pPad != nullptr );
-    std::cout << "hist content update for tpad" << std::endl;
 
     int padCount = 0;
     // update all histograms in this canvas
@@ -139,7 +137,6 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
 {
     Xamine2Root::HistFiller filler;
 
-    std::cout << "hist content update for " << hName.toStdString() << std::endl;
     HistogramBundle* pHBundle = getHistogramList()->getHist(hName);
     try {
         if (pHBundle) {

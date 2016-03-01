@@ -169,7 +169,6 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
     int newRow = location.first;
     int newCol = location.second;
 
-    cout << "rows=" << m_currentNRows << "  cols=" << m_currentNColumns << endl;
     int keyId = key->key();
     if (keyId == Qt::Key_Up) {
         if (location.first == 0) {
@@ -275,8 +274,7 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 {
-    cout << "drawing " << (void*)pBundle << std::endl;
-  if (pBundle) {
+    if (pBundle) {
       getCurrentCanvas()->cd();
       if (pBundle->hist()) {
           if (m_pSpecTcl) {
