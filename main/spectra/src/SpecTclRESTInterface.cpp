@@ -29,6 +29,7 @@
 #include "GateListRequestHandler.h"
 #include "HistogramList.h"
 #include "QRootCanvas.h"
+#include "CanvasOps.h"
 
 #include <QString>
 #include <QTimer>
@@ -206,21 +207,10 @@ void SpecTclRESTInterface::requestHistContentUpdate(TPad* pPad)
 
   Q_ASSERT( pPad != nullptr );
 
-  int padCount = 0;
-  // update all histograms in this canvas
-  auto pList = pPad->GetListOfPrimitives();
-  TObject *pObject = nullptr;
-  TIter it(pList);
-  while (( pObject = it.Next() )) {
-      if (pObject->InheritsFrom(TPad::Class()) && padCount < 1) {
-          requestHistContentUpdate(dynamic_cast<TPad*>(pObject));
-          ++padCount;
-      } else if (pObject->InheritsFrom(TH1::Class())) {
-          auto pHist = dynamic_cast<TH1*>(pObject);
-
-          requestHistContentUpdate(QString(pHist->GetName()));
-      }
-  }
+    auto histNames = CanvasOps::extractAllHistNames(*pPad);
+    for (auto& name : histNames) {
+        requestHistContentUpdate(name);
+    }
 }
 
 void SpecTclRESTInterface::requestHistContentUpdate(const QString& name)
@@ -251,7 +241,6 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 
       // tell the world that things have changed.
       emit histogramListChanged();
-
   }
 
   // schedule the next update
