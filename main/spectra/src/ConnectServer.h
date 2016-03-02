@@ -40,6 +40,8 @@
 #include <QDialog>
 #include <QButtonGroup>
 
+#include <memory>
+
 // forward declare
 namespace Ui {
     class ConnectDialog;
@@ -50,22 +52,46 @@ namespace Viewer
 
 class SpecTclInterfaceControl;
 
+
+/*!
+ * \brief The ConnectDialog class
+ *
+ * This is in charge of configuring the connection to the REST server. It
+ * allows the user to set the mode of connectivity (local or remote). It also
+ * allows the user to manipulate the settings for the server. This dialog is
+ * modal.
+ */
 class ConnectDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    /*!
+     * \brief ConnectDialog Constructor
+     * \param rInterface    accessor for the SpecTclInterface
+     * \param parent        owner of this
+     *
+     * This method launches the dialog in a modal fashion.
+     */
     ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent = 0 );
+
+    /*!
+     * \brief Assemble widgets into the megawidget
+     */
+    void assembleWidgets();
 
 public slots:
     void onAccept();
 
 private:
+    /*!
+     * \brief Commit the settings to the GlobalSettings
+     */
     void cacheServerSettings();
 
-    Ui::ConnectDialog           *ui;
-    SpecTclInterfaceControl     *m_pInterfaceControl;
-    QButtonGroup                *m_pButtonGroup;
+    std::unique_ptr<Ui::ConnectDialog>   m_pUI;
+    SpecTclInterfaceControl             *m_pInterfaceControl;
+    QButtonGroup                        *m_pButtonGroup;
 };
 
 } // end of namespace

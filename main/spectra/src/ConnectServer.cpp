@@ -47,33 +47,47 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 namespace Viewer
 {
 
+
+//
+//
 ConnectDialog::ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent )
    : QDialog( parent ),
-   ui(new Ui::ConnectDialog),
+   m_pUI(new Ui::ConnectDialog),
    m_pInterfaceControl(&rInterface)
 {
-   ui->setupUi(this);
 
-   m_pButtonGroup = new QButtonGroup(this);
-   m_pButtonGroup->addButton(ui->remoteRadioBtn, 0);
-   m_pButtonGroup->addButton(ui->localRadioBtn, 1);
-   m_pButtonGroup->setExclusive(true);
+   assembleWidgets();
 
-   int mode = GlobalSettings::getSessionMode();
-   if (mode == 0) {
-       ui->remoteRadioBtn->setChecked(true);
-   } else {
-       ui->localRadioBtn->setChecked(true);
-   }
+   connect(m_pUI->ConnectBtn,SIGNAL(pressed()), this, SLOT(onAccept()));
+   connect(m_pUI->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
+}
 
-   ui->HostName->setText(GlobalSettings::getServerHost());
-   ui->PortNumber->setValue(GlobalSettings::getServerPort());
+//
+//
+void ConnectDialog::assembleWidgets()
+{
+    m_pUI->setupUi(this);
 
-   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(onAccept()));
-   connect(ui->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
+    // group the radiobuttons to work together
+    m_pButtonGroup = new QButtonGroup(this);
+    m_pButtonGroup->addButton(m_pUI->remoteRadioBtn, 0);
+    m_pButtonGroup->addButton(m_pUI->localRadioBtn, 1);
+    m_pButtonGroup->setExclusive(true);
+
+    int mode = GlobalSettings::getSessionMode();
+    if (mode == 0) {
+        m_pUI->remoteRadioBtn->setChecked(true);
+    } else {
+        m_pUI->localRadioBtn->setChecked(true);
+    }
+
+    m_pUI->HostName->setText(GlobalSettings::getServerHost());
+    m_pUI->PortNumber->setValue(GlobalSettings::getServerPort());
 }
 
 
+//
+//
 void ConnectDialog::onAccept() {
     cacheServerSettings();
 
@@ -94,9 +108,11 @@ void ConnectDialog::onAccept() {
 
 }
 
+//
+//
 void ConnectDialog::cacheServerSettings() {
-  GlobalSettings::setServerHost(ui->HostName->text());
-  GlobalSettings::setServerPort(ui->PortNumber->value());
+  GlobalSettings::setServerHost(m_pUI->HostName->text());
+  GlobalSettings::setServerPort(m_pUI->PortNumber->value());
 }
 
 } // end of namepsace
