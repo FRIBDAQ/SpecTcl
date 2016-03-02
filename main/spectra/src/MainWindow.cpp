@@ -121,16 +121,22 @@ void MainWindow::addInterfaceObservers()
 //
 void MainWindow::connectSignalsAndSlots()
 {
-    connect(pUI->actionConnect,SIGNAL(activated()),this,SLOT(onConfigure()));
+    connect(pUI->actionConfigure,SIGNAL(activated()),this,SLOT(onConfigure()));
+
     connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
             m_pView,SLOT(drawHistogram(HistogramBundle*)));
+
     connect(pUI->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
+
     connect(pUI->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
+
     connect(pUI->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
     connect(m_pControls, SIGNAL(geometryChanged(int, int)),
             m_pView, SLOT(onGeometryChanged(int, int)));
-    connect(m_specTclControl.getInterface().get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+
+    connect(m_specTclControl.getInterface().get(),
+            SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
 }
 
@@ -177,7 +183,7 @@ void MainWindow::dockHistograms()
     if (m_histView->isVisible()) {
         return;
     } else {
-        addDockWidget(Qt::LeftDockWidgetArea,m_histView);
+        addDockWidget(Qt::LeftDockWidgetArea, m_histView);
         m_histView->show();
     }
 }
@@ -189,7 +195,7 @@ void MainWindow::dockGates()
     if (m_gateView->isVisible()) {
         return;
     } else {
-        addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
+        addDockWidget(Qt::LeftDockWidgetArea, m_gateView);
         m_gateView->show();
     }
 }

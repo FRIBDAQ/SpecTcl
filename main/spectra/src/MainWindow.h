@@ -37,7 +37,6 @@ class MainWindow;
 namespace Viewer
 {
 
-
 // Forward declarations
 class SpectrumView;
 class HistogramView;
@@ -91,22 +90,51 @@ public:
 public slots:
 
     /*!
-     * \brief onConnect
+     * \brief onConfigure
      */
     void onConfigure();
+
+    /*!
+     * \brief Make the histogram view visible
+     */
     void dockHistograms();
+
+    /*!
+     * \brief Make the gate manager visible
+     */
     void dockGates();
 
+    /*!
+     * \brief Launch the dialog to create a new histogram
+     */
     void onNewHistogram();
+
+    ///////////////////////////////////////////////////////////////////////////
+
+private:
+    /*!
+     * \brief Build the main window into a megawidget
+     */
+    void assembleWidgets();
+
+    /*!
+     * \brief Creates and adds the interface observers to the m_specTclControl
+     */
+    void addInterfaceObservers();
+
+    /*!
+     * \brief Connect the signals and slots
+     */
+    void connectSignalsAndSlots();
 
     ///////////////////////////////////////////////////////////////////////////
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;
-    SpectrumView                      *m_pView;
-    HistogramView                     *m_histView;
-    DockableGateManager               *m_gateView;
-    SpecTclInterfaceControl           m_specTclControl;
-    ControlPanel                      *m_pControls;
+    SpectrumView                      *m_pView;         ///< viewer
+    HistogramView                     *m_histView;      ///< dockable histogram widget
+    DockableGateManager               *m_gateView;      ///< dockable gate widget
+    ControlPanel                      *m_pControls;     ///< button panel
+    SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
 };
 
 
