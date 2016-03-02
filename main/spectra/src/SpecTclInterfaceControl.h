@@ -23,16 +23,52 @@ public:
 
     SpecTclInterfaceControl(std::shared_ptr<SpecTclInterface> pInterface);
 
+    /*!
+     * \brief getInterface
+     * \return pointer to the interface maintained by this
+     */
     std::shared_ptr<SpecTclInterface> getInterface() const {
         return m_pInterface;
     }
 
+    /*!
+     * \brief Pass in a new interface
+     *
+     * \param pInterface the new interface
+     *
+     * The interface has two bits of state that are copied appropriately
+     * to the new interface. The new interface is set up to have the same polling
+     * state as the old interface.
+     */
     void setInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
+    /*!
+     * \brief addSpecTclInterfaceObserver
+     *
+     * \param pObserver  the observer
+     *
+     *  The ownership is transferred from the caller to this.
+     */
     void addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver);
 
+    /*!
+     * \brief Adds a generic spectcl interface observer
+     *
+     * \param obj   reference to object requiring notification
+     *
+     * This is really a convenience method for adding SpecTclInterfaceObservers.
+     * It leverages the GenericSpecTclInterfaceObserver template to wrap the
+     * object passed in. The only thing required of the object of type T is that
+     * it defines a method setSpecTclInterface(std::shared_ptr<SpecTclInterface>).
+     */
     template<class T> void addGenericSpecTclInterfaceObserver(T& obj);
 
+    /*!
+     * \brief Notify observers of a change in SpecTclInterface
+     *
+     * The update() method of the interface observers is called for all known
+     * observers in the order they were added.
+     */
     void notifyObservers();
 
 private:
