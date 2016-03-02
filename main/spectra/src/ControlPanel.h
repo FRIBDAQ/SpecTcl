@@ -37,34 +37,103 @@ namespace Viewer
   class SpecTclInterface;
   class SpectrumView;
 
+
+  /*!
+ * \brief The ControlPanel class
+ *
+ * The megawidget that contains the update selected, update all, refresh,
+ * and geometry selector controls.
+ *
+ * This also implements the requisite methods to be used in the
+ * GenericSpecTclInterfaceObserver class.
+ *
+ */
 class ControlPanel : public QWidget
 {
     Q_OBJECT
     
 public:
+    /*!
+     * \brief Constructor
+     *
+     * \param pSpecTcl  reference to the spectcl interface
+     * \param pView     the viewer widget
+     * \param parent    the owning widget
+     *
+     * The megawidget is constructed.
+     */
     explicit ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
                           SpectrumView* pView, QWidget *parent = 0);
+
+    /*!
+     * Destructor
+     */
     ~ControlPanel();
 
+    /*!
+     * \brief Pass in a new SpecTclInterface to use
+     *
+     * \param pSpecTcl  the new interface
+     */
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
+
+    //////////////////////////////////////////////////////////////////////////
 public slots:
+    /*!
+     * \brief Logic for "update selected" button
+     *
+     * Makes a direct call to SpecTclInterface
+     */
     void onUpdateSelected();
+
+    /*!
+     * \brief Logic for "update all" button
+     *
+     * Makes a direct call to SpecTclInterface
+     */
     void onUpdateAll();
-    void onColumnCountChanged(int);
-    void onRowCountChanged(int);
+
+    /*!
+     * \brief Logic for "refresh" button
+     */
     void onRefresh();
 
+    /*!
+     * \brief Logic for when column count changes
+     */
+    void onColumnCountChanged(int);
+
+    /*!
+     * \brief Logic for when row count changes
+     */
+    void onRowCountChanged(int);
+
+
+    ///////////////////////////////////////////////////////////////////////////
 signals:
-    void updateSelected();
-    void updateAll();
+
+    /*!
+     * \brief geometryChanged
+     *
+     * \param nRows     the new number of rows
+     * \param nCols     the new number of columns
+     *
+     * The MultiSpectrumView will receive these signals.
+     */
     void geometryChanged(int nRows, int nCols);
 
+    //////////////////////////////////////////////////////////////////////////
+    // Helper methods
 private:
-    Ui::ControlPanel *ui;
-    GeometrySelector* m_pGeoSelector;
-    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
-    SpectrumView* m_pView;
+    void connectSignalsAndSlots();
+    void assembleWidgets();
+
+private:
+    Ui::ControlPanel                    *ui;
+    GeometrySelector                    *m_pGeoSelector;
+    std::shared_ptr<SpecTclInterface>   m_pSpecTcl;
+    SpectrumView*                       m_pView;
 };
 
 } // end of namespace

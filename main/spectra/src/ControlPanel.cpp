@@ -34,6 +34,8 @@ using namespace std;
 namespace Viewer
 {
 
+
+
 ControlPanel::ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
                            SpectrumView *pView, QWidget *parent) :
     QWidget(parent),
@@ -42,23 +44,31 @@ ControlPanel::ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_pSpecTcl(pSpecTcl),
     m_pView(pView)
 {
+    assembleWidgets();
+
+    connectSignalsAndSlots();
+}
+
+ControlPanel::~ControlPanel()
+{
+    delete ui;
+}
+
+void ControlPanel::assembleWidgets()
+{
     ui->setupUi(this);
 
     ui->horizontalLayout->insertWidget(0, m_pGeoSelector, 0, Qt::AlignLeft);
+}
 
-    // at the moment we will deal with these independently... ultimately the user should
-    // accept their
+void ControlPanel::connectSignalsAndSlots()
+{
     connect(m_pGeoSelector, SIGNAL(rowCountChanged(int)), this, SLOT(onRowCountChanged(int)));
     connect(m_pGeoSelector, SIGNAL(columnCountChanged(int)), this, SLOT(onColumnCountChanged(int)));
 
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
     connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
-}
-
-ControlPanel::~ControlPanel()
-{
-    delete ui;
 }
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
