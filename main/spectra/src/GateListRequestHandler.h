@@ -26,39 +26,73 @@
 #include <GateInfo.h>
 
 #include <QObject>
+#include <QNetworkAccessManager>
 
 #include <vector>
 #include <memory>
 
+//Forward declarations
 class QNetworkReply;
-class QNetworkAccessManager;
+
 
 namespace Viewer
 {
 
+// Forward declarations
 class HistogramView;
 
+
+/*!
+ * \brief The GateListRequestHandler class
+ *
+ * Provides the logic for requesting the list of known gates and also
+ * for handling the response of the server.
+ *
+ */
 class GateListRequestHandler : public QObject
 {
     Q_OBJECT
 public:
     explicit GateListRequestHandler(QObject *parent = 0);
     
-
+    /////////////////////////////////////////////////////////////////////////
 public slots:
+    /*!
+     * \brief Perform the request operation
+     */
     void get();
+
+    /*!
+     * \brief Handle the response of the server
+     *
+     * \param reply     the server's response
+     *
+     *  This is connected with the finished() signal of the network access manager
+     *  during construction.
+     *
+     * This results in the emission of the parseCompleted signal. An error
+     * simply causes the parseCompleted signal to contain an empty vector.
+     */
     void finishedSlot(QNetworkReply* reply);
 
+    /////////////////////////////////////////////////////////////////////////
 signals:
-    void parseCompleted(std::vector<SpJs::GateInfo*> gateList);
+     void parseCompleted(std::vector<SpJs::GateInfo*> gateList);
+
+     /////////////////////////////////////////////////////////////////////////
+private:
+    /*!
+     * \brief Transform the list of unique_ptr to bare pointers
+     *
+     * The signals/slot mechanism does't support unique_ptr so much because I cannot
+     * copy a unique_ptr. For that reason, we need to release all of the unique_ptrs
+     * and then move the pointer it used to hold into a new vector.
+     */
+    std::vector<SpJs::GateInfo*> 
+      deUniquifyVectorContents(std::vector<std::unique_ptr<SpJs::GateInfo>>& vect);
 
 private:
-    std::vector<SpJs::GateInfo*> 
-      deuniquify_vector_contents(std::vector<std::unique_ptr<SpJs::GateInfo>>& vect);
-
-    QNetworkReply*         m_pReply;
-    QNetworkAccessManager* m_pNAM;
-    HistogramView*         m_view;
+    std::unique_ptr<QNetworkAccessManager> m_pNAM;
 };
 
 } // end of namespace

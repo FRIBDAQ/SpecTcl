@@ -23,36 +23,53 @@
 #ifndef GEOMETRYSELECTOR_H
 #define GEOMETRYSELECTOR_H
 
-#include <QWidget>
+#include "ui_GeometrySelector.h"
 
-namespace Ui {
-class GeometrySelector;
-}
+#include <QWidget>
+#include <memory>
 
 namespace Viewer
 {
 
+/*!
+ * \brief The GeometrySelector class
+ *
+ * A simple widget that combines two spinboxes together. It is
+ * intended to be used for selecting the grid dimensions of the
+ * MultiSpectrumView.
+ */
 class GeometrySelector : public QWidget
 {
     Q_OBJECT
     
 public:
+    /*!
+     * \brief GeometrySelector
+     * \param parent
+     */
     explicit GeometrySelector(QWidget *parent = 0);
+
+    /*!
+     * Destructor
+     */
     ~GeometrySelector();
     
     int getRowCount() const;
     int getColumnCount() const;
 
+    //////////////////////////////////////////////////////////////////////////
 public slots:
     void onRowCountChanged(int nRows);
     void onColumnCountChanged(int nColumns);
 
+    //////////////////////////////////////////////////////////////////////////
 signals:
     void rowCountChanged(int nRows);
     void columnCountChanged(int nColumns);
 
+    //////////////////////////////////////////////////////////////////////////
 private:
-    Ui::GeometrySelector *ui;
+    std::unique_ptr<Ui::GeometrySelector> ui;
 };
 
 

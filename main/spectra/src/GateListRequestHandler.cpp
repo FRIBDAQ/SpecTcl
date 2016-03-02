@@ -38,17 +38,19 @@ using namespace std;
 namespace Viewer
 {
 
+//
+//
 GateListRequestHandler::GateListRequestHandler(QObject *parent) :
     QObject(parent),
-    m_pReply(nullptr),
-    m_pNAM(new QNetworkAccessManager),
-    m_view(nullptr)
+    m_pNAM(new QNetworkAccessManager)
 {
 
-  connect(m_pNAM, SIGNAL(finished(QNetworkReply*)),
+    connect(m_pNAM.get(), SIGNAL(finished(QNetworkReply*)),
           this, SLOT(finishedSlot(QNetworkReply*)));
 }
 
+//
+//
 void GateListRequestHandler::get()
 {
     QString host = GlobalSettings::getServerHost();
@@ -58,9 +60,11 @@ void GateListRequestHandler::get()
 
     QUrl url(urlStr);
 
-    m_pReply = m_pNAM->get(QNetworkRequest(url));
+    m_pNAM->get(QNetworkRequest(url));
 }
 
+//
+//
 void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 {
     auto  error = reply->error();
@@ -81,7 +85,7 @@ void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 
             auto uniqueContent = SpJs::GateCmdParser().parseList(value);
 
-            auto notUniqueContent = deuniquify_vector_contents(uniqueContent);
+            auto notUniqueContent = deUniquifyVectorContents(uniqueContent);
 
             emit parseCompleted(notUniqueContent);
 
@@ -93,7 +97,6 @@ void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 
         }
 
-
     } else {
 
         emit parseCompleted(vector<SpJs::GateInfo*>());
@@ -103,22 +106,22 @@ void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 
 // Steal the pointers of the argument
 vector<SpJs::GateInfo*> 
-GateListRequestHandler::deuniquify_vector_contents(vector<unique_ptr<SpJs::GateInfo> >& unq_content)
+GateListRequestHandler::deUniquifyVectorContents(
+        vector<unique_ptr<SpJs::GateInfo> >& unq_content
+        )
 {
-  vector<SpJs::GateInfo*> retList;
+    vector<SpJs::GateInfo*> retList(unq_content.size());
 
-  retList.reserve(unq_content.size());
+    auto it     = unq_content.begin();
+    auto it_end = unq_content.end();
+    while (it != it_end) {
 
-  auto it = unq_content.begin();
-  auto it_end = unq_content.end();
-  while (it != it_end) {
-    
-    retList.push_back(it->release());
+        retList.push_back(it->release());
 
-    ++it;
-  }
+        ++it;
+    }
 
-  return retList;
+    return retList;
 }
 
 

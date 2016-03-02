@@ -51,7 +51,7 @@ class MasterGateList;
 
 /*! \brief Graphical object that owns all gates 
  *
- * THis is a dockable widget. It provides buttons for the user
+ * Tis is a dockable widget. It provides buttons for the user
  * to select a gate to edit and also delete. It then also enables
  * the user to create new gates for the histogram in focus.
  *
