@@ -8,7 +8,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   QRootDialog.h  \
   QRootApplication.h  \
   QRootWindow.h  \
-  mainwindow.h  \
+  MainWindow.h  \
   ConnectServer.h  \
   SpectrumViewer.h  \
   Singleton.h   \
@@ -56,7 +56,7 @@ libSpectra_la_SOURCES = \
   QRootDialog.cpp \
   QRootApplication.cpp \
   QRootWindow.cpp \
-  mainwindow.cpp \
+  MainWindow.cpp \
   ConnectServer.cpp  \
   HistogramList.cpp  \
   ContentRequestHandler.cpp  \
@@ -105,7 +105,7 @@ libSpectra_la_SOURCES = \
 	moc_GateBuilder1DDialog.cpp \
 	moc_ConnectServer.cpp \
 	moc_QRootWindow.cpp \
-	moc_mainwindow.cpp \
+	moc_MainWindow.cpp \
 	moc_TGo4CreateNewHistogram.cpp \
 	moc_SpecTclRESTInterface.cpp \
 	moc_SpectrumViewer.cpp \
@@ -124,7 +124,7 @@ libSpectra_la_SOURCES = \
 	moc_SpecTclShMemInterface.cpp \
 	qrc_resources.cpp
 
-spectraFORMS =  mainwindow.ui  \
+spectraFORMS =  MainWindow.ui  \
   ConnectServer.ui  \
   SpectrumViewer.ui  \
   HistogramList.ui  \

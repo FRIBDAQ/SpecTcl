@@ -72,10 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
                                          m_specTclControl.getInterface(), this);
 
     // Register the SpecTcl interface observers
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pControls);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
+    addInterfaceObservers();
 
     // start polling for  histogram information
     m_specTclControl.getInterface()->enableHistogramInfoPolling(true);
@@ -86,6 +83,21 @@ MainWindow::MainWindow(QWidget *parent) :
     createDockWindows();
 
     // set up connections
+    connectSignalsAndSlots();
+}
+
+
+void MainWindow::addInterfaceObservers()
+{
+    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
+    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pControls);
+    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
+    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
+}
+
+
+void MainWindow::connectSignalsAndSlots()
+{
     connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
     connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
             m_pView,SLOT(drawHistogram(HistogramBundle*)));
@@ -93,11 +105,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
-    connect(m_pControls, SIGNAL(geometryChanged(int, int)), 
+    connect(m_pControls, SIGNAL(geometryChanged(int, int)),
             m_pView, SLOT(onGeometryChanged(int, int)));
     connect(m_specTclControl.getInterface().get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
 }
+
 
 void MainWindow::onConnect() {
     ConnectDialog dialog(*this);
