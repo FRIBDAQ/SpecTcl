@@ -5,6 +5,9 @@
 
 namespace Viewer {
 
+// Forward declarations
+class SpecTclInterface;
+
 /// \class SpecTclInterfaceObserver
 ///
 /// There should be be a single instance of the SpecTclInterface that exists at

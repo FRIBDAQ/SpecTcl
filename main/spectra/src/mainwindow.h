@@ -23,10 +23,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include "SpecTclInterfaceControl.h"
 
-#include <memory>
-#include <list>
+#include <QMainWindow>
 
 namespace Ui {
 class MainWindow;
@@ -39,7 +38,6 @@ class SpectrumView;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
-class SpecTclInterfaceObserver;
 class ControlPanel;
 
 class MainWindow : public QMainWindow
@@ -54,10 +52,6 @@ public:
 
     void setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface);
 
-    void addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver);
-
-    void notifyObservers();
-
 public slots:
     void onConnect();
     void dockHistograms();
@@ -65,16 +59,11 @@ public slots:
     void onNewHistogram();
 
 private:
-    template<class T> void addGenericSpecTclInterfaceObserver(T& obj);
-
-
-
-private:
     Ui::MainWindow                    *ui;
     SpectrumView                      *m_pView;
     HistogramView                     *m_histView;
     DockableGateManager               *m_gateView;
-    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
+    SpecTclInterfaceControl           m_specTclControl;
     ControlPanel                      *m_pControls;
 };
 

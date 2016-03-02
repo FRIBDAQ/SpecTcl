@@ -1,13 +1,14 @@
 #ifndef VIEWER_SPECTCLINTERFACECONTROL_H
 #define VIEWER_SPECTCLINTERFACECONTROL_H
 
+#include "SpecTclInterfaceObserver.h"
+
 #include <list>
 #include <memory>
 
 namespace Viewer {
 
 class SpecTclInterface;
-class SpecTclInterfaceObserver;
 
 /*!
  * \brief The SpecTclInterfaceControl class
@@ -26,7 +27,7 @@ public:
         return m_pInterface;
     }
 
-    void setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface);
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
     void addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver);
 

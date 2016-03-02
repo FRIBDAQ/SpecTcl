@@ -8,7 +8,6 @@
 #include "Asserts.h"
 
 #include "mainwindow.h"
-#include "SpecTclInterfaceObserver.h"
 
 #include <iostream>
 #include <algorithm>
@@ -20,26 +19,12 @@ using namespace std;
 namespace Viewer
 {
 
-class FakeObserver : public SpecTclInterfaceObserver {
-private:
-    bool m_updated;
-    public:
-    FakeObserver() : m_updated(false) {}
-
-    void update(std::shared_ptr<SpecTclInterface> pInterface) {
-        m_updated = true;
-    }
-
-    bool getUpdated() const { return m_updated; }
-};
-
 class MainWindowTest : public CppUnit::TestFixture
 {
   private:
 
   public:
     CPPUNIT_TEST_SUITE( MainWindowTest );
-    CPPUNIT_TEST( notifyObservers_0 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -47,18 +32,6 @@ class MainWindowTest : public CppUnit::TestFixture
 
     }
     void tearDown() {
-    }
-
-    void notifyObservers_0() {
-
-        MainWindow main;
-        unique_ptr<SpecTclInterfaceObserver> pObserver(new FakeObserver);
-        FakeObserver* pObs = dynamic_cast<FakeObserver*>(pObserver.get());
-        main.addSpecTclInterfaceObserver( move(pObserver) );
-
-        main.notifyObservers();
-
-        EQMSG("Registered observers should be notified", true, pObs->getUpdated());
     }
 
 };

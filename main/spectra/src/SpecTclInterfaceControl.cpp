@@ -1,5 +1,7 @@
 #include "SpecTclInterfaceControl.h"
 
+#include "SpecTclInterface.h"
+
 namespace Viewer {
 
 SpecTclInterfaceControl::SpecTclInterfaceControl(std::shared_ptr<SpecTclInterface> pInterface)
@@ -8,10 +10,15 @@ SpecTclInterfaceControl::SpecTclInterfaceControl(std::shared_ptr<SpecTclInterfac
 {
 }
 
-void SpecTclInterfaceControl::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
+void SpecTclInterfaceControl::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
+    bool gatePollingEnabled = m_pInterface->gatePollingEnabled();
+    bool histPollingEnabled = m_pInterface->histogramInfoPollingEnabled();
 
-    m_pInterface = std::shared_ptr<SpecTclInterface>( std::move(pInterface) );
+    m_pInterface = pInterface;
+
+    m_pInterface->enableGatePolling(gatePollingEnabled);
+    m_pInterface->enableHistogramInfoPolling(histPollingEnabled);
 
     notifyObservers();
 }
@@ -24,7 +31,7 @@ void SpecTclInterfaceControl::addSpecTclInterfaceObserver(std::unique_ptr<SpecTc
 void SpecTclInterfaceControl::notifyObservers()
 {
     for(auto& pObserver : m_interfaceObservers) {
-        pObserver->update(m_pSpecTcl);
+        pObserver->update(m_pInterface);
     }
 }
 
