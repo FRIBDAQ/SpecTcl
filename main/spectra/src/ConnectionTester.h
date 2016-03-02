@@ -11,6 +11,13 @@
 namespace Viewer
 {
 
+/*!
+ * \brief The ConnectionTester class
+ *
+ * This class is a convenience class that will check for connectivity. It
+ * attempts to make some simple request of the REST server and then determines
+ * whether it is connected based on the response.
+ */
 class ConnectionTester : public QObject
 {
     Q_OBJECT
