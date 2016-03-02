@@ -32,6 +32,14 @@ namespace Viewer
 class GSlice;
 class GGate;
 
+/*!
+ * \brief The GateDeleteRequest class
+ *
+ * This is a simple encapsulation of the logic for creating a delete
+ * request. It allows the user to define the request in terms of simple name,
+ * a GGate, or a GSlice.
+ *
+ */
 class GateDeleteRequest
 {
 public:
@@ -39,6 +47,10 @@ public:
     GateDeleteRequest(const GGate &cut);
     GateDeleteRequest(const GSlice& cut);
 
+    /*!
+     * \brief Retrieve the url
+     * \return the url containing the request
+     */
     QUrl toUrl();
 
 private:
