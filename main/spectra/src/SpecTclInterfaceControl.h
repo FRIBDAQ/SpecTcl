@@ -27,7 +27,7 @@ public:
         return m_pInterface;
     }
 
-    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface);
+    void setInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
     void addSpecTclInterfaceObserver(std::unique_ptr<SpecTclInterfaceObserver> pObserver);
 

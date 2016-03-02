@@ -59,17 +59,17 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the SpecTcl interface as a shared_ptr (it will live on outside of
     // this scope
     SpecTclInterfaceFactory factory;
-    std::shared_ptr<SpecTclInterface> pInterface( factory.create(SpecTclInterfaceFactory::Hybrid));
-    m_specTclControl.setSpecTclInterface(pInterface);
+    m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
 
-    m_pView = new TabbedMultiSpectrumView(pInterface, ui->frame);
-    m_pControls = new ControlPanel(pInterface, m_pView, ui->frame);
+    m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), ui->frame);
+    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, ui->frame);
 
     ui->gridLayout->addWidget(m_pView);
     ui->gridLayout->addWidget(m_pControls);
 
-    m_histView = new HistogramView(pInterface, this);
-    m_gateView = new DockableGateManager(*m_pView, pInterface, this);
+    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
+    m_gateView = new DockableGateManager(*m_pView,
+                                         m_specTclControl.getInterface(), this);
 
     // Register the SpecTcl interface observers
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
@@ -78,22 +78,24 @@ MainWindow::MainWindow(QWidget *parent) :
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
 
     // start polling for  histogram information
-    pInterface->enableHistogramInfoPolling(true);
+    m_specTclControl.getInterface()->enableHistogramInfoPolling(true);
 
     // with everything set up that depends on gates, start gate polling.
-    pInterface->enableGatePolling(true);
+    m_specTclControl.getInterface()->enableGatePolling(true);
 
     createDockWindows();
 
+    // set up connections
     connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
-    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),m_pView,SLOT(drawHistogram(HistogramBundle*)));
+    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
+            m_pView,SLOT(drawHistogram(HistogramBundle*)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
     connect(m_pControls, SIGNAL(geometryChanged(int, int)), 
             m_pView, SLOT(onGeometryChanged(int, int)));
-    connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+    connect(m_specTclControl.getInterface().get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
 }
 
@@ -119,8 +121,7 @@ void MainWindow::createDockWindows()
 
 void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
 {
-    std::shared_ptr<SpecTclInterface> pShared( std::move(pInterface) );
-    m_specTclControl.setSpecTclInterface(pShared);
+    m_specTclControl.setInterface( std::move(pInterface) );
 
     // connect the new signal-slots
     connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),

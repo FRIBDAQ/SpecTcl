@@ -10,7 +10,7 @@ SpecTclInterfaceControl::SpecTclInterfaceControl(std::shared_ptr<SpecTclInterfac
 {
 }
 
-void SpecTclInterfaceControl::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
+void SpecTclInterfaceControl::setInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
     bool gatePollingEnabled = m_pInterface->gatePollingEnabled();
     bool histPollingEnabled = m_pInterface->histogramInfoPollingEnabled();
