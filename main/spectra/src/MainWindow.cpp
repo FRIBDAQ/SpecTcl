@@ -44,6 +44,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 namespace Viewer
 {
 
+
+//
+//
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -54,22 +57,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
     setWindowIconText("Spectra");
 
-    GlobalSettings::setSessionMode(1);
+    assembleWidgets();
 
     // Create the SpecTcl interface as a shared_ptr (it will live on outside of
     // this scope
-    SpecTclInterfaceFactory factory;
-    m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
-
-    m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), ui->frame);
-    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, ui->frame);
-
-    ui->gridLayout->addWidget(m_pView);
-    ui->gridLayout->addWidget(m_pControls);
-
-    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
-    m_gateView = new DockableGateManager(*m_pView,
-                                         m_specTclControl.getInterface(), this);
+    constructSpecTclInterface();
 
     // Register the SpecTcl interface observers
     addInterfaceObservers();
@@ -80,13 +72,36 @@ MainWindow::MainWindow(QWidget *parent) :
     // with everything set up that depends on gates, start gate polling.
     m_specTclControl.getInterface()->enableGatePolling(true);
 
-    createDockWindows();
-
     // set up connections
     connectSignalsAndSlots();
 }
 
+//
+//
+void MainWindow::constructSpecTclInterface()
+{
+    GlobalSettings::setSessionMode(1);
+    SpecTclInterfaceFactory factory;
+    m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+}
 
+//
+//
+void assembleWidgets()
+{
+
+    // Create the main layout
+    m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), ui->frame);
+    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, ui->frame);
+
+    ui->gridLayout->addWidget(m_pView);
+    ui->gridLayout->addWidget(m_pControls);
+
+    createDockWindows();
+}
+
+//
+//
 void MainWindow::addInterfaceObservers()
 {
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
@@ -96,9 +111,11 @@ void MainWindow::addInterfaceObservers()
 }
 
 
+//
+//
 void MainWindow::connectSignalsAndSlots()
 {
-    connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
+    connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConfigure()));
     connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
             m_pView,SLOT(drawHistogram(HistogramBundle*)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
@@ -112,18 +129,28 @@ void MainWindow::connectSignalsAndSlots()
 }
 
 
-void MainWindow::onConnect() {
+//
+//
+void MainWindow::onConfigure() {
     ConnectDialog dialog(*this);
     dialog.exec();
 }
 
+//
+//
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+//
+//
 void MainWindow::createDockWindows()
 {
+    // Create the dockable widgets
+    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
+    m_gateView = new DockableGateManager(*m_pView,
+                                         m_specTclControl.getInterface(), this);
 
     m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
     m_gateView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
@@ -132,6 +159,8 @@ void MainWindow::createDockWindows()
     addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
 }
 
+//
+//
 void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
 {
     m_specTclControl.setInterface( std::move(pInterface) );
@@ -142,6 +171,8 @@ void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterfac
 
 }
 
+//
+//
 void MainWindow::dockHistograms()
 {
     if (m_histView->isVisible()) {
@@ -152,6 +183,8 @@ void MainWindow::dockHistograms()
     }
 }
 
+//
+//
 void MainWindow::dockGates()
 {
     if (m_gateView->isVisible()) {
@@ -162,6 +195,8 @@ void MainWindow::dockGates()
     }
 }
 
+//
+//
 void MainWindow::onNewHistogram()
 {
   try {
