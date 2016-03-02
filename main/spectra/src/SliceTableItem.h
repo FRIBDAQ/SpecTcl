@@ -33,7 +33,13 @@ namespace Viewer
 
 class QTLine;
 
-
+/*!
+ * \brief The SliceTableItem class
+ *
+ * A custom QListWidgetItem to store a GSlice. It also provides
+ * some convenience methods to deal with the slice.
+ *
+ */
 class SliceTableItem : public QListWidgetItem
 {
 
