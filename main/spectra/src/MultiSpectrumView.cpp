@@ -335,7 +335,6 @@ void MultiSpectrumView::refreshAll()
 
 void MultiSpectrumView::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
-    std::cout << "Removed hist @ " << static_cast<void*>(pHistBundle) << std::endl;
 }
 
 
