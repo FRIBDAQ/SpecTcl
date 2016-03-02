@@ -35,9 +35,23 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_pLayout->addWidget(m_pCurrentCanvas, 0, 0);
     m_pCurrentCanvas->cd();
 
+
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
 
+}
+
+MultiSpectrumView::~MultiSpectrumView()
+{
+    for (int col=0; col<m_currentNColumns; col++) {
+        for (int row=0; row<m_currentNRows; row++) {
+            auto pItem = m_pLayout->itemAtPosition(row,col);
+            if (pItem) {
+                auto pWidget = pItem->widget();
+                delete pWidget;
+            }
+        }
+    }
 }
 
 int MultiSpectrumView::getRowCount() const
@@ -318,10 +332,12 @@ void MultiSpectrumView::refreshAll()
     m_pCurrentCanvas->cd();
 }
 
+
 void MultiSpectrumView::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
     std::cout << "Removed hist @ " << static_cast<void*>(pHistBundle) << std::endl;
 }
+
 
 bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 {
@@ -338,6 +354,7 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 
   return false;
 }
+
 
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
