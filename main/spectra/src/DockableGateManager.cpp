@@ -318,7 +318,6 @@ void DockableGateManager::clearList()
 {
   while ( ui->gateList->count() > 0 ) {
     auto pItem = ui->gateList->item(0);
-    cout << (void*) pItem << endl;
     removeGate(pItem);
   }
 }

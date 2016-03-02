@@ -35,7 +35,6 @@ GateEditRequest::GateEditRequest(const GGate& cut)
     : m_reqStr()
 {
     QString server = GlobalSettings::getServer();
-    std::cout << server.toStdString() << std::endl;
 
     m_reqStr = server + "/spectcl/gate/edit";
     m_reqStr += QString("?name=") + cut.getName();
