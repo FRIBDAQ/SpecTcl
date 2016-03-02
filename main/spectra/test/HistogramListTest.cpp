@@ -37,7 +37,7 @@
 #include "GlobalSettings.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include <GateInfo.h>
 #include <QHistInfo.h>
@@ -272,7 +272,7 @@ void HistogramListTest::addGate_0()
 void HistogramListTest::synchronize_0()
 {
     // populate our gate list
-    GateList list;
+    MasterGateList list;
     list.addCut1D(SpJs::Slice("slice", "xparam", 0, 1));
     list.addCut2D(SpJs::Contour("gate", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}}));
 

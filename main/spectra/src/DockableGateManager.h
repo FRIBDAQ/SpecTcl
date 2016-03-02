@@ -46,7 +46,7 @@ class SpectrumView;
 class SpecTclInterface;
 class GGate;
 class GSlice;
-class GateList;
+class MasterGateList;
 
 
 /*! \brief Graphical object that owns all gates 

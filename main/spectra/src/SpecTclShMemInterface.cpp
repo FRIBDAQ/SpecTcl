@@ -102,7 +102,7 @@ bool SpecTclShMemInterface::gatePollingEnabled() const {
     return m_pRESTInterface->gatePollingEnabled();
 }
 
-GateList* SpecTclShMemInterface::getGateList()
+MasterGateList* SpecTclShMemInterface::getGateList()
 {
     return m_pRESTInterface->getGateList();
 }

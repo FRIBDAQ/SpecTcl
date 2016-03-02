@@ -27,7 +27,7 @@
 #include "GateEditComHandler.h"
 #include "CommonResponseHandler.h"
 #include "GateListRequestHandler.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 #include "HistogramList.h"
 #include "ListRequestHandler.h"
 #include "ContentRequestHandler.h"
@@ -135,7 +135,7 @@ public:
      *
      * \return pointer to the gate list for this SpecTcl interface
      */
-    GateList* getGateList() { return m_pGateList.get(); }
+    MasterGateList* getGateList() { return m_pGateList.get(); }
 
     ///////////////////////////////////////////////////////////////////////////
     // Histogram (Spectrum) operations
@@ -197,7 +197,7 @@ public slots:
     void onHistogramContentUpdated(HistogramBundle* pBundle);
 
 private:
-    std::unique_ptr<GateList> m_pGateList;
+    std::unique_ptr<MasterGateList> m_pGateList;
     std::unique_ptr<HistogramList> m_pHistList;
     std::unique_ptr<GateEditComHandler> m_pGateEditCmd;
     std::unique_ptr<CommonResponseHandler> m_pCommonHandler;

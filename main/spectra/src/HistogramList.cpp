@@ -21,7 +21,7 @@
 //    East Lansing, MI 48824-1321
 
 #include "HistogramList.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 #include "GSlice.h"
 #include "GGate.h"
 #include "SpecTclInterface.h"
@@ -170,7 +170,7 @@ void HistogramList::removeGate(const GGate& gate)
   }
 }
 
-void HistogramList::synchronize(const GateList& list)
+void HistogramList::synchronize(const MasterGateList& list)
 {
 
   for (auto& bundlePair : m_hists) {
@@ -182,7 +182,7 @@ void HistogramList::synchronize(const GateList& list)
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e)
+void HistogramList::synchronize1d(MasterGateList::iterator1d b, MasterGateList::iterator1d e)
 {
     auto it = begin();
     auto it_end = end();
@@ -211,7 +211,7 @@ void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e)
+void HistogramList::synchronize2d(MasterGateList::iterator2d b, MasterGateList::iterator2d e)
 {
     auto it = begin();
     auto it_end = end();

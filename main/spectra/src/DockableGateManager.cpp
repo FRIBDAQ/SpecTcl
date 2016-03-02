@@ -30,7 +30,7 @@
 #include "HistogramList.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include "SliceTableItem.h"
 #include "GateListItem.h"

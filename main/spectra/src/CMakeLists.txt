@@ -60,7 +60,7 @@ set(spectra_HEADERS
   DockableGateManager.h 
   GateBuilderDialog.h 
   HistogramBundle.h 
-  GateList.h 
+  MasterGateList.h 
   GateBuilder1DDialog.h 
   SliceTableItem.h 
   GateListItem.h

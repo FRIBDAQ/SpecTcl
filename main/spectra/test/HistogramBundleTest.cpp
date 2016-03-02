@@ -37,7 +37,7 @@
 #include "GlobalSettings.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include <GateInfo.h>
 #include <QHistInfo.h>
@@ -60,7 +60,7 @@ class HistogramBundleTest : public CppUnit::TestFixture
 {
   private:
     unique_ptr<HistogramBundle> m_pHist0;
-    unique_ptr<GateList> m_pGateList;
+    unique_ptr<MasterGateList> m_pGateList;
 
   public:
     CPPUNIT_TEST_SUITE( HistogramBundleTest );
@@ -94,7 +94,7 @@ void HistogramBundleTest::setUp()
                                      std::move(pHist0), 
                                      info0));
 
-  m_pGateList.reset(new GateList);
+  m_pGateList.reset(new MasterGateList);
 
 }
 

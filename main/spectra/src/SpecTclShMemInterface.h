@@ -134,7 +134,7 @@ public:
      *
      * \return pointer to the gate list for this SpecTcl interface
      */
-    virtual GateList* getGateList();
+    virtual MasterGateList* getGateList();
 
     ///////////////////////////////////////////////////////////////////////////
     // Histogram (Spectrum) operations

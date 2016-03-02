@@ -24,7 +24,7 @@
 #define HISTOGRAMLIST_H
 
 #include "HistogramBundle.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include <QFrame>
 #include <QString>
@@ -75,9 +75,9 @@ public:
 
     void clearCuts();
 
-    void synchronize(const GateList& pList);
-    void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
-    void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
+    void synchronize(const MasterGateList& pList);
+    void synchronize1d(MasterGateList::iterator1d begin, MasterGateList::iterator1d end);
+    void synchronize2d(MasterGateList::iterator2d begin, MasterGateList::iterator2d end);
 
     bool update(const std::vector<SpJs::HistInfo>& hists);
 

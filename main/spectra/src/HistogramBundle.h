@@ -39,7 +39,7 @@ namespace Viewer
 
 class GGate;
 class GSlice;
-class GateList;
+class MasterGateList;
 
 /*! \brief Collection of a histogram and its cuts
  *
@@ -93,7 +93,7 @@ public:
     // Draw the histogram.
     void draw(const QString& opt = QString());
 
-    bool synchronizeGates(const GateList* pGateList);
+    bool synchronizeGates(const MasterGateList* pGateList);
 };
 
 } // end of namespace

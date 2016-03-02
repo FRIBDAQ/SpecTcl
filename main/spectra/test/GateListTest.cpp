@@ -30,7 +30,7 @@
 
 #define private public
 #define protected public
-#include "GateList.h"
+#include "MasterGateList.h"
 #undef protected 
 #undef private
 
@@ -56,7 +56,7 @@ namespace Viewer
 class GateListTest : public CppUnit::TestFixture
 {
   private:
-    unique_ptr<GateList> m_pGateList;
+    unique_ptr<MasterGateList> m_pGateList;
 
   public:
     CPPUNIT_TEST_SUITE( GateListTest );
@@ -73,7 +73,7 @@ class GateListTest : public CppUnit::TestFixture
 
   public:
     void setUp() {
-      m_pGateList.reset(new GateList);
+      m_pGateList.reset(new MasterGateList);
     }
     void tearDown() {
     }

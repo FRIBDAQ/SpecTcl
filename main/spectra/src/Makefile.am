@@ -23,7 +23,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   DockableGateManager.h  \
   GateBuilderDialog.h  \
   HistogramBundle.h  \
-  GateList.h  \
+  MasterGateList.h  \
   GateBuilder1DDialog.h  \
   SliceTableItem.h  \
   GateListItem.h \
@@ -68,7 +68,7 @@ libSpectra_la_SOURCES = \
   Compression.cpp  \
   DockableGateManager.cpp  \
   GateBuilderDialog.cpp  \
-  GateList.cpp  \
+  MasterGateList.cpp  \
   HistogramBundle.cpp  \
   GateBuilder1DDialog.cpp  \
   SliceTableItem.cpp  \

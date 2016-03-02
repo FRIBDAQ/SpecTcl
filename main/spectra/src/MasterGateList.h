@@ -20,8 +20,8 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-#ifndef GATELIST_H
-#define GATELIST_H
+#ifndef MASTERGATELIST_H
+#define MASTERGATELIST_H
 
 #include <QString>
 #include <set>
@@ -39,7 +39,19 @@ namespace SpJs
 namespace Viewer
 {
 
-class GateList
+/*!
+ * \brief Centralized ownership of a list of gates
+ *
+ * This supports storage of 1d gates and of 2d gates. The SpecTclInterface
+ * maintains one of these to keep track of all the gates that are known.
+ * Ownership of the gates belongs to this class and all other entities must
+ * use references only.
+ *
+ * This also provides useful lookup methods to find gates.
+ * It also deals with synchronization of gates.
+ *
+ */
+class MasterGateList
 {
   public:
     struct Compare1D {
@@ -60,7 +72,7 @@ class GateList
     using iterator2d = typename container2d_type::iterator;
 
 public:
-    GateList();
+    MasterGateList();
 
     bool synchronize(std::vector<SpJs::GateInfo*> gates);
 
@@ -91,4 +103,4 @@ private:
 
 } // end of namespace
 
-#endif // GATELIST_H
+#endif // MASTERGATELIST_H

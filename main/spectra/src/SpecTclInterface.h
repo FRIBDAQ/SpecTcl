@@ -40,7 +40,7 @@ namespace Viewer
 
 class GSlice;
 class GGate;
-class GateList;
+class MasterGateList;
 class HistogramList;
 class QRootCanvas;
 class HistogramBundle;
@@ -75,7 +75,7 @@ public:
     virtual void enableGatePolling(bool enable) = 0;
     virtual bool gatePollingEnabled() const = 0;
 
-    virtual GateList* getGateList() = 0;
+    virtual MasterGateList* getGateList() = 0;
 
     virtual void enableHistogramInfoPolling(bool enable) = 0;
     virtual bool histogramInfoPollingEnabled() const = 0;

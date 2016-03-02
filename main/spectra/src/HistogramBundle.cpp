@@ -23,7 +23,7 @@
 #include "HistogramBundle.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include <QMutex>
 #include <QMutexLocker>
@@ -93,7 +93,7 @@ void HistogramBundle::draw(const QString& opt) {
     }
 }
 
-bool HistogramBundle::synchronizeGates(const GateList* pGateList)
+bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
 {
   bool somethingChanged = false;
 
