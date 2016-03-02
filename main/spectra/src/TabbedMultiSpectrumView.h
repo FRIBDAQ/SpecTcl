@@ -20,15 +20,42 @@ namespace Viewer
 class MultiSpectrumView;
 class SpecTclInterface;
 
+
+/*!
+ * \brief The TabbedMultiSpectrumView class
+ *
+ * This is a widget that manages the toplevel tabbed viewing experience.
+ * It is responsible for managing the tabs that contain MultiSpectrumViews.
+ * As a derived class of the SpectrumView base class, it implements the standard
+ * interface for SpectrumViews. In doing so, it interprets the requests in terms
+ * of the MultiSpectrumView widget on the currently visible tab.
+ *
+ */
 class TabbedMultiSpectrumView : public SpectrumView
 {
+    // Required to use signal/slot mechanism
     Q_OBJECT
     
 public:
+    /*!
+     * \brief Constructor
+     *
+     * \param pSpecTcl  interface to use
+     * \param parent    parent widget
+     */
     explicit TabbedMultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
                                      QWidget *parent = 0);
-    ~TabbedMultiSpectrumView();
 
+    /*!
+     *  \brief Destructor - does nothing
+     */
+    virtual ~TabbedMultiSpectrumView();
+
+    /*!
+   * \brief addTab
+   * \param title
+   * \return
+   */
   MultiSpectrumView* addTab(const QString& title);
 
   // SpectrumViewer interface
@@ -58,10 +85,10 @@ private:
   void updateCurrentViewToVisibleTab();
 
 private:
-    Ui::TabbedMultiSpectrumView *ui;
-    MultiSpectrumView* m_pCurrentView;
-    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
-    QPushButton*      m_pAddButton;
+    Ui::TabbedMultiSpectrumView       *ui;
+    MultiSpectrumView                 *m_pCurrentView;
+    std::shared_ptr<SpecTclInterface>  m_pSpecTcl;
+    QPushButton                       *m_pAddButton;
 };
 
 
