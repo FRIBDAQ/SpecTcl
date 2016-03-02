@@ -1,5 +1,4 @@
 
-
 lib_LTLIBRARIES = libSpectra.la
 
 bin_PROGRAMS = spectra
@@ -111,9 +110,15 @@ libSpectra_la_SOURCES = \
   moc_GSlice.cpp \
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
+  moc_SpecTclRESTInterface.cpp  \
+  moc_GateEditComHandler.cpp \
+	moc_GateEditRequest.cpp \
   moc_CommonResponseHandler.cpp \
   moc_GateListRequestHandler.cpp \
   moc_QTLine.cpp \
+  moc_ControlPanel.cpp \
+	moc_GeometrySelector.cpp \
+	moc_MultiSpectrumView.cpp \
   moc_ConnectionTester.cpp \
 	moc_HistogramList.cpp \
 	moc_DockableGateManager.cpp \
@@ -222,4 +227,3 @@ spectra_LDADD = @builddir@/libSpectra.la \
 								@QT_LDFLAGS@ @QT_LIBS@ \
 								@TCL_LIBS@
 spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
-
