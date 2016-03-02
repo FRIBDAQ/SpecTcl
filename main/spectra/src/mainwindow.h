@@ -64,6 +64,10 @@ public slots:
     void dockGates();
     void onNewHistogram();
 
+private:
+    template<class T> void addGenericSpecTclInterfaceObserver(T& obj);
+
+
 
 private:
     Ui::MainWindow                    *ui;
@@ -72,9 +76,9 @@ private:
     DockableGateManager               *m_gateView;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     ControlPanel                      *m_pControls;
-
-    std::list<std::unique_ptr<SpecTclInterfaceObserver>> m_interfaceObservers;
 };
+
+
 
 } // end of namespace
 #endif // MAINWINDOW_H
