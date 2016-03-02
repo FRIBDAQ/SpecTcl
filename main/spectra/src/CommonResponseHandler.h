@@ -34,6 +34,14 @@ class QUrl;
 namespace Viewer
 {
 
+/*!
+ * \brief CommonResponseHandler
+ *
+ * This handles requests that require no response handling besides checking
+ * for success. This is useful for operations that don't return information.
+ * For example, a gate edit request uses this.
+ *
+ */
 class CommonResponseHandler : public QObject
 {
     Q_OBJECT
