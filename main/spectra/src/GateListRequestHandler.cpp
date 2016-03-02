@@ -110,7 +110,8 @@ GateListRequestHandler::deUniquifyVectorContents(
         vector<unique_ptr<SpJs::GateInfo> >& unq_content
         )
 {
-    vector<SpJs::GateInfo*> retList(unq_content.size());
+    vector<SpJs::GateInfo*> retList;
+    retList.reserve(unq_content.size());
 
     auto it     = unq_content.begin();
     auto it_end = unq_content.end();
