@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,32 +20,15 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-// $Id: ConnectDialog.h 491 2009-11-04 12:41:22Z linev $
-//-----------------------------------------------------------------------
-//       The GSI Online Offline Object Oriented (Go4) Project
-//         Experiment Data Processing at EE department, GSI
-//-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
-//                     Planckstr. 1, 64291 Darmstadt, Germany
-// Contact:            http://go4.gsi.de
-//-----------------------------------------------------------------------
-// This software can be used under the license agreements as stated
-// in Go4License.txt file which is part of the distribution.
-//-----------------------------------------------------------------------
-
-#ifndef ConnectDialog_H
-#define ConnectDialog_H
+#ifndef ConnectServer_H
+#define ConnectServer_H
 
 
 #include <QDialog>
 #include <QButtonGroup>
+#include <ui_ConnectServer.h>
 
 #include <memory>
-
-// forward declare
-namespace Ui {
-    class ConnectDialog;
-}
 
 namespace Viewer
 {
@@ -75,20 +58,25 @@ public:
      */
     ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent = 0 );
 
+
+    ///////////////////////////////////////////////////////////////////////////
+public slots:
+    void onAccept();
+
+    ///////////////////////////////////////////////////////////////////////////
+private:
     /*!
      * \brief Assemble widgets into the megawidget
      */
     void assembleWidgets();
 
-public slots:
-    void onAccept();
-
-private:
     /*!
      * \brief Commit the settings to the GlobalSettings
      */
     void cacheServerSettings();
 
+    ///////////////////////////////////////////////////////////////////////////
+private:
     std::unique_ptr<Ui::ConnectDialog>   m_pUI;
     SpecTclInterfaceControl             *m_pInterfaceControl;
     QButtonGroup                        *m_pButtonGroup;

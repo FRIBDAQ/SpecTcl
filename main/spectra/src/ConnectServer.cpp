@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -21,21 +21,8 @@
 //    East Lansing, MI 48824-1321
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
-// $Id: ConnectDialog.cpp 478 2009-10-29 12:26:09Z linev $
-//-----------------------------------------------------------------------
-//       The GSI Online Offline Object Oriented (Go4) Project
-//         Experiment Data Processing at EE department, GSI
-//-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
-//                     Planckstr. 1, 64291 Darmstadt, Germany
-// Contact:            http://go4.gsi.de
-//-----------------------------------------------------------------------
-// This software can be used under the license agreements as stated
-// in Go4License.txt file which is part of the distribution.
-//-----------------------------------------------------------------------
 
 #include "ConnectServer.h"
-#include "ui_ConnectServer.h"
 #include "GlobalSettings.h"
 #include "SpecTclInterfaceFactory.h"
 #include "SpecTclInterfaceControl.h"
