@@ -29,6 +29,9 @@ class QByteArray;
 namespace Viewer
 {
 
+/*!
+ *  Functions for handling compression with zlib.
+ */
 namespace Compression
 {
 
