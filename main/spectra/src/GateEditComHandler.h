@@ -34,23 +34,48 @@ class QUrl;
 namespace Viewer
 {
 
+/*!
+ * \brief Interacts with REST server to edit a gate
+ *
+ * This provides the logic for interacting with the REST server
+ * during edit requests. It sends the request and then handles the
+ * response. There is an assumption made that this will take a short amount
+ * of time, because the logic blocks while the waiting for a response.
+ *
+ */
 class GateEditComHandler : public QObject
 {
     Q_OBJECT
 
 public:
+    /*!
+     * \brief Constructor
+     *
+     * \param parent    owner
+     */
     explicit GateEditComHandler(QObject *parent = 0);
     
+    /*!
+     * \brief Send the request, wait for response, process it
+     *
+     * \param req   the request url
+     *
+     * This method blocks until the interaction is complete between the
+     * server and this.
+     */
     void makeRequest(const QUrl& req);
 
 signals:
     void completed();
     void error(int code, const QString& errMsg);
 
-public slots:
-    void processReply(QNetworkReply* reply);
-
 private:
+    /*!
+     * \brief Dispatches the response based on error code
+     *
+     * \param reply the reply
+     */
+    void processReply(QNetworkReply* reply);
     void processSuccess(QNetworkReply* reply);
     void processFailure(QNetworkReply* reply);
 

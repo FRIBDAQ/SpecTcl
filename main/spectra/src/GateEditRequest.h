@@ -32,16 +32,25 @@ namespace Viewer
 class GSlice;
 class GGate;
 
+/*!
+ * \brief Logic for building an edit request
+ *
+ * This provides a centralized location for generating an edit
+ * request for either a GGate or a GSlice
+ */
 class GateEditRequest
 {
 public:
     GateEditRequest(const GGate &cut);
     GateEditRequest(const GSlice& cut);
 
+    /*!
+     * \brief Retrieve the url
+     * \return the url
+     */
     QUrl toUrl();
 
 private:
-
     bool isBand(const GGate& cut);
 
 private:

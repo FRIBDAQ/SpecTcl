@@ -57,6 +57,8 @@ void GateEditComHandler::makeRequest(const QUrl &req)
     evtlp.exec();
 
     processReply(pReply);
+
+    delete pReply;
 }
 
 
