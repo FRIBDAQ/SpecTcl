@@ -20,7 +20,6 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "DockableGateManager.h"
 #include "ui_DockableGateManager.h"
 #include "GateBuilderDialog.h"
