@@ -49,10 +49,10 @@ namespace Viewer
 //
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    pUI(new Ui::MainWindow),
     m_specTclControl(std::shared_ptr<SpecTclInterface>())
 {
-    ui->setupUi(this);
+    pUI->setupUi(this);
 
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
     setWindowIconText("Spectra");
@@ -78,6 +78,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //
 //
+MainWindow::~MainWindow()
+{
+}
+
+//
+//
 void MainWindow::constructSpecTclInterface()
 {
     GlobalSettings::setSessionMode(1);
@@ -91,11 +97,11 @@ void assembleWidgets()
 {
 
     // Create the main layout
-    m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), ui->frame);
-    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, ui->frame);
+    m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), pUI->frame);
+    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, pUI->frame);
 
-    ui->gridLayout->addWidget(m_pView);
-    ui->gridLayout->addWidget(m_pControls);
+    pUI->gridLayout->addWidget(m_pView);
+    pUI->gridLayout->addWidget(m_pControls);
 
     createDockWindows();
 }
@@ -115,12 +121,12 @@ void MainWindow::addInterfaceObservers()
 //
 void MainWindow::connectSignalsAndSlots()
 {
-    connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConfigure()));
+    connect(pUI->actionConnect,SIGNAL(activated()),this,SLOT(onConfigure()));
     connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
             m_pView,SLOT(drawHistogram(HistogramBundle*)));
-    connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
-    connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
-    connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
+    connect(pUI->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
+    connect(pUI->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
+    connect(pUI->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
     connect(m_pControls, SIGNAL(geometryChanged(int, int)),
             m_pView, SLOT(onGeometryChanged(int, int)));
@@ -134,13 +140,6 @@ void MainWindow::connectSignalsAndSlots()
 void MainWindow::onConfigure() {
     ConnectDialog dialog(*this);
     dialog.exec();
-}
-
-//
-//
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 //
