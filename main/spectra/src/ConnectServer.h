@@ -36,7 +36,7 @@
 #ifndef ConnectDialog_H
 #define ConnectDialog_H
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QDialog>
 #include <QButtonGroup>

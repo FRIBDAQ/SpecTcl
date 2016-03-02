@@ -139,7 +139,7 @@ spectraFORMS =  MainWindow.ui  \
 
 spectraRESOURCES = resources.qrc
 
-BUILT_SOURCES = ui_mainwindow.h \
+BUILT_SOURCES = ui_MainWindow.h \
 								ui_ConnectServer.h \
 								ui_SpectrumViewer.h \
 								ui_HistogramList.h \
@@ -163,7 +163,7 @@ BUILT_SOURCES = ui_mainwindow.h \
 								moc_GateBuilder1DDialog.cpp \
 								moc_ConnectServer.cpp \
 								moc_QRootWindow.cpp \
-								moc_mainwindow.cpp \
+								moc_MainWindow.cpp \
 								moc_TGo4CreateNewHistogram.cpp \
 								moc_SpecTclRESTInterface.cpp \
 								moc_SpectrumViewer.cpp \

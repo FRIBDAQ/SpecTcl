@@ -7,7 +7,7 @@
 
 #include "Asserts.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <iostream>
 #include <algorithm>

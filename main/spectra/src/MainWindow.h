@@ -127,6 +127,11 @@ private:
      */
     void connectSignalsAndSlots();
 
+    /*!
+     * \brief Construct a new spectcl interface
+     */
+    void constructSpecTclInterface();
+
     ///////////////////////////////////////////////////////////////////////////
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;

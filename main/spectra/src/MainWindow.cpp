@@ -21,8 +21,9 @@
 //    East Lansing, MI 48824-1321
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
 #include "ConnectServer.h"
 #include "MultiSpectrumView.h"
 #include "SpectrumViewer.h"
@@ -93,7 +94,7 @@ void MainWindow::constructSpecTclInterface()
 
 //
 //
-void assembleWidgets()
+void MainWindow::assembleWidgets()
 {
 
     // Create the main layout
