@@ -82,7 +82,7 @@ public:
      *
      * This handles the connection of some of the signals and slots
      */
-    void setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface);
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
 
     ///////////////////////////////////////////////////////////////////////////

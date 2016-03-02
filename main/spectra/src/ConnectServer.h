@@ -36,7 +36,6 @@
 #ifndef ConnectDialog_H
 #define ConnectDialog_H
 
-#include "MainWindow.h"
 
 #include <QDialog>
 #include <QButtonGroup>
@@ -49,12 +48,14 @@ namespace Ui {
 namespace Viewer
 {
 
+class SpecTclInterfaceControl;
+
 class ConnectDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ConnectDialog( MainWindow& rMain, QWidget* parent = 0 );
+    ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent = 0 );
 
 public slots:
     void onAccept();
@@ -62,9 +63,9 @@ public slots:
 private:
     void cacheServerSettings();
 
-    Ui::ConnectDialog*  ui;
-    MainWindow*         m_pMain;
-    QButtonGroup*       m_pButtonGroup;
+    Ui::ConnectDialog           *ui;
+    SpecTclInterfaceControl     *m_pInterfaceControl;
+    QButtonGroup                *m_pButtonGroup;
 };
 
 } // end of namespace

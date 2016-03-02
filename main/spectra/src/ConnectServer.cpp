@@ -38,6 +38,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ui_ConnectServer.h"
 #include "GlobalSettings.h"
 #include "SpecTclInterfaceFactory.h"
+#include "SpecTclInterfaceControl.h"
 #include "SpecTclInterface.h"
 
 #include <QButtonGroup>
@@ -46,10 +47,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 namespace Viewer
 {
 
-ConnectDialog::ConnectDialog( MainWindow& rMain, QWidget* parent )
+ConnectDialog::ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent )
    : QDialog( parent ),
    ui(new Ui::ConnectDialog),
-   m_pMain(&rMain)
+   m_pInterfaceControl(&rInterface)
 {
    ui->setupUi(this);
 
@@ -83,9 +84,9 @@ void ConnectDialog::onAccept() {
     if (currentMode != selectedMode) {
         SpecTclInterfaceFactory factory;
         if (selectedMode == 0) {
-            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::REST));
+            m_pInterfaceControl->setInterface(factory.create(SpecTclInterfaceFactory::REST));
         } else {
-            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+            m_pInterfaceControl->setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
         }
     }
 

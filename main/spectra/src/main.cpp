@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
   Viewer::MainWindow w;
   w.show();
 
+  Viewer::GlobalSettings::setSessionMode(1);
   Viewer::GlobalSettings::setServerHost("localhost");
   Viewer::GlobalSettings::setServerPort(8080);
   Viewer::GlobalSettings::setPollInterval(5000);

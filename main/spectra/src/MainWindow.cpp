@@ -58,11 +58,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
     setWindowIconText("Spectra");
 
-    assembleWidgets();
-
     // Create the SpecTcl interface as a shared_ptr (it will live on outside of
     // this scope
     constructSpecTclInterface();
+
+    assembleWidgets();
 
     // Register the SpecTcl interface observers
     addInterfaceObservers();
@@ -87,9 +87,14 @@ MainWindow::~MainWindow()
 //
 void MainWindow::constructSpecTclInterface()
 {
-    GlobalSettings::setSessionMode(1);
     SpecTclInterfaceFactory factory;
-    m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+    int mode = GlobalSettings::getSessionMode();
+
+    if (mode == 0) {
+        m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::REST));
+    } else {
+        m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+    }
 }
 
 //
@@ -111,6 +116,7 @@ void MainWindow::assembleWidgets()
 //
 void MainWindow::addInterfaceObservers()
 {
+    m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pControls);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
@@ -145,7 +151,7 @@ void MainWindow::connectSignalsAndSlots()
 //
 //
 void MainWindow::onConfigure() {
-    ConnectDialog dialog(*this);
+    ConnectDialog dialog(m_specTclControl);
     dialog.exec();
 }
 
@@ -167,10 +173,8 @@ void MainWindow::createDockWindows()
 
 //
 //
-void MainWindow::setSpecTclInterface(std::unique_ptr<SpecTclInterface> pInterface)
+void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
-    m_specTclControl.setInterface( std::move(pInterface) );
-
     // connect the new signal-slots
     connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
