@@ -231,22 +231,8 @@ CXamineShMemDisplayImpl::setInfo(string info, UInt_t slot)
     m_pMemory->setInfo(info, slot);
 }
 
-/*!
-    Binds a spectrum to the display.
-    The first free spectrum will be allocated.
-   If the spectrum is already bound, then we short circuit and
-   just return the current binding number:
-   This is not an error, just a user mistake we can handle.
-
-
-    \param sName : const std::string
-             Name of the spectrum to bind
-
-   \throw   CDictionaryException - if spectrum of given name does not exist.
-   \throw  CErrnoException      - may be thrown by routines we call.
-
-
-  */
+//
+//
 void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     // allocate the shared memory slot and swap out the storage for the spectrum
