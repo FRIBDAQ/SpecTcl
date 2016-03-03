@@ -94,7 +94,7 @@ void DockableGateManager::launchAddGateDialog()
     bool isTH2 = false;
     {
       QMutexLocker lock(pHistPkg->getMutex());
-      isTH2 = pHistPkg->hist()->InheritsFrom(TH2::Class());
+      isTH2 = pHistPkg->getHist().InheritsFrom(TH2::Class());
     }
     // determine whether this is a 1d or 2d hist and 
     // open to appropriate dialog

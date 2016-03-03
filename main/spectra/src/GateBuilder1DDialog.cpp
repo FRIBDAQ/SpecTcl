@@ -88,8 +88,8 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
         ui->gateNameEdit->setDisabled(true);
     } else {
         m_histPkg.lock();
-        auto xMin = m_histPkg.hist()->GetXaxis()->GetXmin();
-        auto xMax = m_histPkg.hist()->GetXaxis()->GetXmax();
+        auto xMin = m_histPkg.getHist().GetXaxis()->GetXmin();
+        auto xMax = m_histPkg.getHist().GetXaxis()->GetXmax();
         m_histPkg.unlock();
 
         QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );

@@ -193,7 +193,7 @@ void HistogramList::synchronize1d(MasterGateList::iterator1d b, MasterGateList::
         auto& pHist = it->second;
 
         // only operate on 1d hists
-        if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+        if ( ! pHist->getHist().InheritsFrom(TH2::Class()) ) {
             pHist->getCut1Ds().clear();
         }
         ++it;
@@ -222,7 +222,7 @@ void HistogramList::synchronize2d(MasterGateList::iterator2d b, MasterGateList::
         auto& pHist = it->second;
 
         // only operate on 1d hists
-        if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+        if ( pHist->getHist().InheritsFrom(TH2::Class()) ) {
             pHist->getCut2Ds().clear();
         }
         ++it;
@@ -357,7 +357,7 @@ void HistogramList::addSlice(GSlice* pSlice)
     
     auto& pHist = it->second;
     // only apply to 1d hists
-    if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+    if ( ! pHist->getHist().InheritsFrom(TH2::Class()) ) {
 
       auto histParam = QString::fromStdString(pHist->getInfo().s_params.at(0));
 
@@ -385,7 +385,7 @@ void HistogramList::addGate(GGate* pGate)
     
     auto& pHist = it->second;
     // only apply to 2d hists
-    if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+    if ( pHist->getHist().InheritsFrom(TH2::Class()) ) {
 
       auto histParamX = QString::fromStdString(pHist->getInfo().s_params.at(0));
       auto histParamY = QString::fromStdString(pHist->getInfo().s_params.at(1));

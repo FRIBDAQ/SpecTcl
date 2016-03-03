@@ -239,10 +239,8 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
       QMutexLocker listLock(m_pHistList->getMutex());
       pHistBundle = m_pHistList->getHist(name);
 
-      if (pHistBundle->hist()) {
         LockGuard<HistogramBundle> lock(pHistBundle);
-        SpJs::HistFiller()(*(pHistBundle->hist()), content.getValues());
-      }
+        SpJs::HistFiller()(pHistBundle->getHist(), content.getValues());
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
 

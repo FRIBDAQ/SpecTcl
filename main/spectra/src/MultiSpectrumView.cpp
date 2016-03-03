@@ -296,7 +296,7 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 {
   if (pBundle) {
       getCurrentCanvas()->cd();
-      if (pBundle->hist() && histogramInCanvas(pBundle, getCurrentCanvas())) {
+      if (histogramInCanvas(pBundle, getCurrentCanvas())) {
           if (m_pSpecTcl) {
               pBundle->synchronizeGates(m_pSpecTcl->getGateList());
           }
@@ -311,13 +311,11 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 {
     if (pBundle) {
-      getCurrentCanvas()->cd();
-      if (pBundle->hist()) {
-          if (m_pSpecTcl) {
-              pBundle->synchronizeGates(m_pSpecTcl->getGateList());
-          }
-          pBundle->draw();
+        getCurrentCanvas()->cd();
+        if (m_pSpecTcl) {
+            pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
+        pBundle->draw();
     }
     setFocus();
     refreshAll();
@@ -379,7 +377,7 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
-  return (pCanvas->findObject(pHist->hist()) != nullptr);
+  return (pCanvas->findObject(&pHist->getHist()) != nullptr);
 }
 
 } // end of namespace

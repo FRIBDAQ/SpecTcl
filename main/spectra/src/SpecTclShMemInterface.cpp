@@ -153,7 +153,7 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
     HistogramBundle* pHBundle = getHistogramList()->getHist(hName);
     try {
         if (pHBundle) {
-            filler.fill(*pHBundle->hist(), hName.toStdString());
+            filler.fill(pHBundle->getHist(), hName.toStdString());
         }
         emit histogramContentUpdated(pHBundle);
     } catch (std::exception& exc) {

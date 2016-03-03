@@ -92,9 +92,6 @@ QRootCanvas* SpectrumViewer::getCurrentCanvas()
 
 void SpectrumViewer::onGeometryChanged(int nRows, int nColumns)
 {
-  cout << "nRows = " << nRows << endl;
-  cout << "nCols = " << nColumns << endl;
-
   m_currentCanvas->Clear();
   m_currentCanvas->getCanvas()->Divide(nRows, nColumns);
   m_currentCanvas->cd(1);
@@ -142,20 +139,12 @@ void SpectrumViewer::update(HistogramBundle* gHist)
     if ( ! m_currentHist ) {
       return;
     } else {
-      if ( ! m_currentHist->hist() ) return;
-
-      std::cout << *m_currentHist << std::endl;
       // The draw operation can throw, so we need to protect ourselves
       // against that...
       try {
 
         m_currentHist->synchronizeGates(m_pSpecTcl->getGateList());
-
-        if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
-          m_currentHist->draw("colz");
-        } else {
-          m_currentHist->draw();
-        }
+        m_currentHist->draw();
 
       } catch (const exception& exc) {
         QMessageBox::warning(nullptr, "Drawing error", exc.what());
