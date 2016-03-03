@@ -6,9 +6,10 @@
 /*!
  * \brief A specialized display manager for spectcl
  *
- * The only difference between this and the CDisplayManager is that
- * this is constructed non-empty. On construction, it adds an instance
- * of CNullDisplay.
+ * The only difference between this and the CDisplayInterface is that
+ * this is constructed non-empty. On construction, it adds creators for the
+ * null, xamine, and spectra displays. It also constructs an instance
+ * of the null display.
  */
 class CSpecTclDisplayInterface : public CDisplayInterface
 {
