@@ -53,7 +53,7 @@ namespace Viewer
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
     m_pGateList(new MasterGateList),
-    m_pHistList(new HistogramList(this)),
+    m_pHistList(new HistogramList),
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),

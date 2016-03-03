@@ -47,11 +47,10 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramList::HistogramList(SpecTclInterface* pSpecTcl, QObject *parent) :
+HistogramList::HistogramList(QObject *parent) :
     QObject(parent),
     m_hists(),
-    m_mutex(),
-    m_pSpecTcl(pSpecTcl)
+    m_mutex()
 {}
 
 HistogramList::~HistogramList()
