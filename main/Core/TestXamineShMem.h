@@ -18,7 +18,14 @@ struct BoundSpectrum {
     std::vector<unsigned> s_overflows;
 };
 
-
+/*!
+ * \brief The CTestXamineShMem class
+ *
+ * In order avoid actually dealing wth shared memory during test,
+ * this class attempts to mimic some basic bookkeeping. It behaves kind
+ * of like shared memory but all of the spectra and gates are stored in
+ * std::maps. The goal was to keep this as simple as possible and fast.
+ */
 class CTestXamineShMem : public CXamineSharedMemory
 {
 private:
