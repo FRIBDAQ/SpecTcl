@@ -104,7 +104,7 @@ public:
     /*!
      * \return the number of histogram bundles
      */
-    std::map<QString, HistogramBundle>::size_type ]
+    std::map<QString, HistogramBundle>::size_type
     size() { return m_hists.size(); }
 
     /*!
