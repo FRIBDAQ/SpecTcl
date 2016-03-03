@@ -20,6 +20,18 @@ using DisplayBindings         = std::vector<std::string>;
 using DisplayBindingsIterator = DisplayBindings::iterator;
 using SpectrumContainer       = std::vector<CSpectrum*>;
 
+/*!
+ * \brief The CXamineSharedMemory class
+ *
+ * Xamine and Spectra both depend on the ability to interact with
+ * a shared memory region. For testing purposes, it is useful to
+ * abstract away the actual reliance on the shared memory. This class
+ * defines the interface that the rest of SpecTcl will depend on.
+ *
+ * The interface defines a lower level interface to interact wit hthe
+ * shared memory that models what the libXamine client interface supports.
+ * Memory regions (or slots) are accessed via slot indexes.
+ */
 class CXamineSharedMemory
 {
 

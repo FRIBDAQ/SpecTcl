@@ -61,19 +61,17 @@ class CXamineSharedMemory;
 class CXamineShMemDisplayImpl;
 class CSpectrum;
 
+/*!
+ * \brief The CXamine class
+ */
 class CXamine : public CDisplay
 {
-//   UInt_t                m_nBytes;    //  Size of shared memory region.
-//   CXamineSharedMemory*  m_pMemory;
-//   std::vector<CSpectrum*>       m_boundSpectra;
     std::unique_ptr<CXamineShMemDisplayImpl> m_pImpl;
 
 public:
   // Constructors:
 
-//  CXamine();			// Bind to existing Xamine
   CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem);
-				// New Xamine region nbytes of spectrum space
   virtual ~CXamine ();       //Destructor
 
 				// Copy Constructor.
@@ -81,8 +79,6 @@ public:
   CXamine (const CXamine& aCXamine );
 
   CXamine* clone() const;
-
-  // Selectors:
 
 public:                       
 
@@ -95,7 +91,7 @@ protected:
   //  Bindings to the Xamine API
   //
 public:                       
-  // CDisplay interface methods
+
   bool isAlive ()  ;
   void start ()  ;
   void stop ()  ;

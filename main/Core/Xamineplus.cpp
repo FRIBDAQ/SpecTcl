@@ -248,40 +248,12 @@ std::weak_ptr<CXamineSharedMemory> CXamine::getSharedMemory() const
 void 
 CXamine::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
-//    CXamineGateFactory factory(m_pMemory);
-//    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
-//    if (pDisplayed)
-//        m_pMemory->addGate(*pDisplayed);
-//    delete pDisplayed;
     m_pImpl->addGate(rSpectrum, rGate);
 }
 
 void
 CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 {
-//    // Removes a gate that is just about to be destroyed from
-//    // the appropriate set of Xamine bound spectra.
-//    //
-//    // Formal Paramters:
-//    //    CGateContainer& rGate:
-//    //       Reference to the container which holds the gate about to be
-//    //       destroyed.  Note that for most purposes, a gate container
-//    //       can be treated as if it was a pointer to a gate.
-//    //
-//    UInt_t nGateId = rGate.getNumber();
-//    GateType_t eType;
-//    if(rGate->Type() == "c" || rGate->Type() == "gc") {
-//      eType = kgContour2d;
-//    }
-//    else if(rGate->Type() == "b" || rGate->Type() == "gb") {
-//      eType = kgBand2d;
-//    }
-//    else if (rGate->Type() == "s" || rGate->Type() == "gs") {
-//      eType = kgCut1d;
-//    }
-//    else {
-//      return;			// Non -primitive gates won't be displayed.
-//    }
     m_pImpl->removeGate(rSpectrum, rGate);
 }
 
