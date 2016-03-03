@@ -24,7 +24,6 @@
 #include "GlobalSettings.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
-#include "LockGuard.h"
 #include "Compression.h"
 #include "ConnectionTester.h"
 
@@ -45,6 +44,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <mutex>
 
 #include <zlib.h>
 #include <cstdlib>
@@ -239,7 +239,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
       QMutexLocker listLock(m_pHistList->getMutex());
       pHistBundle = m_pHistList->getHist(name);
 
-        LockGuard<HistogramBundle> lock(pHistBundle);
+        std::lock_guard<HistogramBundle> lock(*pHistBundle);
         SpJs::HistFiller()(pHistBundle->getHist(), content.getValues());
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
