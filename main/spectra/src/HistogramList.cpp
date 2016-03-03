@@ -94,7 +94,8 @@ HistogramBundle* HistogramList::getHist(const TH1* pHist)
   return getHist(QString(pHist->GetName()));
 }
 
-HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
+HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
+                                        const SpJs::HistInfo& info)
 {
   HistogramBundle* pHistBundle = nullptr;
 
@@ -182,7 +183,8 @@ void HistogramList::synchronize(const MasterGateList& list)
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize1d(MasterGateList::iterator1d b, MasterGateList::iterator1d e)
+void HistogramList::synchronize1d(MasterGateList::iterator1d b,
+                                  MasterGateList::iterator1d e)
 {
     auto it = begin();
     auto it_end = end();
@@ -211,7 +213,8 @@ void HistogramList::synchronize1d(MasterGateList::iterator1d b, MasterGateList::
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize2d(MasterGateList::iterator2d b, MasterGateList::iterator2d e)
+void HistogramList::synchronize2d(MasterGateList::iterator2d b,
+                                  MasterGateList::iterator2d e)
 {
     auto it = begin();
     auto it_end = end();
