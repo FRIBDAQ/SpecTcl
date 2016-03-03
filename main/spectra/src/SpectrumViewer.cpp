@@ -25,7 +25,6 @@
 #include "HistogramList.h"
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
-#include "LockGuard.h"
 #include "QRootCanvas.h"
 #include "SpecTclInterface.h"
 
