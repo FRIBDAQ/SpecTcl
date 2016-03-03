@@ -23,8 +23,6 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate,
 
     if(pDisplay->spectrumBound(&rSpectrum)) {
 
-        //Int_t b =  pDisplay->FindDisplayBinding(rSpectrum.getName());
-
         pDisplay->setTitle(rSpectrum, rSpectrum.getName());
         pDisplay->setInfo(rSpectrum,
                           pDisplay->createTitle(rSpectrum,
