@@ -231,10 +231,6 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     ui->gateList->addItem(pItem);
     m_gateRowMap[pSlice->getName()] = ui->gateList->row(pItem);
 
-//    // add the slice to all related histograms
-//    m_pSpecTcl->getHistogramList()->addSlice(pSlice);
-
-
     auto pCanvas = m_view.getCurrentCanvas();
     try {
       auto hists = SpectrumView::getAllHists(pCanvas);
