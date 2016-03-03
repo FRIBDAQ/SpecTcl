@@ -43,7 +43,9 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex, 
+//
+//
+HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
                                  unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
     : m_pMutex(std::move(pMutex)),
       m_pHist(std::move(pHist)),
@@ -52,16 +54,22 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_hInfo(info)
 {}
 
+//
+//
 void HistogramBundle::addCut1D(GSlice* pSlice) {
     QMutexLocker lock(m_pMutex.get());
     m_cuts1d.insert(make_pair(pSlice->getName(), pSlice)) ;
 }
 
+//
+//
 void HistogramBundle::addCut2D(GGate* pCut) {
     QMutexLocker lock(m_pMutex.get());
     m_cuts2d.insert(make_pair(pCut->getName(), pCut)) ;
 }
 
+//
+//
 void HistogramBundle::draw(const QString& opt) {
 
   QString opts(opt);
@@ -85,12 +93,11 @@ void HistogramBundle::draw(const QString& opt) {
     }
 }
 
-bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
+//
+//
+bool HistogramBundle::synchronize2DGates(const MasterGateList* pGateList)
 {
-  bool somethingChanged = false;
-
-  if ( m_pHist->InheritsFrom(TH2::Class()) ) {
-
+    bool somethingChanged = false;
     map<QString, GGate*> tempList;
 
     // 2d spectra need only to update their 2d cuts
@@ -103,7 +110,7 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
 
       // for convenience declare variable to store value referenced by iterator
       auto& pExtGate = (*it2d);
-      QString name = pExtGate->getName();
+      QString name   = pExtGate->getName();
       QString param0 = pExtGate->getParameterX();
       QString param1 = pExtGate->getParameterY();
 
@@ -115,12 +122,12 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
 
         tempList[pExtGate->getName()] = pExtGate.get();
 
-      } 
+      }
 
       ++it2d;
     }
 
-    if ( distance(m_cuts2d.begin(), m_cuts2d.end()) != distance(tempList.begin(), tempList.end()) ) {
+    if ( m_cuts2d.size() != tempList.size() ) {
       somethingChanged = true;
     } else {
 
@@ -137,12 +144,16 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
     }
     swap( m_cuts2d, tempList);
 
-  } else {
+    return somethingChanged;
+}
 
+bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
+{
+    bool somethingChanged = false;
     map<QString, GSlice*> tempList;
 
     // 1d spectra need only to update their 1d cuts
-    auto it1d = pGateList->begin1d();
+    auto it1d     = pGateList->begin1d();
     auto it1d_end = pGateList->end1d();
 
     // update existing or add nonexisting
@@ -163,7 +174,7 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
       ++it1d;
     }
 
-    if ( distance(m_cuts1d.begin(), m_cuts1d.end()) != distance(tempList.begin(), tempList.end()) ) {
+    if ( m_cuts1d.size() != tempList.size() ) {
       somethingChanged = true;
     } else {
       // predicate to compare the object referred to by the ptrs rather
@@ -179,14 +190,32 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
     }
 
     swap(m_cuts1d, tempList);
-  }
 
     return somethingChanged;
+}
+
+bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
+{
+  bool somethingChanged = false;
+
+  if ( m_pHist->InheritsFrom(TH2::Class()) ) {
+
+      somethingChanged = (somethingChanged || synchronize2DGates(pGateList));
+
+  } else {
+
+    somethingChanged = (somethingChanged || synchronize1DGates(pGateList));
+
+  }
+
+  return somethingChanged;
 }
 
 } // end of Viewer namespace
 
 
+//
+//
 std::ostream& operator<<(std::ostream& str, const Viewer::HistogramBundle& hist)
 {
   cout << "HistogramBundle name=" << hist.getName().toStdString() << " @ " << (void*) &hist << endl;

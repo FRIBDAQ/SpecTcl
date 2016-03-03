@@ -28,11 +28,9 @@
 
 #include <QMutex>
 #include <QString>
+
 #include <map>
-
 #include <memory>
-
-
 
 namespace Viewer
 {
@@ -53,6 +51,8 @@ class MasterGateList;
  * Histogram bundles are used on different threads and must be handled
  * appropriately. There is a mutex owned by each HistogramBundle and it
  * should be locked when trying to read or write the state of the bundle.
+ *
+ * This class assumes that there is always a TH1 object. It should never be nullptr.
  */
 class HistogramBundle {
 
@@ -72,16 +72,16 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Mutex methods
+
     QMutex* getMutex() { return m_pMutex.get(); }
     void lock() const { m_pMutex->lock(); }
     void unlock() const { m_pMutex->unlock(); }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Getters
-    TH1& getHist() const { return *m_pHist; }
-    SpJs::HistInfo getInfo() const { return m_hInfo; }
-
-    QString getName() const { return QString::fromStdString(m_hInfo.s_name); }
+    // Simple Getters
+    TH1&            getHist() const { return *m_pHist; }
+    SpJs::HistInfo  getInfo() const { return m_hInfo; }
+    QString         getName() const { return QString::fromStdString(m_hInfo.s_name); }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -115,16 +115,29 @@ public:
     /*!
      * \brief Synchronize local list of gate with the master gate list
      *
-     * \param pGateList
+     * \param pGateList     the master gate list
      * \return boolean
      * \retval true  - local gate list was updated
      * \retval false - local gate list was already up to date.
      */
     bool synchronizeGates(const MasterGateList* pGateList);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Draw the histogram.
+    /*!
+     * \brief Adds the histogram to the current canvas as a drawable entity
+     *
+     * \param opt - the draw option
+     *
+     * Different default options are provided for the 1d and 2d histograms.
+     * If the caller specifies an option, then that option supercedes the default
+     * option.
+     */
     void draw(const QString& opt = QString());
+
+    //////////////////////////////////////////////////////////////////////////
+    // Helper methods
+private:
+    bool synchronize1DGates(const MasterGateList* pGateList);
+    bool synchronize2DGates(const MasterGateList* pGateList);
 };
 
 } // end of namespace
@@ -135,8 +148,12 @@ public:
  * \param stream    a output stream
  * \param hist      histogram bundle
  *
+ * This is mainly for debugging purposes. It prints a textual representation
+ * of the bundle.
+ *
  * \return the output stream
  */
-extern std::ostream& operator<<(std::ostream& stream, const Viewer::HistogramBundle& hist);
+extern std::ostream& operator<<(std::ostream& stream,
+                                const Viewer::HistogramBundle& hist);
 
 #endif // HISTOGRAMBUNDLE_H
