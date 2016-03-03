@@ -20,35 +20,50 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-#include "SpectrumView.h"
+#include "CanvasOps.h"
 #include "QRootCanvas.h"
 
-#include <TList.h>
-#include <TCanvas.h>
-#include <TH1.h>
+#include "TList.h"
+#include "TPad.h"
+#include "TCanvas.h"
+#include "TH1.h"
 
-using namespace std;
+namespace Viewer {
+namespace CanvasOps {
 
-namespace Viewer
-{
 
-vector<TH1*> SpectrumView::getAllHists(QRootCanvas *pCanvas)
-{
-    vector<TH1*> hists;
+std::vector<QString> extractAllHistNames(QRootCanvas& rCanvas) {
 
-    TIter it(pCanvas->getCanvas()->GetListOfPrimitives());
-    TObject* pObject = nullptr;
+    return extractAllHistNames(*(rCanvas.getCanvas()));
+}
+
+std::vector<QString> extractAllHistNames(TPad &rPad) {
+
+    std::vector<QString> histNames;
+
+    auto pList = rPad.GetListOfPrimitives();
+
+    TObject *pObject = nullptr;
+    TIter it(pList);
     while (( pObject = it.Next() )) {
-        if ( pObject->InheritsFrom(TH1::Class()) ) {
+
+        // recurse into subpads
+        if (pObject->InheritsFrom(TPad::Class())) {
+
+            auto results = extractAllHistNames(dynamic_cast<TPad&>(*pObject));
+
+            histNames.insert(histNames.end(), results.begin(), results.end());
+
+        } else if (pObject->InheritsFrom(TH1::Class())) {
             auto pHist = dynamic_cast<TH1*>(pObject);
-            if (pHist) {
-                hists.push_back(pHist);
-            }
+
+            histNames.push_back(QString(pHist->GetName()));
         }
     }
 
-    return hists;
+
+    return histNames;
 }
 
-
-} // end of namespace
+}
+}

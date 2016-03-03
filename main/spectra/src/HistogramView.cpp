@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramView.h"
 #include "ui_HistogramView.h"
 #include "ListRequestHandler.h"
@@ -51,7 +50,6 @@ namespace Viewer
 HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
     ui(new Ui::HistogramView),
-    m_req(new ListRequestHandler(this)),
     m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
@@ -67,11 +65,14 @@ HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
     }
 }
 
+//
+//
 HistogramView::~HistogramView()
 {
-  delete ui;
 }
 
+//
+//
 void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
     if (m_pSpecTcl) {
@@ -91,66 +92,91 @@ void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecT
 
 }
 
+//
+//
 void HistogramView::onHistogramListChanged()
 {
-
   auto pHistList = m_pSpecTcl->getHistogramList();
-
-  // Synchronize access to the histogram list
-  QMutexLocker lock(pHistList->getMutex());
-
-  auto it = pHistList->begin();
-  auto itend = pHistList->end();
-
-  // add new histograms if they have changed
-  while (it!=itend) {
-
-      const QString& name = it->first;
-      if (! histExists(name)) {
-
-          // Histograms are uniquely named, so we can use the name as the key
-          auto item = new QListWidgetItem(name, ui->histList,
-                                          QListWidgetItem::UserType);
-
-          // store a point to the histogram bundle
-          item->setData(Qt::UserRole,
-                        QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
-          setIcon(item);
-
-          QSize geo = ui->histList->size();
-          ui->histList->insertItem(geo.height(), item);
-      } else {
-
-          // the value already exists...get the ListWidgetItem associated with it
-          auto items = ui->histList->findItems(name, Qt::MatchExactly);
-          // make sure we found something
-          if ( items.size() == 1 ) {
-              // get the first and only item found
-              auto pItem = items.at(0);
-
-              pItem->setData(Qt::UserRole,
-                             QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
-              setIcon(pItem);
-          }
-      }
-
-    ++it;
-  }
-
-  // now remove stale items
-
-  int nRows = ui->histList->count();
-  for (int row=nRows-1; row>=0; --row) {
-
-      auto pItem = ui->histList->item(row);
-
-      if ( ! pHistList->histExists(pItem->text()) ) {
-          delete (ui->histList->takeItem(row));
-      }
-  }
-
+  synchronize(pHistList);
 }
 
+// Synchronization is a two step process
+// 1. Add all entries that are missing in the current local list
+// 2. Remove all entries that are in current local list but not in master list
+void HistogramView::synchronize(HistogramList *pHistList)
+{
+    QMutexLocker lock(pHistList->getMutex());
+
+    auto it    = pHistList->begin();
+    auto itend = pHistList->end();
+
+    // add new histograms if they have changed
+    while (it!=itend) {
+
+        const QString& name = it->first;
+        if (! histExists(name)) {
+            appendEntry(name, it);
+        } else {
+            updateEntry(it, name);
+        }
+
+        ++it;
+    }
+
+    removeStaleEntries(pHistList);
+}
+
+//
+//
+void HistogramView::appendEntry(const QString& name, HistogramList::iterator it)
+{
+    // Histograms are uniquely named, so we can use the name as the key
+    auto item = new QListWidgetItem(name, ui->histList,
+                                    QListWidgetItem::UserType);
+
+    // store a point to the histogram bundle
+    item->setData(Qt::UserRole,
+                  QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
+    setIcon(item);
+
+    QSize geo = ui->histList->size();
+    ui->histList->insertItem(geo.height(), item);
+}
+
+//
+//
+void HistogramView::updateEntry(HistogramList::iterator it, const QString& name)
+{
+    auto items = ui->histList->findItems(name, Qt::MatchExactly);
+    // make sure we found something
+    if ( items.size() == 1 ) {
+        // get the first and only item found
+        auto pItem = items.at(0);
+
+        pItem->setData(Qt::UserRole,
+                       QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
+        setIcon(pItem);
+    }
+}
+
+//
+//
+void HistogramView::removeStaleEntries(HistogramList* pHistList)
+{
+    int nRows = ui->histList->count();
+    for (int row=nRows-1; row>=0; --row) {
+
+        auto pItem = ui->histList->item(row);
+
+        if ( ! pHistList->histExists(pItem->text()) ) {
+            delete (ui->histList->takeItem(row));
+        }
+    }
+}
+
+
+//
+//
 void HistogramView::setIcon(QListWidgetItem *pItem)
 {
   auto pBundle = reinterpret_cast<HistogramBundle*>(pItem->data(Qt::UserRole).value<void*>());
@@ -161,6 +187,8 @@ void HistogramView::setIcon(QListWidgetItem *pItem)
   }
 }
 
+//
+//
 void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 {
     SpJs::HistFactory factory;
@@ -210,6 +238,8 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 
 }
 
+//
+//
 void HistogramView::onDoubleClick(QModelIndex index)
 {
     auto pHistBundle = reinterpret_cast<HistogramBundle*>(index.data(Qt::UserRole).value<void*>());
@@ -217,12 +247,16 @@ void HistogramView::onDoubleClick(QModelIndex index)
 }
 
 
+//
+//
 bool HistogramView::histExists(const QString& name)
 {
   size_t nRows = ui->histList->count();
   return (binarySearch(0, nRows-1, name) != -1);
 }
 
+//
+//
 int HistogramView::binarySearch(int min, int max, const QString& name)
 {
   int pivot = min + (max-min)/2;
@@ -242,6 +276,8 @@ int HistogramView::binarySearch(int min, int max, const QString& name)
 }
 
 
+//
+//
 void HistogramView::deleteHists()
 {
     size_t nEntries = ui->histList->count();

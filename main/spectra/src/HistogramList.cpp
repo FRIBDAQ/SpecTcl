@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,9 +20,8 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramList.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 #include "GSlice.h"
 #include "GGate.h"
 #include "SpecTclInterface.h"
@@ -48,11 +47,10 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramList::HistogramList(SpecTclInterface* pSpecTcl, QObject *parent) :
+HistogramList::HistogramList(QObject *parent) :
     QObject(parent),
     m_hists(),
-    m_mutex(),
-    m_pSpecTcl(pSpecTcl)
+    m_mutex()
 {}
 
 HistogramList::~HistogramList()
@@ -95,7 +93,8 @@ HistogramBundle* HistogramList::getHist(const TH1* pHist)
   return getHist(QString(pHist->GetName()));
 }
 
-HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
+HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
+                                        const SpJs::HistInfo& info)
 {
   HistogramBundle* pHistBundle = nullptr;
 
@@ -171,7 +170,7 @@ void HistogramList::removeGate(const GGate& gate)
   }
 }
 
-void HistogramList::synchronize(const GateList& list)
+void HistogramList::synchronize(const MasterGateList& list)
 {
 
   for (auto& bundlePair : m_hists) {
@@ -183,7 +182,8 @@ void HistogramList::synchronize(const GateList& list)
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e)
+void HistogramList::synchronize1d(MasterGateList::iterator1d b,
+                                  MasterGateList::iterator1d e)
 {
     auto it = begin();
     auto it_end = end();
@@ -194,7 +194,7 @@ void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e
         auto& pHist = it->second;
 
         // only operate on 1d hists
-        if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+        if ( ! pHist->getHist().InheritsFrom(TH2::Class()) ) {
             pHist->getCut1Ds().clear();
         }
         ++it;
@@ -212,7 +212,8 @@ void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e
 // The HistogramBundles don't own the cuts and only maintain a cache of pointers to
 // the gates in the GateList. So we can essentially just clear their caches
 // and then repopulate them.
-void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e)
+void HistogramList::synchronize2d(MasterGateList::iterator2d b,
+                                  MasterGateList::iterator2d e)
 {
     auto it = begin();
     auto it_end = end();
@@ -223,7 +224,7 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
         auto& pHist = it->second;
 
         // only operate on 1d hists
-        if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+        if ( pHist->getHist().InheritsFrom(TH2::Class()) ) {
             pHist->getCut2Ds().clear();
         }
         ++it;
@@ -358,7 +359,7 @@ void HistogramList::addSlice(GSlice* pSlice)
     
     auto& pHist = it->second;
     // only apply to 1d hists
-    if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+    if ( ! pHist->getHist().InheritsFrom(TH2::Class()) ) {
 
       auto histParam = QString::fromStdString(pHist->getInfo().s_params.at(0));
 
@@ -386,7 +387,7 @@ void HistogramList::addGate(GGate* pGate)
     
     auto& pHist = it->second;
     // only apply to 2d hists
-    if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+    if ( pHist->getHist().InheritsFrom(TH2::Class()) ) {
 
       auto histParamX = QString::fromStdString(pHist->getInfo().s_params.at(0));
       auto histParamY = QString::fromStdString(pHist->getInfo().s_params.at(1));

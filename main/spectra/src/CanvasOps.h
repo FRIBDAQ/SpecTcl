@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -15,37 +15,49 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //    Authors:
-//    Jeromy Tompkins 
+//    Jeromy Tompkins
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-#ifndef LOCKGUARD_H
-#define LOCKGUARD_H
+#ifndef CANVASOPS_H
+#define CANVASOPS_H
 
-namespace Viewer
-{
+#include <QString>
 
-template<class T> class LockGuard
-{
-private:
-    T& m_lock;
-public:
-    LockGuard(T& obj) : m_lock(obj) {
-        m_lock.lock();
-    }
+#include <vector>
 
-    LockGuard(T* obj) : LockGuard(*obj) {}
+class TPad;
 
-    ~LockGuard() {
-        m_lock.unlock();
-    }
-};
+namespace Viewer {
 
-template<class T> LockGuard<T> makeLockGuard(const T& obj) {
-    return LockGuard<T>(obj);
-}
+class QRootCanvas;
 
-} // end of namespace
+/*!
+ * Functions to extract information about canvases
+ */
+namespace CanvasOps {
 
-#endif // LOCKGUARD_H
+/*!
+ * \brief extractAllHistNames
+ *
+ * \param rCanvas   the canvas to search
+ *
+ * This is recursive and can handle subpads.
+ *
+ * \return list of histogram names that are contained in canvas
+ */
+std::vector<QString> extractAllHistNames(QRootCanvas& rCanvas);
+
+/*!
+ * \brief extractAllHistNames
+ * \param rPad  the pad to search
+ *
+ * This is the same as the above method except for the argument type.
+ */
+std::vector<QString> extractAllHistNames(TPad& rPad);
+
+} // end CanvasOps namespace
+} // end Viewer namespace
+
+#endif // CANVASOPS_H

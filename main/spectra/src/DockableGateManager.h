@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -46,12 +46,12 @@ class SpectrumView;
 class SpecTclInterface;
 class GGate;
 class GSlice;
-class GateList;
+class MasterGateList;
 
 
 /*! \brief Graphical object that owns all gates 
  *
- * THis is a dockable widget. It provides buttons for the user
+ * Tis is a dockable widget. It provides buttons for the user
  * to select a gate to edit and also delete. It then also enables
  * the user to create new gates for the histogram in focus.
  *

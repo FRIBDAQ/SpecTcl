@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
+
 #include "SpecTclRESTInterface.h"
 #include "GlobalSettings.h"
 #include "GSlice.h"
@@ -29,6 +30,7 @@
 #include "GateListRequestHandler.h"
 #include "HistogramList.h"
 #include "QRootCanvas.h"
+#include "CanvasOps.h"
 
 #include <QString>
 #include <QTimer>
@@ -50,8 +52,8 @@ namespace Viewer
 
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
-    m_pGateList(new GateList),
-    m_pHistList(new HistogramList(this)),
+    m_pGateList(new MasterGateList),
+    m_pHistList(new HistogramList),
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
@@ -206,21 +208,10 @@ void SpecTclRESTInterface::requestHistContentUpdate(TPad* pPad)
 
   Q_ASSERT( pPad != nullptr );
 
-  int padCount = 0;
-  // update all histograms in this canvas
-  auto pList = pPad->GetListOfPrimitives();
-  TObject *pObject = nullptr;
-  TIter it(pList);
-  while (( pObject = it.Next() )) {
-      if (pObject->InheritsFrom(TPad::Class()) && padCount < 1) {
-          requestHistContentUpdate(dynamic_cast<TPad*>(pObject));
-          ++padCount;
-      } else if (pObject->InheritsFrom(TH1::Class())) {
-          auto pHist = dynamic_cast<TH1*>(pObject);
-
-          requestHistContentUpdate(QString(pHist->GetName()));
-      }
-  }
+    auto histNames = CanvasOps::extractAllHistNames(*pPad);
+    for (auto& name : histNames) {
+        requestHistContentUpdate(name);
+    }
 }
 
 void SpecTclRESTInterface::requestHistContentUpdate(const QString& name)
@@ -251,7 +242,6 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 
       // tell the world that things have changed.
       emit histogramListChanged();
-
   }
 
   // schedule the next update

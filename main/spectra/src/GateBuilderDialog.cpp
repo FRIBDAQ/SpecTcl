@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "GateBuilderDialog.h"
 #include "ui_GateBuilderDialog.h"
 #include "QRootCanvas.h"
@@ -210,8 +209,6 @@ void GateBuilderDialog::onMouseRelease(QWidget *pWidget) {
   int deltaX = pXNew - m_lastMousePressPos.first;
   int deltaY = pYNew - m_lastMousePressPos.second;
 
-  cout << "dX=" << deltaX << "\tdY=" << deltaY << endl;
-
   if ( (deltaX > -2 || deltaX < 2) || (deltaY > -2 || deltaY < 2) ) {
     newPoint(pCanvas);
   } else {
@@ -226,8 +223,6 @@ void GateBuilderDialog::newPoint(QRootCanvas *pad)
   if ( m_isMoveEvent ) {
     m_isMoveEvent = false;
     return;
-  } else {
-    cout << "click event " << endl;
   }
 
   // disconnect cell changed signal because we are actually changing it
@@ -419,30 +414,27 @@ void GateBuilderDialog::hideOldCut(GGate& gate)
 void GateBuilderDialog::gateMoved(QWidget *pad)
 {
   m_isMoveEvent = true;
-  //cout << "Move event " << endl;
 }
 
 
 
 void GateBuilderDialog::onValuesChanged(vector<pair<double, double> > points)
 {
-  cout << "onValuesChanged" << endl;
 
-  disconnect(ui->dataTable, SIGNAL(cellChanged(int,int)),
-          this, SLOT(valueChanged(int, int)));
+    disconnect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+               this, SLOT(valueChanged(int, int)));
 
-  clearTable();
-  fillTableWithData(points);
+    clearTable();
+    fillTableWithData(points);
 
-  connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
-          this, SLOT(valueChanged(int, int)));
+    connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+            this, SLOT(valueChanged(int, int)));
 
 }
 
 
 void GateBuilderDialog::valueChanged(int row, int col)
 {
-  cout << "changed (" << row << ", " << col << ")" << endl;
   auto pItemX = ui->dataTable->item(row, 0);
   auto pItemY = ui->dataTable->item(row, 1);
 

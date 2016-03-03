@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -32,9 +32,13 @@ using namespace std;
 namespace Viewer
 {
 
+//
+//
 QTLine::QTLine() : QTLine(0,0,0,0)
 {}
 
+//
+//
 QTLine::QTLine(double x1, double y1, double x2, double y2)
   : QObject(),
     TLine(x1, y1, x2, y2),
@@ -46,6 +50,8 @@ QTLine::QTLine(double x1, double y1, double x2, double y2)
 {
 }
 
+//
+//
 QTLine& QTLine::operator=(const QTLine& rhs) {
   if (this != &rhs) {
       m_editable = rhs.m_editable;
@@ -61,6 +67,8 @@ QTLine& QTLine::operator=(const QTLine& rhs) {
   return *this;
 }
 
+//
+//
 void QTLine::Paint(Option_t* opt) {
 
   // update the y1 and y2
@@ -88,6 +96,8 @@ void QTLine::Paint(Option_t* opt) {
   m_lastY2 = GetY2();
 }
 
+//
+//
 void QTLine::setEditable(bool enable) {
   m_editable = enable;
   // line should show up thick and dashed if editable
@@ -100,11 +110,15 @@ void QTLine::setEditable(bool enable) {
   }
 }
 
+//
+//
 bool QTLine::isEditable() const {
   return m_editable;
 
 }
 
+//
+//
 void QTLine::updateYValues()
 {
   auto pFrame = gPad->GetFrame();

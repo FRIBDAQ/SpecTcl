@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,51 +20,66 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-// $Id: ConnectDialog.h 491 2009-11-04 12:41:22Z linev $
-//-----------------------------------------------------------------------
-//       The GSI Online Offline Object Oriented (Go4) Project
-//         Experiment Data Processing at EE department, GSI
-//-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
-//                     Planckstr. 1, 64291 Darmstadt, Germany
-// Contact:            http://go4.gsi.de
-//-----------------------------------------------------------------------
-// This software can be used under the license agreements as stated
-// in Go4License.txt file which is part of the distribution.
-//-----------------------------------------------------------------------
+#ifndef ConnectServer_H
+#define ConnectServer_H
 
-#ifndef ConnectDialog_H
-#define ConnectDialog_H
-
-#include "mainwindow.h"
 
 #include <QDialog>
 #include <QButtonGroup>
+#include <ui_ConnectServer.h>
 
-// forward declare
-namespace Ui {
-    class ConnectDialog;
-}
+#include <memory>
 
 namespace Viewer
 {
 
+class SpecTclInterfaceControl;
+
+
+/*!
+ * \brief The ConnectDialog class
+ *
+ * This is in charge of configuring the connection to the REST server. It
+ * allows the user to set the mode of connectivity (local or remote). It also
+ * allows the user to manipulate the settings for the server. This dialog is
+ * modal.
+ */
 class ConnectDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ConnectDialog( MainWindow& rMain, QWidget* parent = 0 );
+    /*!
+     * \brief ConnectDialog Constructor
+     * \param rInterface    accessor for the SpecTclInterface
+     * \param parent        owner of this
+     *
+     * This method launches the dialog in a modal fashion.
+     */
+    ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent = 0 );
 
+
+    ///////////////////////////////////////////////////////////////////////////
 public slots:
     void onAccept();
 
+    ///////////////////////////////////////////////////////////////////////////
 private:
+    /*!
+     * \brief Assemble widgets into the megawidget
+     */
+    void assembleWidgets();
+
+    /*!
+     * \brief Commit the settings to the GlobalSettings
+     */
     void cacheServerSettings();
 
-    Ui::ConnectDialog*  ui;
-    MainWindow*         m_pMain;
-    QButtonGroup*       m_pButtonGroup;
+    ///////////////////////////////////////////////////////////////////////////
+private:
+    std::unique_ptr<Ui::ConnectDialog>   m_pUI;
+    SpecTclInterfaceControl             *m_pInterfaceControl;
+    QButtonGroup                        *m_pButtonGroup;
 };
 
 } // end of namespace

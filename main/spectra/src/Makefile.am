@@ -7,7 +7,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   QRootDialog.h  \
   QRootApplication.h  \
   QRootWindow.h  \
-  mainwindow.h  \
+  MainWindow.h  \
   ConnectServer.h  \
   SpectrumViewer.h  \
   Singleton.h   \
@@ -22,7 +22,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   DockableGateManager.h  \
   GateBuilderDialog.h  \
   HistogramBundle.h  \
-  GateList.h  \
+  MasterGateList.h  \
   GateBuilder1DDialog.h  \
   SliceTableItem.h  \
   GateListItem.h \
@@ -46,14 +46,16 @@ noinst_HEADERS =  QRootCanvas.h  \
   TabbedMultiSpectrumView.h \
   SpecTclInterfaceFactory.h \
   SpecTclShMemInterface.h \
-  SpecTclInterfaceObserver.h
+  SpecTclInterfaceObserver.h \
+  CanvasOps.h \
+  SpecTclInterfaceControl.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
   QRootDialog.cpp \
   QRootApplication.cpp \
   QRootWindow.cpp \
-  mainwindow.cpp \
+  MainWindow.cpp \
   ConnectServer.cpp  \
   HistogramList.cpp  \
   ContentRequestHandler.cpp  \
@@ -65,7 +67,7 @@ libSpectra_la_SOURCES = \
   Compression.cpp  \
   DockableGateManager.cpp  \
   GateBuilderDialog.cpp  \
-  GateList.cpp  \
+  MasterGateList.cpp  \
   HistogramBundle.cpp  \
   GateBuilder1DDialog.cpp  \
   SliceTableItem.cpp  \
@@ -88,6 +90,8 @@ libSpectra_la_SOURCES = \
   TabbedMultiSpectrumView.cpp \
   SpecTclInterfaceFactory.cpp \
   SpecTclShMemInterface.cpp \
+  CanvasOps.cpp \
+  SpecTclInterfaceControl.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -100,7 +104,7 @@ libSpectra_la_SOURCES = \
 	moc_GateBuilder1DDialog.cpp \
 	moc_ConnectServer.cpp \
 	moc_QRootWindow.cpp \
-	moc_mainwindow.cpp \
+	moc_MainWindow.cpp \
 	moc_TGo4CreateNewHistogram.cpp \
 	moc_SpecTclRESTInterface.cpp \
 	moc_SpectrumViewer.cpp \
@@ -125,7 +129,7 @@ libSpectra_la_SOURCES = \
 	moc_SpecTclShMemInterface.cpp \
 	qrc_resources.cpp
 
-spectraFORMS =  mainwindow.ui  \
+spectraFORMS =  MainWindow.ui  \
   ConnectServer.ui  \
   SpectrumViewer.ui  \
   HistogramList.ui  \
@@ -140,7 +144,7 @@ spectraFORMS =  mainwindow.ui  \
 
 spectraRESOURCES = resources.qrc
 
-BUILT_SOURCES = ui_mainwindow.h \
+BUILT_SOURCES = ui_MainWindow.h \
 								ui_ConnectServer.h \
 								ui_SpectrumViewer.h \
 								ui_HistogramList.h \
@@ -164,7 +168,7 @@ BUILT_SOURCES = ui_mainwindow.h \
 								moc_GateBuilder1DDialog.cpp \
 								moc_ConnectServer.cpp \
 								moc_QRootWindow.cpp \
-								moc_mainwindow.cpp \
+								moc_MainWindow.cpp \
 								moc_TGo4CreateNewHistogram.cpp \
 								moc_SpecTclRESTInterface.cpp \
 								moc_SpectrumViewer.cpp \

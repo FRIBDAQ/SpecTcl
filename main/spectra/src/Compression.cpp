@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
-
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 
 #include "Compression.h"
 #include <QByteArray>
@@ -44,7 +42,6 @@ namespace Compression
     // resize
     ucBuffer.resize(nUCBytes);
 
-    std::cout << "initial size = " << nUCBytes << std::endl;
     while(status == Z_BUF_ERROR) {
 
         uclength = ucBuffer.size();
@@ -57,7 +54,6 @@ namespace Compression
         // In case we need to enlarge increase by the original size every time
         uclength += allocationUnit;
         ucBuffer.resize(uclength);
-        std::cout << "Had to increase size" << std::endl;
     }
 
     switch (status) {
@@ -71,7 +67,6 @@ namespace Compression
         throw std::runtime_error("Unanticipated error from zlib uncompress function");
     }
 
-    std::cout << "final size = " << ucBuffer.size() << std::endl;
     return ucBuffer;
   };
 

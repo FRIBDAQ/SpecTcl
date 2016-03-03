@@ -20,7 +20,6 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 // $Id: QRootDialog.cpp 478 2009-10-29 12:26:09Z linev $
 //-----------------------------------------------------------------------
 //       The GSI Online Offline Object Oriented (Go4) Project

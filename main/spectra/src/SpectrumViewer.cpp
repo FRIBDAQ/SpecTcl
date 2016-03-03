@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,13 +20,11 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "SpectrumViewer.h"
 #include "ui_SpectrumViewer.h"
 #include "HistogramList.h"
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
-#include "LockGuard.h"
 #include "QRootCanvas.h"
 #include "SpecTclInterface.h"
 
@@ -93,9 +91,6 @@ QRootCanvas* SpectrumViewer::getCurrentCanvas()
 
 void SpectrumViewer::onGeometryChanged(int nRows, int nColumns)
 {
-  cout << "nRows = " << nRows << endl;
-  cout << "nCols = " << nColumns << endl;
-
   m_currentCanvas->Clear();
   m_currentCanvas->getCanvas()->Divide(nRows, nColumns);
   m_currentCanvas->cd(1);
@@ -143,20 +138,12 @@ void SpectrumViewer::update(HistogramBundle* gHist)
     if ( ! m_currentHist ) {
       return;
     } else {
-      if ( ! m_currentHist->hist() ) return;
-
-      std::cout << *m_currentHist << std::endl;
       // The draw operation can throw, so we need to protect ourselves
       // against that...
       try {
 
         m_currentHist->synchronizeGates(m_pSpecTcl->getGateList());
-
-        if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
-          m_currentHist->draw("colz");
-        } else {
-          m_currentHist->draw();
-        }
+        m_currentHist->draw();
 
       } catch (const exception& exc) {
         QMessageBox::warning(nullptr, "Drawing error", exc.what());

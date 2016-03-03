@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
+
 #include "GateEditRequest.h"
 
 #include "GlobalSettings.h"
@@ -34,7 +35,6 @@ GateEditRequest::GateEditRequest(const GGate& cut)
     : m_reqStr()
 {
     QString server = GlobalSettings::getServer();
-    std::cout << server.toStdString() << std::endl;
 
     m_reqStr = server + "/spectcl/gate/edit";
     m_reqStr += QString("?name=") + cut.getName();

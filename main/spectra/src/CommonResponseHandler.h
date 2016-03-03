@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -34,6 +34,14 @@ class QUrl;
 namespace Viewer
 {
 
+/*!
+ * \brief CommonResponseHandler
+ *
+ * This handles requests that require no response handling besides checking
+ * for success. This is useful for operations that don't return information.
+ * For example, a gate edit request uses this.
+ *
+ */
 class CommonResponseHandler : public QObject
 {
     Q_OBJECT

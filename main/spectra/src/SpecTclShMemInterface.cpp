@@ -1,9 +1,33 @@
+//    This software is Copyright by the Board of Trustees of Michigan
+//    State University (c) Copyright 2016.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//    Authors:
+//    Jeromy Tompkins
+//    NSCL
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+
 #include "SpecTclShMemInterface.h"
 #include "SpecTclRESTInterface.h"
 #include "Xamine2Root/HistFiller.h"
 #include "dispshare.h"
 #include "QRootCanvas.h"
 #include "HistogramList.h"
+#include "CanvasOps.h"
+
 #include "TCanvas.h"
 
 #include <QMessageBox>
@@ -78,7 +102,7 @@ bool SpecTclShMemInterface::gatePollingEnabled() const {
     return m_pRESTInterface->gatePollingEnabled();
 }
 
-GateList* SpecTclShMemInterface::getGateList()
+MasterGateList* SpecTclShMemInterface::getGateList()
 {
     return m_pRESTInterface->getGateList();
 }
@@ -102,29 +126,23 @@ void SpecTclShMemInterface::requestHistContentUpdate(QRootCanvas *pCanvas)
 {
     Q_ASSERT( pCanvas != nullptr );
 
-    // update all histograms in this canvas
-    requestHistContentUpdate(pCanvas->getCanvas());
+    auto histNames = CanvasOps::extractAllHistNames(*pCanvas);
+
+    for (auto& name : histNames) {
+        // update all histograms in this canvas
+        requestHistContentUpdate(name);
+    }
 }
 
 void SpecTclShMemInterface::requestHistContentUpdate(TPad *pPad)
 {
-
     Q_ASSERT( pPad != nullptr );
 
-    int padCount = 0;
-    // update all histograms in this canvas
-    auto pList = pPad->GetListOfPrimitives();
-    TObject *pObject = nullptr;
-    TIter it(pList);
-    while (( pObject = it.Next() )) {
-        if (pObject->InheritsFrom(TPad::Class()) && padCount < 1) {
-            requestHistContentUpdate(dynamic_cast<TPad*>(pObject));
-            ++padCount;
-        } else if (pObject->InheritsFrom(TH1::Class())) {
-            auto pHist = dynamic_cast<TH1*>(pObject);
+    auto histNames = CanvasOps::extractAllHistNames(*pPad);
 
-            requestHistContentUpdate(QString(pHist->GetName()));
-        }
+    for (auto& name : histNames) {
+        // update all histograms in this canvas
+        requestHistContentUpdate(name);
     }
 }
 
@@ -135,7 +153,7 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
     HistogramBundle* pHBundle = getHistogramList()->getHist(hName);
     try {
         if (pHBundle) {
-            filler.fill(*pHBundle->hist(), hName.toStdString());
+            filler.fill(pHBundle->getHist(), hName.toStdString());
         }
         emit histogramContentUpdated(pHBundle);
     } catch (std::exception& exc) {

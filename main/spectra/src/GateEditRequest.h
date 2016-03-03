@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
+
 #ifndef GATEEDITREQUEST_H
 #define GATEEDITREQUEST_H
 
@@ -31,16 +32,25 @@ namespace Viewer
 class GSlice;
 class GGate;
 
+/*!
+ * \brief Logic for building an edit request
+ *
+ * This provides a centralized location for generating an edit
+ * request for either a GGate or a GSlice
+ */
 class GateEditRequest
 {
 public:
     GateEditRequest(const GGate &cut);
     GateEditRequest(const GSlice& cut);
 
+    /*!
+     * \brief Retrieve the url
+     * \return the url
+     */
     QUrl toUrl();
 
 private:
-
     bool isBand(const GGate& cut);
 
 private:

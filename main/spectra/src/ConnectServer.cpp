@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,24 +20,10 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
-// $Id: ConnectDialog.cpp 478 2009-10-29 12:26:09Z linev $
-//-----------------------------------------------------------------------
-//       The GSI Online Offline Object Oriented (Go4) Project
-//         Experiment Data Processing at EE department, GSI
-//-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
-//                     Planckstr. 1, 64291 Darmstadt, Germany
-// Contact:            http://go4.gsi.de
-//-----------------------------------------------------------------------
-// This software can be used under the license agreements as stated
-// in Go4License.txt file which is part of the distribution.
-//-----------------------------------------------------------------------
-
 #include "ConnectServer.h"
-#include "ui_ConnectServer.h"
 #include "GlobalSettings.h"
 #include "SpecTclInterfaceFactory.h"
+#include "SpecTclInterfaceControl.h"
 #include "SpecTclInterface.h"
 
 #include <QButtonGroup>
@@ -46,33 +32,47 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 namespace Viewer
 {
 
-ConnectDialog::ConnectDialog( MainWindow& rMain, QWidget* parent )
+
+//
+//
+ConnectDialog::ConnectDialog( SpecTclInterfaceControl& rInterface, QWidget* parent )
    : QDialog( parent ),
-   ui(new Ui::ConnectDialog),
-   m_pMain(&rMain)
+   m_pUI(new Ui::ConnectDialog),
+   m_pInterfaceControl(&rInterface)
 {
-   ui->setupUi(this);
 
-   m_pButtonGroup = new QButtonGroup(this);
-   m_pButtonGroup->addButton(ui->remoteRadioBtn, 0);
-   m_pButtonGroup->addButton(ui->localRadioBtn, 1);
-   m_pButtonGroup->setExclusive(true);
+   assembleWidgets();
 
-   int mode = GlobalSettings::getSessionMode();
-   if (mode == 0) {
-       ui->remoteRadioBtn->setChecked(true);
-   } else {
-       ui->localRadioBtn->setChecked(true);
-   }
+   connect(m_pUI->ConnectBtn,SIGNAL(pressed()), this, SLOT(onAccept()));
+   connect(m_pUI->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
+}
 
-   ui->HostName->setText(GlobalSettings::getServerHost());
-   ui->PortNumber->setValue(GlobalSettings::getServerPort());
+//
+//
+void ConnectDialog::assembleWidgets()
+{
+    m_pUI->setupUi(this);
 
-   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(onAccept()));
-   connect(ui->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
+    // group the radiobuttons to work together
+    m_pButtonGroup = new QButtonGroup(this);
+    m_pButtonGroup->addButton(m_pUI->remoteRadioBtn, 0);
+    m_pButtonGroup->addButton(m_pUI->localRadioBtn, 1);
+    m_pButtonGroup->setExclusive(true);
+
+    int mode = GlobalSettings::getSessionMode();
+    if (mode == 0) {
+        m_pUI->remoteRadioBtn->setChecked(true);
+    } else {
+        m_pUI->localRadioBtn->setChecked(true);
+    }
+
+    m_pUI->HostName->setText(GlobalSettings::getServerHost());
+    m_pUI->PortNumber->setValue(GlobalSettings::getServerPort());
 }
 
 
+//
+//
 void ConnectDialog::onAccept() {
     cacheServerSettings();
 
@@ -83,9 +83,9 @@ void ConnectDialog::onAccept() {
     if (currentMode != selectedMode) {
         SpecTclInterfaceFactory factory;
         if (selectedMode == 0) {
-            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::REST));
+            m_pInterfaceControl->setInterface(factory.create(SpecTclInterfaceFactory::REST));
         } else {
-            m_pMain->setSpecTclInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
+            m_pInterfaceControl->setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
         }
     }
 
@@ -93,9 +93,11 @@ void ConnectDialog::onAccept() {
 
 }
 
+//
+//
 void ConnectDialog::cacheServerSettings() {
-  GlobalSettings::setServerHost(ui->HostName->text());
-  GlobalSettings::setServerPort(ui->PortNumber->value());
+  GlobalSettings::setServerHost(m_pUI->HostName->text());
+  GlobalSettings::setServerPort(m_pUI->PortNumber->value());
 }
 
 } // end of namepsace

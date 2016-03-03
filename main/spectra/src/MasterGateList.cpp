@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
-#include "GateList.h"
+
+#include "MasterGateList.h"
 #include "GSlice.h"
 #include "GGate.h"
 
@@ -36,25 +36,25 @@ using namespace std;
 namespace Viewer
 {
 
-bool GateList::Compare1D::operator()(const std::unique_ptr<GSlice>& lhs,
+bool MasterGateList::Compare1D::operator()(const std::unique_ptr<GSlice>& lhs,
                                     const std::unique_ptr<GSlice>& rhs) const 
 {
   return (lhs->getName().compare(rhs->getName()))<0;
 }
 
-bool GateList::Compare2D::operator()(const std::unique_ptr<GGate>& lhs,
+bool MasterGateList::Compare2D::operator()(const std::unique_ptr<GGate>& lhs,
                                       const std::unique_ptr<GGate>& rhs) const 
 {
   return (lhs->getName().compare(rhs->getName()))<0;
 }
 
-GateList::GateList()
+MasterGateList::MasterGateList()
     : m_cuts1d(),
     m_cuts2d()
 {
 }
 
-bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
+bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
  bool somethingChanged=false;
 
@@ -78,7 +78,6 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
             auto& existingSlice = *(*it);
             GSlice newSlice(dynamic_cast<SpJs::Slice&>(*pGate));
             if ( existingSlice != newSlice ) {
-                cout << "GateList::syncrhonizing" << std::endl;
                 existingSlice = newSlice;
                 somethingChanged = true;
             }
@@ -167,7 +166,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
   return somethingChanged;
 }
 
-void GateList::addCut1D(const SpJs::GateInfo& slice)
+void MasterGateList::addCut1D(const SpJs::GateInfo& slice)
 {
   const SpJs::Slice& jsSlice = dynamic_cast<const SpJs::Slice&>(slice);
 
@@ -176,38 +175,38 @@ void GateList::addCut1D(const SpJs::GateInfo& slice)
   addCut1D( move(gsl) );
 }
 
-void GateList::addCut1D(unique_ptr<GSlice> slice)
+void MasterGateList::addCut1D(unique_ptr<GSlice> slice)
 {
   slice->setEditable(false);
   m_cuts1d.insert( move(slice) );
 }
 
-void GateList::addCut2D(const SpJs::GateInfo2D& gate)
+void MasterGateList::addCut2D(const SpJs::GateInfo2D& gate)
 {
   unique_ptr<GGate> ggate(new GGate(gate));
   
   addCut2D( move(ggate) );
 }
 
-void GateList::addCut2D(unique_ptr<GGate> gate)
+void MasterGateList::addCut2D(unique_ptr<GGate> gate)
 {
   gate->setEditable(false);
   m_cuts2d.insert( move(gate) );
 }
 
-size_t GateList::size() const 
+size_t MasterGateList::size() const
 {
   return m_cuts1d.size() + m_cuts2d.size();
 }
 
-void GateList::clear()
+void MasterGateList::clear()
 {
   m_cuts1d.clear(); 
   m_cuts2d.clear();
 }
 
 
-void GateList::removeCut1D(const QString& name)
+void MasterGateList::removeCut1D(const QString& name)
 {
   auto it = find1D(name);
   if (it != m_cuts1d.end()) {
@@ -215,7 +214,7 @@ void GateList::removeCut1D(const QString& name)
   }
 }
 
-void GateList::removeCut2D(const QString& name)
+void MasterGateList::removeCut2D(const QString& name)
 {
   auto it = find2D(name);
   if (it != m_cuts2d.end()) {
@@ -223,14 +222,14 @@ void GateList::removeCut2D(const QString& name)
   }
 }
 
-GateList::iterator1d GateList::find1D(const QString& name)
+MasterGateList::iterator1d MasterGateList::find1D(const QString& name)
 {
   unique_ptr<GSlice> pSlice(new GSlice);
   pSlice->setName(name);
   return m_cuts1d.find(pSlice);
 }
 
-GateList::iterator2d GateList::find2D(const QString& name)
+MasterGateList::iterator2d MasterGateList::find2D(const QString& name)
 {
   unique_ptr<GGate> pGate(new GGate(SpJs::Contour()));
   pGate->setName(name);

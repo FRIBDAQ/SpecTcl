@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "DockableGateManager.h"
 #include "ui_DockableGateManager.h"
 #include "GateBuilderDialog.h"
@@ -31,7 +30,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramList.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include "GateList.h"
+#include "MasterGateList.h"
 
 #include "SliceTableItem.h"
 #include "GateListItem.h"
@@ -95,7 +94,7 @@ void DockableGateManager::launchAddGateDialog()
     bool isTH2 = false;
     {
       QMutexLocker lock(pHistPkg->getMutex());
-      isTH2 = pHistPkg->hist()->InheritsFrom(TH2::Class());
+      isTH2 = pHistPkg->getHist().InheritsFrom(TH2::Class());
     }
     // determine whether this is a 1d or 2d hist and 
     // open to appropriate dialog
@@ -232,10 +231,6 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     ui->gateList->addItem(pItem);
     m_gateRowMap[pSlice->getName()] = ui->gateList->row(pItem);
 
-//    // add the slice to all related histograms
-//    m_pSpecTcl->getHistogramList()->addSlice(pSlice);
-
-
     auto pCanvas = m_view.getCurrentCanvas();
     try {
       auto hists = SpectrumView::getAllHists(pCanvas);
@@ -319,7 +314,6 @@ void DockableGateManager::clearList()
 {
   while ( ui->gateList->count() > 0 ) {
     auto pItem = ui->gateList->item(0);
-    cout << (void*) pItem << endl;
     removeGate(pItem);
   }
 }

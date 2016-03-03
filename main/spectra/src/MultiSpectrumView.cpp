@@ -1,3 +1,25 @@
+//    This software is Copyright by the Board of Trustees of Michigan
+//    State University (c) Copyright 2016.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//    Authors:
+//    Jeromy Tompkins
+//    NSCL
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+
 #include "MultiSpectrumView.h"
 #include "HistogramBundle.h"
 #include "QRootCanvas.h"
@@ -35,9 +57,23 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_pLayout->addWidget(m_pCurrentCanvas, 0, 0);
     m_pCurrentCanvas->cd();
 
+
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
 
+}
+
+MultiSpectrumView::~MultiSpectrumView()
+{
+    for (int col=0; col<m_currentNColumns; col++) {
+        for (int row=0; row<m_currentNRows; row++) {
+            auto pItem = m_pLayout->itemAtPosition(row,col);
+            if (pItem) {
+                auto pWidget = pItem->widget();
+                delete pWidget;
+            }
+        }
+    }
 }
 
 int MultiSpectrumView::getRowCount() const
@@ -260,7 +296,7 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 {
   if (pBundle) {
       getCurrentCanvas()->cd();
-      if (pBundle->hist() && histogramInCanvas(pBundle, getCurrentCanvas())) {
+      if (histogramInCanvas(pBundle, getCurrentCanvas())) {
           if (m_pSpecTcl) {
               pBundle->synchronizeGates(m_pSpecTcl->getGateList());
           }
@@ -275,13 +311,11 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 {
     if (pBundle) {
-      getCurrentCanvas()->cd();
-      if (pBundle->hist()) {
-          if (m_pSpecTcl) {
-              pBundle->synchronizeGates(m_pSpecTcl->getGateList());
-          }
-          pBundle->draw();
+        getCurrentCanvas()->cd();
+        if (m_pSpecTcl) {
+            pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
+        pBundle->draw();
     }
     setFocus();
     refreshAll();
@@ -318,10 +352,11 @@ void MultiSpectrumView::refreshAll()
     m_pCurrentCanvas->cd();
 }
 
+
 void MultiSpectrumView::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
-    std::cout << "Removed hist @ " << static_cast<void*>(pHistBundle) << std::endl;
 }
+
 
 bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 {
@@ -339,9 +374,10 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
   return false;
 }
 
+
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
-  return (pCanvas->findObject(pHist->hist()) != nullptr);
+  return (pCanvas->findObject(&pHist->getHist()) != nullptr);
 }
 
 } // end of namespace

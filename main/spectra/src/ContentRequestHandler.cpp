@@ -1,5 +1,5 @@
 //    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2015.
+//    State University (c) Copyright 2016.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -20,12 +20,10 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
-#include "LockGuard.h"
 #include "Compression.h"
 #include "ConnectionTester.h"
 
@@ -46,6 +44,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <mutex>
 
 #include <zlib.h>
 #include <cstdlib>
@@ -57,6 +56,8 @@ namespace Viewer
 
 namespace cprs = Compression;
 
+//
+//
 ContentRequestHandler::ContentRequestHandler(HistogramList* pHistList, QObject *parent) :
     QThread(parent),
     m_pHistList(pHistList),
@@ -68,8 +69,6 @@ ContentRequestHandler::ContentRequestHandler(HistogramList* pHistList, QObject *
 {
 }
 
-////
-//
 //
 //
 ContentRequestHandler::~ContentRequestHandler()
@@ -98,24 +97,16 @@ void ContentRequestHandler::get(const QUrl& url)
     m_requests.push_back(QNetworkRequest(url));
 
     if (!isRunning()) {
-        std::cout << "Not running... need to start" << std::endl;
 
         start();
 
-        std::cout << "Started" << std::endl;
     } else if (m_requests.size()==1) {
-        std::cout << "Already running... must wake" << std::endl;
 
         m_cond.wakeOne();
 
-        std::cout << "Done waking up the condition" << std::endl;
-    } else {
-      std::cout << "Processing an earlier request... your request has been queued." << std::endl;
     }
 }
 
-////
-//
 //
 //
 void ContentRequestHandler::run()
@@ -134,9 +125,7 @@ void ContentRequestHandler::run()
     m_mutex.unlock();
 
 
-    std::cout << "Processing GET " << req.url().toString().toStdString() << std::endl;
     std::unique_ptr<QNetworkReply> reply = doGet(req);
-    std::cout << "Received data" << std::endl;
 
     auto error = reply->error();
     if (error == QNetworkReply::NoError) {
@@ -156,28 +145,8 @@ void ContentRequestHandler::run()
   } // end of while
 }
 
-
-void ContentRequestHandler::updateRequest()
-{
-    QString host = GlobalSettings::getInstance()->value("/server/hostname").toString();
-    int port = GlobalSettings::getInstance()->value("/server/port").toInt();
-
-    QString reqStrTemplate("http://%1:%2/spectcl/spectrum/contents?name=");
-    reqStrTemplate = reqStrTemplate.arg(host).arg(port);
-
-    auto names = m_pHistList->histNames();
-    auto iter = names.begin();
-    auto end  = names.end();
-    while (iter!=end) {
-
-        QString request = (reqStrTemplate+(*iter));
-        get(request);
-
-        ++iter;
-    }
-
-}
-
+//
+//
 QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &request)
 {
     QUrl url = request.url();
@@ -185,6 +154,8 @@ QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &req
     return name;
 }
 
+//
+//
 std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkRequest& req)
 {
   ConnectionTester::Result connectionStatus;
@@ -214,6 +185,8 @@ std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkReques
 }
 
 
+//
+//
 void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& reply)
 {
   QByteArray bytes = reply->readAll();
@@ -228,7 +201,6 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     QByteArray json;
     QString encoding = reply->rawHeader("Content-Encoding");
     if (encoding == "deflate") {
-        cout << "uncompress..." << flush;
 
         // default uncompressed size to try
         size_t nBytesDecomp = 2<<20;
@@ -245,23 +217,18 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
         }
 
         json = cprs::uncompress(nBytesDecomp, bytes);
-        cout << "done" << endl;
     } else {
         json = bytes;
     }
 
-    cout << "reading json..." << flush;
     bool ok = reader.parse(json.constData(),value);
-    cout << "done" << endl;
     if (!ok) {
       throw std::runtime_error ("Failed to parse json");
     }
 
     // parse the content... this will throw if the json
     // specifies a status other than "ok"
-    cout << "parsing json..." << flush;
     auto content = SpJs::JsonParser().parseContentCmd(value);
-    cout << "done" << endl;
 
 
     // get the name of the hist and update it if it exists.
@@ -272,10 +239,8 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
       QMutexLocker listLock(m_pHistList->getMutex());
       pHistBundle = m_pHistList->getHist(name);
 
-      if (pHistBundle->hist()) {
-        LockGuard<HistogramBundle> lock(pHistBundle);
-        SpJs::HistFiller()(*(pHistBundle->hist()), content.getValues());
-      }
+        std::lock_guard<HistogramBundle> lock(*pHistBundle);
+        SpJs::HistFiller()(pHistBundle->getHist(), content.getValues());
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
 
@@ -291,6 +256,8 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
   }
 }
 
+//
+//
 void ContentRequestHandler::completeJob()
 {
   QMutexLocker lock(&m_mutex);
