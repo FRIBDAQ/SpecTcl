@@ -116,7 +116,17 @@ public:
 };
 
 
-
+/*!
+ * \brief The CHistogrammer class
+ *
+ * TIP: This is often referred to as the sorter.
+ *
+ * This class provides the logic for filling the spectra when an event is complete.
+ * It also owns all of the dictionaries for the spectra, gates, and parameters.
+ * It also manages the observers for the gate dictionary.
+ *
+ * \todo Factor out the dictionaries from this.
+ */
 class CHistogrammer : public CEventSink {
 
   typedef std::list<CGateObserver*>   GateObserverList;
