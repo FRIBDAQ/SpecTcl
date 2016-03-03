@@ -38,6 +38,13 @@ extern std::ostream& operator<<(std::ostream& stream, const Viewer::QTLine& line
 namespace Viewer
 {
 
+/*!
+ * \brief A signal/slot aware TLine
+ *
+ * This splices signal/slot awareness into the TLine class. It is useful
+ * for locking the TLines. The Paint method is overriden to support drawing
+ * a line between a stored set of points.
+ */
 class QTLine : public QObject, public TLine
 {
   Q_OBJECT 
@@ -45,21 +52,39 @@ class QTLine : public QObject, public TLine
   public:
     QTLine();
     QTLine(double x1, double y1, double x2, double y2);
-
     QTLine& operator=(const QTLine& rhs);
 
+    /*!
+     * \brief Redefined TLine::Paint method that supports locking
+     * \param opts
+     */
     void Paint(Option_t* opts = "");
 
+    /*!
+     * \brief Allow the points to be moved graphically
+     * \param enable    enabled (true) or disable (false)
+     */
     void setEditable(bool enable);
+
+    /*!
+     * \brief Check whether the line is editable or not
+     * \return true (editable) or false (not editable)
+     */
     bool isEditable() const;
+
+    /*!
+     * \brief This method snaps the y values to the frame
+     */
     void updateYValues();
 
     friend std::ostream& ::operator<<(std::ostream&, const QTLine&);
+
+    //////////////////////////////////////////////////////////////////////////
 signals:
     void valuesChanged(double x1, double y1, double x2, double y2);
 
   private:
-    bool m_editable;
+    bool   m_editable;
     double m_lastX1;
     double m_lastY1;
     double m_lastX2;
