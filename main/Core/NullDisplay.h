@@ -5,7 +5,12 @@
 #include "DisplayFactory.h"
 
 
-
+/*!
+ * \brief The CNullDisplay class
+ *
+ * This is intended to be a display that does nothing but doesn't break anything
+ * when the rest of SpecTcl tries to interact with it.
+ */
 class CNullDisplay : public CDisplay
 {
 public:
