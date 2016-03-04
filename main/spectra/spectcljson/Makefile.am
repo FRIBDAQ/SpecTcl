@@ -10,7 +10,8 @@ libSpecTclJson_la_SOURCES = BinInfo.cpp \
 														HistInfo.cpp \
 														JsonParser.cpp \
 														ParameterCmdParser.cpp \
-														ParameterInfo.cpp
+														ParameterInfo.cpp \
+														SharedMemoryKeyParser.cpp
 
 include_HEADERS = BinInfo.h \
 									GateCmdParser.h \
@@ -20,7 +21,8 @@ include_HEADERS = BinInfo.h \
 									HistInfo.h \
 									JsonParser.h \
 									ParameterCmdParser.h \
-									ParameterInfo.h
+									ParameterInfo.h \
+									SharedMemoryKeyParser.h
 
 libSpecTclJson_la_CXXFLAGS = @ROOT_CFLAGS@ \
 														 @JSONCPP_CFLAGS@ 
@@ -39,7 +41,8 @@ unittests_SOURCES = GateInfoTest.cpp \
 										HistFillerTest.cpp \
 										HistInfoTest.cpp \
 										JsonParserTest.cpp \
-										ParameterCmdParserTest.cpp 
+										ParameterCmdParserTest.cpp \
+										SharedMemoryKeyParserTest.cpp
 
 unittests_CXXFLAGS = @JSONCPP_CFLAGS@ \
 										 @ROOT_CFLAGS@ \
