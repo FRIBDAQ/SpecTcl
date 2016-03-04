@@ -71,6 +71,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "VersionCommand.h"
 #include "SContentsCommand.h"
 
+#include "SharedMemoryKeyCommand.h"
+
 #include "ProductionXamineShMem.h"
 
 #include <histotypes.h>
@@ -756,6 +758,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   new CSpectrumStatsCommand(rInterp);
   
   cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
+
+  new CSharedMemoryKeyCommand(rInterp, *SpecTcl::getInstance());
+  cerr << "shmemkey - shared memory key command (c) 2016 Written by Jeromy Tompkins\n";
 
   cerr.flush();
 }
