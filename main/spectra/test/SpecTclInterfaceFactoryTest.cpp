@@ -1,4 +1,3 @@
-
 //    This software is Copyright by the Board of Trustees of Michigan
 //    State University (c) Copyright 2016.
 //
@@ -64,7 +63,7 @@ class SpecTclInterfaceFactoryTest : public CppUnit::TestFixture
     }
     void tearDown() {
         if (m_pOld) {
-            setenv("XAMINE_SHMEM", m_pOld);
+            setenv("XAMINE_SHMEM", m_pOld, 1);
         }
     }
 
@@ -74,25 +73,24 @@ class SpecTclInterfaceFactoryTest : public CppUnit::TestFixture
         GlobalSettings::setSharedMemoryKey(theKey);
 
         SpecTclInterfaceFactory factory;
-        factory.setupShMemEnv();
+        factory.setUpShMemEnv();
 
         char* pEnv = ::getenv("XAMINE_SHMEM");
         ASSERTMSG("XAMINE_SHMEM that we define should be retrievable with getenv",
                   equal(pEnv, pEnv + strlen(pEnv), theKey));
-
     }
 
     void setUpShMemEnv_1() {
 
-        const char* env = "whatever";
-        setenv("XAMINE_SHMEM", env);
+        const char* defEnv = "whatever";
+        setenv("XAMINE_SHMEM", defEnv, 1);
 
         SpecTclInterfaceFactory factory;
-        factory.setupShMemEnv();
+        factory.setUpShMemEnv();
 
         char* pEnv = ::getenv("XAMINE_SHMEM");
         ASSERTMSG("Previously defined XAMINE_SHMEM should be retrievable with getenv",
-                  equal(pEnv, pEnv + strlen(pEnv), env));
+                  equal(pEnv, pEnv + min(strlen(pEnv), strlen(defEnv)), defEnv));
     }
 
 };
