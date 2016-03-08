@@ -109,4 +109,14 @@ int GlobalSettings::getSessionMode()
     }
 }
 
+void GlobalSettings::setSharedMemoryKey(const QString& keyString)
+{
+    return getInstance()->setValue("/session/shmem/key", keyString);
+}
+
+QString GlobalSettings::getSharedMemoryKey()
+{
+    return getInstance()->value("/session/shmem/key").toString();
+}
+
 } // end of namespace

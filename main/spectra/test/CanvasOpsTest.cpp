@@ -30,6 +30,7 @@
 
 #include "CanvasOps.h"
 #include "QRootCanvas.h"
+#include "TestUtils.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -41,12 +42,6 @@
 #include <algorithm>
 
 using namespace std;
-
-
-ostream& operator<<(ostream& stream, const QString& msg) {
-    stream << msg.toStdString() << endl;
-    return stream;
-}
 
 namespace Viewer
 {

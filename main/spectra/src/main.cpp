@@ -40,15 +40,14 @@ int main(int argc, char *argv[])
   TQApplication a("app", &argc, argv);
   TQRootApplication b(argc, argv, 0);
 
-  Viewer::GlobalSettings::setSessionMode(1);
+  Viewer::GlobalSettings::setSessionMode(1);  
+  Viewer::GlobalSettings::setServerHost("localhost");
+  Viewer::GlobalSettings::setServerPort(8080);
+  Viewer::GlobalSettings::setPollInterval(5000);
 
   Viewer::MainWindow w;
   w.show();
 
-
-  Viewer::GlobalSettings::setServerHost("localhost");
-  Viewer::GlobalSettings::setServerPort(8080);
-  Viewer::GlobalSettings::setPollInterval(5000);
 
   return b.exec();
 }

@@ -70,6 +70,9 @@ public:
 
     static void setSessionMode(int typeId);
     static int getSessionMode();
+
+    static void setSharedMemoryKey(const QString& hexKey);
+    static QString getSharedMemoryKey();
 };
 
 } // end of namespace

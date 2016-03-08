@@ -62,6 +62,10 @@ public:
      * \return new SpecTclInterface
      */
     std::unique_ptr<SpecTclInterface> create(InterfaceType type);
+
+    std::unique_ptr<SpecTclInterface> createShMemInterface();
+
+    void setUpShMemEnv();
 };
 
 } // end of namespace

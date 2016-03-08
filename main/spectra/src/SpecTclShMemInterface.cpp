@@ -41,6 +41,8 @@ SpecTclShMemInterface::SpecTclShMemInterface() :
     m_pRESTInterface(new SpecTclRESTInterface)
 {
 
+    // we need to shmem key at this point
+
     Xamine_initspectra(); // sets up access to spectra
 
     connect(m_pRESTInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),

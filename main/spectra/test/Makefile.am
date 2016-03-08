@@ -12,8 +12,12 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										QTLineTest.cpp \
 										TestRunner.cpp \
 										MainWindowTest.cpp \
-										CanvasOpsTest.cpp
+										CanvasOpsTest.cpp \
+										ShMemKeyRequestHandlerTest.cpp \
+										SpecTclInterfaceFactoryTest.cpp \
+										TestUtils.cpp
 
+noinst_HEADERS = TestUtils.h
 
 unittests_LDFLAGS = @ROOT_LDFLAGS@ \
 										 @JSONCPP_LIBS@ \
