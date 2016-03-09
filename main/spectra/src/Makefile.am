@@ -50,7 +50,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   CanvasOps.h \
   SpecTclInterfaceControl.h \
   ShMemKeyRequestHandler.h \
-  ShMemSizeRequestHandler.h
+  ShMemSizeRequestHandler.h \
+  CmdLineOptions.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -96,6 +97,7 @@ libSpectra_la_SOURCES = \
   SpecTclInterfaceControl.cpp \
   ShMemKeyRequestHandler.cpp \
   ShMemSizeRequestHandler.cpp \
+  CmdLineOptions.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -128,6 +130,7 @@ libSpectra_la_SOURCES = \
 	moc_SpecTclShMemInterface.cpp \
 	moc_ShMemKeyRequestHandler.cpp \
 	moc_ShMemSizeRequestHandler.cpp \
+	cmdline.c \
 	qrc_resources.cpp
 
 spectraFORMS =  MainWindow.ui  \
@@ -145,7 +148,8 @@ spectraFORMS =  MainWindow.ui  \
 
 spectraRESOURCES = resources.qrc
 
-BUILT_SOURCES = ui_MainWindow.h \
+BUILT_SOURCES = cmdline.h cmdline.c \
+				ui_MainWindow.h \
 								ui_ConnectServer.h \
 								ui_SpectrumViewer.h \
 								ui_HistogramList.h \
@@ -219,6 +223,9 @@ ui_%.h : %.ui
 qrc_%.cpp : %.qrc
 	@RCC@ -name $(basename $(notdir $<)) -o $@ $<
 
+cmdline.h cmdline.c : cmdline.ggo
+	  $(GENGETOPT) <@srcdir@/cmdline.ggo --output-dir=@srcdir@
+
 spectra_SOURCES = main.cpp
 spectra_CXXFLAGS = @ROOT_CFLAGS@  \
 									 -I@top_srcdir@/spectra/spectcljson \
@@ -232,3 +239,6 @@ spectra_LDADD = @builddir@/libSpectra.la \
 								@QT_LDFLAGS@ @QT_LIBS@ \
 								@TCL_LIBS@
 spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
+
+
+EXTRA_DIST = commandline.ggo

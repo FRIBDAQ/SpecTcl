@@ -20,18 +20,26 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
+#include "CmdLineOptions.h"
 #include "MainWindow.h"
+
 #include <TQApplication.h>
 #include <TQRootApplication.h>
 #include "GlobalSettings.h"
 #include <TEnv.h>
 #include <TStyle.h>
 
+
 #include "QHistInfo.h"
 
 int main(int argc, char *argv[])
 {
+
+  Viewer::CmdLineOptions opts;
+  opts.parse(argc, argv);
+
   Q_INIT_RESOURCE(resources);
+
   QApplication::setGraphicsSystem("native");
 
   gEnv->SetValue("Unix.*.Root.UseTTFonts", false); // TTF are SLOW!
@@ -41,8 +49,8 @@ int main(int argc, char *argv[])
   TQRootApplication b(argc, argv, 0);
 
   Viewer::GlobalSettings::setSessionMode(1);  
-  Viewer::GlobalSettings::setServerHost("localhost");
-  Viewer::GlobalSettings::setServerPort(8080);
+  Viewer::GlobalSettings::setServerHost(opts.getHost());
+  Viewer::GlobalSettings::setServerPort(opts.getPort());
   Viewer::GlobalSettings::setPollInterval(5000);
 
   Viewer::MainWindow w;

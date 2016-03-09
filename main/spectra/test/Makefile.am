@@ -15,6 +15,7 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										CanvasOpsTest.cpp \
 										ShMemKeyRequestHandlerTest.cpp \
 										SpecTclInterfaceFactoryTest.cpp \
+										CmdLineOptionsTest.cpp \
 										TestUtils.cpp
 
 noinst_HEADERS = TestUtils.h
