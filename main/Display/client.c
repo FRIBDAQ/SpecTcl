@@ -132,7 +132,6 @@ void killmem()
      struct shmid_ds stat;
      shmctl(Xamine_Memid, IPC_STAT, &stat);
      if (stat.shm_nattch == 1) {
-         printf("Last shm destroying\n");
          shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
      }
   }
@@ -380,7 +379,6 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
   if(!genmem(name, 
 	     (volatile void **)ptr,	/* Gen shared memory region. */
              sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes)) {
-      printf("failed to genmem\n");
     return 0;
   }
 

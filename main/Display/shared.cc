@@ -452,24 +452,14 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 
   memcpy(&key, name, sizeof(key));
 
-  printf("key=%s, size=%d\n", name, size);
 
   id  = shmget(key, size, 0);	/* Get the memory key.. */
-  printf("id=%d\n", id);
   if(id < 0) {
-    perror("Locating the shmem via shmget");
     return (spec_shared *)NULL;
  }
 
   memory = (char *)shmat(id, NULL, SHM_RDONLY);
 
-  printf("memory=%x\n", memory);
-
-//  // After attaching the shared memory region, it's marked for
-//  // deletion. This prevents shared memory regions from hanging around
-//  // after the program exits.
-//  //
-//  shmctl(id, IPC_RMID, 0);        // Mark for deletion.
   return (spec_shared *)memory;
   
 }
