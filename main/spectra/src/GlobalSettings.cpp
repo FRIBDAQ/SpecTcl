@@ -119,4 +119,14 @@ QString GlobalSettings::getSharedMemoryKey()
     return getInstance()->value("/session/shmem/key").toString();
 }
 
+void GlobalSettings::setSharedMemorySize(int size)
+{
+    return getInstance()->setValue("/session/shmem/size", size);
+}
+
+QString GlobalSettings::getSharedMemorySize()
+{
+    return getInstance()->value("/session/shmem/size").toString();
+}
+
 } // end of namespace

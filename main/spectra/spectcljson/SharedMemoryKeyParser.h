@@ -15,6 +15,7 @@ namespace SpJs
     {
         public:
             std::string parseKey(const Json::Value& value);
+            std::string parseSize(const Json::Value& value);
     };
 
 }

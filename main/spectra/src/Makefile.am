@@ -49,7 +49,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   SpecTclInterfaceObserver.h \
   CanvasOps.h \
   SpecTclInterfaceControl.h \
-  ShMemKeyRequestHandler.h
+  ShMemKeyRequestHandler.h \
+  ShMemSizeRequestHandler.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -94,6 +95,7 @@ libSpectra_la_SOURCES = \
   CanvasOps.cpp \
   SpecTclInterfaceControl.cpp \
   ShMemKeyRequestHandler.cpp \
+  ShMemSizeRequestHandler.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -125,6 +127,7 @@ libSpectra_la_SOURCES = \
 	moc_DockableGateManager.cpp \
 	moc_SpecTclShMemInterface.cpp \
 	moc_ShMemKeyRequestHandler.cpp \
+	moc_ShMemSizeRequestHandler.cpp \
 	qrc_resources.cpp
 
 spectraFORMS =  MainWindow.ui  \

@@ -73,6 +73,10 @@ public:
 
     static void setSharedMemoryKey(const QString& hexKey);
     static QString getSharedMemoryKey();
+
+    static void setSharedMemorySize(int size);
+    static QString getSharedMemorySize();
+
 };
 
 } // end of namespace

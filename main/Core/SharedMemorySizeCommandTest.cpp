@@ -24,15 +24,12 @@
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 
-#include <config.h>
-#include "SharedMemoryKeyCommand.h"
-#include "SpecTclDisplayManager.h"
-#include "SpecTcl.h"
+#include "SharedMemorySizeCommand.h"
 
 #include "TCLInterpreter.h"
 #include "TCLException.h"
 
-#include <sstream>
+#include <string>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -40,80 +37,63 @@
 #include <unistd.h>
 
 
-extern CDisplayInterface* gpDisplayInterface;
-
 using namespace std;
 
 class CSharedMemorySizeCommandTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(CSharedMemorySizeCommandTests);
     CPPUNIT_TEST(execute_0);
+    CPPUNIT_TEST(execute_1);
     CPPUNIT_TEST(tooManyArgs_0);
-    CPPUNIT_TEST(noDisplay_0);
     CPPUNIT_TEST_SUITE_END();
 
 private:
+    std::string m_oldStr;
 
 public:
     void setUp() {
+        m_oldStr = ::getenv("XAMINE_SHMEM_SIZE");
+        ::unsetenv("XAMINE_SHMEM_SIZE");
+    }
+
+    void tearDown() {
+        ::setenv("XAMINE_SHMEM_SIZE", m_oldStr.c_str(), 1);
     }
 
     void execute_0 () {
         CTCLInterpreter interp;
 
-        SpecTcl& api = *SpecTcl::getInstance();
+        string expected("123");
+        ::setenv("XAMINE_SHMEM_SIZE", expected.c_str(), 1);
 
-        CSpecTclDisplayInterface interface;
-        api.SetDisplayInterface(interface);
+        CSharedMemorySizeCommand cmd(interp);
 
-        interface.createDisplay("spectra", "spectra");
-        interface.setCurrentDisplay("spectra");
+        string result = interp.GlobalEval("shmemsize");
 
-        CSharedMemoryKeyCommand cmd(interp, api);
+        EQMSG("Shared memory size command (shmemsize) should return correct size",
+              expected, result);
+    }
 
-        string result = interp.GlobalEval("shmemkey");
 
-        ostringstream expected;
-        expected << "XA" << hex << setfill('0') << setw(2) << (0xff&getpid());
+    void execute_1 () {
+        CTCLInterpreter interp;
 
-        EQMSG("Shared memory key command (shmemkey) should return correct key",
-              expected.str(), result);
+        CSharedMemorySizeCommand cmd(interp);
+
+        string result = interp.GlobalEval("shmemsize");
+
+        EQMSG("shmemsize should return empty string if XAMINE_SHMEM_SIZE not set",
+              string(), result);
     }
 
     void tooManyArgs_0() {
         CTCLInterpreter interp;
 
-        SpecTcl& api = *SpecTcl::getInstance();
-
-        CSpecTclDisplayInterface interface;
-        api.SetDisplayInterface(interface);
-
-        interface.createDisplay("spectra", "spectra");
-        interface.setCurrentDisplay("spectra");
-
-        CSharedMemoryKeyCommand cmd(interp, api);
+        CSharedMemorySizeCommand cmd(interp);
 
         CPPUNIT_ASSERT_THROW_MESSAGE (
                     "An exception should occur when too many arguments provided.",
-            interp.GlobalEval("shmemkey asdf"),
-            CTCLException
-        );
-    }
-
-    void noDisplay_0() {
-        CTCLInterpreter interp;
-
-        SpecTcl& api = *SpecTcl::getInstance();
-
-        // Force the display to clear
-        gpDisplayInterface = nullptr;
-
-
-        CSharedMemoryKeyCommand cmd(interp, api);
-
-        CPPUNIT_ASSERT_THROW_MESSAGE (
-                    "Exception should be thrown when no display is provided.",
-            interp.GlobalEval("shmemkey"),
+            interp.GlobalEval("shmemsize asdf"),
             CTCLException
         );
     }
@@ -121,6 +101,7 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CSharedMemorySizeCommandTests);
+
 
 
 

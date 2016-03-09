@@ -197,7 +197,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
-	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp
+	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp
 
 TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -213,7 +213,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
-	XamineEventHandler.h SharedMemoryKeyCommand.h
+	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h
 
 SpecTcl_SRC =  MySpecTclApp.cpp \
 	AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
@@ -434,7 +434,8 @@ spectraDisplayTests_SOURCES = TestRunner.cpp \
 spectclCmdTests_CXXFLAGS = $(commonCXXFLAGS)
 spectclCmdTests_LDADD    = $(commonTestLdFlags)
 spectclCmdTests_SOURCES  = TestRunner.cpp \
-							SharedMemoryKeyCommandTest.cpp
+							SharedMemoryKeyCommandTest.cpp \
+							SharedMemorySizeCommandTest.cpp
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 		sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \

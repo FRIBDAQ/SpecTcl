@@ -1,32 +1,29 @@
-#include "ShMemKeyRequestHandler.h"
+#include "ShMemSizeRequestHandler.h"
 #include "GlobalSettings.h"
-
 #include "SharedMemoryKeyParser.h"
-
-#include <QNetworkReply>
-#include <QByteArray>
-#include <QMessageBox>
-#include <QNetworkAccessManager>
-#include <QEventLoop>
-
 #include <json/json.h>
 
+#include <QByteArray>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
+#include <QEventLoop>
+#include <QMessageBox>
+
 #include <stdexcept>
-#include <iostream>
 
 namespace Viewer {
 
-ShMemKeyRequestHandler::ShMemKeyRequestHandler()
+ShMemSizeRequestHandler::ShMemSizeRequestHandler(QObject *parent) :
+    QObject(parent)
 {
 }
 
-
-void ShMemKeyRequestHandler::get()
+void ShMemSizeRequestHandler::get()
 {
     QEventLoop loop;
     QNetworkAccessManager nam;
 
-    QString request = GlobalSettings::getServer() + "/spectcl/shmem/key";
+    QString request = GlobalSettings::getServer() + "/spectcl/shmem/size";
     QNetworkReply* pReply = nam.get(QNetworkRequest(QUrl(request)));
 
     connect(&nam, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
@@ -36,7 +33,7 @@ void ShMemKeyRequestHandler::get()
 
 }
 
-void ShMemKeyRequestHandler::processReply(QNetworkReply *pReply)
+void ShMemSizeRequestHandler::processReply(QNetworkReply *pReply)
 {
 
     if (pReply->error() == QNetworkReply::NoError) {
@@ -49,7 +46,7 @@ void ShMemKeyRequestHandler::processReply(QNetworkReply *pReply)
     }
 }
 
-void ShMemKeyRequestHandler::processSuccess(const QByteArray& buffer)
+void ShMemSizeRequestHandler::processSuccess(const QByteArray& buffer)
 {
     Json::Reader reader;
     Json::Value value;
@@ -61,16 +58,17 @@ void ShMemKeyRequestHandler::processSuccess(const QByteArray& buffer)
     }
 
     SpJs::SharedMemoryKeyParser parser;
-    QString key = QString::fromStdString(parser.parseKey(value));
-    GlobalSettings::setSharedMemoryKey(key);
+    int size = ::atoi(parser.parseSize(value).c_str());
+    GlobalSettings::setSharedMemorySize(size);
 }
 
-void ShMemKeyRequestHandler::processFailure(QNetworkReply &reply)
+void ShMemSizeRequestHandler::processFailure(QNetworkReply &reply)
 {
     QMessageBox::warning(nullptr,
                          "Invalid server response",
-                         "Failed to parse the shared memory key");
+                         "Failed to parse the shared memory size");
 
 }
+
 
 } // namespace Viewer

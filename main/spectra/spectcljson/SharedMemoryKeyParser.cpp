@@ -13,4 +13,15 @@ namespace SpJs {
 
         return value["detail"].asString();
     }
+
+    std::string SharedMemoryKeyParser::parseSize(const Json::Value &value)
+    {
+        // fail if we did not retrieve a proper value
+        if (value["status"].asString() != "OK") {
+          throw std::runtime_error("Cannot parse json, status != OK");
+        }
+
+        return value["detail"].asString();
+    }
+
 }

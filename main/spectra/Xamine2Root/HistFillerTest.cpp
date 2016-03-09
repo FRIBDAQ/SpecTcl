@@ -33,6 +33,8 @@
 #include <TH2.h>
 #include "client.h"
 #include "dispshare.h"
+#include <sys/shm.h>
+#include <sys/ipc.h>
 
 #include <iostream>
 #include <algorithm>
@@ -83,6 +85,7 @@ class HistFillerTest : public CppUnit::TestFixture
     int m_spec2d;
 
   public:
+
     void setUp() {
 
         Xamine_CreateSharedMemory(1024*1024, &m_pSharedMemory);
@@ -100,6 +103,15 @@ class HistFillerTest : public CppUnit::TestFixture
         if (m_spec2d > 0) Xamine_FreeSpectrum(m_spec2d);
 
         Xamine_DetachSharedMemory();
+
+        char name[5];
+        Xamine_GetMemoryName(name);
+
+        key_t key;
+        memcpy(reinterpret_cast<char*>(&key), name, sizeof(name) );
+        int id = shmget(key, 1024*1024, 0);
+        shmctl(id, IPC_RMID, 0);
+
     }
 
     template<class T>

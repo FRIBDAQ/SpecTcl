@@ -25,11 +25,14 @@
 #include "SpecTclRESTInterface.h"
 #include "SpecTclShMemInterface.h"
 #include "ShMemKeyRequestHandler.h"
+#include "ShMemSizeRequestHandler.h"
 #include "GlobalSettings.h"
 
+#include <cstdlib>
 #include <stdexcept>
 
 #include <unistd.h>
+#include <errno.h>
 
 namespace Viewer {
 
@@ -54,17 +57,40 @@ SpecTclInterfaceFactory::create(InterfaceType type) {
  * The Xamine_initspectra command relies on having certain environment variables set.
  *
  */
-void SpecTclInterfaceFactory::setUpShMemEnv()
+void SpecTclInterfaceFactory::setUpShMemSizeEnv()
+{
+    const char* pSizeEnv = ::getenv("XAMINE_SHMEM_SIZE");
+    if (pSizeEnv == nullptr) {
+
+        ShMemSizeRequestHandler().get();
+        QString envValue = GlobalSettings::getSharedMemorySize();
+
+        ::setenv("XAMINE_SHMEM_SIZE", envValue.toLocal8Bit().data(), 1);
+
+    } else {
+        GlobalSettings::setSharedMemorySize(atoi(pSizeEnv));
+    }
+}
+
+void SpecTclInterfaceFactory::setUpShMemKeyEnv()
 {
     const char* pEnv = ::getenv("XAMINE_SHMEM");
     if (pEnv == nullptr) {
-        ShMemKeyRequestHandler requester;
-        requester.get();
+        ShMemKeyRequestHandler().get();
 
         QString envValue = GlobalSettings::getSharedMemoryKey();
 
         ::setenv("XAMINE_SHMEM", envValue.toLocal8Bit().data(), 1);
+    } else {
+        GlobalSettings::setSharedMemoryKey(QString(pEnv));
     }
+}
+
+void SpecTclInterfaceFactory::setUpShMemEnv()
+{
+    setUpShMemKeyEnv();
+
+    setUpShMemSizeEnv();
 }
 
 std::unique_ptr<SpecTclInterface> SpecTclInterfaceFactory::createShMemInterface()

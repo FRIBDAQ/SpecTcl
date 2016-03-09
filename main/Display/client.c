@@ -51,7 +51,7 @@
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
 #elif !HAVE_WINDOWS_H
-  error No sys/shm.h needed to manipulate shared memory region!
+  #error No sys/shm.h needed to manipulate shared memory region!
 #endif
 
 #include <sys/stat.h>
@@ -129,7 +129,12 @@ void killmem()
 #else
 {
   if(Xamine_Memid > 0) {
-    shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+     struct shmid_ds stat;
+     shmctl(Xamine_Memid, IPC_STAT, &stat);
+     if (stat.shm_nattch == 1) {
+         printf("Last shm destroying\n");
+         shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+     }
   }
 }
 #endif
@@ -231,6 +236,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   
     CloseHandle(hMapFile);
   */
+
   atexit(killmem);
 
   *ptr = pMemory;
@@ -245,19 +251,24 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   /* Create the shared memory region: */
 
   memcpy(&key, name, sizeof(key));
-  memid = shmget(key, size, 
+
+  memid = shmget(key, size,
  	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR); /* Owner rd/wr */
-  if(memid == -1) 
+  if(memid == -1) {
     return 0;
+  }
 
   /* Attach to the shared memory region: */
 
   base = (char *)shmat(memid, NULL, 0);
-  if(base == NULL)
+  if(base == NULL) {
     return 0;
+  }
 
   Xamine_Memid = memid;		/* Save the memory id. for Atexit<. */
   atexit(killmem);
+
+
   *ptr = (void *)base;
   return -1;			/* Indicate successful finish. */
 }				/* Unix implementation. */
@@ -368,14 +379,16 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 
   if(!genmem(name, 
 	     (volatile void **)ptr,	/* Gen shared memory region. */
-	     sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes))
+             sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes)) {
+      printf("failed to genmem\n");
     return 0;
+  }
 
   if(!genenv(name, specbytes))	/* Generate the subprocess environment. */
     return 0;
 
-  Xamine_memsize= specbytes;
-  Xamine_memory = *ptr;		/* Save poinyter to memory for mgmnt rtns. */
+  Xamine_memsize = specbytes;
+  Xamine_memory  = *ptr;		/* Save poinyter to memory for mgmnt rtns. */
   return 1;			/* set the success code. */
 }
 int Xamine_DetachSharedMemory()

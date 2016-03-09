@@ -51,46 +51,60 @@ class SpecTclInterfaceFactoryTest : public CppUnit::TestFixture
     CPPUNIT_TEST( setUpShMemEnv_1 );
     CPPUNIT_TEST_SUITE_END();
 
-    char* m_pOld;
+    char* m_pOldKey;
+    char* m_pOldSize;
 
   public:
     void setUp() {
         // make sure that we don't have preexisting state
-        m_pOld = ::getenv("XAMINE_SHMEM");
-        if (m_pOld) {
+        m_pOldKey = ::getenv("XAMINE_SHMEM");
+        if (m_pOldKey) {
             unsetenv("XAMINE_SHMEM");
+        }
+
+        m_pOldSize = ::getenv("XAMINE_SHMEM_SIZE");
+        if (m_pOldSize) {
+            unsetenv("XAMINE_SHMEM_SIZE");
         }
     }
     void tearDown() {
-        if (m_pOld) {
-            setenv("XAMINE_SHMEM", m_pOld, 1);
+        if (m_pOldKey) {
+            setenv("XAMINE_SHMEM", m_pOldKey, 1);
+        }
+
+        if (m_pOldSize) {
+            setenv("XAMINE_SHMEM_SIZE", m_pOldSize, 1);
         }
     }
 
     void setUpShMemEnv_0() {
 
         const char* theKey = "thekey";
-        GlobalSettings::setSharedMemoryKey(theKey);
+        ::setenv("XAMINE_SHMEM", theKey, 1);
+        GlobalSettings::setSharedMemoryKey("");
+
 
         SpecTclInterfaceFactory factory;
-        factory.setUpShMemEnv();
+        factory.setUpShMemKeyEnv();
 
-        char* pEnv = ::getenv("XAMINE_SHMEM");
-        ASSERTMSG("XAMINE_SHMEM that we define should be retrievable with getenv",
-                  equal(pEnv, pEnv + strlen(pEnv), theKey));
+        QString key = GlobalSettings::getSharedMemoryKey();
+        ASSERTMSG("XAMINE_SHMEM that we define should be retrievable with GlobalSettings",
+                  key == theKey);
     }
 
     void setUpShMemEnv_1() {
 
-        const char* defEnv = "whatever";
-        setenv("XAMINE_SHMEM", defEnv, 1);
+        ::setenv("XAMINE_SHMEM_SIZE", "1234", 1);
+
+        GlobalSettings::setSharedMemorySize(0);
 
         SpecTclInterfaceFactory factory;
-        factory.setUpShMemEnv();
+        factory.setUpShMemSizeEnv();
 
-        char* pEnv = ::getenv("XAMINE_SHMEM");
-        ASSERTMSG("Previously defined XAMINE_SHMEM should be retrievable with getenv",
-                  equal(pEnv, pEnv + min(strlen(pEnv), strlen(defEnv)), defEnv));
+        QString size = GlobalSettings::getSharedMemorySize();
+
+        ASSERTMSG("XAMINE_SHMEM_SIZE that we define should be retrievable in GlobalSettings",
+              size == "1234");
     }
 
 };

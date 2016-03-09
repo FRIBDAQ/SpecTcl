@@ -66,6 +66,8 @@ public:
     std::unique_ptr<SpecTclInterface> createShMemInterface();
 
     void setUpShMemEnv();
+    void setUpShMemSizeEnv();
+    void setUpShMemKeyEnv();
 };
 
 } // end of namespace
