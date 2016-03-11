@@ -131,9 +131,9 @@ void killmem()
   if(Xamine_Memid > 0) {
      struct shmid_ds stat;
      shmctl(Xamine_Memid, IPC_STAT, &stat);
-     if (stat.shm_nattch == 1) {
-         shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
-     }
+     printf("killing mem\n");
+     shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+
   }
 }
 #endif
@@ -236,8 +236,6 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
     CloseHandle(hMapFile);
   */
 
-  atexit(killmem);
-
   *ptr = pMemory;
   return TRUE;
 }
@@ -257,6 +255,26 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
     return 0;
   }
 
+  // spawn a daemon that will clean up shared memory when no more processes
+  // are attached to it.
+  int pid = fork();
+  if (pid == 0) {
+      /* child */
+
+      /* detach the child from the parent */
+      int sid = setsid();
+
+      struct shmid_ds stat;
+      shmctl(memid, IPC_STAT, &stat);
+
+      while (stat.shm_nattch != 0) {
+          sleep(1);
+          shmctl(memid, IPC_STAT, &stat);
+      }
+      shmctl(memid, IPC_RMID, 0);
+      exit(EXIT_SUCCESS);
+  }
+
   /* Attach to the shared memory region: */
 
   base = (char *)shmat(memid, NULL, 0);
@@ -265,7 +283,6 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   }
 
   Xamine_Memid = memid;		/* Save the memory id. for Atexit<. */
-  atexit(killmem);
 
 
   *ptr = (void *)base;
@@ -391,6 +408,7 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 }
 int Xamine_DetachSharedMemory()
 {
+
 #ifdef HAVE_WINDOWS_H
   UnmapViewOfFile((PVOID)Xamine_memory);
 #else
@@ -582,7 +600,6 @@ void f77xamine_getmemoryname_(char *namebuffer, int maxlen)
 
 }
 
-
 /*
 ** Functional Description:
 **   Xamine_MapMemory:
@@ -671,8 +688,6 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
   */
   CloseHandle(hMapFile);
   
-  atexit(killmem);
-
   *ptr = pMemory;
   Xamine_memory = pMemory;
   return TRUE;

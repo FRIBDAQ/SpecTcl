@@ -33,8 +33,6 @@
 #include <TH2.h>
 #include "client.h"
 #include "dispshare.h"
-#include <sys/shm.h>
-#include <sys/ipc.h>
 
 #include <iostream>
 #include <algorithm>
@@ -44,9 +42,14 @@
 #include <stdexcept>
 #include <cstdint>
 
+#include <sys/shm.h>
+#include <sys/ipc.h>
+#include <sys/wait.h>
+
 using namespace std;
 
 extern spec_shared* xamine_shared;
+extern spec_shared* spectra;
 
 // ensure that pair can be printed
 template<class T1, class T2>
@@ -102,16 +105,24 @@ class HistFillerTest : public CppUnit::TestFixture
         if (m_spec1d > 0) Xamine_FreeSpectrum(m_spec1d);
         if (m_spec2d > 0) Xamine_FreeSpectrum(m_spec2d);
 
-        Xamine_DetachSharedMemory();
 
+        // Locate the id for our shared mem
         char name[5];
-        Xamine_GetMemoryName(name);
+        key_t key = 0;
 
-        key_t key;
+        Xamine_GetMemoryName(name);
         memcpy(reinterpret_cast<char*>(&key), name, sizeof(name) );
         int id = shmget(key, 1024*1024, 0);
-        shmctl(id, IPC_RMID, 0);
 
+        // detach - reverse the effects of Xamine_CreateSharedMemory
+        Xamine_DetachSharedMemory();
+        // detach - reverse the effects of Xamine_initspectra
+        int stat = shmdt(spectra);
+
+        // wait on the daemon that is trying to clean up the shared memory
+        int childStatus = 0;
+        wait( &childStatus );
+        shmctl(id, IPC_RMID, 0);
     }
 
     template<class T>
