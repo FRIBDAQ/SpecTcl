@@ -90,6 +90,7 @@ signals:
     //////////////////////////////////////////////////////////////////////////
 public slots:
     void setList(std::vector<SpJs::HistInfo> list);
+    void onDrawClicked();
 
     /*!
      * \brief

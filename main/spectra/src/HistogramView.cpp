@@ -63,6 +63,12 @@ HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
                   this,SLOT(onDoubleClick(QModelIndex))) ) {
         throw runtime_error("HistogramView() failed to connect HistogramList::doubleClicked() to slot");
     }
+
+    if (! connect(ui->pDrawButton,SIGNAL(clicked()),
+                  this,SLOT(onDrawClicked())) ) {
+        throw runtime_error("HistogramView() failed to connect HistogramList::onDrawClicked() to slot");
+    }
+
 }
 
 //
@@ -246,6 +252,14 @@ void HistogramView::onDoubleClick(QModelIndex index)
     emit histSelected(pHistBundle);
 }
 
+void HistogramView::onDrawClicked()
+{
+    QList<QListWidgetItem*> selected = ui->histList->selectedItems();
+
+    for (auto& item : selected) {
+        std::cout << item->text().toStdString() << std::endl;
+    }
+}
 
 //
 //
