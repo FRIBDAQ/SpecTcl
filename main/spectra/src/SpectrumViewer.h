@@ -117,7 +117,7 @@ public slots:
      *
      * Draw the histogrma in the current pad
      */
-    void update(HistogramBundle* gHist);
+    void updateView(HistogramBundle* gHist);
 
     /*!
      * \brief Redraw all subpads

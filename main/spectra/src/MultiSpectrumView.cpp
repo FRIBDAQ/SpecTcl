@@ -188,7 +188,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
     auto pItem = m_pLayout->itemAtPosition(newCurrentCanvasRow, newCurrentCanvasCol);
     setCurrentCanvas(pItem->widget());
 
-    SpectrumView::update();
+    update();
 
 }
 
@@ -299,7 +299,7 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
     return m_pCurrentCanvas;
 }
 
-void MultiSpectrumView::update(HistogramBundle* pBundle)
+void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 {
   if (pBundle) {
       getCurrentCanvas()->cd();

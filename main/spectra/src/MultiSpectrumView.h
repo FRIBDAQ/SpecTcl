@@ -156,7 +156,7 @@ public slots:
      *
      *  Draw the histogram bundle on the current canvas
      */
-    void update(HistogramBundle* pHist);
+    void updateView(HistogramBundle* pHist);
 
     /*!
      * \brief drawHistogram

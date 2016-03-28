@@ -142,7 +142,7 @@ void MainWindow::connectSignalsAndSlots()
 
     connect(m_specTclControl.getInterface().get(),
             SIGNAL(histogramContentUpdated(HistogramBundle*)),
-            m_pView, SLOT(update(HistogramBundle*)));
+            m_pView, SLOT(updateView(HistogramBundle*)));
 }
 
 

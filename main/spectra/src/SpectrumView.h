@@ -127,7 +127,7 @@ public:
      *
      * Draws the argument in the pane with focus.
      */
-    virtual void update(HistogramBundle* pHist) = 0;
+    virtual void updateView(HistogramBundle* pHist) = 0;
 
     /*!
      * \brief Draw histogram in pad

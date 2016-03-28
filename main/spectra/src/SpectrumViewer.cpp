@@ -120,16 +120,16 @@ void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
       if (pHistList->size() != 0) {
           auto itFirstHist = m_pSpecTcl->getHistogramList()->begin();
 
-          update(itFirstHist->second.get());
+          updateView(itFirstHist->second.get());
       } else {
-          update(nullptr);
+          updateView(nullptr);
       }
 
   }
 }
 
 
-void SpectrumViewer::update(HistogramBundle* gHist)
+void SpectrumViewer::updateView(HistogramBundle* gHist)
 {
 
     // not really good practice... could block main thread

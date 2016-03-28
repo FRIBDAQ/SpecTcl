@@ -132,9 +132,9 @@ void TabbedMultiSpectrumView::onHistogramRemoved(HistogramBundle *pBundle)
     m_pCurrentView->onHistogramRemoved(pBundle);
 }
 
-void TabbedMultiSpectrumView::update(HistogramBundle *pHist)
+void TabbedMultiSpectrumView::updateView(HistogramBundle *pHist)
 {
-    m_pCurrentView->update(pHist);
+    m_pCurrentView->updateView(pHist);
 }
 
 void TabbedMultiSpectrumView::drawHistogram(HistogramBundle *pHist)
