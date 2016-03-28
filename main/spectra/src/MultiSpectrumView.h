@@ -218,6 +218,8 @@ private:
     QRootCanvas                                    *m_pCurrentCanvas;
     int                                             m_currentNRows;
     int                                             m_currentNColumns;
+    std::map<std::pair<int, int>, QWidget*>         m_canvases;
+    bool                                            m_isZoomed;
 
 }; // end MultiSpectrumView
 

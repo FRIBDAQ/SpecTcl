@@ -50,13 +50,15 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_pSpecTcl(pSpecTcl),
     m_pCurrentCanvas(new QRootCanvas),
     m_currentNRows(1),
-    m_currentNColumns(1)
+    m_currentNColumns(1),
+    m_canvases(),
+    m_isZoomed(false)
 {
     setLayout(m_pLayout.get());
 
     m_pLayout->addWidget(m_pCurrentCanvas, 0, 0);
     m_pCurrentCanvas->cd();
-
+    m_canvases[{0,0}] = m_pCurrentCanvas;
 
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
@@ -139,6 +141,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                    m_pLayout->removeItem(pItem);
                    delete pItem->widget();
                    delete pItem;
+                   m_canvases.erase({row, col});
                }
             } else if ( col >= nCols ) {
                 auto pItem = m_pLayout->itemAtPosition(row, col);
@@ -146,6 +149,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                     m_pLayout->removeItem(pItem);
                     delete pItem->widget();
                     delete pItem;
+                    m_canvases.erase({row, col});
                 }
             }
 
@@ -155,11 +159,14 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
+                m_canvases[{row, col}] = pCanvas;
             } else if (col >= currentNCols) {
                auto pCanvas = new QRootCanvas;
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
+
+                m_canvases[{row, col}] = pCanvas;
             }
         }
     }
@@ -324,10 +331,26 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 
 void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
 {
-//  auto pWidget = childAt(evt->x(), evt->y());
- 
-//  setCurrentCanvas(pWidget);
-//  onGeometryChanged(1,1);
+    if (! m_isZoomed) {
+        auto pWidget = childAt(evt->x(), evt->y());
+
+        // Remove all from layout
+        QLayoutItem* pChild;
+        while ((pChild = m_pLayout->takeAt(0))) {}
+
+        m_pLayout->addWidget(0, 0, pWidget);
+
+        m_isZoomed = true;
+    } else {
+
+        for (auto& canvasInfo : m_canvases) {
+            auto& region = canvasInfo.first;
+
+            m_pLayout->addWidget(region.first, region.second, canvasInfo.second);
+        }
+
+        m_isZoomed = false;
+    }
 }
 
 void MultiSpectrumView::refreshAll()
