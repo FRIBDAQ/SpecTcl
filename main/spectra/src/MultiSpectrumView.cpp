@@ -26,6 +26,7 @@
 #include "SpecTclInterface.h"
 
 #include <TPad.h>
+#include <TCanvas.h>
 #include <TH1.h>
 
 #include <QGridLayout>
@@ -62,6 +63,9 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
 
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
+
+    connect(m_pCurrentCanvas, SIGNAL(PadDoubleClicked(TPad*)),
+            this, SLOT(onPadDoubleClick(TPad*)));
 
 }
 
@@ -159,12 +163,16 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
+                connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
+                        this, SLOT(onPadDoubleClick(TPad*)));
                 m_canvases[{row, col}] = pCanvas;
             } else if (col >= currentNCols) {
                auto pCanvas = new QRootCanvas;
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
+                connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
+                        this, SLOT(onPadDoubleClick(TPad*)));
 
                 m_canvases[{row, col}] = pCanvas;
             }
@@ -329,28 +337,55 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 }
 
 
-void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
+void MultiSpectrumView::toggleZoom(QWidget& rWidget)
 {
     if (! m_isZoomed) {
-        auto pWidget = childAt(evt->x(), evt->y());
 
-        // Remove all from layout
+        std::cout << "zooming in" << std::endl;
+
         QLayoutItem* pChild;
-        while ((pChild = m_pLayout->takeAt(0))) {}
+        for (auto& canvasInfo : m_canvases) {
+            if (canvasInfo.second != &rWidget) {
+                canvasInfo.second->hide();
+            }
+        }
 
-        m_pLayout->addWidget(0, 0, pWidget);
-
+        setCurrentCanvas(&rWidget);
         m_isZoomed = true;
+
     } else {
 
+        std::cout << "zooming out" << std::endl;
         for (auto& canvasInfo : m_canvases) {
-            auto& region = canvasInfo.first;
-
-            m_pLayout->addWidget(region.first, region.second, canvasInfo.second);
+            canvasInfo.second->show();
         }
 
         m_isZoomed = false;
     }
+}
+
+void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
+{
+    auto pWidget = childAt(evt->x(), evt->y());
+    Q_ASSERT( pWidget );
+    toggleZoom(*pWidget);
+
+    QWidget::update();
+    std::cout << "mouseDoubleClickEvent()" << std::endl;
+}
+
+void MultiSpectrumView::onPadDoubleClick(TPad *pPad)
+{
+    QRootCanvas* pTargetCanvas = nullptr;
+    auto canvases = getAllCanvases();
+    for (auto& pCanvas : canvases) {
+        if (pPad == pCanvas->getCanvas()) {
+            pTargetCanvas = pCanvas;
+            break;
+        }
+    }
+
+    toggleZoom(*pTargetCanvas);
 }
 
 void MultiSpectrumView::refreshAll()

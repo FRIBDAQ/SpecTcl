@@ -33,6 +33,8 @@
 #include <vector>
 #include <utility>
 
+class TPad;
+
 class QMouseEvent;
 
 namespace Viewer
@@ -124,6 +126,8 @@ public:
      */
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
+    void toggleZoom(QWidget& pWidget);
+
 public slots:
     /*!
      * \brief onGeometryChanged
@@ -174,6 +178,9 @@ public slots:
      * the histograms.
      */
     void refreshAll();
+
+
+    void onPadDoubleClick(TPad* pPad);
 
 private:
     /*!
