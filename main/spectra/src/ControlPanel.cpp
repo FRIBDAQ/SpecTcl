@@ -59,7 +59,7 @@ void ControlPanel::assembleWidgets()
 {
     ui->setupUi(this);
 
-    ui->horizontalLayout->insertWidget(0, m_pGeoSelector, 0, Qt::AlignLeft);
+    ui->gridLayout->insertWidget(m_pGeoSelector, 0, 0);
 
 }
 
@@ -80,8 +80,7 @@ void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTc
     m_pSpecTcl = pSpecTcl;
 }
 
-void ControlPanel::onUpdateSelected()
-{
+void ControlPanel::onUpdateSelected() {
   if (m_pSpecTcl) {
       m_pSpecTcl->requestHistContentUpdate(m_pView->getCurrentCanvas());
   }
@@ -93,8 +92,8 @@ void ControlPanel::onDrawButtonClicked()
     std::cout << "onDrawButtonClicked() " << std::endl;
     SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
 
-    ui->horizontalLayout->removeWidget(ui->pAddSpecButton);
-    ui->horizontalLayout->insertWidget(1, pChooser, 0, Qt::AlignLeft);
+    ui->gridLayout->removeWidget(ui->pAddSpecButton);
+    ui->gridLayout->insertWidget(1, pChooser, 0, Qt::AlignLeft);
     pChooser->show();
 }
 
