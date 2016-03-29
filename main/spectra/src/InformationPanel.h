@@ -19,6 +19,7 @@ public:
     explicit InformationPanel(QWidget *parent = 0);
     ~InformationPanel();
     
+    void clearParameterList();
 public slots:
     void onHistogramChanged(HistogramBundle& rHist);
 

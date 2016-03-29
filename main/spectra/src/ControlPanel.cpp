@@ -59,7 +59,7 @@ void ControlPanel::assembleWidgets()
 {
     ui->setupUi(this);
 
-    ui->gridLayout->insertWidget(m_pGeoSelector, 0, 0);
+    ui->gridLayout->addWidget(m_pGeoSelector, 0, 0);
 
 }
 
@@ -93,7 +93,7 @@ void ControlPanel::onDrawButtonClicked()
     SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
 
     ui->gridLayout->removeWidget(ui->pAddSpecButton);
-    ui->gridLayout->insertWidget(1, pChooser, 0, Qt::AlignLeft);
+    ui->gridLayout->addWidget(pChooser, 1, 0);
     pChooser->show();
 }
 
