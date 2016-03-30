@@ -75,106 +75,15 @@ void GateManager::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl
     m_pSpecTcl = pSpecTcl;
 }
 
-void GateManager::launchAddGateDialog()
-{
+
+void GateManager::launchAddGateDialog() {
     emit addGateClicked();
-    //    auto pCanvas = m_view.getCurrentCanvas();
-//    auto hists = SpectrumView::getAllHists(pCanvas);
-
-
-//    auto pHistList = m_pSpecTcl->getHistogramList();
-//    HistogramBundle* pHistPkg = nullptr;
-//    {
-//      QMutexLocker lock(pHistList->getMutex());
-//      pHistPkg = pHistList->getHist(hists.at(0));
-//    }
-
-//    if (m_pSpecTcl) {
-//        m_pSpecTcl->enableGatePolling(false);
-//    }
-
-//    bool isTH2 = false;
-//    {
-//      QMutexLocker lock(pHistPkg->getMutex());
-//      isTH2 = pHistPkg->getHist().InheritsFrom(TH2::Class());
-//    }
-//    // determine whether this is a 1d or 2d hist and
-//    // open to appropriate dialog
-//    if (isTH2) {
-
-//        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *pHistPkg);
-//        dialog->setAttribute(Qt::WA_DeleteOnClose);
-
-//        connect(dialog, SIGNAL(completed(GGate*)),
-//                this, SLOT(registerGate(GGate*)));
-
-//        dialog->show();
-//        dialog->raise();
-//    } else {
-//        GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *pHistPkg);
-//        dialog->setAttribute(Qt::WA_DeleteOnClose);
-//        connect(dialog, SIGNAL(completed(GSlice*)),
-//                this, SLOT(registerSlice(GSlice*)));
-
-//        dialog->show();
-//        dialog->raise();
-//    }
 }
 
-void GateManager::launchEditGateDialog()
-{
+void GateManager::launchEditGateDialog() {
     emit editGateClicked();
-
-//    auto pCanvas = m_view.getCurrentCanvas();
-//    auto hists = SpectrumView::getAllHists(pCanvas);
-//    auto pHistList = m_pSpecTcl->getHistogramList();
-
-//    HistogramBundle* pHistPkg = nullptr;
-//    {
-//      QMutexLocker lock(pHistList->getMutex());
-//      pHistPkg = pHistList->getHist(hists.at(0));
-//    }
-
-//    if (m_pSpecTcl) {
-//        m_pSpecTcl->enableGatePolling(false);
-//    }
-
-//    auto selection = ui->gateList->selectedItems();
-//    if (selection.size()==1) {
-//        auto pItem = selection.at(0);
-
-//        // determine whether this is a 1d or 2d gate and
-//        // open to appropriate dialog
-//        if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
-//            auto pCut = pSlItem->getSlice();
-//            GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas,
-//                                                                  *pHistPkg, pCut);
-//            dialog->setAttribute(Qt::WA_DeleteOnClose);
-//            connect(dialog, SIGNAL(completed(GSlice*)),
-//                    this, SLOT(editSlice(GSlice*)));
-
-//            dialog->show();
-//            dialog->raise();
-
-//        } else {
-//            auto pGateItem = dynamic_cast<GateListItem*>(pItem);
-//            auto pGate = pGateItem->getGate();
-
-//            // make sure that state is updated if user moved the cut via the gui
-//            pGate->synchronize(GGate::GUI);
-
-//            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *pHistPkg, pGate);
-//            dialog->setAttribute(Qt::WA_DeleteOnClose);
-//            connect(dialog, SIGNAL(completed(GGate*)),
-//                    this, SLOT(editGate(GGate*)));
-
-//            dialog->show();
-//            dialog->raise();
-//        }
-//    } else {
-//        QMessageBox::warning(0, "Invalid selection", "User must select one gate to edit.");
-//    }
 }
+
 
 void GateManager::addGateToList(GGate* pCut)
 {
@@ -220,6 +129,19 @@ void GateManager::registerGate(GGate* pCut)
 
 
 }
+
+void GateManager::setGateList(const std::vector<QString> &gates)
+{
+    QListWidgetItem* pItem = nullptr;
+    while (( pItem = ui->gateList->takeItem(0) )) {
+        delete pItem;
+    }
+
+    for (auto& name : gates) {
+        ui->gateList->addItem(name);
+    }
+}
+
 
 void GateManager::addSliceToList(GSlice* pSlice)
 {
@@ -303,16 +225,6 @@ void GateManager::editSlice(GSlice *pSlice)
 void GateManager::deleteGate()
 {
     emit deleteGateClicked();
-    //  auto selected = ui->gateList->selectedItems();
-//  for ( auto pItem : selected ) {
-
-//    if (m_pSpecTcl) {
-//      m_pSpecTcl->deleteGate(pItem->text());
-//    }
-
-//    removeGate(pItem);
-//  }
-
 }
 
 void GateManager::clearList()
@@ -471,8 +383,8 @@ void GateManager::connectSignals()
   connect(ui->deleteButton, SIGNAL(clicked()),
           this, SLOT(deleteGate()));
 
-  connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
-          this, SLOT(onGateListChanged()));
+//  connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
+//          this, SLOT(onGateListChanged()));
 }
 
 

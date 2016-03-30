@@ -74,6 +74,9 @@ MultiSpectrumView* TabbedMultiSpectrumView::addTab(const QString &title)
   connect(pSpecView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
           this, SLOT(onCurrentCanvasChanged(QRootCanvas&)));
 
+  connect(pSpecView, SIGNAL(canvasContentChanged(QRootCanvas&)),
+          this, SLOT(onCanvasContentChanged(QRootCanvas&)));
+
   auto pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->currentWidget());
 
   return pCurrentView;
@@ -156,6 +159,11 @@ void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
 void TabbedMultiSpectrumView::onCurrentCanvasChanged(QRootCanvas &rCanvas)
 {
     emit currentCanvasChanged(rCanvas);
+}
+
+void TabbedMultiSpectrumView::onCanvasContentChanged(QRootCanvas &rCanvas)
+{
+    emit canvasContentChanged(rCanvas);
 }
 
 void TabbedMultiSpectrumView::onCurrentChanged(int index)

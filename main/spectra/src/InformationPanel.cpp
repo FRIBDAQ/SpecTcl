@@ -38,6 +38,7 @@ void InformationPanel::onHistogramChanged(HistogramBundle &rHist)
     updateSpectrumName(rHist);
     updateParameterList(rHist);
     updateStatistics(rHist);
+    updateGates(rHist);
 }
 
 void InformationPanel::updateSpectrumName(HistogramBundle& rHist)
@@ -97,5 +98,15 @@ void InformationPanel::setUpStatisticsTable() {
 
 }
 
+void InformationPanel::updateGates(HistogramBundle &rHist)
+{
+    if (rHist.getHist().InheritsFrom("TH2")) {
+        m_pGateManager->setHistogramDimension(2);
+        m_pGateManager->setGateList(rHist.getCut2Ds());
+    } else {
+        m_pGateManager->setHistogramDimension(1);
+        m_pGateManager->setGateList(rHist.getCut1Ds());
+    }
+}
 
 } // end Viewer namespace

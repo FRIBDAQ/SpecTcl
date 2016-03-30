@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QList>
+#include <QString>
 
 #include <vector>
 #include <map>
@@ -85,6 +86,8 @@ public slots:
     /*! Update to list */
     void onGateListChanged();
 
+    void setGateList(const std::vector<QString>& gates);
+
 public:
     QListWidgetItem* findItem(const QString& name);
     void removeGate(QListWidgetItem* pItem);
@@ -100,10 +103,10 @@ private:
     void populateListWithSync();
 
 private:
-    Ui::GateManager*  ui;
-    SpectrumView&             m_view;
+    Ui::GateManager*                          ui;
+    SpectrumView&                             m_view;
     std::shared_ptr<SpecTclInterface>         m_pSpecTcl;
-    std::map<QString, int>    m_gateRowMap;
+    std::map<QString, int>                   m_gateRowMap;
 
 };
 

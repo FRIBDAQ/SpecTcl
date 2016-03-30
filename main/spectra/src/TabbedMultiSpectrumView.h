@@ -100,6 +100,7 @@ public slots:
   virtual void update(HistogramBundle *pHist);
   virtual void drawHistogram(HistogramBundle *pHist);
   void onCurrentCanvasChanged(QRootCanvas& rCanvas);
+  void onCanvasContentChanged(QRootCanvas& rCanvas);
 
   void onCurrentChanged(int index);
   void onAddTab();

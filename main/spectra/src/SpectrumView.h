@@ -169,6 +169,7 @@ public:
 
 signals:
     void currentCanvasChanged(QRootCanvas& rCanvas);
+    void canvasContentChanged(QRootCanvas& rCanvas);
 };
 
 } // end of namespace

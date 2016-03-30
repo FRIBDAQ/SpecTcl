@@ -1,13 +1,16 @@
 #include "GateManagerWidget.h"
 #include "GateManager.h"
 #include "OneDimGateEdit.h"
+#include "TwoDimGateEdit.h"
 #include "SpectrumView.h"
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
-#include "TH2.h"
-#include "GateBuilderDialog.h"
 #include "SliceTableItem.h"
 #include "GateListItem.h"
+#include "GGate.h"
+#include "GSlice.h"
+
+#include "TH2.h"
 
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -25,7 +28,8 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
                                      QWidget *parent) :
     QWidget(parent),
     m_view(rView),
-    m_pSpecTcl(pSpecTcl)
+    m_pSpecTcl(pSpecTcl),
+    m_histDim(1)
 {
 
     m_pManager = new GateManager(m_view, pSpecTcl, this);
@@ -86,23 +90,22 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
         m_pSpecTcl->enableGatePolling(false);
     }
 
-    bool isTH2 = false;
-    {
-      QMutexLocker lock(rHistPkg.getMutex());
-      isTH2 = rHistPkg.getHist().InheritsFrom(TH2::Class());
-    }
     // determine whether this is a 1d or 2d hist and
     // open to appropriate dialog
-    if (isTH2) {
+    if (m_histDim == 2) {
 
-        GateBuilderDialog* dialog = new GateBuilderDialog(rCanvas, rHistPkg, nullptr);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        TwoDimGateEdit* pDialog = new TwoDimGateEdit(rCanvas, rHistPkg, m_pSpecTcl,
+                                                     nullptr);
 
-        connect(dialog, SIGNAL(completed(GGate*)),
+        connect(pDialog, SIGNAL(completed(GGate*)),
                 this, SLOT(registerGate(GGate*)));
 
-        dialog->show();
-        dialog->raise();
+        connect(pDialog, SIGNAL(accepted()),
+                this, SLOT(closeDialog()));
+
+        horizontalLayout->takeAt(0);
+        m_pManager->hide();
+        horizontalLayout->insertWidget(0, pDialog);
 
     } else {
         OneDimGateEdit* pDialog = new OneDimGateEdit(rCanvas, rHistPkg,
@@ -115,11 +118,12 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
         connect(pDialog, SIGNAL(rejected()),
                 this, SLOT(closeDialog()));
 
-
         horizontalLayout->takeAt(0);
         m_pManager->hide();
         horizontalLayout->insertWidget(0, pDialog);
+
     }
+
 }
 
 void GateManagerWidget::onEditPressed()
@@ -142,10 +146,22 @@ void GateManagerWidget::onEditPressed()
 
     auto pItem = selection.at(0);
 
+    MasterGateList* pGateList = m_pSpecTcl->getGateList();
+
     // determine whether this is a 1d or 2d gate and
     // open to appropriate dialog
-    if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
-        auto pCut = pSlItem->getSlice();
+    if (m_histDim == 1) {
+
+        auto itCut = pGateList->find1D(pItem->text());
+        if (itCut == pGateList->end1d()) {
+            QString msg("Unable to edit the requested gate, because \n");
+            msg += "the gate was not found in the master gate list.";
+            QMessageBox::warning(this, "Missing Gate", msg);
+            return;
+        }
+
+        GSlice* pCut = itCut->get();
+
         auto pDialog = new OneDimGateEdit(*pCanvas,
                                           *pHistPkg, m_pSpecTcl,
                                           pCut, this);
@@ -158,19 +174,28 @@ void GateManagerWidget::onEditPressed()
         horizontalLayout->insertWidget(0, pDialog);
 
     } else {
-        auto pGateItem = dynamic_cast<GateListItem*>(pItem);
-        auto pGate = pGateItem->getGate();
 
+        auto itCut = pGateList->find2D(pItem->text());
+        if (itCut == pGateList->end2d()) {
+            QString msg("Unable to edit the requested gate, because \n");
+            msg += "the gate was not found in the master gate list.";
+            QMessageBox::warning(this, "Missing Gate", msg);
+            return;
+        }
+
+        GGate* pGate = itCut->get();
         // make sure that state is updated if user moved the cut via the gui
         pGate->synchronize(GGate::GUI);
 
-        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *pHistPkg, pGate);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dialog, SIGNAL(completed(GGate*)),
-                this, SLOT(editGate(GGate*)));
+        auto pDialog = new TwoDimGateEdit(*pCanvas, *pHistPkg, m_pSpecTcl,
+                                          pGate);
 
-        dialog->show();
-        dialog->raise();
+        connect(pDialog, SIGNAL(accepted()), this, SLOT(closeDialog()));
+        connect(pDialog, SIGNAL(rejected()), this, SLOT(closeDialog()));
+
+        horizontalLayout->takeAt(0);
+        m_pManager->hide();
+        horizontalLayout->insertWidget(0, pDialog);
     }
 
 
@@ -189,5 +214,37 @@ void GateManagerWidget::closeDialog()
     horizontalLayout->insertWidget(0, m_pManager);
     m_pManager->show();
 }
+
+
+void GateManagerWidget::setGateList(const std::map<QString, GGate*> &gateMap)
+{
+    std::vector<QString> gateNames;
+
+    auto it = gateMap.begin();
+    auto end = gateMap.end();
+
+    while (it != end) {
+        gateNames.push_back(it->first);
+        ++it;
+    }
+
+        m_pManager->setGateList(gateNames);
+}
+
+void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
+{
+    std::vector<QString> gateNames;
+
+    auto it = gateMap.begin();
+    auto end = gateMap.end();
+
+    while (it != end) {
+        gateNames.push_back(it->first);
+        ++it;
+    }
+
+    m_pManager->setGateList(gateNames);
+}
+
 
 } // end Viewer namespace

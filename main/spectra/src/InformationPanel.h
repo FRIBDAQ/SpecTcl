@@ -29,6 +29,7 @@ public:
     void updateParameterList(HistogramBundle &rHist);
     void updateSpectrumName(HistogramBundle& rHist);
     void updateStatistics(HistogramBundle& rHist);
+    void updateGates(HistogramBundle& rHist);
 
 public slots:
     void onHistogramChanged(HistogramBundle& rHist);

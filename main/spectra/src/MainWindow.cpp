@@ -113,6 +113,8 @@ void MainWindow::assembleWidgets()
     auto pViewControls = new QFrame(this);
 
     auto pVLayout = new QVBoxLayout();
+    pVLayout->setContentsMargins(0, 0, 0, 0);
+
     pVLayout->addWidget(m_pView);
     pVLayout->addWidget(m_pControls);
     pViewControls->setLayout(pVLayout);
@@ -165,6 +167,9 @@ void MainWindow::connectSignalsAndSlots()
             m_pView, SLOT(update(HistogramBundle*)));
 
     connect(m_pView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
+            m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
+
+    connect(m_pView, SIGNAL(canvasContentChanged(QRootCanvas&)),
             m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
 }
 
