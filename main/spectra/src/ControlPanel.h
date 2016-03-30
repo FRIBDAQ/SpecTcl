@@ -36,6 +36,7 @@ namespace Viewer
   class GeometrySelector;
   class SpecTclInterface;
   class SpectrumView;
+  class MainWindow;
 
 
   /*!
@@ -63,7 +64,8 @@ public:
      * The megawidget is constructed.
      */
     explicit ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
-                          SpectrumView* pView, QWidget *parent = 0);
+                          SpectrumView* pView,
+                          QWidget *parent = 0);
 
     /*!
      * Destructor
@@ -111,6 +113,8 @@ public slots:
 
     void onDrawButtonClicked();
 
+    void onStatisticsButtonClicked();
+
     ///////////////////////////////////////////////////////////////////////////
 signals:
 
@@ -123,6 +127,8 @@ signals:
      * The MultiSpectrumView will receive these signals.
      */
     void geometryChanged(int nRows, int nCols);
+
+    void statisticsButtonClicked();
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods

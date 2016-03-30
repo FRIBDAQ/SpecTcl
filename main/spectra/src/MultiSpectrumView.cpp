@@ -193,6 +193,9 @@ void MultiSpectrumView::setCurrentCanvas(QWidget *pWidget)
 
       setFocus();
       QWidget::update();
+
+      std::cout << "MSpecView::setCurrentCanvas" << std::endl;
+      emit currentCanvasChanged(*m_pCurrentCanvas);
   }
 }
 

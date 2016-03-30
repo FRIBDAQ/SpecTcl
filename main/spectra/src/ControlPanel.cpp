@@ -27,6 +27,7 @@
 #include "HistogramList.h"
 #include "HistogramBundle.h"
 #include "SpectrumDrawChooser.h"
+#include "MainWindow.h"
 #include "ui_ControlPanel.h"
 #include <set>
 
@@ -59,8 +60,7 @@ void ControlPanel::assembleWidgets()
 {
     ui->setupUi(this);
 
-    ui->gridLayout->addWidget(m_pGeoSelector, 0, 0);
-
+    ui->horizontalLayout->insertWidget(0, m_pGeoSelector);
 }
 
 void ControlPanel::connectSignalsAndSlots()
@@ -72,7 +72,7 @@ void ControlPanel::connectSignalsAndSlots()
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
     connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
 
-    connect(ui->pAddSpecButton, SIGNAL(clicked()), this, SLOT(onDrawButtonClicked()));
+    connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
 }
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
@@ -89,12 +89,12 @@ void ControlPanel::onUpdateSelected() {
 void ControlPanel::onDrawButtonClicked()
 {
 
-    std::cout << "onDrawButtonClicked() " << std::endl;
-    SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
+//    std::cout << "onDrawButtonClicked() " << std::endl;
+//    SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
 
-    ui->gridLayout->removeWidget(ui->pAddSpecButton);
-    ui->gridLayout->addWidget(pChooser, 1, 0);
-    pChooser->show();
+//    ui->gridLayout->removeWidget(ui->pAddSpecButton);
+//    ui->gridLayout->addWidget(pChooser, 1, 0);
+//    pChooser->show();
 }
 
 // naively this currently just updates ALL of the histograms... will need to
@@ -126,6 +126,16 @@ void ControlPanel::onUpdateAll()
 void ControlPanel::onRefresh()
 {
   m_pView->refreshAll();
+}
+
+void ControlPanel::onStatisticsButtonClicked()
+{
+    if (ui->pStatisticsButton->text() == "Statistics &>>>") {
+        ui->pStatisticsButton->setText("Statistics &<<<");
+    } else {
+        ui->pStatisticsButton->setText("Statistics &>>>");
+    }
+    emit statisticsButtonClicked();
 }
 
 void ControlPanel::onRowCountChanged(int nRows)

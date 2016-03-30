@@ -53,6 +53,8 @@ class HistogramBundle;
  */
 class SpectrumView : public QWidget
 {
+    Q_OBJECT
+
 public:
     SpectrumView(QWidget* parent) : QWidget(parent) {}
 
@@ -165,6 +167,8 @@ public:
      */
     static std::vector<TH1*> getAllHists(QRootCanvas* pCanvas);
 
+signals:
+    void currentCanvasChanged(QRootCanvas& rCanvas);
 };
 
 } // end of namespace

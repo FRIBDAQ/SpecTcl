@@ -58,7 +58,7 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pS
     connect(ui->pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
 
     connect(ui->pTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
-}
+ }
 
 TabbedMultiSpectrumView::~TabbedMultiSpectrumView()
 {
@@ -68,11 +68,15 @@ TabbedMultiSpectrumView::~TabbedMultiSpectrumView()
 MultiSpectrumView* TabbedMultiSpectrumView::addTab(const QString &title)
 {
 
-  ui->pTabWidget->addTab(new MultiSpectrumView(m_pSpecTcl, this), title);
+  auto pSpecView = new MultiSpectrumView(m_pSpecTcl, this);
+  ui->pTabWidget->addTab(pSpecView, title);
 
-  auto pView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->currentWidget());
+  connect(pSpecView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
+          this, SLOT(onCurrentCanvasChanged(QRootCanvas&)));
 
-  return pView;
+  auto pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->currentWidget());
+
+  return pCurrentView;
 }
 
 int TabbedMultiSpectrumView::getRowCount() const
@@ -147,6 +151,11 @@ void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
   int index = ui->pTabWidget->currentIndex();
   m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
 //  emit visibleGeometryChanged(m_pCurrentView->getRowCount(), m_pCurrentView->getColumnCount());
+}
+
+void TabbedMultiSpectrumView::onCurrentCanvasChanged(QRootCanvas &rCanvas)
+{
+    emit currentCanvasChanged(rCanvas);
 }
 
 void TabbedMultiSpectrumView::onCurrentChanged(int index)

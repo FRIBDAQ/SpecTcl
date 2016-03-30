@@ -53,7 +53,10 @@ noinst_HEADERS =  QRootCanvas.h  \
   ShMemSizeRequestHandler.h \
   CmdLineOptions.h \
   SpectrumDrawChooser.h \
-  InformationPanel.h
+  InformationPanel.h \
+  GateManager.h \
+  OneDimGateEdit.h \
+  MultiInfoPanel.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -102,7 +105,11 @@ libSpectra_la_SOURCES = \
   CmdLineOptions.cpp \
   SpectrumDrawChooser.cpp \
   InformationPanel.cpp \
-	moc_ControlPanel.cpp \
+  GateManager.cpp \
+    OneDimGateEdit.cpp \
+    GateManagerWidget.cpp \
+    MultiInfoPanel.cpp \
+    moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
 	moc_GateEditComHandler.cpp \
@@ -136,6 +143,11 @@ libSpectra_la_SOURCES = \
 	moc_ShMemSizeRequestHandler.cpp \
         moc_SpectrumDrawChooser.cpp \
         moc_InformationPanel.cpp \
+        moc_SpectrumView.cpp \
+        moc_GateManager.cpp \
+        moc_OneDimGateEdit.cpp \
+        moc_GateManagerWidget.cpp \
+        moc_MultiInfoPanel.cpp \
 	cmdline.c \
 	qrc_resources.cpp
 
@@ -151,7 +163,10 @@ spectraFORMS =  MainWindow.ui  \
   ControlPanel.ui \
   GeometrySelector.ui \
   TabbedMultiSpectrumView.ui \
-  InformationPanel.ui
+  InformationPanel.ui \
+  GateManager.ui \
+  OneDimGateEdit.ui \
+  MultiInfoPanel.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -170,6 +185,9 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								ui_TabbedMultiSpectrumView.h \
                                                                 ui_SpectrumDrawChooser.h \
                                                                 ui_InformationPanel.h \
+                                                                ui_GateManager.h \
+                                                                ui_OneDimGateEdit.h \
+                                                                ui_MultiInfoPanel.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -198,6 +216,11 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_ConnectionTester.cpp \
 								moc_SpecTclShMemInterface.cpp \
 								moc_InformationPanel.cpp \
+								moc_SpectrumView.cpp \
+								moc_GateManager.cpp \
+								moc_OneDimGateEdit.cpp \
+								moc_GateManagerWidget.cpp \
+								moc_MultiInfoPanel.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
