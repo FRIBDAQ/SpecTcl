@@ -41,6 +41,8 @@
 #include <QDockWidget>
 #include <QMessageBox>
 #include <QSplitter>
+#include <QVBoxLayout>
+#include <QFrame>
 
 namespace Viewer
 {
@@ -108,12 +110,19 @@ void MainWindow::assembleWidgets()
 
     m_pInfoPanel = new MultiInfoPanel(*m_pView, m_specTclControl.getInterface(), this);
 
+    auto pViewControls = new QFrame(this);
+
+    auto pVLayout = new QVBoxLayout();
+    pVLayout->addWidget(m_pView);
+    pVLayout->addWidget(m_pControls);
+    pViewControls->setLayout(pVLayout);
+
     QSplitter* pSplitter = new QSplitter(this);
-    pSplitter->addWidget(m_pView);
+    pSplitter->addWidget(pViewControls);
     pSplitter->addWidget(m_pInfoPanel);
 
     pUI->gridLayout->addWidget(pSplitter, 0, 0);
-    pUI->gridLayout->addWidget(m_pControls, 1, 0);
+//    pUI->gridLayout->addWidget(m_pControls, 1, 0);
 
     m_pInfoPanel->hide();
 
@@ -182,7 +191,7 @@ void MainWindow::createDockWindows()
     addDockWidget(Qt::LeftDockWidgetArea,m_histView);
     addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
 
-    removeDockWidget(m_histView);
+//    removeDockWidget(m_histView);
     removeDockWidget(m_gateView);
 }
 
