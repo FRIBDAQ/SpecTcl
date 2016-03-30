@@ -76,59 +76,14 @@ void GateManager::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl
 }
 
 
-void GateManager::launchAddGateDialog() {
+void GateManager::onAddButtonClicked() {
     emit addGateClicked();
 }
 
-void GateManager::launchEditGateDialog() {
+void GateManager::onEditButtonClicked() {
     emit editGateClicked();
 }
 
-
-void GateManager::addGateToList(GGate* pCut)
-{
-
-    Q_ASSERT(pCut != nullptr);
-
-    GateListItem* pItem = new GateListItem(QString(pCut->getName()),
-                                           ui->gateList,
-                                           Qt::UserRole,
-                                           pCut);
-
-    if (pCut->getType() == SpJs::BandGate) {
-      pItem->setIcon(QIcon(":/icons/band-icon.png"));
-    } else {
-      pItem->setIcon(QIcon(":/icons/contour-icon.png"));
-    }
-    ui->gateList->addItem(pItem);
-    m_gateRowMap[pCut->getName()] = ui->gateList->row(pItem);
-
-    auto pCanvas = m_view.getCurrentCanvas();
-    try {
-      auto hists = SpectrumView::getAllHists(pCanvas);
-      if (hists.empty()) return;
-      auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
-      if (histPkg) {
-        histPkg->draw();
-      }
-    } catch (std::exception& exc) {
-      cout << "Caught exception : " << exc.what() << endl;
-    }
-}
-
-void GateManager::registerGate(GGate* pCut)
-{
-  Q_ASSERT( pCut != nullptr );
-
-    pCut->setEditable(false);
-
-    if (m_pSpecTcl) {
-        m_pSpecTcl->addGate(*pCut);
-        m_pSpecTcl->enableGatePolling(true);
-    }
-
-
-}
 
 void GateManager::setGateList(const std::vector<QString> &gates)
 {
@@ -143,248 +98,34 @@ void GateManager::setGateList(const std::vector<QString> &gates)
 }
 
 
-void GateManager::addSliceToList(GSlice* pSlice)
+void GateManager::onDeleteButtonClicked()
 {
-    Q_ASSERT(pSlice != nullptr);
+    auto selected = ui->gateList->selectedItems();
+    for ( auto pItem : selected ) {
 
-    QString name = pSlice->getName();
-
-    SliceTableItem* pItem = new SliceTableItem(name,
-                                               ui->gateList,
-                                               Qt::UserRole,
-                                               pSlice);
-    pItem->setIcon(QIcon(":/icons/slice-icon.png"));
-    ui->gateList->addItem(pItem);
-    m_gateRowMap[pSlice->getName()] = ui->gateList->row(pItem);
-
-    auto pCanvas = m_view.getCurrentCanvas();
-    try {
-      auto hists = SpectrumView::getAllHists(pCanvas);
-
-      if (hists.empty()) return;
-
-      HistogramBundle* pHistPkg = nullptr;
-      {
-        auto pHistList = m_pSpecTcl->getHistogramList();
-        QMutexLocker lock(pHistList->getMutex());
-        pHistPkg = pHistList->getHist(hists.at(0));
+      if (m_pSpecTcl) {
+        m_pSpecTcl->deleteGate(pItem->text());
       }
 
-      if (pHistPkg) {
-        pHistPkg->draw();
-      }
-
-    } catch (std::exception& exc) {
-      cout << "Caught exception : " << exc.what() << endl;
-    }
-}
-
-
-void GateManager::registerSlice(GSlice *pSlice)
-{
-  Q_ASSERT( pSlice != nullptr );
-
-    pSlice->setEditable(false);
-
-    if (m_pSpecTcl) {
-        m_pSpecTcl->addGate(*pSlice);
-        m_pSpecTcl->enableGatePolling(true);
-    }
-}
-
-
-void GateManager::editGate(GGate* pCut)
-{
-    Q_ASSERT( pCut != nullptr );
-
-    if (m_pSpecTcl) {
-        m_pSpecTcl->editGate(*pCut);
-        m_pSpecTcl->enableGatePolling(true);
-    }
-
-    pCut->draw();
-    pCut->setEditable(false);
-
-}
-
-
-void GateManager::editSlice(GSlice *pSlice)
-{
-    Q_ASSERT(pSlice != nullptr);
-
-    if (m_pSpecTcl) {
-        m_pSpecTcl->editGate(*pSlice);
-        m_pSpecTcl->enableGatePolling(true);
-    }
-
-    pSlice->draw();
-    pSlice->setEditable(false);
-
-}
-
-void GateManager::deleteGate()
-{
-    emit deleteGateClicked();
-}
-
-void GateManager::clearList()
-{
-  while ( ui->gateList->count() > 0 ) {
-    auto pItem = ui->gateList->item(0);
-    removeGate(pItem);
-  }
-}
-
-void GateManager::onGateListChanged()
-{
-  if (ui->gateList->count() == 0) {
-      // if there are no gates listed in the widget, then
-      // we just have to add all of the gates to it without
-      // trying to sync
-      populateListWithoutSync();
-    } else {
-      populateListWithSync();
+      // Remove the row for now... the next time someone updates,
+      // we will see this deletion reflected more properly.
+      auto row = ui->gateList->row(pItem);
+      ui->gateList->takeItem(row);
 
     }
-}
-
-void GateManager::populateListWithoutSync()
-{
-  auto pList = m_pSpecTcl->getGateList();
-
-  Benchmark<7, std::chrono::high_resolution_clock> bm7;
-  // ensure that all gates in gatelist are represented
-  // in listwidget
-  // deal with 1d gates
-  auto it_1d = pList->begin1d();
-  auto itend_1d = pList->end1d();
-  while ( it_1d != itend_1d ) {
-      addSliceToList(it_1d->get());
-      ++it_1d;
-  }
-
-  Benchmark<77, std::chrono::high_resolution_clock> bm77;
-
-  /// deal with 2d gates
-  auto it_2d = pList->begin2d();
-  auto itend_2d = pList->end2d();
-  while ( it_2d != itend_2d ) {
-    addGateToList(it_2d->get());
-    ++it_2d;
-  }
-
-}
-
-void GateManager::populateListWithSync()
-{
-  auto pList = m_pSpecTcl->getGateList();
-
-  //Benchmark<6, std::chrono::high_resolution_clock> bm;
-  // predicate for matching 1d spectra by name
-  auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
-    return (pItem->getName() == name);
-  };
-
-  // predicate for matching 2d spectra by name
-  auto pred2d = [](const unique_ptr<GGate>& pItem, const QString& name) {
-    return (pItem->getName() == name);
-  };
-
-  // remove any items in listwidget that are no longer in the view
-  auto nRows = ui->gateList->count();
-  for (int row=nRows-1; row>=0; --row) {
-    auto pItem = ui->gateList->item(row);
-
-    auto it1d = pList->find1D(pItem->text());
-    auto it2d = pList->find2D(pItem->text());
-    if (it1d == pList->end1d() ) {
-      if ( it2d == pList->end2d()) {
-         removeGate(pItem);
-      }
-    }
-  }
-
-  //Benchmark<66, std::chrono::high_resolution_clock> bm66;
-  // ensure that all gates in gatelist are represented
-  // in listwidget
-  // deal with 1d gates
-  auto it_1d = pList->begin1d();
-  auto itend_1d = pList->end1d();
-  while ( it_1d != itend_1d ) {
-    auto itFound = m_gateRowMap.find((*it_1d)->getName());
-    if (itFound == m_gateRowMap.end()) {
-      addSliceToList(it_1d->get());
-    }
-    ++it_1d;
-  }
-
-  //Benchmark<666, std::chrono::high_resolution_clock> bm666;
-
-  /// deal with 2d gates
-  auto it_2d = pList->begin2d();
-  auto itend_2d = pList->end2d();
-  while ( it_2d != itend_2d ) {
-    auto itFound = m_gateRowMap.find((*it_2d)->getName());
-    if (itFound == m_gateRowMap.end()) {
-        addGateToList(it_2d->get());
-    }
-    ++it_2d;
-  }
-
-}
-
-
-QListWidgetItem* GateManager::findItem(const QString &name)
-{
-    QListWidgetItem* pItem = nullptr;
-    auto list = ui->gateList->findItems(name, Qt::MatchExactly);
-
-    if ( list.size() != 0 ) {
-        pItem = list.at(0);
-    }
-
-    return pItem;
-}
-
-void GateManager::removeGate(QListWidgetItem* pItem)
-{
-  // Remove the row
-  auto row = ui->gateList->row(pItem);
-  ui->gateList->takeItem(row);
-
-  auto it = m_gateRowMap.find(pItem->text());
-  if (it != m_gateRowMap.end()) {
-    m_gateRowMap.erase(it);
-  }
-  delete pItem;
-
-}
-
-vector<QListWidgetItem*> GateManager::getItems() const
-{
-  vector<QListWidgetItem*> items;
-
-  auto nRows = ui->gateList->count();
-  for (int row=0; row<nRows; ++row) {
-    items.push_back(ui->gateList->item(row));
-  }
-
-  return items;
 }
 
 void GateManager::connectSignals()
 {
   connect(ui->addButton, SIGNAL(clicked()),
-          this, SLOT(launchAddGateDialog()));
+          this, SLOT(onAddButtonClicked()));
 
   connect(ui->editButton, SIGNAL(clicked()),
-          this, SLOT(launchEditGateDialog()));
+          this, SLOT(onEditButtonClicked()));
 
   connect(ui->deleteButton, SIGNAL(clicked()),
-          this, SLOT(deleteGate()));
+          this, SLOT(onDeleteButtonClicked()));
 
-//  connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
-//          this, SLOT(onGateListChanged()));
 }
 
 

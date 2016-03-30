@@ -58,55 +58,23 @@ signals:
     //////// SLOTS /////////////
 public slots:
     /*! \brief Slot for opening a gate builder dialog */
-    void launchAddGateDialog();
+    void onAddButtonClicked();
 
     /*! \brief Slot for opening a gate builder dialog for editing */
-    void launchEditGateDialog();
+    void onEditButtonClicked();
 
-    /*! \brief Slot for adding gate to list of managed gates
-     *
-     * This wraps pCut in a GateListItem that will own it and that
-     * GateListItem is then owned by this.
-     */
-    void registerGate(GGate* pCut);
-
-    /*! \brief Slot for adding slice to list of manage gates
-     *
-     * This wraps pSlice in a GateListItem that will own it and that
-     * SliceListItem is then owned by this.
-     */
-    void registerSlice(GSlice* pSlice);
-
-    /*! Makes a call to SpecTcl interface to edit the gate */
-    void editGate(GGate* pCut);
-    void editSlice(GSlice* pSlice);
-
-    void deleteGate();
-
-    /*! Update to list */
-    void onGateListChanged();
-
+    void onDeleteButtonClicked();
     void setGateList(const std::vector<QString>& gates);
 
-public:
-    QListWidgetItem* findItem(const QString& name);
-    void removeGate(QListWidgetItem* pItem);
-    void clearList();
-    std::vector<QListWidgetItem*> getItems() const;
 
 private:
-    void addSliceToList(GSlice* pSlice);
-    void addGateToList(GGate* pGate);
     void connectSignals();
 
-    void populateListWithoutSync();
-    void populateListWithSync();
 
 private:
     Ui::GateManager*                          ui;
     SpectrumView&                             m_view;
     std::shared_ptr<SpecTclInterface>         m_pSpecTcl;
-    std::map<QString, int>                   m_gateRowMap;
 
 };
 
