@@ -51,7 +51,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   SpecTclInterfaceControl.h \
   ShMemKeyRequestHandler.h \
   ShMemSizeRequestHandler.h \
-  CmdLineOptions.h
+  CmdLineOptions.h \
+  SpectrumDrawChooser.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -98,6 +99,7 @@ libSpectra_la_SOURCES = \
   ShMemKeyRequestHandler.cpp \
   ShMemSizeRequestHandler.cpp \
   CmdLineOptions.cpp \
+  SpectrumDrawChooser.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -130,6 +132,7 @@ libSpectra_la_SOURCES = \
 	moc_SpecTclShMemInterface.cpp \
 	moc_ShMemKeyRequestHandler.cpp \
 	moc_ShMemSizeRequestHandler.cpp \
+        moc_SpectrumDrawChooser.cpp \
 	cmdline.c \
 	qrc_resources.cpp
 
@@ -161,6 +164,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								ui_ControlPanel.h \
 								ui_GeometrySelector.h \
 								ui_TabbedMultiSpectrumView.h \
+                                                                ui_SpectrumDrawChooser.h \
 								moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \

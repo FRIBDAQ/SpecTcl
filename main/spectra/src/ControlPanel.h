@@ -109,6 +109,7 @@ public slots:
      */
     void onRowCountChanged(int);
 
+    void onDrawButtonClicked();
 
     ///////////////////////////////////////////////////////////////////////////
 signals:

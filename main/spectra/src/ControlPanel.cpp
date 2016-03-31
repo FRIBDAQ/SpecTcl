@@ -26,6 +26,7 @@
 #include "SpectrumView.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
+#include "SpectrumDrawChooser.h"
 #include "ui_ControlPanel.h"
 #include <set>
 
@@ -59,6 +60,7 @@ void ControlPanel::assembleWidgets()
     ui->setupUi(this);
 
     ui->horizontalLayout->insertWidget(0, m_pGeoSelector, 0, Qt::AlignLeft);
+
 }
 
 void ControlPanel::connectSignalsAndSlots()
@@ -69,6 +71,8 @@ void ControlPanel::connectSignalsAndSlots()
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
     connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
+
+    connect(ui->pAddSpecButton, SIGNAL(clicked()), this, SLOT(onDrawButtonClicked()));
 }
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
@@ -81,6 +85,17 @@ void ControlPanel::onUpdateSelected()
   if (m_pSpecTcl) {
       m_pSpecTcl->requestHistContentUpdate(m_pView->getCurrentCanvas());
   }
+}
+
+void ControlPanel::onDrawButtonClicked()
+{
+
+    std::cout << "onDrawButtonClicked() " << std::endl;
+    SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
+
+    ui->horizontalLayout->removeWidget(ui->pAddSpecButton);
+    ui->horizontalLayout->insertWidget(1, pChooser, 0, Qt::AlignLeft);
+    pChooser->show();
 }
 
 // naively this currently just updates ALL of the histograms... will need to

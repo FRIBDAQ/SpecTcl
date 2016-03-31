@@ -1,27 +1,7 @@
-//    This software is Copyright by the Board of Trustees of Michigan
-//    State University (c) Copyright 2016.
-//
-//    This program is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//    Authors:
-//    Jeromy Tompkins 
-//    NSCL
-//    Michigan State University
-//    East Lansing, MI 48824-1321
+#include "SpectrumDrawChooser.h"
+#include "ui_SpectrumDrawChooser.h"
 
-#include "HistogramView.h"
-#include "ui_HistogramView.h"
+#include "ui_SpectrumDrawChooser.h"
 #include "ListRequestHandler.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
@@ -47,39 +27,39 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramView::HistogramView(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent) :
-    QDockWidget(tr("Histograms"),parent),
-    ui(new Ui::HistogramView),
+SpectrumDrawChooser::SpectrumDrawChooser(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::SpectrumDrawChooser),
     m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
 
     if (! connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
                   this, SLOT(onHistogramListChanged())) ) {
-        throw runtime_error("HistogramView() failed to connect SpecTclInterface::histogramListChanged() to slot");
+        throw runtime_error("SpectrumDrawChooser() failed to connect SpecTclInterface::histogramListChanged() to slot");
     }
 
-    if (! connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
+    if (! connect(ui->pHistList,SIGNAL(doubleClicked(QModelIndex)),
                   this,SLOT(onDoubleClick(QModelIndex))) ) {
-        throw runtime_error("HistogramView() failed to connect HistogramList::doubleClicked() to slot");
+        throw runtime_error("SpectrumDrawChooser() failed to connect HistogramList::doubleClicked() to slot");
     }
 
     if (! connect(ui->pDrawButton,SIGNAL(clicked()),
                   this,SLOT(onDrawClicked())) ) {
-        throw runtime_error("HistogramView() failed to connect HistogramList::onDrawClicked() to slot");
+        throw runtime_error("SpectrumDrawChooser() failed to connect HistogramList::onDrawClicked() to slot");
     }
 
 }
 
 //
 //
-HistogramView::~HistogramView()
+SpectrumDrawChooser::~SpectrumDrawChooser()
 {
 }
 
 //
 //
-void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+void SpectrumDrawChooser::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
     if (m_pSpecTcl) {
         if (! disconnect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
@@ -93,14 +73,14 @@ void HistogramView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecT
 
     if (! connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
             this, SLOT(onHistogramListChanged())) ) {
-        throw runtime_error("HistogramView() failed to connect SpecTclInterface::histogramListChanged() to slot");
+        throw runtime_error("SpectrumDrawChooser() failed to connect SpecTclInterface::histogramListChanged() to slot");
     }
 
 }
 
 //
 //
-void HistogramView::onHistogramListChanged()
+void SpectrumDrawChooser::onHistogramListChanged()
 {
   auto pHistList = m_pSpecTcl->getHistogramList();
   synchronize(pHistList);
@@ -109,7 +89,7 @@ void HistogramView::onHistogramListChanged()
 // Synchronization is a two step process
 // 1. Add all entries that are missing in the current local list
 // 2. Remove all entries that are in current local list but not in master list
-void HistogramView::synchronize(HistogramList *pHistList)
+void SpectrumDrawChooser::synchronize(HistogramList *pHistList)
 {
     QMutexLocker lock(pHistList->getMutex());
 
@@ -134,10 +114,10 @@ void HistogramView::synchronize(HistogramList *pHistList)
 
 //
 //
-void HistogramView::appendEntry(const QString& name, HistogramList::iterator it)
+void SpectrumDrawChooser::appendEntry(const QString& name, HistogramList::iterator it)
 {
     // Histograms are uniquely named, so we can use the name as the key
-    auto item = new QListWidgetItem(name, ui->histList,
+    auto item = new QListWidgetItem(name, ui->pHistList,
                                     QListWidgetItem::UserType);
 
     // store a point to the histogram bundle
@@ -145,15 +125,15 @@ void HistogramView::appendEntry(const QString& name, HistogramList::iterator it)
                   QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
     setIcon(item);
 
-    QSize geo = ui->histList->size();
-    ui->histList->insertItem(geo.height(), item);
+    QSize geo = ui->pHistList->size();
+    ui->pHistList->insertItem(geo.height(), item);
 }
 
 //
 //
-void HistogramView::updateEntry(HistogramList::iterator it, const QString& name)
+void SpectrumDrawChooser::updateEntry(HistogramList::iterator it, const QString& name)
 {
-    auto items = ui->histList->findItems(name, Qt::MatchExactly);
+    auto items = ui->pHistList->findItems(name, Qt::MatchExactly);
     // make sure we found something
     if ( items.size() == 1 ) {
         // get the first and only item found
@@ -167,15 +147,15 @@ void HistogramView::updateEntry(HistogramList::iterator it, const QString& name)
 
 //
 //
-void HistogramView::removeStaleEntries(HistogramList* pHistList)
+void SpectrumDrawChooser::removeStaleEntries(HistogramList* pHistList)
 {
-    int nRows = ui->histList->count();
+    int nRows = ui->pHistList->count();
     for (int row=nRows-1; row>=0; --row) {
 
-        auto pItem = ui->histList->item(row);
+        auto pItem = ui->pHistList->item(row);
 
         if ( ! pHistList->histExists(pItem->text()) ) {
-            delete (ui->histList->takeItem(row));
+            delete (ui->pHistList->takeItem(row));
         }
     }
 }
@@ -183,7 +163,7 @@ void HistogramView::removeStaleEntries(HistogramList* pHistList)
 
 //
 //
-void HistogramView::setIcon(QListWidgetItem *pItem)
+void SpectrumDrawChooser::setIcon(QListWidgetItem *pItem)
 {
   auto pBundle = reinterpret_cast<HistogramBundle*>(pItem->data(Qt::UserRole).value<void*>());
   if ( pBundle->getInfo().s_type == 1 ) {
@@ -195,7 +175,7 @@ void HistogramView::setIcon(QListWidgetItem *pItem)
 
 //
 //
-void HistogramView::setList(std::vector<SpJs::HistInfo> names)
+void SpectrumDrawChooser::setList(std::vector<SpJs::HistInfo> names)
 {
     SpJs::HistFactory factory;
 
@@ -229,13 +209,13 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             QString name = QString::fromStdString((*iter).s_name);
 
             auto item = new QListWidgetItem(name,
-                                            ui->histList,
+                                            ui->pHistList,
                                             QListWidgetItem::UserType);
 
             item->setData(Qt::UserRole,QVariant(name));
 
-            QSize geo = ui->histList->size();
-            ui->histList->insertItem(geo.height(), item);
+            QSize geo = ui->pHistList->size();
+            ui->pHistList->insertItem(geo.height(), item);
 
         }
 
@@ -246,15 +226,15 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 
 //
 //
-void HistogramView::onDoubleClick(QModelIndex index)
+void SpectrumDrawChooser::onDoubleClick(QModelIndex index)
 {
     auto pHistBundle = reinterpret_cast<HistogramBundle*>(index.data(Qt::UserRole).value<void*>());
     emit histSelected(pHistBundle);
 }
 
-void HistogramView::onDrawClicked()
+void SpectrumDrawChooser::onDrawClicked()
 {
-    QList<QListWidgetItem*> selected = ui->histList->selectedItems();
+    QList<QListWidgetItem*> selected = ui->pHistList->selectedItems();
 
     for (auto& item : selected) {
         std::cout << item->text().toStdString() << std::endl;
@@ -263,20 +243,20 @@ void HistogramView::onDrawClicked()
 
 //
 //
-bool HistogramView::histExists(const QString& name)
+bool SpectrumDrawChooser::histExists(const QString& name)
 {
-  size_t nRows = ui->histList->count();
+  size_t nRows = ui->pHistList->count();
   return (binarySearch(0, nRows-1, name) != -1);
 }
 
 //
 //
-int HistogramView::binarySearch(int min, int max, const QString& name)
+int SpectrumDrawChooser::binarySearch(int min, int max, const QString& name)
 {
   int pivot = min + (max-min)/2;
   if ((max < min) || (min < 0)) return -1;
 
-  auto pivotName = ui->histList->item(pivot)->text();
+  auto pivotName = ui->pHistList->item(pivot)->text();
   if (pivotName == name) {
       return pivot;
     } else if (pivotName < name) {
@@ -292,11 +272,11 @@ int HistogramView::binarySearch(int min, int max, const QString& name)
 
 //
 //
-void HistogramView::deleteHists()
+void SpectrumDrawChooser::deleteHists()
 {
-    size_t nEntries = ui->histList->count();
+    size_t nEntries = ui->pHistList->count();
     for(size_t  entry=0; entry<nEntries; ++entry) {
-        QListWidgetItem* item = ui->histList->item(entry);
+        QListWidgetItem* item = ui->pHistList->item(entry);
         TH1* hist = (TH1*)(item->data(Qt::UserRole).value<void*>());
         delete hist;
     }
