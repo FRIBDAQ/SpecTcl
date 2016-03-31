@@ -203,11 +203,17 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
 void MultiSpectrumView::setCurrentCanvas(QWidget *pWidget)
 {
   if (auto pCanvas = dynamic_cast<QRootCanvas*>(pWidget)) {
+
+      // don't do anything if we just clicked on the thing
+      if (m_pCurrentCanvas == pCanvas) return;
+
       m_pCurrentCanvas = pCanvas;
       m_pCurrentCanvas->cd();
 
       setFocus();
       QWidget::update();
+
+      emit currentCanvasChanged(*m_pCurrentCanvas);
   }
 }
 
@@ -316,8 +322,10 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
               pBundle->synchronizeGates(m_pSpecTcl->getGateList());
           }
           pBundle->draw();
-        }
-    }
+
+          emit canvasContentChanged(*m_pCurrentCanvas);
+      }
+  }
     setFocus();
     refreshAll();
 }
@@ -331,9 +339,12 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
             pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
         pBundle->draw();
+
+        emit canvasContentChanged(*m_pCurrentCanvas);
     }
     setFocus();
     refreshAll();
+
 }
 
 

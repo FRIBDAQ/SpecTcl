@@ -52,7 +52,12 @@ noinst_HEADERS =  QRootCanvas.h  \
   ShMemKeyRequestHandler.h \
   ShMemSizeRequestHandler.h \
   CmdLineOptions.h \
-  SpectrumDrawChooser.h
+  SpectrumDrawChooser.h \
+  InformationPanel.h \
+  GateManager.h \
+  OneDimGateEdit.h \
+  MultiInfoPanel.h \
+  TwoDimGateEdit.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -100,7 +105,13 @@ libSpectra_la_SOURCES = \
   ShMemSizeRequestHandler.cpp \
   CmdLineOptions.cpp \
   SpectrumDrawChooser.cpp \
-	moc_ControlPanel.cpp \
+  InformationPanel.cpp \
+  GateManager.cpp \
+    OneDimGateEdit.cpp \
+    GateManagerWidget.cpp \
+    MultiInfoPanel.cpp \
+    TwoDimGateEdit.cpp \
+    moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
 	moc_GateEditComHandler.cpp \
@@ -133,6 +144,13 @@ libSpectra_la_SOURCES = \
 	moc_ShMemKeyRequestHandler.cpp \
 	moc_ShMemSizeRequestHandler.cpp \
         moc_SpectrumDrawChooser.cpp \
+        moc_InformationPanel.cpp \
+        moc_SpectrumView.cpp \
+        moc_GateManager.cpp \
+        moc_OneDimGateEdit.cpp \
+        moc_GateManagerWidget.cpp \
+        moc_MultiInfoPanel.cpp \
+        moc_TwoDimGateEdit.cpp \
 	cmdline.c \
 	qrc_resources.cpp
 
@@ -147,7 +165,12 @@ spectraFORMS =  MainWindow.ui  \
   GateBuilder1DDialog.ui \
   ControlPanel.ui \
   GeometrySelector.ui \
-  TabbedMultiSpectrumView.ui
+  TabbedMultiSpectrumView.ui \
+  InformationPanel.ui \
+  GateManager.ui \
+  OneDimGateEdit.ui \
+  MultiInfoPanel.ui \
+  TwoDimGateEdit.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -165,7 +188,12 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								ui_GeometrySelector.h \
 								ui_TabbedMultiSpectrumView.h \
                                                                 ui_SpectrumDrawChooser.h \
-								moc_ControlPanel.cpp \
+                                                                ui_InformationPanel.h \
+                                                                ui_GateManager.h \
+                                                                ui_OneDimGateEdit.h \
+                                                                ui_MultiInfoPanel.h \
+                                                                ui_TwoDimGateEdit.h \
+                                                                moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
 								moc_GateEditComHandler.cpp \
@@ -192,6 +220,13 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_QTLine.cpp \
 								moc_ConnectionTester.cpp \
 								moc_SpecTclShMemInterface.cpp \
+								moc_InformationPanel.cpp \
+								moc_SpectrumView.cpp \
+								moc_GateManager.cpp \
+								moc_OneDimGateEdit.cpp \
+								moc_GateManagerWidget.cpp \
+								moc_MultiInfoPanel.cpp \
+								moc_TwoDimGateEdit.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \

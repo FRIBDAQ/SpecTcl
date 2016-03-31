@@ -43,6 +43,7 @@ class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
 class ControlPanel;
+class MultiInfoPanel;
 
 /*!
  * \brief The MainWindow class
@@ -100,7 +101,7 @@ public slots:
     void dockHistograms();
 
     /*!
-     * \brief Make the gate manager visible
+     * \brief Make the gate manager visibleMainWindow& rMain,
      */
     void dockGates();
 
@@ -109,6 +110,7 @@ public slots:
      */
     void onNewHistogram();
 
+    void showHideStatistics();
     ///////////////////////////////////////////////////////////////////////////
 
 private:
@@ -140,6 +142,7 @@ private:
     DockableGateManager               *m_gateView;      ///< dockable gate widget
     ControlPanel                      *m_pControls;     ///< button panel
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
+    MultiInfoPanel                    *m_pInfoPanel;
 };
 
 
