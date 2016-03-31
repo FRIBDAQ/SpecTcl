@@ -130,10 +130,10 @@ void ControlPanel::onRefresh()
 
 void ControlPanel::onStatisticsButtonClicked()
 {
-    if (ui->pStatisticsButton->text() == "Statistics &>>>") {
-        ui->pStatisticsButton->setText("Statistics &<<<");
+    if (ui->pStatisticsButton->text() == "Statistics &>>") {
+        ui->pStatisticsButton->setText("Statistics &<<");
     } else {
-        ui->pStatisticsButton->setText("Statistics &>>>");
+        ui->pStatisticsButton->setText("Statistics &>>");
     }
     emit statisticsButtonClicked();
 }
