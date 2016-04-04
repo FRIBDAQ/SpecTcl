@@ -111,6 +111,8 @@ public slots:
   void clearLayout();
   void layoutSpectra(QStringList spectrumList);
 
+  void toggleZoom();
+
   void onNewTabContentsSelected(QStringList selection);
 
   std::tuple<int, int> computeOptimalGeometry(int nCanvases);

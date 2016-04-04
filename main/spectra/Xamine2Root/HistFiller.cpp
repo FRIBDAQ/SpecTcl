@@ -68,7 +68,7 @@ namespace Xamine2Root
 
         TAxis* pXaxis = rHist.GetXaxis();
 
-        for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
+        for (int xbin=1; xbin<=pXaxis->GetNbins(); xbin++) {
                 unsigned int content = xamine_shared->getchannel(id, xbin-1);
                 rHist.SetBinContent(xbin, content);
         }
@@ -87,8 +87,8 @@ namespace Xamine2Root
         TAxis* pXaxis = rHist.GetXaxis();
         TAxis* pYaxis = rHist.GetYaxis();
 
-        for (int ybin=pYaxis->GetFirst(); ybin<=pYaxis->GetLast(); ybin++) {
-            for (int xbin=pXaxis->GetFirst(); xbin<=pXaxis->GetLast(); xbin++) {
+        for (int ybin=1; ybin<=pYaxis->GetNbins(); ybin++) {
+            for (int xbin=1; xbin<=pXaxis->GetNbins(); xbin++) {
                 unsigned int content = xamine_shared->getchannel(id, xbin-1, ybin-1);
                 rHist.SetBinContent(xbin, ybin, content);
             }

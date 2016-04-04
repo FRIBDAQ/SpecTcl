@@ -33,8 +33,6 @@ MultiInfoPanel::~MultiInfoPanel()
 void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
 {
 
-    std::cout << "currentCanvasChanged" << std::endl;
-
     auto hists = SpectrumView::getAllHists(&rCanvas);
 
     removeAllTabs();

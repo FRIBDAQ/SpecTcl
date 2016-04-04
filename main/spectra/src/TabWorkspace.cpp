@@ -51,7 +51,7 @@ void TabWorkspace::setUpUI()
     // adjust the sizes of the
     QSize viewSize    = m_pView->sizeHint();
     QSize controlSize = m_pView->sizeHint();
-    pVSplitter->setSizes({ viewSize.height()*2, 40 });
+    pVSplitter->setSizes({ viewSize.height()*100, 10 });
 
     pHSplitter->addWidget(m_pDrawPanel);
     pHSplitter->addWidget(pVSplitter);
@@ -88,6 +88,8 @@ void TabWorkspace::connectSignals()
 
     connect(m_pControls, SIGNAL(displayButtonClicked()),
             this, SLOT(showHideDrawPanel()));
+
+    connect(m_pControls, SIGNAL(zoomButtonClicked()), m_pView, SLOT(toggleZoom()));
 
 }
 

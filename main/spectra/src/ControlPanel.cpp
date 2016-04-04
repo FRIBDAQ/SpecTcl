@@ -67,10 +67,11 @@ void ControlPanel::connectSignalsAndSlots()
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
     connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
+    connect(ui->pZoomButton, SIGNAL(clicked()), this, SLOT(onZoom()));
 
     connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
     connect(ui->pDisplayButton, SIGNAL(clicked()), this, SLOT(onDisplayButtonClicked()));
-}
+    }
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
@@ -83,19 +84,6 @@ void ControlPanel::onUpdateSelected() {
   }
 }
 
-void ControlPanel::onDrawButtonClicked()
-{
-
-//    std::cout << "onDrawButtonClicked() " << std::endl;
-//    SpectrumDrawChooser* pChooser = new SpectrumDrawChooser(m_pSpecTcl, this);
-
-//    ui->gridLayout->removeWidget(ui->pAddSpecButton);
-//    ui->gridLayout->addWidget(pChooser, 1, 0);
-//    pChooser->show();
-}
-
-// naively this currently just updates ALL of the histograms... will need to
-// be alterred to update only the hists that are displayed
 void ControlPanel::onUpdateAll()
 {
   if (m_pSpecTcl) {
@@ -120,27 +108,47 @@ void ControlPanel::onUpdateAll()
   }
 }
 
+
 void ControlPanel::onRefresh()
 {
   m_pView->refreshAll();
 }
 
+
+void ControlPanel::setZoomed(bool isZoomed) {
+    if (isZoomed) {
+        ui->pZoomButton->setText("Un&zoom");
+    } else {
+        ui->pZoomButton->setText("&Zoom");
+    }
+}
+
+void ControlPanel::onZoom() {
+
+    // if we are zoomed, then the text should say "Unzoom"
+    setZoomed((ui->pZoomButton->text() == "Un&zoom"));
+
+    emit zoomButtonClicked();
+}
+
+
 void ControlPanel::onStatisticsButtonClicked()
 {
-    if (ui->pStatisticsButton->text() == "Canvas &>>") {
-        ui->pStatisticsButton->setText("Canvas &<<");
+    if (ui->pStatisticsButton->text() == "&Canvas >>") {
+        ui->pStatisticsButton->setText("&Canvas <<");
     } else {
-        ui->pStatisticsButton->setText("Canvas &>>");
+        ui->pStatisticsButton->setText("&Canvas >>");
     }
     emit statisticsButtonClicked();
 }
 
+
 void ControlPanel::onDisplayButtonClicked()
 {
-    if (ui->pDisplayButton->text() == "Display &>>") {
-        ui->pDisplayButton->setText("Display &<<");
+    if (ui->pDisplayButton->text() == "&Display >>") {
+        ui->pDisplayButton->setText("&Display <<");
     } else {
-        ui->pDisplayButton->setText("Display &>>");
+        ui->pDisplayButton->setText("&Display >>");
     }
     emit displayButtonClicked();
 }

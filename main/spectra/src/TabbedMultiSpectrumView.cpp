@@ -90,6 +90,11 @@ void TabbedMultiSpectrumView::layoutSpectra(QStringList spectrumList)
     return m_pCurrentView->layoutSpectra(spectrumList);
 }
 
+void TabbedMultiSpectrumView::toggleZoom()
+{
+    return m_pCurrentView->toggleZoom();
+}
+
 void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
 {
 

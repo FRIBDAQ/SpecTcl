@@ -383,6 +383,12 @@ void MultiSpectrumView::toggleZoom(QWidget& rWidget)
 }
 
 
+void MultiSpectrumView::toggleZoom()
+{
+    if (m_pCurrentCanvas) {
+        toggleZoom(*m_pCurrentCanvas);
+    }
+}
 
 void MultiSpectrumView::clearLayout()
 {
@@ -474,7 +480,6 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
 
     setCurrentCanvas(pTopLeftCanvas);
 
-    std::cout << "about to refresh" << std::endl;
     refreshAll();
 
 }
@@ -501,8 +506,6 @@ void MultiSpectrumView::onPadDoubleClick(TPad *pPad)
             break;
         }
     }
-    auto location = findLocation(pTargetCanvas);
-    std::cout << "location = " << location.first << " " << location.second << std::endl;
 
     toggleZoom(*pTargetCanvas);
 }

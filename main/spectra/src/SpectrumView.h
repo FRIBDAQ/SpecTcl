@@ -162,6 +162,7 @@ public:
     virtual void clearLayout() = 0;
     virtual void layoutSpectra(QStringList spectrumList) = 0;
 
+    virtual void toggleZoom() = 0;
     /*!
      * \brief getAllHists in a pane
      * \param pCanvas - canvas containing histograms

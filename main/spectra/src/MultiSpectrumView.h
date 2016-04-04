@@ -187,6 +187,7 @@ public slots:
      */
     void refreshAll();
 
+    void toggleZoom();
 
     void onPadDoubleClick(TPad* pPad);
 
