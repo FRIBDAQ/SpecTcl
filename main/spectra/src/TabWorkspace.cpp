@@ -25,7 +25,7 @@ TabWorkspace::TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *
     setUpUI();
 
     // populate the histogram draw panel with histograms
-    m_pDrawPanel->synchronize(m_pSpecTcl->getHistogramList());
+    m_pDrawPanel->setHistogramList(m_pSpecTcl->getHistogramList());
 
     connectSignals();
 

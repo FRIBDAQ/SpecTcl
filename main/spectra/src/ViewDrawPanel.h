@@ -80,11 +80,11 @@ public:
      *
      * \param pHistList    pointer to the histogram list
      */
-    void synchronize(HistogramList* pHistList);
+    void setHistogramList(HistogramList* pHistList);
 
-    void appendEntry(const QString& name, HistogramList::iterator it);
-    void updateEntry(HistogramList::iterator it, const QString& name);
     void removeStaleEntries(HistogramList *pHistList);
+
+    void filterHistogramList(const QString& filter);
 
 signals:
     void histSelected(HistogramBundle* hist);
@@ -92,9 +92,6 @@ signals:
 
     //////////////////////////////////////////////////////////////////////////
 public slots:
-    void setList(std::vector<SpJs::HistInfo> list);
-    void onDrawClicked();
-
     /*!
      * \brief
      * \param index
@@ -111,30 +108,19 @@ public slots:
 
     GeometrySelector& getGeometrySelector() { return *m_pGeoSelector; }
 
+    void applyFilter(const QString& pattern);
+
     //////////////////////////////////////////////////////////////////////////
 private:
-    /*!
-     * \brief histExists
-     * \param name
-     * \return
-     */
-    bool histExists(const QString& name);
-    void deleteHists();
-    void setIcon(QListWidgetItem* pItem);
+    void appendHistogramToList(HistogramList::iterator it);
+    void setIcon(QListWidgetItem& item, HistogramList::iterator it);
 
-    /*!
-     * \brief Binary search the ListWidget for a
-     * \param min    lower bound index
-     * \param max    upper bound index
-     * \param name   name
-     * \return
-     */
-    int binarySearch(int min, int max, const QString& name);
+    void clearHistogramList();
 
 private:
     std::unique_ptr<Ui::ViewDrawPanel> ui;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
-    GeometrySelector*                   m_pGeoSelector;
+    GeometrySelector*                 m_pGeoSelector;
 };
 
 } // end of namespace
