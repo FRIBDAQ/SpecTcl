@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ViewDrawPanel</class>
+ <widget class="QWidget" name="ViewDrawPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>202</width>
+    <height>323</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>250</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="pInstructionsl">
+     <property name="text">
+      <string>Double click or press enter to draw</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="histList"/>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="pFilterEdit">
+     <property name="placeholderText">
+      <string>Filter pattern</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

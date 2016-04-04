@@ -73,8 +73,11 @@
 #include "QRootDialog.h"
 #include "QRootApplication.h"
 
+#include <TVirtualGL.h>
+
 #include <cstring>
 #include <QFrame>
+#include <iostream>
 
 namespace Viewer
 {
@@ -107,7 +110,7 @@ QRootCanvas::QRootCanvas(QWidget *parent) :
    fRootWindowId = gVirtualX->AddWindow((ULong_t)fQtWindowId, 100, 30);
 
    fCanvas = new TCanvas("Canvas", width(), height(), fRootWindowId);
-   fCanvas->SetSupportGL(true);
+   fCanvas->SetSupportGL(false);
 
    // create the context menu
    fMousePosX = 0;

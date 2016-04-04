@@ -101,19 +101,11 @@ public slots:
      */
     void onRefresh();
 
-    /*!
-     * \brief Logic for when column count changes
-     */
-    void onColumnCountChanged(int);
-
-    /*!
-     * \brief Logic for when row count changes
-     */
-    void onRowCountChanged(int);
-
     void onDrawButtonClicked();
 
     void onStatisticsButtonClicked();
+
+    void onDisplayButtonClicked();
 
     ///////////////////////////////////////////////////////////////////////////
 signals:
@@ -129,6 +121,8 @@ signals:
     void geometryChanged(int nRows, int nCols);
 
     void statisticsButtonClicked();
+
+    void displayButtonClicked();
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods

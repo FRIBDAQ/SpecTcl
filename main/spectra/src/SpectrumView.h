@@ -25,9 +25,11 @@
 #define SPECTRUMVIEW_H
 
 #include <QWidget>
+#include <QStringList>
 
 #include <vector>
 #include <memory>
+#include <tuple>
 
 class TH1;
 
@@ -157,6 +159,9 @@ public:
      */
     virtual void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl) = 0;
 
+    virtual void clearLayout() = 0;
+    virtual void layoutSpectra(QStringList spectrumList) = 0;
+
     /*!
      * \brief getAllHists in a pane
      * \param pCanvas - canvas containing histograms
@@ -167,6 +172,7 @@ public:
      */
     static std::vector<TH1*> getAllHists(QRootCanvas* pCanvas);
 
+    virtual std::tuple<int, int> computeOptimalGeometry(int nCanvases) = 0;
 signals:
     void currentCanvasChanged(QRootCanvas& rCanvas);
     void canvasContentChanged(QRootCanvas& rCanvas);

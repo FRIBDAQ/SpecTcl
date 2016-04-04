@@ -57,6 +57,8 @@ public:
     int getRowCount() const;
     int getColumnCount() const;
 
+    void setGeometry(int nRows, int nCols);
+
     //////////////////////////////////////////////////////////////////////////
 public slots:
     void onRowCountChanged(int nRows);

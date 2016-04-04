@@ -46,7 +46,6 @@
 //#endif
 
 //#else
-
 //#define GO4_CLASS_EXPORT
 
 //#endif

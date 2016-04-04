@@ -57,7 +57,12 @@ noinst_HEADERS =  QRootCanvas.h  \
   GateManager.h \
   OneDimGateEdit.h \
   MultiInfoPanel.h \
-  TwoDimGateEdit.h
+  TwoDimGateEdit.h \
+  SpectrumLayoutDialog.h \
+  LayoutDialogChooser.h \
+  BulkDrawChooser.h \
+  ViewDrawPanel.h \
+  TabWorkspace.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -111,6 +116,11 @@ libSpectra_la_SOURCES = \
     GateManagerWidget.cpp \
     MultiInfoPanel.cpp \
     TwoDimGateEdit.cpp \
+    SpectrumLayoutDialog.cpp \
+    LayoutDialogChooser.cpp \
+    BulkDrawChooser.cpp \
+    ViewDrawPanel.cpp \
+    TabWorkspace.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -151,6 +161,11 @@ libSpectra_la_SOURCES = \
         moc_GateManagerWidget.cpp \
         moc_MultiInfoPanel.cpp \
         moc_TwoDimGateEdit.cpp \
+        moc_SpectrumLayoutDialog.cpp \
+        moc_LayoutDialogChooser.cpp \
+        moc_BulkDrawChooser.cpp \
+        moc_ViewDrawPanel.cpp \
+        moc_TabWorkspace.cpp \
 	cmdline.c \
 	qrc_resources.cpp
 
@@ -170,7 +185,10 @@ spectraFORMS =  MainWindow.ui  \
   GateManager.ui \
   OneDimGateEdit.ui \
   MultiInfoPanel.ui \
-  TwoDimGateEdit.ui
+  TwoDimGateEdit.ui \
+  LayoutDialogChooser.ui \
+  BulkDrawChooser.ui \
+  ViewDrawPanel.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -193,6 +211,9 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_OneDimGateEdit.h \
                                                                 ui_MultiInfoPanel.h \
                                                                 ui_TwoDimGateEdit.h \
+                                                                ui_BulkDrawChooser.h \
+                                                                ui_LayoutDialogChooser.h \
+                                                                ui_ViewDrawPanel.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -227,6 +248,11 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_GateManagerWidget.cpp \
 								moc_MultiInfoPanel.cpp \
 								moc_TwoDimGateEdit.cpp \
+								moc_SpectrumLayoutDialog.cpp \
+								moc_LayoutDialogChooser.cpp \
+								moc_BulkDrawChooser.cpp \
+								moc_ViewDrawPanel.cpp \
+								moc_TabWorkspace.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \

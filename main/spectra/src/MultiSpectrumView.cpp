@@ -24,6 +24,7 @@
 #include "HistogramBundle.h"
 #include "QRootCanvas.h"
 #include "SpecTclInterface.h"
+#include "HistogramList.h"
 
 #include <TPad.h>
 #include <TCanvas.h>
@@ -35,9 +36,12 @@
 #include <QPainter>
 #include <QBrush>
 #include <QColor>
+#include <QMutexLocker>
+#include <QMessageBox>
 
 #include <iostream>
 #include <stdexcept>
+#include <tuple>
 
 using namespace std;
 
@@ -49,7 +53,7 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_pLayout(new QGridLayout(this)),
     m_histMap(),
     m_pSpecTcl(pSpecTcl),
-    m_pCurrentCanvas(new QRootCanvas),
+    m_pCurrentCanvas(new QRootCanvas(this)),
     m_currentNRows(1),
     m_currentNColumns(1),
     m_canvases(),
@@ -96,8 +100,8 @@ vector<QRootCanvas*> MultiSpectrumView::getAllCanvases()
 {
   vector<QRootCanvas*> canvases;
 
-  for (int col=0; col<m_pLayout->columnCount(); col++) {
-      for (int row=0; row<m_pLayout->rowCount(); row++) {
+  for (int col=0; col<m_currentNColumns; col++) {
+      for (int row=0; row<m_currentNRows; row++) {
           auto pItem = m_pLayout->itemAtPosition(row, col);
           if (pItem) {
               auto pCanvas = dynamic_cast<QRootCanvas*>(pItem->widget());
@@ -122,7 +126,7 @@ void MultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pS
 void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
 {
     // figure out the current configuation...
-    if (nRows == m_pLayout->rowCount() && nCols == m_pLayout->columnCount()) {
+    if (nRows == m_currentNRows && nCols == m_currentNColumns) {
         // if the same, do nothing
         return;
     }
@@ -280,8 +284,8 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
 
 std::pair<int,int> MultiSpectrumView::findLocation(QWidget *pWidget)
 {
-  for (int col=0; col<m_pLayout->columnCount(); col++) {
-      for (int row=0; row<m_pLayout->rowCount(); row++) {
+  for (int col=0; col<m_currentNColumns; col++) {
+      for (int row=0; row<m_currentNRows; row++) {
           auto pItem = m_pLayout->itemAtPosition(row,col);
           if (pItem) {
               if (pItem->widget() == pWidget) {
@@ -292,6 +296,8 @@ std::pair<int,int> MultiSpectrumView::findLocation(QWidget *pWidget)
     }
   return std::make_pair(-1, -1);
 }
+
+
 
 void MultiSpectrumView::paintEvent(QPaintEvent *evt)
 {
@@ -313,6 +319,7 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
     return m_pCurrentCanvas;
 }
 
+
 void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 {
   if (pBundle) {
@@ -329,6 +336,7 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     setFocus();
     refreshAll();
 }
+
 
 
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
@@ -348,11 +356,11 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 }
 
 
+
+
 void MultiSpectrumView::toggleZoom(QWidget& rWidget)
 {
     if (! m_isZoomed) {
-
-        std::cout << "zooming in" << std::endl;
 
         QLayoutItem* pChild;
         for (auto& canvasInfo : m_canvases) {
@@ -366,7 +374,6 @@ void MultiSpectrumView::toggleZoom(QWidget& rWidget)
 
     } else {
 
-        std::cout << "zooming out" << std::endl;
         for (auto& canvasInfo : m_canvases) {
             canvasInfo.second->show();
         }
@@ -375,14 +382,113 @@ void MultiSpectrumView::toggleZoom(QWidget& rWidget)
     }
 }
 
+
+
+void MultiSpectrumView::clearLayout()
+{
+    QLayoutItem* pItem;
+    while (( pItem = m_pLayout->takeAt(0) )) {
+        if (pItem->widget()) {
+            delete pItem->widget();
+        }
+        delete pItem;
+    }
+}
+
+
+
+std::tuple<int, int> MultiSpectrumView::computeOptimalGeometry(int nSpectra)
+{
+    int nRows = 1;
+    int nCols = 1;
+
+    for (int cols=1; cols<11; ++cols) {
+        if (nRows*cols >= nSpectra) {
+            nCols = cols;
+            break;
+        }
+
+        nRows++;
+
+        if (nRows*cols >= nSpectra) {
+            nCols = cols;
+            break;
+        }
+    }
+
+    return std::make_tuple(nRows, nCols);
+}
+
+void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
+{
+    int nSpectra = spectrumList.count();
+
+    if (nSpectra >= 100) {
+        QString msg("Spectra can only display 100 or fewer spectra per tab\n");
+        msg += "and the user specified %1. Requested operation cannot be completed.";
+        QMessageBox::warning(this, "Too many spectra",
+                             msg.arg(nSpectra));
+        return;
+    }
+
+    // determine the geometry of to display the canvases
+
+    int nRows, nCols;
+    std::tie(nRows, nCols) = computeOptimalGeometry(nSpectra);
+
+    HistogramList& histList = *m_pSpecTcl->getHistogramList();
+
+    QRootCanvas* pTopLeftCanvas = nullptr;
+    auto pHistName = spectrumList.begin();
+    for (int col=0; col<nCols; ++col) {
+        for (int row=0; row<nRows; ++row) {
+
+            QRootCanvas* pCanvas = new QRootCanvas(this);
+            if (row==0 && col==0) {
+                pTopLeftCanvas = pCanvas;
+            }
+            connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
+                    this, SLOT(setCurrentCanvas(QWidget*)));
+            connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
+                    this, SLOT(onPadDoubleClick(TPad*)));
+
+            m_canvases[{row, col}] = pCanvas;
+
+            m_pLayout->addWidget(pCanvas, row, col);
+
+            if (pHistName != spectrumList.end()) {
+                QMutexLocker listLock(histList.getMutex());
+                HistogramBundle* pBundle = histList.getHist(*pHistName);
+                if (pBundle) {
+                    QMutexLocker histLock(pBundle->getMutex());
+                    pBundle->draw();
+                }
+                ++pHistName;
+            }
+
+        }
+    }
+
+    m_currentNColumns = nCols;
+    m_currentNRows = nRows;
+
+    setCurrentCanvas(pTopLeftCanvas);
+
+    std::cout << "about to refresh" << std::endl;
+    refreshAll();
+
+}
+
 void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
 {
     auto pWidget = childAt(evt->x(), evt->y());
     Q_ASSERT( pWidget );
+
+    auto location = findLocation(pWidget);
+    std::cout << "location = " << location.first << " " << location.second << std::endl;
     toggleZoom(*pWidget);
 
     QWidget::update();
-    std::cout << "mouseDoubleClickEvent()" << std::endl;
 }
 
 void MultiSpectrumView::onPadDoubleClick(TPad *pPad)
@@ -395,6 +501,8 @@ void MultiSpectrumView::onPadDoubleClick(TPad *pPad)
             break;
         }
     }
+    auto location = findLocation(pTargetCanvas);
+    std::cout << "location = " << location.first << " " << location.second << std::endl;
 
     toggleZoom(*pTargetCanvas);
 }
@@ -402,11 +510,8 @@ void MultiSpectrumView::onPadDoubleClick(TPad *pPad)
 void MultiSpectrumView::refreshAll()
 {
     // if different, then figure out how to change
-    int currentNRows = m_pLayout->rowCount();
-    int currentNCols = m_pLayout->columnCount();
-
-    for (int row=0; row<currentNRows; ++row) {
-        for (int col=0; col<currentNCols; ++col) {
+    for (int row=0; row<m_currentNRows; ++row) {
+        for (int col=0; col<m_currentNColumns; ++col) {
 
             auto pItem = m_pLayout->itemAtPosition(row, col);
             if (pItem) {
@@ -429,8 +534,8 @@ void MultiSpectrumView::onHistogramRemoved(HistogramBundle *pHistBundle)
 
 bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 {
-  for (int row = 0; row<m_pLayout->rowCount(); ++row) {
-      for (int col = 0; col<m_pLayout->columnCount(); ++col) {
+  for (int row = 0; row<m_currentNRows; ++row) {
+      for (int col = 0; col<m_currentNColumns; ++col) {
 
           auto pItem = m_pLayout->itemAtPosition(row,col);
 

@@ -38,12 +38,10 @@ namespace Viewer
 {
 
 // Forward declarations
-class SpectrumView;
+class TabbedMultiSpectrumView;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
-class ControlPanel;
-class MultiInfoPanel;
 
 /*!
  * \brief The MainWindow class
@@ -110,7 +108,6 @@ public slots:
      */
     void onNewHistogram();
 
-    void showHideStatistics();
     ///////////////////////////////////////////////////////////////////////////
 
 private:
@@ -134,15 +131,15 @@ private:
      */
     void constructSpecTclInterface();
 
+    void createShortcuts();
+
     ///////////////////////////////////////////////////////////////////////////
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;
-    SpectrumView                      *m_pView;         ///< viewer
+    TabbedMultiSpectrumView                      *m_pView;         ///< viewer
     HistogramView                     *m_histView;      ///< dockable histogram widget
     DockableGateManager               *m_gateView;      ///< dockable gate widget
-    ControlPanel                      *m_pControls;     ///< button panel
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
-    MultiInfoPanel                    *m_pInfoPanel;
 };
 
 

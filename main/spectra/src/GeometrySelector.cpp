@@ -64,6 +64,19 @@ void GeometrySelector::onRowCountChanged(int nRows)
   emit rowCountChanged(nRows);
 }
 
+void GeometrySelector::setGeometry(int nRows, int nCols)
+{
+    disconnect(ui->rowSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onRowCountChanged(int)));
+    disconnect(ui->colSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onColumnCountChanged(int)));
+
+    ui->rowSpinBox->setValue(nRows);
+    ui->colSpinBox->setValue(nCols);
+
+    connect(ui->rowSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onRowCountChanged(int)));
+    connect(ui->colSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onColumnCountChanged(int)));
+
+}
+
 //
 //
 void GeometrySelector::onColumnCountChanged(int nColumns)

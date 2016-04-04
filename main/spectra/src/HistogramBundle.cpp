@@ -54,17 +54,19 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_hInfo(info)
 {}
 
+HistogramBundle::~HistogramBundle()
+{
+}
+
 //
 //
 void HistogramBundle::addCut1D(GSlice* pSlice) {
-    QMutexLocker lock(m_pMutex.get());
     m_cuts1d.insert(make_pair(pSlice->getName(), pSlice)) ;
 }
 
 //
 //
 void HistogramBundle::addCut2D(GGate* pCut) {
-    QMutexLocker lock(m_pMutex.get());
     m_cuts2d.insert(make_pair(pCut->getName(), pCut)) ;
 }
 
@@ -80,9 +82,8 @@ void HistogramBundle::draw(const QString& opt) {
     }
     const char* cOpts = opts.toAscii().constData();
 
-    m_pMutex->lock();
+    std::cout << "m_pHist @ " << (void*) m_pHist.get() << std::endl;
     m_pHist->Draw(cOpts);
-    m_pMutex->unlock();
 
     for (auto cut : m_cuts1d) {
         cut.second->draw();

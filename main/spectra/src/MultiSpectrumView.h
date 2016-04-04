@@ -27,11 +27,13 @@
 
 #include <QWidget>
 #include <QGridLayout>
+#include <QStringList>
 
 #include <map>
 #include <memory>
 #include <vector>
 #include <utility>
+#include <tuple>
 
 class TPad;
 
@@ -127,6 +129,12 @@ public:
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
     void toggleZoom(QWidget& pWidget);
+
+    void clearLayout();
+
+    void layoutSpectra(QStringList spectrumList);
+
+    std::tuple<int, int> computeOptimalGeometry(int nSpectra);
 
 public slots:
     /*!

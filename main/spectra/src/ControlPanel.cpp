@@ -42,7 +42,6 @@ ControlPanel::ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
                            SpectrumView *pView, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ControlPanel),
-    m_pGeoSelector(new GeometrySelector(this)),
     m_pSpecTcl(pSpecTcl),
     m_pView(pView)
 {
@@ -60,19 +59,17 @@ void ControlPanel::assembleWidgets()
 {
     ui->setupUi(this);
 
-    ui->horizontalLayout->insertWidget(0, m_pGeoSelector);
 }
 
 void ControlPanel::connectSignalsAndSlots()
 {
-    connect(m_pGeoSelector, SIGNAL(rowCountChanged(int)), this, SLOT(onRowCountChanged(int)));
-    connect(m_pGeoSelector, SIGNAL(columnCountChanged(int)), this, SLOT(onColumnCountChanged(int)));
 
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
     connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
 
     connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
+    connect(ui->pDisplayButton, SIGNAL(clicked()), this, SLOT(onDisplayButtonClicked()));
 }
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
@@ -130,23 +127,24 @@ void ControlPanel::onRefresh()
 
 void ControlPanel::onStatisticsButtonClicked()
 {
-    if (ui->pStatisticsButton->text() == "Statistics &>>") {
-        ui->pStatisticsButton->setText("Statistics &<<");
+    if (ui->pStatisticsButton->text() == "Canvas &>>") {
+        ui->pStatisticsButton->setText("Canvas &<<");
     } else {
-        ui->pStatisticsButton->setText("Statistics &>>");
+        ui->pStatisticsButton->setText("Canvas &>>");
     }
     emit statisticsButtonClicked();
 }
 
-void ControlPanel::onRowCountChanged(int nRows)
+void ControlPanel::onDisplayButtonClicked()
 {
-  emit geometryChanged(nRows, m_pGeoSelector->getColumnCount());
+    if (ui->pDisplayButton->text() == "Display &>>") {
+        ui->pDisplayButton->setText("Display &<<");
+    } else {
+        ui->pDisplayButton->setText("Display &>>");
+    }
+    emit displayButtonClicked();
 }
 
-void ControlPanel::onColumnCountChanged(int nColumns)
-{
-  emit geometryChanged(m_pGeoSelector->getRowCount(), nColumns);
-}
 
 
 } // end of namespace

@@ -43,6 +43,8 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QFrame>
+#include <QShortcut>
+#include <QKeySequence>
 
 namespace Viewer
 {
@@ -77,6 +79,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // set up connections
     connectSignalsAndSlots();
+
+    createShortcuts();
 }
 
 //
@@ -106,9 +110,6 @@ void MainWindow::assembleWidgets()
 
     // Create the main layout
     m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), pUI->frame);
-    m_pControls = new ControlPanel(m_specTclControl.getInterface(), m_pView, pUI->frame);
-
-    m_pInfoPanel = new MultiInfoPanel(*m_pView, m_specTclControl.getInterface(), this);
 
     auto pViewControls = new QFrame(this);
 
@@ -116,17 +117,12 @@ void MainWindow::assembleWidgets()
     pVLayout->setContentsMargins(0, 0, 0, 0);
 
     pVLayout->addWidget(m_pView);
-    pVLayout->addWidget(m_pControls);
     pViewControls->setLayout(pVLayout);
 
     QSplitter* pSplitter = new QSplitter(this);
     pSplitter->addWidget(pViewControls);
-    pSplitter->addWidget(m_pInfoPanel);
 
     pUI->gridLayout->addWidget(pSplitter, 0, 0);
-//    pUI->gridLayout->addWidget(m_pControls, 1, 0);
-
-    m_pInfoPanel->hide();
 
     createDockWindows();
 }
@@ -137,7 +133,6 @@ void MainWindow::addInterfaceObservers()
 {
     m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pControls);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
 }
@@ -149,28 +144,12 @@ void MainWindow::connectSignalsAndSlots()
 {
     connect(pUI->actionConfigure,SIGNAL(activated()),this,SLOT(onConfigure()));
 
-    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),
-            m_pView,SLOT(drawHistogram(HistogramBundle*)));
-
     connect(pUI->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
 
     connect(pUI->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
 
     connect(pUI->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
-    connect(m_pControls, SIGNAL(geometryChanged(int, int)),
-            m_pView, SLOT(onGeometryChanged(int, int)));
-
-    connect(m_pControls, SIGNAL(statisticsButtonClicked()), this, SLOT(showHideStatistics()));
-    connect(m_specTclControl.getInterface().get(),
-            SIGNAL(histogramContentUpdated(HistogramBundle*)),
-            m_pView, SLOT(updateView(HistogramBundle*)));
-
-    connect(m_pView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
-            m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
-
-    connect(m_pView, SIGNAL(canvasContentChanged(QRootCanvas&)),
-            m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
 }
 
 
@@ -196,7 +175,7 @@ void MainWindow::createDockWindows()
     addDockWidget(Qt::LeftDockWidgetArea,m_histView);
     addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
 
-//    removeDockWidget(m_histView);
+    removeDockWidget(m_histView);
     removeDockWidget(m_gateView);
 }
 
@@ -248,13 +227,9 @@ void MainWindow::onNewHistogram()
   }
 }
 
-void MainWindow::showHideStatistics()
+
+void MainWindow::createShortcuts()
 {
-    if (m_pInfoPanel->isVisible()) {
-        m_pInfoPanel->hide();
-    } else {
-        m_pInfoPanel->show();
-    }
 }
 
 } // end of namespace

@@ -28,8 +28,10 @@
 #include "SpecTclInterfaceObserver.h"
 
 #include <QWidget>
+#include <QStringList>
 
 #include <memory>
+#include <tuple>
 
 class QPushButton;
 
@@ -79,7 +81,7 @@ public:
    * \param title
    * \return
    */
-  MultiSpectrumView* addTab(const QString& title);
+  void addTab(const QString& title);
 
   // SpectrumViewer interface
   virtual int getRowCount() const;
@@ -106,6 +108,12 @@ public slots:
   void onAddTab();
   void onTabCloseRequested(int index);
 
+  void clearLayout();
+  void layoutSpectra(QStringList spectrumList);
+
+  void onNewTabContentsSelected(QStringList selection);
+
+  std::tuple<int, int> computeOptimalGeometry(int nCanvases);
 private:
   void updateCurrentViewToVisibleTab();
 

@@ -70,6 +70,8 @@ public:
     HistogramBundle(std::unique_ptr<QMutex> pMutex,
                     std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info);
 
+    virtual ~HistogramBundle();
+
     ///////////////////////////////////////////////////////////////////////////
     // Mutex methods
 

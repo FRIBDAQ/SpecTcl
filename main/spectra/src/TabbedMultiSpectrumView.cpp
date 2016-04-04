@@ -24,8 +24,12 @@
 #include "ui_TabbedMultiSpectrumView.h"
 #include "MultiSpectrumView.h"
 #include "SpecTclInterface.h"
+#include "SpectrumLayoutDialog.h"
+#include "TabWorkspace.h"
 
 #include <QPushButton>
+#include <QWidget>
+#include <QSize>
 
 #include <iostream>
 
@@ -38,25 +42,22 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pS
                                                  QWidget *parent) :
     SpectrumView(parent),
     ui(new Ui::TabbedMultiSpectrumView),
-    m_pCurrentView(nullptr),
+    m_pCurrentView(new MultiSpectrumView(pSpecTcl, this)),
     m_pSpecTcl(pSpecTcl),
     m_pAddButton(new QPushButton(this))
 {
+    m_pCurrentView->hide();
     ui->setupUi(this);
 
-    m_pAddButton->setText("Add Tab");
-    connect(m_pAddButton, SIGNAL(clicked()), this, SLOT(onAddTab()));
-
+    m_pAddButton->setText(tr("&New Tab"));
     ui->pTabWidget->setCornerWidget(m_pAddButton);
 
-    addTab("Tab 1");
-
-    ui->pTabWidget->setTabsClosable(true);
+    addTab("");
 
     updateCurrentViewToVisibleTab();
 
+    connect(m_pAddButton, SIGNAL(clicked()), this, SLOT(onAddTab()));
     connect(ui->pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
-
     connect(ui->pTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
  }
 
@@ -65,21 +66,48 @@ TabbedMultiSpectrumView::~TabbedMultiSpectrumView()
     delete ui;
 }
 
-MultiSpectrumView* TabbedMultiSpectrumView::addTab(const QString &title)
+void TabbedMultiSpectrumView::addTab(const QString &title)
 {
 
-  auto pSpecView = new MultiSpectrumView(m_pSpecTcl, this);
-  ui->pTabWidget->addTab(pSpecView, title);
+  auto pSpecLayoutDialog = new SpectrumLayoutDialog(m_pSpecTcl, this);
+  int tabIndex = ui->pTabWidget->addTab(pSpecLayoutDialog, title);
 
-  connect(pSpecView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
-          this, SLOT(onCurrentCanvasChanged(QRootCanvas&)));
+  connect(pSpecLayoutDialog, SIGNAL(spectraChosenToDraw(QStringList)),
+          this, SLOT(onNewTabContentsSelected(QStringList)));
 
-  connect(pSpecView, SIGNAL(canvasContentChanged(QRootCanvas&)),
-          this, SLOT(onCanvasContentChanged(QRootCanvas&)));
+  ui->pTabWidget->setCurrentIndex(tabIndex);
+}
 
-  auto pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->currentWidget());
 
-  return pCurrentView;
+void TabbedMultiSpectrumView::clearLayout()
+{
+    return m_pCurrentView->clearLayout();
+}
+
+
+void TabbedMultiSpectrumView::layoutSpectra(QStringList spectrumList)
+{
+    return m_pCurrentView->layoutSpectra(spectrumList);
+}
+
+void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
+{
+
+    auto pSetupWidget = dynamic_cast<SpectrumLayoutDialog*>(ui->pTabWidget->currentWidget());
+
+    QString tabName = pSetupWidget->getTabName();
+
+    int index = ui->pTabWidget->currentIndex();
+    ui->pTabWidget->removeTab(index);
+
+    auto pWorkspace = new TabWorkspace(m_pSpecTcl, this);
+    pWorkspace->layoutSpectra(selection);
+
+    int newTabIndex = ui->pTabWidget->insertTab(index, pWorkspace, tabName);
+
+    // we will use the returned index because it may be different than the original
+    // index.
+    ui->pTabWidget->setCurrentIndex(newTabIndex);
 }
 
 int TabbedMultiSpectrumView::getRowCount() const
@@ -125,7 +153,6 @@ void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterfa
         if (pView) {
             pView->setSpecTclInterface(m_pSpecTcl);
         }
-
     }
 }
 
@@ -149,11 +176,12 @@ void TabbedMultiSpectrumView::drawHistogram(HistogramBundle *pHist)
     m_pCurrentView->drawHistogram(pHist);
 }
 
+std::tuple<int, int> TabbedMultiSpectrumView::computeOptimalGeometry(int nCanvases) {
+    return m_pCurrentView->computeOptimalGeometry(nCanvases);
+}
+
 void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
 {
-  int index = ui->pTabWidget->currentIndex();
-  m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
-//  emit visibleGeometryChanged(m_pCurrentView->getRowCount(), m_pCurrentView->getColumnCount());
 }
 
 void TabbedMultiSpectrumView::onCurrentCanvasChanged(QRootCanvas &rCanvas)
@@ -168,24 +196,32 @@ void TabbedMultiSpectrumView::onCanvasContentChanged(QRootCanvas &rCanvas)
 
 void TabbedMultiSpectrumView::onCurrentChanged(int index)
 {
-  cout << "onCurrentChanged to " << index << endl;
   m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
 }
 
 void TabbedMultiSpectrumView::onAddTab()
 {
-  int nTabs = ui->pTabWidget->count();
-  addTab(QString("Tab %1").arg(nTabs+1));
+
+    int nTabs = ui->pTabWidget->count();
+    addTab(QString(tr("Tab %1")).arg(nTabs+1));
+
+    if (ui->pTabWidget->count() > 0) {
+        ui->pTabWidget->setTabsClosable(true);
+    }
+
+  updateCurrentViewToVisibleTab();
+
 }
 
 void TabbedMultiSpectrumView::onTabCloseRequested(int index)
 {
   if ((index == 0) && (ui->pTabWidget->count() == 1)) {
+      ui->pTabWidget->setTabsClosable(false);
       return;
   } else {
-      cout << "removing index = " << index << endl;
       ui->pTabWidget->removeTab(index);
   }
 }
+
 
 }
