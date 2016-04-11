@@ -56,6 +56,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   InformationPanel.h \
   GateManager.h \
   OneDimGateEdit.h \
+  GateManagerWidget.h \
   MultiInfoPanel.h \
   TwoDimGateEdit.h \
   SpectrumLayoutDialog.h \
