@@ -6,6 +6,7 @@ x2rdir=@incdir@/Xamine2Root
 x2r_INCLUDES = HistFiller.h
 
 libXamine2Root_la_SOURCES = HistFiller.cpp \
+														HistFiller.h \
                               @top_srcdir@/Display/dispshare.h \
                               @top_srcdir@/Display/spectra.cc \
                               @top_srcdir@/Display/shared.cc
