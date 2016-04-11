@@ -306,4 +306,4 @@ spectra_LDADD = @builddir@/libSpectra.la \
 spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
 
-EXTRA_DIST = cmdline.ggo
+EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES}
