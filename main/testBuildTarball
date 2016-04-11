@@ -15,7 +15,7 @@ version=${acversion}
 tar xzf ${tarball}
 cd `basename ${tarball} .tar.gz`
 
-./configure --prefix=${target}
+./configure --prefix=${target} $*
 make clean all
 make install
 make check
