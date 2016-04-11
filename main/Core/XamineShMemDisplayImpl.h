@@ -151,20 +151,6 @@ public:
     SpectrumContainer getBoundSpectra() const;
 
     /*!
-     *  \brief Fit is added to shared memory
-     *
-     * \param fit   reference to fit
-     */
-    void addFit(CSpectrumFit& fit);
-
-    /*!
-     * \brief Fit is removed from shared memory
-     *
-     * \param fit   reference to fit
-     */
-    void deleteFit(CSpectrumFit& fit);
-
-    /*!
      * \brief Update the underflow and overflows for all bound spectra
      */
     void updateStatistics();
@@ -267,62 +253,6 @@ public:
      * \param slot  slot index of spectrum in shared memory
      */
     void clearStatistics(unsigned slot);
-
-    /*!
-     * \brief Add a gate to be displayed on a specific spectrum
-     *
-     * \param rSpectrum     reference of spectrum gate should be added to
-     * \param rGate         gate to add
-     */
-    void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
-
-    /*!
-     * \brief Remove gate from all spectra
-     *
-     * \param rGate - the gate to remove
-     */
-    void removeGate(CGateContainer& rGate);
-
-    /*!
-     * \brief Remove a gate from being displayed on a specific spectrum
-     *
-     * \param rSpectrum     reference of spectrum gate is already displayed on
-     * \param rGate         the gate
-     */
-    void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-
-    /*!
-     * \brief Remove a gate from being displayed on a specific spectrum
-     *
-     * \param nSpectrum     slot index of spectrum
-     * \param nId           id of the spectrum
-     * \param eType         type of gate
-     *
-     * Gates specify a spectrum, id, and type.
-     */
-    void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
-
-    /*!
-     * \brief Retrieves a set of gates from Xamine
-     *
-     * \param nSpectrum     spectrum slot index
-     *
-     * \return gate object ptr to dynamically allocated gate list.
-     *         (ownership passes to the caller)
-     *
-     * Copies of the gates described are retrieved into
-     *  an XamineGates object.  From there, iterators
-     * can be created to step through the gates,
-     * or the gate set can be directly indexed as desired
-     * (the XamineGates object looks a lot like a
-     * readonly STL vector of gate description objects.
-     *
-     */
-    CXamineGates* GetGates (UInt_t nSpectrum);
-
-private:
-    void ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
-                         const std::string& doing);
 
 };
 

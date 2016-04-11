@@ -93,7 +93,6 @@ public:
     virtual void setInfo(std::string  name, UInt_t slot);
 
     virtual void addGate (CXamineGate& rGate);
-    virtual void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate) ;
     virtual void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType) ;
     virtual CXamineGates* GetGates (UInt_t nSpectrum) ;
 

@@ -353,37 +353,6 @@ void CProductionXamineShMem::addGate(CXamineGate& rGate)
           "Xamine::EnterGate -- Failed to enter gate");
 }
 
-void
-CProductionXamineShMem::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
-{
-    // Removes a gate that is just about to be destroyed from
-    // the appropriate set of Xamine bound spectra.
-    //
-    // Formal Paramters:
-    //    CGateContainer& rGate:
-    //       Reference to the container which holds the gate about to be
-    //       destroyed.  Note that for most purposes, a gate container
-    //       can be treated as if it was a pointer to a gate.
-    //
-
-    cout << "Ineffective remove gate" << endl;
-    UInt_t nGateId = rGate.getNumber();
-    GateType_t eType;
-    if(rGate->Type() == "c" || rGate->Type() == "gc") {
-      eType = kgContour2d;
-    }
-    else if(rGate->Type() == "b" || rGate->Type() == "gb") {
-      eType = kgBand2d;
-    }
-    else if (rGate->Type() == "s" || rGate->Type() == "gs") {
-      eType = kgCut1d;
-    }
-    else {
-      return;			// Non -primitive gates won't be displayed.
-    }
-
-}
-
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -408,7 +377,6 @@ CProductionXamineShMem::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
 //
 
   // Map GateType_t to Xamine gate types;
-    cout << "Effective remove gate" << endl;
 
   Xamine_gatetype GateType;
   switch(eType) {
@@ -819,7 +787,6 @@ CProductionXamineShMem::defineSpectrum(CXamineSpectrum& rSpectrum)
                                   p2d->getYchannels(),
                                   (char*)(p2d->getTitle().c_str()),
                                   p2d->getType());
-        std::cout << "Allocated spectrum slot : " << nSpectrum << std::endl;
         if(pData) {			// Success
 
             // Apply the mapping transformation if it exists

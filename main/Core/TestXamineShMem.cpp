@@ -121,13 +121,6 @@ void CTestXamineShMem::addGate (CXamineGate& rGate) {
     m_gateMap.insert(m_gateMap.begin(), candidate);
 }
 
-void CTestXamineShMem::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)  {
-    auto it = m_gateMap.find(rGate.getNumber());
-    if (it != m_gateMap.end()) {
-        m_gateMap.erase(it);
-    }
-}
-
 void CTestXamineShMem::removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType)  {
     auto it = m_gateMap.find(nSpectrum);
     if (it != m_gateMap.end()) {

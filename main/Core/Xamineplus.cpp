@@ -837,6 +837,7 @@ void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
         return;
     }
 
+    // Remove all of the display gates for this spectrum
     for (auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter)) {
         try {
             GateType_t xamineGateType = mapGateType(gate->Type());
@@ -847,6 +848,19 @@ void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
             std::cout << "caught an error" << std::endl;
         }
     }
+
+    // remove all of the displayable fits associated with this spectrum
+    CFitDictionary& dict(CFitDictionary::getInstance());
+    CFitDictionary::iterator pf = dict.begin();
+
+    while (pf != dict.end()) {
+        CSpectrumFit* pFit = pf->second;
+        if (pFit->getName() == rSpectrum.getName()) {
+            m_pMemory->deleteFit(*pFit);		// not very efficient, but doesn't need to be
+        }
+        pf++;
+    }
+
     m_pImpl->removeSpectrum(rSpectrum, rSorter);
 }
 
@@ -927,7 +941,7 @@ CXamine::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSor
 void
 CXamine::addFit(CSpectrumFit& fit)
 {
-    m_pImpl->addFit(fit);
+    m_pMemory->addFit(fit);
 }
 
 /*!
@@ -944,7 +958,7 @@ CXamine::addFit(CSpectrumFit& fit)
 void
 CXamine::deleteFit(CSpectrumFit& fit)
 {
-    m_pImpl->deleteFit(fit);
+    m_pMemory->deleteFit(fit);
 }
 
 /**

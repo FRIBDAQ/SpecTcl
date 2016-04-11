@@ -266,16 +266,6 @@ public:
     void addGate (CXamineGate& rGate);
 
     /*!
-     * \brief Remove the gate from shared memory
-     *
-     * \param rSpectrum     reference to the spectrum
-     * \param rGate         gate to be removed
-     *
-     * This really does nothing.
-     */
-    void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-
-    /*!
      * \brief Remove gate for shared memory
      *
      * \param nSpectrum
