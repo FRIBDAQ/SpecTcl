@@ -307,5 +307,20 @@ spectra_LDADD = @builddir@/libSpectra.la \
 								@TCL_LIBS@
 spectra_LDFLAGS = -Wl,-rpath=@prefix@/lib -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
+spectraIcons = resources/Band_icon_48x48.png \
+							 resources/Band_icon_48x48.svg \
+							 resources/Contour_icon_48x48.png \
+							 resources/Contour_icon_48x48.svg \
+							 resources/Slice_logo.png \
+							 resources/Slice_logo.svg \
+							 resources/spectra_logo.svg \
+							 resources/spectra_logo_128x128.png \
+							 resources/spectra_logo_16x16.png \
+							 resources/spectra_logo_48x48.png \
+							 resources/spectra_logo_64x64.png \
+							 resources/spectrum1d.svg \
+							 resources/spectrum1d_48x48.png \
+							 resources/spectrum2d.svg \
+							 resources/spectrum2d_48x48.png
 
-EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES}
+EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES} ${spectraIcons}
