@@ -82,7 +82,6 @@ void HistogramBundle::draw(const QString& opt) {
     }
     const char* cOpts = opts.toAscii().constData();
 
-    std::cout << "m_pHist @ " << (void*) m_pHist.get() << std::endl;
     m_pHist->Draw(cOpts);
 
     for (auto cut : m_cuts1d) {
@@ -219,37 +218,37 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
 //
 std::ostream& operator<<(std::ostream& str, const Viewer::HistogramBundle& hist)
 {
-  cout << "HistogramBundle name=" << hist.getName().toStdString() << " @ " << (void*) &hist << endl;
-  cout << "Type = " << hist.getInfo().s_type << endl;
-  cout << "Slices = (";
+  str << "HistogramBundle name=" << hist.getName().toStdString() << " @ " << (void*) &hist << endl;
+  str << "Type = " << hist.getInfo().s_type << endl;
+  str << "Slices = (";
   auto cuts1d = hist.getCut1Ds();
   auto it = cuts1d.begin();
   auto itend = cuts1d.end();
   while (it != itend) {
-    cout << it->second->getName().toStdString();
+    str << it->second->getName().toStdString();
 
     ++it;
 
     if (it != itend) {
-      cout << ", ";
+      str << ", ";
     }
   }
-  cout << ")" << endl;
+  str << ")" << endl;
 
-  cout << "Gates = (";
+  str << "Gates = (";
   auto cuts2d = hist.getCut2Ds();
   auto it2 = cuts2d.begin();
   auto it2end = cuts2d.end();
   while (it2 != it2end) {
-    cout << it2->second->getName().toStdString();
+    str << it2->second->getName().toStdString();
 
     ++it2;
 
     if (it2 != it2end) {
-      cout << ", ";
+      str << ", ";
     }
   }
-  cout << ")" << endl;
+  str << ")" << endl;
 
   return str;
 }
