@@ -834,7 +834,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
     try {
         CSpectrum* pSpectrum = pSorter->FindSpectrum(*p);
         if (pSpectrum) {
-            pDisplay->removeSpectrum(*pSpectrum);
+            pDisplay->removeSpectrum(*pSpectrum, *pSorter);
         } else {
             throw CDictionaryException(CDictionaryException::knNoSuchKey,
                                        "unbinding spectrum by name", *p);
@@ -895,7 +895,10 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   std::vector<UInt_t>           vXids;
   std::vector<UInt_t>::iterator p = rvIds.begin();
 
+  SpecTcl& api = *(SpecTcl::getInstance());
+
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+  CHistogrammer* pSorter = api.GetHistogrammer();
 
   // Build the xid list.. Any failures go into the MyResults string.
   //
@@ -903,7 +906,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
     try {
           CSpectrum* pSpectrum = m_pHistogrammer->FindSpectrum(*p);
           if (pSpectrum) {
-              pDisplay->removeSpectrum(*pSpectrum);
+              pDisplay->removeSpectrum(*pSpectrum, *pSorter);
           } else {
               throw CDictionaryException(CDictionaryException::knNoSuchId,
                                          "unbinding spectrum by id", *p);
@@ -980,12 +983,15 @@ CSpectrumPackage::UnbindAll()
 {
 // Unbinds all spectra from the display
 //
+  SpecTcl& api = *(SpecTcl::getInstance());
+
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+  CHistogrammer* pSorter = api.GetHistogrammer();
 
   for(auto p = m_pHistogrammer->SpectrumBegin();
            p != m_pHistogrammer->SpectrumEnd(); p++) {
       try {
-          pDisplay->removeSpectrum(*(p->second));
+          pDisplay->removeSpectrum(*(p->second), *pSorter);
       }
       catch(CException& rException) { } // Some spectra will not be bound.
   }
@@ -1134,6 +1140,7 @@ CSpectrumPackage::DeleteAll()
   // delete the front element.
   // 
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+  CHistogrammer* pSorter = api.GetHistogrammer();
 
   SpectrumDictionaryIterator p;
   while(m_pHistogrammer->SpectrumCount()) {
@@ -1141,7 +1148,7 @@ CSpectrumPackage::DeleteAll()
       CSpectrum* pSpec = (*p).second;
       try {
           if ( pDisplay->spectrumBound(pSpec) ) {
-              pDisplay->removeSpectrum(*pSpec);
+              pDisplay->removeSpectrum(*pSpec, *pSorter);
           }
       }
       catch (CException& rExcept) { // Exceptions in the find are ignored.
@@ -1616,7 +1623,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
         //
         try {
             UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-            pDisplay->removeSpectrum(*pSpectrum);
+            pDisplay->removeSpectrum(*pSpectrum, *m_pHistogrammer);
         }
         catch (...) {
         }

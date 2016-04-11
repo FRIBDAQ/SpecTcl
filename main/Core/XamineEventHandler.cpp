@@ -157,7 +157,7 @@ void CXamineEventHandler::operator()()
         for (size_t slot = 0; slot<spectra.size(); ++slot) {
             CSpectrum* pSpectrum = spectra.at(slot);
             if (pSpectrum) {
-                m_pDisplay->removeSpectrum(*pSpectrum);
+                m_pDisplay->removeSpectrum(*pSpectrum, *m_pSorter);
             }
         }
 //      for(; p != m_pSorter->SpectrumEnd(); p++) {

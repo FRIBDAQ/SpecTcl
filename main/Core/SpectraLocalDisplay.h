@@ -108,7 +108,7 @@ public:
     // The following 4 methods delegate directly to m_pMemory
     virtual SpectrumContainer getBoundSpectra() const;
     virtual void addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
-    virtual void removeSpectrum(CSpectrum& rSpectrum);
+    virtual void removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual bool spectrumBound(CSpectrum *pSpectrum);
 
 

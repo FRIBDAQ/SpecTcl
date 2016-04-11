@@ -62,8 +62,8 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
     CPPUNIT_TEST(updateStatistics_0);
     CPPUNIT_TEST(setTitle_0);
     CPPUNIT_TEST(setTitle_1);
-    CPPUNIT_TEST(getAssociatedGates_0);
-    CPPUNIT_TEST(getAssociatedGates_1);
+//    CPPUNIT_TEST(getAssociatedGates_0);
+//    CPPUNIT_TEST(getAssociatedGates_1);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -213,34 +213,34 @@ public:
     }
 
 
-    void getAssociatedGates_0 () {
-        CHistogrammer sorter;
+//    void getAssociatedGates_0 () {
+//        CHistogrammer sorter;
 
-        auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter, "testgate", 0);
+//        auto pSpec = setUpSpectrum(sorter);
+//        setUpGate(sorter, "testgate", 0);
 
-        CGateContainer* pGate = sorter.FindGate("testgate");
+//        CGateContainer* pGate = sorter.FindGate("testgate");
 
-        m_pImpl->addSpectrum(*pSpec, sorter);
+//        m_pImpl->addSpectrum(*pSpec, sorter);
 
-        ASSERTMSG("Associated gates works in a simple fashion",
-              vector<CGateContainer>({*pGate}) == m_pImpl->getAssociatedGates("testing123", sorter));
-    }
+//        ASSERTMSG("Associated gates works in a simple fashion",
+//              vector<CGateContainer>({*pGate}) == m_pImpl->getAssociatedGates("testing123", sorter));
+//    }
 
-    void getAssociatedGates_1 () {
-        CHistogrammer sorter;
+//    void getAssociatedGates_1 () {
+//        CHistogrammer sorter;
 
-        auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter, "testing1", 1); // doesn't apply to testing123
-        setUpGate(sorter, "testing2", 2); // doesn't apply to testing123
+//        auto pSpec = setUpSpectrum(sorter);
+//        setUpGate(sorter, "testing1", 1); // doesn't apply to testing123
+//        setUpGate(sorter, "testing2", 2); // doesn't apply to testing123
 
-        CGateContainer* pGate = sorter.FindGate("testgate");
+//        CGateContainer* pGate = sorter.FindGate("testgate");
 
-        m_pImpl->addSpectrum(*pSpec, sorter);
+//        m_pImpl->addSpectrum(*pSpec, sorter);
 
-        EQMSG("Associated gates returns empty if no gates are associated",
-              size_t(0), m_pImpl->getAssociatedGates("testing123", sorter).size());
-    }
+//        EQMSG("Associated gates returns empty if no gates are associated",
+//              size_t(0), m_pImpl->getAssociatedGates("testing123", sorter).size());
+//    }
 
 };
 

@@ -68,7 +68,7 @@ void CTestDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer&)
     m_boundSpectra.insert(&rSpectrum);
 }
 
-void CTestDisplay::removeSpectrum(CSpectrum &rSpectrum)
+void CTestDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     m_boundSpectra.erase(&rSpectrum);
 }

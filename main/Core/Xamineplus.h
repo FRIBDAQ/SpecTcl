@@ -67,6 +67,7 @@ class CSpectrum;
 class CXamine : public CDisplay
 {
     std::unique_ptr<CXamineShMemDisplayImpl> m_pImpl;
+    std::shared_ptr<CXamineSharedMemory>     m_pMemory;
 
 public:
   // Constructors:
@@ -98,16 +99,13 @@ public:
   void restart();
 
   void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-  void removeSpectrum(CSpectrum &rSpectrum);
+  void removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter);
   SpectrumContainer getBoundSpectra() const;
 
   void addFit(CSpectrumFit& fit);
   void deleteFit(CSpectrumFit& fit);
 
   void updateStatistics();
-
-  std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                                CHistogrammer& rSorter);
 
   bool spectrumBound(CSpectrum *pSpectrum);
 
@@ -121,7 +119,22 @@ public:
   // Spectrum statistics.
 
   void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
+
+  void removeGate(CGateContainer& rGate);
   void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
+
+  /*!
+   * \brief Retrieve list of gates associated with the same parameters as the spectrum
+   *
+   * \param spectrumName  name of spectrum to target
+   * \param rSorter       access to the dictionaries
+   *
+   * \return  list of gates
+   */
+  std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
+                                                 CHistogrammer& rSorter);
+
+
 
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
@@ -157,6 +170,20 @@ protected:
                   std::vector<std::string>      parameters,
                   std::vector<std::string>      yparameters,
                   std::string gate);
+
+  /*!
+   * \brief Map spectcl gate type to xamine enumerated gate type
+   *
+   * \param specTclType - descriptive string (e.g. "c" for contour)
+   *
+   * \return xamine enumerated gate type
+   * \retval kgUnSpecified if primitive gate
+   * \retval appropriate xamine gate if non-primitive gate
+   *
+   * This provides limited mapping support to gates that can be displayed.
+   */
+  GateType_t mapGateType(const std::string& specTclType);
+
 };
 
 

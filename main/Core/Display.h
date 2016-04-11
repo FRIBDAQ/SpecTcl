@@ -136,10 +136,11 @@ public:
      * the memory associated with bin contents is swapped out.
      *
      * \param rSpectrum - SpecTcl spectrum being unbound
+     * \param rSorter - the histogrammer to gain access to parameter, gate, and spectrum dicts
      *
      * \todo Get rid of any need for the first version of this.
      */
-    virtual void removeSpectrum(CSpectrum& rSpectrum) = 0;
+    virtual void removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
 
     /*!
      * \brief spectrumExists

@@ -97,17 +97,40 @@ void CXamineShMemDisplayImpl::detach()
 void
 CXamineShMemDisplayImpl::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
-    CXamineGateFactory factory(m_pMemory.get());
-    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
-    if (pDisplayed)
-        m_pMemory->addGate(*pDisplayed);
-    delete pDisplayed;
+//    CXamineGateFactory factory(m_pMemory.get());
+//    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
+//    if (pDisplayed)
+//        m_pMemory->addGate(*pDisplayed);
+//    delete pDisplayed;
+}
+
+void CXamineShMemDisplayImpl::removeGate(CGateContainer& rGate) {
+//    for (auto& pSpectrum : m_boundSpectra) {
+//        removeGate(*pSpectrum, rGate);
+//    }
 }
 
 void
 CXamineShMemDisplayImpl::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 {
-    m_pMemory->removeGate(rSpectrum, rGate);
+//    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
+//    if (slot < 0) {
+//        // absent spectrum is not an error
+//        return;
+//    }
+
+//    try {
+//        GateType_t xamineGateType = mapGateType(rGate->Type());
+
+//        // mapGateType only handles non-primitive gates... we will only care
+//        // if it found one of those. if it find a primitive, it returns
+//        // kgUnSpecified.
+//        if (xamineGateType != kgUnSpecified) {
+//            m_pMemory->removeGate(slot, rGate.getNumber(), xamineGateType);
+//        }
+//    } catch (...) {
+//        // ignore errors
+//    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -272,16 +295,15 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
     // We must locate all of the gates which are relevant to this spectrum
     // and enter them as well:
     //
-    ;
 
-    CXamineGateFactory factory(m_pMemory.get());
+//    CXamineGateFactory factory(m_pMemory.get());
 
-    for( auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter) ) {
+//    for( auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter) ) {
 
-        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, gate);
-        if(pXgate) m_pMemory->addGate(*pXgate);
-        delete pXgate;
-    }
+//        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, gate);
+//        if(pXgate) m_pMemory->addGate(*pXgate);
+//        delete pXgate;
+//    }
 
     // same for the fitlines:
     //
@@ -298,14 +320,25 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
 
 }
 
-void CXamineShMemDisplayImpl::removeSpectrum(CSpectrum &rSpectrum)
+/*!
+ * \brief CXamineShMemDisplayImpl::removeSpectrum
+ * \param rSpectrum  - spectrum to remove
+ * \param rSorter    - access to dictionaries
+ *
+ *  This needs to remove the spectrum but also the gates associated with it.
+ */
+void CXamineShMemDisplayImpl::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
 {
+
     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
+
     if (slot >=0) {
         m_pMemory->removeSpectrum(slot, rSpectrum);
         m_boundSpectra.at(slot) = NULL;
     }
 }
+
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -379,51 +412,51 @@ CXamineShMemDisplayImpl::updateStatistics()
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum)
-// Operation Type:
-//    Protected utility.
-//
-std::vector<CGateContainer>
-CXamineShMemDisplayImpl::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
-{
-  // Returns a vector of gates which can be displayed on the spectrum.
-  // Gates are considered displayable on a spectrum iff the gate parameter set
-  // is the same as the spectrum parameter set. If the spectrum is a gamma
-  // spectrum, then the gate is only displayed on one spectrum. Note that
-  // displayable gates at present are one of the following types only:
-  //   Contour (type = 'c')
-  //   Band    (type = 'b')
-  //   Cut     (type = 's')
-  //   Sum2d   {type = 'm2'}
-  //   GammaContour   (type = 'gc')
-  //   GammaBand      (type = 'gb')
-  //   GammaCut       (type = 'gs')
-  // All other gates are not displayable.
-  //
-    std::vector<CGateContainer> vGates;
-    CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
-    if(!pSpec) {
-      throw CDictionaryException(CDictionaryException::knNoSuchKey,
-                     "No such spectrum CXamine::GatesToDisplay",
-                     spectrumName);
-    }
-    //
-    // The mediator tells us whether the spectrum can display the gate:
-    //
-    CGateDictionaryIterator pGate = rSorter.GateBegin();
-    while(pGate != rSorter.GateEnd()) {
-      CGateMediator DisplayableGate(((*pGate).second), pSpec);
-      if(DisplayableGate()) {
-        vGates.push_back((*pGate).second);
-      }
-      pGate++;
-    }
+///////////////////////////////////////////////////////////////////////////////
+////
+////  Function:
+////    std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum)
+//// Operation Type:
+////    Protected utility.
+////
+//std::vector<CGateContainer>
+//CXamineShMemDisplayImpl::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
+//{
+//  // Returns a vector of gates which can be displayed on the spectrum.
+//  // Gates are considered displayable on a spectrum iff the gate parameter set
+//  // is the same as the spectrum parameter set. If the spectrum is a gamma
+//  // spectrum, then the gate is only displayed on one spectrum. Note that
+//  // displayable gates at present are one of the following types only:
+//  //   Contour (type = 'c')
+//  //   Band    (type = 'b')
+//  //   Cut     (type = 's')
+//  //   Sum2d   {type = 'm2'}
+//  //   GammaContour   (type = 'gc')
+//  //   GammaBand      (type = 'gb')
+//  //   GammaCut       (type = 'gs')
+//  // All other gates are not displayable.
+//  //
+//    std::vector<CGateContainer> vGates;
+//    CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
+//    if(!pSpec) {
+//      throw CDictionaryException(CDictionaryException::knNoSuchKey,
+//                     "No such spectrum CXamine::GatesToDisplay",
+//                     spectrumName);
+//    }
+//    //
+//    // The mediator tells us whether the spectrum can display the gate:
+//    //
+//    CGateDictionaryIterator pGate = rSorter.GateBegin();
+//    while(pGate != rSorter.GateEnd()) {
+//      CGateMediator DisplayableGate(((*pGate).second), pSpec);
+//      if(DisplayableGate()) {
+//        vGates.push_back((*pGate).second);
+//      }
+//      pGate++;
+//    }
 
-    return vGates;
-}
+//    return vGates;
+//}
 
 SpectrumContainer CXamineShMemDisplayImpl::getBoundSpectra() const
 {

@@ -41,8 +41,7 @@ void CNullDisplay::restart() {}
 void CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {}
 
-void CNullDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum) {}
-void CNullDisplay::removeSpectrum(CSpectrum &rSpectrum) {}
+void CNullDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter) {}
 
 void CNullDisplay::addFit(CSpectrumFit &fit) {}
 void CNullDisplay::deleteFit(CSpectrumFit &fit) {}

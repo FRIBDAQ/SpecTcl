@@ -165,9 +165,9 @@ void CSpectraLocalDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSor
 
 //
 //
-void CSpectraLocalDisplay::removeSpectrum(CSpectrum& rSpectrum)
+void CSpectraLocalDisplay::removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter)
 {
-    m_pMemory->removeSpectrum(rSpectrum);
+    m_pMemory->removeSpectrum(rSpectrum, rSorter);
 }
 
 //

@@ -54,6 +54,7 @@
 
 #include "ErrnoException.h"
 #include <stdexcept>
+#include <iostream>
 #include <assert.h>
 
 using namespace std;
@@ -364,6 +365,8 @@ CProductionXamineShMem::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
     //       destroyed.  Note that for most purposes, a gate container
     //       can be treated as if it was a pointer to a gate.
     //
+
+    cout << "Ineffective remove gate" << endl;
     UInt_t nGateId = rGate.getNumber();
     GateType_t eType;
     if(rGate->Type() == "c" || rGate->Type() == "gc") {
@@ -405,6 +408,7 @@ CProductionXamineShMem::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
 //
 
   // Map GateType_t to Xamine gate types;
+    cout << "Effective remove gate" << endl;
 
   Xamine_gatetype GateType;
   switch(eType) {
@@ -815,6 +819,7 @@ CProductionXamineShMem::defineSpectrum(CXamineSpectrum& rSpectrum)
                                   p2d->getYchannels(),
                                   (char*)(p2d->getTitle().c_str()),
                                   p2d->getType());
+        std::cout << "Allocated spectrum slot : " << nSpectrum << std::endl;
         if(pData) {			// Success
 
             // Apply the mapping transformation if it exists

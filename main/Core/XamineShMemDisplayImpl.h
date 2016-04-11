@@ -141,7 +141,7 @@ public:
      *
      * \param rSpectrum     referenece to the spectrum
      */
-    void removeSpectrum(CSpectrum &rSpectrum);
+    void removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
 
     /*!
      * \brief Retrieve the list of spectra that are bound to the shared memory
@@ -168,17 +168,6 @@ public:
      * \brief Update the underflow and overflows for all bound spectra
      */
     void updateStatistics();
-
-    /*!
-     * \brief Retrieve list of gates associated with the same parameters as the spectrum
-     *
-     * \param spectrumName  name of spectrum to target
-     * \param rSorter       access to the dictionaries
-     *
-     * \return  list of gates
-     */
-    std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                                   CHistogrammer& rSorter);
 
     /*!
      * \brief Check whether a spectrum is bound
@@ -288,6 +277,13 @@ public:
     void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
 
     /*!
+     * \brief Remove gate from all spectra
+     *
+     * \param rGate - the gate to remove
+     */
+    void removeGate(CGateContainer& rGate);
+
+    /*!
      * \brief Remove a gate from being displayed on a specific spectrum
      *
      * \param rSpectrum     reference of spectrum gate is already displayed on
@@ -327,6 +323,7 @@ public:
 private:
     void ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
                          const std::string& doing);
+
 };
 
 #endif // XAMINESHMEMDISPLAYIMPL_H

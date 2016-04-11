@@ -52,7 +52,7 @@ public:
     SpectrumContainer getBoundSpectra() const;
 
     virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-    virtual void removeSpectrum(CSpectrum& rSpectrum);
+    virtual void removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
