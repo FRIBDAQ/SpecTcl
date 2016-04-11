@@ -188,7 +188,8 @@ spectraFORMS =  MainWindow.ui  \
   TwoDimGateEdit.ui \
   LayoutDialogChooser.ui \
   BulkDrawChooser.ui \
-  ViewDrawPanel.ui
+  ViewDrawPanel.ui \
+	SpectrumDrawChooser.ui
 
 spectraRESOURCES = resources.qrc
 
