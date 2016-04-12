@@ -57,7 +57,6 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(XamineShMemDisplayImplTests);
     CPPUNIT_TEST(addSpectrum_0);
-    CPPUNIT_TEST(addSpectrum_1);
     CPPUNIT_TEST(removeSpectrum_0);
     CPPUNIT_TEST(updateStatistics_0);
     CPPUNIT_TEST(setTitle_0);
@@ -114,32 +113,6 @@ public:
         EQMSG("Info is set when spectrum added",
               string("testing123"), it->second.s_info );
 
-        EQMSG("No gates are added for a spectrum that has no applied gates",
-              size_t(0), m_pShMem->getGates().size());
-
-
-    }
-
-    void addSpectrum_1() {
-        // set up the hstigrammer and spectrum
-        CHistogrammer sorter;
-        auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter, "testgate", 0);
-
-        m_pImpl->addSpectrum(*pSpec, sorter);
-
-        const auto& boundSpectra = m_pShMem->boundSpectra();
-        auto it = boundSpectra.find(pSpec.get());
-
-        ASSERTMSG("Check that adding a spectrum to the shared memory does work",
-                  boundSpectra.end() != it );
-        EQMSG("Slot starts at 0", 0, it->second.s_slot);
-
-        EQMSG("Info is set when spectrum added",
-              string("testing123"), it->second.s_info );
-
-        EQMSG("One gate added for a spectrum",
-              size_t(1), m_pShMem->getGates().size());
     }
 
     void removeSpectrum_0() {
