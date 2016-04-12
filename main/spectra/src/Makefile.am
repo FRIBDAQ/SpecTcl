@@ -63,7 +63,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   LayoutDialogChooser.h \
   BulkDrawChooser.h \
   ViewDrawPanel.h \
-  TabWorkspace.h
+  TabWorkspace.h \
+	Benchmark.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
