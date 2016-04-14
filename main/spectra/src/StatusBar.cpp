@@ -11,8 +11,8 @@ StatusBar::StatusBar(QWidget *parent) :
     ui(new Ui::StatusBar)
 {
     ui->setupUi(this);
-    ui->pLeftLabel->setText(QString("--"));
-    ui->pMiddleLabel->setText(QString("--"));
+    ui->pLeftLabel->setText(QString(""));
+    ui->pMiddleLabel->setText(QString(""));
     ui->pRightLabel->setText(QString("--"));
 }
 
