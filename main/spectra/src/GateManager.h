@@ -17,7 +17,7 @@ namespace SpJs {
     class GateInfo;
 }
 
-class QListWidgetItem;
+class QTableWidgetItem;
 
 namespace Viewer
 {
@@ -27,6 +27,7 @@ class SpecTclInterface;
 class GGate;
 class GSlice;
 class MasterGateList;
+class HistogramBundle;
 
 
 class GateManager : public QWidget
@@ -47,7 +48,11 @@ public:
     virtual ~GateManager();
 
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
-    QList<QListWidgetItem*> getSelectedItems() const;
+    QList<QTableWidgetItem*> getSelectedItems() const;
+
+    void updateGateIntegrals(HistogramBundle& rHistPkg);
+    void update1DIntegrals(HistogramBundle& rHistPkg);
+    void update2DIntegrals(HistogramBundle& rHistPkg);
 
 signals:
     void addGateClicked();
@@ -64,7 +69,7 @@ public slots:
     void onEditButtonClicked();
 
     void onDeleteButtonClicked();
-    void setGateList(const std::vector<QString>& gates);
+    void setGateList(const std::vector<QString>& gateNames);
 
 
 private:

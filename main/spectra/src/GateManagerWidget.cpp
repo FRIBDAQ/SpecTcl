@@ -17,6 +17,7 @@
 
 #include <QMutexLocker>
 #include <QMutex>
+#include <QTableWidgetItem>
 
 #include <iostream>
 
@@ -138,12 +139,12 @@ void GateManagerWidget::onEditPressed()
     HistogramBundle* pHistPkg = canvasHist.second;
 
     auto selection = m_pManager->getSelectedItems();
-    if (selection.size()!=1) {
+    if (selection.size()!=2) {
         QMessageBox::warning(0, "Invalid selection", "User must select one gate to edit.");
         return;
     }
 
-    auto pItem = selection.at(0);
+    QTableWidgetItem* pItem = selection.at(0);
 
     MasterGateList* pGateList = m_pSpecTcl->getGateList();
 
@@ -245,6 +246,11 @@ void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
     }
 
     m_pManager->setGateList(gateNames);
+}
+
+void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
+{
+    m_pManager->updateGateIntegrals(rHistPkg);
 }
 
 

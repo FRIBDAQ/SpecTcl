@@ -31,12 +31,15 @@
 #include "GSlice.h"
 #include "GGate.h"
 #include "MasterGateList.h"
+#include "HistogramBundle.h"
 
 #include "SliceTableItem.h"
 #include "GateListItem.h"
 
-#include <QListWidget>
+#include <QTableWidget>
 #include <QMessageBox>
+#include <QMutexLocker>
+#include <QMutex>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -62,6 +65,8 @@ GateManager::GateManager(SpectrumView& view,
 {
     ui->setupUi(this);
 
+    ui->gateList->setVerticalHeaderLabels({QString("Name"), QString("Integral")});
+
     connectSignals();
 }
 
@@ -85,15 +90,24 @@ void GateManager::onEditButtonClicked() {
 }
 
 
-void GateManager::setGateList(const std::vector<QString> &gates)
+void GateManager::setGateList(const std::vector<QString> &gateNames)
 {
-    QListWidgetItem* pItem = nullptr;
-    while (( pItem = ui->gateList->takeItem(0) )) {
-        delete pItem;
+    ui->gateList->setColumnCount(2);
+
+    QTableWidgetItem* pItem = nullptr;
+    while ( ui->gateList->rowCount() > 0) {
+        ui->gateList->removeRow(0);
     }
 
-    for (auto& name : gates) {
-        ui->gateList->addItem(name);
+    for (auto& name : gateNames) {
+
+        int row = ui->gateList->rowCount();
+        ui->gateList->setRowCount(row+1);
+        auto pItem = new QTableWidgetItem(name);
+        ui->gateList->setItem(row, 0, pItem);
+
+        pItem = new QTableWidgetItem(QString(tr("0")));
+        ui->gateList->setItem(row, 1, pItem);
     }
 }
 
@@ -110,7 +124,7 @@ void GateManager::onDeleteButtonClicked()
       // Remove the row for now... the next time someone updates,
       // we will see this deletion reflected more properly.
       auto row = ui->gateList->row(pItem);
-      ui->gateList->takeItem(row);
+      ui->gateList->removeRow(row);
 
     }
 }
@@ -129,9 +143,82 @@ void GateManager::connectSignals()
 }
 
 
-QList<QListWidgetItem*> GateManager::getSelectedItems() const
+QList<QTableWidgetItem*> GateManager::getSelectedItems() const
 {
     return ui->gateList->selectedItems();
 }
+
+
+void GateManager::updateGateIntegrals(HistogramBundle &rHistPkg)
+{
+
+    bool is2D = false;
+
+    rHistPkg.getMutex()->lock();
+    is2D = rHistPkg.getHist().InheritsFrom(TH2::Class());
+    rHistPkg.getMutex()->unlock();
+
+    if (is2D) {
+        // 2d
+        update2DIntegrals(rHistPkg);
+    } else {
+        // 1d
+        update1DIntegrals(rHistPkg);
+    }
+
+}
+
+void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
+{
+    QMutexLocker guard(rHistPkg.getMutex());
+
+    TH1& hist = rHistPkg.getHist();
+
+    std::map<QString, GSlice*> cuts = rHistPkg.getCut1Ds();
+    int nRows = ui->gateList->rowCount();
+    for (int row=0; row<nRows; ++row) {
+
+        QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
+        QTableWidgetItem* pValueItem = ui->gateList->item(row, 1);
+
+        auto it = cuts.find(pNameItem->text());
+        if (it != cuts.end()) {
+            GSlice* pSlice = it->second;
+            double integral = hist.Integral(pSlice->getXLow(), pSlice->getXHigh());
+
+            pValueItem->setText(QString::number(integral));
+        }
+
+    }
+}
+
+void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
+{
+    QMutexLocker guard(rHistPkg.getMutex());
+
+    TH2& hist = dynamic_cast<TH2&>(rHistPkg.getHist());
+
+
+    std::map<QString, GGate*> cuts = rHistPkg.getCut2Ds();
+    int nRows = ui->gateList->rowCount();
+    for (int row=0; row<nRows; ++row) {
+
+        QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
+        QTableWidgetItem* pValueItem = ui->gateList->item(row, 1);
+
+        auto it = cuts.find(pNameItem->text());
+        if (it != cuts.end()) {
+            GGate* pGate = it->second;
+
+            double integral = pGate->getGraphicObject()->IntegralHist(&hist);
+
+            pValueItem->setText(QString::number(integral));
+        } else {
+            pValueItem->setText("--");
+        }
+
+    }
+}
+
 
 } // end of namespace

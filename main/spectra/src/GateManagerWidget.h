@@ -39,6 +39,8 @@ public:
     void setHistogramDimension(int dim) { m_histDim = dim; }
     int getHistogramDimension() const { return m_histDim; }
 
+    void updateGateIntegrals(HistogramBundle& rHistPkg);
+
 public slots:
     void onEditPressed();
     void onAddPressed();

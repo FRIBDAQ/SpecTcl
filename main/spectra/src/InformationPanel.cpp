@@ -38,6 +38,7 @@ void InformationPanel::onHistogramChanged(HistogramBundle &rHist)
     updateParameterList(rHist);
     updateStatistics(rHist);
     updateGates(rHist);
+
 }
 
 
@@ -102,6 +103,8 @@ void InformationPanel::updateGates(HistogramBundle &rHist)
         m_pGateManager->setHistogramDimension(1);
         m_pGateManager->setGateList(rHist.getCut1Ds());
     }
+
+    m_pGateManager->updateGateIntegrals(rHist);
 }
 
 } // end Viewer namespace
