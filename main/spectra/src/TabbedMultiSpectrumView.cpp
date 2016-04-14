@@ -219,13 +219,15 @@ void TabbedMultiSpectrumView::onAddTab()
 
 void TabbedMultiSpectrumView::onTabCloseRequested(int index)
 {
-    std::cout << "index = " << index << "  count=" << ui->pTabWidget->count() << std::endl;
-  if ((index == 0) && (ui->pTabWidget->count() == 1)) {
-      ui->pTabWidget->setTabsClosable(false);
-      return;
-  } else {
+
+  if ((index != 0) || (ui->pTabWidget->count() != 1)) {
       ui->pTabWidget->removeTab(index);
   }
+
+  if (ui->pTabWidget->count() == 1) {
+      ui->pTabWidget->setTabsClosable(false);
+  }
+
 }
 
 
