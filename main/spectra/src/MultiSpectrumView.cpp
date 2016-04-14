@@ -524,7 +524,6 @@ void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
     Q_ASSERT( pWidget );
 
     auto location = findLocation(pWidget);
-    std::cout << "location = " << location.first << " " << location.second << std::endl;
     toggleZoom(*pWidget);
 
     QWidget::update();
@@ -593,7 +592,6 @@ bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* p
 
 void MultiSpectrumView::onCanvasUpdated()
 {
-    std::cout << "onCanvasUpdated" << std::endl;
     emit canvasUpdated(*m_pCurrentCanvas);
 }
 

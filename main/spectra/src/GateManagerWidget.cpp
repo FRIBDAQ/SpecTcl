@@ -31,7 +31,6 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
     m_pSpecTcl(pSpecTcl),
     m_histDim(1)
 {
-
     m_pManager = new GateManager(m_view, pSpecTcl, this);
     horizontalLayout = new QHBoxLayout();
 
@@ -216,6 +215,7 @@ void GateManagerWidget::closeDialog()
 }
 
 
+// 2d version
 void GateManagerWidget::setGateList(const std::map<QString, GGate*> &gateMap)
 {
     std::vector<QString> gateNames;
@@ -228,9 +228,10 @@ void GateManagerWidget::setGateList(const std::map<QString, GGate*> &gateMap)
         ++it;
     }
 
-        m_pManager->setGateList(gateNames);
+    m_pManager->setGateList(gateNames);
 }
 
+// 1d version
 void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
 {
     std::vector<QString> gateNames;
