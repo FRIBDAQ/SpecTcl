@@ -133,8 +133,8 @@ void MainWindow::addInterfaceObservers()
 {
     m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
+//    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
+//    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
 }
 
 
@@ -164,19 +164,19 @@ void MainWindow::onConfigure() {
 //
 void MainWindow::createDockWindows()
 {
-    // Create the dockable widgets
-    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
-    m_gateView = new DockableGateManager(*m_pView,
-                                         m_specTclControl.getInterface(), this);
+//    // Create the dockable widgets
+//    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
+//    m_gateView = new DockableGateManager(*m_pView,
+//                                         m_specTclControl.getInterface(), this);
 
-    m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
-    m_gateView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+//    m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+//    m_gateView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
 
-    addDockWidget(Qt::LeftDockWidgetArea,m_histView);
-    addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
+//    addDockWidget(Qt::LeftDockWidgetArea,m_histView);
+//    addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
 
-    removeDockWidget(m_histView);
-    removeDockWidget(m_gateView);
+//    removeDockWidget(m_histView);
+//    removeDockWidget(m_gateView);
 }
 
 //
@@ -193,24 +193,24 @@ void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterfac
 //
 void MainWindow::dockHistograms()
 {
-    if (m_histView->isVisible()) {
-        return;
-    } else {
-        addDockWidget(Qt::LeftDockWidgetArea, m_histView);
-        m_histView->show();
-    }
+//    if (m_histView->isVisible()) {
+//        return;
+//    } else {
+//        addDockWidget(Qt::LeftDockWidgetArea, m_histView);
+//        m_histView->show();
+//    }
 }
 
 //
 //
 void MainWindow::dockGates()
 {
-    if (m_gateView->isVisible()) {
-        return;
-    } else {
-        addDockWidget(Qt::LeftDockWidgetArea, m_gateView);
-        m_gateView->show();
-    }
+//    if (m_gateView->isVisible()) {
+//        return;
+//    } else {
+//        addDockWidget(Qt::LeftDockWidgetArea, m_gateView);
+//        m_gateView->show();
+//    }
 }
 
 //

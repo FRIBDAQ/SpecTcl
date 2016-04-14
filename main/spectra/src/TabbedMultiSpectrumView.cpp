@@ -42,11 +42,10 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pS
                                                  QWidget *parent) :
     SpectrumView(parent),
     ui(new Ui::TabbedMultiSpectrumView),
-    m_pCurrentView(new MultiSpectrumView(pSpecTcl, this)),
+    m_pCurrentView(nullptr),
     m_pSpecTcl(pSpecTcl),
     m_pAddButton(new QPushButton(this))
 {
-    m_pCurrentView->hide();
     ui->setupUi(this);
 
     m_pAddButton->setText(tr("&New Tab"));

@@ -64,6 +64,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   BulkDrawChooser.h \
   ViewDrawPanel.h \
   TabWorkspace.h \
+  StatusBar.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -123,6 +124,7 @@ libSpectra_la_SOURCES = \
     BulkDrawChooser.cpp \
     ViewDrawPanel.cpp \
     TabWorkspace.cpp \
+    StatusBar.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -168,7 +170,8 @@ libSpectra_la_SOURCES = \
         moc_BulkDrawChooser.cpp \
         moc_ViewDrawPanel.cpp \
         moc_TabWorkspace.cpp \
-	cmdline.c \
+        moc_StatusBar.cpp \
+        cmdline.c \
 	qrc_resources.cpp
 
 spectraFORMS =  MainWindow.ui  \
@@ -191,7 +194,8 @@ spectraFORMS =  MainWindow.ui  \
   LayoutDialogChooser.ui \
   BulkDrawChooser.ui \
   ViewDrawPanel.ui \
-	SpectrumDrawChooser.ui
+    SpectrumDrawChooser.ui \
+    StatusBar.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -217,6 +221,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_BulkDrawChooser.h \
                                                                 ui_LayoutDialogChooser.h \
                                                                 ui_ViewDrawPanel.h \
+                                                                ui_StatusBar.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -256,6 +261,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_BulkDrawChooser.cpp \
 								moc_ViewDrawPanel.cpp \
 								moc_TabWorkspace.cpp \
+								moc_StatusBar.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \

@@ -25,6 +25,7 @@
 #include "QRootCanvas.h"
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
+#include "StatusBar.h"
 
 #include <TPad.h>
 #include <TCanvas.h>
@@ -38,6 +39,7 @@
 #include <QColor>
 #include <QMutexLocker>
 #include <QMessageBox>
+#include <QVBoxLayout>
 
 #include <iostream>
 #include <stdexcept>
@@ -50,26 +52,41 @@ namespace Viewer
 MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
                                      QWidget *parent) :
     SpectrumView(parent),
-    m_pLayout(new QGridLayout(this)),
+    m_pLayout(),
     m_histMap(),
     m_pSpecTcl(pSpecTcl),
     m_pCurrentCanvas(new QRootCanvas(this)),
     m_currentNRows(1),
     m_currentNColumns(1),
     m_canvases(),
-    m_isZoomed(false)
+    m_isZoomed(false),
+    m_pStatusBar()
 {
-    setLayout(m_pLayout.get());
+
+    auto pVLayout = new QVBoxLayout(this);
+    setLayout(pVLayout);
+
+    m_pLayout = new QGridLayout(this);
+    pVLayout->addLayout(m_pLayout);
+
+    m_pStatusBar = new StatusBar(this);
+    pVLayout->addWidget(m_pStatusBar);
+
 
     m_pLayout->addWidget(m_pCurrentCanvas, 0, 0);
+    m_pCurrentCanvas->setShowEventStatus(true);
     m_pCurrentCanvas->cd();
     m_canvases[{0,0}] = m_pCurrentCanvas;
+
 
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
 
     connect(m_pCurrentCanvas, SIGNAL(PadDoubleClicked(TPad*)),
             this, SLOT(onPadDoubleClick(TPad*)));
+
+    connect(m_pCurrentCanvas, SIGNAL(CanvasStatusEvent(const char*)),
+            m_pStatusBar, SLOT(onCursorMoved(const char*)));
 
 }
 
@@ -164,19 +181,25 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
             // add empty spaces
             if (row >= currentNRows) {
                 auto pCanvas = new QRootCanvas;
+                pCanvas->setShowEventStatus(true);
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
                 connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
                         this, SLOT(onPadDoubleClick(TPad*)));
+                connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
+                        m_pStatusBar, SLOT(onCursorMoved(const char*)));
                 m_canvases[{row, col}] = pCanvas;
             } else if (col >= currentNCols) {
                auto pCanvas = new QRootCanvas;
                 m_pLayout->addWidget(pCanvas, row, col);
+                pCanvas->setShowEventStatus(true);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
                         this, SLOT(setCurrentCanvas(QWidget*)));
                 connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
                         this, SLOT(onPadDoubleClick(TPad*)));
+                connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
+                        m_pStatusBar, SLOT(onCursorMoved(const char*)));
 
                 m_canvases[{row, col}] = pCanvas;
             }
@@ -450,6 +473,7 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
         for (int row=0; row<nRows; ++row) {
 
             QRootCanvas* pCanvas = new QRootCanvas(this);
+            pCanvas->setShowEventStatus(true);
             if (row==0 && col==0) {
                 pTopLeftCanvas = pCanvas;
             }
@@ -457,6 +481,8 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
                     this, SLOT(setCurrentCanvas(QWidget*)));
             connect(pCanvas, SIGNAL(PadDoubleClicked(TPad*)),
                     this, SLOT(onPadDoubleClick(TPad*)));
+            connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
+                    m_pStatusBar, SLOT(onCursorMoved(const char*)));
 
             m_canvases[{row, col}] = pCanvas;
 

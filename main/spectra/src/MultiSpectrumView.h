@@ -44,6 +44,7 @@ namespace Viewer
 
 class HistogramBundle;
 class SpecTclInterface;
+class StatusBar;
 
 /*!
  * \brief The MultiSpectrumView class
@@ -228,7 +229,7 @@ private:
     bool histogramInCanvas(HistogramBundle* pHist, QRootCanvas *pCanvas);
 
 private:
-    std::unique_ptr<QGridLayout>                    m_pLayout;
+    QGridLayout*                                    m_pLayout;
     std::multimap<HistogramBundle*, QRootCanvas*>   m_histMap;
     std::shared_ptr<SpecTclInterface>               m_pSpecTcl;
     QRootCanvas                                    *m_pCurrentCanvas;
@@ -236,6 +237,7 @@ private:
     int                                             m_currentNColumns;
     std::map<std::pair<int, int>, QWidget*>         m_canvases;
     bool                                            m_isZoomed;
+    StatusBar*                                      m_pStatusBar;
 
 }; // end MultiSpectrumView
 
