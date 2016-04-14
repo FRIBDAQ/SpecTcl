@@ -192,6 +192,8 @@ public slots:
 
     void onPadDoubleClick(TPad* pPad);
 
+    void onCanvasUpdated();
+
 private:
     /*!
      * \brief Find (row,col) of specific widget

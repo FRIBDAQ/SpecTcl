@@ -35,16 +35,11 @@ InformationPanel::~InformationPanel()
 
 void InformationPanel::onHistogramChanged(HistogramBundle &rHist)
 {
-    updateSpectrumName(rHist);
     updateParameterList(rHist);
     updateStatistics(rHist);
     updateGates(rHist);
 }
 
-void InformationPanel::updateSpectrumName(HistogramBundle& rHist)
-{
-    ui->pNameEdit->setText(rHist.getName());
-}
 
 void InformationPanel::clearParameterList()
 {

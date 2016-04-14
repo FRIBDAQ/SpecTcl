@@ -83,6 +83,9 @@ void TabWorkspace::connectSignals()
     connect(m_pView, SIGNAL(canvasContentChanged(QRootCanvas&)),
             m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
 
+    connect(m_pView, SIGNAL(canvasUpdated(QRootCanvas&)),
+            m_pInfoPanel, SLOT(updateContent(QRootCanvas&)));
+
     connect(m_pControls, SIGNAL(statisticsButtonClicked()),
             this, SLOT(showHideStatistics()));
 

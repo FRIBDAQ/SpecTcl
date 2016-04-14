@@ -354,6 +354,7 @@ void QRootCanvas::processRepaintTimer()
 
    fRepaintMode = 0;
 
+   std::cout << "processRepaintTimer...emitting CanvasUpdated()" << std::endl;
    emit CanvasUpdated();
 }
 

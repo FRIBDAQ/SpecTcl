@@ -27,7 +27,6 @@ public:
     
     void clearParameterList();
     void updateParameterList(HistogramBundle &rHist);
-    void updateSpectrumName(HistogramBundle& rHist);
     void updateStatistics(HistogramBundle& rHist);
     void updateGates(HistogramBundle& rHist);
 

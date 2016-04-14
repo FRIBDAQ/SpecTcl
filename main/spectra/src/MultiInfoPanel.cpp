@@ -50,6 +50,46 @@ void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
     }
 }
 
+void MultiInfoPanel::updateContent(QRootCanvas &rCanvas)
+{
+
+    auto hists = SpectrumView::getAllHists(&rCanvas);
+
+    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+    for (auto& pHist : hists) {
+        auto pHistPkg = pHistList->getHist(pHist);
+        if (pHistPkg) {
+            int index = findTab(pHistPkg->getName());
+            if (index >= 0) {
+                auto pPanel = dynamic_cast<InformationPanel*>(ui->pTabWidget->widget(index));
+                if (pPanel) {
+                    pPanel->onHistogramChanged(*pHistPkg);
+                }
+            }
+        }
+    }
+}
+
+
+int MultiInfoPanel::findTab(const QString& name) {
+
+    int nTabs = ui->pTabWidget->count();
+    int index = 0;
+    while (index < nTabs) {
+        if (name == ui->pTabWidget->tabText(index)) {
+            break;
+        }
+        index++;
+    }
+
+    if (index == nTabs) {
+        index = -1;
+    }
+
+    return index;
+
+}
+
 void MultiInfoPanel::addEmptyTab()
 {
     QFrame* pFrame = new QFrame(this);

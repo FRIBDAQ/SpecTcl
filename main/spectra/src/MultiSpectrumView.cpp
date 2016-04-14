@@ -88,6 +88,8 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     connect(m_pCurrentCanvas, SIGNAL(CanvasStatusEvent(const char*)),
             m_pStatusBar, SLOT(onCursorMoved(const char*)));
 
+    connect(m_pCurrentCanvas, SIGNAL(CanvasUpdated()), this, SLOT(onCanvasUpdated()));
+
 }
 
 MultiSpectrumView::~MultiSpectrumView()
@@ -189,6 +191,8 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                         this, SLOT(onPadDoubleClick(TPad*)));
                 connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
                         m_pStatusBar, SLOT(onCursorMoved(const char*)));
+                connect(pCanvas, SIGNAL(CanvasUpdated()),
+                        this, SLOT(onCanvasUpdated()));
                 m_canvases[{row, col}] = pCanvas;
             } else if (col >= currentNCols) {
                auto pCanvas = new QRootCanvas;
@@ -200,6 +204,8 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                         this, SLOT(onPadDoubleClick(TPad*)));
                 connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
                         m_pStatusBar, SLOT(onCursorMoved(const char*)));
+                connect(pCanvas, SIGNAL(CanvasUpdated()),
+                        this, SLOT(onCanvasUpdated()));
 
                 m_canvases[{row, col}] = pCanvas;
             }
@@ -483,6 +489,8 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
                     this, SLOT(onPadDoubleClick(TPad*)));
             connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
                     m_pStatusBar, SLOT(onCursorMoved(const char*)));
+            connect(pCanvas, SIGNAL(CanvasUpdated()),
+                    this, SLOT(onCanvasUpdated()));
 
             m_canvases[{row, col}] = pCanvas;
 
@@ -581,6 +589,12 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
   return (pCanvas->findObject(&pHist->getHist()) != nullptr);
+}
+
+void MultiSpectrumView::onCanvasUpdated()
+{
+    std::cout << "onCanvasUpdated" << std::endl;
+    emit canvasUpdated(*m_pCurrentCanvas);
 }
 
 } // end of namespace

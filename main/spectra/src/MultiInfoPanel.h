@@ -28,11 +28,13 @@ public:
     
 public slots:
     void currentCanvasChanged(QRootCanvas& rCanvas);
+    void updateContent(QRootCanvas& rCanvas);
 
 private:
     void addEmptyTab();
     void addTab(HistogramBundle& rBundle);
     void removeAllTabs();
+    int findTab(const QString& name);
 
 private:
     Ui::MultiInfoPanel *ui;

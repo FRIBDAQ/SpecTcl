@@ -14,58 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="pNameLabel">
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="buddy">
-        <cstring>pNameEdit</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pNameEdit">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="pParamLabel">
-     <property name="text">
-      <string>&lt;h1&gt;Parameters&lt;/h1&gt;</string>
-     </property>
-     <property name="buddy">
-      <cstring>pParamList</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QListWidget" name="pParamList">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>40</height>
-      </size>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0">
-    <widget class="QLabel" name="pStatLabel">
-     <property name="text">
-      <string>&lt;h1&gt;Statistics&lt;/h1&gt;</string>
-     </property>
-     <property name="buddy">
-      <cstring>pStatTable</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
     <widget class="QTableWidget" name="pStatTable">
      <property name="selectionMode">
       <enum>QAbstractItemView::NoSelection</enum>
@@ -87,7 +36,37 @@
      </attribute>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="2" column="0">
+    <widget class="QLabel" name="pStatLabel">
+     <property name="text">
+      <string>&lt;h1&gt;Statistics&lt;/h1&gt;</string>
+     </property>
+     <property name="buddy">
+      <cstring>pStatTable</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QListWidget" name="pParamList">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>40</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="pParamLabel">
+     <property name="text">
+      <string>&lt;h1&gt;Parameters&lt;/h1&gt;</string>
+     </property>
+     <property name="buddy">
+      <cstring>pParamList</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>&lt;h1&gt;Gates&lt;/h1&gt;</string>
