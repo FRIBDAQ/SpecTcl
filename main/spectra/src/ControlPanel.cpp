@@ -66,7 +66,7 @@ void ControlPanel::connectSignalsAndSlots()
 
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
-    connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
+//    connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
     connect(ui->pZoomButton, SIGNAL(clicked()), this, SLOT(onZoom()));
 
     connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
