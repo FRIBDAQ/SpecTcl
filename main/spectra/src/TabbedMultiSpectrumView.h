@@ -44,7 +44,7 @@ namespace Viewer
 
 class MultiSpectrumView;
 class SpecTclInterface;
-
+class TabWorkspace;
 
 /*!
  * \brief The TabbedMultiSpectrumView class
@@ -56,9 +56,8 @@ class SpecTclInterface;
  * of the MultiSpectrumView widget on the currently visible tab.
  *
  */
-class TabbedMultiSpectrumView : public SpectrumView
+class TabbedMultiSpectrumView : public QWidget
 {
-    // Required to use signal/slot mechanism
     Q_OBJECT
     
 public:
@@ -83,41 +82,16 @@ public:
    */
   void addTab(const QString& title);
 
-  // SpectrumViewer interface
-  virtual int getRowCount() const;
-  virtual int getColumnCount() const;
-  virtual QRootCanvas* getCurrentCanvas();
-  virtual std::vector<QRootCanvas*> getAllCanvases();
-
   void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
-signals:
-  void visibleGeometryChanged(int row, int col);
+  TabWorkspace& getCurrentWorkspace();
 
 public slots:
-  virtual void onGeometryChanged(int row, int col);
-  virtual void setCurrentCanvas(QWidget *pCanvas);
-  virtual void refreshAll();
-  virtual void onHistogramRemoved(HistogramBundle *pBundle);
-  virtual void updateView(HistogramBundle *pHist);
-  virtual void drawHistogram(HistogramBundle *pHist);
-  void onCurrentCanvasChanged(QRootCanvas& rCanvas);
-  void onCanvasContentChanged(QRootCanvas& rCanvas);
-
   void onCurrentChanged(int index);
   void onAddTab();
   void onTabCloseRequested(int index);
 
-  void clearLayout();
-  void layoutSpectra(QStringList spectrumList);
-
-  void toggleZoom();
-
   void onNewTabContentsSelected(QStringList selection);
-
-  std::tuple<int, int> computeOptimalGeometry(int nCanvases);
-private:
-  void updateCurrentViewToVisibleTab();
 
 private:
     Ui::TabbedMultiSpectrumView       *ui;

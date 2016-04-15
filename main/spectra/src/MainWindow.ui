@@ -77,28 +77,21 @@
     <addaction name="actionConfigure"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuWindow">
-    <property name="title">
-     <string>Window</string>
-    </property>
-    <widget class="QMenu" name="menuPanels">
-     <property name="title">
-      <string>Panels</string>
-     </property>
-     <addaction name="actionHIstograms"/>
-     <addaction name="actionGates"/>
-    </widget>
-    <addaction name="menuPanels"/>
-   </widget>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
      <string>Create</string>
     </property>
     <addaction name="actionNewHistogram"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="pAutoUpdateAction"/>
+   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuWindow"/>
    <addaction name="menuCreate"/>
+   <addaction name="menuOptions"/>
   </widget>
   <action name="actionExit">
    <property name="text">
@@ -123,6 +116,11 @@
   <action name="actionGates">
    <property name="text">
     <string>Gates</string>
+   </property>
+  </action>
+  <action name="pAutoUpdateAction">
+   <property name="text">
+    <string>Auto Update...</string>
    </property>
   </action>
  </widget>

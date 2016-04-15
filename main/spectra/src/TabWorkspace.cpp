@@ -6,8 +6,11 @@
 #include "ControlPanel.h"
 #include "GeometrySelector.h"
 #include "MultiInfoPanel.h"
+#include "AutoUpdater.h"
 
 #include <QSplitter>
+
+#include <stdexcept>
 
 namespace Viewer
 {
@@ -18,11 +21,14 @@ TabWorkspace::TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *
     m_pView(nullptr),
     m_pDrawPanel(nullptr),
     m_pControls(nullptr),
-    m_pInfoPanel(nullptr)
+    m_pInfoPanel(nullptr),
+    m_pAutoUpdater(nullptr)
 
 {
 
     setUpUI();
+
+    m_pAutoUpdater = new AutoUpdater(pSpecTcl, *m_pView, this);
 
     // populate the histogram draw panel with histograms
     m_pDrawPanel->setHistogramList(m_pSpecTcl->getHistogramList());
@@ -64,6 +70,7 @@ void TabWorkspace::setUpUI()
     m_pInfoPanel->hide();
 
     setLayout(pMainLayout);
+
 }
 
 void TabWorkspace::connectSignals()
@@ -127,6 +134,15 @@ void TabWorkspace::showHideDrawPanel()
     } else {
         m_pDrawPanel->show();
     }
+}
+
+AutoUpdater& TabWorkspace::getUpdater()
+{
+    if (m_pAutoUpdater == nullptr) {
+        throw std::runtime_error("TabWorkspace::getUpdater() Auto updater does not exist! Can't return it");
+    }
+
+    return *m_pAutoUpdater;
 }
 
 } // end Viewer namespace

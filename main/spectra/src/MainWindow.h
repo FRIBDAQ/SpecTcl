@@ -94,19 +94,11 @@ public slots:
     void onConfigure();
 
     /*!
-     * \brief Make the histogram view visible
-     */
-    void dockHistograms();
-
-    /*!
-     * \brief Make the gate manager visibleMainWindow& rMain,
-     */
-    void dockGates();
-
-    /*!
      * \brief Launch the dialog to create a new histogram
      */
     void onNewHistogram();
+
+    void launchAutoUpdateDialog();
 
     ///////////////////////////////////////////////////////////////////////////
 

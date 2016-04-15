@@ -174,6 +174,7 @@ public:
     static std::vector<TH1*> getAllHists(QRootCanvas* pCanvas);
 
     virtual std::tuple<int, int> computeOptimalGeometry(int nCanvases) = 0;
+
 signals:
     void currentCanvasChanged(QRootCanvas& rCanvas);
     void canvasContentChanged(QRootCanvas& rCanvas);

@@ -40,7 +40,6 @@ namespace Viewer
 
 TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pSpecTcl,
                                                  QWidget *parent) :
-    SpectrumView(parent),
     ui(new Ui::TabbedMultiSpectrumView),
     m_pCurrentView(nullptr),
     m_pSpecTcl(pSpecTcl),
@@ -52,8 +51,6 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(shared_ptr<SpecTclInterface> pS
     ui->pTabWidget->setCornerWidget(m_pAddButton);
 
     addTab("");
-
-    updateCurrentViewToVisibleTab();
 
     connect(m_pAddButton, SIGNAL(clicked()), this, SLOT(onAddTab()));
     connect(ui->pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
@@ -78,21 +75,6 @@ void TabbedMultiSpectrumView::addTab(const QString &title)
 }
 
 
-void TabbedMultiSpectrumView::clearLayout()
-{
-    return m_pCurrentView->clearLayout();
-}
-
-
-void TabbedMultiSpectrumView::layoutSpectra(QStringList spectrumList)
-{
-    return m_pCurrentView->layoutSpectra(spectrumList);
-}
-
-void TabbedMultiSpectrumView::toggleZoom()
-{
-    return m_pCurrentView->toggleZoom();
-}
 
 void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
 {
@@ -114,37 +96,6 @@ void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
     ui->pTabWidget->setCurrentIndex(newTabIndex);
 }
 
-int TabbedMultiSpectrumView::getRowCount() const
-{
-    return m_pCurrentView->getRowCount();
-}
-
-int TabbedMultiSpectrumView::getColumnCount() const
-{
-    return m_pCurrentView->getColumnCount();
-}
-
-QRootCanvas* TabbedMultiSpectrumView::getCurrentCanvas()
-{
-    return m_pCurrentView->getCurrentCanvas();
-}
-
-std::vector<QRootCanvas*> TabbedMultiSpectrumView::getAllCanvases()
-{
-    return m_pCurrentView->getAllCanvases();
-}
-
-void TabbedMultiSpectrumView::onGeometryChanged(int row, int col)
-{
-    m_pCurrentView->onGeometryChanged(row, col);
-}
-
-void TabbedMultiSpectrumView::setCurrentCanvas(QWidget *pCanvas)
-{
-    m_pCurrentView->setCurrentCanvas(pCanvas);
-}
-
-
 void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
     m_pSpecTcl = pSpecTcl;
@@ -158,44 +109,6 @@ void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterfa
             pView->setSpecTclInterface(m_pSpecTcl);
         }
     }
-}
-
-void TabbedMultiSpectrumView::refreshAll()
-{
-    m_pCurrentView->refreshAll();
-}
-
-void TabbedMultiSpectrumView::onHistogramRemoved(HistogramBundle *pBundle)
-{
-    m_pCurrentView->onHistogramRemoved(pBundle);
-}
-
-void TabbedMultiSpectrumView::updateView(HistogramBundle *pHist)
-{
-    m_pCurrentView->updateView(pHist);
-}
-
-void TabbedMultiSpectrumView::drawHistogram(HistogramBundle *pHist)
-{
-    m_pCurrentView->drawHistogram(pHist);
-}
-
-std::tuple<int, int> TabbedMultiSpectrumView::computeOptimalGeometry(int nCanvases) {
-    return m_pCurrentView->computeOptimalGeometry(nCanvases);
-}
-
-void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
-{
-}
-
-void TabbedMultiSpectrumView::onCurrentCanvasChanged(QRootCanvas &rCanvas)
-{
-    emit currentCanvasChanged(rCanvas);
-}
-
-void TabbedMultiSpectrumView::onCanvasContentChanged(QRootCanvas &rCanvas)
-{
-    emit canvasContentChanged(rCanvas);
 }
 
 void TabbedMultiSpectrumView::onCurrentChanged(int index)
@@ -213,8 +126,6 @@ void TabbedMultiSpectrumView::onAddTab()
         ui->pTabWidget->setTabsClosable(true);
     }
 
-  updateCurrentViewToVisibleTab();
-
 }
 
 void TabbedMultiSpectrumView::onTabCloseRequested(int index)
@@ -230,5 +141,11 @@ void TabbedMultiSpectrumView::onTabCloseRequested(int index)
 
 }
 
-
+TabWorkspace& TabbedMultiSpectrumView::getCurrentWorkspace()
+{
+    return dynamic_cast<TabWorkspace&>(*ui->pTabWidget->currentWidget());
 }
+
+
+
+} // end Viewer namespace

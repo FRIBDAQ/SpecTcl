@@ -24,9 +24,6 @@
 #include "ui_MainWindow.h"
 #include "ConnectServer.h"
 #include "MultiSpectrumView.h"
-#include "SpectrumViewer.h"
-#include "HistogramView.h"
-#include "DockableGateManager.h"
 #include "TGo4CreateNewHistogram.h"
 #include "SpecTclInterfaceFactory.h"
 #include "SpecTclInterface.h"
@@ -35,7 +32,8 @@
 #include "ControlPanel.h"
 #include "TabbedMultiSpectrumView.h"
 #include "GlobalSettings.h"
-#include "MultiInfoPanel.h"
+#include "AutoUpdateDialog.h"
+#include "TabWorkspace.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -43,8 +41,6 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QFrame>
-#include <QShortcut>
-#include <QKeySequence>
 
 namespace Viewer
 {
@@ -144,11 +140,9 @@ void MainWindow::connectSignalsAndSlots()
 {
     connect(pUI->actionConfigure,SIGNAL(activated()),this,SLOT(onConfigure()));
 
-    connect(pUI->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
-
     connect(pUI->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
 
-    connect(pUI->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
+    connect(pUI->pAutoUpdateAction,SIGNAL(triggered()),this,SLOT(launchAutoUpdateDialog()));
 
 }
 
@@ -189,28 +183,12 @@ void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterfac
 
 }
 
-//
-//
-void MainWindow::dockHistograms()
+void MainWindow::launchAutoUpdateDialog()
 {
-//    if (m_histView->isVisible()) {
-//        return;
-//    } else {
-//        addDockWidget(Qt::LeftDockWidgetArea, m_histView);
-//        m_histView->show();
-//    }
-}
+    TabWorkspace& workspace = m_pView->getCurrentWorkspace();
 
-//
-//
-void MainWindow::dockGates()
-{
-//    if (m_gateView->isVisible()) {
-//        return;
-//    } else {
-//        addDockWidget(Qt::LeftDockWidgetArea, m_gateView);
-//        m_gateView->show();
-//    }
+    AutoUpdateDialog dialog(workspace.getUpdater(), this);
+    dialog.exec();
 }
 
 //

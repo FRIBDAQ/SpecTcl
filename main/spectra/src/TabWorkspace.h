@@ -14,6 +14,7 @@ class ViewDrawPanel;
 class ControlPanel;
 class SpecTclInterface;
 class MultiInfoPanel;
+class AutoUpdater;
 
 class TabWorkspace : public QWidget
 {
@@ -23,6 +24,8 @@ public:
     explicit TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent = 0);
     
     void layoutSpectra(QStringList spectrumList);
+
+    AutoUpdater& getUpdater();
 
 signals:
     
@@ -40,6 +43,8 @@ private:
     ViewDrawPanel*                      m_pDrawPanel;
     ControlPanel*                       m_pControls;
     MultiInfoPanel*                     m_pInfoPanel;
+
+    AutoUpdater*                        m_pAutoUpdater;
 };
 
 } // end Viewer namespace

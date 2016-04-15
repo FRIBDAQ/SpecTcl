@@ -9,7 +9,6 @@ noinst_HEADERS =  QRootCanvas.h  \
   QRootWindow.h  \
   MainWindow.h  \
   ConnectServer.h  \
-  SpectrumViewer.h  \
   Singleton.h   \
   HistogramList.h  \
   GlobalSettings.h  \
@@ -65,6 +64,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   ViewDrawPanel.h \
   TabWorkspace.h \
   StatusBar.h \
+  AutoUpdater.h \
+  AutoUpdateDialog.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -76,7 +77,6 @@ libSpectra_la_SOURCES = \
   ConnectServer.cpp  \
   HistogramList.cpp  \
   ContentRequestHandler.cpp  \
-  SpectrumViewer.cpp  \
   GlobalSettings.cpp  \
   HistogramView.cpp  \
   ListRequestHandler.cpp  \
@@ -125,6 +125,8 @@ libSpectra_la_SOURCES = \
     ViewDrawPanel.cpp \
     TabWorkspace.cpp \
     StatusBar.cpp \
+    AutoUpdater.cpp \
+    AutoUpdateDialog.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -140,7 +142,6 @@ libSpectra_la_SOURCES = \
 	moc_MainWindow.cpp \
 	moc_TGo4CreateNewHistogram.cpp \
 	moc_SpecTclRESTInterface.cpp \
-	moc_SpectrumViewer.cpp \
 	moc_GateBuilderDialog.cpp \
   moc_QRootDialog.cpp \
 	moc_TabbedMultiSpectrumView.cpp \
@@ -171,12 +172,13 @@ libSpectra_la_SOURCES = \
         moc_ViewDrawPanel.cpp \
         moc_TabWorkspace.cpp \
         moc_StatusBar.cpp \
+        moc_AutoUpdater.cpp \
+        moc_AutoUpdateDialog.cpp \
         cmdline.c \
 	qrc_resources.cpp
 
 spectraFORMS =  MainWindow.ui  \
   ConnectServer.ui  \
-  SpectrumViewer.ui  \
   HistogramList.ui  \
   HistogramView.ui  \
   TGo4CreateNewHistogram.ui  \
@@ -195,14 +197,14 @@ spectraFORMS =  MainWindow.ui  \
   BulkDrawChooser.ui \
   ViewDrawPanel.ui \
     SpectrumDrawChooser.ui \
-    StatusBar.ui
+    StatusBar.ui \
+    AutoUpdateDialog.ui
 
 spectraRESOURCES = resources.qrc
 
 BUILT_SOURCES = cmdline.h cmdline.c \
 				ui_MainWindow.h \
 								ui_ConnectServer.h \
-								ui_SpectrumViewer.h \
 								ui_HistogramList.h \
 								ui_HistogramView.h \
 								ui_TGo4CreateNewHistogram.h \
@@ -222,6 +224,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_LayoutDialogChooser.h \
                                                                 ui_ViewDrawPanel.h \
                                                                 ui_StatusBar.h \
+                                                                ui_AutoUpdateDialog.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -237,7 +240,6 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_MainWindow.cpp \
 								moc_TGo4CreateNewHistogram.cpp \
 								moc_SpecTclRESTInterface.cpp \
-								moc_SpectrumViewer.cpp \
 								moc_GateBuilderDialog.cpp \
 								moc_QRootDialog.cpp \
 								moc_TabbedMultiSpectrumView.cpp \
@@ -262,6 +264,8 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_ViewDrawPanel.cpp \
 								moc_TabWorkspace.cpp \
 								moc_StatusBar.cpp \
+								moc_AutoUpdater.cpp \
+								moc_AutoUpdateDialog.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
