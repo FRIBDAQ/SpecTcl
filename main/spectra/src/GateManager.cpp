@@ -184,7 +184,10 @@ void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
         auto it = cuts.find(pNameItem->text());
         if (it != cuts.end()) {
             GSlice* pSlice = it->second;
-            double integral = hist.Integral(pSlice->getXLow(), pSlice->getXHigh());
+            double low = pSlice->getXLow();
+            double high = pSlice->getXHigh();
+
+            double integral = hist.Integral(hist.FindBin(low), hist.FindBin(high));
 
             pValueItem->setText(QString::number(integral));
         }
