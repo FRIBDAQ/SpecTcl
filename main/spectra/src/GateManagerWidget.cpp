@@ -34,6 +34,7 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
 {
     m_pManager = new GateManager(m_view, pSpecTcl, this);
     horizontalLayout = new QHBoxLayout();
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
     horizontalLayout->addWidget(m_pManager);
     setLayout(horizontalLayout);
