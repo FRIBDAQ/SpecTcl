@@ -300,9 +300,8 @@ static const  char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 #include <unistd.h>
 #include <time.h>
 #include "dispwind.h"
-#include "errormsg.h"
 #include "panemgr.h"		/* Need to get parent for error dialogs. */
-
+#include <stdexcept>
 
 
 #include "dispshare.h"
@@ -438,7 +437,8 @@ int win_attributed::write(FILE *f)
 	      reduction,
 	      "Please save the partially written file for analysis\n");
       fclose(f);
-      Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+//      Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+      throw std::runtime_error(msg_txt);
       wbytes = EOF;		/* Ensure the write fails. */
     }
     if(wbytes == EOF) return EOF;
@@ -561,7 +561,7 @@ int win_1d::write(FILE *f)
       sprintf(msg_txt, "BUGBUGBUG>>> Invalid rendition for 1d %d\n %s", 
 	      rendition,
 	      "Please save the partially written file for analysis\n");
-      Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+      throw std::runtime_error(msg_txt);
       wbytes = EOF;
     }
     if(wbytes == EOF) return EOF;
@@ -570,23 +570,23 @@ int win_1d::write(FILE *f)
   /* Write the superpositions if there are any:    */
 
   if(additional_spectra.Count() != 0) {
-    SuperpositionListIterator sli(additional_spectra);
-    while(!sli.Last()) {
-      spec_title spcname;
-      int id = (sli.Next()).Spectrum();
-      xamine_shared->getname(spcname, id);
-      wbytes = fprintf(f,"   Superimpose \"%s\"\n", spcname);
-      if(wbytes == EOF) {
-	sprintf(msg_txt,"%s%s%s",
-		"Failed to write a Superimpose record.\n",
-		"Please save the partially written fiel for analysis\n",
-		"Check quotas and free disk space as well as file name\n");
-	Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+      SuperpositionListIterator sli(additional_spectra);
+      while(!sli.Last()) {
+          spec_title spcname;
+          int id = (sli.Next()).Spectrum();
+          xamine_shared->getname(spcname, id);
+          wbytes = fprintf(f,"   Superimpose \"%s\"\n", spcname);
+          if(wbytes == EOF) {
+              sprintf(msg_txt,"%s%s%s",
+                      "Failed to write a Superimpose record.\n",
+                      "Please save the partially written fiel for analysis\n",
+                      "Check quotas and free disk space as well as file name\n");
+              throw std::runtime_error(msg_txt);
+          }
+          else {
+              nbytes += wbytes;
+          }
       }
-      else {
-	nbytes += wbytes;
-      }
-    }
   }
 
   return nbytes;
@@ -666,7 +666,7 @@ int win_2d::write(FILE *f)
       sprintf(msg_txt, "BUGBUGBUG >>>> Invalid 2-d rendition %d\n %s", 
 	     rendition,
 	     "Please save the partial window file for analysis\n");
-      Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+      throw std::runtime_error(msg_txt);
       wbytes = EOF;
     }
     if(wbytes == EOF) return EOF;
@@ -794,26 +794,28 @@ int win_db::write(const char *filename)
  
   /* Write a window block for each defined window in the window array: */
 
-  for(j = 0; j < win_ny; j++)
+  for(j = 0; j < win_ny; j++) {
     for(i = 0; i < win_nx; i++) {
-      if(defined(i,j)) {
-	spec_title spcname;
-	if(fprintf(config, "Window  %d,%d,\"%s\"\n", i,j,
-		   xamine_shared->getname(spcname,windows[i][j]->spectrum()))
-	   == EOF){
-	  fclose(config);
-	  return FALSE;
-	}
-	if(windows[i][j]->write(config) == EOF) {
-	  fclose(config);
-	  return FALSE;
-	}
-	if(fprintf(config, "Endwindow\n") == EOF) {
-	  fclose(config);
-	  return FALSE;
-	}
-      }
+        if(defined(i,j)) {
+            spec_title spcname;
+            if(fprintf(config, "Window  %d,%d,\"%s\"\n", i,j,
+                       xamine_shared->getname(spcname,windows[i][j]->spectrum()))
+                    == EOF){
+                fclose(config);
+                return FALSE;
+            }
+
+            if(windows[i][j]->write(config) == EOF) {
+                fclose(config);
+                return FALSE;
+            }
+            if(fprintf(config, "Endwindow\n") == EOF) {
+                fclose(config);
+                return FALSE;
+            }
+        }
     }
+  }
   fclose(config);
   return TRUE;
 }
@@ -883,7 +885,8 @@ void windfileerror(char *s)
   */
   sprintf(msg_txt, "Error on line %d: %s", 
 	  windfilelex_line, s);
-  Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+//  Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
+  throw std::runtime_error(msg_txt);
 }
 int windfilewrap()
 {

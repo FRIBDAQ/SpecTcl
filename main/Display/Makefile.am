@@ -100,17 +100,10 @@ PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
 
 
 libXamineParsers_la_SOURCES = windfile_lex.cc \
-							  windfile_parse.cc  \
-							  defaultfile_lex.cc \
-							  defaultfile_parse.cc \
-							  grobfile_lex.cc \
-							  grobfile_parse.cc \
+							  windfile_parse.cc \
 							  dispwind.cc \
-							  grobfile.cc \
-							  grobjdb.cc \
 							  lexsupport.c \
-							  dfltmgr.cc \
-							  errormsg.cc
+							  superpos.cc
 
 #XCCFLAGS =   -g -c -w -I@top_builddir@ -I@srcdir@ -I@top_srcdir@ $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
@@ -119,7 +112,6 @@ libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
 								-I@top_srcdir@ \
 								-DXTFUNCPROTO -DXAMINE \
 								$(HOMEDEF)
-
 
 check_PROGRAMS = Xaminetest
 # TESTS = $(check_PROGRAMS)	# needs to start Xamine
@@ -151,7 +143,7 @@ xamineDataTypes.h wysiwygPrint.h
 libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
-	specalloc.c clientbuttons.c prccheck.c
+    specalloc.c clientbuttons.c prccheck.c
 
 
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
@@ -169,12 +161,25 @@ dispgrob.cc  xprccheck.c \
 refreshdefault.cc  marker.cc grafinput.cc \
 grobjinput.cc grobjmgr.cc grobjdisplay.cc sumregion.cc integrate.cc \
 guintegrate.cc delgrob.cc messages.cc eventflags.cc gateio.cc \
-acceptgates.cc clirequests.cc  spccheck.cc superpos.cc \
+acceptgates.cc clirequests.cc  spccheck.cc \
 superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
 compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
 gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc  \
-wysiwygPrint.cc
+wysiwygPrint.cc defaultfile_lex.cc \
+defaultfile_parse.cc \
+grobfile_lex.cc \
+grobfile_parse.cc \
+grobfile.cc \
+grobjdb.cc \
+lexsupport.c \
+dfltmgr.cc \
+errormsg.cc
+
+Xamine_CPPFLAGS = -I@top_builddir@ \
+				  -DXTFUNCPROTO -DXAMINE \
+				  -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+					  -I@top_srcdir@/Utility $(GDINCLUDES)
 
 
 
