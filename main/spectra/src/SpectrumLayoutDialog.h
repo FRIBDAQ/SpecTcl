@@ -23,12 +23,14 @@ public:
 
 signals:
     void spectraChosenToDraw(QStringList selected);
+    void loadFileChosen(QString fileName);
 
 public slots:
     void onBulkDrawSelected();
     void onSequentialDrawSelected();
     void onReturnToMainSelected();
     void onSelectionComplete(QStringList selection);
+    void onLoadFileSelected(QString fileName);
 
 private:
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;

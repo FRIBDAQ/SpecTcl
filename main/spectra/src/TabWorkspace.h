@@ -26,6 +26,7 @@ public:
     void layoutSpectra(QStringList spectrumList);
 
     AutoUpdater& getUpdater();
+    SpectrumView& getView();
 
 signals:
     

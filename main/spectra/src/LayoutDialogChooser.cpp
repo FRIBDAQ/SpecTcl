@@ -1,6 +1,9 @@
 #include "LayoutDialogChooser.h"
 #include "ui_LayoutDialogChooser.h"
 
+#include <QFileDialog>
+#include <QDir>
+
 namespace Viewer {
 
 LayoutDialogChooser::LayoutDialogChooser(QWidget *parent) :
@@ -13,6 +16,7 @@ LayoutDialogChooser::LayoutDialogChooser(QWidget *parent) :
 
     connect(ui->pBulkButton, SIGNAL(clicked()), this, SLOT(onBulkClicked()));
     connect(ui->pSequentialButton, SIGNAL(clicked()), this, SLOT(onSequentialClicked()));
+    connect(ui->pLoadFileButton, SIGNAL(clicked()), this, SLOT(onLoadFileClicked()));
 
 }
 
@@ -30,6 +34,18 @@ void LayoutDialogChooser::onBulkClicked()
 void LayoutDialogChooser::onSequentialClicked()
 {
     emit sequentialClicked();
+}
+
+void LayoutDialogChooser::onLoadFileClicked()
+{
+    QString fileName
+            = QFileDialog::getOpenFileName(this,
+                                           tr("Open File"),
+                                           QDir::currentPath(),
+                                           tr("Image Files (*.root *.win)"));
+
+    emit loadFileClicked( fileName );
+
 }
 
 QString LayoutDialogChooser::getTabName() const

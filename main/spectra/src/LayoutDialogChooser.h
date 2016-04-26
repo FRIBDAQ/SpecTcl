@@ -30,10 +30,12 @@ public:
 signals:
     void bulkClicked();
     void sequentialClicked();
+    void loadFileClicked(QString filename);
 
 public slots:
     void onBulkClicked();
     void onSequentialClicked();
+    void onLoadFileClicked();
     
 private:
     Ui::LayoutDialogChooser *ui;

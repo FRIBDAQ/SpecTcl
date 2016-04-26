@@ -30,6 +30,8 @@ SpectrumLayoutDialog::SpectrumLayoutDialog(std::shared_ptr<SpecTclInterface> pSp
             this, SLOT(onSelectionComplete(QStringList)));
     connect(m_pMainChooser, SIGNAL(sequentialClicked()),
             this, SLOT(onSequentialDrawSelected()));
+    connect(m_pMainChooser, SIGNAL(loadFileClicked(QString)),
+            this, SLOT(onLoadFileSelected(QString)));
 }
 
 void SpectrumLayoutDialog::onBulkDrawSelected()
@@ -59,4 +61,15 @@ void SpectrumLayoutDialog::onSelectionComplete(QStringList selection)
 QString SpectrumLayoutDialog::getTabName() const {
     return m_pMainChooser->getTabName();
 }
+
+void SpectrumLayoutDialog::onLoadFileSelected(QString fileName)
+{
+    if (!fileName.isEmpty()) {
+        emit loadFileChosen(fileName);
+    }
+}
+
+
+
+
 } // end Viewer namespace

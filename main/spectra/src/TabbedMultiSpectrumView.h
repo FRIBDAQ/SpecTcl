@@ -92,6 +92,7 @@ public slots:
   void onTabCloseRequested(int index);
 
   void onNewTabContentsSelected(QStringList selection);
+  void onNewTabContentsFromFile(QString fileName);
 
 private:
     Ui::TabbedMultiSpectrumView       *ui;

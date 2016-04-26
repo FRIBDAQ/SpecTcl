@@ -26,6 +26,7 @@
 #include "SpecTclInterface.h"
 #include "SpectrumLayoutDialog.h"
 #include "TabWorkspace.h"
+#include "TabFromWinFileCompositor.h"
 
 #include <QPushButton>
 #include <QWidget>
@@ -70,6 +71,8 @@ void TabbedMultiSpectrumView::addTab(const QString &title)
 
   connect(pSpecLayoutDialog, SIGNAL(spectraChosenToDraw(QStringList)),
           this, SLOT(onNewTabContentsSelected(QStringList)));
+  connect(pSpecLayoutDialog, SIGNAL(loadFileChosen(QString)),
+          this, SLOT(onNewTabContentsFromFile(QString)));
 
   ui->pTabWidget->setCurrentIndex(tabIndex);
 }
@@ -95,6 +98,34 @@ void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
     // index.
     ui->pTabWidget->setCurrentIndex(newTabIndex);
 }
+
+void TabbedMultiSpectrumView::onNewTabContentsFromFile(QString fileName)
+{
+
+    auto pSetupWidget = dynamic_cast<SpectrumLayoutDialog*>(ui->pTabWidget->currentWidget());
+
+    QString tabName = pSetupWidget->getTabName();
+
+    int index = ui->pTabWidget->currentIndex();
+    ui->pTabWidget->removeTab(index);
+
+    auto pWorkspace = new TabWorkspace(m_pSpecTcl, this);
+
+    std::cout << fileName.toStdString() << std::endl;
+    if (fileName.endsWith(".win")) {
+        TabFromWinFileCompositor compositor(m_pSpecTcl);
+
+        compositor.compose(*pWorkspace, fileName);
+    }
+
+    int newTabIndex = ui->pTabWidget->insertTab(index, pWorkspace, tabName);
+
+    // we will use the returned index because it may be different than the original
+    // index.
+    ui->pTabWidget->setCurrentIndex(newTabIndex);
+}
+
+
 
 void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
