@@ -182,7 +182,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
 
             // add empty spaces
             if (row >= currentNRows) {
-                auto pCanvas = new QRootCanvas;
+                auto pCanvas = new QRootCanvas(this);
                 pCanvas->setShowEventStatus(true);
                 m_pLayout->addWidget(pCanvas, row, col);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
@@ -195,7 +195,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
                         this, SLOT(onCanvasUpdated()));
                 m_canvases[{row, col}] = pCanvas;
             } else if (col >= currentNCols) {
-               auto pCanvas = new QRootCanvas;
+                auto pCanvas = new QRootCanvas(this);
                 m_pLayout->addWidget(pCanvas, row, col);
                 pCanvas->setShowEventStatus(true);
                 connect(pCanvas, SIGNAL(mousePressed(QWidget*)),
