@@ -5,13 +5,17 @@
 #include "HistogramList.h"
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"
+#include "ViewDrawPanel.h"
+#include "GeometrySelector.h"
 
 #include <QString>
+#include <QList>
+#include <QMessageBox>
+
 #include <TCanvas.h>
 
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <algorithm>
 
 namespace Viewer {
 
@@ -28,21 +32,25 @@ void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &
     int nCols = layoutDb.nx();
     int nRows = layoutDb.ny();
 
-    SpectrumView& view = rWorkSpace.getView();
 
+    // First set the geometry controls to the correct values
+    GeometrySelector& geoControl = rWorkSpace.getDrawPanel().getGeometrySelector();
+    geoControl.setGeometry(nRows, nCols);
+
+    // Set the geometry of the view next
+    SpectrumView& view = rWorkSpace.getView();
     view.onGeometryChanged(nRows, nCols);
 
+    // Draw all of the histograms that we are told exist.
     for (int col=0; col<layoutDb.nx(); ++col) {
         for (int row=0; row<layoutDb.ny(); ++row) {
             win_attributed* pAttributes = layoutDb.getdef(col, row);
             if (pAttributes) {
 
-                std::cout << row << " " << col << std::endl;
                 QRootCanvas* pCanvas = view.getCanvas(row, col);
 
                 assert(pCanvas != nullptr);
 
-                std::cout << "found : " << (void*)pCanvas << std::endl;
                 setUpCanvas(*pCanvas, *pAttributes);
             }
         }
@@ -53,29 +61,36 @@ void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &
 
 void TabFromWinFileCompositor::setUpCanvas(QRootCanvas& rCanvas, win_attributed &rAttributes)
 {
-    QString name;
+    QString specName;
 
     if (rAttributes.is1d()) {
         auto& attr = dynamic_cast<win_1d&>(rAttributes);
-        name = QString::fromStdString(attr.getSpectrumName());
+        specName = QString::fromStdString(attr.getSpectrumName());
     } else {
         auto& attr = dynamic_cast<win_2d&>(rAttributes);
-        name = QString::fromStdString(attr.getSpectrumName());
+        specName = QString::fromStdString(attr.getSpectrumName());
     }
 
     HistogramList* pHistList = m_pSpecTcl->getHistogramList();
-    std::cout << "Composing histogram " << name.toStdString() << std::endl;
-    HistogramBundle* pHistPkg = pHistList->getHist(name);
+    QList<QString> names = pHistList->histNames();
+
+    auto itResult = std::find_if(names.begin(), names.end(),
+                            [&specName](const QString& lhs) {
+                                return (QString::compare(specName, lhs, Qt::CaseInsensitive) == 0);
+                            });
+    if (itResult == names.end()) {
+        QString msg("Unable to find spectrum named %1 using case insensitive search.\n");
+        msg += "This implies the spectrum does not exist and cannot be plotted.";
+        QMessageBox::warning(nullptr, QString("Configuration error"), msg.arg(specName) );
+        return;
+    }
+
+    HistogramBundle* pHistPkg = pHistList->getHist(*itResult);
     if (pHistPkg) {
-        std::cout << name.toStdString() << " found" << std::endl;
         rCanvas.cd();
-        std::cout << "gPad = " << gPad << std::endl;
-        std::cout << "Pad = " << rCanvas.getCanvas() << std::endl;
         pHistPkg->draw();
-        rCanvas.Modified(1);
-        rCanvas.Update();
-    } else {
-        std::cout << name.toStdString() << " NOT found" << std::endl;
+//        rCanvas.Modified(1);
+//        rCanvas.Update();
     }
 }
 

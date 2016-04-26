@@ -149,4 +149,12 @@ AutoUpdater& TabWorkspace::getUpdater()
     return *m_pAutoUpdater;
 }
 
+ViewDrawPanel& TabWorkspace::getDrawPanel()
+{
+    if (m_pDrawPanel == nullptr) {
+        throw std::runtime_error("TabWorkspace::getDrawPanel() ViewDrawPanel does not exist! Cannot return it!");
+    }
+    return *m_pDrawPanel;
+}
+
 } // end Viewer namespace

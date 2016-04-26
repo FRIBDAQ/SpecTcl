@@ -27,6 +27,7 @@ public:
 
     AutoUpdater& getUpdater();
     SpectrumView& getView();
+    ViewDrawPanel& getDrawPanel();
 
 signals:
     
