@@ -45,6 +45,7 @@ namespace Viewer
 class HistogramBundle;
 class SpecTclInterface;
 class StatusBar;
+class QRootCanvas;
 
 /*!
  * \brief The MultiSpectrumView class
@@ -93,6 +94,16 @@ public:
      * \return the canvas with focus
      */
     QRootCanvas* getCurrentCanvas();
+
+    /*!
+     * \brief Retrieve specific canvas
+     * \param row   the row of the canvas
+     * \param col   the column of the canvas
+     *
+     * \return if row and col are valid, pointer to canvas
+     *         otherwise, returns nullptr
+     */
+    QRootCanvas* getCanvas(int row, int col);
 
     /*!
      * \brief paintEvent
@@ -237,7 +248,7 @@ private:
     QRootCanvas                                    *m_pCurrentCanvas;
     int                                             m_currentNRows;
     int                                             m_currentNColumns;
-    std::map<std::pair<int, int>, QWidget*>         m_canvases;
+    std::map<std::pair<int, int>, QRootCanvas*>     m_canvases;
     bool                                            m_isZoomed;
     StatusBar*                                      m_pStatusBar;
 

@@ -87,6 +87,17 @@ public:
      */
     virtual QRootCanvas* getCurrentCanvas() = 0;
 
+    /*!
+     * \brief Retrieve a specific canvas
+     *
+     * \param row   row containing canvas
+     * \param col   column containing canvas
+     * \return QRootCanvas*
+     * \retval nullptr if canvas does not exist
+     * \retval pointer to canvas if it exists.
+     */
+    virtual QRootCanvas* getCanvas(int row, int col) = 0;
+
     virtual std::vector<QRootCanvas*> getAllCanvases() = 0;
     /*!
      * \brief onGeometryChanged

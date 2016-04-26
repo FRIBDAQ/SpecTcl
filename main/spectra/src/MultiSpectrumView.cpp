@@ -349,6 +349,17 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
 }
 
 
+QRootCanvas* MultiSpectrumView::getCanvas(int row, int col)
+{
+    QRootCanvas* pCanvas = nullptr;
+
+    auto itResult = m_canvases.find({row, col});
+    if (itResult != m_canvases.end()) {
+        pCanvas = itResult->second;
+    }
+    return pCanvas;
+}
+
 void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 {
   if (pBundle) {
