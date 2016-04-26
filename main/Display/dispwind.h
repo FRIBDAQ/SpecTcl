@@ -40,6 +40,9 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <assert.h>
+#include <string>
+#include <vector>
+#include <iostream>
 #ifndef FALSE
 #define TRUE  (1)
 #define FALSE (0)
@@ -346,6 +349,7 @@ protected:
     // Superpositions:
 
     SuperpositionList additional_spectra;
+    std::string  spectrum_name;
 public:
     // Constructors
 
@@ -392,6 +396,9 @@ public:
     // Write to file:
     //
     virtual int write(FILE *f);
+
+    void setSpectrumName(const std::string name) { spectrum_name = name; }
+    std::string getSpectrumName() const { return spectrum_name; }
 };
 
 //
@@ -423,6 +430,9 @@ protected:
     // Attributes which define the spectrum rendition
     //
     rendition_2d rendition;
+
+    std::string spectrum_name;
+
 public:
     //
     //  Constructor classes
@@ -475,6 +485,10 @@ public:
     // Write the definition:
     //
     virtual int write(FILE *f);
+
+    void setSpectrumName(const std::string name) { spectrum_name = name; }
+    std::string getSpectrumName() const { return spectrum_name; }
+
 };
 
 //
@@ -578,9 +592,13 @@ public:
     void define1d(int x, int y,int specnum);
     void define2d(int x, int y,int specnum);
     win_attributed *getdef(int x, int y)
-    { return (defined(x,y) ?
-                  (win_attributed *)((windows[x][y])) :
-                  (win_attributed *)NULL); }
+    {
+        win_attributed* pAttr = nullptr;
+        if (defined(x,y)) {
+            pAttr = dynamic_cast<win_attributed *>((windows[x][y]));
+        }
+        return pAttr;
+    }
     void undefine(int x, int y);
     int refresh_rate(int x, int y) {
         return (defined(x,y) ?

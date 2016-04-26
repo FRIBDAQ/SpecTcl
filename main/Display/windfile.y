@@ -25,6 +25,8 @@ char *get_windfiletitle();
 #include "dispwind.h"
 #include "dispshare.h"
 #include "printer.h"
+#include <iostream>
+#include <string>
 #ifndef DEBUG
 extern win_db *database;	/* Setup by the caller. */
 #else
@@ -37,6 +39,7 @@ int specis1d(int spec);
 int specisundefined(int spec);
 static int x,y;
 static int specnum;
+static std::string specname;
 static win_attributed *current;
 static int ticks = 0, 
     labels= 0, 
@@ -165,23 +168,32 @@ description:	window_clause endwindow_clause
 
 window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
                   {
-		    if(specisundefined(specnum)) {
+            if(specisundefined(specnum)) {
 		       yyerror("Spectrum is not defined\n");
 		       return -1;
 		    }
 		    else {
-			    if(specis1d(specnum)) {
+				if(specis1d(specnum)) {
 			      database->define1d($2,$4, specnum);
 			    } else {
 			      database->define2d($2,$4,specnum);
 			    }
 			    x = $2;
 			    y = $4;
-			    current = database->getdef(x,y);
-			    if(current == NULL) {
-			      yyerror("Internal consistency error -- window is not defined\n");
+				current = database->getdef(x,y);
+				if(current == NULL) {
+				  yyerror("Internal consistency error -- window is not defined\n");
 			      return -1;
-			    }
+				} else {
+				  // store the spectrum name or id
+				  if (current->is1d()) {
+					win_1d *pWin = dynamic_cast<win_1d*>(current);
+					pWin->setSpectrumName(specname);
+				  } else {
+					win_2d *pWin = dynamic_cast<win_2d*>(current);
+					pWin->setSpectrumName(specname);
+				  }
+				}
 			  }
 		    }
 		;
@@ -189,6 +201,7 @@ window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
 spectrum:  INTEGER 
            {
 	     specnum = $1;	/* Just return the number as specnum. */
+		 specname = std::to_string($1);
 	   }
          | QSTRING
            {
@@ -197,7 +210,8 @@ spectrum:  INTEGER
 	       yyerror("Spectrum name does not match a valid spectrum");
 	       return -1;
 	     }
-           }
+		 specname = $1;
+		   }
 	;
 
 endwindow_clause: ENDWINDOW blankline
