@@ -86,8 +86,10 @@ namespace Viewer
   *
   * @authors Denis Bertini <d.bertini@gsi.de>
   * @version 2.0
+  *
+  *  The user of this should instantiate the constructor with a parent
+  *  widget if one exists.
   */
-
 class QRootCanvas : public QWidget {
 
    Q_OBJECT
