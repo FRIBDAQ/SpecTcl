@@ -27,7 +27,7 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(builddir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
-	rm *_lex.{h,cc}
+	rm -f *_lex.{h,cc}
 	$(LEX) @builddir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT)
