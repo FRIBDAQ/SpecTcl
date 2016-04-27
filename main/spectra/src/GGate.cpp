@@ -243,12 +243,6 @@ void GGate::appendPoint(double x, double y)
     m_pCut->SetPoint(nPoints, x, y);
 
     m_pInfo->getPoints().push_back(std::make_pair(x, y));
-
-    auto points = m_pInfo->getPoints();
-    for (auto point : points) {
-        cout << point.first << "\t" << point.second << endl;
-    }
-
 }
 
 void GGate::popBackPoint()

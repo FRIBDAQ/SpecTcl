@@ -55,7 +55,7 @@ TwoDimGateEdit::TwoDimGateEdit(QRootCanvas& rCanvas,
     m_pEditCut(new GGate(SpJs::Band())),
     m_pOldCut(pCut),
     m_radioButtons(this),
-    m_matchLast(false),
+    m_matchLast(true),
     m_isMoveEvent(false),
     m_lastMousePressPos(),
     m_pSpecTcl(pSpecTcl)
