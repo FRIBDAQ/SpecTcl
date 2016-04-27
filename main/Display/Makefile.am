@@ -5,17 +5,11 @@ lib_LTLIBRARIES = libXamine.la libXamineParsers.la
 
 HOMEDEF = -DHOME='"$(prefix)"'
 GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_dir@"'
-LEXOUT = @builddir@/lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 AM_CPPFLAGS = -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
-# AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
-# Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
-
-#  @LD_EXTRA_FLAGS@
-
 
 AM_CXXFLAGS = -g -pedantic @TCL_CPPFLAGS@
 AM_CFLAGS   = -g -pedantic @TCL_CPPFLAGS@
@@ -26,11 +20,13 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
 	$(INSTALL_PROGRAM) $(builddir)/Xamine $(prefix)/bin/Xamine2_0
 
+LEXOUT = @builddir@/lex.yy.c
+
 $(LEXOUT):
 	rm -f *_lex.{h,cc}
 	$(LEX) @builddir@/windfile.l
 
-windfile_lex.cc: $(LEXOUT)
+windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
 
@@ -47,15 +43,9 @@ windfile_parse.cc: $(windfile_FILES)
 	$(YACC) -p windfile -b windfile @srcdir@/windfile.y
 	mv windfile.tab.c windfile_parse.cc
 
-#windfile_parse.o: @builddir@/windfile_parse.cc @srcdir@/windfile.y  @srcdir@/dispwind.h @srcdir@/superpos.h @srcdir@/dispshare.h @srcdir@/windio.h
-#	$(CC) $(XCCFLAGS) @builddir@/windfile_parse.cc
-
 defaultfile_parse.cc: @srcdir@/defaultfile.y @srcdir@/dispwind.h @srcdir@/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
 	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
 	mv defaultfile.tab.c defaultfile_parse.cc
-
-#defaultfile_parse.o: defaultfile_parse.cc defaultfile.y dispwind.h superpos.h dispshare.h dfltmgr.h windio.h
-#	$(CC) $(XCCFLAGS) defaultfile_parse.cc
 
 windfile_lex.h: @srcdir@/windfile.y @srcdir@/windio.h
 	$(YACC) -p windfile -b windfile -dl  @srcdir@/windfile.y
