@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <exception>
 
 namespace Viewer {
 
@@ -27,7 +28,13 @@ TabFromWinFileCompositor::TabFromWinFileCompositor(std::shared_ptr<SpecTclInterf
 void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &fileName)
 {
     win_db layoutDb;
+    try {
     layoutDb.read(fileName.toUtf8().constData());
+    } catch (std::exception& exc) {
+        QMessageBox::warning(nullptr, "Configuration error",
+                             exc.what());
+        return;
+    }
 
     int nCols = layoutDb.nx();
     int nRows = layoutDb.ny();
