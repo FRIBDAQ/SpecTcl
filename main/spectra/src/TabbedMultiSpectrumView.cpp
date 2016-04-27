@@ -85,6 +85,9 @@ void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
     auto pSetupWidget = dynamic_cast<SpectrumLayoutDialog*>(ui->pTabWidget->currentWidget());
 
     QString tabName = pSetupWidget->getTabName();
+    if (tabName.isEmpty()) {
+        tabName = "New tab";
+    }
 
     int index = ui->pTabWidget->currentIndex();
     ui->pTabWidget->removeTab(index);
@@ -105,6 +108,9 @@ void TabbedMultiSpectrumView::onNewTabContentsFromFile(QString fileName)
     auto pSetupWidget = dynamic_cast<SpectrumLayoutDialog*>(ui->pTabWidget->currentWidget());
 
     QString tabName = pSetupWidget->getTabName();
+    if (tabName.isEmpty()) {
+        tabName = "New tab";
+    }
 
     int index = ui->pTabWidget->currentIndex();
     ui->pTabWidget->removeTab(index);

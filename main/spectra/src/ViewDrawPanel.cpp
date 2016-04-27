@@ -207,4 +207,9 @@ void ViewDrawPanel::onColumnCountChanged(int nColumns)
   emit geometryChanged(m_pGeoSelector->getRowCount(), nColumns);
 }
 
+void ViewDrawPanel::setZoomedState(bool state)
+{
+    m_pGeoSelector->setDisabled(state);
+}
+
 } // end of namespace

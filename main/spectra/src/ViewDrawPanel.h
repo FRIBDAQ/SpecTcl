@@ -110,6 +110,8 @@ public slots:
 
     void applyFilter(const QString& pattern);
 
+    void setZoomedState(bool state);
+
     //////////////////////////////////////////////////////////////////////////
 private:
     void appendHistogramToList(HistogramList::iterator it);

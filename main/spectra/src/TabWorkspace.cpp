@@ -104,6 +104,9 @@ void TabWorkspace::connectSignals()
             this, SLOT(showHideDrawPanel()));
 
     connect(m_pControls, SIGNAL(zoomButtonClicked()), m_pView, SLOT(toggleZoom()));
+    connect(m_pControls, SIGNAL(zoomButtonClicked()), m_pDrawPanel, SLOT(toggleZoom()));
+    connect(m_pView, SIGNAL(zoomChanged(bool)), m_pControls, SLOT(setZoomed(bool)));
+    connect(m_pView, SIGNAL(zoomChanged(bool)), m_pDrawPanel, SLOT(setZoomedState(bool)));
 
 }
 
@@ -115,6 +118,7 @@ void TabWorkspace::layoutSpectra(QStringList spectrumList)
     // triggering any redraws that might change the
     int nRows, nCols;
     std::tie(nRows, nCols) = m_pView->computeOptimalGeometry(spectrumList.count());
+
     m_pDrawPanel->getGeometrySelector().setGeometry(nRows, nCols);
 
     m_pView->layoutSpectra(spectrumList);

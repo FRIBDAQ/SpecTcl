@@ -64,16 +64,16 @@ void InformationPanel::updateStatistics(HistogramBundle& rHist)
     TH1& bareHist = rHist.getHist();
     Double_t integral = bareHist.Integral();
 
-    QTableWidgetItem* pItem = pTable->item(0, 0);
+    QTableWidgetItem* pItem = pTable->item(0, 1);
     pItem->setText(QString("%1").arg(integral));
 
 
     Double_t min = bareHist.GetMinimum();
-    pItem = pTable->item(1, 0);
+    pItem = pTable->item(1, 1);
     pItem->setText(QString("%1").arg(min));
 
     Double_t max = bareHist.GetMaximum();
-    pItem = pTable->item(2, 0);
+    pItem = pTable->item(2, 1);
     pItem->setText(QString("%1").arg(max));
 }
 
@@ -83,13 +83,13 @@ void InformationPanel::setUpStatisticsTable() {
     pTable->setRowCount(3);
     pTable->setColumnCount(2);
 
-    pTable->setItem(0, 1, new QTableWidgetItem("Integral"));
-    pTable->setItem(1, 1, new QTableWidgetItem("Minimum"));
-    pTable->setItem(2, 1, new QTableWidgetItem("Maximum"));
+    pTable->setItem(0, 0, new QTableWidgetItem("Integral"));
+    pTable->setItem(1, 0, new QTableWidgetItem("Minimum"));
+    pTable->setItem(2, 0, new QTableWidgetItem("Maximum"));
 
-    pTable->setItem(0, 0, new QTableWidgetItem(""));
-    pTable->setItem(1, 0, new QTableWidgetItem(""));
-    pTable->setItem(2, 0, new QTableWidgetItem(""));
+    pTable->setItem(0, 1, new QTableWidgetItem(""));
+    pTable->setItem(1, 1, new QTableWidgetItem(""));
+    pTable->setItem(2, 1, new QTableWidgetItem(""));
 
 
 }
