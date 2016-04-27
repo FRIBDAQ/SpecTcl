@@ -174,6 +174,10 @@ public:
     virtual void layoutSpectra(QStringList spectrumList) = 0;
 
     virtual void toggleZoom() = 0;
+
+    virtual void ignoreUpdates(bool state) = 0;
+    virtual bool isIgnoringUpdates() const = 0;
+
     /*!
      * \brief getAllHists in a pane
      * \param pCanvas - canvas containing histograms
@@ -190,6 +194,7 @@ signals:
     void currentCanvasChanged(QRootCanvas& rCanvas);
     void canvasContentChanged(QRootCanvas& rCanvas);
     void canvasUpdated(QRootCanvas& rCanvas);
+    void zoomChanged(bool zoomState);
 };
 
 } // end of namespace

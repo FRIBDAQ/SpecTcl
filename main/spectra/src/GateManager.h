@@ -69,7 +69,7 @@ public slots:
     void onEditButtonClicked();
 
     void onDeleteButtonClicked();
-    void setGateList(const std::vector<QString>& gateNames);
+    void setGateList(std::vector<QString> gateNames);
 
 
 private:

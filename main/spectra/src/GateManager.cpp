@@ -40,14 +40,15 @@
 #include <QMessageBox>
 #include <QMutexLocker>
 #include <QMutex>
+#include <QList>
 
 #include <TH1.h>
 #include <TH2.h>
 
 #include <iostream>
+#include <algorithm>
 #include <functional>
 
-#include <chrono>
 #include "Benchmark.h"
 
 using namespace std;
@@ -90,43 +91,88 @@ void GateManager::onEditButtonClicked() {
 }
 
 
-void GateManager::setGateList(const std::vector<QString> &gateNames)
+void GateManager::setGateList(std::vector<QString> gateNames)
 {
     ui->gateList->setColumnCount(2);
 
+    // This is probably faster with a std::list<QString> b/c of O(1) insertion
+    // deletion, but I am sticking with the general wisdom of c++ masters to
+    // stick with a std::vector unless measurements say to do otherwise.
+    std::vector<QString> existingNames;
     QTableWidgetItem* pItem = nullptr;
-    while ( ui->gateList->rowCount() > 0) {
-        ui->gateList->removeRow(0);
+
+    existingNames.reserve(ui->gateList->rowCount());
+    for (int row=0; row<ui->gateList->rowCount(); ++row) {
+        pItem = ui->gateList->item(row, 0);
+        if (pItem) {
+            existingNames.push_back(pItem->text());
+        }
     }
 
+    std::sort(existingNames.begin(), existingNames.end());
+    std::sort(gateNames.begin(), gateNames.end());
+
+
+    // add new entries to create the union of the two lists
     for (auto& name : gateNames) {
+        if (! std::binary_search(existingNames.begin(), existingNames.end(), name)) {
 
-        int row = ui->gateList->rowCount();
-        ui->gateList->setRowCount(row+1);
-        auto pItem = new QTableWidgetItem(name);
-        ui->gateList->setItem(row, 0, pItem);
+            int row = ui->gateList->rowCount();
+            ui->gateList->setRowCount(row+1);
+            auto pItem = new QTableWidgetItem(name);
+            ui->gateList->setItem(row, 0, pItem);
 
-        pItem = new QTableWidgetItem(QString(tr("0")));
-        ui->gateList->setItem(row, 1, pItem);
+            pItem = new QTableWidgetItem(QString(tr("0")));
+            ui->gateList->setItem(row, 1, pItem);
+        }
     }
+
+    // remove entries that are in list that are not in gateNames
+    for (int row=ui->gateList->rowCount(); row>=0; --row) {
+        pItem = ui->gateList->item(row,0);
+        if (pItem) {
+            QString name = pItem->text();
+            if (! std::binary_search(gateNames.begin(), gateNames.end(), name)) {
+                ui->gateList->removeRow(row);
+            }
+        }
+    }
+
 }
 
 
 void GateManager::onDeleteButtonClicked()
 {
-    auto selected = ui->gateList->selectedItems();
-    for ( auto pItem : selected ) {
+    QList<QTableWidgetItem*> selected = ui->gateList->selectedItems();
 
-      if (m_pSpecTcl) {
-        m_pSpecTcl->deleteGate(pItem->text());
-      }
-
-      // Remove the row for now... the next time someone updates,
-      // we will see this deletion reflected more properly.
-      auto row = ui->gateList->row(pItem);
-      ui->gateList->removeRow(row);
-
+    if (selected.size() == 0) {
+        QMessageBox::warning(this, "Gate deletion failure",
+                             "User must select a gate to delete.");
+        return;
     }
+
+    // Figure out the rows to delete without deleting them. This is a bit overkill
+    // because at the moment we only support selecting a single row at a time.
+    // In case this changes, we will support the general case of having multiple
+    // rows. We will store them in a map that has reverse order (biggest row at front
+    // and lowest row at back)
+    std::map<int, QString, std::greater<int> > rowsToDelete;
+    for (int i=0; i<selected.size(); ++i) {
+        QTableWidgetItem* pItem = selected.at(i);
+        if (pItem) {
+            rowsToDelete[pItem->row()] = pItem->text();
+        }
+    }
+
+    // note that this essentially removing rows last first becuase
+    // of the definition of the map
+    for (auto& rowInfo : rowsToDelete) {
+        if (m_pSpecTcl) {
+            m_pSpecTcl->deleteGate(std::get<1>(rowInfo));
+        }
+        ui->gateList->removeRow(std::get<0>(rowInfo));
+    }
+
 }
 
 void GateManager::connectSignals()
@@ -139,7 +185,6 @@ void GateManager::connectSignals()
 
   connect(ui->deleteButton, SIGNAL(clicked()),
           this, SLOT(onDeleteButtonClicked()));
-
 }
 
 

@@ -205,6 +205,8 @@ public slots:
 
     void onCanvasUpdated();
 
+    void ignoreUpdates(bool state);
+    bool isIgnoringUpdates() const;
 private:
     /*!
      * \brief Find (row,col) of specific widget
@@ -251,6 +253,7 @@ private:
     std::map<std::pair<int, int>, QRootCanvas*>     m_canvases;
     bool                                            m_isZoomed;
     StatusBar*                                      m_pStatusBar;
+    bool                                            m_ignoreUpdates;
 
 }; // end MultiSpectrumView
 

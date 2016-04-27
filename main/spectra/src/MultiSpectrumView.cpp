@@ -60,7 +60,8 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
     m_currentNColumns(1),
     m_canvases(),
     m_isZoomed(false),
-    m_pStatusBar()
+    m_pStatusBar(),
+    m_ignoreUpdates(false)
 {
 
     auto pVLayout = new QVBoxLayout(this);
@@ -144,6 +145,7 @@ void MultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pS
 
 void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
 {
+
     // figure out the current configuation...
     if (nRows == m_currentNRows && nCols == m_currentNColumns) {
         // if the same, do nothing
@@ -252,6 +254,8 @@ void MultiSpectrumView::setCurrentCanvas(QWidget *pWidget)
 
 void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
 {
+    if (m_isZoomed) return;
+
   auto location = findLocation(m_pCurrentCanvas);
   if (location == std::pair<int,int>(-1,-1))
     return;
@@ -362,17 +366,21 @@ QRootCanvas* MultiSpectrumView::getCanvas(int row, int col)
 
 void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 {
-  if (pBundle) {
-      getCurrentCanvas()->cd();
-      if (histogramInCanvas(pBundle, getCurrentCanvas())) {
-          if (m_pSpecTcl) {
-              pBundle->synchronizeGates(m_pSpecTcl->getGateList());
-          }
-          pBundle->draw();
+    // sometimes we don't want to update any canvas... especially if we
+    // are in the middle of creating a gate
+    if (m_ignoreUpdates) return;
 
-          emit canvasContentChanged(*m_pCurrentCanvas);
-      }
-  }
+    if (pBundle) {
+        getCurrentCanvas()->cd();
+        if (histogramInCanvas(pBundle, getCurrentCanvas())) {
+            if (m_pSpecTcl) {
+                pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+            }
+            pBundle->draw();
+
+            emit canvasUpdated(*m_pCurrentCanvas);
+        }
+    }
     setFocus();
     refreshAll();
 }
@@ -420,6 +428,8 @@ void MultiSpectrumView::toggleZoom(QWidget& rWidget)
 
         m_isZoomed = false;
     }
+
+    emit zoomChanged(m_isZoomed);
 }
 
 
@@ -469,7 +479,7 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
 {
     int nSpectra = spectrumList.count();
 
-    if (nSpectra >= 100) {
+    if (nSpectra > 100) {
         QString msg("Spectra can only display 100 or fewer spectra per tab\n");
         msg += "and the user specified %1. Requested operation cannot be completed.";
         QMessageBox::warning(this, "Too many spectra",
@@ -604,6 +614,16 @@ bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* p
 void MultiSpectrumView::onCanvasUpdated()
 {
     emit canvasUpdated(*m_pCurrentCanvas);
+}
+
+bool MultiSpectrumView::isIgnoringUpdates() const
+{
+    return m_ignoreUpdates;
+}
+
+void MultiSpectrumView::ignoreUpdates(bool state)
+{
+    m_ignoreUpdates = state;
 }
 
 } // end of namespace

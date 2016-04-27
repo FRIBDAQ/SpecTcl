@@ -86,6 +86,7 @@ std::pair<QRootCanvas*, HistogramBundle*> GateManagerWidget::setUpDialog()
 
 void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
 {
+    m_view.ignoreUpdates(true);
 
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
@@ -95,7 +96,8 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
     // open to appropriate dialog
     if (m_histDim == 2) {
 
-        TwoDimGateEdit* pDialog = new TwoDimGateEdit(rCanvas, rHistPkg, m_pSpecTcl,
+        TwoDimGateEdit* pDialog = new TwoDimGateEdit(rCanvas, rHistPkg,
+                                                     m_pSpecTcl,
                                                      nullptr);
 
         connect(pDialog, SIGNAL(completed(GGate*)),
@@ -129,6 +131,9 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
 
 void GateManagerWidget::onEditPressed()
 {
+    // we don't want the spectrum to update on us and destroy
+    // our beautiful gates
+    m_view.ignoreUpdates(true);
 
     auto canvasHist = setUpDialog();
 
@@ -141,7 +146,8 @@ void GateManagerWidget::onEditPressed()
 
     auto selection = m_pManager->getSelectedItems();
     if (selection.size()!=2) {
-        QMessageBox::warning(0, "Invalid selection", "User must select one gate to edit.");
+        QMessageBox::warning(0, "Invalid selection",
+                             "User must select one gate to edit.");
         return;
     }
 
@@ -209,6 +215,8 @@ void GateManagerWidget::onDeletePressed()
 
 void GateManagerWidget::closeDialog()
 {
+    m_view.ignoreUpdates(false);
+
     QLayoutItem* pItem = horizontalLayout->takeAt(0);
     delete pItem->widget();
 
