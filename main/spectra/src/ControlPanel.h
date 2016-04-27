@@ -80,8 +80,6 @@ public:
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
 
 
-    void setZoomed(bool isZoomed);
-
     //////////////////////////////////////////////////////////////////////////
 public slots:
     /*!
@@ -108,6 +106,8 @@ public slots:
     void onStatisticsButtonClicked();
 
     void onDisplayButtonClicked();
+
+    void setZoomed(bool isZoomed);
 
     ///////////////////////////////////////////////////////////////////////////
 signals:
