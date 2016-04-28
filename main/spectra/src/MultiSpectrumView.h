@@ -243,6 +243,9 @@ private:
      */
     bool histogramInCanvas(HistogramBundle* pHist, QRootCanvas *pCanvas);
 
+
+    std::vector<QRootCanvas*> locateCanvasesWithHist(HistogramBundle& rHistPkg);
+
 private:
     QGridLayout*                                    m_pLayout;
     std::multimap<HistogramBundle*, QRootCanvas*>   m_histMap;

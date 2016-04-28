@@ -370,14 +370,33 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     // are in the middle of creating a gate
     if (m_ignoreUpdates) return;
 
-    if (pBundle) {
-        getCurrentCanvas()->cd();
-        if (histogramInCanvas(pBundle, getCurrentCanvas())) {
-            if (m_pSpecTcl) {
-                pBundle->synchronizeGates(m_pSpecTcl->getGateList());
-            }
+    if (pBundle && m_pSpecTcl) {
+
+        QMutex* pMutex = pBundle->getMutex();
+        pMutex->lock();
+
+        // there is one histogram to synchronize, synchronize it once
+        pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+
+        std::vector<QRootCanvas*> canvases = locateCanvasesWithHist(*pBundle);
+
+        // redraw the histogram where it need to be drawn
+        for (auto pCanvas : canvases) {
+
+            pCanvas->cd();
             pBundle->draw();
 
+        }
+        // some things that get triggered by canvasUpdated might try to lock
+        // the mutex, so we will let it go before moving on from here
+        pMutex->unlock();
+
+        // make sure that we reset our state to make current canvas drawable
+        m_pCurrentCanvas->cd();
+
+        // if we redrew the content of the current canvas, emit a signal saying
+        // so
+        if (std::find(canvases.begin(), canvases.end(), m_pCurrentCanvas) != canvases.end()) {
             emit canvasUpdated(*m_pCurrentCanvas);
         }
     }
@@ -386,6 +405,20 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 }
 
 
+std::vector<QRootCanvas*> MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
+{
+    std::vector<QRootCanvas*> canvasesWithHist;
+
+    for (auto& pane : m_canvases ) {
+        QRootCanvas* pCanvas = pane.second;
+        if (histogramInCanvas(&rHistPkg, pCanvas)) {
+            canvasesWithHist.push_back(pCanvas);
+        }
+    }
+
+    return canvasesWithHist;
+
+}
 
 void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
 {
