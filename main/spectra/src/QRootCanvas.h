@@ -108,7 +108,8 @@ class QRootCanvas : public QWidget {
       bool              showEditor() const;
       void              setShowEventStatus(bool s);
 
-   signals:
+      void buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e, TObject *selected);
+signals:
       /** signal which will be emitted when root selected pad is changed
         * via clicking the mid-mouse button (M. al-Turany) */
       void              SelectedPadChanged(TPad*);
@@ -227,6 +228,11 @@ class QRootCanvas : public QWidget {
       virtual void      closeEvent( QCloseEvent * e);
 
       virtual QPaintEngine * paintEngine () const {return 0;}
+
+      void buildTLatexContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map);
+      void buildTH1ContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map);
+      void buildGeneralContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map);
+
 
       void              methodDialog(TObject* object, TMethod* method);
       QAction*          addMenuAction(QMenu* menu, QSignalMapper* map, const QString& text, int id);

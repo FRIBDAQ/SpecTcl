@@ -76,6 +76,8 @@
 #include <TVirtualGL.h>
 
 #include <cstring>
+#include <algorithm>
+#include <vector>
 #include <QFrame>
 #include <iostream>
 
@@ -170,6 +172,105 @@ void QRootCanvas::mouseMoveEvent(QMouseEvent *e)
 }
 
 
+void QRootCanvas::buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e, TObject *selected)
+{
+    TString selectedOpt("");
+     if (pad!=0) {
+       if (pickobj==0) {
+         fCanvas->SetSelected(pad);
+         selected = pad;
+       } else
+       if(selected==0) {
+         selected    = pickobj->GetObject();
+         selectedOpt = pickobj->GetOption();
+       }
+      pad->cd();
+     }
+     fCanvas->SetSelectedPad(pad);
+     gROOT->SetSelectedPrimitive(selected);
+     fMousePosX = gPad->AbsPixeltoX(gPad->GetEventX());
+     fMousePosY = gPad->AbsPixeltoY(gPad->GetEventY());
+
+     QMenu menu(this);
+     QSignalMapper map;
+     connect(&map, SIGNAL(mapped(int)), this, SLOT(executeMenu(int)));
+
+     fMenuObj = selected;
+     fMenuMethods = new TList;
+     TClass *cl = fMenuObj->IsA();
+     int curId = -1;
+
+     QString buffer = Form("%s::%s", cl->GetName(), fMenuObj->GetName());
+     addMenuAction(&menu, &map, buffer, curId++);
+
+     cl->GetMenuItems(fMenuMethods);
+     menu.addSeparator();
+
+     if (fMenuObj->InheritsFrom(TLatex::Class())) {
+       buildTLatexContextMenu(*fMenuMethods, menu, map);
+     } else if (fMenuObj->InheritsFrom(TH1::Class())) {
+         buildTH1ContextMenu(*fMenuMethods, menu, map);
+     } else {
+         buildGeneralContextMenu(*fMenuMethods, menu, map);
+     }
+
+     if (menu.exec(e->globalPos())==0) {
+        fMenuObj = 0;
+        delete fMenuMethods;
+        fMenuMethods = 0;
+     }
+}
+
+void QRootCanvas::buildTLatexContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map)
+{
+    addMenuAction(&menu, &map, "Insert Latex", 100 );
+    menu.addSeparator();
+
+    TIter iter(&defaultItems);
+    TMethod *method=0;
+    int curId = 0;
+    while ( (method = dynamic_cast<TMethod*>(iter())) != 0) {
+        QString buffer = method->GetName();
+        addMenuAction(&menu, &map, buffer, curId++);
+    }
+}
+
+
+void QRootCanvas::buildTH1ContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map)
+{
+    std::vector<QString> blacklist = {"Add", "Divide", "Multiply", "Rebin", "SetStats",
+                                      "Smooth", "SetName", "Delete"};
+    std::sort(blacklist.begin(), blacklist.end());
+
+    addMenuAction(&menu, &map, "Qt Hist Line Color ", 101 );
+    addMenuAction(&menu, &map, "Qt Hist Fill Color ", 102 );
+    menu.addSeparator();
+
+    TIter iter(&defaultItems);
+    TMethod *method=0;
+    int curId = 0;
+    while ( (method = dynamic_cast<TMethod*>(iter())) != 0) {
+
+       QString buffer = method->GetName();
+       if (! std::binary_search(blacklist.begin(), blacklist.end(), buffer)) {
+        addMenuAction(&menu, &map, buffer, curId++);
+       }
+    }
+}
+
+void QRootCanvas::buildGeneralContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map)
+{
+    TIter iter(&defaultItems);
+    TMethod *method=0;
+    int curId = 0;
+    while ( (method = dynamic_cast<TMethod*>(iter())) != 0) {
+        QString buffer = method->GetName();
+        addMenuAction(&menu, &map, buffer, curId++);
+    }
+}
+
+
+
 void QRootCanvas::mousePressEvent( QMouseEvent *e )
 {
 //   TGo4LockGuard threadlock(0,true);
@@ -186,61 +287,8 @@ void QRootCanvas::mousePressEvent( QMouseEvent *e )
         emit mousePressed(this);
         break;
      case Qt::RightButton : {
-        TString selectedOpt("");
-        if (pad!=0) {
-          if (pickobj==0) {
-            fCanvas->SetSelected(pad);
-            selected = pad;
-          } else
-          if(selected==0) {
-            selected    = pickobj->GetObject();
-            selectedOpt = pickobj->GetOption();
-          }
-         pad->cd();
-        }
-        fCanvas->SetSelectedPad(pad);
-        gROOT->SetSelectedPrimitive(selected);
-        fMousePosX = gPad->AbsPixeltoX(gPad->GetEventX());
-        fMousePosY = gPad->AbsPixeltoY(gPad->GetEventY());
 
-        QMenu menu(this);
-        QSignalMapper map;
-        connect(&map, SIGNAL(mapped(int)), this, SLOT(executeMenu(int)));
-
-        fMenuObj = selected;
-        fMenuMethods = new TList;
-        TClass *cl = fMenuObj->IsA();
-        int curId = -1;
-
-        QString buffer = Form("%s::%s", cl->GetName(), fMenuObj->GetName());
-        addMenuAction(&menu, &map, buffer, curId++);
-
-        cl->GetMenuItems(fMenuMethods);
-        menu.addSeparator();
-
-        if(!cl->InheritsFrom(TLatex::Class())) {
-           addMenuAction(&menu, &map, "Insert Latex", 100 );
-           menu.addSeparator();
-        }
-
-        if(cl->InheritsFrom(TH1::Class())) {
-          addMenuAction(&menu, &map, "Qt Hist Line Color ", 101 );
-          addMenuAction(&menu, &map, "Qt Hist Fill Color ", 102 );
-          menu.addSeparator();
-        }
-
-        TIter iter(fMenuMethods);
-        TMethod *method=0;
-        while ( (method = dynamic_cast<TMethod*>(iter())) != 0) {
-           buffer = method->GetName();
-           addMenuAction(&menu, &map, buffer, curId++);
-        }
-
-        if (menu.exec(e->globalPos())==0) {
-           fMenuObj = 0;
-           delete fMenuMethods;
-           fMenuMethods = 0;
-        }
+       buildContextMenu(pickobj, pad, e, selected);
 
         break;
      }
