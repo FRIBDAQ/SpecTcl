@@ -19,7 +19,8 @@ MultiInfoPanel::MultiInfoPanel(SpectrumView& rView,
     QWidget(parent),
     ui(new Ui::MultiInfoPanel),
     m_view(rView),
-    m_pSpecTcl(pSpecTcl)
+    m_pSpecTcl(pSpecTcl),
+    m_nValidTabs(0)
 {
     ui->setupUi(this);
 }
@@ -102,6 +103,7 @@ void MultiInfoPanel::addTab(HistogramBundle& rBundle)
     InformationPanel* pPanel = new InformationPanel(m_view, m_pSpecTcl, this);
     pPanel->onHistogramChanged(rBundle);
     ui->pTabWidget->addTab(pPanel, rBundle.getName());
+    m_nValidTabs++;
 }
 
 void MultiInfoPanel::removeAllTabs()
@@ -110,6 +112,8 @@ void MultiInfoPanel::removeAllTabs()
     for (int i=0; i<nTabs; ++i) {
         ui->pTabWidget->removeTab(0);
     }
+
+    m_nValidTabs = 0;
 }
 
 } // end Viewer namespace

@@ -131,6 +131,15 @@ void TabWorkspace::showHideStatistics()
         m_pInfoPanel->hide();
     } else {
         m_pInfoPanel->show();
+        QRootCanvas* pCanvas = m_pView->getCurrentCanvas();
+        if (pCanvas) {
+            if (m_pInfoPanel->getNumberOfTabs()==0) {
+                m_pInfoPanel->currentCanvasChanged(*pCanvas);
+            } else {
+                m_pInfoPanel->updateContent(*pCanvas);
+            }
+
+        }
     }
 }
 

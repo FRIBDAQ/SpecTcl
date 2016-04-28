@@ -25,6 +25,8 @@ public:
                             std::shared_ptr<SpecTclInterface> pSpecTcl,
                             QWidget *parent = 0);
     ~MultiInfoPanel();
+
+    int getNumberOfTabs() const { return m_nValidTabs; }
     
 public slots:
     void currentCanvasChanged(QRootCanvas& rCanvas);
@@ -37,9 +39,10 @@ private:
     int findTab(const QString& name);
 
 private:
-    Ui::MultiInfoPanel *ui;
+    Ui::MultiInfoPanel                  *ui;
     SpectrumView&                     m_view;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
+    int                               m_nValidTabs;
 };
 
 } // end Viewer namespace
