@@ -93,6 +93,7 @@ void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
     ui->pTabWidget->removeTab(index);
 
     auto pWorkspace = new TabWorkspace(m_pSpecTcl, this);
+    pWorkspace->setObjectName(tabName);
     pWorkspace->layoutSpectra(selection);
 
     int newTabIndex = ui->pTabWidget->insertTab(index, pWorkspace, tabName);
@@ -116,6 +117,7 @@ void TabbedMultiSpectrumView::onNewTabContentsFromFile(QString fileName)
     ui->pTabWidget->removeTab(index);
 
     auto pWorkspace = new TabWorkspace(m_pSpecTcl, this);
+    pWorkspace->setObjectName(tabName);
 
     std::cout << fileName.toStdString() << std::endl;
     if (fileName.endsWith(".win")) {
@@ -184,5 +186,29 @@ TabWorkspace& TabbedMultiSpectrumView::getCurrentWorkspace()
 }
 
 
+QStringList TabbedMultiSpectrumView::getTabNames() const
+{
+    QStringList tabNames;
+
+    tabNames.reserve(ui->pTabWidget->count());
+    for (int i=0; i<ui->pTabWidget->count(); ++i) {
+        tabNames.push_back(ui->pTabWidget->tabText(i));
+    }
+
+    return tabNames;
+}
+
+TabWorkspace* TabbedMultiSpectrumView::getTabWorkspace(const QString &tabName)
+{
+    TabWorkspace* pWorkspace = nullptr;
+
+    for (int i=0; i<ui->pTabWidget->count(); ++i) {
+        if (ui->pTabWidget->tabText(i) == tabName) {
+            pWorkspace = dynamic_cast<TabWorkspace*>(ui->pTabWidget->widget(i));
+        }
+    }
+
+    return pWorkspace;
+}
 
 } // end Viewer namespace

@@ -67,6 +67,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   AutoUpdater.h \
   AutoUpdateDialog.h \
   TabFromWinFileCompositor.h \
+  SaveToRootDialog.h \
+  RootFileWriter.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -128,7 +130,9 @@ libSpectra_la_SOURCES = \
     StatusBar.cpp \
     AutoUpdater.cpp \
     AutoUpdateDialog.cpp \
+    SaveToRootDialog.cpp \
     TabFromWinFileCompositor.cpp \
+    RootFileWriter.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -176,6 +180,7 @@ libSpectra_la_SOURCES = \
         moc_StatusBar.cpp \
         moc_AutoUpdater.cpp \
         moc_AutoUpdateDialog.cpp \
+        moc_SaveToRootDialog.cpp \
         cmdline.c \
 	qrc_resources.cpp
 
@@ -200,7 +205,8 @@ spectraFORMS =  MainWindow.ui  \
   ViewDrawPanel.ui \
     SpectrumDrawChooser.ui \
     StatusBar.ui \
-    AutoUpdateDialog.ui
+    AutoUpdateDialog.ui \
+    SaveToRootDialog.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -227,6 +233,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_ViewDrawPanel.h \
                                                                 ui_StatusBar.h \
                                                                 ui_AutoUpdateDialog.h \
+                                                                ui_SaveToRootDialog.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -268,6 +275,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_StatusBar.cpp \
 								moc_AutoUpdater.cpp \
 								moc_AutoUpdateDialog.cpp \
+								moc_SaveToRootDialog.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \

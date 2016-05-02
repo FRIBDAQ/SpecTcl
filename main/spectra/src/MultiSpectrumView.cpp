@@ -405,7 +405,8 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
 }
 
 
-std::vector<QRootCanvas*> MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
+std::vector<QRootCanvas*>
+MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
 {
     std::vector<QRootCanvas*> canvasesWithHist;
 

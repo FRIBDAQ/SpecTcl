@@ -34,6 +34,7 @@
 #include "GlobalSettings.h"
 #include "AutoUpdateDialog.h"
 #include "TabWorkspace.h"
+#include "SaveToRootDialog.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -106,21 +107,9 @@ void MainWindow::assembleWidgets()
 
     // Create the main layout
     m_pView = new TabbedMultiSpectrumView(m_specTclControl.getInterface(), pUI->frame);
+    m_pMainWidget = m_pView;
 
-    auto pViewControls = new QFrame(this);
-
-    auto pVLayout = new QVBoxLayout();
-    pVLayout->setContentsMargins(0, 0, 0, 0);
-
-    pVLayout->addWidget(m_pView);
-    pViewControls->setLayout(pVLayout);
-
-    QSplitter* pSplitter = new QSplitter(this);
-    pSplitter->addWidget(pViewControls);
-
-    pUI->gridLayout->addWidget(pSplitter, 0, 0);
-
-    createDockWindows();
+    pUI->gridLayout->addWidget(m_pView, 0, 0);
 }
 
 //
@@ -129,8 +118,6 @@ void MainWindow::addInterfaceObservers()
 {
     m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
-//    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_histView);
-//    m_specTclControl.addGenericSpecTclInterfaceObserver(*m_gateView);
 }
 
 
@@ -143,6 +130,8 @@ void MainWindow::connectSignalsAndSlots()
     connect(pUI->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
 
     connect(pUI->pAutoUpdateAction,SIGNAL(triggered()),this,SLOT(launchAutoUpdateDialog()));
+
+    connect(pUI->pSaveAsAction, SIGNAL(triggered()), this, SLOT(onSaveAs()));
 
 }
 
@@ -158,19 +147,6 @@ void MainWindow::onConfigure() {
 //
 void MainWindow::createDockWindows()
 {
-//    // Create the dockable widgets
-//    m_histView = new HistogramView(m_specTclControl.getInterface(), this);
-//    m_gateView = new DockableGateManager(*m_pView,
-//                                         m_specTclControl.getInterface(), this);
-
-//    m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
-//    m_gateView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
-
-//    addDockWidget(Qt::LeftDockWidgetArea,m_histView);
-//    addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
-
-//    removeDockWidget(m_histView);
-//    removeDockWidget(m_gateView);
 }
 
 //
@@ -208,6 +184,34 @@ void MainWindow::onNewHistogram()
 
 void MainWindow::createShortcuts()
 {
+}
+
+void MainWindow::onSaveAs() {
+
+    auto pDialog = new SaveToRootDialog(*m_pView, this);
+
+    connect(pDialog, SIGNAL(accepted()), this, SLOT(closeDialog()));
+    connect(pDialog, SIGNAL(rejected()), this, SLOT(closeDialog()));
+
+    pUI->gridLayout->addWidget(pDialog, 0, 0);
+
+    m_pMainWidget->hide();
+    pDialog->show();
+    m_pMainWidget = pDialog;
+
+}
+
+void MainWindow::closeDialog()
+{
+    if (m_pMainWidget != m_pView) {
+        m_pMainWidget->hide();
+
+        delete m_pMainWidget;
+
+        m_pView->show();
+        m_pMainWidget = m_pView;
+    }
+
 }
 
 } // end of namespace

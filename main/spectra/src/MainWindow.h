@@ -100,6 +100,10 @@ public slots:
 
     void launchAutoUpdateDialog();
 
+    void onSaveAs();
+
+    void closeDialog();
+
     ///////////////////////////////////////////////////////////////////////////
 
 private:
@@ -132,6 +136,7 @@ private:
 //    HistogramView                     *m_histView;      ///< dockable histogram widget
 //    DockableGateManager               *m_gateView;      ///< dockable gate widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
+    QWidget*                          m_pMainWidget;
 };
 
 

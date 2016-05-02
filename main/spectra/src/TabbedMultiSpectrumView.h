@@ -86,6 +86,10 @@ public:
 
   TabWorkspace& getCurrentWorkspace();
 
+  QStringList getTabNames() const;
+
+  TabWorkspace* getTabWorkspace(const QString& tabName);
+
 public slots:
   void onCurrentChanged(int index);
   void onAddTab();

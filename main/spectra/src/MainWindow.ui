@@ -74,6 +74,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="pSaveAsAction"/>
     <addaction name="actionConfigure"/>
     <addaction name="actionExit"/>
    </widget>
@@ -121,6 +122,11 @@
   <action name="pAutoUpdateAction">
    <property name="text">
     <string>Auto Update...</string>
+   </property>
+  </action>
+  <action name="pSaveAsAction">
+   <property name="text">
+    <string>&amp;Save as...</string>
    </property>
   </action>
  </widget>
