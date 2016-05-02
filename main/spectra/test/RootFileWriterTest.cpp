@@ -36,9 +36,11 @@
 
 #include <QMutex>
 #include <QString>
+#include <QDebug>
 
 #include <TFile.h>
 #include <TCanvas.h>
+#include <TApplication.h>
 
 #include <memory>
 #include <cstdio>
@@ -57,6 +59,8 @@ public:
 
     CPPUNIT_TEST_SUITE(RootFileWriterTest);
     CPPUNIT_TEST(canvasName_0);
+    CPPUNIT_TEST(canvasDivision_0);
+    CPPUNIT_TEST(canvasContainsHists_0);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -77,12 +81,15 @@ public:
         SpectrumView& view = workspace.getView();
         view.setGeometry(1,2);
 
-        view.setCurrentCanvas(view.getCanvas(0,0));
+        view.update();
+
+        QRootCanvas* pCanvas = view.getCanvas(0,0);
+        pCanvas->cd();
         pHistList->getHist("asdf")->draw();
 
-        view.setCurrentCanvas(view.getCanvas(0,1));
+        pCanvas = view.getCanvas(0,1);
+        pCanvas->cd();
         pHistList->getHist("lkjh")->draw();
-
 
         RootFileWriter writer;
         writer.openFile(".testFile.root", "RECREATE");
@@ -95,9 +102,9 @@ public:
 
     void tearDown() {
 
-        //m_pFile->Close();
+        m_pFile->Close();
 
-        remove(".testFile.root");
+      //   remove(".testFile.root");
     }
 
     std::unique_ptr<Viewer::HistogramBundle> createHist(const string& name) {
@@ -120,6 +127,26 @@ protected:
 
         m_pFile->GetObject("test_workspace", pCanvas);
         ASSERTMSG("Canvas should have name of tab and be findable", pCanvas != nullptr);
+        }
+
+    void canvasDivision_0() {
+        TCanvas* pCanvas;
+        m_pFile->GetObject("test_workspace", pCanvas);
+
+        // Root provides no mechanism to know the geometry of the canvas. It does provide
+        // a way to probe. We can at least test that there are 2 subpads using the naming scheme
+        // used by root for subpads
+
+        ASSERTMSG("Canvas should have 2 subpads", pCanvas->FindObject("Canvas_2") != nullptr);
+        ASSERTMSG("Canvas should no more than 2 subpads", pCanvas->FindObject("Canvas_3") == nullptr);
+    }
+
+    void canvasContainsHists_0 () {
+        TCanvas* pCanvas;
+        m_pFile->GetObject("test_workspace", pCanvas);
+
+        ASSERTMSG("Canvas should first histogram", pCanvas->FindObject("asdf") != nullptr);
+        ASSERTMSG("Canvas should second histogram", pCanvas->FindObject("lkjh") != nullptr);
 
     }
 
