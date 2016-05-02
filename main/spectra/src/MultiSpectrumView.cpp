@@ -400,8 +400,11 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
             emit canvasUpdated(*m_pCurrentCanvas);
         }
     }
-    setFocus();
-    refreshAll();
+
+    if (isVisible()) {
+        setFocus();
+        refreshAll();
+    }
 }
 
 
