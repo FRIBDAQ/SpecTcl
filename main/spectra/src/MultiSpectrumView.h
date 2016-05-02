@@ -157,7 +157,7 @@ public slots:
      * Set the geometry to be a grid of dimensions row x cols. It handles
      * which widgets to get rid of and which to keep intelligently.
      */
-    void onGeometryChanged(int row, int cols);
+    void setGeometry(int row, int cols);
 
     /*!
      * \brief onHistogramRemoved

@@ -2,7 +2,7 @@
 #include "SpectrumView.h"
 #include "dispwind.h"
 #include "TabWorkspace.h"
-#include "HistogramList.h"
+#include "HistogramBundle.h"
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"
 #include "ViewDrawPanel.h"
@@ -46,7 +46,7 @@ void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &
 
     // Set the geometry of the view next
     SpectrumView& view = rWorkSpace.getView();
-    view.onGeometryChanged(nRows, nCols);
+    view.setGeometry(nRows, nCols);
 
     // Draw all of the histograms that we are told exist.
     for (int col=0; col<layoutDb.nx(); ++col) {

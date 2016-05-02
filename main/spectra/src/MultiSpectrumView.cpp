@@ -143,7 +143,7 @@ void MultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pS
     m_pSpecTcl = pSpecTcl;
 }
 
-void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
+void MultiSpectrumView::setGeometry(int nRows, int nCols)
 {
 
     // figure out the current configuation...

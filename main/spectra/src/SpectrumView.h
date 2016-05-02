@@ -107,7 +107,7 @@ public:
      * Sets the panes to a new grid geometry with a specific number of
      * rows and columns.
      */
-    virtual void onGeometryChanged(int row, int col) = 0;
+    virtual void setGeometry(int row, int col) = 0;
 
     /*!
      * \brief setCurrentCanvas
