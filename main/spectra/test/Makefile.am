@@ -16,6 +16,9 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										ShMemKeyRequestHandlerTest.cpp \
 										SpecTclInterfaceFactoryTest.cpp \
 										CmdLineOptionsTest.cpp \
+										RootFileWriterTest.cpp \
+										TestSpecTclInterface.cpp \
+										TestSpecTclInterface.h \
 										TestUtils.cpp
 
 noinst_HEADERS = TestUtils.h
