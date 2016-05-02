@@ -54,15 +54,12 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 
     ui->verticalLayout->addWidget(m_pGeoSelector);
 
-    if (! connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
-                  this, SLOT(onHistogramListChanged())) ) {
-        throw runtime_error("ViewDrawPanel() failed to connect SpecTclInterface::histogramListChanged() to slot");
-    }
+    connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
+            this, SLOT(onHistogramListChanged()));
 
-    if (! connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
-                  this,SLOT(onDoubleClick(QModelIndex))) ) {
-        throw runtime_error("ViewDrawPanel() failed to connect HistogramList::doubleClicked() to slot");
-    }
+
+    connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
+            this,SLOT(onDoubleClick(QModelIndex)));
 
     connect(m_pGeoSelector, SIGNAL(rowCountChanged(int)), this, SLOT(onRowCountChanged(int)));
     connect(m_pGeoSelector, SIGNAL(columnCountChanged(int)), this, SLOT(onColumnCountChanged(int)));
