@@ -839,6 +839,7 @@ ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)
 AC_SUBST(ROOT_LDFLAGS)
 AC_SUBST(ROOT_LIBRARY_DIR)
+AC_SUBST(ROOTCONFIG)
 
 ######################################  Checks for jsoncpp
 
@@ -943,5 +944,6 @@ AC_OUTPUT(Makefile
           spectra/src/Makefile
           spectra/test/Makefile
           spectra/spectcljson/Makefile
-          spectra/Xamine2Root/Makefile)
+          spectra/Xamine2Root/Makefile
+          spectra/ParameterDb/Makefile)
           
