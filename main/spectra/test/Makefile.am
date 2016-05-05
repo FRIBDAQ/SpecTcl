@@ -17,6 +17,7 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										SpecTclInterfaceFactoryTest.cpp \
 										CmdLineOptionsTest.cpp \
 										RootFileWriterTest.cpp \
+										RootFileReaderTest.cpp \
 										TestSpecTclInterface.cpp \
 										TestSpecTclInterface.h \
 										TestUtils.cpp
@@ -27,6 +28,7 @@ unittests_LDFLAGS = @ROOT_LDFLAGS@ \
 										 @JSONCPP_LIBS@ \
 										 @top_builddir@/spectra/src/libSpectra.la \
 										 @top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+										 @top_builddir@/spectra/ParameterDb/libParameterDb.la \
 										 @CPPUNIT_LIBS@ \
 										 -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
@@ -34,6 +36,7 @@ unittests_CXXFLAGS = @ROOT_CFLAGS@ \
 										 @JSONCPP_CFLAGS@ \
 										 -I@top_srcdir@/spectra/src \
 										 -I@top_srcdir@/spectra/spectcljson \
+										 -I@top_srcdir@/spectra/ParameterDb \
 										 @CPPUNIT_CFLAGS@ \
 										 -I@top_srcdir@/Utility
 

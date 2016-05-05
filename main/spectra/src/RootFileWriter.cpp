@@ -3,6 +3,9 @@
 #include "QRootCanvas.h"
 #include "TabWorkspace.h"
 #include "SpectrumView.h"
+#include "SpecTclInterface.h"
+#include "HistogramList.h"
+#include "MasterGateList.h"
 
 #include <TFile.h>
 #include <TCollection.h>
@@ -12,13 +15,18 @@
 #include <TROOT.h>
 #include <TH2.h>
 
+#include <QDebug>
+
 #include <iostream>
+#include <stdexcept>
 
 namespace Viewer
 {
 
-RootFileWriter::RootFileWriter()
-    : m_pFile(nullptr)
+RootFileWriter::RootFileWriter(std::shared_ptr<SpecTclInterface> pSpecTcl)
+    : m_pFile(nullptr),
+      m_pDirectory(nullptr),
+      m_pSpecTcl(pSpecTcl)
 {
 }
 
@@ -30,27 +38,76 @@ RootFileWriter::~RootFileWriter()
     }
 }
 
+void RootFileWriter::createDirectory(const std::string &path)
+{
+    m_pDirectory = m_pFile->mkdir(path.c_str());
+    if (m_pDirectory == nullptr) {
+        // the directory already exists or the was an error!
+        m_pFile->GetObject(path.c_str(), m_pDirectory);
+
+        if (!m_pDirectory) {
+            std::string msg("RootFileWriter::createDirectory() Failed to create ");
+            msg += path + " directory.";
+            throw std::runtime_error(msg);
+        }
+    }
+
+    m_pDirectory->cd();
+
+}
+
 void RootFileWriter::openFile(const QString &path, const QString& options)
 {
+    // in case we already have an open file. we only support dealing with a
+    // single file at a time
     if (m_pFile) {
         closeFile();
     }
+
     m_pFile = new TFile(path.toUtf8().constData(), options.toUtf8().constData());
+
+    if (!m_pFile->IsOpen()) {
+        throw std::runtime_error("RootFileWriter::openFile() Failed to open file.");
+    }
+
+    // create a spectra directory for histograms and such
+    createDirectory("spectra");
+    createDirectory("spectra/canvases");
+    createDirectory("spectra/hists");
+    createDirectory("spectra/cuts");
+
 }
 
 void RootFileWriter::closeFile()
 {
+    TDirectory* pSpecTclDir;
+    m_pFile->GetObject("spectra", pSpecTclDir);
+
+    pSpecTclDir->cd();
+
+    if (pSpecTclDir) {
+        pSpecTclDir->Write();
+    }
+
     m_pFile->Close();
 }
 
+
+
+
+//
+//
 void RootFileWriter::writeCanvas(QRootCanvas &rCanvas)
 {
-    m_pFile->cd();
-    // by default the menu bar is hidden, that makes sense in Spectra, but not in ROOT.
+    m_pFile->cd("spectra/canvases");
+    // In spectra, the menu bar is hidden, that makes sense in Spectra, but not in ROOT.
+    // ensure that the menu bar is enabled
     rCanvas.getCanvas()->SetBit(TCanvas::kMenuBar, 1);
     rCanvas.getCanvas()->Write();
 }
 
+//
+//
 void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
 {
    SpectrumView& rView = rWorkspace.getView();
@@ -64,15 +121,18 @@ void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
        pCanvas->getCanvas()->SetName(rWorkspace.objectName().toUtf8().constData());
        std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
        writeCanvas(*pCanvas);
-//   } else {
-
-//       for (auto& pCanvas : canvases) {
-//           writeCanvas(*pCanvas, );
-//       }
+   } else {
+       for (auto& pCanvas : canvases) {
+           pCanvas->getCanvas()->Write();
+       }
    }
-
 }
 
+
+
+
+//
+//
 std::unique_ptr<QRootCanvas>
 RootFileWriter::combineCanvases(std::vector<QRootCanvas*> &canvases,
                                 int nRows, int nCols)
@@ -99,12 +159,16 @@ RootFileWriter::combineCanvases(std::vector<QRootCanvas*> &canvases,
         if (pCanvas) {
             std::cout << "\tcopying canvas into pad" << std::endl;
             copyCanvasIntoPad(*pCanvas, *pVPad);
+            copyObjectsIntoDirectories(*pCanvas);
         }
     }
 
     return pQCanvas;
 }
 
+
+//
+//
 void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
 {
     TVirtualPad* pOldPad = gPad;
@@ -116,11 +180,10 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
         gROOT->SetSelectedPad(&rPad);
         std::cout << "\t\t" << pObj->GetName() << std::endl;
 
-        TObject* pCopyObj = pObj->Clone();
-        if (pCopyObj->InheritsFrom(TH2::Class())) {
-            pCopyObj->AppendPad("col2");
+        if (pObj->InheritsFrom(TH2::Class())) {
+            pObj->AppendPad("col2");
         } else {
-            pCopyObj->AppendPad("");
+            pObj->AppendPad("");
         }
     }
 
@@ -128,6 +191,35 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
 }
 
 
+//
+//
+void RootFileWriter::copyObjectsIntoDirectories(TCanvas& rCanvas)
+{
+
+    TObject* pObj;
+    TIter next(rCanvas.GetListOfPrimitives());
+    while (( pObj = next() )) {
+        std::cout << "\t\t" << pObj->GetName() << std::endl;
+
+        if (pObj->InheritsFrom(TH1::Class())) {
+            m_pFile->cd("spectra/hists");
+
+            std::cout << pObj->GetName() << std::endl;
+            if (gDirectory->GetList()->FindObject(pObj->GetName()) == nullptr) {
+                std::cout << "adding to spectra/hists" << std::endl;
+                gDirectory->Add(pObj->Clone());
+            }
+        } else if (pObj->InheritsFrom(TCutG::Class())) {
+            m_pFile->cd("spectra/cuts");
+            if (gDirectory->GetList()->FindObject(pObj->GetName()) == nullptr) {
+                gDirectory->Add(pObj->Clone());
+            }
+        }
+    }
+}
+
+//
+//
 int RootFileWriter::convertToPadIndex(size_t canvasIndex, int nRows, int nCols)
 {
     int rowIndex = canvasIndex / nCols;

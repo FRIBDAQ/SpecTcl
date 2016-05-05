@@ -188,7 +188,8 @@ void MainWindow::createShortcuts()
 
 void MainWindow::onSaveAs() {
 
-    auto pDialog = new SaveToRootDialog(*m_pView, this);
+    qDebug() << "MainWindow::onSaveAs()";
+    auto pDialog = new SaveToRootDialog(*m_pView, m_specTclControl.getInterface(), this);
 
     connect(pDialog, SIGNAL(accepted()), this, SLOT(closeDialog()));
     connect(pDialog, SIGNAL(rejected()), this, SLOT(closeDialog()));

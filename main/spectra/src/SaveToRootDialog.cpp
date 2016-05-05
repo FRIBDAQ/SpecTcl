@@ -2,22 +2,27 @@
 #include "ui_SaveToRootDialog.h"
 #include "RootFileWriter.h"
 #include "TabbedMultiSpectrumView.h"
+#include "SpecTclInterface.h"
 
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QDir>
 #include <QMessageBox>
+#include <QDebug>
 
 #include <iostream>
 
 namespace Viewer
 {
 
-SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget, QWidget *parent) :
+SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
+                                   std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                   QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SaveToRootDialog),
     m_tabWidget(tabWidget),
-    m_checkBoxes()
+    m_checkBoxes(),
+    m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
 
@@ -26,6 +31,8 @@ SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget, QWidget *
     connect(ui->pSaveButton, SIGNAL(clicked()), this, SLOT(onAccepted()));
     connect(ui->pCancelButton, SIGNAL(clicked()), this, SLOT(onRejected()));
     connect(ui->pBrowseButton, SIGNAL(clicked()), this, SLOT(onBrowse()));
+    connect(ui->pOutputPath, SIGNAL(textEdited(const QString&)),
+            this, SLOT(onPathEdited(const QString&)));
 }
 
 SaveToRootDialog::~SaveToRootDialog()
@@ -35,6 +42,8 @@ SaveToRootDialog::~SaveToRootDialog()
 
 void SaveToRootDialog::setUpWidget()
 {
+    ui->pSaveButton->setEnabled(false);
+
     int insertionRow = 1;
     QStringList tabNames = m_tabWidget.getTabNames();
     for (size_t row =0; row<tabNames.size(); ++row) {
@@ -54,12 +63,32 @@ void SaveToRootDialog::setUpWidget()
     connect(m_pSelectAllCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onSelectAll()));
 }
 
+
+
 void SaveToRootDialog::onAccepted()
 {
 
+
+    if (ui->pROOTSelector->isChecked()) {
+        writeToRootFile();
+    }
+
+    if (ui->pWinSelector->isChecked()) {
+        writeToWinFile();
+    }
+
+    if ( !ui->pROOTSelector->isChecked() && !ui->pWinSelector->isChecked()) {
+        QMessageBox::warning(this, "Save to file error", "Please select at least one file type before accepting");
+    } else {
+        emit accepted();
+    }
+}
+
+void SaveToRootDialog::writeToRootFile()
+{
     QString outputPath = ui->pOutputPath->text();
 
-    RootFileWriter writer;
+    RootFileWriter writer(m_pSpecTcl);
     writer.openFile(outputPath, QString("UPDATE"));
 
     for (auto pCheckBox : m_checkBoxes) {
@@ -75,8 +104,11 @@ void SaveToRootDialog::onAccepted()
             }
         }
     }
+}
 
-    emit accepted();
+void SaveToRootDialog::writeToWinFile()
+{
+    QMessageBox::warning(this, "Save to file error", "Saving to window files is not supported yet.");
 }
 
 void SaveToRootDialog::onRejected()
@@ -100,6 +132,12 @@ void SaveToRootDialog::onSelectAll()
     for (auto pCheckBox : m_checkBoxes) {
         pCheckBox->setChecked(checked);
     }
+}
+
+void SaveToRootDialog::onPathEdited(const QString &value)
+{
+    ui->pSaveButton->setDisabled(value.isEmpty());
+
 }
 
 } // end Viewer namespace

@@ -61,6 +61,8 @@ public:
     CPPUNIT_TEST(canvasName_0);
     CPPUNIT_TEST(canvasDivision_0);
     CPPUNIT_TEST(canvasContainsHists_0);
+    CPPUNIT_TEST(spectraDirectoryExists_0);
+    CPPUNIT_TEST(spectraDirectoryContainsHists_0);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -91,7 +93,7 @@ public:
         pCanvas->cd();
         pHistList->getHist("lkjh")->draw();
 
-        RootFileWriter writer;
+        RootFileWriter writer(m_pInterface);
         writer.openFile(".testFile.root", "RECREATE");
         writer.writeTab(workspace, true);
         writer.closeFile();
@@ -104,7 +106,7 @@ public:
 
         m_pFile->Close();
 
-      //   remove(".testFile.root");
+       //remove(".testFile.root");
     }
 
     std::unique_ptr<Viewer::HistogramBundle> createHist(const string& name) {
@@ -148,6 +150,21 @@ protected:
         ASSERTMSG("Canvas should first histogram", pCanvas->FindObject("asdf") != nullptr);
         ASSERTMSG("Canvas should second histogram", pCanvas->FindObject("lkjh") != nullptr);
 
+    }
+
+    void spectraDirectoryExists_0 () {
+        TDirectory* pDir;
+        m_pFile->GetObject("spectra", pDir);
+
+        ASSERTMSG("saved file has a spectra directory", pDir != nullptr);
+    }
+
+    void spectraDirectoryContainsHists_0() {
+        TDirectory* pDir;
+        m_pFile->GetObject("spectra", pDir);
+
+
+      //  pDir->GetObject("")
     }
 
 };
