@@ -331,7 +331,27 @@ void SuperpositionList::Add(int s)
   num++;
 
 }
-
+
+void SuperpositionList::Add(const std::string& name)
+{
+
+  /*  Make sure the input data is correct: */
+
+  assert(num < MAX_SUPERPOSITIONS);
+
+  /* Assign the rendition:  */
+
+  lastrep++;
+  lastrep = lastrep % MAX_SUPERPOSITIONS;
+
+  /* Set the list value: */
+
+  list[num].SpectrumName(name);
+  list[num].Representation(lastrep);
+  num++;
+
+}
+
 /*
 ** Functional Description:
 **   SuperpostionListIterator::Next:

@@ -90,6 +90,7 @@ public:
 class  win_definition {
 protected:
     unsigned int win_spnum; // Number of spectrum in window
+    std::string  spectrum_name;
 public:
     win_definition()
     { }
@@ -102,6 +103,7 @@ public:
     void operator=(int spec)
     { win_spnum = spec; }
     int spectrum()  { return win_spnum; }
+    std::string getIdentifier();
     virtual int is1d() {
         fprintf(stderr,
                 "BUG ... in_attributed::1d called\n");
@@ -109,6 +111,10 @@ public:
         return FALSE;
     }
     virtual int write(FILE *f) {return EOF;} // Cannot call.
+
+    void setSpectrumName(const std::string name) { spectrum_name = name; }
+    std::string getSpectrumName() const { return spectrum_name; }
+
 };
 //
 //  win_attributed class represents a window pane with a generic spectrum
@@ -159,6 +165,7 @@ protected:
     int auto_update;   // True if auto update set
     int update_period; // Secs between updates
     int user_mapping;
+
 
 public:
     // Constructors
@@ -320,6 +327,8 @@ public:
     virtual void set_defaults();  // Back to dflts
     virtual int is1d() { return FALSE;}
     virtual int write(FILE *f);
+
+
 };
 //
 //  win_1d is a class which contains a window that has a 1-d spectrum
@@ -349,7 +358,6 @@ protected:
     // Superpositions:
 
     SuperpositionList additional_spectra;
-    std::string  spectrum_name;
 public:
     // Constructors
 
@@ -397,8 +405,6 @@ public:
     //
     virtual int write(FILE *f);
 
-    void setSpectrumName(const std::string name) { spectrum_name = name; }
-    std::string getSpectrumName() const { return spectrum_name; }
 };
 
 //
@@ -431,7 +437,6 @@ protected:
     //
     rendition_2d rendition;
 
-    std::string spectrum_name;
 
 public:
     //
@@ -485,9 +490,6 @@ public:
     // Write the definition:
     //
     virtual int write(FILE *f);
-
-    void setSpectrumName(const std::string name) { spectrum_name = name; }
-    std::string getSpectrumName() const { return spectrum_name; }
 
 };
 
@@ -599,6 +601,13 @@ public:
         }
         return pAttr;
     }
+
+    void setdef(int x, int y, win_definition& winAttr) {
+        if (exists(x,y)) {
+            windows[x][y] = &winAttr;
+        }
+    }
+
     void undefine(int x, int y);
     int refresh_rate(int x, int y) {
         return (defined(x,y) ?

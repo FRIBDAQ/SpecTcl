@@ -312,6 +312,28 @@ volatile extern spec_shared *xamine_shared;
 int win_db::m_ReadOnce = 0;         // True if flex was used.
 void windfilerestart(FILE *fp);
 
+std::string win_definition::getIdentifier()
+{
+    std::string identifier;
+
+    if (! spectrum_name.empty()) {
+
+        identifier = spectrum_name;
+
+    } else {
+
+        if (xamine_shared) {
+            spec_title spcname;
+            xamine_shared->getname(spcname,spectrum());
+            identifier = spcname;
+        } else {
+            identifier = "NotAvailable";
+        }
+    }
+
+    return identifier;
+}
+
 /*
 ** Method Description:
 **   win_attributed::set_defaults() - This method function sets the default
@@ -572,10 +594,21 @@ int win_1d::write(FILE *f)
   if(additional_spectra.Count() != 0) {
       SuperpositionListIterator sli(additional_spectra);
       while(!sli.Last()) {
-          spec_title spcname;
           int id = (sli.Next()).Spectrum();
-          xamine_shared->getname(spcname, id);
-          wbytes = fprintf(f,"   Superimpose \"%s\"\n", spcname);
+          if (id >= 0) {
+              spec_title spcname;
+              xamine_shared->getname(spcname, id);
+              wbytes = fprintf(f,"   Superimpose \"%s\"\n", spcname);
+          } else {
+              std::string name = sli.Next().SpectrumName();
+              if (! name.empty()) {
+                wbytes = fprintf(f, "   Superimpose \"%s\"\n", name.c_str());
+              } else {
+                // skip this if we cannot properly label it.
+                wbytes = 0;
+              }
+
+          }
           if(wbytes == EOF) {
               sprintf(msg_txt,"%s%s%s",
                       "Failed to write a Superimpose record.\n",
@@ -799,7 +832,7 @@ int win_db::write(const char *filename)
         if(defined(i,j)) {
             spec_title spcname;
             if(fprintf(config, "Window  %d,%d,\"%s\"\n", i,j,
-                       xamine_shared->getname(spcname,windows[i][j]->spectrum()))
+                       windows[i][j]->getIdentifier().c_str())
                     == EOF){
                 fclose(config);
                 return FALSE;
