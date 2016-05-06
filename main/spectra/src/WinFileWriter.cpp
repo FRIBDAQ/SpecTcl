@@ -30,6 +30,7 @@ void WinFileWriter::writeTab(TabWorkspace &rWorkspace, const QString &path)
     SpectrumView& rView = rWorkspace.getView();
     database.setx(rView.getColumnCount());
     database.sety(rView.getRowCount());
+    database.settitle(rWorkspace.objectName().toUtf8().constData());
 
     for (int row=0; row<rView.getRowCount(); ++row) {
         for (int col=0; col<rView.getColumnCount(); ++col) {
