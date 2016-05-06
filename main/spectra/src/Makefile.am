@@ -70,6 +70,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   SaveToRootDialog.h \
   RootFileWriter.h \
   RootFileReader.h \
+  WinFileWriter.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -135,6 +136,7 @@ libSpectra_la_SOURCES = \
     TabFromWinFileCompositor.cpp \
     RootFileWriter.cpp \
     RootFileReader.cpp \
+    WinFileWriter.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
