@@ -86,7 +86,7 @@ void TabWorkspace::connectSignals()
             m_pView, SLOT(updateView(HistogramBundle*)));
 
     connect(m_pDrawPanel, SIGNAL(geometryChanged(int, int)),
-            m_pView, SLOT(onGeometryChanged(int, int)));
+            m_pView, SLOT(setGeometry(int, int)));
 
     connect(m_pView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
             m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
