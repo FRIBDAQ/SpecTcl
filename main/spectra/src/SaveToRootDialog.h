@@ -29,10 +29,13 @@ public:
 
     ~SaveToRootDialog();
 
+
 protected:
     void setUpWidget();
     void writeToRootFile();
     void writeToWinFile();
+    int getTabSelectedCount();
+    QString formOutputPath(const QString& user_path, const QString& tabName);
 
 public slots:
     void onAccepted();

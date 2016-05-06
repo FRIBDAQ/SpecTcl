@@ -1,8 +1,10 @@
 #include "SaveToRootDialog.h"
 #include "ui_SaveToRootDialog.h"
 #include "RootFileWriter.h"
+#include "WinFileWriter.h"
 #include "TabbedMultiSpectrumView.h"
 #include "SpecTclInterface.h"
+#include "TabWorkspace.h"
 
 #include <QFileDialog>
 #include <QCheckBox>
@@ -106,9 +108,46 @@ void SaveToRootDialog::writeToRootFile()
     }
 }
 
+int SaveToRootDialog::getTabSelectedCount()
+{
+    int count = 0;
+    for (auto pCheckBox : m_checkBoxes) {
+        if (pCheckBox->isChecked()) {
+            count++;
+        }
+    }
+    return count;
+}
+
 void SaveToRootDialog::writeToWinFile()
 {
-    QMessageBox::warning(this, "Save to file error", "Saving to window files is not supported yet.");
+//    QMessageBox::warning(this, "Save to file error", "Saving to window files is not supported yet.");
+
+    WinFileWriter writer;
+
+    QString path = ui->pOutputPath->text();
+
+    bool appendIndices = false;
+    int nTabsToWrite = getTabSelectedCount();
+    if ( nTabsToWrite > 1 ) {
+        appendIndices = true;
+    }
+
+
+    for (auto pCheckBox : m_checkBoxes) {
+        if (pCheckBox->isChecked()) {
+            TabWorkspace* pWorkspace = m_tabWidget.getTabWorkspace(pCheckBox->text());
+            if (pWorkspace) {
+                QString outputPath = formOutputPath(path, pWorkspace->objectName());
+                writer.writeTab(*pWorkspace, outputPath);
+            } else {
+                QString msg ("The requested tab (%1) does not exist. Aborting save operation.");
+                QMessageBox::warning(this, "Export failure",
+                                     msg.arg(pCheckBox->text()));
+                return;
+            }
+        }
+    }
 }
 
 void SaveToRootDialog::onRejected()
@@ -138,6 +177,21 @@ void SaveToRootDialog::onPathEdited(const QString &value)
 {
     ui->pSaveButton->setDisabled(value.isEmpty());
 
+}
+
+
+QString SaveToRootDialog::formOutputPath(const QString &user_path, const QString &tabName)
+{
+    QString path = user_path;
+
+    int periodIndex = path.lastIndexOf(".");
+    if (periodIndex != -1) {
+        path.insert(periodIndex, QString("_") + tabName);
+    } else {
+        path += QString("_") + tabName + ".win";
+    }
+
+    return path;
 }
 
 } // end Viewer namespace
