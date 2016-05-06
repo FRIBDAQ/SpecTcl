@@ -127,13 +127,13 @@ protected:
     void canvasName_0() {
         TCanvas* pCanvas;
 
-        m_pFile->GetObject("test_workspace", pCanvas);
+        m_pFile->GetObject("spectra/canvases/test_workspace", pCanvas);
         ASSERTMSG("Canvas should have name of tab and be findable", pCanvas != nullptr);
-        }
+    }
 
     void canvasDivision_0() {
         TCanvas* pCanvas;
-        m_pFile->GetObject("test_workspace", pCanvas);
+        m_pFile->GetObject("spectra/canvases/test_workspace", pCanvas);
 
         // Root provides no mechanism to know the geometry of the canvas. It does provide
         // a way to probe. We can at least test that there are 2 subpads using the naming scheme
@@ -145,7 +145,7 @@ protected:
 
     void canvasContainsHists_0 () {
         TCanvas* pCanvas;
-        m_pFile->GetObject("test_workspace", pCanvas);
+        m_pFile->GetObject("spectra/canvases/test_workspace", pCanvas);
 
         ASSERTMSG("Canvas should first histogram", pCanvas->FindObject("asdf") != nullptr);
         ASSERTMSG("Canvas should second histogram", pCanvas->FindObject("lkjh") != nullptr);
