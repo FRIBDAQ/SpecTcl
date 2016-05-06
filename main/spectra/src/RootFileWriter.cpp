@@ -58,13 +58,19 @@ void RootFileWriter::createDirectory(const std::string &path)
 
 void RootFileWriter::openFile(const QString &path, const QString& options)
 {
+    QString outputPath = path;
+    // ensure that the user provided the right suffix
+    if (!outputPath.endsWith(".root")) {
+        outputPath += ".root";
+    }
+
     // in case we already have an open file. we only support dealing with a
     // single file at a time
     if (m_pFile) {
         closeFile();
     }
 
-    m_pFile = new TFile(path.toUtf8().constData(), options.toUtf8().constData());
+    m_pFile = new TFile(outputPath.toUtf8().constData(), options.toUtf8().constData());
 
     if (!m_pFile->IsOpen()) {
         throw std::runtime_error("RootFileWriter::openFile() Failed to open file.");
