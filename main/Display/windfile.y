@@ -205,12 +205,16 @@ spectrum:  INTEGER
 	   }
          | QSTRING
            {
-	     specnum = xamine_shared->getspecid(yylval.string); /* translate name->id */
-	     if(specnum == -1){
-	       yyerror("Spectrum name does not match a valid spectrum");
-	       return -1;
-	     }
-		 specname = $1;
+           if (xamine_shared) {
+              specnum = xamine_shared->getspecid(yylval.string); /* translate name->id */
+              if(specnum == -1){
+                yyerror("Spectrum name does not match a valid spectrum");
+                return -1;
+              }
+            } else {
+                specnum = -1; // in case there is no shared memory, we use names only
+            }
+            specname = $1;
 		   }
 	;
 
@@ -631,5 +635,12 @@ char *getsyntaxrev()
 
 int specisundefined(int spec)
 {
-  return (xamine_shared->dsp_types[spec-1] == undefined);
+  if (xamine_shared) {
+    return (xamine_shared->dsp_types[spec-1] == undefined);
+  } else {
+    return 0; // we assume all are defined if there is no shared mem
+              // the use case is when we use this in Spectra. I want
+              // it to never fail because the parser doesn't know enough
+              // information.
+  }
 }

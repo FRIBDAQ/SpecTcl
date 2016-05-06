@@ -17,26 +17,29 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										SpecTclInterfaceFactoryTest.cpp \
 										CmdLineOptionsTest.cpp \
 										RootFileWriterTest.cpp \
-										RootFileReaderTest.cpp \
+										WinFileWriterTest.cpp \
 										TestSpecTclInterface.cpp \
 										TestSpecTclInterface.h \
 										TestUtils.cpp
 
 noinst_HEADERS = TestUtils.h
 
-unittests_LDFLAGS = @ROOT_LDFLAGS@ \
-										 @JSONCPP_LIBS@ \
+unittests_LDFLAGS =  -Wl,-rpath=@ROOT_LIBRARY_DIR@
+
+unittests_LDADD = @ROOT_LDFLAGS@ \
+					   @JSONCPP_LIBS@ \
 										 @top_builddir@/spectra/src/libSpectra.la \
 										 @top_builddir@/spectra/spectcljson/libSpecTclJson.la \
-										 @top_builddir@/spectra/ParameterDb/libParameterDb.la \
-										 @CPPUNIT_LIBS@ \
-										 -Wl,-rpath=@ROOT_LIBRARY_DIR@
+										 @top_builddir@/Display/libXamineParsers.la \
+										 @top_builddir@/spectra/Xamine2Root/libXamine2Root.la \
+										 @top_builddir@/Display/libXamine.la \
+										 @CPPUNIT_LIBS@
 
 unittests_CXXFLAGS = @ROOT_CFLAGS@ \
 										 @JSONCPP_CFLAGS@ \
 										 -I@top_srcdir@/spectra/src \
 										 -I@top_srcdir@/spectra/spectcljson \
-										 -I@top_srcdir@/spectra/ParameterDb \
+										 -I@top_srcdir@/Display \
 										 @CPPUNIT_CFLAGS@ \
 										 -I@top_srcdir@/Utility
 
