@@ -48,6 +48,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
 
 #include "Benchmark.h"
 
@@ -159,7 +160,15 @@ void GateManager::onDeleteButtonClicked()
     std::map<int, QString, std::greater<int> > rowsToDelete;
     for (int i=0; i<selected.size(); ++i) {
         QTableWidgetItem* pItem = selected.at(i);
-        if (pItem) {
+
+        if (! pItem) {
+            throw std::runtime_error("GateManager::onDeleteButtonClicked() Selected item is a nullptr.");
+        }
+
+        // there are two cells per row. We don't want to concern ourselves with the
+        // cell containing the integral. Rather we just want the first column that contains
+        // the name of the gate
+        if (pItem->column() == 0) {
             rowsToDelete[pItem->row()] = pItem->text();
         }
     }
