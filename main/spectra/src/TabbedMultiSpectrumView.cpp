@@ -86,7 +86,7 @@ void TabbedMultiSpectrumView::onNewTabContentsSelected(QStringList selection)
 
     QString tabName = pSetupWidget->getTabName();
     if (tabName.isEmpty()) {
-        tabName = "New tab";
+        tabName = ui->pTabWidget->tabText(ui->pTabWidget->currentIndex());
     }
 
     int index = ui->pTabWidget->currentIndex();
@@ -124,6 +124,12 @@ void TabbedMultiSpectrumView::onNewTabContentsFromFile(QString fileName)
         TabFromWinFileCompositor compositor(m_pSpecTcl);
 
         compositor.compose(*pWorkspace, fileName);
+    }
+
+    // the compositor very likely set the object name using the TITLE from the
+    // win file. If so, we want to use it to set the name of the tab
+    if (! pWorkspace->objectName().isEmpty()) {
+        tabName = pWorkspace->objectName();
     }
 
     int newTabIndex = ui->pTabWidget->insertTab(index, pWorkspace, tabName);

@@ -39,6 +39,8 @@ void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &
     int nCols = layoutDb.nx();
     int nRows = layoutDb.ny();
 
+    QString tabName = QString::fromStdString(layoutDb.getTitle());
+    rWorkSpace.setObjectName(tabName);
 
     // First set the geometry controls to the correct values
     GeometrySelector& geoControl = rWorkSpace.getDrawPanel().getGeometrySelector();
