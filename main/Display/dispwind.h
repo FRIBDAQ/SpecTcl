@@ -578,6 +578,14 @@ public:
             strcpy(t," Untitle ");
                                return t;
                              }
+    std::string getTitle() const {
+        if (titled) {
+            return std::string(title);
+        } else {
+            return std::string();
+        }
+    }
+
     int hastitle()  { return titled; }
     void clrtitle()  { titled = FALSE; }
     //
