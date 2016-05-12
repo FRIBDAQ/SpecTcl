@@ -179,7 +179,7 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
 procede.cc colormgr.cc
 
-Xaminetest_SOURCES = Xaminetest.c
+Xaminetest_SOURCES = Xaminetest.c spectra.cc
 
 
 
