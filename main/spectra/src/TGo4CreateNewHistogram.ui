@@ -269,7 +269,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>217</width>
+          <width>80</width>
           <height>20</height>
          </size>
         </property>
@@ -327,22 +327,6 @@
    <item>
     <layout class="QHBoxLayout">
      <item>
-      <spacer name="spacer8">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>Cancel</string>
@@ -360,6 +344,9 @@
        <property name="shortcut">
         <string>Alt+L</string>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
     </layout>
@@ -367,6 +354,21 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>histNameEdit</tabstop>
+  <tabstop>typeCombo</tabstop>
+  <tabstop>dimensionCombo</tabstop>
+  <tabstop>XParamCombo</tabstop>
+  <tabstop>Xmin</tabstop>
+  <tabstop>Xmax</tabstop>
+  <tabstop>XNoOfBins</tabstop>
+  <tabstop>YParamCombo</tabstop>
+  <tabstop>Ymin</tabstop>
+  <tabstop>Ymax</tabstop>
+  <tabstop>YNoOfBins</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>createButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -376,8 +378,8 @@
    <slot>CreateLocalHist()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>24</x>
-     <y>341</y>
+     <x>331</x>
+     <y>451</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -392,8 +394,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>249</y>
+     <x>242</x>
+     <y>451</y>
     </hint>
     <hint type="destinationlabel">
      <x>184</x>
