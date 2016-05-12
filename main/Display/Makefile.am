@@ -136,8 +136,7 @@ libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
     specalloc.c clientbuttons.c prccheck.c
 
-
-Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
+CommonXamine_SOURCES = XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
 XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc XMMultiSelectionList.cc \
 menusetup.cc exit.cc helpmenu.cc winiomenu.cc \
@@ -167,6 +166,9 @@ lexsupport.c \
 dfltmgr.cc \
 errormsg.cc
 
+
+Xamine_SOURCES = Xamine.cc $(CommonXamine_SOURCES)
+
 Xamine_CPPFLAGS = -I@top_builddir@ \
 				  -DXTFUNCPROTO -DXAMINE \
 				  -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
@@ -179,7 +181,7 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
 procede.cc colormgr.cc
 
-Xaminetest_SOURCES = Xaminetest.c spectra.cc
+Xaminetest_SOURCES = Xaminetest.c $(CommonXamine_SOURCES)
 
 
 
