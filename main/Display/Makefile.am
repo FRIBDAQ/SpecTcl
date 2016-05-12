@@ -23,13 +23,14 @@ install-exec-local:
 LEXOUT = @builddir@/lex.yy.c
 
 $(LEXOUT):
-	rm -f *_lex.{h,cc}
 	$(LEX) @builddir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
 
+clean-local :
+	rm -f *_lex.cc *_lex.h
 
 BUILT_SOURCES = windfile_parse.cc defaultfile_parse.cc windfile_lex.h grobfile_parse.cc grobfile_lex.h
 
