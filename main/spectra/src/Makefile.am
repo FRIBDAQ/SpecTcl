@@ -292,7 +292,6 @@ libSpectra_la_LIBADD = @top_builddir@/spectra/spectcljson/libSpecTclJson.la \
 								@top_builddir@/spectra/Xamine2Root/libXamine2Root.la \
 								@top_builddir@/Display/libXamine.la \
 								@top_builddir@/Display/libXamineParsers.la \
-								@top_builddir@/spectra/ParameterDb/libParameterDb.la \
 								@JSONCPP_LIBS@ \
 								@QT_LDFLAGS@ \
 								@QT_LIBS@ \
@@ -327,7 +326,6 @@ spectra_CXXFLAGS = @ROOT_CFLAGS@  \
 spectra_LDADD = @builddir@/libSpectra.la \
 								@top_builddir@/Display/libXamine.la \
 								@top_builddir@/Display/libXamineParsers.la \
-								@top_builddir@/spectra/ParameterDb/libParameterDb.la \
 								@ROOT_LDFLAGS@ \
 								@JSONCPP_LIBS@ \
 								@QT_LDFLAGS@ @QT_LIBS@ \
