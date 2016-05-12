@@ -185,7 +185,7 @@ Xaminetest_SOURCES = Xaminetest.c
 
 colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = @builddir@/libXamine.la @buildir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
+Xaminetest_LDADD = @builddir@/libXamine.la @builddir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
 
 Xaminetest_LDFLAGS = -L.
 
