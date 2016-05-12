@@ -253,8 +253,9 @@ void QRootCanvas::buildTH1ContextMenu(TList& defaultItems, QMenu& menu, QSignalM
 
        QString buffer = method->GetName();
        if (! std::binary_search(blacklist.begin(), blacklist.end(), buffer)) {
-        addMenuAction(&menu, &map, buffer, curId++);
+        addMenuAction(&menu, &map, buffer, curId);
        }
+       curId++;
     }
 }
 
