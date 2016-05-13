@@ -68,7 +68,9 @@ CTclAnalyzer::CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP,
   CAnalyzer(nP, nBunch),
   m_rInterpreter(rInterp),
   m_pBuffersAnalyzed(0),
+  m_nBuffersAnalyzed(0),
   m_pLastSequence(0),
+  m_nLastSequence(0),
   m_pRunNumber(0),
   m_pRunTitle(0),
   m_pRunState(0),
@@ -78,12 +80,14 @@ CTclAnalyzer::CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP,
   m_pBuffersAnalyzed = new CTCLVariable(&rInterp, 
 					string("BuffersAnalyzed"),
 					kfFALSE);
-  SetVariable(*m_pBuffersAnalyzed,-1);
+  m_pBuffersAnalyzed->Link(&m_nBuffersAnalyzed, TCL_LINK_INT);
+  m_nBuffersAnalyzed = 1;
 
   m_pLastSequence    = new CTCLVariable(&rInterp,
 					string("LastSequence"),
 					kfFALSE);
-  ClearVariable(*m_pLastSequence);
+  m_pLastSequence->Link(&m_nLastSequence, TCL_LINK_INT);
+  m_nLastSequence = 0;
 
   m_pRunNumber = new CTCLVariable(&rInterp, string("RunNumber"), kfFALSE);
   ClearVariable(*m_pRunNumber);
@@ -111,7 +115,9 @@ CTclAnalyzer::CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP,
 }
 
 CTclAnalyzer::~CTclAnalyzer() {
+  m_pBuffersAnalyzed->Unlink();
   delete m_pBuffersAnalyzed;
+  m_pLastSequence->Unlink();
   delete m_pLastSequence;
   delete m_pRunNumber;
   delete m_pRunTitle;
@@ -148,9 +154,9 @@ void CTclAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder) {
 }
 
 void CTclAnalyzer::IncrementVariable(CTCLVariable& rVar) {
-  string Script("incr ");
-  Script += rVar.getVariableName();
-  rVar.getInterpreter()->GlobalEval(Script);
+  //string Script("incr ");
+  //Script += rVar.getVariableName();
+  //rVar.getInterpreter()->GlobalEval(Script);
 }
 
 void CTclAnalyzer::SetVariable(CTCLVariable& rVar, int newval) {
@@ -339,8 +345,10 @@ void CTclAnalyzer::OnResume(CBufferDecoder* rDecoder) {
 //
 void CTclAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
   CAnalyzer::OnPhysics(rDecoder); // Analyze the buffer.
-  IncrementVariable(*m_pBuffersAnalyzed);
-  SetVariable(*m_pLastSequence,rDecoder.getSequenceNo());
+  // IncrementVariable(*m_pBuffersAnalyzed);
+  m_nBuffersAnalyzed++;
+  // SetVariable(*m_pLastSequence,rDecoder.getSequenceNo());
+  m_nLastSequence = rDecoder.getSequenceNo();
 }
 
 /*!

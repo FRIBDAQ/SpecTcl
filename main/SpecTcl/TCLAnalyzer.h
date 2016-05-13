@@ -112,7 +112,9 @@ private:
 
   CTCLInterpreter& m_rInterpreter;
   CTCLVariable* m_pBuffersAnalyzed; // # buffers analyzed.
-  CTCLVariable* m_pLastSequence; // Last sequence number analyzed.
+  int  m_nBuffersAnalyzed; // linkedto m_pBuffersAnalyzed.
+  CTCLVariable* m_pLastSequence;   // Last sequence number analyzed.
+  int  m_nLastSequence;   // Linked to m_pLastSequence
   CTCLVariable* m_pRunNumber;
   CTCLVariable* m_pRunTitle;
   CTCLVariable* m_pRunState;
