@@ -698,8 +698,8 @@ AC_MSG_CHECKING([gcc so use -pedantic?])
 
 if `echo $CC | grep -q gcc` 
 then 
-     CFLAGS="$CFLAGS -pedantic -Wno-long-long"
-     CXXFLAGS="$CXXFLAGS -pedantic -Wno-long-long"
+     CFLAGS="$CFLAGS -pedantic -Wno-long-long -fomit-frame-pointer" 
+     CXXFLAGS="$CXXFLAGS -pedantic -Wno-long-long -fomit-frame-pointer" 
      AC_MSG_RESULT(yes)
 else  
      AC_MSG_RESULT(no)
