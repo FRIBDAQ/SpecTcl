@@ -252,15 +252,16 @@ class CAnalyzer {
   void ClearEventList() {
     CEventVector& evlist(m_EventList.getVector());
     CEventVector& evpool(m_EventPool.getVector());
-    CEventListIterator p = evlist.begin();
-    for(; p != evlist.end(); p++) {
-      if(*p) {
-	CEvent* pEvent = *p;
+    size_t s = evlist.size();
+    // CEventListIterator p = evlist.begin();
+    // for(; p != evlist.end(); p++) {
+    for (int i = 0; i < s; i++) {
+      CEvent* pEvent = evlist[i];
+      if(pEvent) {
 	evpool.push_back(pEvent);
-	*p = (CEvent*)kpNULL;
+      	evlist[i] = (CEvent*)kpNULL;
       }
     }
-    // evlist.erase(m_EventList.begin(), m_EventList.end());
   }
 
 };
