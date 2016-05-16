@@ -101,10 +101,10 @@ enum Counter {
 class CTclAnalyzer : public CAnalyzer {
   // public data types:
 public:
-  typedef STD(pair)<STD(string), CEventProcessor*> PipelineElement;
-  typedef STD(list)<PipelineElement> EventProcessingPipeline;
+  typedef std::pair<std::string, CEventProcessor*> PipelineElement;
+  typedef std::list<PipelineElement> EventProcessingPipeline;
   typedef EventProcessingPipeline::iterator EventProcessorIterator;
-  typedef STD(vector)<CTCLVariable*>  VariableArray;
+  typedef std::vector<CTCLVariable*>  VariableArray;
   
   // member data:
 
@@ -112,7 +112,9 @@ private:
 
   CTCLInterpreter& m_rInterpreter;
   CTCLVariable* m_pBuffersAnalyzed; // # buffers analyzed.
-  CTCLVariable* m_pLastSequence; // Last sequence number analyzed.
+  int  m_nBuffersAnalyzed; // linkedto m_pBuffersAnalyzed.
+  CTCLVariable* m_pLastSequence;   // Last sequence number analyzed.
+  int  m_nLastSequence;   // Linked to m_pLastSequence
   CTCLVariable* m_pRunNumber;
   CTCLVariable* m_pRunTitle;
   CTCLVariable* m_pRunState;
@@ -120,7 +122,7 @@ private:
 
   EventProcessingPipeline m_lAnalysisPipeline;
   VariableArray           m_vStatistics;
-  STD(vector)<Int_t*>     m_vStatisticsInts;
+  std::vector<Int_t*>     m_vStatisticsInts;
 
   UInt_t        m_nSequence;	//!< Anonymous naming sequence #.
   bool          m_initialized;
@@ -161,12 +163,12 @@ public:
 
   void AddEventProcessor(CEventProcessor& rProcessor,
 			 const char* pName = 0); // Append to pipe.
-  EventProcessorIterator FindEventProcessor(STD(string) name);
+  EventProcessorIterator FindEventProcessor(std::string name);
   EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
   void InsertEventProcessor(CEventProcessor& processor, 
 			    EventProcessorIterator here, 
 			    const char* name = 0);
-  CEventProcessor* RemoveEventProcessor(STD(string) name);
+  CEventProcessor* RemoveEventProcessor(std::string name);
   CEventProcessor* RemoveEventProcessor(EventProcessorIterator here);
   UInt_t size();
   EventProcessorIterator begin();
@@ -195,7 +197,7 @@ protected:
     SetVariable(rVar, 0);
   }
 
-  STD(string) AssignName();
+  std::string AssignName();
 
   // Nested utility classes these are predicates that are
   // used for stl algorithm calls.
@@ -205,10 +207,10 @@ private:
   class MatchName 
   {
   private:
-    STD(string)       m_sName;
+    std::string       m_sName;
     CEventProcessor*  m_pLastMatch;
   public:
-    MatchName(STD(string) name);
+    MatchName(std::string name);
     bool operator()(PipelineElement& element);
     CEventProcessor*  getLastMatch() const;
   };
