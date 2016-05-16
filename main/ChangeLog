@@ -1052,3 +1052,6 @@ November 30-?? 2011
         * Add TCLLIBS back into the compilation includes but use sed to
 	  remove the -lieee to prevent the double def of _LIB_VERSION
 	
+3.5-002 
+	* Port performance improvements from 4.0 for counter handling.
+	
