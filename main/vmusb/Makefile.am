@@ -76,8 +76,8 @@ install-exec-local: docs_built
 	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/vmusb
-	for f in @builddir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
-	for f in @builddir@/*.pdf ; do $(INSTALL_DATA)  $$f  @prefix@/share/vmusb ; done
+	for f in @srcdir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
+	for f in @srcdir@/*.pdf ; do $(INSTALL_DATA)  $$f  @prefix@/share/vmusb ; done
 	-for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \
