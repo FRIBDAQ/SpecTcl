@@ -23,7 +23,7 @@ install-exec-local:
 LEXOUT = @builddir@/lex.yy.c
 
 $(LEXOUT):
-	$(LEX) @builddir@/windfile.l
+	$(LEX) @srcdir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
