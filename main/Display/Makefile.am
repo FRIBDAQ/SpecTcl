@@ -187,8 +187,6 @@ Xaminetest_SOURCES = Xaminetest.c $(CommonXamine_SOURCES)
 
 colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = @builddir@/libXamine.la @builddir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
-
 Xaminetest_LDFLAGS = -L.
 
 Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
@@ -217,6 +215,7 @@ Xamine_LDFLAGS=  -g
 Xamine_LDADD=  @builddir@/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
 			-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+Xaminetest_LDADD = $(Xamine_LDADD)
 
 
 EXTRA_DIST = queue.cc colorset.ico \
