@@ -16,7 +16,7 @@
 # (C) Copyright Michigan State University 2014, All rights reserved 
 set DisplayMegabytes 200
 set ParameterCount   256
-set EventListSize    1024
+set EventListSize    1
 set ParameterOverwriteAction query
 set SpectrumOverwriteAction  query
 set splashImage $SpecTclHome/doc/hh00706_.jpg;   # SpecTcl icon for splashscreen.

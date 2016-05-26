@@ -313,7 +313,8 @@ static const UInt_t    knExpandSize = 512;      // Events in an expansion.
 // Operation Type:
 //    Default Constructor.
 //
-CEventList::CEventList()  
+CEventList::CEventList()  :
+  m_rvEvents(1, (CEvent*)kpNULL)
 {
 }
 
