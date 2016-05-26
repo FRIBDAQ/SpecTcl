@@ -90,7 +90,7 @@ void
 CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffer)
 {
   BufferTranslator* bt = CBufferProcessor::getTranslatingPointer(pBuffer);
-  TranslatorPointer<unsigned short> p(*bt);
+  TranslatorPointer<uint16_t> p(*bt);
 
   unsigned int numScalers = p[6]; // Number of entities inthe buffer.
 
@@ -108,10 +108,10 @@ CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffe
   // Now we get to the scaler buffer body:
 
   p += 16;			// Pointing to end time.
-  TranslatorPointer<unsigned long> pend(p);
+  TranslatorPointer<uint32_t> pend(p);
   unsigned long endTime = *pend++;
   p += 5;			// Pointing to start time:
-  TranslatorPointer<unsigned long> pstart(p);
+  TranslatorPointer<uint32_t> pstart(p);
   unsigned long startTime = *pstart++;
 
 
