@@ -50,10 +50,10 @@ install-exec-local:	docs_built
 	$(INSTALL_DATA) @builddir@/MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
 	$(INSTALL_DATA)  @srcdir@/spectclconfig.tcl @prefix@/TclLibs/ccusb
-	echo pkg_mkIndex @prefix@/TclLibs/ccusb @srcdir@/*.tcl | @TCLSH@
+	echo pkg_mkIndex @prefix@/TclLibs/ccusb @prefix@/TclLibs/ccusb/spectclconfig.tcl | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/ccusb
-	$(INSTALL_DATA)  @srcdir@/*.html @prefix@/share/ccusb
-	$(INSTALL_DATA)  @srcdir@/*.pdf  @prefix@/share/ccusb
+	$(INSTALL_DATA)  @builddir@/*.html @prefix@/share/ccusb
+	$(INSTALL_DATA)  @builddir@/*.pdf  @prefix@/share/ccusb
 	-for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \

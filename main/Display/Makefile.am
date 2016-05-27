@@ -23,8 +23,7 @@ install-exec-local:
 LEXOUT = @builddir@/lex.yy.c
 
 $(LEXOUT):
-	rm -f *_lex.{h,cc}
-	$(LEX) @builddir@/windfile.l
+	$(LEX) @srcdir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
@@ -103,7 +102,7 @@ libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
 								-DXTFUNCPROTO -DXAMINE \
 								$(HOMEDEF)
 
-check_PROGRAMS = Xaminetest
+#check_PROGRAMS = Xaminetest
 # TESTS = $(check_PROGRAMS)	# needs to start Xamine
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
@@ -178,15 +177,13 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
 procede.cc colormgr.cc
 
-Xaminetest_SOURCES = Xaminetest.c
+#Xaminetest_SOURCES = Xaminetest.c $(CommonXamine_SOURCES)
 
 
 
 colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = @builddir@/libXamine.la @buildir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
-
-Xaminetest_LDFLAGS = -L.
+#Xaminetest_LDFLAGS = -L.
 
 Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 	grobjiomenu.o geometrymenu.o \
@@ -207,13 +204,14 @@ Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o windlex.h \
 	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la libXamineParsers.la
 
-Xaminetest_DEPENDENCIES = libXamine.la
+#Xaminetest_DEPENDENCIES = libXamine.la
 
 
 Xamine_LDFLAGS=  -g
 Xamine_LDADD=  @builddir@/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
 			-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+#Xaminetest_LDADD = $(Xamine_LDADD)
 
 
 EXTRA_DIST = queue.cc colorset.ico \
