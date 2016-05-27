@@ -365,7 +365,7 @@ commonCXXFLAGS = -I@top_srcdir@/Core \
 									@TCL_CPPFLAGS@ \
 									@CPPUNIT_CFLAGS@
 
-commonTestLdFlags = @top_builddir@/Core/libTclGrammerApp.la \
+commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 										@top_builddir@/Tape/libtape.la \
 										@LIBTCLPLUS_LDFLAGS@ \
 										@CPPUNIT_LIBS@ \
