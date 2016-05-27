@@ -11,8 +11,8 @@ libXamine2Root_la_SOURCES = HistFiller.cpp \
                               @top_srcdir@/Display/spectra.cc \
                               @top_srcdir@/Display/shared.cc
 
-libXamine2Root_la_CXXFLAGS = @ROOT_CFLAGS@ \
-                              -I@top_srcdir@/Display
+libXamine2Root_la_CPPFLAGS = @ROOT_CFLAGS@ \
+                              -I@top_srcdir@/Display 
 
 libXamine2Root_la_LIBADD = @ROOT_LDFLAGS@ \
                             @top_builddir@/Display/libXamine.la
