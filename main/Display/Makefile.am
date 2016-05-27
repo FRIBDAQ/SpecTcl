@@ -23,14 +23,13 @@ install-exec-local:
 LEXOUT = @builddir@/lex.yy.c
 
 $(LEXOUT):
+	rm -f *_lex.{h,cc}
 	$(LEX) @builddir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
 
-clean-local :
-	rm -f *_lex.cc *_lex.h
 
 BUILT_SOURCES = windfile_parse.cc defaultfile_parse.cc windfile_lex.h grobfile_parse.cc grobfile_lex.h
 
@@ -136,7 +135,8 @@ libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
     specalloc.c clientbuttons.c prccheck.c
 
-CommonXamine_SOURCES = XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
+
+Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
 XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc XMMultiSelectionList.cc \
 menusetup.cc exit.cc helpmenu.cc winiomenu.cc \
@@ -166,9 +166,6 @@ lexsupport.c \
 dfltmgr.cc \
 errormsg.cc
 
-
-Xamine_SOURCES = Xamine.cc $(CommonXamine_SOURCES)
-
 Xamine_CPPFLAGS = -I@top_builddir@ \
 				  -DXTFUNCPROTO -DXAMINE \
 				  -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
@@ -181,13 +178,13 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
 procede.cc colormgr.cc
 
-Xaminetest_SOURCES = Xaminetest.c $(CommonXamine_SOURCES)
+Xaminetest_SOURCES = Xaminetest.c
 
 
 
 colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = @builddir@/libXamine.la @builddir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
+Xaminetest_LDADD = @builddir@/libXamine.la @buildir@/libXamineParsers.la -lm @TK_LIBS@ @TCL_LIBS@
 
 Xaminetest_LDFLAGS = -L.
 
@@ -208,7 +205,7 @@ Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
 	griprint.o mapcoord.o dispgrob.o  grobfile_lex.o grobfile_parse.o \
 	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o windlex.h \
-	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la
+	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la libXamineParsers.la
 
 Xaminetest_DEPENDENCIES = libXamine.la
 
