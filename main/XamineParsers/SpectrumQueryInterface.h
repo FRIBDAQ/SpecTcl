@@ -1,6 +1,6 @@
 
-#ifndef SPECTRUMQUERY_H
-#define SPECTRUMQUERY_H
+#ifndef SPECTRUMQUERYINTERFACE_H
+#define SPECTRUMQUERYINTERFACE_H
 
 #include <memory>
 #include <string>

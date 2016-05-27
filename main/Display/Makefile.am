@@ -126,7 +126,8 @@ XMWlist.h       XMMultiSelectionList.h defaultfile_lex.h        grobjio.h      \
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
-xamineDataTypes.h wysiwygPrint.h
+xamineDataTypes.h wysiwygPrint.h \
+XamineSpectrumInterface.h 
 
 
 libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
@@ -163,11 +164,13 @@ grobfile.cc \
 grobjdb.cc \
 lexsupport.c \
 dfltmgr.cc \
+XamineSpectrumInterface.cc \
 errormsg.cc
 
 Xamine_CPPFLAGS = -I@top_builddir@ \
 				  -DXTFUNCPROTO -DXAMINE \
 				  -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+					-I@top_srcdir@/XamineParsers \
 					  -I@top_srcdir@/Utility $(GDINCLUDES)
 
 
