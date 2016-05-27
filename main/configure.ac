@@ -914,6 +914,7 @@ AC_OUTPUT(Makefile
           Core/Makefile 
           ccusb/Makefile
           ccusb/MakefileSkel
+          XamineParsers/Makefile 
           Display/Makefile 
           docs/Makefile
           docs/webpage/Makefile
