@@ -2,6 +2,7 @@ SUBDIRS = Replace \
 					Scripts \
 					Utility \
 					factories \
+					XamineParsers \
 					Display \
 					Tape \
 					Core \

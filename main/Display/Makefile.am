@@ -1,6 +1,6 @@
 bin_PROGRAMS = Xamine colorset
 
-lib_LTLIBRARIES = libXamine.la libXamineParsers.la
+lib_LTLIBRARIES = libXamine.la 
 
 
 HOMEDEF = -DHOME='"$(prefix)"'
@@ -88,19 +88,17 @@ PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
 	defaultfile_lex.o defaultfile_parse.o
 
 
-libXamineParsers_la_SOURCES = windfile_lex.cc \
-							  windfile_parse.cc \
-							  dispwind.cc \
-							  lexsupport.c \
-							  superpos.cc
+#libXamineParsers_la_SOURCES = dispwind.cc \
+#							  lexsupport.c \
+#							  superpos.cc
 
 #XCCFLAGS =   -g -c -w -I@top_builddir@ -I@srcdir@ -I@top_srcdir@ $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
-libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
-								-I@srcdir@ \
-								-I@top_srcdir@ \
-								-DXTFUNCPROTO -DXAMINE \
-								$(HOMEDEF)
+#libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
+#								-I@srcdir@ \
+#								-I@top_srcdir@ \
+#								-DXTFUNCPROTO -DXAMINE \
+#								$(HOMEDEF)
 
 #check_PROGRAMS = Xaminetest
 # TESTS = $(check_PROGRAMS)	# needs to start Xamine
@@ -127,7 +125,10 @@ Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
 xamineDataTypes.h wysiwygPrint.h \
-XamineSpectrumInterface.h 
+XamineSpectrumInterface.h  \
+dispwind.cc \
+lexsupport.c \
+superpos.cc
 
 
 libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
@@ -205,13 +206,15 @@ Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
 	griprint.o mapcoord.o dispgrob.o  grobfile_lex.o grobfile_parse.o \
 	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o windlex.h \
-	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la libXamineParsers.la
+	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la 
+
+#libXamineParsers.la
 
 #Xaminetest_DEPENDENCIES = libXamine.la
 
 
 Xamine_LDFLAGS=  -g
-Xamine_LDADD=  @builddir@/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
+Xamine_LDADD=  @top_builddir@/XamineParsers/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
 			-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 #Xaminetest_LDADD = $(Xamine_LDADD)

@@ -188,11 +188,6 @@ window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
     return -1;
   } else {
     // store the spectrum name or id
-    if (current->is1d()) {
-      win_1d *pWin = dynamic_cast<win_1d*>(current);
-    } else {
-      win_2d *pWin = dynamic_cast<win_2d*>(current);
-    }
     current->setSpectrumName(specname);
   }
 };
@@ -682,4 +677,9 @@ void setUpDbEntry(const std::string& value, int x, int y)
       database->define2d(x,y, value);
     }
   }
+}
+
+int specis1d(int slot) {
+  Win::SpectrumQueryResults info = gSpectrumInterface.getSpectrumInfo(slot);
+  return (info.s_dimension == 1);
 }

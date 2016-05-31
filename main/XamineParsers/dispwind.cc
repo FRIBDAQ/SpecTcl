@@ -459,6 +459,18 @@ void win_db::define1d(int x, int y, int specnum)
   }
   windows[x][y] = (win_definition *)new win_1d(specnum);
 }
+
+void win_db::define1d(int x, int y, const std::string& spectrumName)
+{
+  assert(exists(x,y));		/* Require the window to exist. */
+  if(defined(x,y))  {
+    delete windows[x][y];	/* Get rid of old definitions */
+    windows[x][y] = (win_definition *)NULL;
+  }
+  
+  windows[x][y] = new win_1d;
+  windows[x][y]->setSpectrumName(spectrumName);
+}
 
 /*
 ** Method description:
@@ -475,6 +487,17 @@ void win_db::define2d(int x, int y, int specnum)
     windows[x][y] = (win_definition *)NULL;
   }
   windows[x][y] = (win_definition *)new win_2d(specnum);
+}
+
+void win_db::define2d(int x, int y, const std::string& spectrumName)
+{
+  assert(exists(x,y));		/* Require that the window exist. */
+  if(defined(x,y)) {
+    delete windows[x][y];	/* Get rid of the old definition */
+    windows[x][y] = (win_definition *)NULL;
+  }
+  windows[x][y] = new win_2d;
+  windows[x][y]->setSpectrumName(spectrumName);
 }
 
 /*
