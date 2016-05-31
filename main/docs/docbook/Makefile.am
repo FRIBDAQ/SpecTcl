@@ -1,5 +1,5 @@
 
-install-exec-local: docs_built
+install-exec-local: 
 	$(mkinstalldirs) @prefix@/share @prefix@/share/analysis
 	$(mkinstalldirs) @prefix@/share/images
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
@@ -8,8 +8,10 @@ install-exec-local: docs_built
 
 EXTRA_DIST = analysis.xml images.tar.gz
 
-docs_built: analysis.xml
-	@HTMLDOCBOOK@ $<
-	touch docs_built
+BUILT_SOURCES = @builddir@/docs_built
+
+@builddir@/docs_built: @srcdir@/analysis.xml
+	@HTMLDOCBOOK@ $< -o @builddir@
+	touch @builddir@/docs_built
 
 

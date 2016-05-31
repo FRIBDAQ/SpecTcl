@@ -67,7 +67,7 @@ VMUSBSpecTcl_LDFLAGS = 	\
 	 -g -Wl,"-rpath=@libdir@"
 
 
-install-exec-local: docs_built
+install-exec-local:
 	$(mkinstalldirs) @prefix@/VMUSBSkel @prefix@/share/vmusb
 	for f in @srcdir@/*.cpp ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
 	for f in @srcdir@/*.h ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
@@ -88,12 +88,18 @@ install-exec-local: docs_built
 
 EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl
 
+BUILT_SOURCES = @builddir@/docs_built
 
 
-docs_built: vmusb.xml
-	-@MANDOCBOOK@ man $< 2>/dev/null
-	@HTMLDOCBOOK@ $<
-	@HCDOCBOOK@ $<
-	dvipdf       vmusb.dvi
-	touch docs_built
+
+@builddir@/docs_built: @srcdir@/vmusb.xml
+	@MANDOCBOOK@ man $< -o @builddir@ 2>/dev/null
+	@HTMLDOCBOOK@ $< -o @builddir@
+	@HCDOCBOOK@ $< -o @builddir@
+	dvipdf       @builddir@/vmusb.dvi @builddir@/vmusb.pdf
+	touch @builddir@/docs_built
+
+
+clean-local:
+	rm -f @builddir@/docs_built
 
