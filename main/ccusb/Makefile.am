@@ -42,7 +42,7 @@ CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libTclGrammerApp.la \
 #  SpecTclRC.tcl script is pushed there as we're going to put the
 #  other scripts where they can be found in TclLibs.
 #
-install-exec-local:	docs_built
+install-exec-local:	
 	$(mkinstalldirs) @prefix@/CCUSBSkel @prefix@/share/ccusb 
 	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @srcdir@/*.h   @prefix@/CCUSBSkel
@@ -54,11 +54,9 @@ install-exec-local:	docs_built
 	$(mkinstalldirs) @prefix@/share/ccusb
 	$(INSTALL_DATA)  @builddir@/*.html @prefix@/share/ccusb
 	$(INSTALL_DATA)  @builddir@/*.pdf  @prefix@/share/ccusb
-	-for s in {1..8} ; do		\
-		$(mkinstalldirs) @prefix@/share/man/man$$s; \
-		for f in *.$$s*; do  \
-			$(INSTALL_DATA) $$f @prefix@/share/man/man$$s; \
-		done \
+	$(mkinstalldirs) @prefix@/share/man/man1; 
+	for f in *.1*; do  \
+		$(INSTALL_DATA) $$f @prefix@/share/man/man$$s; \
 	done
 
 
@@ -66,11 +64,14 @@ EXTRA_DIST=MakefileSkel.in \
 	spectclconfig.tcl  \
 	SpecTclRC.tcl ccusbSpecTcl.xml
 
-docs_built: @srcdir@/ccusbSpecTcl.xml
-	-@MANDOCBOOK@ man $< 2>/dev/null
-	@HTMLDOCBOOK@ $<
-	@HCDOCBOOK@ $<
-	dvipdf       @builddir@/ccusbSpecTcl.dvi
-	touch docs_built
+BUILT_SOURCES = @builddir@/docs_built
 
+@builddir@/docs_built: @srcdir@/ccusbSpecTcl.xml
+	@MANDOCBOOK@ man $< -o @builddir@ 2>/dev/null
+	@HTMLDOCBOOK@ $< -o @builddir@
+	@HCDOCBOOK@ $< -o @builddir@
+	dvipdf  @builddir@/ccusbSpecTcl.dvi @builddir@/ccusbSpecTcl.pdf
+	touch @builddir@/docs_built
 
+clean-local :
+	rm -f @builddir@/docs_built;

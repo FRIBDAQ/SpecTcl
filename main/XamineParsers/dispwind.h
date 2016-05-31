@@ -51,12 +51,7 @@
 #include "superpos.h"
 #include "SpectrumQueryInterface.h"
 
-extern "C" {
-
-#ifndef HAVE_SYS_TIME_H
-time_t time(time_t *tloc);
-#endif
-}
+class win_definition;
 
 #define WINDOW_MAXTITLE   81	/* Max chars in a title. */
 #define WINDOW_MAXWIN    100	/* Maximum number of windows. */
@@ -68,6 +63,8 @@ class win_geometry {
   protected:
     unsigned int win_nx; /* Number in X */
     unsigned int win_ny; /* Number in Y */
+    std::shared_ptr<Win::SpectrumQueryInterface> m_pInterface;
+
   public:
     win_geometry(int nx=1, int ny=1)
     { setgeometry(nx,ny); }
@@ -82,6 +79,15 @@ class win_geometry {
     { *this = g; }
     int write(FILE *f)
     { return fprintf(f, "Geometry %d,%d\n", win_nx, win_ny); }
+    void setQueryInterface(std::shared_ptr<Win::SpectrumQueryInterface> pInterface)
+    {
+      m_pInterface = pInterface;
+    }
+    std::shared_ptr<Win::SpectrumQueryInterface> getSpectrumInterface() const {
+      return m_pInterface;
+    }
+
+    std::string getIdentifier(win_definition* pWin);
 };
 
 
@@ -92,7 +98,8 @@ class  win_definition {
 protected:
     unsigned int win_spnum; // Number of spectrum in window
     std::string  spectrum_name;
-    std::shared_ptr<Win::SpectrumQueryInterface> m_pInterface;
+    win_geometry *m_pParent;
+
 public:
     win_definition()
     { }
@@ -117,10 +124,10 @@ public:
     void setSpectrumName(const std::string name) { spectrum_name = name; }
     std::string getSpectrumName() const { return spectrum_name; }
 
-    void setQueryInterface(std::shared_ptr<Win::SpectrumQueryInterface> pInterface)
-    {
-      m_pInterface = pInterface;
-    }
+    void setParent(win_geometry* pParent) { m_pParent = pParent; }
+    win_geometry* getParent() const { return m_pParent; }
+
+
 };
 //
 //  win_attributed class represents a window pane with a generic spectrum

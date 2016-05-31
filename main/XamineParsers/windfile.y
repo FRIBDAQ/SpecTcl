@@ -683,3 +683,4 @@ int specis1d(int slot) {
   Win::SpectrumQueryResults info = gSpectrumInterface.getSpectrumInfo(slot);
   return (info.s_dimension == 1);
 }
+

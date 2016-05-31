@@ -295,6 +295,9 @@ DAMAGES.
 #define _PANEMGR_H
 #include "XMManagers.h"
 #include "dispwind.h"
+#include "XamineSpectrumInterface.h"
+#include <SpectrumQueryInterface.h>
+#include <memory>
 
 #define XAMINE_PANES_XPIXELS  640
 #define XAMINE_PANES_YPIXELS  600
@@ -341,8 +344,20 @@ class pane_db : public win_db {
   pane_db(XMForm *parent, win_title title) :
     win_db(1,1, title) { init_panedb(parent, title);
 		         status_bar  = True;
-		       }
-   
+
+             // the win_db has been made more general than the 
+             // original implementation such that it may deal with
+             // something other than a shared memory with slots bound
+             // to spectra. Now, it enquires about spectrum through
+             // a query interface. here we create the Xamine version 
+             // that does what it used to.
+             //
+             std::shared_ptr<Win::SpectrumQueryInterface> pInterface(new Win::SpectrumQueryInterface);
+             std::shared_ptr<Win::SpectrumQuerier> pQuerier(new XamineSpectrumQuerier);
+             pInterface->setQueryEntity(pQuerier);
+             setQueryInterface(pInterface);
+    }
+
   ~pane_db();
 
   /* Additional methods above win_db */

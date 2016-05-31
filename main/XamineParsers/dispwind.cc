@@ -30,19 +30,19 @@ static const  char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 int win_db::m_ReadOnce = 0;         // True if flex was used.
 void windfilerestart(FILE *fp);
 
-std::string win_definition::getIdentifier()
+std::string win_geometry::getIdentifier(win_definition* pWin)
 {
     std::string identifier;
 
-    if (! spectrum_name.empty()) {
+    if (! pWin->getSpectrumName().empty()) {
 
-        identifier = spectrum_name;
+        identifier = pWin->getSpectrumName();
 
     } else {
 
         if (m_pInterface) {
           Win::SpectrumQueryResults info 
-            = m_pInterface->getSpectrumInfo(spectrum());
+            = m_pInterface->getSpectrumInfo(pWin->spectrum());
 
           identifier = info.s_name;
         } else {
@@ -316,7 +316,7 @@ int win_1d::write(FILE *f)
           int id = (sli.Next()).Spectrum();
           if (id >= 0) {
               Win::SpectrumQueryResults info;
-              info = m_pInterface->getSpectrumInfo(id);
+              info = m_pParent->getSpectrumInterface()->getSpectrumInfo(id);
               wbytes = fprintf(f,"   Superimpose \"%s\"\n", info.s_name.c_str());
           } else {
               std::string name = sli.Next().SpectrumName();
@@ -458,6 +458,7 @@ void win_db::define1d(int x, int y, int specnum)
     windows[x][y] = (win_definition *)NULL;
   }
   windows[x][y] = (win_definition *)new win_1d(specnum);
+  windows[x][y]->setParent(this);
 }
 
 void win_db::define1d(int x, int y, const std::string& spectrumName)
@@ -470,6 +471,7 @@ void win_db::define1d(int x, int y, const std::string& spectrumName)
   
   windows[x][y] = new win_1d;
   windows[x][y]->setSpectrumName(spectrumName);
+  windows[x][y]->setParent(this);
 }
 
 /*
@@ -573,7 +575,7 @@ int win_db::write(const char *filename)
     for(i = 0; i < win_nx; i++) {
         if(defined(i,j)) {
             if(fprintf(config, "Window  %d,%d,\"%s\"\n", i,j,
-                       windows[i][j]->getIdentifier().c_str())
+                       getIdentifier(windows[i][j]).c_str())
                     == EOF){
                 fclose(config);
                 return FALSE;
@@ -662,9 +664,11 @@ void windfileerror(char *s)
 //  Xamine_error_msg(Xamine_Getpanemgr(), msg_txt);
   throw std::runtime_error(msg_txt);
 }
+extern "C" {
 int windfilewrap()
 {
   return 1;
+}
 }
 int defaultfilewrap()
 {

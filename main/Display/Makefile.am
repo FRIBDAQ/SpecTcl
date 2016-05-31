@@ -9,7 +9,7 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 AM_CPPFLAGS = -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
-	-I@top_srcdir@/Utility $(GDINCLUDES)
+	-I@top_srcdir@/Utility $(GDINCLUDES) -I@top_srcdir@/XamineParsers
 
 AM_CXXFLAGS = -g -pedantic @TCL_CPPFLAGS@
 AM_CFLAGS   = -g -pedantic @TCL_CPPFLAGS@
@@ -34,7 +34,7 @@ BUILT_SOURCES = windfile_parse.cc defaultfile_parse.cc windfile_lex.h grobfile_p
 
 windfile_FILES =@srcdir@/windfile.y \
 			 @srcdir@/windio.h \
-			 @srcdir@/dispwind.h \
+			 @top_srcdir@/XamineParsers/dispwind.h \
 			 @srcdir@/dispshare.h \
 			 @srcdir@/printer.h
 
@@ -42,7 +42,7 @@ windfile_parse.cc: $(windfile_FILES)
 	$(YACC) -p windfile -b windfile @srcdir@/windfile.y
 	mv windfile.tab.c windfile_parse.cc
 
-defaultfile_parse.cc: @srcdir@/defaultfile.y @srcdir@/dispwind.h @srcdir@/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
+defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @srcdir@/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
 	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
 	mv defaultfile.tab.c defaultfile_parse.cc
 
@@ -50,7 +50,7 @@ windfile_lex.h: @srcdir@/windfile.y @srcdir@/windio.h
 	$(YACC) -p windfile -b windfile -dl  @srcdir@/windfile.y
 	mv windfile.tab.h windfile_lex.h
 
-windfile_lex.cc : @srcdir@/windfile.l @srcdir@/dispwind.h @srcdir@/superpos.h @builddir@/windfile_lex.h @srcdir@/windio.h
+windfile_lex.cc : @srcdir@/windfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h @builddir@/windfile_lex.h @srcdir@/windio.h
 	$(LEX) @srcdir@/windfile.l
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
@@ -77,7 +77,7 @@ defaultfile_lex.h: @srcdir@/defaultfile.y @srcdir@/windio.h
 	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
 	mv defaultfile.tab.h defaultfile_lex.h
 
-defaultfile_lex.cc : @srcdir@/windfile.l @srcdir@/defaultfile.l @srcdir@/dispwind.h @srcdir@/superpos.h \
+defaultfile_lex.cc : @srcdir@/windfile.l @srcdir@/defaultfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h \
 	@builddir@/defaultfile_lex.h @srcdir@/windio.h
 	$(LEX) @srcdir@/windfile.l
 	$(LEX) @srcdir@/defaultfile.l
@@ -104,7 +104,7 @@ PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
 # TESTS = $(check_PROGRAMS)	# needs to start Xamine
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
-TabP.h          axes.h             dispwind.h      info.h        scaling.h\
+TabP.h          axes.h             info.h        scaling.h\
 XBatch.h        buttondlg.h        errormsg.h      integrate.h   select2.h\
 XMCallback.h    buttonreq.h        eventflags.h    lblfont.h     spccheck.h\
 XMDialogs.h     buttonsetup.h      exit.h          location.h    spcchoice.h\
@@ -117,8 +117,8 @@ XMScale.h       clirequests.h      grafinput.h     objcopy.h     text.h\
 XMSeparators.h  colormgr.h         griprint.h      optionmenu.h  titles.h\
 XMShell.h       compatspec.h       grobfile.tab.h  panemgr.h     toggles.h\
 XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
-XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
-XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
+XMText.h        copier.h           grobjdisplay.h  prccheck.h   \
+XMWidget.h      copyatr.h          grobjinput.h    printer.h   \
 XMWlist.h       XMMultiSelectionList.h defaultfile_lex.h        grobjio.h      \
  procede.h     windio.h \
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
@@ -126,7 +126,6 @@ acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
 xamineDataTypes.h wysiwygPrint.h \
 XamineSpectrumInterface.h  \
-dispwind.cc \
 lexsupport.c \
 superpos.cc
 
@@ -136,6 +135,7 @@ libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
     specalloc.c clientbuttons.c prccheck.c
 
+libXamine_la_CPPFLAGS = -I@top_srcdir@/XamineParsers
 
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
@@ -172,7 +172,7 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 				  -DXTFUNCPROTO -DXAMINE \
 				  -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 					-I@top_srcdir@/XamineParsers \
-					  -I@top_srcdir@/Utility $(GDINCLUDES)
+					-I@top_srcdir@/Utility $(GDINCLUDES)
 
 
 
@@ -229,5 +229,5 @@ EXTRA_DIST = queue.cc colorset.ico \
 #  These files can cause problems on rebuilds.
 
 MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
-	grobfile_lex.h windfile_lex.cc windfile_lex.h              \
-	defaultfile_parse.cc grobfile_parse.cc windfile_parse.cc
+	grobfile_lex.h               \
+	defaultfile_parse.cc grobfile_parse.cc 
