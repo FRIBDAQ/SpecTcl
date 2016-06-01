@@ -223,9 +223,8 @@ Xamine_LDADD=  @top_builddir@/XamineParsers/libXamineParsers.la @XLIBSW@ @MOTIF_
 EXTRA_DIST = queue.cc colorset.ico \
 	Xamine.ico Xamine.doc Xamine2.ctbl \
 	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
-	defaultfile.y grobfile.y windfile.y defaultfile.l \
-	grobfile.l windfile.l
-
+	defaultfile.y grobfile.y defaultfile.l \
+	grobfile.l
 #  These files can cause problems on rebuilds.
 
 MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \

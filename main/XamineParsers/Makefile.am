@@ -44,11 +44,11 @@ libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
 
 
 EXTRA_DIST = \
-	grobfile.y windfile.y \
-	grobfile.l windfile.l
+	windfile.y \
+	windfile.l
 
 #  These files can cause problems on rebuilds.
 
-MOSTLYCLEANFILES = grobfile_lex.cc \
-	grobfile_lex.h windfile_lex.cc windfile_lex.h              \
-	grobfile_parse.cc windfile_parse.cc
+MOSTLYCLEANFILES = \
+	windfile_lex.cc windfile_lex.h              \
+	windfile_parse.cc
