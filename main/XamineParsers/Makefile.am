@@ -45,7 +45,11 @@ libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
 
 EXTRA_DIST = \
 	windfile.y \
-	windfile.l
+	windfile.l \
+	dispwind.h \
+	superpos.h \
+	SpectrumQueryInterface.h \
+	windio.h
 
 #  These files can cause problems on rebuilds.
 
