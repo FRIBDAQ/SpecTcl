@@ -35,6 +35,8 @@
 #include "AutoUpdateDialog.h"
 #include "TabWorkspace.h"
 #include "SaveToRootDialog.h"
+#include "ConfigCopySelector.h"
+
 
 #include <QDebug>
 #include <QDockWidget>
@@ -133,6 +135,8 @@ void MainWindow::connectSignalsAndSlots()
 
     connect(pUI->pSaveAsAction, SIGNAL(triggered()), this, SLOT(onSaveAs()));
 
+    connect(pUI->actionCopySpecAttributes, SIGNAL(triggered()), this,
+            SLOT(onCopySpectrumAttributes()));
 }
 
 
@@ -181,6 +185,11 @@ void MainWindow::onNewHistogram()
   }
 }
 
+void MainWindow::onCopySpectrumAttributes()
+{
+    ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView());
+    selector.exec();
+}
 
 void MainWindow::createShortcuts()
 {

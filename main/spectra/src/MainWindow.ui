@@ -80,9 +80,10 @@
    </widget>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
-     <string>Create</string>
+     <string>Actions</string>
     </property>
     <addaction name="actionNewHistogram"/>
+    <addaction name="actionCopySpecAttributes"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -127,6 +128,16 @@
   <action name="pSaveAsAction">
    <property name="text">
     <string>&amp;Save as...</string>
+   </property>
+  </action>
+  <action name="actionCopy_Attributes">
+   <property name="text">
+    <string>Copy Attributes</string>
+   </property>
+  </action>
+  <action name="actionCopySpecAttributes">
+   <property name="text">
+    <string>Copy spectrum attributes...</string>
    </property>
   </action>
  </widget>

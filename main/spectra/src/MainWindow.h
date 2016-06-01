@@ -104,6 +104,8 @@ public slots:
 
     void closeDialog();
 
+    void onCopySpectrumAttributes();
+
     ///////////////////////////////////////////////////////////////////////////
 
 private:

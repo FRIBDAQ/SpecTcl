@@ -70,6 +70,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   SaveToRootDialog.h \
   RootFileWriter.h \
   WinFileWriter.h \
+	ConfigCopySelector.h \
+  SelectableImage.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -135,6 +137,8 @@ libSpectra_la_SOURCES = \
     TabFromWinFileCompositor.cpp \
     RootFileWriter.cpp \
     WinFileWriter.cpp \
+		ConfigCopySelector.cpp \
+		SelectableImage.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -183,6 +187,8 @@ libSpectra_la_SOURCES = \
         moc_AutoUpdater.cpp \
         moc_AutoUpdateDialog.cpp \
         moc_SaveToRootDialog.cpp \
+				moc_ConfigCopySelector.cpp \
+				moc_SelectableImage.cpp \
         cmdline.c \
 	qrc_resources.cpp
 
@@ -278,6 +284,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_AutoUpdater.cpp \
 								moc_AutoUpdateDialog.cpp \
 								moc_SaveToRootDialog.cpp \
+								moc_ConfigCopySelector.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
