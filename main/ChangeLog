@@ -1055,3 +1055,6 @@ November 30-?? 2011
 	*  Perfromance improvements in GUi startup and handling.
 	*  Add support in VMUSBSpecTcl for parameter-less vmusb module.
 	
+3.4-008
+	* TCLAnalyzer.h - performance improveents in counter management.
+	
