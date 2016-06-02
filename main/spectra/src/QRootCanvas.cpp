@@ -355,7 +355,7 @@ void QRootCanvas::mouseDoubleClickEvent( QMouseEvent *e )
    }
 }
 
-void QRootCanvas::actiavteRepaint(int mode)
+void QRootCanvas::activateRepaint(int mode)
 {
    fRepaintMode |= mode;
    fRepaintTimer->setSingleShot(true);
@@ -364,7 +364,7 @@ void QRootCanvas::actiavteRepaint(int mode)
 
 void QRootCanvas::resizeEvent( QResizeEvent *)
 {
-   actiavteRepaint(act_Resize);
+   activateRepaint(act_Resize);
 }
 
 void QRootCanvas::paintEvent( QPaintEvent *)
@@ -377,7 +377,7 @@ void QRootCanvas::paintEvent( QPaintEvent *)
    if (fRepaintMode<0)
       fRepaintMode = 0;
    else
-      actiavteRepaint(act_Update);
+      activateRepaint(act_Update);
 }
 
 void QRootCanvas::processRepaintTimer()
@@ -759,7 +759,7 @@ void      QRootCanvas::ToggleAutoExec()
 void      QRootCanvas::Update()
 {
    // do not call update directly, just use timer
-   actiavteRepaint(act_Update);
+   activateRepaint(act_Update);
 //   fCanvas->Update();
 }
 
