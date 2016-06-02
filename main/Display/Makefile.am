@@ -21,7 +21,7 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(builddir)/Xamine $(prefix)/bin/Xamine2_0
 
 
-BUILT_SOURCES = defaultfile_parse.cc grobfile_parse.cc grobfile_lex.h
+BUILT_SOURCES = defaultfile_parse.cc defaultfile_lex.cc defaultfile_lex.h grobfile_parse.cc grobfile_lex.h grobfile_lex.cc windlex.h
 
 LEXOUT = @top_builddir@/XamineParsers/lex.yy.c
 
@@ -55,6 +55,8 @@ defaultfile_lex.cc : @top_srcdir@/XamineParsers/windfile.l @srcdir@/defaultfile.
 	@builddir@/defaultfile_lex.h @top_srcdir@/XamineParsers/windio.h
 	$(LEX) @srcdir@/defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
+
+windlex.h : @builddir@/defaultfile_lex.h
 	cp defaultfile_lex.h windlex.h
 
 
