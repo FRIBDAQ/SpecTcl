@@ -9,7 +9,7 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 AM_CPPFLAGS = -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
-	-I@top_srcdir@/Utility $(GDINCLUDES) -I@top_srcdir@/XamineParsers
+	-I@top_srcdir@/Utility $(GDINCLUDES) -I@top_srcdir@/XamineParsers -I@top_builddir@/XamineParsers
 
 AM_CXXFLAGS = -g -pedantic @TCL_CPPFLAGS@
 AM_CFLAGS   = -g -pedantic @TCL_CPPFLAGS@
