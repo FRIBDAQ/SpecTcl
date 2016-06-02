@@ -36,6 +36,8 @@
 #include "TabWorkspace.h"
 #include "SaveToRootDialog.h"
 #include "ConfigCopySelector.h"
+#include "HistogramBundle.h"
+#include "HistogramList.h"
 
 
 #include <QDebug>
@@ -44,6 +46,11 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QFrame>
+
+#include <TH1.h>
+#include <TAxis.h>
+#include <QString>
+#include <QStringList>
 
 namespace Viewer
 {
@@ -189,6 +196,76 @@ void MainWindow::onCopySpectrumAttributes()
 {
     ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView());
     selector.exec();
+
+    std::cout << "done setting up the copy" << std::endl;
+
+    ConfigCopySelection selection = selector.getSelection();
+    if (selection.s_sourceHist.isEmpty()) return;
+
+    HistogramList* pList = m_specTclControl.getInterface()->getHistogramList();
+
+    HistogramBundle* pSourceBundle = pList->getHist(selection.s_sourceHist);
+
+    // jump ship if we don't have a source bundle to copy from
+    if (pSourceBundle == nullptr) {
+    	QMessageBox::warning(this, "Attribute copy failure",
+    			"Unable to copy attributes from source that does not exist in histogram list");
+    	return;
+    }
+
+    for (int i=0; i<selection.s_destinationHists.size(); ++i) {
+    	HistogramBundle* pDestBundle = pList->getHist(selection.s_destinationHists[i]);
+    	if (!pDestBundle) {
+    		QMessageBox::warning(this, "Attribute copy failure",
+    							"Unable to copy attributes to destination histogram because it does not exist.");
+    		continue;
+    	}
+
+    	TH1& destHist = pDestBundle->getHist();
+		TH1& sourceHist = pSourceBundle->getHist();
+
+		std::cout << "copying " << pSourceBundle->getName().toStdString();
+		std::cout << " to " << pDestBundle->getName().toStdString() << std::endl;
+
+    	if (selection.s_copyXAxis) {
+    		// copy x axis range
+    		std::cout << "copy x axis" << std::endl;
+    		TAxis* pDestAxis = destHist.GetXaxis();
+    		TAxis* pSrcAxis = sourceHist.GetXaxis();
+
+    		double lowerLimit = pSrcAxis->GetBinLowEdge(pSrcAxis->GetFirst());
+    		double upperLimit = pSrcAxis->GetBinUpEdge(pSrcAxis->GetLast());
+
+    		std::cout << "\nsrc  before : " << lowerLimit << " " << upperLimit << std::endl;
+    		std::cout << "dest before : " << pDestAxis->GetFirst() << " " << pDestAxis->GetLast() << std::endl;
+
+    		pDestAxis->SetRange(pDestAxis->FindBin(lowerLimit),
+    							pDestAxis->FindBin(upperLimit));
+    		std::cout << "after : " << pDestAxis->GetFirst() << " " << pDestAxis->GetLast() << std::endl;
+    	}
+
+    	if (selection.s_copyYAxis) {
+    		// copy x axis range
+    		std::cout << "copy y axis" << std::endl;
+
+    		TAxis* pDestAxis = destHist.GetYaxis();
+    		TAxis* pSrcAxis = sourceHist.GetYaxis();
+
+    		double lowerLimit = pSrcAxis->GetBinLowEdge(pSrcAxis->GetFirst());
+    		double upperLimit = pSrcAxis->GetBinUpEdge(pSrcAxis->GetLast());
+    		pDestAxis->SetRange(pDestAxis->FindBin(lowerLimit),
+    							pDestAxis->FindBin(upperLimit));
+    	}
+
+    	if (selection.s_copyDrawOption) {
+    		std::cout << "copy drop option" << std::endl;
+
+    		pDestBundle->setDefaultDrawOption(pSourceBundle->getDefaultDrawOption());
+    	}
+
+    }
+
+    m_pView->getCurrentWorkspace().getView().refreshAll();
 }
 
 void MainWindow::createShortcuts()

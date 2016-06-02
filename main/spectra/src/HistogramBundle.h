@@ -62,6 +62,7 @@ private:
   std::map<QString, GSlice*>    m_cuts1d;
   std::map<QString, GGate*>     m_cuts2d;
   SpJs::HistInfo                m_hInfo;
+  QString						m_defaultDrawOption;
 
 public:
     /*!
@@ -134,6 +135,10 @@ public:
      * option.
      */
     void draw(const QString& opt = QString());
+
+
+    void setDefaultDrawOption(const QString& opt);
+    QString getDefaultDrawOption() const;
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods

@@ -122,6 +122,8 @@ void TabWorkspace::layoutSpectra(QStringList spectrumList)
     m_pDrawPanel->getGeometrySelector().setGeometry(nRows, nCols);
 
     m_pView->layoutSpectra(spectrumList);
+    m_pView->update();
+
 }
 
 
@@ -138,7 +140,6 @@ void TabWorkspace::showHideStatistics()
             } else {
                 m_pInfoPanel->updateContent(*pCanvas);
             }
-
         }
     }
 }

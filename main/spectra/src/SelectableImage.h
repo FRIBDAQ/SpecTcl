@@ -8,16 +8,17 @@
 #ifndef SELECTABLEIMAGE_H_
 #define SELECTABLEIMAGE_H_
 
-#include <QWidget>
+#include <QAbstractButton>
 #include <QPixmap>
 #include <QString>
 #include <QSize>
 
 class QPaintEvent;
+class QPoint;
 
 namespace Viewer {
 
-class SelectableImage : public QWidget {
+class SelectableImage : public QAbstractButton {
 public:
 	SelectableImage(const QPixmap& image, const QString& name, QWidget* pParent);
 	virtual ~SelectableImage();
@@ -25,9 +26,10 @@ public:
 	virtual void paintEvent(QPaintEvent* pEvent);
 
 	virtual QSize sizeHint() const;
+	virtual bool hitButton(const QPoint& pos) const;
+
 private:
 	QPixmap	m_pixmap;
-	QString	m_name;
 };
 
 } /* namespace Viewer */

@@ -51,8 +51,15 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_pHist(std::move(pHist)),
       m_cuts1d(),
       m_cuts2d(),
-      m_hInfo(info)
-{}
+      m_hInfo(info),
+      m_defaultDrawOption()
+{
+	if (m_pHist) {
+		if (m_pHist->InheritsFrom(TH2::Class())) {
+			m_defaultDrawOption = "col2";
+		}
+	}
+}
 
 HistogramBundle::~HistogramBundle()
 {
@@ -76,9 +83,7 @@ void HistogramBundle::draw(const QString& opt) {
 
   QString opts(opt);
     if (opts.isNull()) {
-      if ( dynamic_cast<TH2*>(m_pHist.get()) ) {
-        opts = "col2";
-      }
+        opts = m_defaultDrawOption;
     }
     const char* cOpts = opts.toAscii().constData();
 
@@ -209,6 +214,17 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
   }
 
   return somethingChanged;
+}
+
+
+void HistogramBundle::setDefaultDrawOption(const QString& opt)
+{
+	m_defaultDrawOption = opt;
+}
+
+QString HistogramBundle::getDefaultDrawOption() const
+{
+	return m_defaultDrawOption;
 }
 
 } // end of Viewer namespace
