@@ -20,40 +20,14 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
 	$(INSTALL_PROGRAM) $(builddir)/Xamine $(prefix)/bin/Xamine2_0
 
-LEXOUT = @builddir@/lex.yy.c
 
-$(LEXOUT):
-	$(LEX) @srcdir@/windfile.l
+BUILT_SOURCES = defaultfile_parse.cc grobfile_parse.cc grobfile_lex.h
 
-windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
-	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
-	cp windfile_lex.h windlex.h
+LEXOUT = @top_builddir@/XamineParsers/lex.yy.c
 
-
-BUILT_SOURCES = windfile_parse.cc defaultfile_parse.cc windfile_lex.h grobfile_parse.cc grobfile_lex.h
-
-windfile_FILES =@srcdir@/windfile.y \
-			 @srcdir@/windio.h \
-			 @top_srcdir@/XamineParsers/dispwind.h \
-			 @srcdir@/dispshare.h \
-			 @srcdir@/printer.h
-
-windfile_parse.cc: $(windfile_FILES) 
-	$(YACC) -p windfile -b windfile @srcdir@/windfile.y
-	mv windfile.tab.c windfile_parse.cc
-
-defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @srcdir@/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
+defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @top_srcdir@/XamineParsers/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
 	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
 	mv defaultfile.tab.c defaultfile_parse.cc
-
-windfile_lex.h: @srcdir@/windfile.y @srcdir@/windio.h
-	$(YACC) -p windfile -b windfile -dl  @srcdir@/windfile.y
-	mv windfile.tab.h windfile_lex.h
-
-windfile_lex.cc : @srcdir@/windfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h @builddir@/windfile_lex.h @srcdir@/windio.h
-	$(LEX) @srcdir@/windfile.l
-	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
-	cp windfile_lex.h windlex.h
 
 grobfile_lex.cc: @srcdir@/grobfile.l @srcdir@/dispgrob.h @srcdir@/grobjio.h @builddir@/grobfile_lex.h
 	$(LEX) @srcdir@/grobfile.l
@@ -73,19 +47,15 @@ grobfile_lex.h: @srcdir@/grobfile.y @srcdir@/grobjio.h @builddir@/grobfile_parse
 
 
 
-defaultfile_lex.h: @srcdir@/defaultfile.y @srcdir@/windio.h
+defaultfile_lex.h: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/windio.h
 	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
 	mv defaultfile.tab.h defaultfile_lex.h
 
-defaultfile_lex.cc : @srcdir@/windfile.l @srcdir@/defaultfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h \
-	@builddir@/defaultfile_lex.h @srcdir@/windio.h
-	$(LEX) @srcdir@/windfile.l
+defaultfile_lex.cc : @top_srcdir@/XamineParsers/windfile.l @srcdir@/defaultfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h \
+	@builddir@/defaultfile_lex.h @top_srcdir@/XamineParsers/windio.h
 	$(LEX) @srcdir@/defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
 	cp defaultfile_lex.h windlex.h
-
-PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
-	defaultfile_lex.o defaultfile_parse.o
 
 
 #libXamineParsers_la_SOURCES = dispwind.cc \
@@ -120,7 +90,7 @@ XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
 XMText.h        copier.h           grobjdisplay.h  prccheck.h   \
 XMWidget.h      copyatr.h          grobjinput.h    printer.h   \
 XMWlist.h       XMMultiSelectionList.h defaultfile_lex.h        grobjio.h      \
- procede.h     windio.h \
+ procede.h      \
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
@@ -224,7 +194,7 @@ EXTRA_DIST = queue.cc colorset.ico \
 	Xamine.ico Xamine.doc Xamine2.ctbl \
 	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
 	defaultfile.y grobfile.y defaultfile.l \
-	grobfile.l
+	grobfile.l 
 #  These files can cause problems on rebuilds.
 
 MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
