@@ -16,7 +16,8 @@ namespace Viewer {
 
 SelectableImage::SelectableImage(const QPixmap& pixmap, const QString& name, QWidget* pParent)
 	: QAbstractButton(pParent),
-	  m_pixmap(pixmap)
+	  m_pixmap(pixmap),
+	  m_activePixmap(pixmap)
 {
 	setText(name);
 	setCheckable(true);
@@ -32,28 +33,16 @@ void SelectableImage::paintEvent(QPaintEvent* pEvent)
 {
 	QPainter painter(this);
 
-	QRgb color;
 	int value;
 
-//	QImage image = m_pixmap.toImage();
-//	QSize size = m_pixmap.size();
-//	for (int x=0; x<size.width(); ++x) {
-//		for (int y=0; y<size.height(); ++y) {
-//			color = image.pixel(x, y);
-//			// convert to grayscale
-//			int gray = 0.299*qRed(color) + 0.587*qGreen(color) + 0.114*qBlue(color);
-//			image.setPixel(x,y, qRgb(gray, gray, gray));
-//		}
-//	}
-//
-//	painter.drawImage(QPoint(), image, rect());
+	painter.drawPixmap(QPoint(), m_activePixmap, rect());
 
 
 	QPen pen;
-	QBrush brush;
-
-	brush.setColor(QColor(Qt::gray));
-	painter.fillRect(rect(), brush);
+//	QBrush brush;
+//
+//	brush.setColor(QColor(Qt::gray));
+//	painter.fillRect(rect(), brush);
 
 	if (isChecked()) {
 //		std::cout << "button '" << text().toStdString() << "' is checked" << std::endl;
@@ -98,6 +87,11 @@ bool SelectableImage::hitButton(const QPoint& pos) const
 	return QAbstractButton::hitButton(pos);
 }
 
+void SelectableImage::resizeEvent(QResizeEvent* pEvent)
+{
+	std::cout << "resize Event" << std::endl;
+	m_activePixmap = m_pixmap.scaled(pEvent->size());
+}
 
 } /* namespace Viewer */
 

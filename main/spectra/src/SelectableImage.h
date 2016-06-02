@@ -24,12 +24,14 @@ public:
 	virtual ~SelectableImage();
 
 	virtual void paintEvent(QPaintEvent* pEvent);
+	virtual void resizeEvent(QResizeEvent* pEvent);
 
 	virtual QSize sizeHint() const;
 	virtual bool hitButton(const QPoint& pos) const;
 
 private:
 	QPixmap	m_pixmap;
+	QPixmap m_activePixmap;
 };
 
 } /* namespace Viewer */
