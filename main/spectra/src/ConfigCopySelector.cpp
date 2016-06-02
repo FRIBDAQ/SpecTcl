@@ -6,9 +6,12 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QPixmap>
+#include <QImage>
 #include <QWizardPage>
 #include <QSize>
 #include <QCheckBox>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include <TH1.h>
 
@@ -68,8 +71,7 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group, bool au
             if (pCanvas == nullptr) continue;
 
             QPixmap pixmap(pCanvas->size());
-            pCanvas->render(&pixmap);
-
+            pixmap.fill(Qt::gray);
             std::vector<TH1*> hists = SpectrumView::getAllHists(pCanvas);
             if (hists.size() > 0) {
             	auto pImage = new SelectableImage(pixmap,
@@ -83,6 +85,7 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group, bool au
             }
         }
     }
+
     return pGridLayout;
 }
 
