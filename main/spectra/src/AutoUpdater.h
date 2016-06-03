@@ -13,12 +13,28 @@ namespace Viewer
 class SpecTclInterface;
 class SpectrumView;
 
-
+/*!
+ * \brief The AutoUpdater class
+ *
+ * This provides facilities to periodically update a spectrum view automatically.
+ * The user sets this up through a drop down menu. Currently, there is a one-to-one
+ * relationship between a SpectrumView and an AutoUpdater class. The TabWorkspace
+ * is what orchestrates this, as it owns both of them.
+ *
+ * At the moment, the AutoUpdate feature only supports the updating of all spectra
+ * on a single tab at the same time.
+ *
+ */
 class AutoUpdater : public QObject
 {
     Q_OBJECT
 
 public:
+
+    //
+    // For documentation, please see the doxygen generated docs or the source code
+    //
+
     explicit AutoUpdater(std::shared_ptr<SpecTclInterface> pSpecTcl,
                          SpectrumView& rView,
                          QObject *parent = 0);

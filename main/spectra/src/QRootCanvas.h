@@ -123,7 +123,7 @@ signals:
       /** signal emitted when user produce left mouse doubleclick on pad  */
       void              PadDoubleClicked(TPad*);
 
-      void              MenuCommandExecuted(TObject*, const char*);
+      void              MenuCommandExecuted(TObject*, QString);
 
       void              CanvasStatusEvent(const char*);
 

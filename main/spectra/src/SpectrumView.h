@@ -32,6 +32,7 @@
 #include <tuple>
 
 class TH1;
+class TObject;
 
 class QMouseEvent;
 

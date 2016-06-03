@@ -26,6 +26,21 @@
 #include <chrono>
 #include <iostream>
 
+/*! \brief Simple benchmark class
+ *
+ * The benchmark class will time the elapsed microseconds between when it is constructed and destructed.
+ * It relies on the automatic scoping of stack allocated objects, so do not create this with operator new.
+ * It is used similar to the following:
+ *
+ * \code
+ * { // start benchmarking region
+ *   Benchmark<0, std::chrono::high_resolution_clock> benchmark;
+ *
+ *   // ... do some work that you want to benchmark
+ *
+ * } // end of scope to benchmark
+ * \endcode
+ */
 template<int Msg, class Clock>
 class Benchmark {
   std::chrono::time_point<Clock> begin;

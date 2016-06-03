@@ -80,7 +80,7 @@
    </widget>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
-     <string>Actions</string>
+     <string> Actions</string>
     </property>
     <addaction name="actionNewHistogram"/>
     <addaction name="actionCopySpecAttributes"/>
@@ -112,7 +112,7 @@
   </action>
   <action name="actionNewHistogram">
    <property name="text">
-    <string>Histogram</string>
+    <string>Create Histogram</string>
    </property>
   </action>
   <action name="actionGates">
