@@ -21,11 +21,24 @@ AutoUpdater::AutoUpdater(std::shared_ptr<SpecTclInterface> pSpecTcl, SpectrumVie
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
+/*!
+ * \brief AutoUpdater::onTimeout
+ *
+ *  This is a callback for when the wait period ends. It updates all of the spectra on
+ *  the spectrum view that is assigned to this updated.
+ */
 void AutoUpdater::onTimeout()
 {
     updateAll();
 }
 
+/*!
+ * \brief AutoUpdater::start
+ * \param nSeconds  number of seconds to timeout after
+ *
+ * Initiates the update mechanism. Once this is called, all previous timers
+ * are stopped and a new one is started.
+ */
 void AutoUpdater::start(int nSeconds)
 {
     // in case the timer is already active, we need to stop it to achieve
@@ -35,21 +48,49 @@ void AutoUpdater::start(int nSeconds)
     m_pTimer->start();
 }
 
+/*!
+ * \brief AutoUpdater::stop
+ *
+ * Stopping the updater has no consequences besides cancelling the update. The currently
+ * scheduled timer does not timeout and the spectra are not updated.
+ */
 void AutoUpdater::stop()
 {
     m_pTimer->stop();
 }
 
+
+/*!
+ * \brief AutoUpdater::getInterval
+ *
+ * \return  the update period in seconds
+ */
 int AutoUpdater::getInterval() const
 {
     return m_pTimer->interval();
 }
 
+/*!
+ * \brief AutoUpdater::isActive
+ * \return boolean indicating whether updates are in process
+ */
 bool AutoUpdater::isActive() const
 {
     return m_pTimer->isActive();
 }
 
+/*!
+ * \brief AutoUpdater::updateAll
+ *
+ * Update all of the spectra that are displayed in the spectrum view.
+ * Any histograms that may be found recursively are assumed to be found
+ * by the SpectrumView::getAllHists method. This simply leans on that and
+ * updates the histograms it receives. Note that this inherently causes
+ * traffic through the SpecTclInterface.
+ *
+ * There is some intelligence built in to avoid making multiple requests for updates of
+ * the same spectrum.
+ */
 void AutoUpdater::updateAll() {
     if (m_pSpecTcl) {
         auto canvases = m_pView->getAllCanvases();

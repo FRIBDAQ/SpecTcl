@@ -239,11 +239,12 @@ void QRootCanvas::buildTLatexContextMenu(TList& defaultItems, QMenu& menu, QSign
 void QRootCanvas::buildTH1ContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map)
 {
     std::vector<QString> blacklist = {"Add", "Divide", "Multiply", "Rebin", "SetStats",
-                                      "Smooth", "SetName", "Delete"};
+                                      "Smooth", "SetName", "Delete", "SetDrawOption"};
     std::sort(blacklist.begin(), blacklist.end());
 
     addMenuAction(&menu, &map, "Qt Hist Line Color ", 101 );
     addMenuAction(&menu, &map, "Qt Hist Fill Color ", 102 );
+    addMenuAction(&menu, &map, "SetDrawOption", 103);
     menu.addSeparator();
 
     TIter iter(&defaultItems);
@@ -890,7 +891,7 @@ void QRootCanvas::methodDialog(TObject* object, TMethod* method)
    if(strcmp(method->GetName(),"Delete") == 0) {
       // here call explicitely the dtor
       qDebug(" DIAL obj name deleted :%s \n", object->GetName());
-      emit MenuCommandExecuted(object, "Delete");
+      emit MenuCommandExecuted(object, QString("Delete"));
       delete object;
       object = 0;
       deletion = kTRUE;
@@ -901,7 +902,7 @@ void QRootCanvas::methodDialog(TObject* object, TMethod* method)
       int height = dlg.getArg(1).toInt();
       qDebug( " do resize with %i %i \n", width, height);
       resize(width, height);
-      emit MenuCommandExecuted(fCanvas, "SetCanvasSize");
+      emit MenuCommandExecuted(fCanvas, QString("SetCanvasSize"));
    } else {
       // here call cint call
       qDebug("TCint::Execute called !\n");
@@ -967,7 +968,7 @@ void QRootCanvas::executeMenu(int id)
                                          QLineEdit::Normal, QString::null, &ok);
             //if (ok && !text.isEmpty())
             fxLatex->DrawLatex(fMousePosX, fMousePosY, text.toAscii().constData());
-            emit MenuCommandExecuted(fxLatex, "DrawLatex");
+            emit MenuCommandExecuted(fxLatex, QString("DrawLatex"));
             break;
         }
         case 101: {
@@ -977,7 +978,7 @@ void QRootCanvas::executeMenu(int id)
               if (col.isValid()) {
                  short int C_new =  TColor::GetColor(col.red(), col.green(), col.blue());
                  h1->SetLineColor(C_new);
-                 emit MenuCommandExecuted(h1, "SetLineColor");
+                 emit MenuCommandExecuted(h1, QString("SetLineColor"));
               }
             }
            break;
@@ -989,9 +990,18 @@ void QRootCanvas::executeMenu(int id)
               if (col.isValid()) {
                 short int C_new =  TColor::GetColor(col.red(), col.green(), col.blue());
                 h1->SetFillColor(C_new);
-                emit MenuCommandExecuted(h1,"SetFillColor");
+                emit MenuCommandExecuted(h1,QString("SetFillColor"));
               }
            }
+           break;
+        }
+        case 103 : {
+        	TH1 *h1 = dynamic_cast<TH1*>(fMenuObj);
+        	if (h1) {
+        		std::cout << "emitting MenuCommandExecuted : SetDrawOption" << std::endl;
+                emit MenuCommandExecuted(h1, QString("SetDrawOption"));
+        	}
+        	break;
         }
       }
       gROOT->GetSelectedPad()->Update();

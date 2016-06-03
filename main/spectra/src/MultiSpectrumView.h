@@ -36,6 +36,7 @@
 #include <tuple>
 
 class TPad;
+class TObject;
 
 class QMouseEvent;
 
@@ -148,6 +149,7 @@ public:
 
     std::tuple<int, int> computeOptimalGeometry(int nSpectra);
 
+    void connectSignalsToNewCanvas(QRootCanvas *pCanvas);
 public slots:
     /*!
      * \brief onGeometryChanged
@@ -207,6 +209,8 @@ public slots:
 
     void ignoreUpdates(bool state);
     bool isIgnoringUpdates() const;
+
+    void onMenuCommandExec(TObject* pObj, QString name);
 private:
     /*!
      * \brief Find (row,col) of specific widget

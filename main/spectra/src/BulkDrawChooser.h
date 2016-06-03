@@ -7,6 +7,9 @@
 
 #include <vector>
 
+
+// Forward declarations
+
 class QShowEvent;
 class QHideEvent;
 
@@ -19,6 +22,16 @@ namespace Viewer
 
 class HistogramList;
 
+
+/*!
+ * \brief The BulkDrawChooser class
+ *
+ *  This is part of the tab display setup sequence that handles when a user
+ *  chooses the bulk draw option. It is just a list of all the spectra
+ *  and a filter for choosing them. The filter line edit grabs the keyboard
+ *  with the intent that this should be able to set up a tab quickly for
+ *  names that are similar to each other.
+ */
 class BulkDrawChooser : public QWidget
 {
     Q_OBJECT

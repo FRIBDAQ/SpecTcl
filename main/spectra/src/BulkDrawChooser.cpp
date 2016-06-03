@@ -19,11 +19,14 @@ BulkDrawChooser::BulkDrawChooser(HistogramList &rHistList, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // populate the histogram list
     setHistogramList(m_rHistList.histNames());
 
     ui->pHistList->setFocusProxy(ui->pFilterEdit);
     ui->pFilterEdit->setFocus();
 
+
+    // connect all of the signals and slots
     connect(ui->pBackButton, SIGNAL(clicked()), this, SLOT(onBackClicked()));
     connect(ui->pDrawButton, SIGNAL(clicked()), this, SLOT(onDrawClicked()));
     connect(ui->pFilterEdit, SIGNAL(textEdited(const QString&)),
