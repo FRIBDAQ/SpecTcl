@@ -23,15 +23,15 @@ install-exec-local:
 
 BUILT_SOURCES = defaultfile_parse.cc defaultfile_lex.cc defaultfile_lex.h grobfile_parse.cc grobfile_lex.h grobfile_lex.cc windlex.h
 
-LEXOUT = @top_builddir@/XamineParsers/lex.yy.c
+LEXOUT = @builddir@/lex.yy.c
 
 defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @top_srcdir@/XamineParsers/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
 	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
-	mv defaultfile.tab.c defaultfile_parse.cc
+	mv defaultfile.tab.c @builddir@/defaultfile_parse.cc
 
 grobfile_lex.cc: @srcdir@/grobfile.l @srcdir@/dispgrob.h @srcdir@/grobjio.h @builddir@/grobfile_lex.h
 	$(LEX) @srcdir@/grobfile.l
-	sed s/yy/grobjfile/g $(LEXOUT) >grobfile_lex.cc
+	sed s/yy/grobjfile/g $(LEXOUT) >@builddir@/grobfile_lex.cc
 
 grobfile_parse.cc: @srcdir@/grobfile.y @srcdir@/dispgrob.h @srcdir@/grobjio.h
 	$(YACC) -p grobjfile -b grobfile @srcdir@/grobfile.y
@@ -45,7 +45,9 @@ grobfile_lex.h: @srcdir@/grobfile.y @srcdir@/grobjio.h @builddir@/grobfile_parse
 	mv y.tab.h grobfile_lex.h
 	rm -f y.tab.c
 
-
+defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @top_srcdir@/XamineParsers/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
+	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
+	mv defaultfile.tab.c defaultfile_parse.cc
 
 defaultfile_lex.h: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/windio.h
 	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
@@ -202,4 +204,5 @@ EXTRA_DIST = queue.cc colorset.ico \
 
 MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
 	grobfile_lex.h               \
-	defaultfile_parse.cc grobfile_parse.cc 
+	defaultfile_parse.cc grobfile_parse.cc  windlex.h \
+	lex.yy.c
