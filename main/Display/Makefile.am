@@ -109,7 +109,7 @@ libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
     specalloc.c clientbuttons.c prccheck.c
 
-libXamine_la_CPPFLAGS = -I@top_srcdir@/XamineParsers -I@top_builddir@/XamineParsers
+libXamine_la_CPPFLAGS = -I@top_srcdir@/XamineParsers -I@top_builddir@/XamineParsers $(HOMEDEF)
 
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
@@ -148,7 +148,7 @@ Xamine_CPPFLAGS = -I@top_builddir@ \
 					-I@top_srcdir@/XamineParsers \
 					-I@top_builddir@/XamineParsers \
 					-I@top_srcdir@/Utility $(GDINCLUDES)
-
+Xamine_CFLAGS = $(Xamine_CPPFLAGS)
 
 
 
