@@ -29,6 +29,7 @@ static const  char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 
 int win_db::m_ReadOnce = 0;         // True if flex was used.
 void windfilerestart(FILE *fp);
+extern Win::SpectrumQueryInterface gSpectrumInterface;
 
 std::string win_geometry::getIdentifier(win_definition* pWin)
 {
@@ -40,14 +41,8 @@ std::string win_geometry::getIdentifier(win_definition* pWin)
 
     } else {
 
-        if (m_pInterface) {
-          Win::SpectrumQueryResults info 
-            = m_pInterface->getSpectrumInfo(pWin->spectrum());
-
-          identifier = info.s_name;
-        } else {
-            identifier = "NotAvailable";
-        }
+      Win::SpectrumQueryResults info 
+        = gSpectrumInterface.getSpectrumInfo(pWin->spectrum());
     }
 
     return identifier;
@@ -316,7 +311,7 @@ int win_1d::write(FILE *f)
           int id = (sli.Next()).Spectrum();
           if (id >= 0) {
               Win::SpectrumQueryResults info;
-              info = m_pParent->getSpectrumInterface()->getSpectrumInfo(id);
+              info = gSpectrumInterface.getSpectrumInfo(id);
               wbytes = fprintf(f,"   Superimpose \"%s\"\n", info.s_name.c_str());
           } else {
               std::string name = sli.Next().SpectrumName();

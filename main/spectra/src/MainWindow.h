@@ -106,6 +106,8 @@ public slots:
 
     void onCopySpectrumAttributes();
 
+    void onPrint();
+
     ///////////////////////////////////////////////////////////////////////////
 
 private:

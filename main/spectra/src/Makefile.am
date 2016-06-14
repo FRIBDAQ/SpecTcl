@@ -72,6 +72,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   WinFileWriter.h \
 	ConfigCopySelector.h \
   SelectableImage.h \
+	SpectraSpectrumInterface.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -139,6 +140,7 @@ libSpectra_la_SOURCES = \
     WinFileWriter.cpp \
 		ConfigCopySelector.cpp \
 		SelectableImage.cpp \
+	SpectraSpectrumInterface.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \

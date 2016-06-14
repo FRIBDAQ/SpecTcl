@@ -32,7 +32,7 @@ extern win_db *database;	/* Setup by the caller. */
 win_db db, *database=&db;
 #endif
 
-Win::SpectrumQueryInterface gSpectrumInterface;
+extern Win::SpectrumQueryInterface gSpectrumInterface;
 
 extern int windfilelex_line;
 static int superimposed(win_1d *a, int specid);

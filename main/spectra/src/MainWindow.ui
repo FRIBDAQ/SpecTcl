@@ -75,6 +75,7 @@
      <string>File</string>
     </property>
     <addaction name="pSaveAsAction"/>
+    <addaction name="pPrintAction"/>
     <addaction name="actionConfigure"/>
     <addaction name="actionExit"/>
    </widget>
@@ -138,6 +139,11 @@
   <action name="actionCopySpecAttributes">
    <property name="text">
     <string>Copy spectrum attributes...</string>
+   </property>
+  </action>
+  <action name="pPrintAction">
+   <property name="text">
+    <string>Print</string>
    </property>
   </action>
  </widget>

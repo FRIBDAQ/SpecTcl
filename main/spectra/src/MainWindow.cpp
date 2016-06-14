@@ -38,6 +38,8 @@
 #include "ConfigCopySelector.h"
 #include "HistogramBundle.h"
 #include "HistogramList.h"
+#include "SpectraSpectrumInterface.h"
+#include "SpectrumQueryInterface.h"
 
 
 #include <QDebug>
@@ -52,6 +54,9 @@
 #include <QString>
 #include <QStringList>
 
+
+Win::SpectrumQueryInterface gSpectrumInterface;
+
 namespace Viewer
 {
 
@@ -63,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
     pUI(new Ui::MainWindow),
     m_specTclControl(std::shared_ptr<SpecTclInterface>())
 {
+
+
     pUI->setupUi(this);
 
     setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
@@ -107,6 +114,10 @@ void MainWindow::constructSpecTclInterface()
     } else {
         m_specTclControl.setInterface(factory.create(SpecTclInterfaceFactory::Hybrid));
     }
+
+    std::shared_ptr<Win::SpectrumQuerier> pQuerier(
+                new SpectraSpectrumInterface(m_specTclControl.getInterface()));
+    gSpectrumInterface.setQueryEntity(pQuerier);
 }
 
 //
@@ -144,6 +155,8 @@ void MainWindow::connectSignalsAndSlots()
 
     connect(pUI->actionCopySpecAttributes, SIGNAL(triggered()), this,
             SLOT(onCopySpectrumAttributes()));
+
+    connect(pUI->pPrintAction, SIGNAL(triggered()), this, SLOT(onPrint()));
 }
 
 
@@ -167,7 +180,6 @@ void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterfac
     // connect the new signal-slots
     connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(update(HistogramBundle*)));
-
 }
 
 void MainWindow::launchAutoUpdateDialog()
@@ -299,6 +311,11 @@ void MainWindow::closeDialog()
         m_pMainWidget = m_pView;
     }
 
+}
+
+void MainWindow::onPrint()
+{
+    QMessageBox::warning(this, "Print error", "The print to file feature is not supported at this time.");
 }
 
 } // end of namespace

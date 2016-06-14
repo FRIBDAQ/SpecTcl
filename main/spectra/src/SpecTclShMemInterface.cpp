@@ -27,12 +27,14 @@
 #include "QRootCanvas.h"
 #include "HistogramList.h"
 #include "CanvasOps.h"
+#include "XamineSpectrumInterface.h"
 
 #include "TCanvas.h"
 
 #include <QMessageBox>
 
 #include <iostream>
+
 
 namespace Viewer {
 
@@ -41,6 +43,7 @@ SpecTclShMemInterface::SpecTclShMemInterface() :
     m_pRESTInterface(new SpecTclRESTInterface)
 {
 
+    
     // we need to shmem key at this point
 
     Xamine_initspectra(); // sets up access to spectra

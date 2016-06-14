@@ -63,7 +63,6 @@ class win_geometry {
   protected:
     unsigned int win_nx; /* Number in X */
     unsigned int win_ny; /* Number in Y */
-    std::shared_ptr<Win::SpectrumQueryInterface> m_pInterface;
 
   public:
     win_geometry(int nx=1, int ny=1)
@@ -79,13 +78,6 @@ class win_geometry {
     { *this = g; }
     int write(FILE *f)
     { return fprintf(f, "Geometry %d,%d\n", win_nx, win_ny); }
-    void setQueryInterface(std::shared_ptr<Win::SpectrumQueryInterface> pInterface)
-    {
-      m_pInterface = pInterface;
-    }
-    std::shared_ptr<Win::SpectrumQueryInterface> getSpectrumInterface() const {
-      return m_pInterface;
-    }
 
     std::string getIdentifier(win_definition* pWin);
 };
