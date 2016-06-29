@@ -40,6 +40,7 @@
 #include "HistogramList.h"
 #include "SpectraSpectrumInterface.h"
 #include "SpectrumQueryInterface.h"
+#include "PrintDialog.h"
 
 
 #include <QDebug>
@@ -315,7 +316,8 @@ void MainWindow::closeDialog()
 
 void MainWindow::onPrint()
 {
-    QMessageBox::warning(this, "Print error", "The print to file feature is not supported at this time.");
+    PrintDialog dialog(m_specTclControl.getInterface(), *m_pView, this);
+    dialog.exec();
 }
 
 } // end of namespace

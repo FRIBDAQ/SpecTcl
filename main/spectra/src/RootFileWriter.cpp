@@ -127,6 +127,7 @@ void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
        pCanvas->getCanvas()->SetName(rWorkspace.objectName().toUtf8().constData());
        std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
        writeCanvas(*pCanvas);
+       copyObjectsIntoDirectories(*pCanvas->getCanvas());
    } else {
        for (auto& pCanvas : canvases) {
            pCanvas->getCanvas()->Write();
@@ -140,14 +141,14 @@ void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
 //
 //
 std::unique_ptr<QRootCanvas>
-RootFileWriter::combineCanvases(std::vector<QRootCanvas*> &canvases,
-                                int nRows, int nCols)
+RootFileWriter::combineCanvases(const std::vector<QRootCanvas *> &canvases,
+                                int nRows, int nCols, QWidget *pParent)
 {
     // the canvases are expected to be ordered in the vector as
     // (0,0),(1,0),(2,0),...(1,0),(1,1),(1,2),...(2,0),(2,1),... where the elements are (row, col)
     // in other words,  we loop over row first, then column.
 
-    std::unique_ptr<QRootCanvas> pQCanvas(new QRootCanvas(nullptr));
+    std::unique_ptr<QRootCanvas> pQCanvas(new QRootCanvas(pParent));
     TPad* pPad = pQCanvas->getCanvas();
 
     pPad->Divide(nCols, nRows, 0.001, 0.001);
@@ -165,7 +166,6 @@ RootFileWriter::combineCanvases(std::vector<QRootCanvas*> &canvases,
         if (pCanvas) {
             std::cout << "\tcopying canvas into pad" << std::endl;
             copyCanvasIntoPad(*pCanvas, *pVPad);
-            copyObjectsIntoDirectories(*pCanvas);
         }
     }
 
@@ -187,7 +187,7 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
         std::cout << "\t\t" << pObj->GetName() << std::endl;
 
         if (pObj->InheritsFrom(TH2::Class())) {
-            pObj->AppendPad("col2");
+            pObj->AppendPad("col");
         } else {
             pObj->AppendPad("");
         }
@@ -199,7 +199,7 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
 
 //
 //
-void RootFileWriter::copyObjectsIntoDirectories(TCanvas& rCanvas)
+void RootFileWriter::copyObjectsIntoDirectories(TPad& rCanvas)
 {
 
     TObject* pObj;
@@ -220,6 +220,8 @@ void RootFileWriter::copyObjectsIntoDirectories(TCanvas& rCanvas)
             if (gDirectory->GetList()->FindObject(pObj->GetName()) == nullptr) {
                 gDirectory->Add(pObj->Clone());
             }
+        } else if (pObj->InheritsFrom(TPad::Class())) {
+            copyObjectsIntoDirectories(dynamic_cast<TPad&>(*pObj));
         }
     }
 }

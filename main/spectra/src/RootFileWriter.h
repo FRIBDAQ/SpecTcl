@@ -9,8 +9,11 @@
 class TFile;
 class TVirtualPad;
 class TCanvas;
+class TPad;
 class TDirectory;
 class TObject;
+
+class QWidget;
 
 namespace Viewer
 {
@@ -50,11 +53,13 @@ public:
 
     void writeTab(TabWorkspace &rWorkspace, bool combine);
 
-    std::unique_ptr<QRootCanvas> combineCanvases(std::vector<QRootCanvas*>& canvases,
-                                                 int nRows, int nCols);
+    std::unique_ptr<QRootCanvas> combineCanvases(const std::vector<QRootCanvas*>& canvases,
+                                                 int nRows,
+                                                 int nCols,
+                                                 QWidget* pParent=nullptr);
 
     void copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad);
-    void copyObjectsIntoDirectories(TCanvas& rCanvas);
+    void copyObjectsIntoDirectories(TPad &rCanvas);
 
     void createDirectory(const std::string& path);
 private:

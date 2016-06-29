@@ -73,6 +73,7 @@ noinst_HEADERS =  QRootCanvas.h  \
 	ConfigCopySelector.h \
   SelectableImage.h \
 	SpectraSpectrumInterface.h \
+	PrintDialog.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -141,6 +142,7 @@ libSpectra_la_SOURCES = \
 		ConfigCopySelector.cpp \
 		SelectableImage.cpp \
 	SpectraSpectrumInterface.cpp \
+	PrintDialog.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -191,6 +193,7 @@ libSpectra_la_SOURCES = \
         moc_SaveToRootDialog.cpp \
 				moc_ConfigCopySelector.cpp \
 				moc_SelectableImage.cpp \
+				moc_PrintDialog.cpp \
         cmdline.c \
 	qrc_resources.cpp
 
@@ -287,6 +290,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_AutoUpdateDialog.cpp \
 								moc_SaveToRootDialog.cpp \
 								moc_ConfigCopySelector.cpp \
+								moc_PrintDialog.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
