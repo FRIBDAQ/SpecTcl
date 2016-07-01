@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = unittests
+noinst_PROGRAMS = unittests
 
 unittests_SOURCES = DockableGateManagerTest.cpp \
 										GGateTest.cpp \
@@ -9,19 +9,20 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										GateListTest.cpp \
 										HistogramBundleTest.cpp \
 										HistogramListTest.cpp \
-										QTLineTest.cpp \
-										TestRunner.cpp \
+  									QTLineTest.cpp \
 										MainWindowTest.cpp \
 										CanvasOpsTest.cpp \
 										ShMemKeyRequestHandlerTest.cpp \
 										SpecTclInterfaceFactoryTest.cpp \
 										CmdLineOptionsTest.cpp \
 										RootFileWriterTest.cpp \
-										WinFileWriterTest.cpp \
-										PrintingSystemTests.cpp \
 										TestSpecTclInterface.cpp \
 										TestSpecTclInterface.h \
+										PrintingSystemTests.cpp \
+										WinFileWriterTest.cpp \
+										TestRunner.cpp \
 										TestUtils.cpp
+
 
 noinst_HEADERS = TestUtils.h
 

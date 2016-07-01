@@ -74,6 +74,7 @@ private:
     win_db* m_pDatabase;
     int m_xamine1DSlot;
     int m_xamine2DSlot;
+		bool m_isFirstTest;
 
     volatile Xamine_shared* m_pSharedMemory;
 
@@ -81,28 +82,31 @@ public:
 
     CPPUNIT_TEST_SUITE(WinFileWriterTest);
     CPPUNIT_TEST(canvasDivision_0);
-    CPPUNIT_TEST(canvasDivision_1);
-    CPPUNIT_TEST(canvasContainsHists_0);
-    CPPUNIT_TEST(canvasContainsHists_1);
-    CPPUNIT_TEST(canvasTitle_0);
-    CPPUNIT_TEST(canvasTitle_1);
-    CPPUNIT_TEST(histRendition_0);
-    CPPUNIT_TEST(histRendition_1);
+//    CPPUNIT_TEST(canvasDivision_1);
+//    CPPUNIT_TEST(canvasContainsHists_0);
+//    CPPUNIT_TEST(canvasContainsHists_1);
+//    CPPUNIT_TEST(canvasTitle_0);
+//    CPPUNIT_TEST(canvasTitle_1);
+//    CPPUNIT_TEST(histRendition_0);
+//    CPPUNIT_TEST(histRendition_1);
     CPPUNIT_TEST_SUITE_END();
 
 public:
 
+		WinFileWriterTest() : m_isFirstTest(true) {}
 
     void setUp() {
         using namespace Viewer;
 
         m_pInterface = shared_ptr<SpecTclInterface>(new TestSpecTclInterface);
 
-        // set up the spectrum query interface that is used by the windfile parser
-        std::shared_ptr<Win::SpectrumQuerier> pQuerier(
-                    new SpectraSpectrumInterface(m_pInterface));
-        gSpectrumInterface.setQueryEntity(pQuerier);
-
+				if (m_isFirstTest) {
+					// set up the spectrum query interface that is used by the windfile parser
+					std::shared_ptr<Win::SpectrumQuerier> pQuerier(
+							new SpectraSpectrumInterface(m_pInterface));
+					gSpectrumInterface.setQueryEntity(pQuerier);
+					m_isFirstTest = false;
+				}
 
         TabWorkspace workspace(m_pInterface);
         workspace.setObjectName("test_workspace");
