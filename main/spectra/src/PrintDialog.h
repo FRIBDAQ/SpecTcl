@@ -8,6 +8,7 @@ class QPushButton;
 class QLabel;
 class QComboBox;
 
+
 namespace Viewer
 {
 
@@ -31,6 +32,7 @@ public slots:
 private:
     void assembleWidgets();
     void connectSignalsAndSlots();
+    void populatePrinterOptions();
 
     // data members
 private:

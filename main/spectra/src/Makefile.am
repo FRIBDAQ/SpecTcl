@@ -74,6 +74,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   SelectableImage.h \
 	SpectraSpectrumInterface.h \
 	PrintDialog.h \
+	PrintingSystem.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -143,6 +144,7 @@ libSpectra_la_SOURCES = \
 		SelectableImage.cpp \
 	SpectraSpectrumInterface.cpp \
 	PrintDialog.cpp \
+	PrintingSystem.cpp \
     moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \

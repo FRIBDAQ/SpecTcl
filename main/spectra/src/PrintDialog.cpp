@@ -4,7 +4,9 @@
 #include "TabWorkspace.h"
 #include "TabbedMultiSpectrumView.h"
 #include "QRootCanvas.h"
-#include "TCanvas.h"
+#include "PrintingSystem.h"
+
+#include <TCanvas.h>
 
 #include <QLabel>
 #include <QPushButton>
@@ -14,6 +16,7 @@
 #include <QComboBox>
 #include <QFile>
 #include <QTextStream>
+#include <QStringList>
 
 #include <cstdlib>
 #include <iostream>
@@ -27,40 +30,40 @@ PrintDialog::PrintDialog(std::shared_ptr<SpecTclInterface> pSpecTcl, TabbedMulti
     m_pView(&rView)
 {
     assembleWidgets();
-
     connectSignalsAndSlots();
+}
+
+void PrintDialog::populatePrinterOptions()
+{
+    QStringList printers = PrintingSystem::instance().getAvailablePrinters();
+
+    m_pPrinterSelect->addItems(printers);
 }
 
 void PrintDialog::assembleWidgets()
 {
     m_pPrinterLabel = new QLabel(tr("Printer"), this);
-    m_pPrinterLabel->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    m_pPrinterLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_pPrinterSelect = new QComboBox(this);
-    m_pPrinterSelect->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    m_pPrinterSelect->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    // Create a file that contains all of the printers we know about
-    std::system("lpstat -a | awk '{print $1}' > .__temp_printers.txt");
+    populatePrinterOptions();
 
-    // Read in the file
-    QFile file(".__temp_printers.txt");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        m_pPrinterSelect->addItem(tr("lp"));
-    } else {
-        QTextStream stream(&file);
-        while (1) {
-            QString printerName = stream.readLine();
+    m_pCancelButton = new QPushButton(tr("&Cancel"), this);
+    m_pOkButton = new QPushButton(tr("&Ok"), this);
+    m_pOkButton->setAutoDefault(true);
+    m_pOkButton->setDefault(true);
 
-            if (stream.atEnd()) break;
+    m_pOkButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_pCancelButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-            m_pPrinterSelect->addItem(printerName);
-        }
-    }
-
-    std::remove(".__temp_printers.txt");
-
-    auto pPrinterInfoLayout = new QHBoxLayout;
+    auto pPrinterInfoLayout = new QVBoxLayout;
     pPrinterInfoLayout->addWidget(m_pPrinterLabel);
     pPrinterInfoLayout->addWidget(m_pPrinterSelect);
+    pPrinterInfoLayout->addSpacing(30);
+    pPrinterInfoLayout->addWidget(m_pOkButton);
+    pPrinterInfoLayout->addWidget(m_pCancelButton);
+    pPrinterInfoLayout->addStretch();
 
     m_pPreviewLabel = new QLabel(tr("Preview"), this);
     m_pPreviewLabel->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
@@ -73,26 +76,18 @@ void PrintDialog::assembleWidgets()
                                                                    nRows, nCols, this);
     m_pCanvas = upCanvas.release();
     m_pCanvas->setParent(this);
-    m_pCanvas->setMinimumWidth(100);
-    m_pCanvas->setMinimumHeight(120);
+    m_pCanvas->setMinimumWidth(300);
+    m_pCanvas->setMinimumHeight(400);
 
-    m_pCancelButton = new QPushButton(tr("&Cancel"), this);
-    m_pOkButton = new QPushButton(tr("&Ok"), this);
-    m_pOkButton->setAutoDefault(true);
-    m_pOkButton->setDefault(true);
+    auto pPreviewLayout = new QVBoxLayout;
+    pPreviewLayout->addWidget(m_pPreviewLabel);
+    pPreviewLayout->addWidget(m_pCanvas);
 
-    auto pButtonLayout = new QHBoxLayout;
-    pButtonLayout->addSpacerItem(new QSpacerItem(30,20));
-    pButtonLayout->addWidget(m_pCancelButton);
-    pButtonLayout->addWidget(m_pOkButton);
+    auto pTopLayout = new QHBoxLayout;
+    pTopLayout->addLayout(pPrinterInfoLayout);
+    pTopLayout->addLayout(pPreviewLayout);
 
-    auto pVLayout = new QVBoxLayout;
-    pVLayout->addLayout(pPrinterInfoLayout);
-    pVLayout->addWidget(m_pPreviewLabel);
-    pVLayout->addWidget(m_pCanvas);
-    pVLayout->addLayout(pButtonLayout);
-
-    setLayout(pVLayout);
+    setLayout(pTopLayout);
 }
 
 void PrintDialog::connectSignalsAndSlots()
@@ -103,15 +98,23 @@ void PrintDialog::connectSignalsAndSlots()
 
 void PrintDialog::accepted()
 {
-
+    // Print to a file that is highly unlikely to exist
     m_pCanvas->getCanvas()->Print("_81239azsdfaw__tmp_print__.ps", "ps");
 
     QString printer = m_pPrinterSelect->itemText(m_pPrinterSelect->currentIndex());
-    QString printCmdTemplate("lp -d %1 _81239azsdfaw__tmp_print__.ps");
-    QString printCmd = printCmdTemplate.arg(printer);
+    QString printerCmd;
+    if (printer == "lp") {
+        // in case we have a printer that
+        printerCmd = "lp _81239azsdfaw__tmp_print__.ps";
+    } else {
+        QString printCmdTemplate("lp -d %1 _81239azsdfaw__tmp_print__.ps");
+        printerCmd = printCmdTemplate.arg(printer);
+    }
 
-    std::cout << "Printing command = '" << printCmd.toStdString() << "'" << std::endl;
-    std::system(printCmd.toUtf8().constData());
+    std::system(printerCmd.toUtf8().constData());
+
+    // clean up
+    std::remove("_81239azsdfaw__tmp_print__.ps");
 
     emit accept();
 }

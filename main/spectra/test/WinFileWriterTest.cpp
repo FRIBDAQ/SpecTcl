@@ -33,6 +33,8 @@
 #include "HistogramBundle.h"
 #include "HistogramList.h"
 #include "TestSpecTclInterface.h"
+#include "SpectraSpectrumInterface.h"
+#include "SpectrumQueryInterface.h"
 #include "HistInfo.h"
 #include "dispwind.h"
 #include "Xamine.h"
@@ -60,6 +62,9 @@ using namespace std;
 // these are needed for the win file parser
 extern spec_shared* xamine_shared;
 extern spec_shared* spectra;
+
+Win::SpectrumQueryInterface gSpectrumInterface;
+
 
 class WinFileWriterTest : public CppUnit::TestFixture
 {
@@ -92,6 +97,12 @@ public:
         using namespace Viewer;
 
         m_pInterface = shared_ptr<SpecTclInterface>(new TestSpecTclInterface);
+
+        // set up the spectrum query interface that is used by the windfile parser
+        std::shared_ptr<Win::SpectrumQuerier> pQuerier(
+                    new SpectraSpectrumInterface(m_pInterface));
+        gSpectrumInterface.setQueryEntity(pQuerier);
+
 
         TabWorkspace workspace(m_pInterface);
         workspace.setObjectName("test_workspace");
