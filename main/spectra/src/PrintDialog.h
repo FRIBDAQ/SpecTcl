@@ -16,6 +16,18 @@ class SpecTclInterface;
 class TabbedMultiSpectrumView;
 class QRootCanvas;
 
+/*!
+ * \brief Printing Dialog
+ *
+ * Because ROOT and Qt's paint mechanism are completely disjoint of each other,
+ * the Qt printing subsystem had to be circumvented to get high quality printed
+ * documents. Furthermore, it was not possible to produce meaningful printed documents
+ * using ROOT printing methods if the QRootCanvas was not actually visible. For this
+ * reason, this custom dialog exists. It provides the user the ability to select which
+ * printer to print to and displays the canvas to be printed. There are many more options
+ * that can be added here but this base functionality probably accomplishes most of
+ * the use cases. The user is able to print the current tab with this at the moment.
+ */
 class PrintDialog : public QDialog
 {
     Q_OBJECT
@@ -26,7 +38,10 @@ public:
 signals:
     
 public slots:
+    /*! \brief Emitted after printing has occurred */
     void accepted();
+
+    /*! \brief Emitted if user cancelled printing */
     void rejected();
 
 private:

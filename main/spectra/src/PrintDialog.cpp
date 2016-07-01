@@ -24,7 +24,10 @@
 namespace Viewer
 {
 
-PrintDialog::PrintDialog(std::shared_ptr<SpecTclInterface> pSpecTcl, TabbedMultiSpectrumView &rView, QWidget *parent) :
+//
+//
+PrintDialog::PrintDialog(std::shared_ptr<SpecTclInterface> pSpecTcl,
+                         TabbedMultiSpectrumView &rView, QWidget *parent) :
     QDialog(parent),
     m_pSpecTcl(pSpecTcl),
     m_pView(&rView)
@@ -33,6 +36,8 @@ PrintDialog::PrintDialog(std::shared_ptr<SpecTclInterface> pSpecTcl, TabbedMulti
     connectSignalsAndSlots();
 }
 
+//
+//
 void PrintDialog::populatePrinterOptions()
 {
     QStringList printers = PrintingSystem::instance().getAvailablePrinters();
@@ -40,6 +45,8 @@ void PrintDialog::populatePrinterOptions()
     m_pPrinterSelect->addItems(printers);
 }
 
+//
+//
 void PrintDialog::assembleWidgets()
 {
     m_pPrinterLabel = new QLabel(tr("Printer"), this);
@@ -66,7 +73,8 @@ void PrintDialog::assembleWidgets()
     pPrinterInfoLayout->addStretch();
 
     m_pPreviewLabel = new QLabel(tr("Preview"), this);
-    m_pPreviewLabel->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    m_pPreviewLabel->setSizePolicy(QSizePolicy(QSizePolicy::Preferred,
+                                               QSizePolicy::Fixed));
 
     RootFileWriter writer(m_pSpecTcl);
     auto& view = m_pView->getCurrentWorkspace().getView();
@@ -90,12 +98,16 @@ void PrintDialog::assembleWidgets()
     setLayout(pTopLayout);
 }
 
+//
+//
 void PrintDialog::connectSignalsAndSlots()
 {
     connect(m_pOkButton, SIGNAL(clicked()), this, SLOT(accepted()));
     connect(m_pCancelButton, SIGNAL(clicked()), this, SLOT(rejected()));
 }
 
+//
+//
 void PrintDialog::accepted()
 {
     // Print to a file that is highly unlikely to exist
@@ -113,12 +125,14 @@ void PrintDialog::accepted()
 
     std::system(printerCmd.toUtf8().constData());
 
-    // clean up
+    // clean up the file
     std::remove("_81239azsdfaw__tmp_print__.ps");
 
     emit accept();
 }
 
+//
+//
 void PrintDialog::rejected()
 {
     emit reject();

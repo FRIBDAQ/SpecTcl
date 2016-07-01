@@ -16,6 +16,7 @@ namespace Viewer {
  *
  * The assumption here is that we are dealing with a Linux system that uses
  * CUPS for its printing platform. This should not be much of a problem.
+ *
  */
 class PrintingSystem {
 private:
@@ -28,9 +29,14 @@ private:
 public:
     static PrintingSystem& instance();
 
+
     void        setDefaultPrinter(const QString& printer);
     QString     getDefaultPrinter();
+
+    /*! \returns list of printers to print to */
     QStringList getAvailablePrinters();
+
+private:
     QStringList extractPrintersFromStream(QTextStream &stream);
     void        askSystemForAvailablePrinters();
 

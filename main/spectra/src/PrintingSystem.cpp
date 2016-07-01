@@ -10,11 +10,17 @@
 
 namespace Viewer {
 
+//
+//
 PrintingSystem* PrintingSystem::m_pInstance = nullptr;
 
+//
+//
 PrintingSystem::PrintingSystem() : m_defaultPrinter("lp")
 {}
 
+//
+//
 PrintingSystem& PrintingSystem::instance()
 {
     if (m_pInstance == nullptr) {
@@ -23,11 +29,15 @@ PrintingSystem& PrintingSystem::instance()
     return *m_pInstance;
 }
 
+//
+//
 QString PrintingSystem::getDefaultPrinter()
 {
     return m_defaultPrinter;
 }
 
+//
+//
 void PrintingSystem::setDefaultPrinter(const QString &printer)
 {
     QStringList printers = getAvailablePrinters();
@@ -40,6 +50,16 @@ void PrintingSystem::setDefaultPrinter(const QString &printer)
     }
 }
 
+/*! Extract printers from text stream
+ *
+ * This provides indirect access to a set of printers in a stream. The stream
+ * is really just a way to test. During production, the stream provides access to a
+ * file. During testing, the stream provides access to a QString. It is expected
+ * that the printer names are separated by newline characters and there is one
+ * printer per line.
+ *
+ * \param   stream
+ */
 QStringList PrintingSystem::extractPrintersFromStream(QTextStream& stream)
 {
     QStringList printers;
@@ -66,6 +86,14 @@ void PrintingSystem::askSystemForAvailablePrinters()
     std::system("lpstat -a | awk '{print $1}' > .__temp_printers.txt");
 }
 
+/*!
+ * \brief PrintingSystem::getAvailablePrinters
+ *
+ * This queries the CUPS system using lpstat -a and then parses the response
+ * into a QStringList.
+ *
+ * \return list of printers to print to
+ */
 QStringList PrintingSystem::getAvailablePrinters()
 {
     QStringList printers;

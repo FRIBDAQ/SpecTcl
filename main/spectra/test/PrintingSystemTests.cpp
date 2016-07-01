@@ -28,7 +28,10 @@
 
 #include "Asserts.h"
 
+#define private public
 #include "PrintingSystem.h"
+#undef private
+
 #include "TestUtils.h"
 
 #include <QTextStream>
