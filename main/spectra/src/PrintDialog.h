@@ -7,7 +7,7 @@
 class QPushButton;
 class QLabel;
 class QComboBox;
-
+class QLayout;
 
 namespace Viewer
 {
@@ -36,15 +36,17 @@ public:
                          TabbedMultiSpectrumView& rView, QWidget *parent = 0);
     
 signals:
-    
+
 public slots:
-    /*! \brief Emitted after printing has occurred */
+    /*! \brief Triggered when user presses Print */
     void accepted();
 
-    /*! \brief Emitted if user cancelled printing */
+    /*! \brief Triggered when user presses Cancel */
     void rejected();
 
+
 private:
+    QLayout* assemblePrintControls();
     void assembleWidgets();
     void connectSignalsAndSlots();
     void populatePrinterOptions();

@@ -70,11 +70,6 @@ QStringList PrintingSystem::extractPrintersFromStream(QTextStream& stream)
         printers.push_back(printerName);
     }
 
-    // use default printer
-    if (printers.count() == 0) {
-        printers.push_back(QString("lp"));
-    }
-
     return printers;
 }
 

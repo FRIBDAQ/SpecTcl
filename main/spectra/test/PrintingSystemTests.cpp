@@ -81,13 +81,12 @@ class PrintingSystemTests : public CppUnit::TestFixture
 
         QString printers;
         QStringList expected;
-        expected << "lp";
 
         QTextStream stream(&printers);
 
         QStringList printerList = PrintingSystem::instance().extractPrintersFromStream(stream);
 
-        ASSERTMSG("If no printers are found, create a default lp printer",
+        ASSERTMSG("If no printers are found, return empty list",
                   expected == printerList);
     }
 
