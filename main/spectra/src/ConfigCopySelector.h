@@ -5,10 +5,15 @@
 #include <QButtonGroup>
 #include <QString>
 #include <QStringList>
+#include <QMap>
+
+#include <memory>
+
 
 class QGridLayout;
 class QWizardPage;
 class QCheckBox;
+class QAbstractButton;
 
 namespace Ui {
 class ConfigCopySelector;
@@ -17,7 +22,8 @@ class ConfigCopySelector;
 namespace Viewer {
 
 class SpectrumView;
-
+class SpecTclInterface;
+class HistogramBundle;
 
 struct ConfigCopySelection {
 	QString 	s_sourceHist;
@@ -33,12 +39,18 @@ class ConfigCopySelector : public QWizard
     
 public:
     explicit ConfigCopySelector(SpectrumView& rView,
+                                std::shared_ptr<SpecTclInterface> pSpecTcl,
                                 QWidget *parent = 0);
 
     ~ConfigCopySelector();
 
     ConfigCopySelection getSelection() const;
-    
+
+    bool compatibleHists(HistogramBundle* pSourceBundle, HistogramBundle* pDestBundle);
+
+protected:
+    void initializePage(int id);
+
 public slots:
     virtual void accept();
     void setDestinationsChecked(bool checked);
@@ -50,8 +62,12 @@ private:
     QWizardPage* createSelectConfigOptionsPage();
     QGridLayout* createDummyDisplay(QButtonGroup& group, bool autoExclusive);
 
+    void showAllDestinationButtons();
+
+    QMap<QAbstractButton*,bool> getDestinationCompatibility();
 private:
     SpectrumView*   m_pView;
+    std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     QCheckBox* 		m_pXAxisOption;
     QCheckBox* 		m_pYAxisOption;
     QCheckBox* 		m_pDrawOption;

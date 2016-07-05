@@ -2,6 +2,9 @@
 #include "SpectrumView.h"
 #include "QRootCanvas.h"
 #include "SelectableImage.h"
+#include "SpecTclInterface.h"
+#include "HistogramList.h"
+#include "HistogramBundle.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -10,19 +13,19 @@
 #include <QWizardPage>
 #include <QSize>
 #include <QCheckBox>
-#include <QApplication>
-#include <QDesktopWidget>
 
 #include <TH1.h>
+#include <TClass.h>
 
 #include <iostream>
 
 namespace Viewer {
 
-ConfigCopySelector::ConfigCopySelector(SpectrumView& rView,
+ConfigCopySelector::ConfigCopySelector(SpectrumView& rView, std::shared_ptr<SpecTclInterface> pSpecTcl,
                                        QWidget *parent) :
     QWizard(parent),
-    m_pView(&rView)
+    m_pView(&rView),
+    m_pSpecTcl(pSpecTcl)
 {
     addPage(createSelectSourcePage());
     addPage(createSelectDestinationPage());
@@ -47,6 +50,12 @@ QWizardPage* ConfigCopySelector::createSelectSourcePage()
 
     QGridLayout* pLayoutOfImages = createDummyDisplay(m_sourceGroup, true);
 
+    // Check the first button
+    QList<QAbstractButton*> buttons = m_sourceGroup.buttons();
+    if (buttons.count() > 0) {
+        buttons[0]->setChecked(true);
+    }
+
     pVertLayout->addWidget(pDirections);
     pVertLayout->addLayout(pLayoutOfImages);
 
@@ -55,7 +64,8 @@ QWizardPage* ConfigCopySelector::createSelectSourcePage()
     return pPage;
 }
 
-QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group, bool autoExclusive)
+QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
+                                                    bool autoExclusive)
 {
     auto pGridLayout = new QGridLayout;
 
@@ -74,7 +84,7 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group, bool au
             pixmap.fill(Qt::gray);
             std::vector<TH1*> hists = SpectrumView::getAllHists(pCanvas);
             if (hists.size() > 0) {
-            	auto pImage = new SelectableImage(pixmap,
+                auto pImage = new SelectableImage(pixmap,
             								      QString::fromAscii(hists.at(0)->GetName()),
             								      this);
             	pImage->setAutoExclusive(autoExclusive);
@@ -100,7 +110,7 @@ QWizardPage* ConfigCopySelector::createSelectDestinationPage()
 
 	m_destinationGroup.setExclusive(false);
 
-	QGridLayout* pLayoutOfImages = createDummyDisplay(m_destinationGroup, false);
+    QGridLayout* pLayoutOfImages = createDummyDisplay(m_destinationGroup, false);
 
 	auto pSelectAll = new QCheckBox("Select all", pPage);
 	connect(pSelectAll, SIGNAL(clicked(bool)), this, SLOT(setDestinationsChecked(bool)));
@@ -117,11 +127,17 @@ QWizardPage* ConfigCopySelector::createSelectDestinationPage()
 
 void ConfigCopySelector::setDestinationsChecked(bool checked)
 {
-	std::cout << "setDestinationsChecked " << checked << std::endl;
 	QList<QAbstractButton*> buttons = m_destinationGroup.buttons();
+
 	int nButtons = buttons.count();
 	for (int id=0; id<nButtons; ++id) {
-		buttons[id]->setChecked(checked);
+        if (buttons[id]->isVisible()) {
+            // the button is visible, so it is compatible
+
+            buttons[id]->setChecked(checked);
+        }
+        // otherwise, the button is hidden because it is not compatible.
+        // we don't want to check the hidden buttons.
 	}
 
 }
@@ -155,7 +171,6 @@ QWizardPage* ConfigCopySelector::createSelectConfigOptionsPage()
 
 void ConfigCopySelector::setCheckedOptions(bool checked)
 {
-	std::cout << "setCheckedOptions " << checked << std::endl;
 	m_pXAxisOption->setChecked(checked);
 	m_pYAxisOption->setChecked(checked);
 	m_pDrawOption->setChecked(checked);
@@ -186,6 +201,106 @@ ConfigCopySelection ConfigCopySelector::getSelection() const
 	selection.s_copyDrawOption = m_pDrawOption->isChecked();
 
 	return selection;
+}
+
+/*!
+ * \brief Disable destination canvases that don't match source spectrum
+ * \param id    index of the page
+ */
+void ConfigCopySelector::showAllDestinationButtons()
+{
+    QList<QAbstractButton*> destButtons = m_destinationGroup.buttons();
+    for (int id=0; id<destButtons.size(); ++id) {
+        destButtons[id]->show();
+    }
+}
+
+void ConfigCopySelector::initializePage(int id)
+{
+    if (id == 1) {
+        QMap<QAbstractButton*,bool> compatibilityMap = getDestinationCompatibility();
+        if (compatibilityMap.count() == 0) {
+            showAllDestinationButtons();
+        } else {
+            QMapIterator<QAbstractButton*, bool> it(compatibilityMap);
+
+            while (it.hasNext()) {
+                it.next();
+                QAbstractButton* pButton = it.key();
+
+                if (it.value()) {
+                    pButton->show();
+                } else {
+                    pButton->hide();
+                }
+            }
+        }
+    }
+    QWizard::initializePage(id);
+}
+
+
+/*!
+ * \brief Determine if histograms are compatible for attribute copy
+ *
+ * This is actually very restrictive. The user is not allowed to copy attributes unless
+ * the source and destination have the same axis definitions. They must have the smae number
+ * of bins as well as full range.
+ *
+ * \param pSourceBundle  source of attributes
+ * \param pDestBundle    dest of attributes
+ */
+bool ConfigCopySelector::compatibleHists(HistogramBundle* pSourceBundle, HistogramBundle* pDestBundle)
+{
+    QString destType(pDestBundle->getHist().ClassName());
+    QString sourceType(pSourceBundle->getHist().ClassName());
+
+    int nSourceXBins = pSourceBundle->getHist().GetXaxis()->GetNbins();
+    int nDestXBins = pDestBundle->getHist().GetXaxis()->GetNbins();
+
+    int nSourceYBins = pSourceBundle->getHist().GetYaxis()->GetNbins();
+    int nDestYBins = pDestBundle->getHist().GetYaxis()->GetNbins();
+
+    double sourceXLow = pSourceBundle->getHist().GetXaxis()->GetXmin();
+    double destXLow = pSourceBundle->getHist().GetXaxis()->GetXmin();
+
+    double sourceXHigh = pSourceBundle->getHist().GetXaxis()->GetXmax();
+    double destXHigh = pSourceBundle->getHist().GetXaxis()->GetXmax();
+
+    double sourceYLow = pSourceBundle->getHist().GetYaxis()->GetXmin();
+    double destYLow = pSourceBundle->getHist().GetYaxis()->GetXmin();
+
+    double sourceYHigh = pSourceBundle->getHist().GetYaxis()->GetXmax();
+    double destYHigh = pSourceBundle->getHist().GetYaxis()->GetXmax();
+
+    return ((nSourceXBins == nDestXBins) && (nSourceYBins == nDestYBins)
+            && (sourceXLow == destXLow) && (sourceXHigh == destXHigh)
+            && (sourceYLow == destYLow) && (sourceYHigh == destYHigh));
+}
+
+QMap<QAbstractButton*, bool> ConfigCopySelector::getDestinationCompatibility()
+{
+    QMap<QAbstractButton*, bool> compatibilityMap;
+
+    QAbstractButton* pButton = m_sourceGroup.checkedButton();
+    QString sourceHistName = pButton->text();
+
+    HistogramList* pList = m_pSpecTcl->getHistogramList();
+    HistogramBundle* pSourceBundle = pList->getHist(sourceHistName);
+    if (pSourceBundle == nullptr) {
+        return compatibilityMap;
+    }
+
+
+    QList<QAbstractButton*> destButtons = m_destinationGroup.buttons();
+    for (int id=0; id<destButtons.size(); ++id) {
+        HistogramBundle* pDestBundle = pList->getHist(destButtons[id]->text());
+        if (pDestBundle == nullptr) continue;
+
+        compatibilityMap[destButtons[id]] = compatibleHists(pSourceBundle, pDestBundle);
+    }
+
+    return compatibilityMap;
 }
 
 
