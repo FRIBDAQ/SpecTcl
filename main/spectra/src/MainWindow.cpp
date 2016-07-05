@@ -207,10 +207,9 @@ void MainWindow::onNewHistogram()
 
 void MainWindow::onCopySpectrumAttributes()
 {
-    ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView());
+    ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView(),
+                                m_specTclControl.getInterface());
     selector.exec();
-
-    std::cout << "done setting up the copy" << std::endl;
 
     ConfigCopySelection selection = selector.getSelection();
     if (selection.s_sourceHist.isEmpty()) return;
@@ -237,42 +236,28 @@ void MainWindow::onCopySpectrumAttributes()
     	TH1& destHist = pDestBundle->getHist();
 		TH1& sourceHist = pSourceBundle->getHist();
 
-		std::cout << "copying " << pSourceBundle->getName().toStdString();
-		std::cout << " to " << pDestBundle->getName().toStdString() << std::endl;
-
     	if (selection.s_copyXAxis) {
-    		// copy x axis range
-    		std::cout << "copy x axis" << std::endl;
+            // copy x axis range
     		TAxis* pDestAxis = destHist.GetXaxis();
     		TAxis* pSrcAxis = sourceHist.GetXaxis();
 
-    		double lowerLimit = pSrcAxis->GetBinLowEdge(pSrcAxis->GetFirst());
-    		double upperLimit = pSrcAxis->GetBinUpEdge(pSrcAxis->GetLast());
+            int lowerLimit = pSrcAxis->GetFirst();
+            int upperLimit = pSrcAxis->GetLast();
 
-    		std::cout << "\nsrc  before : " << lowerLimit << " " << upperLimit << std::endl;
-    		std::cout << "dest before : " << pDestAxis->GetFirst() << " " << pDestAxis->GetLast() << std::endl;
-
-    		pDestAxis->SetRange(pDestAxis->FindBin(lowerLimit),
-    							pDestAxis->FindBin(upperLimit));
-    		std::cout << "after : " << pDestAxis->GetFirst() << " " << pDestAxis->GetLast() << std::endl;
+            pDestAxis->SetRange(lowerLimit, upperLimit);
     	}
 
     	if (selection.s_copyYAxis) {
     		// copy x axis range
-    		std::cout << "copy y axis" << std::endl;
-
     		TAxis* pDestAxis = destHist.GetYaxis();
     		TAxis* pSrcAxis = sourceHist.GetYaxis();
 
-    		double lowerLimit = pSrcAxis->GetBinLowEdge(pSrcAxis->GetFirst());
-    		double upperLimit = pSrcAxis->GetBinUpEdge(pSrcAxis->GetLast());
-    		pDestAxis->SetRange(pDestAxis->FindBin(lowerLimit),
-    							pDestAxis->FindBin(upperLimit));
+            int lowerLimit = pSrcAxis->GetFirst();
+            int upperLimit = pSrcAxis->GetLast();
+            pDestAxis->SetRange(lowerLimit, upperLimit);
     	}
 
     	if (selection.s_copyDrawOption) {
-    		std::cout << "copy drop option" << std::endl;
-
     		pDestBundle->setDefaultDrawOption(pSourceBundle->getDefaultDrawOption());
     	}
 
@@ -287,7 +272,6 @@ void MainWindow::createShortcuts()
 
 void MainWindow::onSaveAs() {
 
-    qDebug() << "MainWindow::onSaveAs()";
     auto pDialog = new SaveToRootDialog(*m_pView, m_specTclControl.getInterface(), this);
 
     connect(pDialog, SIGNAL(accepted()), this, SLOT(closeDialog()));
