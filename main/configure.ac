@@ -761,7 +761,7 @@ else
     AC_MSG_RESULT([Previously built version found in ${prefix}])
   fi
   LIBTCLPLUS_CFLAGS="-I${prefix}/include"
-  LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefis}/lib\""
+  LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
 	LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
 
 fi
