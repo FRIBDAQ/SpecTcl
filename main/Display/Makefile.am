@@ -25,57 +25,34 @@ BUILT_SOURCES = defaultfile_parse.cc defaultfile_lex.cc defaultfile_lex.h grobfi
 
 LEXOUT = @builddir@/lex.yy.c
 
-defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @top_srcdir@/XamineParsers/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
-	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
-	mv defaultfile.tab.c @builddir@/defaultfile_parse.cc
-
-grobfile_lex.cc: @srcdir@/grobfile.l @srcdir@/dispgrob.h @srcdir@/grobjio.h @builddir@/grobfile_lex.h
+grobfile_lex.cc: @srcdir@/grobfile.l 
 	$(LEX) @srcdir@/grobfile.l
 	sed s/yy/grobjfile/g $(LEXOUT) >@builddir@/grobfile_lex.cc
 
-grobfile_parse.cc: @srcdir@/grobfile.y @srcdir@/dispgrob.h @srcdir@/grobjio.h
-	$(YACC) -p grobjfile -b grobfile @srcdir@/grobfile.y
-	mv grobfile.tab.c grobfile_parse.cc
-
-#grobfile_parse.o: @builddir@/grobfile_parse.cc
-#	$(CC) $(XCCFLAGS) @builddir@/grobfile_parse.cc
-
-grobfile_lex.h: @srcdir@/grobfile.y @srcdir@/grobjio.h @builddir@/grobfile_parse.cc
+grobfile_lex.h: @srcdir@/grobfile.y 
 	$(YACC) -p grobjfile -d @srcdir@/grobfile.y
 	mv y.tab.h grobfile_lex.h
 	rm -f y.tab.c
 
-defaultfile_parse.cc: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/dispwind.h @top_srcdir@/XamineParsers/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
-	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
-	mv defaultfile.tab.c defaultfile_parse.cc
+grobfile_parse.cc: @srcdir@/grobfile.y @builddir@/grobfile_lex.h
+	$(YACC) -p grobjfile -b grobfile @srcdir@/grobfile.y
+	mv grobfile.tab.c grobfile_parse.cc
 
-defaultfile_lex.h: @srcdir@/defaultfile.y @top_srcdir@/XamineParsers/windio.h
-	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
-	mv defaultfile.tab.h defaultfile_lex.h
 
-defaultfile_lex.cc : @top_srcdir@/XamineParsers/windfile.l @srcdir@/defaultfile.l @top_srcdir@/XamineParsers/dispwind.h @srcdir@/superpos.h \
-	@builddir@/defaultfile_lex.h @top_srcdir@/XamineParsers/windio.h
+defaultfile_lex.cc : @srcdir@/defaultfile.l 
 	$(LEX) @srcdir@/defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
 
+defaultfile_lex.h: @srcdir@/defaultfile.y 
+	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
+	mv defaultfile.tab.h defaultfile_lex.h
+
+defaultfile_parse.cc: @srcdir@/defaultfile.y @builddir@/defaultfile_lex.h
+	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
+	mv defaultfile.tab.c @builddir@/defaultfile_parse.cc
+
 windlex.h : @builddir@/defaultfile_lex.h
 	cp defaultfile_lex.h windlex.h
-
-
-#libXamineParsers_la_SOURCES = dispwind.cc \
-#							  lexsupport.c \
-#							  superpos.cc
-
-#XCCFLAGS =   -g -c -w -I@top_builddir@ -I@srcdir@ -I@top_srcdir@ $(INCLUDES) -DXTFUNCPROTO -DXAMINE
-
-#libXamineParsers_la_CPPFLAGS = -I@top_builddir@ \
-#								-I@srcdir@ \
-#								-I@top_srcdir@ \
-#								-DXTFUNCPROTO -DXAMINE \
-#								$(HOMEDEF)
-
-#check_PROGRAMS = Xaminetest
-# TESTS = $(check_PROGRAMS)	# needs to start Xamine
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
 TabP.h          axes.h             info.h        scaling.h\
