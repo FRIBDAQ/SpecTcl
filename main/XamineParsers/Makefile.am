@@ -18,11 +18,11 @@ windfile_FILES =@srcdir@/windfile.y \
 			 @srcdir@/dispwind.h \
 			 @srcdir@/windio.h 
 
-windfile_parse.cc: $(windfile_FILES) 
+windfile_parse.cc: @srcdir@/windfile.y
 	$(YACC) -p windfile -b windfile @srcdir@/windfile.y
 	mv windfile.tab.c windfile_parse.cc
 
-windfile_lex.h: @srcdir@/windfile.y
+windfile_lex.h: @srcdir@/windfile.y windfile_parse.cc
 	$(YACC) -p windfile -b windfile -dl  @srcdir@/windfile.y
 	mv windfile.tab.h windfile_lex.h
 
