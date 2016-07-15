@@ -21,6 +21,7 @@ unittests_SOURCES = DockableGateManagerTest.cpp \
 										PrintingSystemTests.cpp \
 										WinFileWriterTest.cpp \
 										TestRunner.cpp \
+										SubscribableH1Test.cpp \
 										TestUtils.cpp
 
 

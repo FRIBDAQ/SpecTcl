@@ -75,6 +75,8 @@ noinst_HEADERS =  QRootCanvas.h  \
 	SpectraSpectrumInterface.h \
 	PrintDialog.h \
 	PrintingSystem.h \
+	SubscribableH1.h \
+	TestH1Subscriber.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -145,7 +147,8 @@ libSpectra_la_SOURCES = \
 	SpectraSpectrumInterface.cpp \
 	PrintDialog.cpp \
 	PrintingSystem.cpp \
-    moc_ControlPanel.cpp \
+	TestH1Subscriber.cpp \
+	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
 	moc_GateEditComHandler.cpp \
@@ -364,4 +367,4 @@ spectraIcons = resources/Band_icon_48x48.png \
 							 resources/spectrum2d.svg \
 							 resources/spectrum2d_48x48.png
 
-EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES} ${spectraIcons}
+EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES} ${spectraIcons} SubscribableH1.hpp
