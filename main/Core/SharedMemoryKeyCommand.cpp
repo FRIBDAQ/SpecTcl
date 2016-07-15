@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <iostream>
 
+//
+// Constructor
 CSharedMemoryKeyCommand::CSharedMemoryKeyCommand(CTCLInterpreter &rInterp,
                                                  SpecTcl& rSpecTcl)
     : CTCLObjectProcessor(rInterp, "shmemkey", true),
@@ -23,6 +25,16 @@ CSharedMemoryKeyCommand::~CSharedMemoryKeyCommand()
 {
 }
 
+/*! Call operator
+ *
+ *  The caller will be returned the  shared memory key in use by SPecTcl.
+ *  This is only really useful if the caller wants to attach to the 
+ *  shared memory themselves. 
+ *
+ *  This only succeeds if the display is not null. The reason for this is that
+ *  there cannot be a shared memory key without a display. The shared memory is
+ *  associated with spectcl.
+ */
 int
 CSharedMemoryKeyCommand::operator ()(CTCLInterpreter& interp,
                                      std::vector<CTCLObject>& objv)
