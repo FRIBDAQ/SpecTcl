@@ -20,6 +20,9 @@ private:
 
 public:
     SubscribableH1(const char* name, const char* title, unsigned int nBins, double xMin, double xMax);
+    SubscribableH1(const char* name, const char* title, unsigned int nBinsX, double xMin, double xMax,
+                   unsigned int nBinsY, double yMin, double yMax);
+
     virtual ~SubscribableH1();
 
     void subscribe(H1Subscriber& subscriber);

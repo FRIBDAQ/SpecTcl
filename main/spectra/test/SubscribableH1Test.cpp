@@ -31,6 +31,7 @@
 #include "SubscribableH1.h"
 #include "TestH1Subscriber.h"
 #include <TH1.h>
+#include <TH2.h>
 
 
 using namespace std;
@@ -47,6 +48,7 @@ class SubscribableH1Test : public CppUnit::TestFixture
     CPPUNIT_TEST( subscribe_1 );
     CPPUNIT_TEST( notify_0 );
     CPPUNIT_TEST( notify_1 );
+    CPPUNIT_TEST( notify_2 );
     CPPUNIT_TEST( unsubscribe_0 );
     CPPUNIT_TEST_SUITE_END();
 
@@ -85,7 +87,7 @@ class SubscribableH1Test : public CppUnit::TestFixture
             SubscribableH1<TH1D> hist("test", "test", 10, 0, 10);
             hist.subscribe(sub);
         }
-        EQMSG("subscriber was notified when hist left scope",
+        EQMSG("subscriber was notified when 1d hist left scope",
               true, sub.isNotified());
     }
 
@@ -97,10 +99,22 @@ class SubscribableH1Test : public CppUnit::TestFixture
         SubscribableH1<TH1D> hist("test", "test", 10, 0, 10);
         hist.subscribe(sub);
 
-        EQMSG("subscriber is not notified while hist in scope",
+        EQMSG("subscriber is not notified while 1d hist in scope",
               false, sub.isNotified());
     }
 
+
+    void notify_2()
+    {
+        TestH1Subscriber sub;
+
+        {
+            SubscribableH1<TH2D> hist("test", "test", 10, 0, 10, 10, 0, 10);
+            hist.subscribe(sub);
+        }
+        EQMSG("subscriber was notified when 2d hist left scope",
+              true, sub.isNotified());
+    }
 
     void unsubscribe_0() {
         TestH1Subscriber sub;
@@ -116,6 +130,7 @@ class SubscribableH1Test : public CppUnit::TestFixture
     }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(SubscribableH1Test);
 
 } // end of namespace
+
+CPPUNIT_TEST_SUITE_REGISTRATION(Viewer::SubscribableH1Test);

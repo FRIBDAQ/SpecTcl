@@ -12,6 +12,15 @@ SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
 }
 
 template<class H1Type>
+SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
+                                       unsigned int nBinsX, double xMin, double xMax,
+                                       unsigned int nBinsY, double yMin, double yMax)
+    : H1Type(name, title, nBinsX, xMin, xMax, nBinsY, yMin, yMax),
+      m_subscribers()
+{
+}
+
+template<class H1Type>
 SubscribableH1<H1Type>::~SubscribableH1()
 {
     notifyAll();
