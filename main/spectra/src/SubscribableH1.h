@@ -74,7 +74,8 @@ public:
      * \param xMin  - lower limit of range
      * \param xMax  - upper limit of range
      */
-    SubscribableH1(const char* name, const char* title, unsigned int nBins, double xMin, double xMax);
+    SubscribableH1(const char* name, const char* title,
+                   unsigned int nBins, double xMin, double xMax);
 
     /*!
      * \brief Constructor for TH2 objects
@@ -88,7 +89,8 @@ public:
      * \param yMin      - lower limit of y axis
      * \param yMax      - upper limit of y axis
      */
-    SubscribableH1(const char* name, const char* title, unsigned int nBinsX, double xMin, double xMax,
+    SubscribableH1(const char* name, const char* title,
+                   unsigned int nBinsX, double xMin, double xMax,
                    unsigned int nBinsY, double yMin, double yMax);
 
     /*!
@@ -125,12 +127,18 @@ public:
      */
     bool isSubscribed(H1Subscriber& subscriber);
 
+    void setSubscribers(const std::set<H1Subscriber*>& subscribers);
+    const std::set<H1Subscriber*>& getSubscribers() const;
+
+
     /*!
      * \brief Notify all subscribers
      *
      * This is called by the destructor but it can be called freely.
      */
     void notifyAll();
+
+    virtual SubscribableH1<H1Type>* Clone(const char* name);
 };
 
 } // end Viewer namespace
