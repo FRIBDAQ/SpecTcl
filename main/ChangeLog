@@ -1055,3 +1055,8 @@ November 30-?? 2011
 3.5-002 
 	* Port performance improvements from 4.0 for counter handling.
 	
+3.5-003
+	* Bug #5983 - Fix errors in treemenu and scrolling menu...
+	  Add/maintain scrolling buttons when required and ensure that
+	submenus also get that functionality.
+	

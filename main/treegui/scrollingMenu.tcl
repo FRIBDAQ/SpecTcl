@@ -50,6 +50,7 @@ snit::widgetadaptor scrollingMenu  {
     variable bottomIndex 0;	# Item index at the bottom of the menu (not counting the V if present.
     variable scrolling   0; 	#  nonzero if the menu requires scrolling.
     variable timerId     -1;	# Scrolling timer id.
+    variable visible      0;    # True if mapped false if not.
 
     # Our extended options:
 
@@ -66,6 +67,20 @@ snit::widgetadaptor scrollingMenu  {
 	installhull using menu
 
 	$self configurelist $args
+
+	bind $win <Map>  +[mymethod _Map]
+
+	#  Important safety tip here -- why the after:
+	#  It turns out that the menu widget figures out what to do on when an entry
+	#  is clicked _after_ the unmap event is handled.  It does this by knowing
+	#  the index of the item that was clicked and then asking that item what its
+	#  -command option was.   However our <Unmap> handler destroys the menu entries
+	#  which, in turn, removes the ability of the click handler to know which
+	#  command to call (yes it really does this and it took me a good hour to
+	#  figure that out when the after was not present -- as of Tk 8.5.11).
+	#  By scheduling _Unmap to happen we work around that 'little' ordering problem.
+
+	bind $win <Unmap> +[list after idle [mymethod _Unmap]]
     }
 
     #-----------------------------------------------------------------------------
@@ -86,20 +101,11 @@ snit::widgetadaptor scrollingMenu  {
     #
     method add {itemType args} {
 
-	# If we don't need to scroll just add the entry.
-	# otherwise set up scrolling if it's not already set up.
-	#
 
-
-	if {[$hull yposition last] < ([winfo vrootheight .] / 2 - 100)} {
-	    $hull add $itemType {*}$args
-	    set bottomIndex $itemCount;	# last one visible.
-
-	} else {
-
-	    $self StartScrolling
-
+	if {$visible} {
+	    $self _addItemToMenu $itemType {*}$args
 	}
+
 	# regardless store the item in the array:
 	#
 
@@ -110,6 +116,53 @@ snit::widgetadaptor scrollingMenu  {
     #
     # Private methods:
 
+    method _addItemToMenu {itemType args} {
+	# If we don't need to scroll just add the entry.
+	# otherwise set up scrolling if it's not already set up.
+	#
+
+	set y0 [winfo rooty $win]
+	set yl [$win yposition last]
+	set ypos [expr {$y0 + $yl}]
+
+	if {$ypos < ([winfo vrootheight .] - 200)} {
+	    $hull add $itemType {*}$args
+	    incr bottomIndex
+
+	} else {
+	    $self StartScrolling
+
+	}
+    }
+
+    ##
+    # _Map
+    #   Handler for when the menu is mapped to the screen.
+    #   set visibility to 1 and stock the menu.  Note the
+    #   menu items are ordered:
+    #
+    method _Map {} {
+	set visible 1
+	set topIndex 0
+	set bottomIndex 0
+	for {set i 0} {$i < $itemCount} {incr i} {
+	    set item $items($i)
+	    set type [dict get $item type]
+	    set opts [dict get $item options]
+	    $self _addItemToMenu $type {*}$opts
+	}
+    }
+    ##
+    # _Unmap
+    #  Handler for when the menu is unmapped.
+    #  destroy all items in the menu - the submenus are left alone:
+    #
+    method _Unmap {} {
+	$hull delete 0 end
+	set visible 0
+	set scrolling 0;    # No longer scrolling if not visible.
+    }
+
     ##
     # This is called when it's time to setup scrolling for the menu.
     #  The topIndex, bottomIndex items will be displayed but we're going to put in
@@ -118,6 +171,8 @@ snit::widgetadaptor scrollingMenu  {
     #  When scrolling gets turned on, top and bottomIndex are already correct.
     #
     method StartScrolling {} {
+
+
 
 	# Already scrolling:
 
@@ -135,9 +190,9 @@ snit::widgetadaptor scrollingMenu  {
 	$hull add command -image $downarrow
 
 	
-	bind $win <Enter>           [mymethod ScrollMenu]
-	bind $win <ButtonRelease-1> [mymethod CancelScrollingTimer]
-	bind $win <Leave>           [mymethod CancelScrollingTimer]
+	bind $win <Enter>           +[mymethod ScrollMenu]
+	bind $win <ButtonRelease-1> +[mymethod CancelScrollingTimer]
+	bind $win <Leave>           +[mymethod CancelScrollingTimer]
 
 
     }
@@ -176,10 +231,12 @@ snit::widgetadaptor scrollingMenu  {
     #  - If we are in the last item and the 
     method ScrollMenu {} {
 
+
 	set timerId [after $options(-scrolltimer) [mymethod ScrollMenu]]
 
 
 	set activeItem [$hull index active]
+
 
 
 	# If the active item is 0 and topIndex != 0 we need to scroll down and insert
