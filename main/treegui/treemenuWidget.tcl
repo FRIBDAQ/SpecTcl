@@ -55,6 +55,8 @@ snit::widgetadaptor treeMenu {
     delegate method * to hull
     delegate option * to hull
 
+    variable builtSubmenus -array [list]
+
 
 
     constructor args {
@@ -66,11 +68,14 @@ snit::widgetadaptor treeMenu {
 
 	set separatedNames [list]
 	set time [time {
-	foreach name $options(-items) {	    lappend separatedNames [split $name $options(-splitchar)]
+	foreach name $options(-items) {	    
+	    lappend separatedNames [split $name $options(-splitchar)]
 	}
 	}]
 
 	set time [time {$self buildSubMenus $win $separatedNames ""}]
+    }
+    destructor {
     }
     ##
     # public method to dispatch a menu click
@@ -79,6 +84,7 @@ snit::widgetadaptor treeMenu {
     #                the elements of the path list with -splitchar.
     #               
     method dispatch {label path} {
+
 	::treeutility::dispatch $options(-command) [list %W %L %N] [list $win [list $label] [list $path]]
 
     }
@@ -103,6 +109,11 @@ snit::widgetadaptor treeMenu {
     #                 for children of prefix.
     #
     method buildSubMenus {menu names prefix} {
+	if {[array names builtSubmenus $prefix] ne ""} {
+	    return;                  # Already built.
+	}
+	set builtSubmenus($prefix) 1
+
 	set c 0
 
 	#
@@ -163,10 +174,13 @@ snit::widgetadaptor treeMenu {
 		$menu add command -label $child \
 		    -command [mymethod dispatch $child [join $path $options(-splitchar)]]		
 	    } else {
-		set cascmenu [menu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
-		$menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
-		lappend cascades $cascmenu
-		lappend cascPrefixes [concat $prefix $child]
+	
+
+		    set cascmenu [treeMenu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
+		    $menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
+		    lappend cascades $cascmenu
+		    lappend cascPrefixes [concat $prefix $child]
+	
 	    }
 	}
 	# If there are cascades we must
@@ -174,7 +188,7 @@ snit::widgetadaptor treeMenu {
 	# - posts any cascade near the pointer.
 
 	if {([llength $cascades] > 0) && $options(-pullright)} {
-	    bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
+	    bind $menu <Motion> +[mymethod buildCascades  $cascades $names $cascPrefixes]
 	    bind $menu <Motion> +[list $cascmenu postcascade @%y]
 	    
 	}

@@ -1067,4 +1067,8 @@ November 30-?? 2011
 	  parameter classic gate tab to aid in generating gates.
 	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
 	  in auto_path so scripts don't have to worry about it.
+	* Bug #5983 - Fix errors in treemenu and scrolling menu...
+	  Add/maintain scrolling buttons when required and ensure that
+	submenus also get that functionality (forward ported from
+	3.5-003).
 	
