@@ -91,7 +91,7 @@ snit::widgetadaptor scrollingMenu  {
 	#
 
 
-	if {[$hull yposition last] < ([winfo vrootheight .] - 100)} {
+	if {[$hull yposition last] < ([winfo vrootheight .] / 2 - 100)} {
 	    $hull add $itemType {*}$args
 	    set bottomIndex $itemCount;	# last one visible.
 

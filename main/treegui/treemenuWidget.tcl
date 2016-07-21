@@ -66,7 +66,8 @@ snit::widgetadaptor treeMenu {
 
 	set separatedNames [list]
 	set time [time {
-	foreach name $options(-items) {	    lappend separatedNames [split $name $options(-splitchar)]
+	foreach name $options(-items) {	    
+	    lappend separatedNames [split $name $options(-splitchar)]
 	}
 	}]
 
@@ -163,7 +164,8 @@ snit::widgetadaptor treeMenu {
 		$menu add command -label $child \
 		    -command [mymethod dispatch $child [join $path $options(-splitchar)]]		
 	    } else {
-		set cascmenu [menu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
+		#set cascmenu [menu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
+		set cascmenu [treeMenu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
 		$menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
 		lappend cascades $cascmenu
 		lappend cascPrefixes [concat $prefix $child]
