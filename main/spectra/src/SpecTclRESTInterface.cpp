@@ -203,7 +203,7 @@ void SpecTclRESTInterface::requestHistContentUpdate(QRootCanvas* pCanvas)
   requestHistContentUpdate(pCanvas->getCanvas());
 }
 
-void SpecTclRESTInterface::requestHistContentUpdate(TPad* pPad)
+void SpecTclRESTInterface::requestHistContentUpdate(TVirtualPad* pPad)
 {
 
   Q_ASSERT( pPad != nullptr );

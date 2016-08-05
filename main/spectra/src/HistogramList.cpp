@@ -25,6 +25,7 @@
 #include "GSlice.h"
 #include "GGate.h"
 #include "SpecTclInterface.h"
+#include "SubscribableH1.h"
 
 #include <HistFactory.h>
 #include <HistInfo.h>
@@ -97,6 +98,13 @@ HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
                                         const SpJs::HistInfo& info)
 {
   HistogramBundle* pHistBundle = nullptr;
+  std::unique_ptr<TH1> pSubscribableHist;
+  if (pHist->InheritsFrom(TH2::Class())) {
+      pSubscribableHist.reset(new SubscribableH1<TH2D>());
+  } else {
+      pSubscribableHist.reset(new SubscribableH1<TH1D>());
+  }
+  pHist->Copy(*pSubscribableHist);
 
   QString name(pHist->GetName());
 
@@ -105,7 +113,7 @@ HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
     } else {
         QMutexLocker lock(&m_mutex);
         unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex), 
-                                                                std::move(pHist), 
+                                                                std::move(pSubscribableHist),
                                                                 info));
 
         auto itHist = m_hists.insert(make_pair(name, std::move(pBundle)));

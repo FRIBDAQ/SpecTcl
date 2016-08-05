@@ -2,8 +2,23 @@
 #include <TAxis.h>
 #include <TH2.h>
 
+#include <iostream>
+
 namespace Viewer
 {
+
+template<class H1Type>
+SubscribableH1<H1Type>::SubscribableH1()
+    : H1Type(),
+      m_subscribers()
+{
+}
+
+//template<class H1Type>
+//void SubscribableH1<H1Type>::Copy(H1Type& hist) const
+//{
+//    TH1::Copy(hist);
+//}
 
 template<class H1Type>
 SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
@@ -54,7 +69,7 @@ template<class H1Type>
 void SubscribableH1<H1Type>::notifyAll()
 {
     for (auto& subscriber : m_subscribers) {
-        subscriber->notify();
+        subscriber->notify(*this);
     }
 }
 
@@ -72,7 +87,7 @@ SubscribableH1<H1Type>::getSubscribers() const {
 }
 
 template<class H1Type>
-SubscribableH1<H1Type>* CloneImpl(TH2* pHist)
+SubscribableH1<H1Type>* CloneImpl(const TH2* pHist)
 {
     TAxis* pXaxis = pHist->GetXaxis();
     TAxis* pYaxis = pHist->GetYaxis();
@@ -82,7 +97,7 @@ SubscribableH1<H1Type>* CloneImpl(TH2* pHist)
 }
 
 template<class H1Type>
-SubscribableH1<H1Type>* CloneImpl(TH1* pHist)
+SubscribableH1<H1Type>* CloneImpl(const TH1* pHist)
 {
     TAxis* pXaxis = pHist->GetXaxis();
     return new SubscribableH1<H1Type>("pHist", pHist->GetTitle(),
@@ -90,7 +105,7 @@ SubscribableH1<H1Type>* CloneImpl(TH1* pHist)
 }
 
 template<class H1Type>
-SubscribableH1<H1Type>* SubscribableH1<H1Type>::Clone(const char* name)
+SubscribableH1<H1Type>* SubscribableH1<H1Type>::Clone(const char* name) const
 {
     SubscribableH1<H1Type>* pClone= CloneImpl<H1Type>(this);
 

@@ -24,6 +24,7 @@
 #include "GSlice.h"
 #include "GGate.h"
 #include "MasterGateList.h"
+#include "CanvasOps.h"
 
 #include <QMutex>
 #include <QMutexLocker>
@@ -40,6 +41,7 @@
 
 using namespace std;
 
+
 namespace Viewer
 {
 
@@ -52,7 +54,8 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_cuts1d(),
       m_cuts2d(),
       m_hInfo(info),
-      m_defaultDrawOption()
+      m_defaultDrawOption(),
+      m_subscriber(*this)
 {
 	if (m_pHist) {
 		if (m_pHist->InheritsFrom(TH2::Class())) {
@@ -81,13 +84,49 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 //
 void HistogramBundle::draw(const QString& opt) {
 
-  QString opts(opt);
-    if (opts.isNull()) {
+    std::cout << "option arg = '" << opt.toStdString() << "'" << std::endl;
+
+    QString opts(opt);
+    if (opts.isEmpty()) {
         opts = m_defaultDrawOption;
     }
-    const char* cOpts = opts.toAscii().constData();
+    const char* cOpts = opts.toUtf8().constData();
+    std::cout << "option = '" << cOpts << "'" << std::endl;
 
-    m_pHist->Draw(cOpts);
+    // first check to see if there is already a histogram copy on the current pad
+    auto pFoundPair = m_clones.find(gPad);
+    if (pFoundPair != m_clones.end()) {
+        gPad->Modified(1);
+        if (opts != CanvasOps::getDrawOption(gPad, pFoundPair->second)) {
+            std::cout << "Trying to draw with " << opts.toUtf8().constData() << std::endl;
+            std::cout << "Found options : "
+                      << CanvasOps::getDrawOption(gPad, pFoundPair->second).toUtf8().constData() << std::endl;
+            CanvasOps::setDrawOption(gPad, pFoundPair->second, opts);
+            std::cout << "New options : "
+                      << CanvasOps::getDrawOption(gPad, pFoundPair->second).toUtf8().constData() << std::endl;
+
+        }
+        std::cout << "Copy of pad already found... just need to update the canvas" << std::endl;
+    } else {
+        std::cout << "New hist to draw... create clone" << std::endl;
+
+        // in order to support drawing copies of a histogram, we need
+        // to be able to manage TH1 clones. WE do so by registering a
+        // subscriber to the
+
+        if (m_pHist->InheritsFrom(TH2::Class())) {
+            auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
+            std::cout << "Subscribing to " << (void*)pClonedHist << std::flush << std::endl;
+            m_clones[gPad] = pClonedHist;
+            pClonedHist->subscribe(m_subscriber);
+        } else {
+            auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts));
+            std::cout << "Subscribing to " << (void*)pClonedHist << std::flush << std::endl;
+            m_clones[gPad] = pClonedHist;
+            pClonedHist->subscribe(m_subscriber);
+        }
+
+    }
 
     for (auto cut : m_cuts1d) {
         cut.second->draw();
@@ -225,6 +264,28 @@ void HistogramBundle::setDefaultDrawOption(const QString& opt)
 QString HistogramBundle::getDefaultDrawOption() const
 {
 	return m_defaultDrawOption;
+}
+
+
+//
+// This gets called when a clone is destroyed
+// We have to forget about tahat clone so we don't continue to try to
+// update it.
+void HistogramBundle::notify(TH1 &hist)
+{
+    auto itFound = m_clones.end();
+    for (auto it=m_clones.begin(); it!=m_clones.end(); ++it) {
+        if (it->second == &hist) {
+            itFound = it;
+            break;
+        }
+    }
+
+    if (itFound != m_clones.end()) {
+        std::cout << "Unsubscribing from " << (void*)itFound->second << std::endl;
+        m_clones.erase(itFound);
+        // the canvas owns the histogram so we don't need to delete it
+    } // else do nothing
 }
 
 } // end of Viewer namespace

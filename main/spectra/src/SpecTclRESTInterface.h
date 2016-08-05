@@ -39,7 +39,7 @@ namespace SpJs {
   class GateInfo;
 }
 
-class TPad;
+class TVirtualPad;
 
 namespace Viewer
 {
@@ -178,7 +178,7 @@ public:
      * \brief Request content updates for all histograms in a pad
      * \param pPad - the pad containing the histograms
      */
-    void requestHistContentUpdate(TPad *pPad);
+    void requestHistContentUpdate(TVirtualPad *pPad);
 
     /*!
      * \brief Request content updates for a specific histogram

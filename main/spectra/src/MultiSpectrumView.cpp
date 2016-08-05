@@ -31,6 +31,7 @@
 #include <TCanvas.h>
 #include <TH1.h>
 #include <TObject.h>
+#include <TList.h>
 
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -421,7 +422,14 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
         if (m_pSpecTcl) {
             pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
+
         pBundle->draw();
+
+        // if the drawn histogram is empty, request content update for
+        // all histograms in the pad it was drawn.
+        if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
+            m_pSpecTcl->requestHistContentUpdate(gPad);
+        }
 
         emit canvasContentChanged(*m_pCurrentCanvas);
     }
@@ -651,16 +659,53 @@ void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
     if (methodName == "SetDrawOption") {
 		TH1* pHist = dynamic_cast<TH1*>(pObj);
 		if (pHist) {
+            TVirtualPad* pPad = findPadContaining(pObj);
 			HistogramList* pList = m_pSpecTcl->getHistogramList();
 			HistogramBundle* pBundle = pList->getHist(pHist);
     		QString option = QInputDialog::getText(this, "Spectrum configuration",
                                                    "Enter draw option");
 
-    		pBundle->setDefaultDrawOption(option);
-    		refreshAll();
+            // set the specific object's draw option
+            TObjLink* pLink = findObjectLink(pPad, pObj);
+            pLink->SetOption(option.toUtf8().constData());
+
+            // set the option for future draw options
+            pBundle->setDefaultDrawOption(option);
+            refreshAll();
 		}
 	}
 }
 
+
+TVirtualPad* MultiSpectrumView::findPadContaining(TObject* pObj)
+{
+    auto pads = getAllCanvases();
+    TObject* pFoundObj = nullptr;
+    TVirtualPad* pFoundPad = nullptr;
+
+    for (auto& pPad : pads) {
+        pFoundObj = pPad->getCanvas()->GetListOfPrimitives()->FindObject(pObj);
+        if (pFoundObj) {
+            pFoundPad = pPad->getCanvas();
+            break;
+        }
+    }
+
+    return pFoundPad;
+}
+
+TObjLink* MultiSpectrumView::findObjectLink(TVirtualPad* pPad, TObject* pObj)
+{
+    TObjLink* pFoundLink = nullptr;
+    TObjLink *pLink = pPad->GetListOfPrimitives()->FirstLink();
+    while (pLink) {
+        if (pLink->GetObject() == pObj) {
+            pFoundLink = pLink;
+            break;
+        }
+        pLink = pLink->Next();
+    }
+    return pFoundLink;
+}
 
 } // end of namespace

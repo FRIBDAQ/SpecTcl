@@ -23,14 +23,20 @@
 #ifndef HISTOGRAMBUNDLE_H
 #define HISTOGRAMBUNDLE_H
 
+#include <SubscribableH1.h>
+
 #include "QHistInfo.h"
+
 #include "TH1.h"
 
 #include <QMutex>
 #include <QString>
+#include <QMap>
 
 #include <map>
 #include <memory>
+
+class TVirtualPad;
 
 namespace Viewer
 {
@@ -63,6 +69,8 @@ private:
   std::map<QString, GGate*>     m_cuts2d;
   SpJs::HistInfo                m_hInfo;
   QString						m_defaultDrawOption;
+  std::map<TVirtualPad*,TH1*>       m_clones;
+  GenericH1Subscriber<HistogramBundle> m_subscriber;
 
 public:
     /*!
@@ -139,6 +147,19 @@ public:
 
     void setDefaultDrawOption(const QString& opt);
     QString getDefaultDrawOption() const;
+
+    std::map<TVirtualPad*,TH1*> getClones() { return m_clones; }
+
+    /*!
+     * \brief Respond to clone deletion notificiation
+     *
+     * Search for and remove the histogram from the list of clones.
+     * This ensures that drawn objects don't proliferate and use
+     * resources during copy operations.
+     *
+     * \param hist  the histogram that is being deleted
+     */
+    void notify(TH1& hist);
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods

@@ -139,7 +139,7 @@ void SpecTclShMemInterface::requestHistContentUpdate(QRootCanvas *pCanvas)
     }
 }
 
-void SpecTclShMemInterface::requestHistContentUpdate(TPad *pPad)
+void SpecTclShMemInterface::requestHistContentUpdate(TVirtualPad *pPad)
 {
     Q_ASSERT( pPad != nullptr );
 
@@ -159,6 +159,12 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
     try {
         if (pHBundle) {
             filler.fill(pHBundle->getHist(), hName.toStdString());
+
+            // Update the clones
+            auto hists = pHBundle->getClones();
+            for (auto& histInfo : hists) {
+                filler.fill(*(histInfo.second), hName.toStdString());
+            }
         }
         emit histogramContentUpdated(pHBundle);
     } catch (std::exception& exc) {

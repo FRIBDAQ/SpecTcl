@@ -35,7 +35,7 @@
 
 class QListWidgetItem;
 class TH1;
-
+class QKeyEvent;
 
 namespace Viewer
 {
@@ -118,6 +118,7 @@ private:
     void setIcon(QListWidgetItem& item, HistogramList::iterator it);
 
     void clearHistogramList();
+    void keyPressEvent(QKeyEvent* pEvent);
 
 private:
     std::unique_ptr<Ui::ViewDrawPanel> ui;

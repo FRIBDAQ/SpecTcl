@@ -37,6 +37,8 @@
 
 class TPad;
 class TObject;
+class TVirtualPad;
+class TObjLink;
 
 class QMouseEvent;
 
@@ -249,6 +251,10 @@ private:
 
 
     std::vector<QRootCanvas*> locateCanvasesWithHist(HistogramBundle& rHistPkg);
+
+
+    TVirtualPad* findPadContaining(TObject* pObj);
+    TObjLink* findObjectLink(TVirtualPad* pPad, TObject* pObj);
 
 private:
     QGridLayout*                                    m_pLayout;

@@ -25,6 +25,9 @@
 
 #include <set>
 
+class TH1;
+class TObject;
+
 namespace Viewer
 {
 
@@ -38,10 +41,23 @@ public:
 
     /*!
      * \brief Method called when subscriber notified
+     *
+     * \param hist  the histogram that is being deleted
      */
-    virtual void notify() = 0;
+    virtual void notify(TH1& hist) = 0;
 };
 
+
+template<class Type>
+class GenericH1Subscriber : public H1Subscriber
+{
+private:
+    Type* m_pObject;
+
+public:
+    GenericH1Subscriber(Type& object) : m_pObject(&object) {}
+    virtual void notify(TH1& hist) { m_pObject->notify(hist); }
+};
 
 /*! \brief Decorator class to TH1 that manages subscriptions
  *
@@ -65,6 +81,11 @@ private:
     std::set<H1Subscriber*> m_subscribers;
 
 public:
+
+    SubscribableH1();
+
+//    virtual void Copy(H1Type& hist) const;
+
     /*!
      * \brief Constructor for TH1 objects
      *
@@ -138,7 +159,7 @@ public:
      */
     void notifyAll();
 
-    virtual SubscribableH1<H1Type>* Clone(const char* name);
+    virtual SubscribableH1<H1Type>* Clone(const char* name) const;
 };
 
 } // end Viewer namespace

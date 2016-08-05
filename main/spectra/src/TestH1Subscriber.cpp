@@ -9,7 +9,7 @@ TestH1Subscriber::TestH1Subscriber()
 {
 }
 
-void TestH1Subscriber::notify()
+void TestH1Subscriber::notify(TH1& hist)
 {
     m_notified = true;
 }
