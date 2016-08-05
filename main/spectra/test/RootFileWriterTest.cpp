@@ -33,6 +33,7 @@
 #include "HistogramList.h"
 #include "TestSpecTclInterface.h"
 #include "HistInfo.h"
+#include "SubscribableH1.h"
 
 #include <QMutex>
 #include <QString>
@@ -113,7 +114,7 @@ public:
 
         using namespace Viewer;
 
-        std::unique_ptr<TH1> pHist(new TH1F(name.c_str(),"", 10, 0, 10));
+        std::unique_ptr<TH1> pHist(new SubscribableH1<TH1D>(name.c_str(),"", 10, 0, 10));
         std::unique_ptr<QMutex> pMutex(new QMutex);
         std::unique_ptr<HistogramBundle> pBundle(new HistogramBundle(move(pMutex), move(pHist),
         {name, 1, {"param"}, {{0, 10, 10}}, SpJs::Long}));
