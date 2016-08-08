@@ -95,9 +95,13 @@ OneDimGateEdit::OneDimGateEdit(QRootCanvas& canvas,
         auto xMax = m_histPkg.getHist().GetXaxis()->GetXmax();
         m_histPkg.unlock();
 
+        double xWidth = xMax - xMin;
+
         QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );
 
-        m_editSlice = GSlice(0, "__cut_in_progress__", paramName, xMin, xMax, &m_canvas);
+        m_editSlice = GSlice(0, "__cut_in_progress__", paramName,
+                             xMin + 0.1*xWidth,
+                             xMax - 0.1*xWidth, &m_canvas);
         onNameChanged("");
     }
 
