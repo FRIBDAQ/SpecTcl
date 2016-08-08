@@ -362,19 +362,15 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     if (m_ignoreUpdates) return;
 
     if (pBundle && m_pSpecTcl) {
-        std::cout << "MultiSpectrumView::updateView()" << std::endl;
         QMutex* pMutex = pBundle->getMutex();
         pMutex->lock();
 
         // there is one histogram to synchronize, synchronize it once
         bool changed = pBundle->synchronizeGates(m_pSpecTcl->getGateList());
-        std::cout << "Gate list changed = " << std::boolalpha << changed << std::endl;
 
         std::vector<QRootCanvas*> canvases = locateCanvasesWithHist(*pBundle);
-        std::cout << "# canvases = " << canvases.size() << std::endl;
         // redraw the histogram where it need to be drawn
         for (auto pCanvas : canvases) {
-            std::cout << "Canvas name = " << pCanvas->getCanvas()->GetName() << std::endl;
             pCanvas->cd();
             pBundle->draw();
 
@@ -665,7 +661,6 @@ void MultiSpectrumView::ignoreUpdates(bool state)
 
 void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
 {
-    std::cout << "onMenuCommandExec " << methodName.toStdString() << std::endl;
     if (methodName == "SetDrawOption") {
 		TH1* pHist = dynamic_cast<TH1*>(pObj);
 		if (pHist) {

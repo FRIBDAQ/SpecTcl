@@ -13,14 +13,14 @@ namespace Viewer {
 class HistogramBundle;
 class GateManagerWidget;
 class SpecTclInterface;
-class SpectrumView;
+class TabWorkspace;
 
 class InformationPanel : public QWidget
 {
     Q_OBJECT
     
 public:
-    explicit InformationPanel(SpectrumView& rView,
+    explicit InformationPanel(TabWorkspace& rView,
                               std::shared_ptr<SpecTclInterface> pSpecTcl,
                               const QString& histName,
                               QWidget *parent = 0);

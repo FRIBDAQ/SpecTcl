@@ -96,7 +96,6 @@ void ControlPanel::onUpdateAll()
       while ( it != it_end ) {
           vector<TH1*> hists = m_pView->getAllHists(*it);
           for (auto pHist : hists) {
-              std::cout << "Update name: " << pHist->GetName() << std::endl;
               // try to insert into the request history.. if the hist already
               // lives in the request history, the second element of the
               // returned pair will be false

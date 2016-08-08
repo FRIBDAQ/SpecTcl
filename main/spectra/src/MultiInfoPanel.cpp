@@ -2,11 +2,12 @@
 #include "ui_MultiInfoPanel.h"
 
 #include "QRootCanvas.h"
-#include "SpectrumView.h"
+#include "TabWorkspace.h"
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
 #include "InformationPanel.h"
+#include "SpectrumView.h"
 
 #include <QFrame>
 #include <QString>
@@ -14,11 +15,12 @@
 namespace Viewer
 {
 
-MultiInfoPanel::MultiInfoPanel(SpectrumView& rView,
-                               std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent) :
+MultiInfoPanel::MultiInfoPanel(TabWorkspace& rView,
+                               std::shared_ptr<SpecTclInterface> pSpecTcl,
+                               QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MultiInfoPanel),
-    m_view(rView),
+    m_workspace(rView),
     m_pSpecTcl(pSpecTcl),
     m_nValidTabs(0)
 {
@@ -100,7 +102,8 @@ void MultiInfoPanel::addEmptyTab()
 
 void MultiInfoPanel::addTab(HistogramBundle& rBundle)
 {
-    InformationPanel* pPanel = new InformationPanel(m_view, m_pSpecTcl, rBundle.getName(), this);
+    InformationPanel* pPanel = new InformationPanel(m_workspace, m_pSpecTcl,
+                                                    rBundle.getName(), this);
     pPanel->onHistogramChanged(rBundle);
     ui->pTabWidget->addTab(pPanel, rBundle.getName());
     m_nValidTabs++;

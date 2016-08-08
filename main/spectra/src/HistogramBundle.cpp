@@ -101,26 +101,18 @@ void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
 {
     gPad->Modified(1);
     if (opts != CanvasOps::getDrawOption(gPad, &hClone)) {
-        std::cout << "Trying to draw with " << opts.toUtf8().constData() << std::endl;
-        std::cout << "Found options : "
-                  << CanvasOps::getDrawOption(gPad, &hClone).toUtf8().constData() << std::endl;
         CanvasOps::setDrawOption(gPad, &hClone, opts);
-        std::cout << "New options : "
-                  << CanvasOps::getDrawOption(gPad, &hClone).toUtf8().constData() << std::endl;
-
     }
 }
 
 void HistogramBundle::draw(const QString& opt) {
 
-    std::cout << "option arg = '" << opt.toStdString() << "'" << std::endl;
-
+    std::cout << "HistogramBundle::draw()" << std::endl;
     QString opts(opt);
     if (opts.isEmpty()) {
         opts = m_defaultDrawOption;
     }
     const char* cOpts = opts.toUtf8().constData();
-    std::cout << "option = '" << cOpts << "'" << std::endl;
 
     // first check to see if there is already a histogram copy on the current pad
     // if there is, then we just need to update it. Otherwise, we need to draw a brand
@@ -133,9 +125,9 @@ void HistogramBundle::draw(const QString& opt) {
         drawClone(cOpts);
     }
 
-    for (auto cut : m_cuts1d) { cut.second->draw(); std::cout << cut.second->getName().toUtf8().constData() << std::endl; }
+    for (auto cut : m_cuts1d) { cut.second->draw(); }
 
-    for (auto cut : m_cuts2d) { cut.second->draw(); std::cout << cut.second->getName().toUtf8().constData() << std::endl; }
+    for (auto cut : m_cuts2d) { cut.second->draw(); }
 }
 
 //

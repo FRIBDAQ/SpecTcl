@@ -14,7 +14,7 @@ namespace Viewer {
 class QRootCanvas;
 class SpecTclInterface;
 class HistogramBundle;
-class SpectrumView;
+class TabWorkspace;
 
 /*!
  * \brief The MultiInfoPanel class
@@ -28,7 +28,7 @@ class MultiInfoPanel : public QWidget
     Q_OBJECT
     
 public:
-    explicit MultiInfoPanel(SpectrumView& rView,
+    explicit MultiInfoPanel(TabWorkspace& rView,
                             std::shared_ptr<SpecTclInterface> pSpecTcl,
                             QWidget *parent = 0);
     ~MultiInfoPanel();
@@ -47,7 +47,7 @@ private:
 
 private:
     Ui::MultiInfoPanel                  *ui;
-    SpectrumView&                     m_view;
+    TabWorkspace&                     m_workspace;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     int                               m_nValidTabs;
 };

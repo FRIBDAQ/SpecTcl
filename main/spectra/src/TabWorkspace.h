@@ -28,6 +28,7 @@ public:
     AutoUpdater& getUpdater();
     SpectrumView& getView();
     ViewDrawPanel& getDrawPanel();
+    ControlPanel& getControlPanel();
 
 signals:
     

@@ -9,12 +9,13 @@
 #include "GateListItem.h"
 #include "GGate.h"
 #include "GSlice.h"
+#include "ControlPanel.h"
 
 #include "TH2.h"
 
 #include <QHBoxLayout>
 #include <QMessageBox>
-
+#include <QTimer>
 #include <QMutexLocker>
 #include <QMutex>
 #include <QTableWidgetItem>
@@ -25,11 +26,13 @@ namespace Viewer
 {
 
 GateManagerWidget::GateManagerWidget(SpectrumView &rView,
+                                     ControlPanel &rControls,
                                      std::shared_ptr<SpecTclInterface> pSpecTcl,
                                      const QString &hName,
                                      QWidget *parent) :
     QWidget(parent),
     m_view(rView),
+    m_controls(rControls),
     m_pSpecTcl(pSpecTcl),
     m_histDim(1),
     m_histName(hName)
@@ -216,6 +219,11 @@ void GateManagerWidget::closeDialog()
 
     horizontalLayout->insertWidget(0, m_pManager);
     m_pManager->show();
+
+    // we need to update our canvases in case a new cut was created. Because
+    // the SpecTcl interaction must be completed, the request is given a chance
+    // to complete before the canvases are updated.
+    QTimer::singleShot(1000, &m_controls, SLOT(onUpdateAll()));
 }
 
 

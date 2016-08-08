@@ -41,6 +41,9 @@ SpectrumView& TabWorkspace::getView() {
     return *m_pView;
 }
 
+ControlPanel& TabWorkspace::getControlPanel() {
+    return *m_pControls;
+}
 
 void TabWorkspace::setUpUI()
 {
@@ -52,7 +55,7 @@ void TabWorkspace::setUpUI()
 
     m_pDrawPanel = new ViewDrawPanel(m_pSpecTcl);
     m_pView      = new MultiSpectrumView(m_pSpecTcl);
-    m_pInfoPanel = new MultiInfoPanel(*m_pView, m_pSpecTcl, this);
+    m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 
     pVSplitter->addWidget(m_pView);

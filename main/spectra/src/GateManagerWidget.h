@@ -23,6 +23,7 @@ class SpecTclInterface;
 class HistogramBundle;
 class GGate;
 class GSlice;
+class ControlPanel;
 
 
 /*!
@@ -40,6 +41,7 @@ class GateManagerWidget : public QWidget
     Q_OBJECT
 public:
     explicit GateManagerWidget(SpectrumView& rView,
+                               ControlPanel& rControls,
                                std::shared_ptr<SpecTclInterface> pSpecTcl,
                                const QString& hName,
                                QWidget *parent = 0);
@@ -60,12 +62,16 @@ public slots:
 
     void closeDialog();
 
+signals:
+    void gateManagerActionComplete();
+
 private:
     std::pair<QRootCanvas*, HistogramBundle*> setUpDialog();
     void addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg);
 
 private:
     SpectrumView&       m_view;
+    ControlPanel&       m_controls;
     GateManager*        m_pManager;
     OneDimGateEdit*     m_p1DGateEdit;
     QHBoxLayout*        horizontalLayout;
