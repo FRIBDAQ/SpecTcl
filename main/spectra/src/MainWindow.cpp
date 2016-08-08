@@ -178,9 +178,6 @@ void MainWindow::createDockWindows()
 //
 void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
-    // connect the new signal-slots
-    connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
-            m_pView, SLOT(update(HistogramBundle*)));
 }
 
 void MainWindow::launchAutoUpdateDialog()

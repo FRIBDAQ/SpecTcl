@@ -152,6 +152,7 @@ signals:
       void              UseCurrentStyle();
       void              ForceUpdate();
       TObject*          findObject(TObject* obj);
+      TObject*          findObject(const QString& name);
       const char       *GetDISPLAY();
       TContextMenu     *GetContextMenu();
       Int_t             GetDoubleBuffer();

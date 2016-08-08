@@ -133,9 +133,9 @@ void HistogramBundle::draw(const QString& opt) {
         drawClone(cOpts);
     }
 
-    for (auto cut : m_cuts1d) { cut.second->draw(); }
+    for (auto cut : m_cuts1d) { cut.second->draw(); std::cout << cut.second->getName().toUtf8().constData() << std::endl; }
 
-    for (auto cut : m_cuts2d) { cut.second->draw(); }
+    for (auto cut : m_cuts2d) { cut.second->draw(); std::cout << cut.second->getName().toUtf8().constData() << std::endl; }
 }
 
 //

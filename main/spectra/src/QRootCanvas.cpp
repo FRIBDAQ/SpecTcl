@@ -523,6 +523,13 @@ TObject* QRootCanvas::findObject(TObject *obj)
   return fCanvas->FindObject(obj);
 }
 
+TObject* QRootCanvas::findObject(const QString &name)
+{
+    const char* cName = name.toUtf8().constData();
+
+    return fCanvas->FindObject(cName);
+}
+
 const char  *QRootCanvas::GetDISPLAY()
 {
    return fCanvas->GetDISPLAY() ;

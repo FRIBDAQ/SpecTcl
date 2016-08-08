@@ -362,18 +362,19 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     if (m_ignoreUpdates) return;
 
     if (pBundle && m_pSpecTcl) {
-
+        std::cout << "MultiSpectrumView::updateView()" << std::endl;
         QMutex* pMutex = pBundle->getMutex();
         pMutex->lock();
 
         // there is one histogram to synchronize, synchronize it once
-        pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+        bool changed = pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+        std::cout << "Gate list changed = " << std::boolalpha << changed << std::endl;
 
         std::vector<QRootCanvas*> canvases = locateCanvasesWithHist(*pBundle);
-
+        std::cout << "# canvases = " << canvases.size() << std::endl;
         // redraw the histogram where it need to be drawn
         for (auto pCanvas : canvases) {
-
+            std::cout << "Canvas name = " << pCanvas->getCanvas()->GetName() << std::endl;
             pCanvas->cd();
             pBundle->draw();
 
@@ -548,8 +549,17 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
                 QMutexLocker listLock(histList.getMutex());
                 HistogramBundle* pBundle = histList.getHist(*pHistName);
                 if (pBundle) {
-                    QMutexLocker histLock(pBundle->getMutex());
+                    if (m_pSpecTcl) {
+                        pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+                    }
+
                     pBundle->draw();
+
+                    // if the drawn histogram is empty, request content update for
+                    // all histograms in the pad it was drawn.
+                    if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
+                        m_pSpecTcl->requestHistContentUpdate(gPad);
+                    }
                 }
                 ++pHistName;
             }
@@ -635,7 +645,7 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
-  return (pCanvas->findObject(&pHist->getHist()) != nullptr);
+    return (pCanvas->findObject(pHist->getName()) != nullptr);
 }
 
 void MultiSpectrumView::onCanvasUpdated()

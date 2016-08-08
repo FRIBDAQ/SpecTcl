@@ -164,6 +164,7 @@ void TwoDimGateEdit::accept()
 
     if (isNewGate) {
         registerGate(m_pOldCut);
+        delete m_pOldCut;
     } else {
         editGate(m_pOldCut);
     }
@@ -458,8 +459,6 @@ void TwoDimGateEdit::registerGate(GGate* pCut)
         m_pSpecTcl->addGate(*pCut);
         m_pSpecTcl->enableGatePolling(true);
     }
-
-
 }
 
 void TwoDimGateEdit::editGate(GGate* pCut)
