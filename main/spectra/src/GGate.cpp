@@ -261,7 +261,7 @@ std::pair<double, double> GGate::getPoint(size_t index) const
 void GGate::draw()
 {
   if (m_pCut) {
-    m_pCut->Draw("same lp");
+    m_pCut->Draw("lp");
   } else {
     throw runtime_error("Cannot draw gate because it is a nullptr");
   }
