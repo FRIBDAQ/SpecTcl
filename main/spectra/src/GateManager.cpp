@@ -229,7 +229,7 @@ void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
     TH1& hist = rHistPkg.getHist();
 
     std::map<QString, GSlice*> cuts = rHistPkg.getCut1Ds();
-    int nRows = ui->gateList->rowCount();
+    int nRows = cuts.size();
     for (int row=0; row<nRows; ++row) {
 
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
@@ -257,7 +257,7 @@ void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
 
 
     std::map<QString, GGate*> cuts = rHistPkg.getCut2Ds();
-    int nRows = ui->gateList->rowCount();
+    int nRows = cuts.size();
     for (int row=0; row<nRows; ++row) {
 
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
