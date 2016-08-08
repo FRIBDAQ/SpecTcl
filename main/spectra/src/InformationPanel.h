@@ -22,6 +22,7 @@ class InformationPanel : public QWidget
 public:
     explicit InformationPanel(SpectrumView& rView,
                               std::shared_ptr<SpecTclInterface> pSpecTcl,
+                              const QString& histName,
                               QWidget *parent = 0);
     ~InformationPanel();
     

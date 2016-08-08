@@ -16,6 +16,13 @@ class SpecTclInterface;
 class HistogramBundle;
 class SpectrumView;
 
+/*!
+ * \brief The MultiInfoPanel class
+ *
+ * The MultiInfoPanel class is a tab widget that contains multiple
+ * InformationalPanels. There is a tab for each histogram that is displayed
+ * on the canvas.
+ */
 class MultiInfoPanel : public QWidget
 {
     Q_OBJECT

@@ -16,13 +16,14 @@ namespace Viewer
 
 InformationPanel::InformationPanel(SpectrumView &rView,
                                    std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                   const QString &histName,
                                    QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InformationPanel)
 {
     ui->setupUi(this);
 
-    m_pGateManager = new GateManagerWidget(rView, pSpecTcl, this);
+    m_pGateManager = new GateManagerWidget(rView, pSpecTcl, histName, this);
 
     ui->gridLayout->addWidget(m_pGateManager, 6, 0, 1, 0);
     setUpStatisticsTable();

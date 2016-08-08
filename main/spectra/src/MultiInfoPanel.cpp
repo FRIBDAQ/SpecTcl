@@ -100,7 +100,7 @@ void MultiInfoPanel::addEmptyTab()
 
 void MultiInfoPanel::addTab(HistogramBundle& rBundle)
 {
-    InformationPanel* pPanel = new InformationPanel(m_view, m_pSpecTcl, this);
+    InformationPanel* pPanel = new InformationPanel(m_view, m_pSpecTcl, rBundle.getName(), this);
     pPanel->onHistogramChanged(rBundle);
     ui->pTabWidget->addTab(pPanel, rBundle.getName());
     m_nValidTabs++;

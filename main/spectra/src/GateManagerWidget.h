@@ -41,6 +41,7 @@ class GateManagerWidget : public QWidget
 public:
     explicit GateManagerWidget(SpectrumView& rView,
                                std::shared_ptr<SpecTclInterface> pSpecTcl,
+                               const QString& hName,
                                QWidget *parent = 0);
 
 
@@ -70,6 +71,7 @@ private:
     QHBoxLayout*        horizontalLayout;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     int                 m_histDim;
+    QString             m_histName;
 };
 
 } // end Viewer namespace

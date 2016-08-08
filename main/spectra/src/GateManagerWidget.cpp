@@ -26,11 +26,13 @@ namespace Viewer
 
 GateManagerWidget::GateManagerWidget(SpectrumView &rView,
                                      std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                     const QString &hName,
                                      QWidget *parent) :
     QWidget(parent),
     m_view(rView),
     m_pSpecTcl(pSpecTcl),
-    m_histDim(1)
+    m_histDim(1),
+    m_histName(hName)
 {
     m_pManager = new GateManager(m_view, pSpecTcl, this);
     horizontalLayout = new QHBoxLayout();
@@ -61,27 +63,19 @@ void GateManagerWidget::onAddPressed()
 
 std::pair<QRootCanvas*, HistogramBundle*> GateManagerWidget::setUpDialog()
 {
-
-    auto pCanvas = m_view.getCurrentCanvas();
-    auto hists = SpectrumView::getAllHists(pCanvas);
-
-
     auto pHistList = m_pSpecTcl->getHistogramList();
-    HistogramBundle* pHistPkg = nullptr;
-    {
-        QMutexLocker lock(pHistList->getMutex());
 
-        // Ensure that there is a spectrum in the canvas
-        if (hists.size() > 0) {
-            pHistPkg = pHistList->getHist(hists.at(0));
-        } else {
-            QMessageBox::warning(this, "Failure to add gate",
-                                 "Cannot add a gate because there is no spectrum "
-                                 "present to associate the gate with.");
-        }
+    QMutexLocker lock(pHistList->getMutex());
+
+    HistogramBundle* pHistPkg = pHistList->getHist(m_histName);
+
+    if (! pHistPkg) {
+        QMessageBox::warning(this, "Failure to add gate",
+                             "Cannot add a gate because there is no spectrum "
+                             "present to associate the gate with.");
     }
 
-    return std::pair<QRootCanvas*,HistogramBundle*>(pCanvas, pHistPkg);
+    return std::pair<QRootCanvas*,HistogramBundle*>(m_view.getCurrentCanvas(), pHistPkg);
 }
 
 void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
