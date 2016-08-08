@@ -163,9 +163,14 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods
+
 private:
     bool synchronize1DGates(const MasterGateList* pGateList);
     bool synchronize2DGates(const MasterGateList* pGateList);
+
+
+    void drawClone(const QString& opts);
+    void updateClone(TH1& hClone, const QString& opts);
 };
 
 } // end of namespace

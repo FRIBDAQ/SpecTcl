@@ -82,6 +82,35 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 
 //
 //
+void HistogramBundle::drawClone(const QString &opts)
+{
+    const char* cOpts = opts.toUtf8().constData();
+
+    if (m_pHist->InheritsFrom(TH2::Class())) {
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
+        m_clones[gPad] = pClonedHist;
+        pClonedHist->subscribe(m_subscriber);
+    } else {
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts));
+        m_clones[gPad] = pClonedHist;
+        pClonedHist->subscribe(m_subscriber);
+    }
+}
+
+void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
+{
+    gPad->Modified(1);
+    if (opts != CanvasOps::getDrawOption(gPad, &hClone)) {
+        std::cout << "Trying to draw with " << opts.toUtf8().constData() << std::endl;
+        std::cout << "Found options : "
+                  << CanvasOps::getDrawOption(gPad, &hClone).toUtf8().constData() << std::endl;
+        CanvasOps::setDrawOption(gPad, &hClone, opts);
+        std::cout << "New options : "
+                  << CanvasOps::getDrawOption(gPad, &hClone).toUtf8().constData() << std::endl;
+
+    }
+}
+
 void HistogramBundle::draw(const QString& opt) {
 
     std::cout << "option arg = '" << opt.toStdString() << "'" << std::endl;
@@ -94,47 +123,19 @@ void HistogramBundle::draw(const QString& opt) {
     std::cout << "option = '" << cOpts << "'" << std::endl;
 
     // first check to see if there is already a histogram copy on the current pad
+    // if there is, then we just need to update it. Otherwise, we need to draw a brand
+    // new clone of the histogram.
+
     auto pFoundPair = m_clones.find(gPad);
     if (pFoundPair != m_clones.end()) {
-        gPad->Modified(1);
-        if (opts != CanvasOps::getDrawOption(gPad, pFoundPair->second)) {
-            std::cout << "Trying to draw with " << opts.toUtf8().constData() << std::endl;
-            std::cout << "Found options : "
-                      << CanvasOps::getDrawOption(gPad, pFoundPair->second).toUtf8().constData() << std::endl;
-            CanvasOps::setDrawOption(gPad, pFoundPair->second, opts);
-            std::cout << "New options : "
-                      << CanvasOps::getDrawOption(gPad, pFoundPair->second).toUtf8().constData() << std::endl;
-
-        }
-        std::cout << "Copy of pad already found... just need to update the canvas" << std::endl;
+        updateClone(*pFoundPair->second, opts);
     } else {
-        std::cout << "New hist to draw... create clone" << std::endl;
-
-        // in order to support drawing copies of a histogram, we need
-        // to be able to manage TH1 clones. WE do so by registering a
-        // subscriber to the
-
-        if (m_pHist->InheritsFrom(TH2::Class())) {
-            auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
-            std::cout << "Subscribing to " << (void*)pClonedHist << std::flush << std::endl;
-            m_clones[gPad] = pClonedHist;
-            pClonedHist->subscribe(m_subscriber);
-        } else {
-            auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts));
-            std::cout << "Subscribing to " << (void*)pClonedHist << std::flush << std::endl;
-            m_clones[gPad] = pClonedHist;
-            pClonedHist->subscribe(m_subscriber);
-        }
-
+        drawClone(cOpts);
     }
 
-    for (auto cut : m_cuts1d) {
-        cut.second->draw();
-    }
+    for (auto cut : m_cuts1d) { cut.second->draw(); }
 
-    for (auto cut : m_cuts2d) {
-        cut.second->draw();
-    }
+    for (auto cut : m_cuts2d) { cut.second->draw(); }
 }
 
 //
