@@ -182,7 +182,10 @@ void HistogramList::synchronize(const MasterGateList& list)
 {
 
   for (auto& bundlePair : m_hists) {
-      bundlePair.second->synchronizeGates(&list);
+      if (bundlePair.second->isVisible()) {
+          std::cout << "synching " << bundlePair.first.toStdString() << std::endl;
+          bundlePair.second->synchronizeGates(&list);
+      }
   }
 }
 

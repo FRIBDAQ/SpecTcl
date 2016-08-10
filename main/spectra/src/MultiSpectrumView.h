@@ -186,6 +186,9 @@ public slots:
      */
     void updateView(HistogramBundle* pHist);
 
+    void redrawView();
+    void redrawCanvas(QRootCanvas& canvas);
+
     /*!
      * \brief drawHistogram
      *

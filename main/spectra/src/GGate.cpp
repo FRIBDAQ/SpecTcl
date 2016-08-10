@@ -305,4 +305,19 @@ void GGate::setPoint(int index, double x, double y)
   m_pCut->SetPoint(index, x, y);
 }
 
+void GGate::setLineStyle(int style)
+{
+    m_pCut->SetLineStyle(style);
+}
+
+void GGate::setLineColor(int color)
+{
+    m_pCut->SetLineColor(color);
+}
+
+void GGate::setLineWidth(int width)
+{
+    m_pCut->SetLineWidth(width);
+}
+
 } // end of namespace

@@ -60,6 +60,8 @@ TwoDimGateEdit::TwoDimGateEdit(QRootCanvas& rCanvas,
     m_lastMousePressPos(),
     m_pSpecTcl(pSpecTcl)
 {
+    std::cout << "TwoDimGateEdit::TwoDimGateEdit()" << std::endl;
+
     ui->setupUi(this);
 
     // disable the ok button
@@ -98,6 +100,9 @@ TwoDimGateEdit::TwoDimGateEdit(QRootCanvas& rCanvas,
     m_canvas.cd();
 
     m_pEditCut->setEditable(true);
+    m_pEditCut->setLineStyle(2);
+    m_pEditCut->setLineColor(kBlack);
+    m_pEditCut->setLineWidth(3);
 
     m_pEditCut->getGraphicObject()->SetMarkerStyle(20);
     m_pEditCut->draw();
@@ -433,7 +438,6 @@ void TwoDimGateEdit::onValuesChanged(vector<pair<double, double> > points)
 
 }
 
-
 void TwoDimGateEdit::valueChanged(int row, int col)
 {
   auto pItemX = ui->dataTable->item(row, 0);
@@ -454,6 +458,9 @@ void TwoDimGateEdit::registerGate(GGate* pCut)
   Q_ASSERT( pCut != nullptr );
 
     pCut->setEditable(false);
+    pCut->setLineColor(kBlack);
+    pCut->setLineStyle(1);
+    pCut->setLineWidth(1);
 
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pCut);
@@ -472,6 +479,9 @@ void TwoDimGateEdit::editGate(GGate* pCut)
 
     pCut->draw();
     pCut->setEditable(false);
+    pCut->setLineColor(kBlack);
+    pCut->setLineStyle(1);
+    pCut->setLineWidth(1);
 
 }
 

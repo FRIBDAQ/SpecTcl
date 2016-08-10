@@ -88,6 +88,9 @@ void TabWorkspace::connectSignals()
     connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(updateView(HistogramBundle*)));
 
+    connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
+            m_pView, SLOT(redrawView()));
+
     connect(m_pDrawPanel, SIGNAL(geometryChanged(int, int)),
             m_pView, SLOT(setGeometry(int, int)));
 

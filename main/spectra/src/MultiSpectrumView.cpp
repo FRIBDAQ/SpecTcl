@@ -395,6 +395,49 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     }
 }
 
+void MultiSpectrumView::redrawView()
+{
+    if (m_ignoreUpdates) return;
+
+    for (auto canvasInfo :  m_canvases) {
+        redrawCanvas(*canvasInfo.second);
+    }
+
+    m_pCurrentCanvas->cd();
+}
+
+void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
+{
+    if (m_ignoreUpdates) return;
+
+    if (!m_pSpecTcl) {
+        QMessageBox::warning(this,"Viewer update error", "Viewer cannot redraw canvas without SpecTcl interface");
+        throw std::runtime_error("MultiSpectrumView::redrawCanvas() Cannot update canvas without a SpecTclInterface");
+    }
+
+    QRootCanvas* pCurrentCanvas = m_pCurrentCanvas;
+
+    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+
+    std::vector<TH1*> rootHists = SpectrumView::getAllHists(&canvas);
+
+    canvas.cd();
+
+    // redraw the histogram where it need to be drawn
+    for (auto hist : rootHists) {
+        HistogramBundle* pBundle = pHistList->getHist(hist);
+
+        pBundle->draw();
+    }
+
+//    // if we redrew the content of the current canvas, emit a signal saying
+//    // so
+//    if (std::find(m_canvases.begin(), canvases.end(), m_pCurrentCanvas) != canvases.end()) {
+//        emit canvasUpdated(*m_pCurrentCanvas);
+//    }
+
+    m_pCurrentCanvas->cd();
+}
 
 std::vector<QRootCanvas*>
 MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)

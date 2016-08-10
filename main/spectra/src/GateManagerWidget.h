@@ -61,6 +61,7 @@ public slots:
     void onDeletePressed();
 
     void closeDialog();
+    void updateGateList();
 
 signals:
     void gateManagerActionComplete();

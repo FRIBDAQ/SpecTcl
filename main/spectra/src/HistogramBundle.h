@@ -161,6 +161,8 @@ public:
      */
     void notify(TH1& hist);
 
+    bool isVisible() const;
+
     //////////////////////////////////////////////////////////////////////////
     // Helper methods
 

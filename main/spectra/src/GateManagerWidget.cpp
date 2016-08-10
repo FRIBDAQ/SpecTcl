@@ -37,7 +37,7 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
     m_histDim(1),
     m_histName(hName)
 {
-    m_pManager = new GateManager(m_view, pSpecTcl, this);
+    m_pManager = new GateManager(m_view, m_controls, pSpecTcl, m_histDim, this);
     horizontalLayout = new QHBoxLayout();
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -49,6 +49,8 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
     connect(m_pManager, SIGNAL(addGateClicked()), this, SLOT(onAddPressed()));
     connect(m_pManager, SIGNAL(editGateClicked()), this, SLOT(onEditPressed()));
     connect(m_pManager, SIGNAL(deleteGateClicked()), this, SLOT(onDeletePressed()));
+
+    connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()), this, SLOT(updateGateList()));
 
 }
 
@@ -223,7 +225,6 @@ void GateManagerWidget::closeDialog()
     // we need to update our canvases in case a new cut was created. Because
     // the SpecTcl interaction must be completed, the request is given a chance
     // to complete before the canvases are updated.
-    QTimer::singleShot(1000, &m_controls, SLOT(onUpdateAll()));
 }
 
 
@@ -261,8 +262,31 @@ void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
 
 void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
 {
-    m_pManager->updateGateIntegrals(rHistPkg);
+    if (m_pManager->isVisible()) {
+        m_pManager->updateGateIntegrals(rHistPkg);
+    }
 }
 
+
+void GateManagerWidget::updateGateList()
+{
+    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
+    if (! m_pManager->isVisible() || ! m_pSpecTcl) {
+        std::cout << "skipped" << std::endl;
+        return;
+    }
+
+    HistogramList* pList = m_pSpecTcl->getHistogramList();
+    HistogramBundle* pHistBundle = pList->getHist(m_histName);
+    if (pHistBundle) {
+        pHistBundle->synchronizeGates(m_pSpecTcl->getGateList());
+        if (m_histDim == 1) {
+            setGateList(pHistBundle->getCut1Ds());
+        } else {
+            setGateList(pHistBundle->getCut2Ds());
+        }
+    }
+    std::cout << "completed" << std::endl;
+}
 
 } // end Viewer namespace

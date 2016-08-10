@@ -184,7 +184,7 @@ public:
 
     void setPoint(int index, double x, double y);
 
-    MyCutG* getGraphicObject() { return dynamic_cast<MyCutG*>(m_pCut.get()); }
+    MyCutG* getGraphicObject() { std::cout << "m_pCut.get()=" << (void*)m_pCut.get() << std::endl; return dynamic_cast<MyCutG*>(m_pCut.get()); }
 
     /*! \brief Draw on the current TPad */
     void draw();
@@ -211,6 +211,10 @@ public:
 
     void synchronize(DataSource targ);
 
+
+    void setLineStyle(int style);
+    void setLineColor(int color);
+    void setLineWidth(int width);
 
 public slots:
    /*! */

@@ -130,6 +130,10 @@ void HistogramBundle::draw(const QString& opt) {
     for (auto cut : m_cuts2d) { cut.second->draw(); }
 }
 
+bool HistogramBundle::isVisible() const {
+    return (m_clones.size() != 0);
+}
+
 //
 //
 bool HistogramBundle::synchronize2DGates(const MasterGateList* pGateList)
