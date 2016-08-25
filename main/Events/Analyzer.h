@@ -57,7 +57,6 @@
 #include <histotypes.h>
 #define __HISTOTYPES_H
 #endif
-
 #ifndef __FILTEREVENTPROCESSOR_H
 #include <FilterEventProcessor.h>
 #define __FILTEREVENTPROCESSOR_H
@@ -240,11 +239,13 @@ class CAnalyzer {
     CEvent* pEvent;
     if(rVec.empty()) {
       pEvent =  new CEvent(m_nParametersInEvent);
+
     } else {
       pEvent = rVec.back();
       rVec.pop_back();
     }
     if(pEvent) pEvent->clear(); // BUG prevention.
+    else pEvent= new CEvent(m_nParametersInEvent);
     return pEvent;
   }
   void ReturnEvent(CEvent* pEvent);
