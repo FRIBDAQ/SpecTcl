@@ -418,6 +418,9 @@ protected:
     
     m_nChannel = am_nParameter;
   }
+  void setOffset(UInt_t newOffset) {
+    m_nOffset = newOffset;
+  }
 
   //
   //  Operations:
