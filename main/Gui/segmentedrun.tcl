@@ -33,6 +33,7 @@
 #
 
 package provide segmentedrun 1.0
+package require Tk
 
 ##
 # listRunFiles
@@ -73,4 +74,35 @@ proc listRunFiles {file} {
     # 
     set fileList [glob $globPattern]
     return [lsort -increasing $fileList]
+}
+##
+#  doSegmentedRun (question)
+#
+#     Uses a tk_messageBox to ask the user if they want to playback
+#     all of the files in a segmented run.
+#
+# @param files - list of files gotten from listRunFiles (full paths).
+# @return boolean User response:
+#                 - true if the user wants to replay the entire run
+#                 - false if not.
+#
+proc doSegmentedRun files {
+    
+    # Make a list of only the filenames separated by ", ".
+
+    set names [list]
+    foreach file $files {
+	lappend names [file tail $file]
+    }
+    set names [join $names ", "]
+
+    # Construct the message string for the dialog:
+
+    set message "The file you selected is part of a segmented run."
+    append message "The event files in that run are:\n "
+    append message $names
+    append message "\n Do you want to play back the entire run?"
+
+    return [tk_messageBox -title {Multi file run} \
+	-icon question -type yesno -message $message]
 }
