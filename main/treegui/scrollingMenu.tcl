@@ -51,10 +51,12 @@ snit::widgetadaptor scrollingMenu  {
     variable scrolling   0; 	#  nonzero if the menu requires scrolling.
     variable timerId     -1;	# Scrolling timer id.
     variable visible      0;    # True if mapped false if not.
+    variable idlewait     0;    # So we can wait synchronously for idle.
 
     # Our extended options:
 
-    option -scrolltimer 20;	# ms betwee successive scrolls.
+    option -scrolltimer 100;	# ms betwee successive scrolls.
+    option -minvisible   10;    # Only effective at post time.
 
     # Unless overridden, all the methods and options are passed through to the underlying
     # menu.
@@ -116,16 +118,157 @@ snit::widgetadaptor scrollingMenu  {
     #
     # Private methods:
 
+    ##
+    # _itemHeight 
+    #
+    #  Return out best guess as to the height of the next menu item.
+    #  If there are no menu items, an arbitrary, approximate value is
+    #  used.
+    #  If there are menu items the window ht divided by the
+    #  number of items is the average item height.
+    #
+    #  @return integer - number of pixels in the height of a menu item.
+    #
+    method _itemHeight {} {
+	set nVisible [expr {$bottomIndex - $topIndex}]
+	if {$scrolling} {incr nVisible}; # The arrow counts too.
+
+	if {$nVisible == 0} {
+	    set lastHt 0;	# Window has no height now.
+	    return 30;		# Some arbitrary height
+	} else {
+	    set ht [winfo height $win]
+	    set itemHt [expr {$ht/$nVisible}]
+	    return $itemHt
+	}
+	
+		      
+    }
+    ##
+    # _itemFits
+    #   Determines if an new item will fit on the screen.
+    #   -  If the window size + itemHt will fit
+    #      on the screen all done, return true.
+    #   - If not there are two cases:
+    #     * If we have -minvisible items or more,
+    #       we return false
+    #     * If we don't have -minvisible items,
+    #       we repost the menu upwards by the height of
+    #       an item and a bit more and then return true.
+    #       If that would drive the y origin of the menu off the
+    #       top of the screen we return false...hopefully
+    #       this special case does not happen as that would imply
+    #       either a gi-humongous font or a really tiny screen.
+    #       in the y direction.
+    #
+    #
+    #  @param x0 - the x coordinate at which the menu is posted.
+    #  @param y0 - the y coordinate at which the menu is posted.
+    #  @param itemHt - Best guess as to the height of a menu item.
+    #  @return bool - True if we don't need to initiate scrolling
+    #                 for a newly added item.
+    #
+    method _itemFits {x0 y0 itemHt} {
+	set screenHt [winfo vrootheight $win]; # possible . and us are on different screens.
+
+	# Seems like we need a bit of tolerance on the screen ht:
+
+	incr screenHt -20
+
+	set currentHt [winfo height $win]
+
+	# Bottom of the window if we just extend it by itemht:
+
+	set newBottom [expr {$y0 + $currentHt + $itemHt}]
+
+	# Let's run through the cases -- it fits:
+
+	if {$newBottom < $screenHt} {
+	    return true
+	}
+
+	# Do we need to move the window to make -minvisible fit?
+
+	set min $options(-minvisible)
+	set nVisible [expr {$bottomIndex - $topIndex}]
+	if {$scrolling} {incr nVisible}; # Pathological if true but...
+	
+	# If necessary repost the menu:
+	
+
+	if {$nVisible < $min} {
+       
+	    # Figure out a y0 that puts newbottom on the map:
+	    # Note we tried...we really tried to just incrementally
+	    # move y0 -- but evidently there's sufficient delay
+	    # between posting and the post being active that did not
+	    # work.
+	    #  This works if we got multiple items off the bottom
+	    # of the screen before the window actually moved.
+	    
+	    set dy [expr {$screenHt - $newBottom}]; # Want it negative.
+	    incr y0 $dy
+
+	    if {$y0 < 0} {set y0 0}
+	    $win post $x0 $y0
+
+	    if {$y0 > 0} {
+		return true
+	    } else {
+		return false;	# Could not fit min items on screen.
+	    }
+	}
+	# Can't fit and have the minimum set:
+	return false
+	    
+    }
+
+    ##
+    # _addItemToMenu
+    #   Actually adds an item to the underlying menu object.
+    #   This is a bit complex as we want to ensure that we do
+    #   have a nonempty menu (not just a scroll arrow. 
+    #   Here's a rough overview of what we'll do:
+    #   -  If there are at least two  menu entries we'll use the size of the
+    #      menu to figure out how big each menu item is and use that
+    #      in the rest of the computations.   If there's only 1 entry
+    #      we'll use the size of the window to figure out the menu size.
+    #      If there are no entries we'll use an arbitraty 30 pixels 
+    #      as the height of a menu item.
+    #   -  If the item fits on the screen, we'll just add it.
+    #   -  If the item does not fit on the screen and we have fewer than
+    #      -minvisible we repost the menu up by a couple of menu entry widths
+    #      to ensure that we can fit at least -minvisible items on the screen.
+    #   -  If on the other hand the menu entry does not fit, but we already
+    #      have 10 items, we'll repost a menu entry up and initiate
+    #      scrolling
+    #
+    # @param itemType -- the type of item to add, e.g. cascade or command.
+    # @param args     -- The remaining menu parameters as a list (will be passed
+    #                    to menu add as {*}$args.
+    #
     method _addItemToMenu {itemType args} {
-	# If we don't need to scroll just add the entry.
-	# otherwise set up scrolling if it's not already set up.
-	#
+	after idle [list incr [myvar idlewait]]
+	vwait [myvar idlewait]
 
+	set lIdx [lsearch -exact $args -label]
+	incr lIdx
+
+
+	# figure out where the menu is posted:
+
+	set x0 [winfo rootx $win]
 	set y0 [winfo rooty $win]
-	set yl [$win yposition last]
-	set ypos [expr {$y0 + $yl}]
 
-	if {$ypos < ([winfo vrootheight .] - 200)} {
+
+	# Figure out the ht of a menu item:
+
+	set itemHt [$self _itemHeight]
+
+	# If the item fits add it else initiate scrolling.
+
+
+	if {[$self _itemFits $x0 $y0 $itemHt]} {
 	    $hull add $itemType {*}$args
 	    incr bottomIndex
 
@@ -133,6 +276,9 @@ snit::widgetadaptor scrollingMenu  {
 	    $self StartScrolling
 
 	}
+	after idle [list incr [myvar idlewait]]
+	vwait [myvar idlewait]
+
     }
 
     ##
@@ -350,7 +496,12 @@ snit::widgetadaptor scrollingMenu  {
 		set newItem $items($bottomIndex)
 		set itemType [dict get $newItem type]
 		set itemOptions [dict get $newItem options]
-		$hull insert [expr [$hull index last] -1] $itemType {*}$itemOptions
+
+		# Should not be able to insert at -1 but protect anyway:
+
+		set insidx [expr {max(([$hull index last] -1), 0)}]
+
+		$hull insert $insidx  $itemType {*}$itemOptions
 	    }
 	}
 
