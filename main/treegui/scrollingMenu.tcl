@@ -248,6 +248,16 @@ snit::widgetadaptor scrollingMenu  {
     #                    to menu add as {*}$args.
     #
     method _addItemToMenu {itemType args} {
+
+	#  This after idle is necessary;  The actual window posting and
+	#  resizing is asynchronous and in the event queue.  Since I'm
+	#  relying on the window to be posted and sized/positioned as per
+	#  our last call, we need to ensure that all of the queued events
+	#  are executed.   Hence the code below.  The identical code at the
+	#  end of this proc method is a just in case we probably don't need
+	# but this was tough enough as is.
+
+
 	after idle [list incr [myvar idlewait]]
 	vwait [myvar idlewait]
 
