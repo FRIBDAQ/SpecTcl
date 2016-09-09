@@ -55,7 +55,7 @@ snit::widgetadaptor scrollingMenu  {
 
     # Our extended options:
 
-    option -scrolltimer 100;	# ms betwee successive scrolls.
+    option -scrolltimer 250;	# ms between successive scrolls.
     option -minvisible   10;    # Only effective at post time.
 
     # Unless overridden, all the methods and options are passed through to the underlying
@@ -70,7 +70,6 @@ snit::widgetadaptor scrollingMenu  {
 
 	$self configurelist $args
 
-	bind $win <Map>  +[mymethod _Map]
 
 	#  Important safety tip here -- why the after:
 	#  It turns out that the menu widget figures out what to do on when an entry
@@ -83,6 +82,17 @@ snit::widgetadaptor scrollingMenu  {
 	#  By scheduling _Unmap to happen we work around that 'little' ordering problem.
 
 	bind $win <Unmap> +[list after idle [mymethod _Unmap]]
+
+	#  This is done with an after idle to force an ordering between
+	#  unmap and map handling.  Otherwise we may handle a second map prior
+	#  to handling the first unmap
+	
+	bind $win <Map>  +[list after idle [mymethod _Map]]
+    }
+    destructor {
+	bind $win <Map> ""
+	bind $win <Unmap> ""
+	
     }
 
     #-----------------------------------------------------------------------------
@@ -138,7 +148,7 @@ snit::widgetadaptor scrollingMenu  {
 	    return 30;		# Some arbitrary height
 	} else {
 	    set ht [winfo height $win]
-	    set itemHt [expr {$ht/$nVisible}]
+	    set itemHt [expr {$ht/$nVisible + 1}];         # Windows off by one...
 	    return $itemHt
 	}
 	
@@ -169,14 +179,21 @@ snit::widgetadaptor scrollingMenu  {
     #                 for a newly added item.
     #
     method _itemFits {x0 y0 itemHt} {
+	
+	#  If we're scrolling we already know this won't fit:
+	
+	if {$scrolling} {
+	    return false
+	}
+	
 	set screenHt [winfo vrootheight $win]; # possible . and us are on different screens.
-
+	
 	# Seems like we need a bit of tolerance on the screen ht:
 
 	incr screenHt -20
 
 	set currentHt [winfo height $win]
-
+	
 	# Bottom of the window if we just extend it by itemht:
 
 	set newBottom [expr {$y0 + $currentHt + $itemHt}]
@@ -211,7 +228,7 @@ snit::widgetadaptor scrollingMenu  {
 
 	    if {$y0 < 0} {set y0 0}
 	    $win post $x0 $y0
-
+	    
 	    if {$y0 > 0} {
 		return true
 	    } else {
@@ -222,7 +239,15 @@ snit::widgetadaptor scrollingMenu  {
 	return false
 	    
     }
-
+    ##
+    # _synchronize
+    #   Wait for all pending UI events to be run.
+    #
+    method _synchronize {} {
+	update idletasks
+	after idle [list incr [myvar idlewait]]
+	vwait [myvar idlewait]
+    }
     ##
     # _addItemToMenu
     #   Actually adds an item to the underlying menu object.
@@ -233,7 +258,7 @@ snit::widgetadaptor scrollingMenu  {
     #      menu to figure out how big each menu item is and use that
     #      in the rest of the computations.   If there's only 1 entry
     #      we'll use the size of the window to figure out the menu size.
-    #      If there are no entries we'll use an arbitraty 30 pixels 
+    #      If there are no entries we'll use an arbitrary 30 pixels 
     #      as the height of a menu item.
     #   -  If the item fits on the screen, we'll just add it.
     #   -  If the item does not fit on the screen and we have fewer than
@@ -257,9 +282,13 @@ snit::widgetadaptor scrollingMenu  {
 	#  end of this proc method is a just in case we probably don't need
 	# but this was tough enough as is.
 
+	set labelIndex [expr {[lsearch -exact $args -label] + 1}]
+	set label [lindex $args $labelIndex]
 
-	after idle [list incr [myvar idlewait]]
-	vwait [myvar idlewait]
+	$self _synchronize
+	if {!$visible} {
+	    return
+	}
 
 	set lIdx [lsearch -exact $args -label]
 	incr lIdx
@@ -279,15 +308,15 @@ snit::widgetadaptor scrollingMenu  {
 
 
 	if {[$self _itemFits $x0 $y0 $itemHt]} {
+
 	    $hull add $itemType {*}$args
 	    incr bottomIndex
 
 	} else {
+
 	    $self StartScrolling
 
 	}
-	after idle [list incr [myvar idlewait]]
-	vwait [myvar idlewait]
 
     }
 
@@ -335,6 +364,7 @@ snit::widgetadaptor scrollingMenu  {
 	if {$scrolling} {
 	    return
 	}
+
 
 	set scrolling 1
 
@@ -387,7 +417,8 @@ snit::widgetadaptor scrollingMenu  {
     #  - If we are in the last item and the 
     method ScrollMenu {} {
 
-
+	if {!$visible} return
+	
 	set timerId [after $options(-scrolltimer) [mymethod ScrollMenu]]
 
 
@@ -430,6 +461,12 @@ snit::widgetadaptor scrollingMenu  {
     # - Somewhen adjust the top/bottom indices.
     #
     method ScrollUp {} {
+	if {!$visible} {
+	    return
+	}
+	
+	# Protect against scrolling up too far:
+	if {$bottomIndex >= $itemCount} {return}
 	
 	# If the top index is 0, we need an up arrow at the top:
 	# and must delete an entry to keep the menu size constant.
@@ -438,9 +475,10 @@ snit::widgetadaptor scrollingMenu  {
 	    $hull insert 0 command -image $uparrow
 	    $hull delete 1 
 	}
+
 	$hull delete 1;		# Drop the top functional item.
 	
-	# Add the next unseen item:
+	# Add the next unseen item ... if there are any left:
 
 	incr topIndex
 	incr bottomIndex
@@ -450,7 +488,9 @@ snit::widgetadaptor scrollingMenu  {
 	set itemType [dict get $newBottomItem type]
 	set itemOptions  [dict get $newBottomItem options]
 
-
+	if {$menuIndex eq "none"} {
+	    set menuIndex end
+	}
 	$hull insert $menuIndex $itemType {*}$itemOptions
 
 	# If the new bottom item is the last one, remove the
@@ -473,6 +513,13 @@ snit::widgetadaptor scrollingMenu  {
     #   - If necessary kill the top arrow.
     # 
     method ScrollDown {} {
+
+	if {!$visible} {
+	    return
+	}
+	# Protect against overscrolling:
+	
+	if {$topIndex <= 0} {return}
 	
 	# If the bottom index is the last element
 	# we  must add a scrolling arrow to the bottom of the menu.
@@ -484,7 +531,9 @@ snit::widgetadaptor scrollingMenu  {
 	# Remove the next to last elementL:
 
 	set lastItem [expr {[$hull index last]} -1]
-	$hull delete $lastItem
+	if {$lastItem != -1} {
+	    $hull delete $lastItem
+	}
 
 	# Adjust the indices and push in a new item at the top of the menu:
 
