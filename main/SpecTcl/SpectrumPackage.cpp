@@ -61,7 +61,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpectrumFormatter.h>
 #include "SpecTcl.h"
 
-
+#include <iostream>
 
 #include <tcl.h>
 #include <stdio.h>
@@ -249,12 +249,6 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
     rResult = rExcept.ReasonText();
     return TCL_ERROR;
   }
-  // pre-compute the description string and set it:
-  
-  pSpec->setTextDescription(DescribeSpectrum(*pSpec, false));
-  
-  // Return the name as the result.
-  
   rResult = pSpec->getName();
   return TCL_OK;
 }
@@ -416,38 +410,19 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
 			      const char* pattern, bool showGates) 
 {
 
-
   SpecTcl& api(*(SpecTcl::getInstance()));
   rvProperties.erase(rvProperties.begin(), rvProperties.end());
   SpectrumDictionaryIterator p = api.SpectrumBegin();
 
   for(; p != api.SpectrumEnd(); p++) {
-    const char* name = ((p->second)->getName()).c_str();
-    if (Tcl_StringMatch(name, pattern) )
+
+    std::string name = ((p->second)->getName());
+
+    if (Tcl_StringMatch(name.c_str(), pattern) )
       {
-	// Spectra have pre-computed definition strings that we use if they
-	// are available else we compute/cache one.
-	// The showGates flag gets handled here regardless:
-    
-	
+
 	CSpectrum* rSpec((*p).second);
-	std::string d =  rSpec->getTextDescription();
-	if (d == "") {
-	  //  Need to compute/cache.
-	   
-	   d = DescribeSpectrum(*rSpec, false);
-	   rSpec->setTextDescription(d);
-	}
-	// If necessary fold in the gate to the definition:
-	
-	if (showGates) {
-	  CTCLString Description(d);
-	  const CGateContainer&  g(*(rSpec->getGate()));
-	  Description.AppendElement(g.getName());
-	  d = std::string((const char*)(Description));
-	}
-	
-	rvProperties.push_back(d);
+	rvProperties.push_back(DescribeSpectrum(*rSpec, showGates));
       }
   }
 }

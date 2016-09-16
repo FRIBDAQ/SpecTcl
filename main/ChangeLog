@@ -1065,3 +1065,6 @@ November 30-?? 2011
         menus are actually visible and when not...and ensuring we can't
         scroll off the end of menus as well.
 
+3.5-005
+	* Fix error in ListSpectra that uses out of scope name strings.
+	
