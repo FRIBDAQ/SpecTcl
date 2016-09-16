@@ -61,7 +61,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpectrumFormatter.h>
 #include "SpecTcl.h"
 
-
+#include <iostream>
 
 #include <tcl.h>
 #include <stdio.h>
@@ -410,15 +410,17 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
 			      const char* pattern, bool showGates) 
 {
 
-
   SpecTcl& api(*(SpecTcl::getInstance()));
   rvProperties.erase(rvProperties.begin(), rvProperties.end());
   SpectrumDictionaryIterator p = api.SpectrumBegin();
 
   for(; p != api.SpectrumEnd(); p++) {
-    const char* name = ((p->second)->getName()).c_str();
-    if (Tcl_StringMatch(name, pattern) )
+
+    std::string name = ((p->second)->getName());
+
+    if (Tcl_StringMatch(name.c_str(), pattern) )
       {
+
 	CSpectrum* rSpec((*p).second);
 	rvProperties.push_back(DescribeSpectrum(*rSpec, showGates));
       }

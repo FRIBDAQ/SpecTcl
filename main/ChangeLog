@@ -1058,3 +1058,6 @@ November 30-?? 2011
 3.4-008
 	* TCLAnalyzer.h - performance improveents in counter management.
 	
+3.4-009
+	* SpectrumPackage.cpp - fix error in scoping spectrum names in
+	ListSpectrum
