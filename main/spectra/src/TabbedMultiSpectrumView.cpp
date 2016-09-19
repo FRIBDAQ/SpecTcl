@@ -177,7 +177,9 @@ void TabbedMultiSpectrumView::onTabCloseRequested(int index)
 {
 
   if ((index != 0) || (ui->pTabWidget->count() != 1)) {
+      auto pWidget = ui->pTabWidget->widget(index);
       ui->pTabWidget->removeTab(index);
+      delete pWidget;
   }
 
   if (ui->pTabWidget->count() == 1) {
