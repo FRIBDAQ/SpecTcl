@@ -37,11 +37,13 @@
 #include <QString>
 #include <QMap>
 #include <QMutexLocker>
+#include <QRegExp>
 
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 using namespace std;
 
@@ -92,6 +94,18 @@ HistogramBundle* HistogramList::getHist(const QString &name)
 HistogramBundle* HistogramList::getHist(const TH1* pHist)
 {
   return getHist(QString(pHist->GetName()));
+}
+
+HistogramBundle* HistogramList::getHistFromClone(const QString &name)
+{
+    QString baseName = name.mid(0, name.lastIndexOf(QRegExp("_copy$")));
+    return getHist(baseName);
+}
+
+HistogramBundle* HistogramList::getHistFromClone(const TH1* pHist)
+{
+    QString name = pHist->GetName();
+    return getHistFromClone(name);
 }
 
 HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,

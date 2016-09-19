@@ -45,7 +45,7 @@ void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
     } else {
         HistogramList* pHistList = m_pSpecTcl->getHistogramList();
         for (auto& pHist : hists) {
-            auto pHistPkg = pHistList->getHist(pHist);
+            auto pHistPkg = pHistList->getHistFromClone(pHist);
             if (pHistPkg) {
                 addTab(*pHistPkg);
             }
@@ -60,7 +60,7 @@ void MultiInfoPanel::updateContent(QRootCanvas &rCanvas)
 
     HistogramList* pHistList = m_pSpecTcl->getHistogramList();
     for (auto& pHist : hists) {
-        auto pHistPkg = pHistList->getHist(pHist);
+        auto pHistPkg = pHistList->getHistFromClone(pHist);
         if (pHistPkg) {
             int index = findTab(pHistPkg->getName());
             if (index >= 0) {

@@ -103,8 +103,8 @@ SubscribableH1<H1Type>::getSubscribers() const {
 template<class H1Type>
 SubscribableH1<H1Type>* CloneImpl(const TH2* pHist)
 {
-    TAxis* pXaxis = pHist->GetXaxis();
-    TAxis* pYaxis = pHist->GetYaxis();
+    const TAxis* pXaxis = pHist->GetXaxis();
+    const TAxis* pYaxis = pHist->GetYaxis();
     return new SubscribableH1<H1Type>("pHist", pHist->GetTitle(),
                                         pHist->GetNbinsX(), pXaxis->GetXmin(), pXaxis->GetXmax(),
                                         pHist->GetNbinsY(), pYaxis->GetXmin(), pYaxis->GetXmax());
@@ -113,7 +113,7 @@ SubscribableH1<H1Type>* CloneImpl(const TH2* pHist)
 template<class H1Type>
 SubscribableH1<H1Type>* CloneImpl(const TH1* pHist)
 {
-    TAxis* pXaxis = pHist->GetXaxis();
+    const TAxis* pXaxis = pHist->GetXaxis();
     return new SubscribableH1<H1Type>("pHist", pHist->GetTitle(),
                                       pHist->GetNbinsX(), pXaxis->GetXmin(), pXaxis->GetXmax());
 }
