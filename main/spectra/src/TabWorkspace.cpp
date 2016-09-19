@@ -53,8 +53,8 @@ void TabWorkspace::setUpUI()
     QSplitter* pHSplitter = new QSplitter(this);
     pHSplitter->setOrientation(Qt::Horizontal);
 
-    m_pDrawPanel = new ViewDrawPanel(m_pSpecTcl);
-    m_pView      = new MultiSpectrumView(m_pSpecTcl);
+    m_pDrawPanel = new ViewDrawPanel(m_pSpecTcl, this);
+    m_pView      = new MultiSpectrumView(m_pSpecTcl, this);
     m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 

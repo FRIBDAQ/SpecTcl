@@ -8,10 +8,16 @@ namespace Viewer
 {
 
 template<class H1Type>
+int SubscribableH1<H1Type>::m_instanceCount = 0;
+
+
+template<class H1Type>
 SubscribableH1<H1Type>::SubscribableH1()
     : H1Type(),
       m_subscribers()
 {
+    m_instanceCount++;
+    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 //template<class H1Type>
@@ -26,6 +32,9 @@ SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
     : H1Type(name, title, nBins, xMin, xMax),
       m_subscribers()
 {
+    m_instanceCount++;
+    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
+
 }
 
 template<class H1Type>
@@ -35,12 +44,17 @@ SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
     : H1Type(name, title, nBinsX, xMin, xMax, nBinsY, yMin, yMax),
       m_subscribers()
 {
+    m_instanceCount++;
+    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 template<class H1Type>
 SubscribableH1<H1Type>::~SubscribableH1()
 {
     notifyAll();
+
+    m_instanceCount--;
+    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 template<class H1Type>

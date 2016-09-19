@@ -84,6 +84,7 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 //
 void HistogramBundle::drawClone(const QString &opts)
 {
+    std::cout << "Creating clone" << std::endl;
     const char* cOpts = opts.toUtf8().constData();
 
     if (m_pHist->InheritsFrom(TH2::Class())) {
@@ -99,6 +100,7 @@ void HistogramBundle::drawClone(const QString &opts)
 
 void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
 {
+    std::cout << "Updating clone" << std::endl;
     gPad->Modified(1);
     if (opts != CanvasOps::getDrawOption(gPad, &hClone)) {
         CanvasOps::setDrawOption(gPad, &hClone, opts);

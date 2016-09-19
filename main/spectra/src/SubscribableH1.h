@@ -79,6 +79,7 @@ class SubscribableH1 : public H1Type
 {
 private:
     std::set<H1Subscriber*> m_subscribers;
+    static int m_instanceCount;
 
 public:
 

@@ -87,11 +87,12 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
 
 MultiSpectrumView::~MultiSpectrumView()
 {
+    std::cout << "MultiSpectrumView::~MultiSpectrumView" << std::endl;
     for (int col=0; col<m_currentNColumns; col++) {
         for (int row=0; row<m_currentNRows; row++) {
             auto pItem = m_pLayout->itemAtPosition(row,col);
             if (pItem) {
-                auto pWidget = pItem->widget();
+                auto pWidget = dynamic_cast<QRootCanvas*>(pItem->widget());
                 delete pWidget;
             }
         }
@@ -594,22 +595,23 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
 
                     pBundle->draw();
 
-                    // if the drawn histogram is empty, request content update for
-                    // all histograms in the pad it was drawn.
-                    if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
-                        m_pSpecTcl->requestHistContentUpdate(gPad);
-                    }
                 }
                 ++pHistName;
             }
-
         }
     }
+
 
     m_currentNColumns = nCols;
     m_currentNRows = nRows;
 
     setCurrentCanvas(pTopLeftCanvas);
+
+    if (m_pSpecTcl) {
+        for (auto spectrum : spectrumList) {
+            m_pSpecTcl->requestHistContentUpdate(spectrum);
+        }
+    }
 
     refreshAll();
 
