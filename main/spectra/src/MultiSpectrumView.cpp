@@ -711,7 +711,7 @@ void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
 		if (pHist) {
             TVirtualPad* pPad = findPadContaining(pObj);
 			HistogramList* pList = m_pSpecTcl->getHistogramList();
-			HistogramBundle* pBundle = pList->getHist(pHist);
+            HistogramBundle* pBundle = pList->getHistFromClone(pHist);
     		QString option = QInputDialog::getText(this, "Spectrum configuration",
                                                    "Enter draw option");
 
