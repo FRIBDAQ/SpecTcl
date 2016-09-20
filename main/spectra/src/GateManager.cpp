@@ -121,7 +121,6 @@ void GateManager::setGateList(std::vector<QString> gateNames)
     std::sort(gateNames.begin(), gateNames.end());
 
 
-    std::cout << "Adding rows: " << std::endl;
     // add new entries to create the union of the two lists
     for (auto& name : gateNames) {
         if (! std::binary_search(existingNames.begin(), existingNames.end(), name)) {
@@ -140,7 +139,6 @@ void GateManager::setGateList(std::vector<QString> gateNames)
         }
     }
 
-    std::cout << "Removing rows: " << std::endl;
     // remove entries that are in list that are not in gateNames
     for (int row=ui->gateList->rowCount(); row>=0; --row) {
         pItem = ui->gateList->item(row,0);
