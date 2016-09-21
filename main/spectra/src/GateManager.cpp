@@ -133,7 +133,7 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             pItem = new QTableWidgetItem(QString(tr("0")));
             ui->gateList->setItem(row, 1, pItem);
 
-            std::cout << name.toStdString() << std::endl;
+//            std::cout << name.toStdString() << std::endl;
 
             m_nRows++;
         }
@@ -147,7 +147,7 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             if (! std::binary_search(gateNames.begin(), gateNames.end(), name)) {
                 ui->gateList->removeRow(row);
                 m_nRows--;
-                std::cout << name.toStdString() << std::endl;
+//                std::cout << name.toStdString() << std::endl;
             }
         }
     }

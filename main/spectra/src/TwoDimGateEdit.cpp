@@ -60,7 +60,7 @@ TwoDimGateEdit::TwoDimGateEdit(QRootCanvas& rCanvas,
     m_lastMousePressPos(),
     m_pSpecTcl(pSpecTcl)
 {
-    std::cout << "TwoDimGateEdit::TwoDimGateEdit()" << std::endl;
+//    std::cout << "TwoDimGateEdit::TwoDimGateEdit()" << std::endl;
 
     ui->setupUi(this);
 

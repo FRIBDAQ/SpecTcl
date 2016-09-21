@@ -209,7 +209,7 @@ void GateManagerWidget::onEditPressed()
 
 void GateManagerWidget::onDeletePressed()
 {
-    std::cout << "Delete pressed" << std::endl;
+//    std::cout << "Delete pressed" << std::endl;
 }
 
 void GateManagerWidget::closeDialog()
@@ -272,7 +272,7 @@ void GateManagerWidget::updateGateList()
 {
 //    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
     if (! m_pManager->isVisible() || ! m_pSpecTcl) {
-        std::cout << "skipped" << std::endl;
+//        std::cout << "skipped" << std::endl;
         return;
     }
 

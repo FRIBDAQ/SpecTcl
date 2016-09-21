@@ -278,7 +278,7 @@ void HistogramBundle::notify(TH1 &hist)
     }
 
     if (itFound != m_clones.end()) {
-        std::cout << "Unsubscribing from " << (void*)itFound->second << std::endl;
+//        std::cout << "Unsubscribing from " << (void*)itFound->second << std::endl;
         m_clones.erase(itFound);
         // the canvas owns the histogram so we don't need to delete it
     } // else do nothing
