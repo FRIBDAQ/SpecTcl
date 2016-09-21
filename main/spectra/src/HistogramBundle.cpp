@@ -84,9 +84,10 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 //
 void HistogramBundle::drawClone(const QString &opts)
 {
-    std::cout << "Creating clone" << std::endl;
-    const char* cOpts = opts.toUtf8().constData();
+    QByteArray ascii = opts.toAscii();
+    const char* cOpts = ascii.constData();
 
+    std::cout << cOpts << std::endl;
     if (m_pHist->InheritsFrom(TH2::Class())) {
         auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
         m_clones[gPad] = pClonedHist;
@@ -100,7 +101,6 @@ void HistogramBundle::drawClone(const QString &opts)
 
 void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
 {
-    std::cout << "Updating clone" << std::endl;
     gPad->Modified(1);
     if (opts != CanvasOps::getDrawOption(gPad, &hClone)) {
         CanvasOps::setDrawOption(gPad, &hClone, opts);
@@ -109,12 +109,10 @@ void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
 
 void HistogramBundle::draw(const QString& opt) {
 
-    std::cout << "HistogramBundle::draw()" << std::endl;
     QString opts(opt);
     if (opts.isEmpty()) {
         opts = m_defaultDrawOption;
     }
-    const char* cOpts = opts.toUtf8().constData();
 
     // first check to see if there is already a histogram copy on the current pad
     // if there is, then we just need to update it. Otherwise, we need to draw a brand
@@ -124,7 +122,7 @@ void HistogramBundle::draw(const QString& opt) {
     if (pFoundPair != m_clones.end()) {
         updateClone(*pFoundPair->second, opts);
     } else {
-        drawClone(cOpts);
+        drawClone(opts);
     }
 
     for (auto cut : m_cuts1d) { cut.second->draw(); }
