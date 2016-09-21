@@ -40,7 +40,6 @@ namespace Viewer
 // Forward declarations
 class TabbedMultiSpectrumView;
 class HistogramView;
-class DockableGateManager;
 class SpecTclInterface;
 
 /*!
@@ -138,7 +137,6 @@ private:
     std::unique_ptr<Ui::MainWindow>   pUI;
     TabbedMultiSpectrumView                      *m_pView;         ///< viewer
 //    HistogramView                     *m_histView;      ///< dockable histogram widget
-//    DockableGateManager               *m_gateView;      ///< dockable gate widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
     QWidget*                          m_pMainWidget;
 };
