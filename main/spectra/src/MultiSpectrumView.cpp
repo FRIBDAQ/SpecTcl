@@ -426,7 +426,7 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
 
     // redraw the histogram where it need to be drawn
     for (auto hist : rootHists) {
-        HistogramBundle* pBundle = pHistList->getHist(hist);
+        HistogramBundle* pBundle = pHistList->getHistFromClone(hist);
 
         pBundle->draw();
     }
