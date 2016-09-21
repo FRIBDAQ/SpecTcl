@@ -17,7 +17,7 @@ SubscribableH1<H1Type>::SubscribableH1()
       m_subscribers()
 {
     m_instanceCount++;
-    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
+//    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 //template<class H1Type>
@@ -33,8 +33,7 @@ SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
       m_subscribers()
 {
     m_instanceCount++;
-    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
-
+//    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 template<class H1Type>
@@ -45,7 +44,7 @@ SubscribableH1<H1Type>::SubscribableH1(const char *name, const char *title,
       m_subscribers()
 {
     m_instanceCount++;
-    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
+//    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 template<class H1Type>
@@ -54,7 +53,7 @@ SubscribableH1<H1Type>::~SubscribableH1()
     notifyAll();
 
     m_instanceCount--;
-    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
+//    std::cout << "SubscribableH1<H1Type>::instanceCount = " << m_instanceCount << std::endl;
 }
 
 template<class H1Type>
