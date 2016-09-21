@@ -145,7 +145,7 @@ void SpecTclRESTInterface::listHistogramInfo()
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
-  std::cout << "SpecTclRESTInterface::onGateListReceived()" << std::endl;
+//  std::cout << "SpecTclRESTInterface::onGateListReceived()" << std::endl;
 
   if (! pollGates) {
       // free the gates... they have done their job
@@ -160,8 +160,8 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 
   // only update everything else if something actually changed.
   if (gatesChanged) {
-      std::cout << "gates changed!" << std::endl;
-      std::cout << "========" << std::endl;
+//      std::cout << "gates changed!" << std::endl;
+//      std::cout << "========" << std::endl;
 
       m_pHistList->synchronize(*m_pGateList);
 

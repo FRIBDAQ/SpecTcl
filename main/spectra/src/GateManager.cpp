@@ -203,7 +203,7 @@ void GateManager::onDeleteButtonClicked()
         //ui->gateList->removeRow(std::get<0>(rowInfo));
 
         //m_nRows--;
-        std::cout << "nRows = " << m_nRows << std::endl;
+//        std::cout << "nRows = " << m_nRows << std::endl;
     }
 
 }
@@ -219,7 +219,6 @@ void GateManager::connectSignals()
   connect(ui->deleteButton, SIGNAL(clicked()),
           this, SLOT(onDeleteButtonClicked()));
 
-  connect(m_pSpecTcl.get(), SIGNAL(onGateListChanged()), this, SLOT(synchronizeGateList()));
 }
 
 
@@ -288,16 +287,16 @@ void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
         QTableWidgetItem* pValueItem = ui->gateList->item(row, 1);
 
-        std::cout << "row:" << row << "\t" << pNameItem->text().toStdString() << std::endl;
+//        std::cout << "row:" << row << "\t" << pNameItem->text().toStdString() << std::endl;
 
         auto it = cuts.find(pNameItem->text());
         if (it != cuts.end()) {
             GGate* pGate = it->second;
             MyCutG* pGrObj = pGate->getGraphicObject();
 
-            std::cout << "pGate = " << (void*)pGate ;
-            if (pGate) std::cout << "   " << (void*) pGrObj;
-            std::cout << std::endl;
+//            std::cout << "pGate = " << (void*)pGate ;
+//            if (pGate) std::cout << "   " << (void*) pGrObj;
+//            std::cout << std::endl;
 
             if (pGrObj) {
                 double integral = pGrObj->IntegralHist(&hist);

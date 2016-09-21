@@ -270,13 +270,15 @@ void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
 
 void GateManagerWidget::updateGateList()
 {
-    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
+//    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
     if (! m_pManager->isVisible() || ! m_pSpecTcl) {
         std::cout << "skipped" << std::endl;
         return;
     }
 
     HistogramList* pList = m_pSpecTcl->getHistogramList();
+//    std::cout << m_histName.toAscii().constData() << std::endl;
+
     HistogramBundle* pHistBundle = pList->getHist(m_histName);
     if (pHistBundle) {
         pHistBundle->synchronizeGates(m_pSpecTcl->getGateList());

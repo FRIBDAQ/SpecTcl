@@ -87,7 +87,6 @@ void HistogramBundle::drawClone(const QString &opts)
     QByteArray ascii = opts.toAscii();
     const char* cOpts = ascii.constData();
 
-    std::cout << cOpts << std::endl;
     if (m_pHist->InheritsFrom(TH2::Class())) {
         auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
         m_clones[gPad] = pClonedHist;
