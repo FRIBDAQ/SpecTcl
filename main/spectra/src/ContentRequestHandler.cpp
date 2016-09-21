@@ -255,7 +255,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     emit parsingComplete(pHistBundle);
 
   } catch (std::exception& exc) {
-    QString msg("Failed to update hist because : %1");
+    QString msg("Failed to update histogram content because : %1");
     msg = msg.arg(QString(exc.what()));
 
     // FAIL....
