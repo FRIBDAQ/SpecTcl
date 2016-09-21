@@ -188,6 +188,7 @@ void QRootCanvas::buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e,
       pad->cd();
      }
      fCanvas->SetSelectedPad(pad);
+     gROOT->SetSelectedPad(pad);
      gROOT->SetSelectedPrimitive(selected);
      fMousePosX = gPad->AbsPixeltoX(gPad->GetEventX());
      fMousePosY = gPad->AbsPixeltoY(gPad->GetEventY());
@@ -1006,12 +1007,12 @@ void QRootCanvas::executeMenu(int id)
         case 103 : {
         	TH1 *h1 = dynamic_cast<TH1*>(fMenuObj);
         	if (h1) {
-        		std::cout << "emitting MenuCommandExecuted : SetDrawOption" << std::endl;
                 emit MenuCommandExecuted(h1, QString("SetDrawOption"));
         	}
         	break;
         }
       }
+      // the selected pad should be set because we set it in buildContextMenu
       gROOT->GetSelectedPad()->Update();
       gROOT->GetSelectedPad()->Modified();
       fCanvas->Modified();

@@ -712,8 +712,16 @@ void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
             TVirtualPad* pPad = findPadContaining(pObj);
 			HistogramList* pList = m_pSpecTcl->getHistogramList();
             HistogramBundle* pBundle = pList->getHistFromClone(pHist);
-    		QString option = QInputDialog::getText(this, "Spectrum configuration",
+            if (pBundle == nullptr) {
+                QMessageBox::warning(this, "Failed to locate histogram",
+                                     "Unable to locate histogram that the draw option corresponds to");
+                return;
+            }
+
+            QString option = QInputDialog::getText(this, "Spectrum configuration",
                                                    "Enter draw option");
+
+            if (option.isEmpty()) return; // user cancelled
 
             // set the specific object's draw option
             TObjLink* pLink = findObjectLink(pPad, pObj);
