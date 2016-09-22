@@ -87,7 +87,7 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     if (iter!=m_hists.end()) {
         return iter->second.get();
     } else {
-        throw std::runtime_error("Requested histogram not found");
+        return nullptr;
     }
 }
 
