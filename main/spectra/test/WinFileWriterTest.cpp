@@ -188,7 +188,7 @@ public:
 
         using namespace Viewer;
 
-        std::unique_ptr<TH1> pHist(new TH1F(name.c_str(),"", 10, 0, 10));
+        std::unique_ptr<TH1> pHist(new SubscribableH1<TH1D>(name.c_str(),"", 10, 0, 10));
 
 				// This is very important because it prevents ROOT from deleting the histogram itself
 				pHist->SetDirectory(0);
@@ -204,7 +204,7 @@ public:
 
         using namespace Viewer;
 
-        std::unique_ptr<TH1> pHist(new TH2F(name.c_str(),"", 10, 0, 10, 10, 0, 10));
+        std::unique_ptr<TH1> pHist(new SubscribableH1<TH2D>(name.c_str(),"", 10, 0, 10, 10, 0, 10));
 
 				// This is very important because it prevents ROOT from deleting the histogram itself
 				pHist->SetDirectory(0);

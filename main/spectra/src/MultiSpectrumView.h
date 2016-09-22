@@ -37,6 +37,8 @@
 
 class TPad;
 class TObject;
+class TVirtualPad;
+class TObjLink;
 
 class QMouseEvent;
 
@@ -184,6 +186,9 @@ public slots:
      */
     void updateView(HistogramBundle* pHist);
 
+    void redrawView();
+    void redrawCanvas(QRootCanvas& canvas);
+
     /*!
      * \brief drawHistogram
      *
@@ -191,7 +196,7 @@ public slots:
      *
      * This draws the histogram in the current canvas
      */
-    void drawHistogram(HistogramBundle *pHist);
+    void drawHistogram(HistogramBundle *pHist, QString option);
     /*!
      * \brief refreshAll
      *
@@ -249,6 +254,10 @@ private:
 
 
     std::vector<QRootCanvas*> locateCanvasesWithHist(HistogramBundle& rHistPkg);
+
+
+    TVirtualPad* findPadContaining(TObject* pObj);
+    TObjLink* findObjectLink(TVirtualPad* pPad, TObject* pObj);
 
 private:
     QGridLayout*                                    m_pLayout;

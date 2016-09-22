@@ -5,6 +5,7 @@
 #include "GateManagerWidget.h"
 #include "SpecTclInterface.h"
 #include "SpectrumView.h"
+#include "TabWorkspace.h"
 
 #include <QTableWidget>
 #include <QTableWidgetItem>
@@ -14,15 +15,17 @@
 namespace Viewer
 {
 
-InformationPanel::InformationPanel(SpectrumView &rView,
+InformationPanel::InformationPanel(TabWorkspace &rView,
                                    std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                   const QString &histName,
                                    QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InformationPanel)
 {
     ui->setupUi(this);
 
-    m_pGateManager = new GateManagerWidget(rView, pSpecTcl, this);
+    m_pGateManager = new GateManagerWidget(rView.getView(), rView.getControlPanel(),
+                                           pSpecTcl, histName, this);
 
     ui->gridLayout->addWidget(m_pGateManager, 6, 0, 1, 0);
     setUpStatisticsTable();

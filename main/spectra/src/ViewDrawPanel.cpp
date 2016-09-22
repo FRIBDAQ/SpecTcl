@@ -33,6 +33,7 @@
 #include <QListWidgetItem>
 #include <QRegExp>
 #include <QMessageBox>
+#include <QKeyEvent>
 
 #include <vector>
 #include <iostream>
@@ -52,7 +53,7 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 {
     ui->setupUi(this);
 
-    ui->verticalLayout->addWidget(m_pGeoSelector);
+    ui->gridLayout->addWidget(m_pGeoSelector, 4, 0, 1, 2);
 
     connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
             this, SLOT(onHistogramListChanged()));
@@ -185,12 +186,41 @@ void ViewDrawPanel::onDoubleClick(QModelIndex index)
     }
 
     auto pHistBundle = pHistList->getHist(pItem->text());
+
     if (pHistBundle) {
-    emit histSelected(pHistBundle);
+        QString drawOption = ui->pDrawOptionEdit->text();
+        emit histSelected(pHistBundle, drawOption);
     } else {
         QMessageBox::warning(this, "Missing histogram",
                              "Failed to locate the selected histogram in the master histogram list.");
         return;
+    }
+}
+
+void ViewDrawPanel::keyPressEvent(QKeyEvent* pEvent)
+{
+
+    if (pEvent->key() == Qt::Key_Enter || pEvent->key() == Qt::Key_Return) {
+        if (ui->histList->hasFocus()) {
+            HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+
+
+            QListWidgetItem* pItem = ui->histList->currentItem();
+
+            if (pItem == nullptr) {
+                return;
+            }
+
+            auto pHistBundle = pHistList->getHist(pItem->text());
+            if (pHistBundle) {
+                QString drawOption = ui->pDrawOptionEdit->text();
+                emit histSelected(pHistBundle, drawOption);
+            } else {
+                QMessageBox::warning(this, "Missing histogram",
+                                     "Failed to locate the selected histogram in the master histogram list.");
+                return;
+            }
+        }
     }
 }
 

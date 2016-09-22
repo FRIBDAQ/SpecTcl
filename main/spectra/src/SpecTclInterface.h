@@ -29,7 +29,7 @@
 
 class QString;
 
-class TPad;
+class TVirtualPad;
 
 namespace SpJs {
   class GateInfo;
@@ -83,7 +83,7 @@ public:
     virtual HistogramList* getHistogramList() = 0;
    
     virtual void requestHistContentUpdate(QRootCanvas* pCanvas) = 0;
-    virtual void requestHistContentUpdate(TPad* pPad) = 0;
+    virtual void requestHistContentUpdate(TVirtualPad* pPad) = 0;
     virtual void requestHistContentUpdate(const QString& hName) = 0;
 
   signals:

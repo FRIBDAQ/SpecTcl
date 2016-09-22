@@ -28,6 +28,9 @@
 #include "TCanvas.h"
 #include "TH1.h"
 
+#include <stdexcept>
+#include <iostream>
+
 namespace Viewer {
 namespace CanvasOps {
 
@@ -37,7 +40,7 @@ std::vector<QString> extractAllHistNames(QRootCanvas& rCanvas) {
     return extractAllHistNames(*(rCanvas.getCanvas()));
 }
 
-std::vector<QString> extractAllHistNames(TPad &rPad) {
+std::vector<QString> extractAllHistNames(TVirtualPad &rPad) {
 
     std::vector<QString> histNames;
 
@@ -63,6 +66,66 @@ std::vector<QString> extractAllHistNames(TPad &rPad) {
 
 
     return histNames;
+}
+
+
+QString getDrawOption(TVirtualPad *pPad, TObject *pObj)
+{
+    if (pPad == nullptr) {
+        throw std::runtime_error("CanvasOps::getDrawOption() passed nullptr to pad");
+    }
+
+    if (pObj == nullptr) {
+        throw std::runtime_error("CanvasOps::getDrawOption() passed nullptr to TObject");
+    }
+
+    QString option;
+
+    TObjLink* pLink = nullptr;
+    if (( pLink = findOptionLink(*pPad, *pObj) )) {
+        option = pLink->GetOption();
+    }else {
+        throw std::runtime_error("CanvasOps::getDrawOption() TObject not found in pad");
+    }
+
+    return option;
+}
+
+
+void setDrawOption(TVirtualPad *pPad, TObject *pObj, const QString &opt)
+{
+    if (pPad == nullptr) {
+        throw std::runtime_error("CanvasOps::setDrawOption() passed nullptr to pad");
+    }
+
+    if (pObj == nullptr) {
+        throw std::runtime_error("CanvasOps::setDrawOption() passed nullptr to TObject");
+    }
+
+    TObjLink* pLink = nullptr;
+    if (( pLink = findOptionLink(*pPad, *pObj) )) {
+        std::cout << "Setting option to : '" << opt.toUtf8().constData() << "'" << std::endl;
+        pLink->SetOption(opt.toUtf8().constData());
+    } else {
+        throw std::runtime_error("CanvasOps::setDrawOption() TObject not found in pad");
+    }
+
+}
+
+TObjLink* findOptionLink(TVirtualPad &pad, TObject &obj)
+{
+    TObjLink* pFoundLink = nullptr;
+
+    TObjLink* pLink = pad.GetListOfPrimitives()->FirstLink();
+    while (pLink) {
+        if (pLink->GetObject() == &obj) {
+            pFoundLink = pLink;
+            break;
+        }
+        pLink = pLink->Next();
+    }
+
+    return pFoundLink;
 }
 
 }

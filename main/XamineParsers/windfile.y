@@ -36,6 +36,7 @@ extern Win::SpectrumQueryInterface gSpectrumInterface;
 
 extern int windfilelex_line;
 static int superimposed(win_1d *a, int specid);
+static int superimposed(win_1d *a, const std::string& spectrumName);
 static int superimposable(int tgt, int specid);
 static int superimposable(const std::string& tgt, const std::string& specid);
 void setUpDbEntry(int value, int x, int y);
@@ -558,22 +559,44 @@ superposition_clause:   SUPERIMPOSE spectrum blankline
 		     win_1d *at1 = (win_1d *)current;
 		     if(!current->is1d()) {
 		       windfileerror("Superimpose on 2-d spectrum ignored");
-		     }
-		     else if(!superimposable(current->spectrum(), specnum)) {
-		       windfileerror("Incompatible superimpose ignored");
-		     }
-		     else if(superimposed(at1, specnum)) {
-		       windfileerror("Redundant superimpose ignored");
-		     }
-		     else {
-		       SuperpositionList &sl = at1->GetSuperpositions();
-		       if(sl.Count() < MAX_SUPERPOSITIONS) {
-			 sl.Add(specnum);
-		       }
-		       else {
-			 windfileerror("Too many superimposes, extra ignored");
-		       }
-		     }
+                     }
+                     else if(specnum >= 0) {
+                        // SPECTRUM IS IDENTIFIED BY integer!
+
+                        if(!superimposable(current->spectrum(), specnum)) {
+                            windfileerror("Incompatible superimpose ignored");
+                        }
+                        else if(superimposed(at1, specnum)) {
+                            windfileerror("Redundant superimpose ignored");
+                        }
+                        else {
+                            SuperpositionList &sl = at1->GetSuperpositions();
+                            if(sl.Count() < MAX_SUPERPOSITIONS) {
+                                sl.Add(specnum);
+                            }
+                            else {
+                                windfileerror("Too many superimposes, extra ignored");
+                            }
+                        }
+                     } else {
+                        // SPECTRUM IS IDENTIFIED BY NAME!
+                        if(!superimposable(current->getSpectrumName(), specname)) {
+                            windfileerror("Incompatible superimpose ignored");
+                        }
+                        else if(superimposed(at1, specname)) {
+                            windfileerror("Redundant superimpose ignored");
+                        }
+                        else {
+                            SuperpositionList &sl = at1->GetSuperpositions();
+                            if(sl.Count() < MAX_SUPERPOSITIONS) {
+                                sl.Add(specname);
+                            }
+                            else {
+                                windfileerror("Too many superimposes, extra ignored");
+                            }
+                        }
+                     }
+
 		   }
                    ;
 
@@ -603,7 +626,7 @@ static int superimposable(int target, int spectrum)
 
   return 0;
 }
-static int superimposable(std::string target, std::string spectrum)
+static int superimposable(const std::string& target, const std::string& spectrum)
 {
 
   Win::SpectrumQueryResults specInfo, targetInfo;
@@ -636,6 +659,24 @@ static int superimposed(win_1d *a, int spectrum)
   }
   return 0;
 }
+
+static int superimposed(win_1d *a, const std::string& spectrumName)
+{
+
+  if(spectrumName == a->getSpectrumName()) return -1;
+
+  SuperpositionList &sl = a->GetSuperpositions();
+  SuperpositionListIterator sli(sl);
+
+  if(sl.Count() <= 0)  return 0;
+
+  while(!sli.Last()) {
+      if((sli.Next()).SpectrumName() == a->getSpectrumName()) return -1;
+  }
+
+  return 0;
+}
+
 const char *getsyntaxrev()
 {
   return yaccrevlevel;

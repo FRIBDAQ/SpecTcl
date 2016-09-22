@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libSpectra.la
 
 bin_PROGRAMS = spectra
@@ -18,7 +17,6 @@ noinst_HEADERS =  QRootCanvas.h  \
   TGo4CreateNewHistogram.h  \
   Compression.h  \
   GlobalEnum.h  \
-  DockableGateManager.h  \
   GateBuilderDialog.h  \
   HistogramBundle.h  \
   MasterGateList.h  \
@@ -93,7 +91,6 @@ libSpectra_la_SOURCES = \
   ListRequestHandler.cpp  \
   TGo4CreateNewHistogram.cpp  \
   Compression.cpp  \
-  DockableGateManager.cpp  \
   GateBuilderDialog.cpp  \
   MasterGateList.cpp  \
   HistogramBundle.cpp  \
@@ -174,8 +171,7 @@ libSpectra_la_SOURCES = \
   moc_GateListRequestHandler.cpp \
   moc_QTLine.cpp \
   moc_ConnectionTester.cpp \
-	moc_HistogramList.cpp \
-	moc_DockableGateManager.cpp \
+        moc_HistogramList.cpp \
 	moc_SpecTclShMemInterface.cpp \
 	moc_ShMemKeyRequestHandler.cpp \
 	moc_ShMemSizeRequestHandler.cpp \
@@ -207,7 +203,6 @@ spectraFORMS =  MainWindow.ui  \
   HistogramList.ui  \
   HistogramView.ui  \
   TGo4CreateNewHistogram.ui  \
-  DockableGateManager.ui  \
   GateBuilderDialog.ui  \
   GateBuilder1DDialog.ui \
   ControlPanel.ui \
@@ -234,8 +229,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								ui_HistogramList.h \
 								ui_HistogramView.h \
 								ui_TGo4CreateNewHistogram.h \
-								ui_DockableGateManager.h \
-								ui_GateBuilderDialog.h \
+                                                                ui_GateBuilderDialog.h \
 								ui_GateBuilder1DDialog.h \
 								ui_ControlPanel.h \
 								ui_GeometrySelector.h \

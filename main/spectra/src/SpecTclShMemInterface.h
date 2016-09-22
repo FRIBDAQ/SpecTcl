@@ -176,7 +176,7 @@ public:
      * \brief Request content updates for all histograms in a pad
      * \param pPad - the pad containing the histograms
      */
-    virtual void requestHistContentUpdate(TPad* pPad);
+    virtual void requestHistContentUpdate(TVirtualPad *pPad);
 
     /*!
      * \brief Request content updates for a specific histogram

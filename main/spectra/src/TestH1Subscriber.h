@@ -32,7 +32,7 @@ public:
     /*!
      * \brief sets m_notified to true
      */
-    void notify();
+    void notify(TH1& hist);
 };
 
 } // end Viewer namespace

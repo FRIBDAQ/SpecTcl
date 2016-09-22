@@ -23,11 +23,14 @@ class TabWorkspace : public QWidget
 public:
     explicit TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *parent = 0);
     
+    ~TabWorkspace();
+
     void layoutSpectra(QStringList spectrumList);
 
     AutoUpdater& getUpdater();
     SpectrumView& getView();
     ViewDrawPanel& getDrawPanel();
+    ControlPanel& getControlPanel();
 
 signals:
     

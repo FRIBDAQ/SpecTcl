@@ -35,7 +35,7 @@
 
 class QListWidgetItem;
 class TH1;
-
+class QKeyEvent;
 
 namespace Viewer
 {
@@ -87,7 +87,7 @@ public:
     void filterHistogramList(const QString& filter);
 
 signals:
-    void histSelected(HistogramBundle* hist);
+    void histSelected(HistogramBundle* hist, QString drawOption);
     void geometryChanged(int nRows, int nCols);
 
     //////////////////////////////////////////////////////////////////////////
@@ -118,6 +118,7 @@ private:
     void setIcon(QListWidgetItem& item, HistogramList::iterator it);
 
     void clearHistogramList();
+    void keyPressEvent(QKeyEvent* pEvent);
 
 private:
     std::unique_ptr<Ui::ViewDrawPanel> ui;

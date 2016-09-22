@@ -28,6 +28,7 @@ class GGate;
 class GSlice;
 class MasterGateList;
 class HistogramBundle;
+class ControlPanel;
 
 
 class GateManager : public QWidget
@@ -41,7 +42,9 @@ public:
      *  \param parent     parent widget
      */
     explicit GateManager(SpectrumView& viewer,
+                         ControlPanel& controls,
                                  std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                 int nDimensions,
                                  QWidget *parent = 0);
 
     /*! Destructor */
@@ -71,7 +74,6 @@ public slots:
     void onDeleteButtonClicked();
     void setGateList(std::vector<QString> gateNames);
 
-
 private:
     void connectSignals();
 
@@ -79,7 +81,10 @@ private:
 private:
     Ui::GateManager*                          ui;
     SpectrumView&                             m_view;
+    ControlPanel&                             m_controls;
     std::shared_ptr<SpecTclInterface>         m_pSpecTcl;
+    int                                       m_nRows;
+    int                                       m_histDim;
 
 };
 

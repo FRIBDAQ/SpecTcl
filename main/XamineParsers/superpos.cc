@@ -143,5 +143,17 @@ SuperpositionList::SuperpositionList(SuperpositionList &l)
 }
 
 
+Superposition& SuperpositionListIterator::operator*()
+{
+    assert(location < slist->num);
+    return slist->list[location];
+}
+
+Superposition* SuperpositionListIterator::operator->()
+{
+    assert(location < slist->num);
+    return &(slist->list[location]);
+}
+
 
 

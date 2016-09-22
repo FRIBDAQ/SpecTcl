@@ -240,7 +240,14 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
       pHistBundle = m_pHistList->getHist(name);
 
         std::lock_guard<HistogramBundle> lock(*pHistBundle);
-        SpJs::HistFiller()(pHistBundle->getHist(), content.getValues());
+        SpJs::HistFiller setContent;
+        setContent(pHistBundle->getHist(), content.getValues());
+        std::map<TVirtualPad*, TH1*> clones = pHistBundle->getClones();
+        for (auto& cloneInfo : clones) {
+            std::cout << "Updating hist content on " << (void*)(cloneInfo.second) << std::endl;
+            setContent(*(cloneInfo.second), content.getValues());
+        }
+
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
 
@@ -248,7 +255,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     emit parsingComplete(pHistBundle);
 
   } catch (std::exception& exc) {
-    QString msg("Failed to update hist because : %1");
+    QString msg("Failed to update histogram content because : %1");
     msg = msg.arg(QString(exc.what()));
 
     // FAIL....

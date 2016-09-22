@@ -197,6 +197,10 @@ public:
      */
     HistogramBundle* getHist(const TH1* hist);
 
+    HistogramBundle* getHistFromClone(const QString& name);
+
+    HistogramBundle* getHistFromClone(const TH1* pHist);
+
     /*!
      * \brief Look up a histogram bundle by name
      *

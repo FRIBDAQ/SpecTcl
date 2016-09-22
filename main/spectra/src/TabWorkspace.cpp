@@ -37,10 +37,18 @@ TabWorkspace::TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *
 
 }
 
+TabWorkspace::~TabWorkspace()
+{
+    std::cout << "~TabWorkpace()" << std::endl;
+}
+
 SpectrumView& TabWorkspace::getView() {
     return *m_pView;
 }
 
+ControlPanel& TabWorkspace::getControlPanel() {
+    return *m_pControls;
+}
 
 void TabWorkspace::setUpUI()
 {
@@ -50,9 +58,9 @@ void TabWorkspace::setUpUI()
     QSplitter* pHSplitter = new QSplitter(this);
     pHSplitter->setOrientation(Qt::Horizontal);
 
-    m_pDrawPanel = new ViewDrawPanel(m_pSpecTcl);
-    m_pView      = new MultiSpectrumView(m_pSpecTcl);
-    m_pInfoPanel = new MultiInfoPanel(*m_pView, m_pSpecTcl, this);
+    m_pDrawPanel = new ViewDrawPanel(m_pSpecTcl, this);
+    m_pView      = new MultiSpectrumView(m_pSpecTcl, this);
+    m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 
     pVSplitter->addWidget(m_pView);
@@ -79,11 +87,14 @@ void TabWorkspace::setUpUI()
 
 void TabWorkspace::connectSignals()
 {
-    connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*)),
-            m_pView, SLOT(drawHistogram(HistogramBundle*)));
+    connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*, QString)),
+            m_pView, SLOT(drawHistogram(HistogramBundle*, QString)));
 
     connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(updateView(HistogramBundle*)));
+
+    connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
+            m_pView, SLOT(redrawView()));
 
     connect(m_pDrawPanel, SIGNAL(geometryChanged(int, int)),
             m_pView, SLOT(setGeometry(int, int)));

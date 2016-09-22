@@ -187,9 +187,9 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
         std::cout << "\t\t" << pObj->GetName() << std::endl;
 
         if (pObj->InheritsFrom(TH2::Class())) {
-            pObj->AppendPad("col");
+            pObj->Clone()->AppendPad("col");
         } else {
-            pObj->AppendPad("");
+            pObj->Clone()->AppendPad("");
         }
     }
 

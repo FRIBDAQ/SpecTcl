@@ -24,6 +24,7 @@
 #include "GSlice.h"
 #include "GGate.h"
 #include "MasterGateList.h"
+#include "CanvasOps.h"
 
 #include <QMutex>
 #include <QMutexLocker>
@@ -40,6 +41,7 @@
 
 using namespace std;
 
+
 namespace Viewer
 {
 
@@ -52,7 +54,8 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_cuts1d(),
       m_cuts2d(),
       m_hInfo(info),
-      m_defaultDrawOption()
+      m_defaultDrawOption(),
+      m_subscriber(*this)
 {
 	if (m_pHist) {
 		if (m_pHist->InheritsFrom(TH2::Class())) {
@@ -63,6 +66,7 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
 
 HistogramBundle::~HistogramBundle()
 {
+    unsubscribeFromAllClones();
 }
 
 //
@@ -79,23 +83,78 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 
 //
 //
+void HistogramBundle::drawClone(const QString &opts)
+{
+    QByteArray ascii = opts.toAscii();
+    const char* cOpts = ascii.constData();
+
+    if (m_pHist->InheritsFrom(TH2::Class())) {
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts, "_copy"));
+        m_clones[gPad] = pClonedHist;
+        pClonedHist->subscribe(m_subscriber);
+    } else {
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts, "_copy"));
+        m_clones[gPad] = pClonedHist;
+        pClonedHist->subscribe(m_subscriber);
+    }
+}
+
+void HistogramBundle::unsubscribeFromAllClones()
+{
+    for (auto cloneInfo : m_clones) {
+        TH1* pHist = cloneInfo.second;
+        if (pHist->InheritsFrom(TH2::Class())) {
+            auto pSubscribable = dynamic_cast< SubscribableH1<TH2D>* >(pHist);
+            pSubscribable->unsubscribe(m_subscriber);
+        } else {
+            auto pSubscribable = dynamic_cast< SubscribableH1<TH1D>* >(pHist);
+            pSubscribable->unsubscribe(m_subscriber);
+        }
+    }
+}
+
+void HistogramBundle::updateClone(TH1& hClone, const QString& opts)
+{
+    gPad->Modified(1);
+    if (opts != CanvasOps::getDrawOption(gPad, &hClone)) {
+        CanvasOps::setDrawOption(gPad, &hClone, opts);
+    }
+}
+
 void HistogramBundle::draw(const QString& opt) {
 
-  QString opts(opt);
-    if (opts.isNull()) {
+    QString opts(opt);
+    if (opts.isEmpty()) {
         opts = m_defaultDrawOption;
     }
-    const char* cOpts = opts.toAscii().constData();
 
-    m_pHist->Draw(cOpts);
+    std::cout << opts.toUtf8().constData() << std::endl;
 
-    for (auto cut : m_cuts1d) {
-        cut.second->draw();
+    // first check to see if there is already a histogram copy on the current pad
+    // if there is, then we just need to update it. Otherwise, we need to draw a brand
+    // new clone of the histogram.
+
+    auto pFoundPair = m_clones.find(gPad);
+    if (pFoundPair != m_clones.end()) {
+
+        // if there is a clone on the pad already, update the draw option only...
+        // don't create another copy
+        if (opts.contains("same", Qt::CaseInsensitive)) {
+            updateClone(*pFoundPair->second, opts);
+        } else {
+            drawClone(opts);
+        }
+    } else {
+        drawClone(opts);
     }
 
-    for (auto cut : m_cuts2d) {
-        cut.second->draw();
-    }
+    for (auto cut : m_cuts1d) { cut.second->draw(); }
+
+    for (auto cut : m_cuts2d) { cut.second->draw(); }
+}
+
+bool HistogramBundle::isVisible() const {
+    return (m_clones.size() != 0);
 }
 
 //
@@ -225,6 +284,28 @@ void HistogramBundle::setDefaultDrawOption(const QString& opt)
 QString HistogramBundle::getDefaultDrawOption() const
 {
 	return m_defaultDrawOption;
+}
+
+
+//
+// This gets called when a clone is destroyed
+// We have to forget about tahat clone so we don't continue to try to
+// update it.
+void HistogramBundle::notify(TH1 &hist)
+{
+    auto itFound = m_clones.end();
+    for (auto it=m_clones.begin(); it!=m_clones.end(); ++it) {
+        if (it->second == &hist) {
+            itFound = it;
+            break;
+        }
+    }
+
+    if (itFound != m_clones.end()) {
+//        std::cout << "Unsubscribing from " << (void*)itFound->second << std::endl;
+        m_clones.erase(itFound);
+        // the canvas owns the histogram so we don't need to delete it
+    } // else do nothing
 }
 
 } // end of Viewer namespace

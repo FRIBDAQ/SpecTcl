@@ -29,9 +29,9 @@ class HistogramBundle;
 
 /*! Dialog for editing 1D gates (aka slices)
  *
- * This actually operates almost identically to the GateBuilderDialog
+ * This actually operates almost identically to the TwoDimGateEdit
  * except that it maintains a GSlice rather than a GGate. See the
- * GateBuilderDialog docs for the working of this.
+ * TwoDimGateEdit docs for the working of this.
  *
  * The accept() and reject() methods decorate the standard QDialog::accept() and
  * QDialog::reject() methods.
@@ -54,7 +54,7 @@ public:
 signals:
     /*! Emitted when a user accepts changes
      *
-     * \param pSlice  pointer to slice that will be kept by DockableGateManager
+     * \param pSlice  pointer to slice that will be kept by MasterGateList
      */
     void completed(GSlice* pSlice);
     void accepted();

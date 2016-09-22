@@ -124,6 +124,11 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 
   m_pCommonHandler->makeRequest(req.toUrl());
 
+  // we always want to follow immediately with a gate list request.
+  // SpecTcl is a single threaded application so that there is no way
+  // this request will be handled prior to the gate deletion
+  listGates();
+
 }
 
 
@@ -140,6 +145,7 @@ void SpecTclRESTInterface::listHistogramInfo()
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
+//  std::cout << "SpecTclRESTInterface::onGateListReceived()" << std::endl;
 
   if (! pollGates) {
       // free the gates... they have done their job
@@ -154,6 +160,10 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 
   // only update everything else if something actually changed.
   if (gatesChanged) {
+//      std::cout << "gates changed!" << std::endl;
+//      std::cout << "========" << std::endl;
+
+      m_pHistList->synchronize(*m_pGateList);
 
       // tell the world that things have changed.
       emit gateListChanged();
@@ -176,7 +186,7 @@ void SpecTclRESTInterface::enableGatePolling(bool enable)
       pollGates = enable;
       if (enable) {
           listGates();
-        }
+      }
   }
 
 }
@@ -203,7 +213,7 @@ void SpecTclRESTInterface::requestHistContentUpdate(QRootCanvas* pCanvas)
   requestHistContentUpdate(pCanvas->getCanvas());
 }
 
-void SpecTclRESTInterface::requestHistContentUpdate(TPad* pPad)
+void SpecTclRESTInterface::requestHistContentUpdate(TVirtualPad* pPad)
 {
 
   Q_ASSERT( pPad != nullptr );

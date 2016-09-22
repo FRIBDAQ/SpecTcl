@@ -12,6 +12,20 @@ class LayoutDialogChooser;
 class BulkDrawChooser;
 class SpecTclInterface;
 
+/*!
+ * \brief The SpectrumLayoutDialog class
+ *
+ * This is the orchestrator of a set dialogs that are used for setting up a
+ * tab. It is the first dialog that a user is presented with. There are three
+ * buttons that are displayed to set up with the bulk dialog, sequential selection,
+ * or from a win file. These button in turn launch different dialogs. The bulk
+ * select button launches the BulkDrawChooser, the sequential selection simply
+ * puts the user into the tab workspace, and the "load from file" selection causes
+ * the user to be presented with a file selection dialog. Loading from file relies on
+ * the TabFromWinFileCompositor to set up the MultiSpectrumView with the appropriate
+ * layout of spectra.
+ *
+ */
 class SpectrumLayoutDialog : public QWidget
 {
     Q_OBJECT

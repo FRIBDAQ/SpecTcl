@@ -41,7 +41,8 @@
 #include "SpectraSpectrumInterface.h"
 #include "SpectrumQueryInterface.h"
 #include "PrintDialog.h"
-
+#include "CanvasOps.h"
+#include "QRootCanvas.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -51,6 +52,7 @@
 #include <QFrame>
 
 #include <TH1.h>
+#include <TCanvas.h>
 #include <TAxis.h>
 #include <QString>
 #include <QStringList>
@@ -178,9 +180,6 @@ void MainWindow::createDockWindows()
 //
 void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
-    // connect the new signal-slots
-    connect(pInterface.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
-            m_pView, SLOT(update(HistogramBundle*)));
 }
 
 void MainWindow::launchAutoUpdateDialog()
@@ -212,34 +211,27 @@ void MainWindow::onCopySpectrumAttributes()
     selector.exec();
 
     ConfigCopySelection selection = selector.getSelection();
-    if (selection.s_sourceHist.isEmpty()) return;
 
-    HistogramList* pList = m_specTclControl.getInterface()->getHistogramList();
+    ConfigCopyTarget sourceTarget = selection.s_sourceTarget;
 
-    HistogramBundle* pSourceBundle = pList->getHist(selection.s_sourceHist);
+    // User cancelled operation or did not select a dest
+    if (selection.s_destTargets.size() == 0) return;
 
-    // jump ship if we don't have a source bundle to copy from
-    if (pSourceBundle == nullptr) {
-    	QMessageBox::warning(this, "Attribute copy failure",
-    			"Unable to copy attributes from source that does not exist in histogram list");
-    	return;
-    }
+    // we now have to be careful about how we apply these attributes. They
+    // correspond only the displayed histograms and NOT others.
 
-    for (int i=0; i<selection.s_destinationHists.size(); ++i) {
-    	HistogramBundle* pDestBundle = pList->getHist(selection.s_destinationHists[i]);
-    	if (!pDestBundle) {
-    		QMessageBox::warning(this, "Attribute copy failure",
-    							"Unable to copy attributes to destination histogram because it does not exist.");
-    		continue;
-    	}
 
-    	TH1& destHist = pDestBundle->getHist();
-		TH1& sourceHist = pSourceBundle->getHist();
+    for (int i=0; i<selection.s_destTargets.size(); ++i) {
+
+        ConfigCopyTarget& destTarget = selection.s_destTargets[i];
+
+        TH1& pDestHist = *(destTarget.s_pHist);
+        TH1& pSourceHist = *(sourceTarget.s_pHist);
 
     	if (selection.s_copyXAxis) {
             // copy x axis range
-    		TAxis* pDestAxis = destHist.GetXaxis();
-    		TAxis* pSrcAxis = sourceHist.GetXaxis();
+            TAxis* pDestAxis = pDestHist.GetXaxis();
+            TAxis* pSrcAxis = pSourceHist.GetXaxis();
 
             int lowerLimit = pSrcAxis->GetFirst();
             int upperLimit = pSrcAxis->GetLast();
@@ -249,8 +241,8 @@ void MainWindow::onCopySpectrumAttributes()
 
     	if (selection.s_copyYAxis) {
     		// copy x axis range
-    		TAxis* pDestAxis = destHist.GetYaxis();
-    		TAxis* pSrcAxis = sourceHist.GetYaxis();
+            TAxis* pDestAxis = pDestHist.GetYaxis();
+            TAxis* pSrcAxis = pSourceHist.GetYaxis();
 
             int lowerLimit = pSrcAxis->GetFirst();
             int upperLimit = pSrcAxis->GetLast();
@@ -258,7 +250,14 @@ void MainWindow::onCopySpectrumAttributes()
     	}
 
     	if (selection.s_copyDrawOption) {
-    		pDestBundle->setDefaultDrawOption(pSourceBundle->getDefaultDrawOption());
+            SpectrumView& view = m_pView->getCurrentWorkspace().getView();
+
+            QRootCanvas* pSourceCanvas = view.getCanvas(sourceTarget.s_row, sourceTarget.s_col);
+            QRootCanvas* pDestCanvas = view.getCanvas(destTarget.s_row, destTarget.s_col);
+            if (pDestCanvas && pSourceCanvas) {
+                QString sourceOpt = CanvasOps::getDrawOption(pSourceCanvas->getCanvas(), &pSourceHist);
+                CanvasOps::setDrawOption(pDestCanvas->getCanvas(), &pDestHist, sourceOpt);
+            }
     	}
 
     }

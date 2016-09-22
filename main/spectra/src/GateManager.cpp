@@ -32,6 +32,7 @@
 #include "GGate.h"
 #include "MasterGateList.h"
 #include "HistogramBundle.h"
+#include "ControlPanel.h"
 
 #include "SliceTableItem.h"
 #include "GateListItem.h"
@@ -41,6 +42,7 @@
 #include <QMutexLocker>
 #include <QMutex>
 #include <QList>
+#include <QTimer>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -58,12 +60,17 @@ namespace Viewer
 {
 
 GateManager::GateManager(SpectrumView& view,
-                                         std::shared_ptr<SpecTclInterface> pSpecTcl,
-                                         QWidget *parent) :
+                         ControlPanel& controls,
+                         std::shared_ptr<SpecTclInterface> pSpecTcl,
+                         int nDimensions,
+                         QWidget *parent) :
     QWidget(parent),
     ui(new Ui::GateManager),
     m_view(view),
-    m_pSpecTcl(pSpecTcl)
+    m_controls(controls),
+    m_pSpecTcl(pSpecTcl),
+    m_nRows(0),
+    m_histDim(nDimensions)
 {
     ui->setupUi(this);
 
@@ -96,7 +103,7 @@ void GateManager::setGateList(std::vector<QString> gateNames)
 {
     ui->gateList->setColumnCount(2);
 
-    // This is probably faster with a std::list<QString> b/c of O(1) insertion
+    // This _may_ be faster with a std::list<QString> b/c of O(1) insertion
     // deletion, but I am sticking with the general wisdom of c++ masters to
     // stick with a std::vector unless measurements say to do otherwise.
     std::vector<QString> existingNames;
@@ -125,6 +132,10 @@ void GateManager::setGateList(std::vector<QString> gateNames)
 
             pItem = new QTableWidgetItem(QString(tr("0")));
             ui->gateList->setItem(row, 1, pItem);
+
+//            std::cout << name.toStdString() << std::endl;
+
+            m_nRows++;
         }
     }
 
@@ -135,6 +146,8 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             QString name = pItem->text();
             if (! std::binary_search(gateNames.begin(), gateNames.end(), name)) {
                 ui->gateList->removeRow(row);
+                m_nRows--;
+//                std::cout << name.toStdString() << std::endl;
             }
         }
     }
@@ -177,9 +190,20 @@ void GateManager::onDeleteButtonClicked()
     // of the definition of the map
     for (auto& rowInfo : rowsToDelete) {
         if (m_pSpecTcl) {
+            MasterGateList* pGateList = m_pSpecTcl->getGateList();
+            if (m_histDim == 1) {
+                pGateList->removeCut1D(std::get<1>(rowInfo));
+            } else {
+                pGateList->removeCut2D(std::get<1>(rowInfo));
+            }
+
             m_pSpecTcl->deleteGate(std::get<1>(rowInfo));
+
         }
-        ui->gateList->removeRow(std::get<0>(rowInfo));
+        //ui->gateList->removeRow(std::get<0>(rowInfo));
+
+        //m_nRows--;
+//        std::cout << "nRows = " << m_nRows << std::endl;
     }
 
 }
@@ -194,6 +218,7 @@ void GateManager::connectSignals()
 
   connect(ui->deleteButton, SIGNAL(clicked()),
           this, SLOT(onDeleteButtonClicked()));
+
 }
 
 
@@ -229,7 +254,7 @@ void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
     TH1& hist = rHistPkg.getHist();
 
     std::map<QString, GSlice*> cuts = rHistPkg.getCut1Ds();
-    int nRows = ui->gateList->rowCount();
+    int nRows = std::min(size_t(m_nRows), cuts.size());
     for (int row=0; row<nRows; ++row) {
 
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
@@ -257,19 +282,29 @@ void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
 
 
     std::map<QString, GGate*> cuts = rHistPkg.getCut2Ds();
-    int nRows = ui->gateList->rowCount();
+    int nRows = std::min(size_t(m_nRows), cuts.size());
     for (int row=0; row<nRows; ++row) {
-
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
         QTableWidgetItem* pValueItem = ui->gateList->item(row, 1);
+
+//        std::cout << "row:" << row << "\t" << pNameItem->text().toStdString() << std::endl;
 
         auto it = cuts.find(pNameItem->text());
         if (it != cuts.end()) {
             GGate* pGate = it->second;
+            MyCutG* pGrObj = pGate->getGraphicObject();
 
-            double integral = pGate->getGraphicObject()->IntegralHist(&hist);
+//            std::cout << "pGate = " << (void*)pGate ;
+//            if (pGate) std::cout << "   " << (void*) pGrObj;
+//            std::cout << std::endl;
 
-            pValueItem->setText(QString::number(integral));
+            if (pGrObj) {
+                double integral = pGrObj->IntegralHist(&hist);
+
+                pValueItem->setText(QString::number(integral));
+            } else {
+                pValueItem->setText("--");
+            }
         } else {
             pValueItem->setText("--");
         }

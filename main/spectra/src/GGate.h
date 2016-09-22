@@ -212,6 +212,10 @@ public:
     void synchronize(DataSource targ);
 
 
+    void setLineStyle(int style);
+    void setLineColor(int color);
+    void setLineWidth(int width);
+
 public slots:
    /*! */
     void onPointChanged(int index, double x, double y);

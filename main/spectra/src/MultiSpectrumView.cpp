@@ -31,6 +31,7 @@
 #include <TCanvas.h>
 #include <TH1.h>
 #include <TObject.h>
+#include <TList.h>
 
 #include <QGridLayout>
 #include <QSpacerItem>
@@ -86,11 +87,12 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
 
 MultiSpectrumView::~MultiSpectrumView()
 {
+    std::cout << "MultiSpectrumView::~MultiSpectrumView" << std::endl;
     for (int col=0; col<m_currentNColumns; col++) {
         for (int row=0; row<m_currentNRows; row++) {
             auto pItem = m_pLayout->itemAtPosition(row,col);
             if (pItem) {
-                auto pWidget = pItem->widget();
+                auto pWidget = dynamic_cast<QRootCanvas*>(pItem->widget());
                 delete pWidget;
             }
         }
@@ -361,18 +363,15 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     if (m_ignoreUpdates) return;
 
     if (pBundle && m_pSpecTcl) {
-
         QMutex* pMutex = pBundle->getMutex();
         pMutex->lock();
 
         // there is one histogram to synchronize, synchronize it once
-        pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+        bool changed = pBundle->synchronizeGates(m_pSpecTcl->getGateList());
 
         std::vector<QRootCanvas*> canvases = locateCanvasesWithHist(*pBundle);
-
         // redraw the histogram where it need to be drawn
         for (auto pCanvas : canvases) {
-
             pCanvas->cd();
             pBundle->draw();
 
@@ -397,6 +396,49 @@ void MultiSpectrumView::updateView(HistogramBundle* pBundle)
     }
 }
 
+void MultiSpectrumView::redrawView()
+{
+    if (m_ignoreUpdates) return;
+
+    for (auto canvasInfo :  m_canvases) {
+        redrawCanvas(*canvasInfo.second);
+    }
+
+    m_pCurrentCanvas->cd();
+}
+
+void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
+{
+    if (m_ignoreUpdates) return;
+
+    if (!m_pSpecTcl) {
+        QMessageBox::warning(this,"Viewer update error", "Viewer cannot redraw canvas without SpecTcl interface");
+        throw std::runtime_error("MultiSpectrumView::redrawCanvas() Cannot update canvas without a SpecTclInterface");
+    }
+
+    QRootCanvas* pCurrentCanvas = m_pCurrentCanvas;
+
+    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+
+    std::vector<TH1*> rootHists = SpectrumView::getAllHists(&canvas);
+
+    canvas.cd();
+
+    // redraw the histogram where it need to be drawn
+    for (auto hist : rootHists) {
+        HistogramBundle* pBundle = pHistList->getHistFromClone(hist);
+
+        pBundle->draw();
+    }
+
+//    // if we redrew the content of the current canvas, emit a signal saying
+//    // so
+//    if (std::find(m_canvases.begin(), canvases.end(), m_pCurrentCanvas) != canvases.end()) {
+//        emit canvasUpdated(*m_pCurrentCanvas);
+//    }
+
+    m_pCurrentCanvas->cd();
+}
 
 std::vector<QRootCanvas*>
 MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
@@ -414,14 +456,21 @@ MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
 
 }
 
-void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
+void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle, QString option)
 {
     if (pBundle) {
         getCurrentCanvas()->cd();
         if (m_pSpecTcl) {
             pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
-        pBundle->draw();
+
+        pBundle->draw(option);
+
+        // if the drawn histogram is empty, request content update for
+        // all histograms in the pad it was drawn.
+        if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
+            m_pSpecTcl->requestHistContentUpdate(gPad);
+        }
 
         emit canvasContentChanged(*m_pCurrentCanvas);
     }
@@ -507,11 +556,13 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
     int nSpectra = spectrumList.count();
 
     if (nSpectra > 100) {
-        QString msg("Spectra can only display 100 or fewer spectra per tab\n");
-        msg += "and the user specified %1. Requested operation cannot be completed.";
+        QString msg("Spectra can only display 100 or fewer canvases per tab\n");
+        msg += "and %1 were requested. Requested operation cannot be completed.";
         QMessageBox::warning(this, "Too many spectra",
                              msg.arg(nSpectra));
-        return;
+
+        spectrumList.clear();
+        nSpectra = spectrumList.count();
     }
 
     // determine the geometry of to display the canvases
@@ -540,19 +591,29 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
                 QMutexLocker listLock(histList.getMutex());
                 HistogramBundle* pBundle = histList.getHist(*pHistName);
                 if (pBundle) {
-                    QMutexLocker histLock(pBundle->getMutex());
+                    if (m_pSpecTcl) {
+                        pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+                    }
+
                     pBundle->draw();
+
                 }
                 ++pHistName;
             }
-
         }
     }
+
 
     m_currentNColumns = nCols;
     m_currentNRows = nRows;
 
     setCurrentCanvas(pTopLeftCanvas);
+
+    if (m_pSpecTcl) {
+        for (auto spectrum : spectrumList) {
+            m_pSpecTcl->requestHistContentUpdate(spectrum);
+        }
+    }
 
     refreshAll();
 
@@ -627,7 +688,7 @@ bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
 
 bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
 {
-  return (pCanvas->findObject(&pHist->getHist()) != nullptr);
+    return (pCanvas->findObject(pHist->getName()) != nullptr);
 }
 
 void MultiSpectrumView::onCanvasUpdated()
@@ -647,20 +708,64 @@ void MultiSpectrumView::ignoreUpdates(bool state)
 
 void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
 {
-    std::cout << "onMenuCommandExec " << methodName.toStdString() << std::endl;
     if (methodName == "SetDrawOption") {
 		TH1* pHist = dynamic_cast<TH1*>(pObj);
 		if (pHist) {
+            TVirtualPad* pPad = findPadContaining(pObj);
 			HistogramList* pList = m_pSpecTcl->getHistogramList();
-			HistogramBundle* pBundle = pList->getHist(pHist);
-    		QString option = QInputDialog::getText(this, "Spectrum configuration",
+            HistogramBundle* pBundle = pList->getHistFromClone(pHist);
+            if (pBundle == nullptr) {
+                QMessageBox::warning(this, "Failed to locate histogram",
+                                     "Unable to locate histogram that the draw option corresponds to");
+                return;
+            }
+
+            QString option = QInputDialog::getText(this, "Spectrum configuration",
                                                    "Enter draw option");
 
-    		pBundle->setDefaultDrawOption(option);
-    		refreshAll();
+            if (option.isEmpty()) return; // user cancelled
+
+            // set the specific object's draw option
+            TObjLink* pLink = findObjectLink(pPad, pObj);
+            pLink->SetOption(option.toUtf8().constData());
+
+            // set the option for future draw options
+            pBundle->setDefaultDrawOption(option);
+            refreshAll();
 		}
 	}
 }
 
+
+TVirtualPad* MultiSpectrumView::findPadContaining(TObject* pObj)
+{
+    auto pads = getAllCanvases();
+    TObject* pFoundObj = nullptr;
+    TVirtualPad* pFoundPad = nullptr;
+
+    for (auto& pPad : pads) {
+        pFoundObj = pPad->getCanvas()->GetListOfPrimitives()->FindObject(pObj);
+        if (pFoundObj) {
+            pFoundPad = pPad->getCanvas();
+            break;
+        }
+    }
+
+    return pFoundPad;
+}
+
+TObjLink* MultiSpectrumView::findObjectLink(TVirtualPad* pPad, TObject* pObj)
+{
+    TObjLink* pFoundLink = nullptr;
+    TObjLink *pLink = pPad->GetListOfPrimitives()->FirstLink();
+    while (pLink) {
+        if (pLink->GetObject() == pObj) {
+            pFoundLink = pLink;
+            break;
+        }
+        pLink = pLink->Next();
+    }
+    return pFoundLink;
+}
 
 } // end of namespace

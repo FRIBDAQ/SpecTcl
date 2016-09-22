@@ -25,6 +25,7 @@
 #include "GSlice.h"
 #include "GGate.h"
 #include "SpecTclInterface.h"
+#include "SubscribableH1.h"
 
 #include <HistFactory.h>
 #include <HistInfo.h>
@@ -36,11 +37,13 @@
 #include <QString>
 #include <QMap>
 #include <QMutexLocker>
+#include <QRegExp>
 
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 using namespace std;
 
@@ -84,7 +87,7 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     if (iter!=m_hists.end()) {
         return iter->second.get();
     } else {
-        throw std::runtime_error("Requested histogram not found");
+        return nullptr;
     }
 }
 
@@ -93,10 +96,29 @@ HistogramBundle* HistogramList::getHist(const TH1* pHist)
   return getHist(QString(pHist->GetName()));
 }
 
+HistogramBundle* HistogramList::getHistFromClone(const QString &name)
+{
+    QString baseName = name.mid(0, name.lastIndexOf(QRegExp("_copy$")));
+    return getHist(baseName);
+}
+
+HistogramBundle* HistogramList::getHistFromClone(const TH1* pHist)
+{
+    QString name = pHist->GetName();
+    return getHistFromClone(name);
+}
+
 HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
                                         const SpJs::HistInfo& info)
 {
   HistogramBundle* pHistBundle = nullptr;
+  std::unique_ptr<TH1> pSubscribableHist;
+  if (pHist->InheritsFrom(TH2::Class())) {
+      pSubscribableHist.reset(new SubscribableH1<TH2D>());
+  } else {
+      pSubscribableHist.reset(new SubscribableH1<TH1D>());
+  }
+  pHist->Copy(*pSubscribableHist);
 
   QString name(pHist->GetName());
 
@@ -105,7 +127,7 @@ HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
     } else {
         QMutexLocker lock(&m_mutex);
         unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex), 
-                                                                std::move(pHist), 
+                                                                std::move(pSubscribableHist),
                                                                 info));
 
         auto itHist = m_hists.insert(make_pair(name, std::move(pBundle)));
@@ -174,7 +196,10 @@ void HistogramList::synchronize(const MasterGateList& list)
 {
 
   for (auto& bundlePair : m_hists) {
-      bundlePair.second->synchronizeGates(&list);
+      if (bundlePair.second->isVisible()) {
+//          std::cout << "synching " << bundlePair.first.toStdString() << std::endl;
+          bundlePair.second->synchronizeGates(&list);
+      }
   }
 }
 

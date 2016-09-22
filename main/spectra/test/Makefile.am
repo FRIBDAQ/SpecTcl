@@ -1,8 +1,7 @@
 
 noinst_PROGRAMS = unittests
 
-unittests_SOURCES = DockableGateManagerTest.cpp \
-										GGateTest.cpp \
+unittests_SOURCES = GGateTest.cpp \
 										GSliceTest.cpp \
 										GateDeleteRequestTest.cpp \
 										GateEditRequestTest.cpp \

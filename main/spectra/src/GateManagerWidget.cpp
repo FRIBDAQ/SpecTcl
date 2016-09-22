@@ -9,12 +9,13 @@
 #include "GateListItem.h"
 #include "GGate.h"
 #include "GSlice.h"
+#include "ControlPanel.h"
 
 #include "TH2.h"
 
 #include <QHBoxLayout>
 #include <QMessageBox>
-
+#include <QTimer>
 #include <QMutexLocker>
 #include <QMutex>
 #include <QTableWidgetItem>
@@ -25,14 +26,18 @@ namespace Viewer
 {
 
 GateManagerWidget::GateManagerWidget(SpectrumView &rView,
+                                     ControlPanel &rControls,
                                      std::shared_ptr<SpecTclInterface> pSpecTcl,
+                                     const QString &hName,
                                      QWidget *parent) :
     QWidget(parent),
     m_view(rView),
+    m_controls(rControls),
     m_pSpecTcl(pSpecTcl),
-    m_histDim(1)
+    m_histDim(1),
+    m_histName(hName)
 {
-    m_pManager = new GateManager(m_view, pSpecTcl, this);
+    m_pManager = new GateManager(m_view, m_controls, pSpecTcl, m_histDim, this);
     horizontalLayout = new QHBoxLayout();
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -44,6 +49,8 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
     connect(m_pManager, SIGNAL(addGateClicked()), this, SLOT(onAddPressed()));
     connect(m_pManager, SIGNAL(editGateClicked()), this, SLOT(onEditPressed()));
     connect(m_pManager, SIGNAL(deleteGateClicked()), this, SLOT(onDeletePressed()));
+
+    connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()), this, SLOT(updateGateList()));
 
 }
 
@@ -61,27 +68,19 @@ void GateManagerWidget::onAddPressed()
 
 std::pair<QRootCanvas*, HistogramBundle*> GateManagerWidget::setUpDialog()
 {
-
-    auto pCanvas = m_view.getCurrentCanvas();
-    auto hists = SpectrumView::getAllHists(pCanvas);
-
-
     auto pHistList = m_pSpecTcl->getHistogramList();
-    HistogramBundle* pHistPkg = nullptr;
-    {
-        QMutexLocker lock(pHistList->getMutex());
 
-        // Ensure that there is a spectrum in the canvas
-        if (hists.size() > 0) {
-            pHistPkg = pHistList->getHist(hists.at(0));
-        } else {
-            QMessageBox::warning(this, "Failure to add gate",
-                                 "Cannot add a gate because there is no spectrum "
-                                 "present to associate the gate with.");
-        }
+    QMutexLocker lock(pHistList->getMutex());
+
+    HistogramBundle* pHistPkg = pHistList->getHist(m_histName);
+
+    if (! pHistPkg) {
+        QMessageBox::warning(this, "Failure to add gate",
+                             "Cannot add a gate because there is no spectrum "
+                             "present to associate the gate with.");
     }
 
-    return std::pair<QRootCanvas*,HistogramBundle*>(pCanvas, pHistPkg);
+    return std::pair<QRootCanvas*,HistogramBundle*>(m_view.getCurrentCanvas(), pHistPkg);
 }
 
 void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
@@ -210,7 +209,7 @@ void GateManagerWidget::onEditPressed()
 
 void GateManagerWidget::onDeletePressed()
 {
-    std::cout << "Delete pressed" << std::endl;
+//    std::cout << "Delete pressed" << std::endl;
 }
 
 void GateManagerWidget::closeDialog()
@@ -222,6 +221,10 @@ void GateManagerWidget::closeDialog()
 
     horizontalLayout->insertWidget(0, m_pManager);
     m_pManager->show();
+
+    // we need to update our canvases in case a new cut was created. Because
+    // the SpecTcl interaction must be completed, the request is given a chance
+    // to complete before the canvases are updated.
 }
 
 
@@ -259,8 +262,33 @@ void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
 
 void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
 {
-    m_pManager->updateGateIntegrals(rHistPkg);
+    if (m_pManager->isVisible()) {
+        m_pManager->updateGateIntegrals(rHistPkg);
+    }
 }
 
+
+void GateManagerWidget::updateGateList()
+{
+//    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
+    if (! m_pManager->isVisible() || ! m_pSpecTcl) {
+//        std::cout << "skipped" << std::endl;
+        return;
+    }
+
+    HistogramList* pList = m_pSpecTcl->getHistogramList();
+//    std::cout << m_histName.toAscii().constData() << std::endl;
+
+    HistogramBundle* pHistBundle = pList->getHist(m_histName);
+    if (pHistBundle) {
+        pHistBundle->synchronizeGates(m_pSpecTcl->getGateList());
+        if (m_histDim == 1) {
+            setGateList(pHistBundle->getCut1Ds());
+        } else {
+            setGateList(pHistBundle->getCut2Ds());
+        }
+    }
+    std::cout << "completed" << std::endl;
+}
 
 } // end Viewer namespace

@@ -112,6 +112,8 @@ class SuperpositionListIterator {
   Superposition &Next();	/* Return next superposition. */
   int            Last();	/* Is most recently retrieved the last one? */
   void DeleteCurrent();		/* Delete most recently retrieved one.      */
+  Superposition& operator*();
+  Superposition* operator->();
 
  private:
   int location;

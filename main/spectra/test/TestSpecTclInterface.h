@@ -4,7 +4,7 @@
 #include "SpecTclInterface.h"
 
 class QString;
-class TPad;
+class TVirtualPad;
 
 namespace Viewer
 {
@@ -48,7 +48,7 @@ public:
     virtual HistogramList* getHistogramList();
 
     virtual void requestHistContentUpdate(QRootCanvas* pCanvas);
-    virtual void requestHistContentUpdate(TPad* pPad);
+    virtual void requestHistContentUpdate(TVirtualPad *pPad);
     virtual void requestHistContentUpdate(const QString& hName);
 
 // signals:

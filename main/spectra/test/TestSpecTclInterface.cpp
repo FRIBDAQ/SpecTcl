@@ -37,7 +37,7 @@ bool TestSpecTclInterface::histogramInfoPollingEnabled() const{}
 HistogramList* TestSpecTclInterface::getHistogramList(){ return m_pHistList; }
 
 void TestSpecTclInterface::requestHistContentUpdate(QRootCanvas* pCanvas){}
-void TestSpecTclInterface::requestHistContentUpdate(TPad* pPad){}
+void TestSpecTclInterface::requestHistContentUpdate(TVirtualPad* pPad){}
 void TestSpecTclInterface::requestHistContentUpdate(const QString& hName){}
 
 

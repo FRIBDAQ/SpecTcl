@@ -84,14 +84,22 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
             pixmap.fill(Qt::gray);
             std::vector<TH1*> hists = SpectrumView::getAllHists(pCanvas);
             if (hists.size() > 0) {
+
+                QString cloneName = QString::fromAscii(hists.at(0)->GetName());
+
+                QString baseName = cloneName.mid(0,cloneName.lastIndexOf(QRegExp("_copy$")));
                 auto pImage = new SelectableImage(pixmap,
-            								      QString::fromAscii(hists.at(0)->GetName()),
+                                                  baseName,
             								      this);
             	pImage->setAutoExclusive(autoExclusive);
             	group.addButton(pImage, id);
-            	++id; // increment button id count
 
             	pGridLayout->addWidget(pImage, row, col);
+
+                // fill the target map
+                m_targetMap[id] = {row,col,hists.at(0)};
+
+                ++id; // increment button id count
             }
         }
     }
@@ -185,15 +193,16 @@ ConfigCopySelection ConfigCopySelector::getSelection() const
 {
 	ConfigCopySelection selection;
 
-	QAbstractButton* pButton = m_sourceGroup.checkedButton();
-	if (pButton) selection.s_sourceHist = pButton->text();
-	else return selection;
+    int sourceId = m_sourceGroup.checkedId();
+    if (sourceId >= 0) {
+        selection.s_sourceTarget = m_targetMap.at(sourceId);
+    } else return selection;
 
 	QList<QAbstractButton*> destButtons = m_destinationGroup.buttons();
 	for (int id=0; id<destButtons.size(); ++id) {
 		if (destButtons[id]->isChecked()) {
-			selection.s_destinationHists.push_back(destButtons[id]->text());
-		}
+            selection.s_destTargets.push_back(m_targetMap.at(id));
+        }
 	}
 
 	selection.s_copyXAxis 	   = m_pXAxisOption->isChecked();

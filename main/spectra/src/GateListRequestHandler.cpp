@@ -87,11 +87,12 @@ void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 
             auto notUniqueContent = deUniquifyVectorContents(uniqueContent);
 
+//            std::cout << "emitting parseCompleted" << std::endl;
             emit parseCompleted(notUniqueContent);
 
         } catch (exception& exc) {
             QString title("Update request failure");
-            QString msg("Failed to update hist because : %1");
+            QString msg("Failed to update gate list because : %1");
             msg = msg.arg(QString(exc.what()));
             QMessageBox::warning(0,title,msg);
 

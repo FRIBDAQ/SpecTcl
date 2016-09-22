@@ -8,12 +8,16 @@
 #include <QMap>
 
 #include <memory>
+#include <utility>
+#include <vector>
 
 
 class QGridLayout;
 class QWizardPage;
 class QCheckBox;
 class QAbstractButton;
+
+class TH1;
 
 namespace Ui {
 class ConfigCopySelector;
@@ -25,9 +29,16 @@ class SpectrumView;
 class SpecTclInterface;
 class HistogramBundle;
 
+struct ConfigCopyTarget {
+    int s_row;
+    int s_col;
+    TH1*  s_pHist;
+};
+
+
 struct ConfigCopySelection {
-	QString 	s_sourceHist;
-	QStringList s_destinationHists;
+    ConfigCopyTarget s_sourceTarget;
+    std::vector<ConfigCopyTarget > s_destTargets;
 	bool		s_copyXAxis;
 	bool 		s_copyYAxis;
 	bool		s_copyDrawOption;
@@ -74,6 +85,8 @@ private:
 
     QButtonGroup    m_sourceGroup;
     QButtonGroup    m_destinationGroup;
+
+    std::map<int, ConfigCopyTarget> m_targetMap;
 
 };
 

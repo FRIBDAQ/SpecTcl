@@ -94,7 +94,7 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
 
         } catch (std::exception& exc) {
             QString title("Update request failure");
-            QString msg("Failed to update hist because : %1");
+            QString msg("Failed to update list of histograms because : %1");
             msg = msg.arg(QString(exc.what()));
             QMessageBox::warning(0,title,msg);
         }

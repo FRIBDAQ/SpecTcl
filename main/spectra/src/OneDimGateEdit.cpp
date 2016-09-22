@@ -95,9 +95,13 @@ OneDimGateEdit::OneDimGateEdit(QRootCanvas& canvas,
         auto xMax = m_histPkg.getHist().GetXaxis()->GetXmax();
         m_histPkg.unlock();
 
+        double xWidth = xMax - xMin;
+
         QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );
 
-        m_editSlice = GSlice(0, "__cut_in_progress__", paramName, xMin, xMax, &m_canvas);
+        m_editSlice = GSlice(0, "__cut_in_progress__", paramName,
+                             xMin + 0.1*xWidth,
+                             xMax - 0.1*xWidth, &m_canvas);
         onNameChanged("");
     }
 
@@ -140,7 +144,7 @@ void OneDimGateEdit::accept()
     // store new values
     *m_pOldSlice = m_editSlice;
 
-    cout << *m_pOldSlice << endl;
+//    cout << *m_pOldSlice << endl;
 
     // get rid of the editable version of the slice
     removeOldLines(m_editSlice);
@@ -150,6 +154,7 @@ void OneDimGateEdit::accept()
 
     if (isNewSlice) {
         registerSlice(m_pOldSlice);
+        delete m_pOldSlice;
     } else {
         editSlice(m_pOldSlice);
     }
@@ -172,6 +177,14 @@ void OneDimGateEdit::reject()
     emit rejected();
 }
 
+/*!
+ * \brief OneDimGateEdit::registerSlice
+ *
+ * The slice is registered to SPecTcl. It is not drawn because the next
+ * update should cause it to be drawn.
+ *
+ * \param pSlice    the slice to register
+ */
 void OneDimGateEdit::registerSlice(GSlice *pSlice)
 {
   Q_ASSERT( pSlice != nullptr );
@@ -182,12 +195,22 @@ void OneDimGateEdit::registerSlice(GSlice *pSlice)
         m_pSpecTcl->addGate(*pSlice);
         m_pSpecTcl->enableGatePolling(true);
     }
+
 }
 
+/*!
+ * \brief OneDimGateEdit::editSlice
+ *
+ *  The new version of the slice is sent to SpecTcl to replace the old
+ * version of it. The original graphical object is redrawn.
+ *
+ * \param pSlice
+ */
 void OneDimGateEdit::editSlice(GSlice *pSlice)
 {
     Q_ASSERT(pSlice != nullptr);
 
+    // Update the
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pSlice);
         m_pSpecTcl->enableGatePolling(true);

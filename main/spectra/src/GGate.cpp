@@ -261,7 +261,7 @@ std::pair<double, double> GGate::getPoint(size_t index) const
 void GGate::draw()
 {
   if (m_pCut) {
-    m_pCut->Draw("same lp");
+    m_pCut->Draw("lp");
   } else {
     throw runtime_error("Cannot draw gate because it is a nullptr");
   }
@@ -303,6 +303,21 @@ void GGate::synchronize(GGate::DataSource targ)
 void GGate::setPoint(int index, double x, double y)
 {
   m_pCut->SetPoint(index, x, y);
+}
+
+void GGate::setLineStyle(int style)
+{
+    m_pCut->SetLineStyle(style);
+}
+
+void GGate::setLineColor(int color)
+{
+    m_pCut->SetLineColor(color);
+}
+
+void GGate::setLineWidth(int width)
+{
+    m_pCut->SetLineWidth(width);
 }
 
 } // end of namespace
