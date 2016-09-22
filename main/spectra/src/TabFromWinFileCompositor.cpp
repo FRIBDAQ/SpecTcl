@@ -29,7 +29,7 @@ void TabFromWinFileCompositor::compose(TabWorkspace &rWorkSpace, const QString &
 {
     win_db layoutDb;
     try {
-    layoutDb.read(fileName.toUtf8().constData());
+        layoutDb.read(fileName.toUtf8().constData());
     } catch (std::exception& exc) {
         QMessageBox::warning(nullptr, "Configuration error",
                              exc.what());
@@ -72,6 +72,7 @@ void TabFromWinFileCompositor::setUpCanvas(QRootCanvas& rCanvas, win_attributed 
 {
     QString specName;
 
+
     if (rAttributes.is1d()) {
         auto& attr = dynamic_cast<win_1d&>(rAttributes);
         specName = QString::fromStdString(attr.getSpectrumName());
@@ -101,6 +102,31 @@ void TabFromWinFileCompositor::setUpCanvas(QRootCanvas& rCanvas, win_attributed 
 //        rCanvas.Modified(1);
 //        rCanvas.Update();
     }
+
+    try {
+        // handle superimposed histograms
+        auto& rAttr1D = dynamic_cast<win_1d&>(rAttributes);
+
+        SuperpositionList& supers = rAttr1D.GetSuperpositions();
+        SuperpositionListIterator iter(supers);
+
+        while (!iter.Last()) {
+            QString specName = QString::fromStdString(iter->SpectrumName());
+            HistogramBundle* pBundle = pHistList->getHist(specName);
+            if (pBundle) {
+                pBundle->draw("same");
+            } else {
+                QString msg = "Request to superimpose histogram failed because histogram, '%1', was not found.";
+                QMessageBox::warning(0, "Failed to locate histogram",
+                                     msg.arg(specName));
+            }
+            iter.Next();
+        }
+
+    } catch (std::bad_cast exc) {
+        // do nothing... this will happen if we have a win_2d. No problem.
+    }
+
 }
 
 } // end Viewer namespace

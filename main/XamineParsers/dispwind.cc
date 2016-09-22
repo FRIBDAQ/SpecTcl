@@ -308,13 +308,13 @@ int win_1d::write(FILE *f)
   if(additional_spectra.Count() != 0) {
       SuperpositionListIterator sli(additional_spectra);
       while(!sli.Last()) {
-          int id = (sli.Next()).Spectrum();
+          int id = sli->Spectrum();
           if (id >= 0) {
               Win::SpectrumQueryResults info;
               info = gSpectrumInterface.getSpectrumInfo(id);
               wbytes = fprintf(f,"   Superimpose \"%s\"\n", info.s_name.c_str());
           } else {
-              std::string name = sli.Next().SpectrumName();
+              std::string name = sli->SpectrumName();
               if (! name.empty()) {
                 wbytes = fprintf(f, "   Superimpose \"%s\"\n", name.c_str());
               } else {
@@ -323,6 +323,10 @@ int win_1d::write(FILE *f)
               }
 
           }
+
+          // move to the next element
+          sli.Next();
+
           if(wbytes == EOF) {
               sprintf(msg_txt,"%s%s%s",
                       "Failed to write a Superimpose record.\n",

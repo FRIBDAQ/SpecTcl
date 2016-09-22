@@ -5,6 +5,8 @@
 #include "dispwind.h"
 #include "superpos.h"
 
+#include <QRegExp>
+
 #include <TObject.h>
 #include <TList.h>
 #include <TCanvas.h>
@@ -80,7 +82,9 @@ std::vector<std::string> WinFileWriter::extractHistNamesFromCanvas(QRootCanvas& 
     TIter next(rCanvas.getCanvas()->GetListOfPrimitives());
     while (( pObj = next()) ) {
         if (pObj->InheritsFrom(TH1::Class())) {
-            names.push_back(pObj->GetName());
+            QString clonedName = QString::fromUtf8(pObj->GetName());
+            QString baseName = clonedName.mid(0, clonedName.lastIndexOf(QRegExp("_copy$")));
+            names.push_back(baseName.toAscii().constData());
         }
     }
 
@@ -92,6 +96,7 @@ void WinFileWriter::appendCanvasToWinDb(QRootCanvas &rCanvas, win_2d& dbAttr)
     dbAttr.setrend(color);
     std::vector<std::string> histNames = extractHistNamesFromCanvas(rCanvas);
     if (histNames.size() > 0) {
+        std::cout << histNames[0] << std::endl;
         dbAttr.setSpectrumName(histNames[0]);
     } else {
         std::string msg("WinFileWriter::appendCanvasToWinDb() ");
