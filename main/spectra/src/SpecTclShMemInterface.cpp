@@ -155,8 +155,8 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
 {
     Xamine2Root::HistFiller filler;
 
-    HistogramBundle* pHBundle = getHistogramList()->getHistFromClone(hName);
     try {
+        HistogramBundle* pHBundle = getHistogramList()->getHistFromClone(hName);
         if (pHBundle) {
             filler.fill(pHBundle->getHist(), pHBundle->getName().toStdString());
 
