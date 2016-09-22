@@ -87,8 +87,8 @@ void TabWorkspace::setUpUI()
 
 void TabWorkspace::connectSignals()
 {
-    connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*)),
-            m_pView, SLOT(drawHistogram(HistogramBundle*)));
+    connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*, QString)),
+            m_pView, SLOT(drawHistogram(HistogramBundle*, QString)));
 
     connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(updateView(HistogramBundle*)));

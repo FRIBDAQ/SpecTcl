@@ -196,7 +196,7 @@ public slots:
      *
      * This draws the histogram in the current canvas
      */
-    void drawHistogram(HistogramBundle *pHist);
+    void drawHistogram(HistogramBundle *pHist, QString option);
     /*!
      * \brief refreshAll
      *

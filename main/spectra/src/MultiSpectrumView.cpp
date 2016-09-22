@@ -456,7 +456,7 @@ MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
 
 }
 
-void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
+void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle, QString option)
 {
     if (pBundle) {
         getCurrentCanvas()->cd();
@@ -464,7 +464,7 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
             pBundle->synchronizeGates(m_pSpecTcl->getGateList());
         }
 
-        pBundle->draw();
+        pBundle->draw(option);
 
         // if the drawn histogram is empty, request content update for
         // all histograms in the pad it was drawn.
@@ -556,11 +556,13 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
     int nSpectra = spectrumList.count();
 
     if (nSpectra > 100) {
-        QString msg("Spectra can only display 100 or fewer spectra per tab\n");
-        msg += "and the user specified %1. Requested operation cannot be completed.";
+        QString msg("Spectra can only display 100 or fewer canvases per tab\n");
+        msg += "and %1 were requested. Requested operation cannot be completed.";
         QMessageBox::warning(this, "Too many spectra",
                              msg.arg(nSpectra));
-        return;
+
+        spectrumList.clear();
+        nSpectra = spectrumList.count();
     }
 
     // determine the geometry of to display the canvases

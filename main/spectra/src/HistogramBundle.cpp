@@ -136,7 +136,14 @@ void HistogramBundle::draw(const QString& opt) {
 
     auto pFoundPair = m_clones.find(gPad);
     if (pFoundPair != m_clones.end()) {
-        updateClone(*pFoundPair->second, opts);
+
+        // if there is a clone on the pad already, update the draw option only...
+        // don't create another copy
+        if (opts.contains("same", Qt::CaseInsensitive)) {
+            updateClone(*pFoundPair->second, opts);
+        } else {
+            drawClone(opts);
+        }
     } else {
         drawClone(opts);
     }

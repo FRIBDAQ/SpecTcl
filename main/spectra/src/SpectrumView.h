@@ -151,7 +151,7 @@ public:
      *
      * Draws the argument in the pane with focus.
      */
-    virtual void drawHistogram(HistogramBundle* pHist) = 0;
+    virtual void drawHistogram(HistogramBundle* pHist, QString) = 0;
 
     /*!
      * \brief update

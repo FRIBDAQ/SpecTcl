@@ -189,10 +189,7 @@ void ViewDrawPanel::onDoubleClick(QModelIndex index)
 
     if (pHistBundle) {
         QString drawOption = ui->pDrawOptionEdit->text();
-        if (! drawOption.isEmpty()) {
-            pHistBundle->setDefaultDrawOption(drawOption);
-        }
-        emit histSelected(pHistBundle);
+        emit histSelected(pHistBundle, drawOption);
     } else {
         QMessageBox::warning(this, "Missing histogram",
                              "Failed to locate the selected histogram in the master histogram list.");
@@ -217,10 +214,7 @@ void ViewDrawPanel::keyPressEvent(QKeyEvent* pEvent)
             auto pHistBundle = pHistList->getHist(pItem->text());
             if (pHistBundle) {
                 QString drawOption = ui->pDrawOptionEdit->text();
-                if (! drawOption.isEmpty()) {
-                    pHistBundle->setDefaultDrawOption(drawOption);
-                }
-                emit histSelected(pHistBundle);
+                emit histSelected(pHistBundle, drawOption);
             } else {
                 QMessageBox::warning(this, "Missing histogram",
                                      "Failed to locate the selected histogram in the master histogram list.");

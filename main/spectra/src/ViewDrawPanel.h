@@ -87,7 +87,7 @@ public:
     void filterHistogramList(const QString& filter);
 
 signals:
-    void histSelected(HistogramBundle* hist);
+    void histSelected(HistogramBundle* hist, QString drawOption);
     void geometryChanged(int nRows, int nCols);
 
     //////////////////////////////////////////////////////////////////////////
