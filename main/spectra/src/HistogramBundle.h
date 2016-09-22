@@ -173,6 +173,7 @@ private:
 
     void drawClone(const QString& opts);
     void updateClone(TH1& hClone, const QString& opts);
+    void unsubscribeFromAllClones();
 };
 
 } // end of namespace

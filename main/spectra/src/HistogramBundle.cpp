@@ -66,6 +66,7 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
 
 HistogramBundle::~HistogramBundle()
 {
+    unsubscribeFromAllClones();
 }
 
 //
@@ -88,13 +89,27 @@ void HistogramBundle::drawClone(const QString &opts)
     const char* cOpts = ascii.constData();
 
     if (m_pHist->InheritsFrom(TH2::Class())) {
-        auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts));
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH2D>* >(m_pHist->DrawCopy(cOpts, "_copy"));
         m_clones[gPad] = pClonedHist;
         pClonedHist->subscribe(m_subscriber);
     } else {
-        auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts));
+        auto pClonedHist = dynamic_cast<SubscribableH1<TH1D>* >(m_pHist->DrawCopy(cOpts, "_copy"));
         m_clones[gPad] = pClonedHist;
         pClonedHist->subscribe(m_subscriber);
+    }
+}
+
+void HistogramBundle::unsubscribeFromAllClones()
+{
+    for (auto cloneInfo : m_clones) {
+        TH1* pHist = cloneInfo.second;
+        if (pHist->InheritsFrom(TH2::Class())) {
+            auto pSubscribable = dynamic_cast< SubscribableH1<TH2D>* >(pHist);
+            pSubscribable->unsubscribe(m_subscriber);
+        } else {
+            auto pSubscribable = dynamic_cast< SubscribableH1<TH1D>* >(pHist);
+            pSubscribable->unsubscribe(m_subscriber);
+        }
     }
 }
 
@@ -112,6 +127,8 @@ void HistogramBundle::draw(const QString& opt) {
     if (opts.isEmpty()) {
         opts = m_defaultDrawOption;
     }
+
+    std::cout << opts.toUtf8().constData() << std::endl;
 
     // first check to see if there is already a histogram copy on the current pad
     // if there is, then we just need to update it. Otherwise, we need to draw a brand
