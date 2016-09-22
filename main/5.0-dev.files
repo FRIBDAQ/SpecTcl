@@ -1374,3 +1374,6 @@ XamineParsers/SpectrumQueryInterface.h
 XamineParsers/superpos.cc
 XamineParsers/superpos.h
 XamineParsers/windio.h
+spectra/src/Makefile.am
+XamineParsers/windfile.y
+XamineParsers/windfile.l
