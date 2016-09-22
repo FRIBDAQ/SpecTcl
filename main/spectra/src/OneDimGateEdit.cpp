@@ -144,7 +144,7 @@ void OneDimGateEdit::accept()
     // store new values
     *m_pOldSlice = m_editSlice;
 
-    cout << *m_pOldSlice << endl;
+//    cout << *m_pOldSlice << endl;
 
     // get rid of the editable version of the slice
     removeOldLines(m_editSlice);
