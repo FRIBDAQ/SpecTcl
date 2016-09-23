@@ -26,6 +26,7 @@
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
 #include "StatusBar.h"
+#include "CanvasOps.h"
 
 #include <TPad.h>
 #include <TCanvas.h>
@@ -425,10 +426,43 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
     canvas.cd();
 
     // redraw the histogram where it need to be drawn
-    for (auto hist : rootHists) {
-        HistogramBundle* pBundle = pHistList->getHistFromClone(hist);
+    // This is a little tricky when we are dealing with superimposed histograms and copies.
+    // The first histogram that is drawn will clear that canvas and that will delete
+    // any superimposed histograms. In order to avoid a segfault, we need to first
+    // get all the information we need to draw for the existing hists and store it.
+    // After we have all the information, we can proceed to draw histograms.
 
-        pBundle->draw();
+    // our storage for the histogram and the draw option
+    std::vector<std::pair<HistogramBundle*, QString>> drawInfo;
+
+    // locate and store the data
+    for (auto pHist : rootHists) {
+        HistogramBundle* pBundle = pHistList->getHistFromClone(pHist);
+
+        QString drawOption = CanvasOps::getDrawOption(canvas.getCanvas(), pHist);
+
+        if (pBundle) drawInfo.push_back(make_pair(pBundle, drawOption));
+    }
+
+    // do the drawing
+    bool first = true;
+    for (auto drawable : drawInfo) {
+        if (first) {
+            first = false;
+
+            // there is the possibility that we did not succeed in finding the
+            // first histogram. IN that scenario, we would have no histogram
+            // with a option lacking "same". We need to protect against that
+            // by removing "same" if it is found.
+            QString options = drawable.second;
+            if (options.contains("same", Qt::CaseInsensitive)) {
+                options.replace("same","",Qt::CaseInsensitive);
+                drawable.first->draw(options);
+            }
+        }
+
+        drawable.first->draw(drawable.second);
+
     }
 
 //    // if we redrew the content of the current canvas, emit a signal saying
