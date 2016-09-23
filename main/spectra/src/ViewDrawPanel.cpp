@@ -34,6 +34,7 @@
 #include <QRegExp>
 #include <QMessageBox>
 #include <QKeyEvent>
+#include <QComboBox>
 
 #include <vector>
 #include <iostream>
@@ -53,7 +54,9 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 {
     ui->setupUi(this);
 
-    ui->gridLayout->addWidget(m_pGeoSelector, 4, 0, 1, 2);
+    ui->verticalLayout->addWidget(m_pGeoSelector);
+
+    ui->pDrawOptCombo->setEditable(true);
 
     connect(m_pSpecTcl.get(), SIGNAL(histogramListChanged()),
             this, SLOT(onHistogramListChanged()));
@@ -61,6 +64,7 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 
     connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
             this,SLOT(onDoubleClick(QModelIndex)));
+    connect(ui->histList,SIGNAL(itemSelectionChanged()),this,SLOT(onSelectionChanged()));
 
     connect(m_pGeoSelector, SIGNAL(rowCountChanged(int)), this, SLOT(onRowCountChanged(int)));
     connect(m_pGeoSelector, SIGNAL(columnCountChanged(int)), this, SLOT(onColumnCountChanged(int)));
@@ -188,7 +192,11 @@ void ViewDrawPanel::onDoubleClick(QModelIndex index)
     auto pHistBundle = pHistList->getHist(pItem->text());
 
     if (pHistBundle) {
-        QString drawOption = ui->pDrawOptionEdit->text();
+        QString drawOption = ui->pDrawOptCombo->currentText();
+
+        if (ui->pSuperimposeSelect->isEnabled() && ui->pSuperimposeSelect->isChecked()) {
+            drawOption += " same";
+        }
         emit histSelected(pHistBundle, drawOption);
     } else {
         QMessageBox::warning(this, "Missing histogram",
@@ -213,7 +221,7 @@ void ViewDrawPanel::keyPressEvent(QKeyEvent* pEvent)
 
             auto pHistBundle = pHistList->getHist(pItem->text());
             if (pHistBundle) {
-                QString drawOption = ui->pDrawOptionEdit->text();
+                QString drawOption = ui->pDrawOptCombo->currentText();
                 emit histSelected(pHistBundle, drawOption);
             } else {
                 QMessageBox::warning(this, "Missing histogram",
@@ -237,6 +245,47 @@ void ViewDrawPanel::onColumnCountChanged(int nColumns)
 void ViewDrawPanel::setZoomedState(bool state)
 {
     m_pGeoSelector->setDisabled(state);
+}
+
+void ViewDrawPanel::onSelectionChanged()
+{
+    QList<QListWidgetItem*> items = ui->histList->selectedItems();
+
+    // do not continue if we have no selected items
+    if (items.count() == 0) return;
+
+    QListWidgetItem* pCurrent = items.at(0);
+
+    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+    HistogramBundle* pCurrentBundle = pHistList->getHist(pCurrent->text());
+    if (pCurrentBundle) {
+        int dimension = pCurrentBundle->getHist().InheritsFrom(TH2::Class()) ? 2 : 1;
+        if (dimension != m_currentDimension) {
+            setDrawOptions(dimension);
+            m_currentDimension = dimension;
+        }
+
+        if (dimension == 1) {
+            ui->pSuperimposeSelect->setEnabled(true);
+        } else {
+            ui->pSuperimposeSelect->setEnabled(false);
+        }
+    }
+}
+
+void ViewDrawPanel::setDrawOptions(int dimension)
+{
+    QComboBox* pBox = ui->pDrawOptCombo;
+    pBox->clear();
+
+    if (dimension == 1) {
+        pBox->addItems({"hist","histE"});
+    } else {
+        pBox->addItems({"col2","colz2","colz", "col","lego","lego1", "lego2", "surf", "surf1", "surf2"});
+    }
+
+    pBox->setCurrentIndex(0);
+
 }
 
 } // end of namespace

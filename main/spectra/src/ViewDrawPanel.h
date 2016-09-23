@@ -112,6 +112,8 @@ public slots:
 
     void setZoomedState(bool state);
 
+    void onSelectionChanged();
+
     //////////////////////////////////////////////////////////////////////////
 private:
     void appendHistogramToList(HistogramList::iterator it);
@@ -119,11 +121,13 @@ private:
 
     void clearHistogramList();
     void keyPressEvent(QKeyEvent* pEvent);
+    void setDrawOptions(int dimension);
 
 private:
     std::unique_ptr<Ui::ViewDrawPanel> ui;
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
     GeometrySelector*                 m_pGeoSelector;
+    int                               m_currentDimension;
 };
 
 } // end of namespace
