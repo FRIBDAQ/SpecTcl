@@ -39,7 +39,7 @@ TabWorkspace::TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *
 
 TabWorkspace::~TabWorkspace()
 {
-    std::cout << "~TabWorkpace()" << std::endl;
+//    std::cout << "~TabWorkpace()" << std::endl;
 }
 
 SpectrumView& TabWorkspace::getView() {

@@ -130,7 +130,7 @@ QRootCanvas::QRootCanvas(QWidget *parent) :
 
 QRootCanvas::~QRootCanvas()
 {
-    std::cout << "QRootCanvas::~QRootCanvas()" << std::endl;
+//    std::cout << "QRootCanvas::~QRootCanvas()" << std::endl;
    if(fCanvas) {
      delete fCanvas;
      fCanvas = 0;

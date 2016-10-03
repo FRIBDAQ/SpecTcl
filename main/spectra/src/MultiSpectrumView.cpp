@@ -88,7 +88,7 @@ MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
 
 MultiSpectrumView::~MultiSpectrumView()
 {
-    std::cout << "MultiSpectrumView::~MultiSpectrumView" << std::endl;
+//    std::cout << "MultiSpectrumView::~MultiSpectrumView" << std::endl;
     for (int col=0; col<m_currentNColumns; col++) {
         for (int row=0; row<m_currentNRows; row++) {
             auto pItem = m_pLayout->itemAtPosition(row,col);
