@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   QApplication::setGraphicsSystem("native");
 
-  gEnv->SetValue("Unix.*.Root.UseTTFonts", false); // TTF are SLOW!
+//  gEnv->SetValue("Unix.*.Root.UseTTFonts", false); // TTF are SLOW!
   gStyle->SetOptStat(0); // this is not useful at the moment. I can do it better using Qt widgets
 
   TQApplication a("app", &argc, argv);
