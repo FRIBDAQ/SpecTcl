@@ -128,7 +128,7 @@ void HistogramBundle::draw(const QString& opt) {
         opts = m_defaultDrawOption;
     }
 
-    std::cout << opts.toUtf8().constData() << std::endl;
+//    std::cout << opts.toUtf8().constData() << std::endl;
 
     // first check to see if there is already a histogram copy on the current pad
     // if there is, then we just need to update it. Otherwise, we need to draw a brand
