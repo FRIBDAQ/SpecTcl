@@ -38,14 +38,14 @@ namespace SpJs
     using Json::Value;
     HistInfo info;
 
-    info.s_name = item["name"].asCString();
-    info.s_type = std::stoi(item["type"].asCString());
-    info.s_chanType = mapChanType(item["chantype"].asCString());
+    info.s_name = item["name"].asString();
+    info.s_type = item["type"].asString();
+    info.s_chanType = mapChanType(item["chantype"].asString());
 
     // load the parameters
     const Value& params = item["parameters"];
     for (int iParam=0; iParam<params.size(); ++iParam) {
-      info.s_params.push_back(params[iParam].asCString());
+      info.s_params.push_back(params[iParam].asString());
     }
 
     // load the axes

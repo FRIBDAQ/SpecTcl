@@ -43,6 +43,10 @@ class JsonParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseListDetail_0 );
   CPPUNIT_TEST( parseContentCmd_0 );
   CPPUNIT_TEST( parseContentCmd_1 );
+  CPPUNIT_TEST( parseSummary_0 );
+  CPPUNIT_TEST( parseBitmask_0 );
+  CPPUNIT_TEST( parseGamma1_0 );
+  CPPUNIT_TEST( parseGamma2_0 );
   CPPUNIT_TEST( json_0 );
   CPPUNIT_TEST_SUITE_END();
 
@@ -57,6 +61,10 @@ protected:
   void parseListCmd_0();
   void parseContentCmd_0();
   void parseContentCmd_1();
+  void parseSummary_0();
+  void parseBitmask_0();
+  void parseGamma1_0();
+  void parseGamma2_0();
   void json_0();
   void parseParameterCmd_0();
 };
@@ -77,13 +85,13 @@ void JsonParserTest::parseListCmd_0()
 
   SpJs::HistInfo expected;
   expected.s_name = "raw00";
-  expected.s_type = 1;
+  expected.s_type = "1";
   expected.s_params = {"event.raw.00"};
   expected.s_axes = {{1.0, 100.0, 100}};
   expected.s_chanType = SpJs::Long;
 
   CPPUNIT_ASSERT(1 == parsedResult.size());
-  CPPUNIT_ASSERT( expected == parsedResult[0] );
+  CPPUNIT_ASSERT_EQUAL( expected, parsedResult[0] );
 
 }
  
@@ -101,12 +109,12 @@ void JsonParserTest::parseListDetail_0()
 
   SpJs::HistInfo expected;
   expected.s_name = "raw00";
-  expected.s_type = 1;
+  expected.s_type = "1";
   expected.s_params = {"event.raw.00"};
   expected.s_axes = {{1.0, 100.0, 100}};
   expected.s_chanType = SpJs::Long;
 
-  CPPUNIT_ASSERT( expected == parsedResult );
+  CPPUNIT_ASSERT_EQUAL( expected, parsedResult );
 
 }
  
@@ -118,6 +126,7 @@ void JsonParserTest::parseContentCmd_0 ()
 
   Json::Value value;
   std::ifstream file (ss.str().c_str());
+
   file >> value;
   file.close();
 
@@ -172,6 +181,102 @@ void JsonParserTest::parseContentCmd_1()
     CPPUNIT_ASSERT( 3 == parsedResult.getOverflow(0) );
     CPPUNIT_ASSERT( 2 == parsedResult.getUnderflow(1) );
     CPPUNIT_ASSERT( 4 == parsedResult.getOverflow(1) );
+}
+
+void JsonParserTest::parseSummary_0()
+{
+    stringstream ss;
+    ss << JSON_TEST_DIR << "/summary.json";
+
+    Json::Value value;
+    std::ifstream file (ss.str().c_str());
+    file >> value;
+    file.close();
+
+//    std::cout << value << std::endl;
+
+    std::vector<SpJs::HistInfo> parsedResult = SpJs::JsonParser().parseListCmd(value);
+
+    SpJs::HistInfo expected;
+    expected.s_name = "event.raw.00";
+    expected.s_type = "s";
+    expected.s_params = {"event.raw.00","event.raw.01","event.raw.02","event.raw.03"};
+    expected.s_axes = {{1.0, 100.0, 100}};
+    expected.s_chanType = SpJs::Long;
+
+    CPPUNIT_ASSERT_EQUAL( expected, parsedResult.at(0) );
+}
+
+void JsonParserTest::parseBitmask_0()
+{
+    stringstream ss;
+    ss << JSON_TEST_DIR << "/list_bitmask.json";
+
+    Json::Value value;
+    std::ifstream file (ss.str().c_str());
+    file >> value;
+    file.close();
+
+//    std::cout << value << std::endl;
+
+    std::vector<SpJs::HistInfo> parsedResult = SpJs::JsonParser().parseListCmd(value);
+
+    SpJs::HistInfo expected;
+    expected.s_name = "raw00_bit";
+    expected.s_type = "b";
+    expected.s_params = {"event.raw.00"};
+    expected.s_axes = {{1.0, 100.0, 99}};
+    expected.s_chanType = SpJs::Long;
+
+    CPPUNIT_ASSERT_EQUAL( expected, parsedResult.at(0) );
+}
+
+void JsonParserTest::parseGamma1_0()
+{
+    stringstream ss;
+    ss << JSON_TEST_DIR << "/list_gamma1.json";
+
+    Json::Value value;
+    std::ifstream file (ss.str().c_str());
+    file >> value;
+    file.close();
+
+//    std::cout << value << std::endl;
+
+    std::vector<SpJs::HistInfo> parsedResult = SpJs::JsonParser().parseListCmd(value);
+
+    SpJs::HistInfo expected;
+    expected.s_name = "raw00_g1";
+    expected.s_type = "g1";
+    expected.s_params = {"event.raw.00","event.raw.01"};
+    expected.s_axes = {{1.0, 100.0, 100}};
+    expected.s_chanType = SpJs::Long;
+
+    CPPUNIT_ASSERT_EQUAL( expected, parsedResult.at(0) );
+}
+
+void JsonParserTest::parseGamma2_0()
+{
+    stringstream ss;
+    ss << JSON_TEST_DIR << "/list_gamma2.json";
+
+    Json::Value value;
+    std::ifstream file (ss.str().c_str());
+    file >> value;
+    file.close();
+
+//    std::cout << value << std::endl;
+
+    std::vector<SpJs::HistInfo> parsedResult = SpJs::JsonParser().parseListCmd(value);
+
+    SpJs::HistInfo expected;
+    expected.s_name = "raw00_g2";
+    expected.s_type = "g2";
+    expected.s_params = {"event.raw.00","event.raw.01"};
+    expected.s_axes = {{1.0, 100.0, 100},{1.0,100.0,100}};
+    expected.s_chanType = SpJs::Long;
+
+    CPPUNIT_ASSERT_EQUAL( expected, parsedResult.at(0) );
 }
 
 void JsonParserTest::json_0 () 

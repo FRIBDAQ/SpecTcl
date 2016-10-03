@@ -2,7 +2,7 @@
   "status" : "OK",
   "detail" : [{
     "name"   : "raw00",
-    "type"       : "1",
+    "type"   : "1",
     "parameters" : ["event.raw.00"],
     "axes" : [{
       "low"  : 1.000000,
