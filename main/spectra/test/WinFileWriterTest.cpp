@@ -194,7 +194,7 @@ public:
 				pHist->SetDirectory(0);
 
         std::unique_ptr<QMutex> pMutex(new QMutex);
-				SpJs::HistInfo hInfo = {name, 1, {"param"}, {{0, 10, 10}}, SpJs::Long};
+                SpJs::HistInfo hInfo = {name, "1", {"param"}, {{0, 10, 10}}, SpJs::Long};
         std::unique_ptr<HistogramBundle> pBundle(new HistogramBundle(move(pMutex), move(pHist), hInfo));
 
         return move(pBundle);
@@ -211,7 +211,7 @@ public:
 
         std::unique_ptr<QMutex> pMutex(new QMutex);
         std::unique_ptr<HistogramBundle> pBundle(new HistogramBundle(move(pMutex), move(pHist),
-        {name, 2, {"paramx", "paramy"}, {{0, 10, 10}, {0, 10, 10}}, SpJs::Long}));
+        {name, "2", {"paramx", "paramy"}, {{0, 10, 10}, {0, 10, 10}}, SpJs::Long}));
 
     return move(pBundle);
 }

@@ -48,7 +48,6 @@
 #include <string>
 
 using namespace std;
-
 class RootFileWriterTest : public CppUnit::TestFixture
 {
 
@@ -117,7 +116,7 @@ public:
         std::unique_ptr<TH1> pHist(new SubscribableH1<TH1D>(name.c_str(),"", 10, 0, 10));
         std::unique_ptr<QMutex> pMutex(new QMutex);
         std::unique_ptr<HistogramBundle> pBundle(new HistogramBundle(move(pMutex), move(pHist),
-        {name, 1, {"param"}, {{0, 10, 10}}, SpJs::Long}));
+        {name, "1", {"param"}, {{0, 10, 10}}, SpJs::Long}));
 
         return move(pBundle);
     }

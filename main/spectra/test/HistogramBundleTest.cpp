@@ -88,7 +88,7 @@ void HistogramBundleTest::setUp()
 {
   // create histogram bundles
   unique_ptr<QMutex> mutex0(new QMutex);
-  SpJs::HistInfo info0   = {"hist0", 1, {"xparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info0   = {"hist0", "1", {"xparam"}, {{0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist0 = SpJs::HistFactory().create(info0);
   m_pHist0.reset(new HistogramBundle(std::move(mutex0), 
                                      std::move(pHist0), 

@@ -102,21 +102,21 @@ void HistogramListTest::setUp()
 
   // create histogram bundles
   unique_ptr<QMutex> mutex0(new QMutex);
-  SpJs::HistInfo info0   = {"hist0", 1, {"xparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info0   = {"hist0", "1", {"xparam"}, {{0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist0 = SpJs::HistFactory().create(info0);
   m_pHist0.reset(new HistogramBundle(std::move(mutex0), 
                                      std::move(pHist0), 
                                      info0));
 
   unique_ptr<QMutex> mutex1(new QMutex);
-  SpJs::HistInfo info1   = {"hist1", 1, {"yparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info1   = {"hist1", "1", {"yparam"}, {{0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist1 = SpJs::HistFactory().create(info1);
   m_pHist1.reset(new HistogramBundle(std::move(mutex1), 
                                      std::move(pHist1), 
                                      info1));
 
   unique_ptr<QMutex> mutex2(new QMutex);
-  SpJs::HistInfo info2   = {"hist2", 2, {"xparam", "yparam"}, 
+  SpJs::HistInfo info2   = {"hist2", "2", {"xparam", "yparam"},
                             {{0, 10, 10}, {0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist2 = SpJs::HistFactory().create(info2);
   m_pHist2.reset(new HistogramBundle(std::move(mutex2), 
@@ -124,7 +124,7 @@ void HistogramListTest::setUp()
                                      info2));
 
   unique_ptr<QMutex> mutex3(new QMutex);
-  SpJs::HistInfo info3   = {"hist3", 2, {"yparam", "zparam"}, 
+  SpJs::HistInfo info3   = {"hist3", "2", {"yparam", "zparam"},
                             {{0, 10, 10}, {0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist3 = SpJs::HistFactory().create(info3);
   m_pHist3.reset(new HistogramBundle(std::move(mutex3), 
