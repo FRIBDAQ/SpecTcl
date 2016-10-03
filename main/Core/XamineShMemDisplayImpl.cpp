@@ -245,9 +245,21 @@ CXamineShMemDisplayImpl::updateStatistics()
         CSpectrum* pSpec = spectra[i];
         if (pSpec) {
             std::vector<unsigned> stats = pSpec->getUnderflows();
-            m_pMemory->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+
+            // get underflows
+            if (stats.size() > 0) {
+                m_pMemory->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            } else {
+                m_pMemory->setUnderflows(i, 0, 0);
+            }
+
+            // get overflows
             stats = pSpec->getOverflows();
-            m_pMemory->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            if (stats.size() > 0) {
+                m_pMemory->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            } else {
+                m_pMemory->setOverflows(i, 0, 0);
+            }
         }
     }
 }
