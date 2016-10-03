@@ -204,12 +204,6 @@ XMWidget* Xamine_TopLevel;	// Point to the top level widget.
 int main(int argc, char **argv)
 {
 
-    int countDown = 20;
-    for (int i=0; i<countDown; ++i) {
-        std::cout << "\rStarting in " << countDown - i << std::flush;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
   XMApplication top("Xamine", reinterpret_cast<Cardinal*>(&argc), argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
   XMForm       work_area("WorkArea", main_win);
