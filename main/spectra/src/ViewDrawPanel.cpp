@@ -168,10 +168,18 @@ void ViewDrawPanel::setIcon(QListWidgetItem& item, HistogramList::iterator it)
     std::unique_ptr<HistogramBundle>& pBundle = it->second;
 
     QMutexLocker lock(pBundle->getMutex());
-    if ( pBundle->getInfo().s_type == 1 ) {
+    if ( pBundle->getInfo().s_type == "1" ) {
         item.setIcon(QIcon(":/icons/spectrum1d-icon.png"));
-    } else {
+    } else if (pBundle->getInfo().s_type == "2"){
         item.setIcon(QIcon(":/icons/spectrum2d-icon.png"));
+    } else if (pBundle->getInfo().s_type == "s") {
+        item.setIcon(QIcon(":/icons/spectrumsummary-icon.png"));
+    } else if (pBundle->getInfo().s_type == "g1") {
+        item.setIcon(QIcon(":/icons/spectrumg1-icon.png"));
+    } else if (pBundle->getInfo().s_type == "g2") {
+        item.setIcon(QIcon(":/icons/spectrumg2-icon.png"));
+    } else if (pBundle->getInfo().s_type == "gs") {
+        item.setIcon(QIcon(":/icons/spectrumgs-icon.png"));
     }
 }
 

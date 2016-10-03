@@ -8,5 +8,9 @@
         <file>resources/spectra_logo_48x48.png</file>
         <file>resources/spectra_logo_128x128.png</file>
         <file>resources/spectra_logo_16x16.png</file>
+        <file alias="spectrumg1-icon.png">resources/spectrumg1_48x48.png</file>
+        <file alias="spectrumg2-icon.png">resources/spectrumg2_48x48.png</file>
+        <file alias="spectrumsummary-icon.png">resources/spectrums_48x48.png</file>
+        <file alias="spectrumgs-icon.png">resources/spectrumgs_48x48.png</file>
     </qresource>
 </RCC>
