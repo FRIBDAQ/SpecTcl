@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="spectrums.svg">
+   sodipodi:docname="spectrumbi.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,7 +25,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="-6.0079458"
+     inkscape:cx="-36.312522"
      inkscape:cy="35.505151"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -54,14 +54,14 @@
      transform="translate(0,-1004.3622)">
     <text
        xml:space="preserve"
-       style="font-size:32px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#aa8800;fill-opacity:1;stroke:none;font-family:Sans"
-       x="2.46875"
+       style="font-size:32px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c83737;fill-opacity:1;stroke:none;font-family:Sans"
+       x="8.515625"
        y="1040.0106"
        id="text2985"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2987"
-         x="2.46875"
-         y="1040.0106">Su</tspan></text>
+         x="8.515625"
+         y="1040.0106">Bi</tspan></text>
   </g>
 </svg>

@@ -168,18 +168,24 @@ void ViewDrawPanel::setIcon(QListWidgetItem& item, HistogramList::iterator it)
     std::unique_ptr<HistogramBundle>& pBundle = it->second;
 
     QMutexLocker lock(pBundle->getMutex());
-    if ( pBundle->getInfo().s_type == "1" ) {
+    if ( pBundle->getInfo().s_type == "1" ) { // 1d
         item.setIcon(QIcon(":/icons/spectrum1d-icon.png"));
-    } else if (pBundle->getInfo().s_type == "2"){
+    } else if (pBundle->getInfo().s_type == "2"){ // 2d
         item.setIcon(QIcon(":/icons/spectrum2d-icon.png"));
-    } else if (pBundle->getInfo().s_type == "s") {
+    } else if (pBundle->getInfo().s_type == "s") { // summary
         item.setIcon(QIcon(":/icons/spectrumsummary-icon.png"));
-    } else if (pBundle->getInfo().s_type == "g1") {
+    } else if (pBundle->getInfo().s_type == "g1") { // gamma 1d
         item.setIcon(QIcon(":/icons/spectrumg1-icon.png"));
-    } else if (pBundle->getInfo().s_type == "g2") {
+    } else if (pBundle->getInfo().s_type == "g2") { // gamma 2d
         item.setIcon(QIcon(":/icons/spectrumg2-icon.png"));
-    } else if (pBundle->getInfo().s_type == "gs") {
+    } else if (pBundle->getInfo().s_type == "gs") { // gamma summary
         item.setIcon(QIcon(":/icons/spectrumgs-icon.png"));
+    } else if (pBundle->getInfo().s_type == "S") { // stripchart
+        item.setIcon(QIcon(":/icons/spectrumst-icon.png"));
+    } else if (pBundle->getInfo().s_type == "gd") { // gamma deluxe
+        item.setIcon(QIcon(":/icons/spectrumgd-icon.png"));
+    } else if (pBundle->getInfo().s_type == "b") { // bitmap
+        item.setIcon(QIcon(":/icons/spectrumbi-icon.png"));
     }
 }
 

@@ -12,5 +12,8 @@
         <file alias="spectrumg2-icon.png">resources/spectrumg2_48x48.png</file>
         <file alias="spectrumsummary-icon.png">resources/spectrums_48x48.png</file>
         <file alias="spectrumgs-icon.png">resources/spectrumgs_48x48.png</file>
+        <file alias="spectrumst-icon.png">resources/spectrumst_48x48.png</file>
+        <file alias="spectrumbi-icon.png">resources/spectrumbi_48x48.png</file>
+        <file alias="spectrumgd-icon.png">resources/spectrumgd_48x48.png</file>
     </qresource>
 </RCC>
