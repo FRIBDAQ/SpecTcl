@@ -858,7 +858,7 @@ image create photo ::browser::foldericon   -format png \
             # Add a folder for a channels parameters.
             
             set name Channel$xChannel
-	    set channelId [$tree item $channelId -text $name -image ::browser::foldericon]
+	    set channelId [$tree item $id -text $name -image ::browser::foldericon]
 
             
             
@@ -1418,7 +1418,7 @@ image create photo ::browser::foldericon   -format png \
     #     (the _BLTFOLDER is removed from intermediate path entries.
     #
     method getSelection {} {
-        set selected [$tree selected];         # These are ID's.
+        set selected [$tree selection];         # These are ID's.
         set names [list]
         foreach id $selected {
             lappend names [$self FullPath $id]
