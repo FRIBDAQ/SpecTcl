@@ -25,5 +25,9 @@ QString CmdLineOptions::getHost()
     return QString(m_info.host_arg);
 }
 
+bool CmdLineOptions::disableTrueTypeFonts() const
+{
+    return m_info.disable_truetype_flag;
+}
 
 } // namespace Viewer

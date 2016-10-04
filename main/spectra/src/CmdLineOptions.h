@@ -26,6 +26,8 @@ public:
 
     QString getHost();
 
+    /*! \returns whether the user specified the --disable-truetype or -t options */
+    bool disableTrueTypeFonts() const;
 };
 
 } // namespace Viewer

@@ -22,15 +22,19 @@
 
 #include "CmdLineOptions.h"
 #include "MainWindow.h"
+#include "QHistInfo.h"
+#include "GlobalSettings.h"
 
 #include <TQApplication.h>
 #include <TQRootApplication.h>
-#include "GlobalSettings.h"
 #include <TEnv.h>
 #include <TStyle.h>
 
+#include <QStringList>
+#include <QCoreApplication>
 
-#include "QHistInfo.h"
+#include <iostream>
+
 
 int main(int argc, char *argv[])
 {
@@ -42,8 +46,13 @@ int main(int argc, char *argv[])
 
   QApplication::setGraphicsSystem("native");
 
-//  gEnv->SetValue("Unix.*.Root.UseTTFonts", false); // TTF are SLOW!
+  // Set some default values for ROOT
+  gEnv->SetValue("Unix.*.Root.UseTTFonts",true);
   gStyle->SetOptStat(0); // this is not useful at the moment. I can do it better using Qt widgets
+
+  if (opts.disableTrueTypeFonts()) {
+      gEnv->SetValue("Unix.*.Root.UseTTFonts",false);
+  }
 
   TQApplication a("app", &argc, argv);
   TQRootApplication b(argc, argv, 0);
