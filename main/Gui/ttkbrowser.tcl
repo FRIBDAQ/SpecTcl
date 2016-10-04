@@ -841,36 +841,35 @@ image create photo ::browser::foldericon   -format png \
     #
     method setGammaSummarySubInfo {id parameters axes} {
         
-        #  Add the y axis as our axis information:
-        
-        set axis [lindex $axes 0]
-	set c    [lindex $parameters 0]
+    #  Add the y axis as our axis information:
 
+      set axis [lindex $axes 0]
+      set c    [lindex $parameters 0]
 
-	set p [lindex $c 0]
+      set p [lindex $c 0]
 
-        $self addAxisInfo $id $axis $p
-        
-        set xChannel 0
-        set param 0
-        foreach channel $parameters {
-            
-            # Add a folder for a channels parameters.
-            
-            set name Channel$xChannel
-	    set channelId [$tree item $id -text $name -image ::browser::foldericon]
+      $self addAxisInfo $id $axis $p
 
-            
-            
-            foreach parameter $channel {
-                # Add a parameter definition.
-                
-                $self addEntryParameter $channelId $param $parameter
-                
-                incr param
-            }
-            incr xChannel
+      set xChannel 0
+      set param 0
+
+      puts $parameters
+      foreach channel $parameters {
+
+      # Add a folder for a channels parameters.
+
+        set name Channel$xChannel
+        set channelId [$tree insert $id end -text $name -image ::browser::foldericon]
+
+        foreach parameter $channel {
+        # Add a parameter definition.
+
+          $self addEntryParameter $channelId $param $parameter
+
+          incr param
         }
+        incr xChannel
+      }
     }
  
     ##
