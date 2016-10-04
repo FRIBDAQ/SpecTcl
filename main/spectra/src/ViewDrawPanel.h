@@ -93,10 +93,15 @@ signals:
     //////////////////////////////////////////////////////////////////////////
 public slots:
     /*!
-     * \brief
+     * \brief Handle a double click
      * \param index
      */
     void onDoubleClick(QModelIndex index);
+
+    /*!
+     * \brief Initiate draw caused by user pressing "Draw" button
+     */
+    void onDrawClicked();
 
     /*!
      * \brief Synchronize to the master histogram list
@@ -122,6 +127,7 @@ private:
     void clearHistogramList();
     void keyPressEvent(QKeyEvent* pEvent);
     void setDrawOptions(int dimension);
+    void initiateDraw(QListWidgetItem& item);
 
 private:
     std::unique_ptr<Ui::ViewDrawPanel> ui;

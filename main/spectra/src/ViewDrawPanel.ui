@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>255</width>
     <height>397</height>
    </rect>
   </property>
@@ -25,22 +25,9 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:x-large; font-weight:600;&quot;&gt;Spectra&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;h2&gt;Spectrum Selector&lt;/h2&gt;</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="pInstructionsl">
-       <property name="text">
-        <string>Double click or press enter to draw</string>
-       </property>
-       <property name="buddy">
-        <cstring>histList</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QListWidget" name="histList"/>
      </item>
      <item>
       <widget class="QLineEdit" name="pFilterEdit">
@@ -49,6 +36,9 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QListWidget" name="histList"/>
+     </item>
     </layout>
    </item>
    <item>
@@ -56,7 +46,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>&lt;h2&gt;Draw Options&lt;/h2&gt;</string>
+        <string>&lt;h3&gt;Draw Options&lt;/h3&gt;</string>
        </property>
       </widget>
      </item>
@@ -72,18 +62,30 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QPushButton" name="pDrawButton">
+     <property name="text">
+      <string>Draw</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
-  <zorder>pInstructionsl</zorder>
-  <zorder>histList</zorder>
-  <zorder>pFilterEdit</zorder>
-  <zorder>pDrawOptionLabel</zorder>
-  <zorder>pDrawOptCombo</zorder>
-  <zorder>pSuperimposeSelect</zorder>
-  <zorder>label</zorder>
-  <zorder>pDrawOptCombo</zorder>
-  <zorder>label_2</zorder>
-  <zorder>pSuperimposeSelect</zorder>
  </widget>
+ <tabstops>
+  <tabstop>histList</tabstop>
+  <tabstop>pDrawOptCombo</tabstop>
+  <tabstop>pSuperimposeSelect</tabstop>
+  <tabstop>pDrawButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -35,6 +35,7 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 #include <QComboBox>
+#include <QLabel>
 
 #include <vector>
 #include <iostream>
@@ -54,7 +55,13 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 {
     ui->setupUi(this);
 
-    ui->verticalLayout->addWidget(m_pGeoSelector);
+    QVBoxLayout* pBottomLayout = new QVBoxLayout(this);
+    QLabel* pLabel = new QLabel("<h2>Tab Geometry</h2>", this);
+    pBottomLayout->addWidget(pLabel);
+    pBottomLayout->addWidget(m_pGeoSelector);
+
+    ui->verticalLayout_3->addSpacing(18);
+    ui->verticalLayout_3->addLayout(pBottomLayout);
 
     ui->pDrawOptCombo->setEditable(true);
 
@@ -71,6 +78,8 @@ ViewDrawPanel::ViewDrawPanel(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget
 
     connect(ui->pFilterEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(applyFilter(const QString&)));
+
+    connect(ui->pDrawButton,SIGNAL(clicked()), this, SLOT(onDrawClicked()));
 }
 
 //
@@ -194,8 +203,6 @@ void ViewDrawPanel::setIcon(QListWidgetItem& item, HistogramList::iterator it)
 //
 void ViewDrawPanel::onDoubleClick(QModelIndex index)
 {
-    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
-
 
     QListWidgetItem* pItem = ui->histList->item(index.row());
 
@@ -203,9 +210,38 @@ void ViewDrawPanel::onDoubleClick(QModelIndex index)
         return;
     }
 
-    auto pHistBundle = pHistList->getHist(pItem->text());
+    initiateDraw(*pItem);
+}
+
+//
+//
+void ViewDrawPanel::onDrawClicked()
+{
+    QList<QListWidgetItem*> items = ui->histList->selectedItems();
+
+    // there should only be a single selection but we will treat it
+    // generally here in case something is to change.
+    for (auto& pItem : items) {
+        if (pItem) {
+            initiateDraw(*pItem);
+        }
+    }
+
+}
+
+/*!
+ * \brief Common code for drawing a selected histogram
+ * \param item - the selected histogram
+ */
+void ViewDrawPanel::initiateDraw(QListWidgetItem& item) {
+    HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+
+    pHistList->lock();
+
+    auto pHistBundle = pHistList->getHist(item.text());
 
     if (pHistBundle) {
+
         QString drawOption = ui->pDrawOptCombo->currentText();
 
         if (ui->pSuperimposeSelect->isEnabled() && ui->pSuperimposeSelect->isChecked()) {
@@ -215,8 +251,9 @@ void ViewDrawPanel::onDoubleClick(QModelIndex index)
     } else {
         QMessageBox::warning(this, "Missing histogram",
                              "Failed to locate the selected histogram in the master histogram list.");
-        return;
     }
+    pHistList->unlock();
+
 }
 
 void ViewDrawPanel::keyPressEvent(QKeyEvent* pEvent)
@@ -233,15 +270,21 @@ void ViewDrawPanel::keyPressEvent(QKeyEvent* pEvent)
                 return;
             }
 
+            // protect the histogram list
+            pHistList->lock();
+
             auto pHistBundle = pHistList->getHist(pItem->text());
+
             if (pHistBundle) {
                 QString drawOption = ui->pDrawOptCombo->currentText();
                 emit histSelected(pHistBundle, drawOption);
             } else {
                 QMessageBox::warning(this, "Missing histogram",
                                      "Failed to locate the selected histogram in the master histogram list.");
-                return;
             }
+
+            pHistList->unlock();
+
         }
     }
 }
@@ -271,9 +314,15 @@ void ViewDrawPanel::onSelectionChanged()
     QListWidgetItem* pCurrent = items.at(0);
 
     HistogramList* pHistList = m_pSpecTcl->getHistogramList();
+
+    pHistList->lock();
+
     HistogramBundle* pCurrentBundle = pHistList->getHist(pCurrent->text());
     if (pCurrentBundle) {
+        pCurrentBundle->lock();
         int dimension = pCurrentBundle->getHist().InheritsFrom(TH2::Class()) ? 2 : 1;
+        pCurrentBundle->unlock();
+
         if (dimension != m_currentDimension) {
             setDrawOptions(dimension);
             m_currentDimension = dimension;
@@ -285,6 +334,8 @@ void ViewDrawPanel::onSelectionChanged()
             ui->pSuperimposeSelect->setEnabled(false);
         }
     }
+
+    pHistList->unlock();
 }
 
 void ViewDrawPanel::setDrawOptions(int dimension)
