@@ -770,6 +770,128 @@ void MultiSpectrumView::onMenuCommandExec(TObject* pObj, QString methodName)
 	}
 }
 
+void MultiSpectrumView::toggleLogx()
+{
+    if (m_pCurrentCanvas->GetLogx()) {
+        m_pCurrentCanvas->SetLogx(0);
+    } else {
+        m_pCurrentCanvas->SetLogx(1);
+    }
+
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::toggleLogy()
+{
+    if (m_pCurrentCanvas->GetLogy()) {
+        m_pCurrentCanvas->SetLogy(0);
+    } else {
+        m_pCurrentCanvas->SetLogy(1);
+    }
+
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::toggleLogz()
+{
+    if (m_pCurrentCanvas->GetLogz()) {
+        m_pCurrentCanvas->SetLogz(0);
+    } else {
+        m_pCurrentCanvas->SetLogz(1);
+    }
+
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::zoomX()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetXaxis();
+        Int_t x0 = pAxis->GetFirst();
+        Int_t x1 = pAxis->GetLast();
+
+        Int_t binOffset = (x1-x0)*0.05;
+
+        pAxis->SetRange(x0+binOffset, x1-binOffset);
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::zeroX()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetXaxis();
+
+        pAxis->UnZoom();
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::unzoomX()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetXaxis();
+
+        pAxis->ZoomOut();
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+
+
+void MultiSpectrumView::zoomY()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetYaxis();
+        Int_t x0 = pAxis->GetFirst();
+        Int_t x1 = pAxis->GetLast();
+
+        Int_t binOffset = (x1-x0)*0.05;
+
+        pAxis->SetRange(x0+binOffset, x1-binOffset);
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::zeroY()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetYaxis();
+
+        pAxis->UnZoom();
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+void MultiSpectrumView::unzoomY()
+{
+    auto hists = SpectrumView::getAllHists(m_pCurrentCanvas);
+    if (hists.size()>0) {
+        TAxis* pAxis = hists[0]->GetYaxis();
+
+        pAxis->ZoomOut();
+    }
+
+    m_pCurrentCanvas->Modified(1);
+    m_pCurrentCanvas->Update();
+}
+
+
 
 TVirtualPad* MultiSpectrumView::findPadContaining(TObject* pObj)
 {

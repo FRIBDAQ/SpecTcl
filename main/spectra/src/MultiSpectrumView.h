@@ -216,6 +216,19 @@ public slots:
     bool isIgnoringUpdates() const;
 
     void onMenuCommandExec(TObject* pObj, QString name);
+
+    void toggleLogx();
+    void toggleLogy();
+    void toggleLogz();
+
+    void zoomX();
+    void zeroX();
+    void unzoomX();
+
+    void zoomY();
+    void zeroY();
+    void unzoomY();
+
 private:
     /*!
      * \brief Find (row,col) of specific widget

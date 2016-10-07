@@ -9,6 +9,7 @@
 #include "AutoUpdater.h"
 
 #include <QSplitter>
+#include <QToolBar>
 
 #include <stdexcept>
 
@@ -63,13 +64,30 @@ void TabWorkspace::setUpUI()
     m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 
+    m_pToolBar = new QToolBar(this);
+    m_pLogxAction = m_pToolBar->addAction("logx");
+    m_pLogyAction = m_pToolBar->addAction("logy");
+    m_pLogzAction = m_pToolBar->addAction("logz");
+
+    m_pToolBar->addSeparator();
+    m_pUnzoomXAction = m_pToolBar->addAction("-x");
+    m_pZeroXAction = m_pToolBar->addAction("<x>");
+    m_pZoomXAction = m_pToolBar->addAction("+x");
+
+    m_pToolBar->addSeparator();
+    m_pUnzoomYAction = m_pToolBar->addAction("-y");
+    m_pZeroYAction = m_pToolBar->addAction("<y>");
+    m_pZoomYAction = m_pToolBar->addAction("+y");
+
+
+    pVSplitter->addWidget(m_pToolBar);
     pVSplitter->addWidget(m_pView);
     pVSplitter->addWidget(m_pControls);
 
     // adjust the sizes of the
     QSize viewSize    = m_pView->sizeHint();
     QSize controlSize = m_pView->sizeHint();
-    pVSplitter->setSizes({ viewSize.height()*100, 10 });
+    pVSplitter->setSizes({ 10, viewSize.height()*100, 10 });
 
     pHSplitter->addWidget(m_pDrawPanel);
     pHSplitter->addWidget(pVSplitter);
@@ -118,6 +136,18 @@ void TabWorkspace::connectSignals()
     connect(m_pControls, SIGNAL(zoomButtonClicked()), m_pDrawPanel, SLOT(toggleZoom()));
     connect(m_pView, SIGNAL(zoomChanged(bool)), m_pControls, SLOT(setZoomed(bool)));
     connect(m_pView, SIGNAL(zoomChanged(bool)), m_pDrawPanel, SLOT(setZoomedState(bool)));
+
+    connect(m_pLogxAction,SIGNAL(triggered()), m_pView, SLOT(toggleLogx()));
+    connect(m_pLogyAction,SIGNAL(triggered()), m_pView, SLOT(toggleLogy()));
+    connect(m_pLogzAction,SIGNAL(triggered()), m_pView, SLOT(toggleLogz()));
+
+    connect(m_pZoomXAction, SIGNAL(triggered()), m_pView, SLOT(zoomX()));
+    connect(m_pZeroXAction, SIGNAL(triggered()), m_pView, SLOT(zeroX()));
+    connect(m_pUnzoomXAction, SIGNAL(triggered()), m_pView, SLOT(unzoomX()));
+
+    connect(m_pZoomYAction, SIGNAL(triggered()), m_pView, SLOT(zoomY()));
+    connect(m_pZeroYAction, SIGNAL(triggered()), m_pView, SLOT(zeroY()));
+    connect(m_pUnzoomYAction, SIGNAL(triggered()), m_pView, SLOT(unzoomY()));
 
 }
 

@@ -6,6 +6,9 @@
 
 #include <memory>
 
+class QToolBar;
+class QAction;
+
 namespace Viewer
 {
 
@@ -50,6 +53,19 @@ private:
     MultiInfoPanel*                     m_pInfoPanel;
 
     AutoUpdater*                        m_pAutoUpdater;
+    QToolBar*                           m_pToolBar;
+    QAction*                            m_pLogxAction;
+    QAction*                            m_pLogyAction;
+    QAction*                            m_pLogzAction;
+
+    QAction*                            m_pZoomXAction;
+    QAction*                            m_pZeroXAction;
+    QAction*                            m_pUnzoomXAction;
+
+    QAction*                            m_pZoomYAction;
+    QAction*                            m_pZeroYAction;
+    QAction*                            m_pUnzoomYAction;
+
 };
 
 } // end Viewer namespace
