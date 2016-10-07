@@ -566,6 +566,21 @@ Color_t   QRootCanvas::GetHighLightColor()
    return fCanvas->GetHighLightColor() ;
 }
 
+Int_t     QRootCanvas::GetLogx() const
+{
+    return fCanvas->GetLogx();
+}
+
+Int_t     QRootCanvas::GetLogy() const
+{
+    return fCanvas->GetLogy();
+}
+
+Int_t     QRootCanvas::GetLogz() const
+{
+    return fCanvas->GetLogz();
+}
+
 TVirtualPad  *QRootCanvas::GetPadSave()
 {
    return fCanvas->GetPadSave();
@@ -750,6 +765,22 @@ void      QRootCanvas::SetBatch(Bool_t batch)
 {
    fCanvas->SetBatch(batch);
 }
+
+void      QRootCanvas::SetLogx(Int_t value)
+{
+    fCanvas->SetLogx(value);
+}
+
+void      QRootCanvas::SetLogy(Int_t value)
+{
+    fCanvas->SetLogy(value);
+}
+
+void      QRootCanvas::SetLogz(Int_t value)
+{
+    fCanvas->SetLogz(value);
+}
+
 void      QRootCanvas::SetRetained(Bool_t retained)
 {
    fCanvas->SetRetained(retained);

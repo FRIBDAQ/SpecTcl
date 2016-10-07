@@ -73,6 +73,8 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
     int nRows = m_pView->getRowCount();
 
     int id = 0;
+    QRootCanvas* pOldCanvas = m_pView->getCurrentCanvas();
+
     for (int row=0; row<nRows; ++row) {
         for (int col=0; col<nCols; ++col) {
             QRootCanvas* pCanvas = m_pView->getCanvas(row, col);
@@ -80,9 +82,20 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
             // skip rendering if there is nothing
             if (pCanvas == nullptr) continue;
 
-            QPixmap pixmap(pCanvas->size());
-            pixmap.fill(Qt::gray);
             std::vector<TH1*> hists = SpectrumView::getAllHists(pCanvas);
+
+            pCanvas->cd();
+
+            // Create the pixmaps of each canvas
+            QPixmap pixmap;
+            if (gVirtualX->WriteGIF(".spectra_temp.gif")) {
+                pixmap.load(".spectra_temp.gif");
+                std::remove(".spectra_temp.gif");
+            } else {
+                pixmap = QPixmap(pCanvas->size());
+                pixmap.fill(Qt::gray);
+            }
+
             if (hists.size() > 0) {
 
                 QString cloneName = QString::fromAscii(hists.at(0)->GetName());
@@ -103,6 +116,8 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
             }
         }
     }
+
+    pOldCanvas->cd();
 
     return pGridLayout;
 }
@@ -139,7 +154,8 @@ void ConfigCopySelector::setDestinationsChecked(bool checked)
 
 	int nButtons = buttons.count();
 	for (int id=0; id<nButtons; ++id) {
-        if (buttons[id]->isVisible()) {
+        if (buttons[id]->isEnabled()) {
+
             // the button is visible, so it is compatible
 
             buttons[id]->setChecked(checked);
@@ -168,7 +184,19 @@ QWizardPage* ConfigCopySelector::createSelectConfigOptionsPage()
 	pVertLayout->addWidget(m_pDrawOption);
 
 
-	auto pSelectAll = new QCheckBox("Select all", this);
+    m_pLogxOption = new QCheckBox("Logx", this);
+    pVertLayout->addWidget(m_pLogxOption);
+    m_pLogyOption = new QCheckBox("Logy", this);
+    pVertLayout->addWidget(m_pLogyOption);
+    m_pLogzOption = new QCheckBox("Logz", this);
+    pVertLayout->addWidget(m_pLogzOption);
+
+    m_pMinimumOption = new QCheckBox("Minimum value", this);
+    pVertLayout->addWidget(m_pMinimumOption);
+    m_pMaximumOption = new QCheckBox("Maximum value", this);
+    pVertLayout->addWidget(m_pMaximumOption);
+
+    auto pSelectAll = new QCheckBox("Select all", this);
 	connect(pSelectAll, SIGNAL(clicked(bool)), this, SLOT(setCheckedOptions(bool)));
 
 	pVertLayout->addWidget(pSelectAll);
@@ -182,6 +210,14 @@ void ConfigCopySelector::setCheckedOptions(bool checked)
 	m_pXAxisOption->setChecked(checked);
 	m_pYAxisOption->setChecked(checked);
 	m_pDrawOption->setChecked(checked);
+
+    m_pLogxOption->setChecked(checked);
+    m_pLogyOption->setChecked(checked);
+    m_pLogzOption->setChecked(checked);
+
+    m_pMinimumOption->setChecked(checked);
+    m_pMaximumOption->setChecked(checked);
+
 }
 
 void ConfigCopySelector::accept()
@@ -209,7 +245,14 @@ ConfigCopySelection ConfigCopySelector::getSelection() const
 	selection.s_copyYAxis      = m_pYAxisOption->isChecked();
 	selection.s_copyDrawOption = m_pDrawOption->isChecked();
 
-	return selection;
+    selection.s_copyLogx 	   = m_pLogxOption->isChecked();
+    selection.s_copyLogy       = m_pLogyOption->isChecked();
+    selection.s_copyLogz       = m_pLogzOption->isChecked();
+
+    selection.s_copyMinimum       = m_pMinimumOption->isChecked();
+    selection.s_copyMaximum       = m_pMaximumOption->isChecked();
+
+    return selection;
 }
 
 /*!
@@ -235,12 +278,17 @@ void ConfigCopySelector::initializePage(int id)
 
             while (it.hasNext()) {
                 it.next();
-                QAbstractButton* pButton = it.key();
+                auto pButton = dynamic_cast<SelectableImage*>(it.key());
 
                 if (it.value()) {
+                    // make the image white and disable
+                    pButton->whitenOut(false);
+                    pButton->setEnabled(true);
                     pButton->show();
                 } else {
-                    pButton->hide();
+                    // restore color image and enable
+                    pButton->whitenOut(true);
+                    pButton->setEnabled(false);
                 }
             }
         }

@@ -249,16 +249,43 @@ void MainWindow::onCopySpectrumAttributes()
             pDestAxis->SetRange(lowerLimit, upperLimit);
     	}
 
-    	if (selection.s_copyDrawOption) {
-            SpectrumView& view = m_pView->getCurrentWorkspace().getView();
+        if (selection.s_copyMinimum) {
+            pDestHist.SetMinimum(pSourceHist.GetMinimum());
+        }
 
-            QRootCanvas* pSourceCanvas = view.getCanvas(sourceTarget.s_row, sourceTarget.s_col);
-            QRootCanvas* pDestCanvas = view.getCanvas(destTarget.s_row, destTarget.s_col);
+        if (selection.s_copyMaximum) {
+            pDestHist.SetMaximum(pSourceHist.GetMaximum());
+        }
+
+        SpectrumView& view = m_pView->getCurrentWorkspace().getView();
+        QRootCanvas* pSourceCanvas = view.getCanvas(sourceTarget.s_row, sourceTarget.s_col);
+        QRootCanvas* pDestCanvas = view.getCanvas(destTarget.s_row, destTarget.s_col);
+
+    	if (selection.s_copyDrawOption) {
+
             if (pDestCanvas && pSourceCanvas) {
                 QString sourceOpt = CanvasOps::getDrawOption(pSourceCanvas->getCanvas(), &pSourceHist);
                 CanvasOps::setDrawOption(pDestCanvas->getCanvas(), &pDestHist, sourceOpt);
             }
     	}
+
+        if (selection.s_copyLogx) {
+            if (pDestCanvas && pSourceCanvas) {
+                pDestCanvas->SetLogx(pSourceCanvas->GetLogx());
+            }
+        }
+
+        if (selection.s_copyLogy) {
+            if (pDestCanvas && pSourceCanvas) {
+                pDestCanvas->SetLogy(pSourceCanvas->GetLogy());
+            }
+        }
+
+        if (selection.s_copyLogz) {
+            if (pDestCanvas && pSourceCanvas) {
+                pDestCanvas->SetLogz(pSourceCanvas->GetLogz());
+            }
+        }
 
     }
 

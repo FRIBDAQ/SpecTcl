@@ -42,6 +42,11 @@ struct ConfigCopySelection {
 	bool		s_copyXAxis;
 	bool 		s_copyYAxis;
 	bool		s_copyDrawOption;
+    bool        s_copyLogx;
+    bool        s_copyLogy;
+    bool        s_copyLogz;
+    bool        s_copyMinimum;
+    bool        s_copyMaximum;
 };
 
 class ConfigCopySelector : public QWizard
@@ -82,6 +87,11 @@ private:
     QCheckBox* 		m_pXAxisOption;
     QCheckBox* 		m_pYAxisOption;
     QCheckBox* 		m_pDrawOption;
+    QCheckBox* 		m_pLogxOption;
+    QCheckBox* 		m_pLogyOption;
+    QCheckBox* 		m_pLogzOption;
+    QCheckBox* 		m_pMinimumOption;
+    QCheckBox* 		m_pMaximumOption;
 
     QButtonGroup    m_sourceGroup;
     QButtonGroup    m_destinationGroup;

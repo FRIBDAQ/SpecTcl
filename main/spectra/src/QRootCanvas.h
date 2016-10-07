@@ -161,6 +161,9 @@ signals:
       Int_t             GetEventX();
       Int_t             GetEventY();
       Color_t           GetHighLightColor();
+      Int_t             GetLogx() const;
+      Int_t             GetLogy() const;
+      Int_t             GetLogz() const;
       TVirtualPad      *GetPadSave();
       TObject          *GetSelected() ;
       Option_t         *GetSelectedOpt();
@@ -203,6 +206,9 @@ signals:
       void              SetHighLightColor(Color_t col);
       void              SetSelected(TObject *obj);
       void              SetSelectedPad(TPad *pad);
+      void              SetLogx(Int_t value);
+      void              SetLogy(Int_t value);
+      void              SetLogz(Int_t value);
       void              Show();
       virtual void      Size(Float_t xsizeuser=0, Float_t ysizeuser=0);
       void              SetBatch(Bool_t batch=kTRUE);
