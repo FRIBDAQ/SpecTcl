@@ -15,5 +15,12 @@
         <file alias="spectrumst-icon.png">resources/spectrumst_48x48.png</file>
         <file alias="spectrumbi-icon.png">resources/spectrumbi_48x48.png</file>
         <file alias="spectrumgd-icon.png">resources/spectrumgd_48x48.png</file>
+        <file alias="center_x-icon.png">resources/center_x_32x32.png</file>
+        <file alias="center_y-icon.png">resources/center_y_32x32.png</file>
+        <file alias="unzoom-icon.png">resources/unzoom_32x32.png</file>
+        <file alias="zoom-icon.png">resources/zoom_32x32.png</file>
+        <file alias="logx-icon.png">resources/logx_32x32.png</file>
+        <file alias="logy-icon.png">resources/logy_32x32.png</file>
+        <file alias="logz-icon.png">resources/logz_32x32.png</file>
     </qresource>
 </RCC>

@@ -65,19 +65,19 @@ void TabWorkspace::setUpUI()
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 
     m_pToolBar = new QToolBar(this);
-    m_pLogxAction = m_pToolBar->addAction("logx");
-    m_pLogyAction = m_pToolBar->addAction("logy");
-    m_pLogzAction = m_pToolBar->addAction("logz");
+    m_pLogxAction = m_pToolBar->addAction(QIcon(":/icons/logx-icon.png"),"logx");
+    m_pLogyAction = m_pToolBar->addAction(QIcon(":/icons/logy-icon.png"),"logy");
+    m_pLogzAction = m_pToolBar->addAction(QIcon(":/icons/logz-icon.png"),"logz");
 
     m_pToolBar->addSeparator();
-    m_pUnzoomXAction = m_pToolBar->addAction("-x");
-    m_pZeroXAction = m_pToolBar->addAction("<x>");
-    m_pZoomXAction = m_pToolBar->addAction("+x");
+    m_pUnzoomXAction = m_pToolBar->addAction(QIcon(":/icons/unzoom-icon.png"),"zoom out x");
+    m_pZeroXAction = m_pToolBar->addAction(QIcon(":/icons/center_x-icon.png"),"reset x");
+    m_pZoomXAction = m_pToolBar->addAction(QIcon(":/icons/zoom-icon.png"),"zoom in x");
 
     m_pToolBar->addSeparator();
-    m_pUnzoomYAction = m_pToolBar->addAction("-y");
-    m_pZeroYAction = m_pToolBar->addAction("<y>");
-    m_pZoomYAction = m_pToolBar->addAction("+y");
+    m_pUnzoomYAction = m_pToolBar->addAction(QIcon(":/icons/unzoom-icon.png"),"zoom out y");
+    m_pZeroYAction = m_pToolBar->addAction(QIcon(":/icons/center_y-icon.png"),"reset y");
+    m_pZoomYAction = m_pToolBar->addAction(QIcon(":/icons/zoom-icon.png"),"zoom in y");
 
 
     pVSplitter->addWidget(m_pToolBar);
