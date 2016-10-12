@@ -111,6 +111,9 @@ HistogramBundle* HistogramList::getHistFromClone(const TH1* pHist)
 HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
                                         const SpJs::HistInfo& info)
 {
+  // this is clunky... we first create a blank SubscribableHist of the
+  // correct type then copy in the state of the original (pHist) into the
+  // subscribable hist.
   HistogramBundle* pHistBundle = nullptr;
   std::unique_ptr<TH1> pSubscribableHist;
   if (pHist->InheritsFrom(TH2::Class())) {
@@ -126,7 +129,8 @@ HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist,
         pHistBundle = getHist(name);
     } else {
         QMutexLocker lock(&m_mutex);
-        unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex), 
+        pSubscribableHist->SetDirectory(0);
+        unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex),
                                                                 std::move(pSubscribableHist),
                                                                 info));
 
