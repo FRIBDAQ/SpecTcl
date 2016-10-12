@@ -651,6 +651,8 @@ void MultiSpectrumView::layoutSpectra(QStringList spectrumList)
 
     refreshAll();
 
+    emit currentCanvasChanged(*m_pCurrentCanvas);
+
 }
 
 void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)

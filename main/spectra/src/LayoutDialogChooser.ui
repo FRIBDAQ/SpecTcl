@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item>
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -27,8 +27,21 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="pVerticalLayout">
+     <item>
+      <spacer name="verticalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QLabel" name="label_3">
        <property name="font">
@@ -68,7 +81,7 @@
         </font>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:24pt; font-weight:600;&quot;&gt;Tab Label&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Tab Label&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -89,9 +102,22 @@
       </widget>
      </item>
      <item>
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:24pt; font-weight:600;&quot;&gt;Select method for populating the new tab with spectra&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;Tab Layout Method&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -99,71 +125,91 @@
        <property name="wordWrap">
         <bool>true</bool>
        </property>
-       <property name="buddy">
-        <cstring>pSequentialButton</cstring>
-       </property>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pBulkButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="maximumSize">
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>16777215</width>
-           <height>80</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="text">
-          <string>&amp;Bulk Select</string>
-         </property>
-        </widget>
+        </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pSequentialButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>80</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>&amp;Sequential Select</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QRadioButton" name="pBulkButton">
+           <property name="text">
+            <string>&amp;Bulk layout</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="pManualButton">
+           <property name="text">
+            <string>&amp;Manual layout</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="pLoadFileButton">
+           <property name="text">
+            <string>&amp;Load from file</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="pLoadFileButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="maximumSize">
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>16777215</width>
-           <height>80</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="text">
-          <string>&amp;Load File</string>
-         </property>
-        </widget>
+        </spacer>
        </item>
       </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pContinueButton">
+       <property name="text">
+        <string>&amp;Continue</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="verticalSpacer">
@@ -180,7 +226,7 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="2">
+   <item>
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -196,7 +242,20 @@
   </layout>
   <zorder>horizontalSpacer</zorder>
   <zorder>horizontalSpacer_2</zorder>
+  <zorder>pBulkButton</zorder>
+  <zorder>pManualButton</zorder>
+  <zorder>pLoadFileButton</zorder>
+  <zorder>pContinueButton</zorder>
+  <zorder>horizontalSpacer_3</zorder>
+  <zorder>horizontalSpacer_4</zorder>
  </widget>
+ <tabstops>
+  <tabstop>pTabNameEdit</tabstop>
+  <tabstop>pBulkButton</tabstop>
+  <tabstop>pManualButton</tabstop>
+  <tabstop>pLoadFileButton</tabstop>
+  <tabstop>pContinueButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

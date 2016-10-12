@@ -3,8 +3,8 @@
 
 #include <QWidget>
 
-class QHidEvent;
-class QShowEvent;
+class QKeyEvent;
+class QButtonGroup;
 
 namespace Ui {
 class LayoutDialogChooser;
@@ -23,9 +23,7 @@ public:
     ~LayoutDialogChooser();
 
     QString getTabName() const;
-
-    void showEvent(QShowEvent* pEvt);
-    void hideEvent(QHideEvent* pEvt);
+    void keyPressEvent(QKeyEvent* pEvent);
 
 signals:
     void bulkClicked();
@@ -33,12 +31,13 @@ signals:
     void loadFileClicked(QString filename);
 
 public slots:
-    void onBulkClicked();
-    void onSequentialClicked();
-    void onLoadFileClicked();
+    void onContinue();
+    void onTabNameChanged(const QString& newText);
     
 private:
+    enum Selection { BULK, MANUAL, FILE};
     Ui::LayoutDialogChooser *ui;
+    QButtonGroup*           m_pButtons;
 };
 
 } // end Viewer namespace

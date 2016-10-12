@@ -6,7 +6,7 @@
         <file alias="spectrum1d-icon.png">resources/spectrum1d_48x48.png</file>
         <file alias="spectrum2d-icon.png">resources/spectrum2d_48x48.png</file>
         <file>resources/spectra_logo_48x48.png</file>
-        <file>resources/spectra_logo_128x128.png</file>
+        <file alias="big-logo.png">resources/spectra_logo_128x128.png</file>
         <file>resources/spectra_logo_16x16.png</file>
         <file alias="spectrumg1-icon.png">resources/spectrumg1_48x48.png</file>
         <file alias="spectrumg2-icon.png">resources/spectrumg2_48x48.png</file>
@@ -22,5 +22,6 @@
         <file alias="logx-icon.png">resources/logx_32x32.png</file>
         <file alias="logy-icon.png">resources/logy_32x32.png</file>
         <file alias="logz-icon.png">resources/logz_32x32.png</file>
+        <file alias="logo_with_words.png">resources/spectra_logo_with_words.png</file>
     </qresource>
 </RCC>

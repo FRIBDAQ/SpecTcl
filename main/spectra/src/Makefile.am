@@ -75,6 +75,7 @@ noinst_HEADERS =  QRootCanvas.h  \
 	PrintingSystem.h \
 	SubscribableH1.h \
 	TestH1Subscriber.h \
+	Logo.h \
 	Benchmark.h
 
 libSpectra_la_SOURCES = \
@@ -145,6 +146,7 @@ libSpectra_la_SOURCES = \
 	PrintDialog.cpp \
 	PrintingSystem.cpp \
 	TestH1Subscriber.cpp \
+	Logo.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
@@ -195,6 +197,7 @@ libSpectra_la_SOURCES = \
 				moc_ConfigCopySelector.cpp \
 				moc_SelectableImage.cpp \
 				moc_PrintDialog.cpp \
+				moc_Logo.cpp \
         cmdline.c \
 	qrc_resources.cpp
 
@@ -290,6 +293,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_SaveToRootDialog.cpp \
 								moc_ConfigCopySelector.cpp \
 								moc_PrintDialog.cpp \
+								moc_Logo.cpp \
 								qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
