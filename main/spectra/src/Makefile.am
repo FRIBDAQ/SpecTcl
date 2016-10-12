@@ -377,6 +377,23 @@ spectraIcons = resources/Band_icon_48x48.png \
 							 resources/spectrumgd.svg \
 							 resources/spectrumgd_48x48.png  \
 							 resources/spectrumst.svg \
-							 resources/spectrumst_48x48.png 
+							 resources/spectrumst_48x48.png  \
+							 resources/spectra_logo_with_words.svg \
+							 resources/spectra_logo_with_words.png \
+							 resources/zoom.svg \
+							 resources/zoom_32x32.png \
+							 resources/unzoom.svg \
+							 resources/unzoom_32x32.png \
+							 resources/center_x.svg \
+							 resources/center_x_32x32.png \
+							 resources/center_y.svg \
+							 resources/center_y_32x32.png  \
+							 resources/logx.svg \
+							 resources/logx_32x32.png \
+							 resources/logy.svg \
+							 resources/logy_32x32.png \
+							 resources/logz.svg \
+							 resources/logz_32x32.png 
+
 
 EXTRA_DIST = cmdline.ggo ${spectraFORMS} ${spectraRESOURCES} ${spectraIcons} SubscribableH1.hpp
