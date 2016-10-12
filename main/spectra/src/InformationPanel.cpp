@@ -86,8 +86,6 @@ void InformationPanel::updateStatistics(HistogramBundle& rHist)
     int ybinLow = pY->GetFirst();
     int ybinHigh = pY->GetLast();
 
-    std::cout << "Updating statistics" << std::endl;
-
     QTableWidgetItem* pItem = nullptr;
     if (bareHist.InheritsFrom(TH2::Class())) {
 

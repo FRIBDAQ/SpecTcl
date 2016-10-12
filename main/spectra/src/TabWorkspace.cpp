@@ -7,6 +7,7 @@
 #include "GeometrySelector.h"
 #include "MultiInfoPanel.h"
 #include "AutoUpdater.h"
+#include "QRootCanvas.h"
 
 #include <QSplitter>
 #include <QToolBar>
@@ -151,6 +152,9 @@ void TabWorkspace::connectSignals()
     connect(m_pView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
             m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
 
+    connect(m_pView, SIGNAL(currentCanvasChanged(QRootCanvas&)),
+            this, SLOT(onCurrentCanvasChanged(QRootCanvas&)));
+
     connect(m_pView, SIGNAL(canvasContentChanged(QRootCanvas&)),
             m_pInfoPanel, SLOT(currentCanvasChanged(QRootCanvas&)));
 
@@ -185,7 +189,12 @@ void TabWorkspace::connectSignals()
 
 void TabWorkspace::onHistogramSelected(HistogramBundle *pBundle, QString name)
 {
-    if (pBundle->getHist().InheritsFrom(TH2::Class())) {
+    configureToolBarForHistogram(pBundle->getHist());
+}
+
+void TabWorkspace::configureToolBarForHistogram(TH1& hist) {
+
+    if (hist.InheritsFrom(TH2::Class())) {
         m_pZoomYAction->setEnabled(true);
         m_pZeroYAction->setEnabled(true);
         m_pUnzoomYAction->setEnabled(true);
@@ -195,6 +204,32 @@ void TabWorkspace::onHistogramSelected(HistogramBundle *pBundle, QString name)
         m_pZeroYAction->setEnabled(false);
         m_pUnzoomYAction->setEnabled(false);
         m_pLogzAction->setEnabled(false);
+    }
+}
+
+void TabWorkspace::onCurrentCanvasChanged(QRootCanvas &canvas)
+{
+    if (canvas.GetLogx()) {
+        m_pLogxAction->setChecked(true);
+    } else {
+        m_pLogxAction->setChecked(false);
+    }
+
+    if (canvas.GetLogy()) {
+        m_pLogyAction->setChecked(true);
+    } else {
+        m_pLogyAction->setChecked(false);
+    }
+
+    if (canvas.GetLogz()) {
+        m_pLogzAction->setChecked(true);
+    } else {
+        m_pLogzAction->setChecked(false);
+    }
+
+    std::vector<TH1*> hists = SpectrumView::getAllHists(&canvas);
+    if (hists.size()>0) {
+        configureToolBarForHistogram(*hists.at(0));
     }
 }
 

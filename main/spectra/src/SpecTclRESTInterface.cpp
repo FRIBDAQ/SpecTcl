@@ -73,12 +73,10 @@ SpecTclRESTInterface::SpecTclRESTInterface()
   connect(m_pHistContentCmd.get(), SIGNAL(parsingComplete(HistogramBundle*)),
           this, SLOT(onHistogramContentUpdated(HistogramBundle*)));
 
-  std::cout << "SpecTclRESTInterface::SpecTclRESTInterface()" << std::endl;
 }
 
 SpecTclRESTInterface::~SpecTclRESTInterface()
 {
-    std::cout << "SpecTclRESTInterface::~SpecTclRESTInterface()" << std::endl;
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)

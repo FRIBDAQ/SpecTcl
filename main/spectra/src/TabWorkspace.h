@@ -8,6 +8,7 @@
 
 class QToolBar;
 class QAction;
+class TH1;
 
 namespace Viewer
 {
@@ -19,6 +20,7 @@ class SpecTclInterface;
 class MultiInfoPanel;
 class AutoUpdater;
 class HistogramBundle;
+class QRootCanvas;
 
 class TabWorkspace : public QWidget
 {
@@ -44,10 +46,12 @@ public slots:
     void showHideStatistics();
     void showHideDrawPanel();
     void onHistogramSelected(HistogramBundle* pBundle, QString name);
+    void onCurrentCanvasChanged(QRootCanvas& canvas);
 
 private:
     void setUpUI();
     void connectSignals();
+    void configureToolBarForHistogram(TH1& hist);
 
 private:
     std::shared_ptr<SpecTclInterface>   m_pSpecTcl;

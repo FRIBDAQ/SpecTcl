@@ -92,14 +92,12 @@ TSignallingCanvas::TSignallingCanvas(const char *name, int ww, int wh, int winId
 
 void TSignallingCanvas::Paint(Option_t *opt)
 {
-    std::cout << "TSignallingCanvas::Paint()" << std::endl;
     m_qCanvas.emitCanvasPaintEvent();
     TCanvas::Paint(opt);
 }
 
 void TSignallingCanvas::Update()
 {
-    std::cout << "TSignallingCanvas::Update()" << std::endl;
     m_qCanvas.emitCanvasPaintEvent();
     TCanvas::Update();
 }
@@ -247,7 +245,6 @@ void QRootCanvas::buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e,
 
 void QRootCanvas::emitCanvasPaintEvent()
 {
-    std::cout << "emitCanvasPaintEvent" << std::endl;
     emit CanvasUpdated(*this);
 }
 

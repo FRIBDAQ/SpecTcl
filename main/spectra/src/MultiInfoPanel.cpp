@@ -68,8 +68,6 @@ void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
 void MultiInfoPanel::updateContent(QRootCanvas &rCanvas)
 {
 
-    std::cout << "MultiInfoPanel::updateContent" << std::endl;
-
     auto hists = SpectrumView::getAllHists(&rCanvas);
 
     HistogramList* pHistList = m_pSpecTcl->getHistogramList();
