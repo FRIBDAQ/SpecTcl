@@ -20,6 +20,9 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
+
+
+
 #include "CmdLineOptions.h"
 #include "MainWindow.h"
 #include "QHistInfo.h"
@@ -29,6 +32,7 @@
 #include <TQRootApplication.h>
 #include <TEnv.h>
 #include <TStyle.h>
+#include <TROOT.h>
 
 #include <QStringList>
 #include <QCoreApplication>
@@ -39,7 +43,6 @@
 #include <algorithm>
 #include <iterator>
 #include <list>
-
 
 using namespace Viewer;
 
@@ -83,8 +86,22 @@ int main(int argc, char *argv[])
   MainWindow w;
   w.show();
 
-  return rootEventLoop.exec();
-}
+  int status = rootEventLoop.exec();
+
+  // we have a static object destruction order problem that we need to get
+  // around. ROOT does not create more than 1 instance of TROOT in the life
+  // of the program. Once it is deleted, it never can be created again. That
+  // causes problems with the destruction of our TCutG objects that try to
+  // access gROOT->GetListOfSpecials() after it has gROOT has been turned back
+  // to nullptr. Calling exit() here sweeps a seg fault caused by this under the
+  // rug so our users don't see it. There is no issue being caused here. In the
+  // future, this might bite us if we are doing more I/O type stuff in ROOT or
+  // using their threading system.
+  exit(status);
+
+  // we never get here.
+  return 0;
+ }
 
 
 /*!
