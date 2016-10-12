@@ -121,7 +121,6 @@ double GSlice::getXHigh() const
 
 void GSlice::draw()
 {
-  std::cout << "GSlice::draw()" << std::endl;
     TFrame* pFrame = gPad->GetFrame();
 
     m_pLow->Draw("same");
