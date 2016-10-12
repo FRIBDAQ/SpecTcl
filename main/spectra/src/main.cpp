@@ -45,6 +45,8 @@ using namespace Viewer;
 
 bool serverIsOnThisMachine(QString serverName);
 
+
+/*! \brief The Main function  */
 int main(int argc, char *argv[])
 {
 
@@ -63,10 +65,6 @@ int main(int argc, char *argv[])
       gEnv->SetValue("Unix.*.Root.UseTTFonts",false);
   }
 
-  TQApplication a("app", &argc, argv);
-  TQRootApplication b(argc, argv, 0);
-
-
   if (serverIsOnThisMachine(opts.getHost())) {
       std::cout << "Starting local session" << std::endl;
       GlobalSettings::setSessionMode(GlobalSettings::LOCAL);
@@ -78,14 +76,29 @@ int main(int argc, char *argv[])
   GlobalSettings::setServerPort(opts.getPort());
   GlobalSettings::setPollInterval(5000);
 
+  // start Qt AND ROOT event loops... yes we need both
+  TQApplication qtEventLoop("app", &argc, argv);
+  TQRootApplication rootEventLoop(argc, argv, 0);
+
   MainWindow w;
   w.show();
 
-
-  return b.exec();
+  return rootEventLoop.exec();
 }
 
 
+/*!
+ * \brief Check to see if REST server is local
+ *
+ * The basic premise is that we compare all of the IP addresses associated
+ * with the local machine with those of the machine specified. If there is
+ * overlap between these lists of IP addresses, then the REST server is
+ * local. Otherwise, it is remote.
+ *
+ * \param serverName    name of machine REST server is running
+ *
+ * \return boolean indicating whether REST server is on localhost
+ */
 bool serverIsOnThisMachine(QString serverName)
 {
     using namespace std;
@@ -94,6 +107,8 @@ bool serverIsOnThisMachine(QString serverName)
     QHostInfo thisMachine = QHostInfo::fromName("localhost");
     QList<QHostAddress> thisMachineAddresses = thisMachine.addresses();
 
+    // localhost will likely return different ip addresses than resolving
+    // the ip addresses associated with "hostname".
     thisMachine = QHostInfo::fromName(QHostInfo::localHostName());
     QList<QHostAddress> moreThisAddresses = thisMachine.addresses();
     thisMachineAddresses.append(moreThisAddresses);
@@ -103,13 +118,13 @@ bool serverIsOnThisMachine(QString serverName)
     QList<QHostAddress> thatMachineAddresses = thatMachine.addresses();
 
     // if these two sets of addresses overlap, then we have the same machine
-
     auto comparison = [](const QHostAddress& h0, const QHostAddress& h1) {
         return (h0.toString() < h1.toString());
     };
 
-    std::sort(thisMachineAddresses.begin(), thisMachineAddresses.end(), comparison);
-    std::sort(thatMachineAddresses.begin(), thatMachineAddresses.end(), comparison);
+    // set_intersection requires that the lists are ordered.
+    sort(thisMachineAddresses.begin(), thisMachineAddresses.end(), comparison);
+    sort(thatMachineAddresses.begin(), thatMachineAddresses.end(), comparison);
 
     list<QHostAddress> intersection;
     auto last = set_intersection(thisMachineAddresses.begin(), thisMachineAddresses.end(),
