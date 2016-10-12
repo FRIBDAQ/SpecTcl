@@ -83,6 +83,16 @@ namespace Viewer
 
 class QRootCanvas;
 
+/*! \brief A TCanvas that causes QRootCanvas to emit CanvasUpdated(QRootCanvas&) signals
+ *
+ * The TCanvas and QRootCanvas are not perfectly meshed concerning signals and slot. In fact,
+ * the TCanvas really just does its things and the QRootCanvas intercepts some things
+ * at times. There is no way for the QRootCanvas to understand that an axis setting was
+ * being changed (i.e. zoomed) so that other parts of the application were unable to
+ * react to zooms of the canvas. The TSignallingCanvas class addresses this issue. The main
+ * feature that it makes possible is the "View Integral" in the InformationPanel. Without
+ * this decorator pattern, that feature is not possible.
+ */
 class TSignallingCanvas : public TCanvas {
 private:
     QRootCanvas& m_qCanvas;

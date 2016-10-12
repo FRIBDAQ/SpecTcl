@@ -18,6 +18,13 @@ namespace Viewer {
 class TabbedMultiSpectrumView;
 class SpecTclInterface;
 
+/*!
+ * \brief The SaveToRootDialog class
+ *
+ * This class is slightly misnamed because it can also save win files.
+ * The dialog this creates is the dialog reached through the "File > Save As"
+ * menu.
+ */
 class SaveToRootDialog : public QWidget
 {
     Q_OBJECT

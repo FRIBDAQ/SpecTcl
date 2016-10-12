@@ -45,7 +45,7 @@ class QRootCanvas;
 /*! Graphical Slice
  *
  * This bundles together two lines and the SpecTcl information
- * for a slice. 
+ * for a slice. The lines are both QTLines.
  *
  * \todo Insert a SpJs::GateInfo into this.
  */

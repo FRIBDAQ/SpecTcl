@@ -31,6 +31,17 @@ class HistogramBundle;
 class ControlPanel;
 
 
+/*!
+ * \brief The GateManager class
+ *
+ * The gate manager class is the widget that is is initially displayed by
+ * the GateManagerWidget. The GateManager contains a QTableView that shows
+ * all of the gates associated with a canvas and also their integral. It also
+ * has three buttons "Add","Edit", and "Remove". These buttons just emit signals
+ * that are handled by the GateManagerWidget that owns this so that it can
+ * show the widget that makes sense. This also handles the logic of removing gates
+ * if the "Remove" button is pressed.
+ */
 class GateManager : public QWidget
 {
     Q_OBJECT
