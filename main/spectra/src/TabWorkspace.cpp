@@ -51,6 +51,31 @@ ControlPanel& TabWorkspace::getControlPanel() {
     return *m_pControls;
 }
 
+void TabWorkspace::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    // connect up the view to the new spectcl
+    disconnect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+            m_pView, SLOT(updateView(HistogramBundle*)));
+
+    disconnect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
+            m_pView, SLOT(redrawView()));
+
+
+    m_pSpecTcl = pSpecTcl;
+
+    m_pControls->setSpecTclInterface(pSpecTcl);
+    m_pDrawPanel->setSpecTclInterface(pSpecTcl);
+    m_pInfoPanel->setSpecTclInterface(pSpecTcl);
+
+    // connect up the view to the new spectcl
+    connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
+            m_pView, SLOT(updateView(HistogramBundle*)));
+
+    connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()),
+            m_pView, SLOT(redrawView()));
+
+}
+
 void TabWorkspace::setUpUI()
 {
     QSplitter* pVSplitter = new QSplitter(this);
@@ -65,9 +90,12 @@ void TabWorkspace::setUpUI()
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
 
     m_pToolBar = new QToolBar(this);
-    m_pLogxAction = m_pToolBar->addAction(QIcon(":/icons/logx-icon.png"),"logx");
-    m_pLogyAction = m_pToolBar->addAction(QIcon(":/icons/logy-icon.png"),"logy");
-    m_pLogzAction = m_pToolBar->addAction(QIcon(":/icons/logz-icon.png"),"logz");
+    m_pLogxAction = m_pToolBar->addAction(QIcon(":/icons/logx-icon.png"),"toggle logx");
+    m_pLogxAction->setCheckable(true);
+    m_pLogyAction = m_pToolBar->addAction(QIcon(":/icons/logy-icon.png"),"toggle logy");
+    m_pLogyAction->setCheckable(true);
+    m_pLogzAction = m_pToolBar->addAction(QIcon(":/icons/logz-icon.png"),"toggle logz");
+    m_pLogzAction->setCheckable(true);
 
     m_pToolBar->addSeparator();
     m_pUnzoomXAction = m_pToolBar->addAction(QIcon(":/icons/unzoom-icon.png"),"zoom out x");
@@ -107,6 +135,9 @@ void TabWorkspace::connectSignals()
 {
     connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*, QString)),
             m_pView, SLOT(drawHistogram(HistogramBundle*, QString)));
+
+    connect(m_pDrawPanel, SIGNAL(histSelected(HistogramBundle*,QString)),
+            this, SLOT(onHistogramSelected(HistogramBundle*,QString)));
 
     connect(m_pSpecTcl.get(), SIGNAL(histogramContentUpdated(HistogramBundle*)),
             m_pView, SLOT(updateView(HistogramBundle*)));
@@ -149,6 +180,22 @@ void TabWorkspace::connectSignals()
     connect(m_pZeroYAction, SIGNAL(triggered()), m_pView, SLOT(zeroY()));
     connect(m_pUnzoomYAction, SIGNAL(triggered()), m_pView, SLOT(unzoomY()));
 
+}
+
+
+void TabWorkspace::onHistogramSelected(HistogramBundle *pBundle, QString name)
+{
+    if (pBundle->getHist().InheritsFrom(TH2::Class())) {
+        m_pZoomYAction->setEnabled(true);
+        m_pZeroYAction->setEnabled(true);
+        m_pUnzoomYAction->setEnabled(true);
+        m_pLogzAction->setEnabled(true);
+    } else {
+        m_pZoomYAction->setEnabled(false);
+        m_pZeroYAction->setEnabled(false);
+        m_pUnzoomYAction->setEnabled(false);
+        m_pLogzAction->setEnabled(false);
+    }
 }
 
 void TabWorkspace::layoutSpectra(QStringList spectrumList)

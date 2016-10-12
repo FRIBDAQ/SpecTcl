@@ -57,10 +57,13 @@ SpecTclShMemInterface::SpecTclShMemInterface() :
     connect(m_pRESTInterface.get(), SIGNAL(gateListChanged()),
             this, SLOT(onGateListChanged()));
 
+   std::cout << "SpecTclShMemInterface::SpecTclShMemInterface()" << std::endl;
+
 }
 
 SpecTclShMemInterface::~SpecTclShMemInterface()
 {
+    std::cout << "SpecTclShMemInterface::~SpecTclShMemInterface()" << std::endl;
 }
 
 void SpecTclShMemInterface::addGate(const GSlice &slice)

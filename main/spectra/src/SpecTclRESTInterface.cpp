@@ -35,6 +35,7 @@
 #include <QString>
 #include <QTimer>
 #include <QUrl>
+#include <QRegExp>
 
 #include <TLine.h>
 #include <TCanvas.h>
@@ -72,10 +73,12 @@ SpecTclRESTInterface::SpecTclRESTInterface()
   connect(m_pHistContentCmd.get(), SIGNAL(parsingComplete(HistogramBundle*)),
           this, SLOT(onHistogramContentUpdated(HistogramBundle*)));
 
+  std::cout << "SpecTclRESTInterface::SpecTclRESTInterface()" << std::endl;
 }
 
 SpecTclRESTInterface::~SpecTclRESTInterface()
 {
+    std::cout << "SpecTclRESTInterface::~SpecTclRESTInterface()" << std::endl;
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)
@@ -229,8 +232,10 @@ void SpecTclRESTInterface::requestHistContentUpdate(const QString& name)
   auto host = GlobalSettings::getServerHost();
   auto port = GlobalSettings::getServerPort();
 
+  QString trimmedName = name.left(name.lastIndexOf(QRegExp("_copy$")));
+
   QString reqUrl("http://%1:%2/spectcl/spectrum/contents?name=%3");
-  auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(name);
+  auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(trimmedName);
 
   m_pHistContentCmd->get(QUrl(reqUrlTmp));
 }
@@ -262,7 +267,8 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 void
 SpecTclRESTInterface::onHistogramContentUpdated(HistogramBundle *pBundle)
 {
-  emit histogramContentUpdated(pBundle);
+
+    emit histogramContentUpdated(pBundle);
 }
 
 } // end of namespace

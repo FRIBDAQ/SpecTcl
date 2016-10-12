@@ -18,6 +18,7 @@ class ControlPanel;
 class SpecTclInterface;
 class MultiInfoPanel;
 class AutoUpdater;
+class HistogramBundle;
 
 class TabWorkspace : public QWidget
 {
@@ -35,11 +36,14 @@ public:
     ViewDrawPanel& getDrawPanel();
     ControlPanel& getControlPanel();
 
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
+
 signals:
     
 public slots:
     void showHideStatistics();
     void showHideDrawPanel();
+    void onHistogramSelected(HistogramBundle* pBundle, QString name);
 
 private:
     void setUpUI();

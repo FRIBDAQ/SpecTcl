@@ -150,6 +150,8 @@ public:
 
     std::map<TVirtualPad*,TH1*> getClones() { return m_clones; }
 
+    TH1* getClone(TVirtualPad& pad) const;
+
     /*!
      * \brief Respond to clone deletion notificiation
      *

@@ -146,7 +146,7 @@ void MultiSpectrumView::connectSignalsToNewCanvas(QRootCanvas* pCanvas)
             this, SLOT(onPadDoubleClick(TPad*)));
     connect(pCanvas, SIGNAL(CanvasStatusEvent(const char*)),
             m_pStatusBar, SLOT(onCursorMoved(const char*)));
-    connect(pCanvas, SIGNAL(CanvasUpdated()),
+    connect(pCanvas, SIGNAL(CanvasUpdated(QRootCanvas&)),
             this, SLOT(onCanvasUpdated()));
     connect(pCanvas, SIGNAL(MenuCommandExecuted(TObject*,QString)),
             this, SLOT(onMenuCommandExec(TObject*, QString)));

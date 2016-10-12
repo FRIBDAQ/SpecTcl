@@ -35,6 +35,8 @@ public:
 
     int getNumberOfTabs() const { return m_nValidTabs; }
     
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
+
 public slots:
     void currentCanvasChanged(QRootCanvas& rCanvas);
     void updateContent(QRootCanvas& rCanvas);

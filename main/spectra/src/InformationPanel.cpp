@@ -6,6 +6,9 @@
 #include "SpecTclInterface.h"
 #include "SpectrumView.h"
 #include "TabWorkspace.h"
+#include "MultiSpectrumView.h"
+#include "QRootCanvas.h"
+#include "TCanvas.h"
 
 #include <QTableWidget>
 #include <QTableWidgetItem>
@@ -20,7 +23,8 @@ InformationPanel::InformationPanel(TabWorkspace &rView,
                                    const QString &histName,
                                    QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::InformationPanel)
+    ui(new Ui::InformationPanel),
+    m_pView(&rView.getView())
 {
     ui->setupUi(this);
 
@@ -34,6 +38,12 @@ InformationPanel::InformationPanel(TabWorkspace &rView,
 InformationPanel::~InformationPanel()
 {
     delete ui;
+}
+
+
+void InformationPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pGateManager->setSpecTclInterface(pSpecTcl);
 }
 
 void InformationPanel::onHistogramChanged(HistogramBundle &rHist)
@@ -64,35 +74,73 @@ void InformationPanel::updateStatistics(HistogramBundle& rHist)
 {
     QTableWidget* pTable = ui->pStatTable;
 
-    TH1& bareHist = rHist.getHist();
-    Double_t integral = bareHist.Integral();
+    TVirtualPad* pPad = m_pView->getCurrentCanvas()->getCanvas();
+    TH1& bareHist = *(rHist.getClone(*pPad));
 
-    QTableWidgetItem* pItem = pTable->item(0, 1);
-    pItem->setText(QString("%1").arg(integral));
+    TAxis* pX = bareHist.GetXaxis();
+    TAxis* pY = bareHist.GetYaxis();
 
+    int xbinLow = pX->GetFirst();
+    int xbinHigh = pX->GetLast();
+
+    int ybinLow = pY->GetFirst();
+    int ybinHigh = pY->GetLast();
+
+    std::cout << "Updating statistics" << std::endl;
+
+    QTableWidgetItem* pItem = nullptr;
+    if (bareHist.InheritsFrom(TH2::Class())) {
+
+        auto& hist2d = dynamic_cast<TH2&>(bareHist);
+
+        Double_t integral = hist2d.Integral(1, pX->GetNbins(),
+                                            1, pY->GetNbins());
+
+        pItem = pTable->item(0, 1);
+        pItem->setText(QString("%1").arg(integral));
+
+        integral = hist2d.Integral(xbinLow, xbinHigh, ybinLow, ybinHigh);
+        pItem = pTable->item(1, 1);
+        pItem->setText(QString("%1").arg(integral));
+
+    } else {
+        Double_t integral = bareHist.Integral(1, bareHist.GetNbinsX());
+
+        pItem = pTable->item(0, 1);
+        pItem->setText(QString("%1").arg(integral));
+
+        integral = bareHist.Integral(xbinLow, xbinHigh);
+        pItem = pTable->item(1, 1);
+        pItem->setText(QString("%1").arg(integral));
+    }
 
     Double_t min = bareHist.GetMinimum();
-    pItem = pTable->item(1, 1);
+    pItem = pTable->item(2, 1);
     pItem->setText(QString("%1").arg(min));
 
     Double_t max = bareHist.GetMaximum();
-    pItem = pTable->item(2, 1);
+    pItem = pTable->item(3, 1);
     pItem->setText(QString("%1").arg(max));
 }
 
 void InformationPanel::setUpStatisticsTable() {
     QTableWidget* pTable = ui->pStatTable;
 
-    pTable->setRowCount(3);
+    pTable->setRowCount(4);
     pTable->setColumnCount(2);
 
-    pTable->setItem(0, 0, new QTableWidgetItem("Integral"));
-    pTable->setItem(1, 0, new QTableWidgetItem("Minimum"));
-    pTable->setItem(2, 0, new QTableWidgetItem("Maximum"));
+    pTable->setHorizontalHeaderItem(0, new QTableWidgetItem("Statistic"));
+    pTable->setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
+
+    pTable->setItem(0, 0, new QTableWidgetItem("Total Integral"));
+    pTable->setItem(1, 0, new QTableWidgetItem("View Integral"));
+    pTable->setItem(2, 0, new QTableWidgetItem("Minimum"));
+    pTable->setItem(3, 0, new QTableWidgetItem("Maximum"));
 
     pTable->setItem(0, 1, new QTableWidgetItem(""));
     pTable->setItem(1, 1, new QTableWidgetItem(""));
     pTable->setItem(2, 1, new QTableWidgetItem(""));
+    pTable->setItem(3, 1, new QTableWidgetItem(""));
 
 
 }

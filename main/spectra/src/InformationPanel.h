@@ -14,6 +14,7 @@ class HistogramBundle;
 class GateManagerWidget;
 class SpecTclInterface;
 class TabWorkspace;
+class SpectrumView;
 
 class InformationPanel : public QWidget
 {
@@ -26,6 +27,8 @@ public:
                               QWidget *parent = 0);
     ~InformationPanel();
     
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
+
     void clearParameterList();
     void updateParameterList(HistogramBundle &rHist);
     void updateStatistics(HistogramBundle& rHist);
@@ -41,6 +44,7 @@ private:
     Ui::InformationPanel *ui;
 
     GateManagerWidget* m_pGateManager;
+    SpectrumView* m_pView;
 };
 
 } // end of Viewer namespace

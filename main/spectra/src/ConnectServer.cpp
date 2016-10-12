@@ -89,8 +89,11 @@ void ConnectDialog::onAccept() {
         }
     }
 
-    GlobalSettings::setSessionMode(selectedMode);
-
+    if (selectedMode == 0) {
+        GlobalSettings::setSessionMode(GlobalSettings::REMOTE);
+    } else {
+        GlobalSettings::setSessionMode(GlobalSettings::LOCAL);
+    }
 }
 
 //

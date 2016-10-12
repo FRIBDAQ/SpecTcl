@@ -32,14 +32,23 @@
 
 #include <QStringList>
 #include <QCoreApplication>
+#include <QHostInfo>
+#include <QHostAddress>
 
 #include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <list>
 
+
+using namespace Viewer;
+
+bool serverIsOnThisMachine(QString serverName);
 
 int main(int argc, char *argv[])
 {
 
-  Viewer::CmdLineOptions opts;
+  CmdLineOptions opts;
   opts.parse(argc, argv);
 
   Q_INIT_RESOURCE(resources);
@@ -57,14 +66,56 @@ int main(int argc, char *argv[])
   TQApplication a("app", &argc, argv);
   TQRootApplication b(argc, argv, 0);
 
-  Viewer::GlobalSettings::setSessionMode(1);  
-  Viewer::GlobalSettings::setServerHost(opts.getHost());
-  Viewer::GlobalSettings::setServerPort(opts.getPort());
-  Viewer::GlobalSettings::setPollInterval(5000);
 
-  Viewer::MainWindow w;
+  if (serverIsOnThisMachine(opts.getHost())) {
+      std::cout << "Starting local session" << std::endl;
+      GlobalSettings::setSessionMode(GlobalSettings::LOCAL);
+  } else {
+      std::cout << "Starting remote session" << std::endl;
+      GlobalSettings::setSessionMode(GlobalSettings::REMOTE);
+  }
+  GlobalSettings::setServerHost(opts.getHost());
+  GlobalSettings::setServerPort(opts.getPort());
+  GlobalSettings::setPollInterval(5000);
+
+  MainWindow w;
   w.show();
 
 
   return b.exec();
+}
+
+
+bool serverIsOnThisMachine(QString serverName)
+{
+    using namespace std;
+
+    // get all IP addresses of localhost machine
+    QHostInfo thisMachine = QHostInfo::fromName("localhost");
+    QList<QHostAddress> thisMachineAddresses = thisMachine.addresses();
+
+    thisMachine = QHostInfo::fromName(QHostInfo::localHostName());
+    QList<QHostAddress> moreThisAddresses = thisMachine.addresses();
+    thisMachineAddresses.append(moreThisAddresses);
+
+    // get all IP addresses of server
+    QHostInfo thatMachine = QHostInfo::fromName(serverName);
+    QList<QHostAddress> thatMachineAddresses = thatMachine.addresses();
+
+    // if these two sets of addresses overlap, then we have the same machine
+
+    auto comparison = [](const QHostAddress& h0, const QHostAddress& h1) {
+        return (h0.toString() < h1.toString());
+    };
+
+    std::sort(thisMachineAddresses.begin(), thisMachineAddresses.end(), comparison);
+    std::sort(thatMachineAddresses.begin(), thatMachineAddresses.end(), comparison);
+
+    list<QHostAddress> intersection;
+    auto last = set_intersection(thisMachineAddresses.begin(), thisMachineAddresses.end(),
+                                 thatMachineAddresses.begin(), thatMachineAddresses.end(),
+                                 back_inserter(intersection), comparison);
+
+    return (intersection.size()>0);
+
 }

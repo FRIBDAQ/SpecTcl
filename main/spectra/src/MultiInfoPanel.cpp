@@ -32,6 +32,18 @@ MultiInfoPanel::~MultiInfoPanel()
     delete ui;
 }
 
+void MultiInfoPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
+
+    for (int i=0; i<ui->pTabWidget->count(); ++i) {
+        auto pPanel = dynamic_cast<InformationPanel*>(ui->pTabWidget->widget(i));
+        if (pPanel) {
+            pPanel->setSpecTclInterface(m_pSpecTcl);
+        }
+
+    }
+}
 
 void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
 {
@@ -55,6 +67,8 @@ void MultiInfoPanel::currentCanvasChanged(QRootCanvas &rCanvas)
 
 void MultiInfoPanel::updateContent(QRootCanvas &rCanvas)
 {
+
+    std::cout << "MultiInfoPanel::updateContent" << std::endl;
 
     auto hists = SpectrumView::getAllHists(&rCanvas);
 

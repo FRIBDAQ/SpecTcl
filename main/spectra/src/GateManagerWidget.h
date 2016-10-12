@@ -47,6 +47,8 @@ public:
                                QWidget *parent = 0);
 
 
+    void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
+
     void setGateList(const std::map<QString, GSlice*>& gateMap);
     void setGateList(const std::map<QString, GGate*>& gateMap);
 

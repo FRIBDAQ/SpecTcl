@@ -139,7 +139,7 @@ void MainWindow::assembleWidgets()
 //
 void MainWindow::addInterfaceObservers()
 {
-    m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
+//    m_specTclControl.addGenericSpecTclInterfaceObserver(*this);
     m_specTclControl.addGenericSpecTclInterfaceObserver(*m_pView);
 }
 

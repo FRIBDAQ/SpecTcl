@@ -308,6 +308,18 @@ void HistogramBundle::notify(TH1 &hist)
     } // else do nothing
 }
 
+
+TH1* HistogramBundle::getClone(TVirtualPad &pad) const
+{
+    auto itFound = m_clones.find(&pad);
+    if (itFound == m_clones.end()) {
+        return nullptr;
+    } else {
+        return itFound->second;
+    }
+}
+
+
 } // end of Viewer namespace
 
 
@@ -349,5 +361,7 @@ std::ostream& operator<<(std::ostream& str, const Viewer::HistogramBundle& hist)
 
   return str;
 }
+
+
 
 

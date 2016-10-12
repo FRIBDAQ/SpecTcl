@@ -149,7 +149,7 @@ void TabbedMultiSpectrumView::setSpecTclInterface(std::shared_ptr<SpecTclInterfa
     int nTabs = ui->pTabWidget->count();
     for (int tab=0; tab<nTabs; ++tab) {
 
-        auto pView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(tab));
+        auto pView = dynamic_cast<TabWorkspace*>(ui->pTabWidget->widget(tab));
         if (pView) {
             pView->setSpecTclInterface(m_pSpecTcl);
         }

@@ -84,6 +84,28 @@
 namespace Viewer
 {
 
+
+TSignallingCanvas::TSignallingCanvas(const char *name, int ww, int wh, int winId,
+                                     QRootCanvas &qcanvas)
+    : TCanvas(name,ww,wh,winId),
+      m_qCanvas(qcanvas) {}
+
+void TSignallingCanvas::Paint(Option_t *opt)
+{
+    std::cout << "TSignallingCanvas::Paint()" << std::endl;
+    m_qCanvas.emitCanvasPaintEvent();
+    TCanvas::Paint(opt);
+}
+
+void TSignallingCanvas::Update()
+{
+    std::cout << "TSignallingCanvas::Update()" << std::endl;
+    m_qCanvas.emitCanvasPaintEvent();
+    TCanvas::Update();
+}
+
+
+
 QRootCanvas::QRootCanvas(QWidget *parent) :
    QWidget(parent),
    fMaskDoubleClick(false),
@@ -111,7 +133,7 @@ QRootCanvas::QRootCanvas(QWidget *parent) :
    fQtWindowId = winId();
    fRootWindowId = gVirtualX->AddWindow((ULong_t)fQtWindowId, 100, 30);
 
-   fCanvas = new TCanvas("Canvas", width(), height(), fRootWindowId);
+   fCanvas = new TSignallingCanvas("Canvas", width(), height(), fRootWindowId, *this);
    fCanvas->SetSupportGL(false);
 
    // create the context menu
@@ -221,6 +243,12 @@ void QRootCanvas::buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e,
         delete fMenuMethods;
         fMenuMethods = 0;
      }
+}
+
+void QRootCanvas::emitCanvasPaintEvent()
+{
+    std::cout << "emitCanvasPaintEvent" << std::endl;
+    emit CanvasUpdated(*this);
 }
 
 void QRootCanvas::buildTLatexContextMenu(TList& defaultItems, QMenu& menu, QSignalMapper& map)
@@ -395,7 +423,7 @@ void QRootCanvas::processRepaintTimer()
       // need to adjust the ROOT X access:
       delete fCanvas; // should also remove old x windows!
       fRootWindowId = gVirtualX->AddWindow((ULong_t)newid, width(), height());
-      fCanvas = new TCanvas(objectName().toAscii().constData(), width(), height(), fRootWindowId);
+      fCanvas = new TSignallingCanvas(objectName().toAscii().constData(), width(), height(), fRootWindowId, *this);
       fQtWindowId = newid;
    }
 
@@ -406,7 +434,7 @@ void QRootCanvas::processRepaintTimer()
 
    fRepaintMode = 0;
 
-   emit CanvasUpdated();
+   emit CanvasUpdated(*this);
 }
 
 void QRootCanvas::leaveEvent( QEvent *e )

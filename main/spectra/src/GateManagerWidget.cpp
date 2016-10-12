@@ -55,6 +55,12 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
 }
 
 
+void GateManagerWidget::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pSpecTcl = pSpecTcl;
+    m_pManager->setSpecTclInterface(m_pSpecTcl);
+}
+
 void GateManagerWidget::onAddPressed()
 {
 

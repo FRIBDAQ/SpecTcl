@@ -39,6 +39,7 @@
 #include <QMutexLocker>
 #include <QEventLoop>
 #include <QObject>
+#include <QHostInfo>
 
 #include <memory>
 #include <iostream>
@@ -163,6 +164,14 @@ std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkReques
       QString host = GlobalSettings::getInstance()->value("/server/hostname").toString();
       QString port = GlobalSettings::getInstance()->value("/server/port").toString();
 
+      QHostInfo info = QHostInfo::fromName(host);
+      if (info.error() != QHostInfo::NoError) {
+          qDebug() << "Lookup failed:" << info.errorString();
+      } else {
+          for(auto& address : info.addresses())
+              std::cout << "Found address:" << address.toString().toStdString() << std::endl;
+      }
+
       QString server("http://%1:%2/spectcl/spectrum/list");
       server = server.arg(host, port);
       connectionStatus = ConnectionTester::acceptingConnections(server);
@@ -250,6 +259,8 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
+
+    std::cout << "done updating content" << std::endl;
 
     // ALL DONE!
     emit parsingComplete(pHistBundle);

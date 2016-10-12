@@ -88,22 +88,22 @@ void GlobalSettings::setPollInterval(int milliseconds)
   return getInstance()->setValue("/server/pollInterval", milliseconds);
 }
 
-void GlobalSettings::setSessionMode(int typeId)
+void GlobalSettings::setSessionMode(SessionType typeId)
 {
-    if (typeId == 0) {
+    if (typeId == REMOTE) {
         getInstance()->setValue("/session/mode", "remote");
     } else {
         getInstance()->setValue("/session/mode", "local");
     }
 }
 
-int GlobalSettings::getSessionMode()
+GlobalSettings::SessionType GlobalSettings::getSessionMode()
 {
     QString mode = getInstance()->value("/session/mode").toString();
     if (mode == "remote") {
-        return 0;
+        return REMOTE;
     } else if (mode == "local") {
-        return 1;
+        return LOCAL;
     } else {
         throw std::runtime_error("GlobalSettings::getSessionMode() Invalid mode");
     }

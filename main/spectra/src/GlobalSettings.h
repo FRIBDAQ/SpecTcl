@@ -35,6 +35,10 @@ namespace Viewer
   *  This is a convenience wrapper around a QSettings object that
   */
 class GlobalSettings {
+
+public:
+    enum SessionType { REMOTE, LOCAL };
+
 private:
     static QMutex m_mutex;
     static QSettings* m_instance;
@@ -68,8 +72,8 @@ public:
     static void setPollInterval(int milliseconds);
     static int getPollInterval();
 
-    static void setSessionMode(int typeId);
-    static int getSessionMode();
+    static void setSessionMode(SessionType typeId);
+    static SessionType getSessionMode();
 
     static void setSharedMemoryKey(const QString& hexKey);
     static QString getSharedMemoryKey();

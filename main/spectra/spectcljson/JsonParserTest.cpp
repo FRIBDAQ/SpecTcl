@@ -43,6 +43,7 @@ class JsonParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseListDetail_0 );
   CPPUNIT_TEST( parseContentCmd_0 );
   CPPUNIT_TEST( parseContentCmd_1 );
+  CPPUNIT_TEST( parseContentCmd_2 );
   CPPUNIT_TEST( parseSummary_0 );
   CPPUNIT_TEST( parseBitmask_0 );
   CPPUNIT_TEST( parseGamma1_0 );
@@ -61,6 +62,7 @@ protected:
   void parseListCmd_0();
   void parseContentCmd_0();
   void parseContentCmd_1();
+  void parseContentCmd_2();
   void parseSummary_0();
   void parseBitmask_0();
   void parseGamma1_0();
@@ -182,6 +184,30 @@ void JsonParserTest::parseContentCmd_1()
     CPPUNIT_ASSERT( 2 == parsedResult.getUnderflow(1) );
     CPPUNIT_ASSERT( 4 == parsedResult.getOverflow(1) );
 }
+
+void JsonParserTest::parseContentCmd_2()
+{
+
+    stringstream ss;
+    ss << JSON_TEST_DIR << "/empty_content.json";
+
+    Json::Value value;
+    std::ifstream file (ss.str().c_str());
+    file >> value;
+    file.close();
+
+    auto parsedResult = SpJs::JsonParser().parseContentCmd(value);
+
+    vector<SpJs::BinInfo> expected;
+
+
+    CPPUNIT_ASSERT( expected == parsedResult.getValues() );
+    CPPUNIT_ASSERT( 0 == parsedResult.getUnderflow(0) );
+    CPPUNIT_ASSERT( 0 == parsedResult.getOverflow(0) );
+    CPPUNIT_ASSERT( 0 == parsedResult.getUnderflow(1) );
+    CPPUNIT_ASSERT( 0 == parsedResult.getOverflow(1) );
+}
+
 
 void JsonParserTest::parseSummary_0()
 {

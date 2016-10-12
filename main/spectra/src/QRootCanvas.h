@@ -61,13 +61,13 @@
 #include "Gtypes.h"
 #include "Buttons.h"
 #include "TVirtualX.h"
+#include "TCanvas.h"
 
 class TObject;
 class TMethod;
 class TObjLink;
 class TVirtualPad;
 class TPad;
-class TCanvas;
 class TBrowser;
 class TContextMenu;
 class TControlBar;
@@ -80,6 +80,20 @@ class QTimer;
 
 namespace Viewer
 {
+
+class QRootCanvas;
+
+class TSignallingCanvas : public TCanvas {
+private:
+    QRootCanvas& m_qCanvas;
+
+public:
+    TSignallingCanvas(const char* name, int ww, int wh, int winId,
+                      QRootCanvas& qcanvas);
+
+    virtual void Paint(Option_t *opt="");
+    virtual void Update();
+};
 
 /** This canvas uses Qt eventloop to handle user input
   *   @short Graphic Qt Widget based Canvas
@@ -109,6 +123,9 @@ class QRootCanvas : public QWidget {
       void              setShowEventStatus(bool s);
 
       void buildContextMenu(TObjLink* pickobj, TPad* pad, QMouseEvent *e, TObject *selected);
+
+      void emitCanvasPaintEvent();
+
 signals:
       /** signal which will be emitted when root selected pad is changed
         * via clicking the mid-mouse button (M. al-Turany) */
@@ -131,7 +148,7 @@ signals:
 
       void              CanvasLeaveEvent();
 
-      void              CanvasUpdated();
+      void              CanvasUpdated(QRootCanvas&);
 
    public slots:
 

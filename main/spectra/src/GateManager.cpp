@@ -74,7 +74,9 @@ GateManager::GateManager(SpectrumView& view,
 {
     ui->setupUi(this);
 
-    ui->gateList->setVerticalHeaderLabels({QString("Name"), QString("Integral")});
+    ui->gateList->setColumnCount(2);
+    ui->gateList->setHorizontalHeaderItem(0, new QTableWidgetItem("Name"));
+    ui->gateList->setHorizontalHeaderItem(1, new QTableWidgetItem("Integral"));
 
     connectSignals();
 }
@@ -151,7 +153,6 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             }
         }
     }
-
 }
 
 
