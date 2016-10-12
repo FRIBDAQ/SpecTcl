@@ -8,7 +8,7 @@
 
 namespace Viewer {
 
-class LayoutDialogChooser;
+class TabLayoutDialog;
 class BulkDrawChooser;
 class SpecTclInterface;
 
@@ -48,7 +48,7 @@ public slots:
 
 private:
     std::shared_ptr<SpecTclInterface> m_pSpecTcl;
-    LayoutDialogChooser*    m_pMainChooser;
+    TabLayoutDialog*    m_pMainChooser;
     BulkDrawChooser*        m_pBulkChooser;
 };
 

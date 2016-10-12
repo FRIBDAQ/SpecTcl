@@ -57,7 +57,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   MultiInfoPanel.h \
   TwoDimGateEdit.h \
   SpectrumLayoutDialog.h \
-  LayoutDialogChooser.h \
+  TabLayoutDialog.h \
   BulkDrawChooser.h \
   ViewDrawPanel.h \
   TabWorkspace.h \
@@ -129,7 +129,7 @@ libSpectra_la_SOURCES = \
     MultiInfoPanel.cpp \
     TwoDimGateEdit.cpp \
     SpectrumLayoutDialog.cpp \
-    LayoutDialogChooser.cpp \
+    TabLayoutDialog.cpp \
     BulkDrawChooser.cpp \
     ViewDrawPanel.cpp \
     TabWorkspace.cpp \
@@ -186,7 +186,7 @@ libSpectra_la_SOURCES = \
         moc_MultiInfoPanel.cpp \
         moc_TwoDimGateEdit.cpp \
         moc_SpectrumLayoutDialog.cpp \
-        moc_LayoutDialogChooser.cpp \
+        moc_TabLayoutDialog.cpp \
         moc_BulkDrawChooser.cpp \
         moc_ViewDrawPanel.cpp \
         moc_TabWorkspace.cpp \
@@ -216,7 +216,7 @@ spectraFORMS =  MainWindow.ui  \
   OneDimGateEdit.ui \
   MultiInfoPanel.ui \
   TwoDimGateEdit.ui \
-  LayoutDialogChooser.ui \
+  TabLayoutDialog.ui \
   BulkDrawChooser.ui \
   ViewDrawPanel.ui \
     SpectrumDrawChooser.ui \
@@ -244,7 +244,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_MultiInfoPanel.h \
                                                                 ui_TwoDimGateEdit.h \
                                                                 ui_BulkDrawChooser.h \
-                                                                ui_LayoutDialogChooser.h \
+                                                                ui_TabLayoutDialog.h \
                                                                 ui_ViewDrawPanel.h \
                                                                 ui_StatusBar.h \
                                                                 ui_AutoUpdateDialog.h \
@@ -283,7 +283,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_MultiInfoPanel.cpp \
 								moc_TwoDimGateEdit.cpp \
 								moc_SpectrumLayoutDialog.cpp \
-								moc_LayoutDialogChooser.cpp \
+								moc_TabLayoutDialog.cpp \
 								moc_BulkDrawChooser.cpp \
 								moc_ViewDrawPanel.cpp \
 								moc_TabWorkspace.cpp \

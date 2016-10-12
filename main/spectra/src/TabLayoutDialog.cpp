@@ -1,5 +1,5 @@
-#include "LayoutDialogChooser.h"
-#include "ui_LayoutDialogChooser.h"
+#include "TabLayoutDialog.h"
+#include "ui_TabLayoutDialog.h"
 #include "Logo.h"
 
 #include <QButtonGroup>
@@ -9,9 +9,9 @@
 
 namespace Viewer {
 
-LayoutDialogChooser::LayoutDialogChooser(QWidget *parent) :
+TabLayoutDialog::TabLayoutDialog(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::LayoutDialogChooser),
+    ui(new Ui::TabLayoutDialog),
     m_pButtons(new QButtonGroup(this))
 {
     ui->setupUi(this);
@@ -35,12 +35,12 @@ LayoutDialogChooser::LayoutDialogChooser(QWidget *parent) :
             this, SLOT(onTabNameChanged(const QString&)));
 }
 
-LayoutDialogChooser::~LayoutDialogChooser()
+TabLayoutDialog::~TabLayoutDialog()
 {
     delete ui;
 }
 
-void LayoutDialogChooser::onContinue()
+void TabLayoutDialog::onContinue()
 {
     int selection = m_pButtons->checkedId();
     switch (selection) {
@@ -64,17 +64,17 @@ void LayoutDialogChooser::onContinue()
     }
 }
 
-void LayoutDialogChooser::onTabNameChanged(const QString &newText)
+void TabLayoutDialog::onTabNameChanged(const QString &newText)
 {
     ui->pContinueButton->setEnabled( ! newText.isEmpty() );
 }
 
-QString LayoutDialogChooser::getTabName() const
+QString TabLayoutDialog::getTabName() const
 {
     return ui->pTabNameEdit->text();
 }
 
-void LayoutDialogChooser::keyPressEvent(QKeyEvent *pEvent)
+void TabLayoutDialog::keyPressEvent(QKeyEvent *pEvent)
 {
     if (pEvent->key()==Qt::Key_Return || pEvent->key()==Qt::Key_Enter) {
         onContinue();

@@ -1,5 +1,5 @@
 #include "SpectrumLayoutDialog.h"
-#include "LayoutDialogChooser.h"
+#include "TabLayoutDialog.h"
 #include "BulkDrawChooser.h"
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
@@ -13,7 +13,7 @@ SpectrumLayoutDialog::SpectrumLayoutDialog(std::shared_ptr<SpecTclInterface> pSp
                                            QWidget *parent) :
     QWidget(parent),
     m_pSpecTcl(pSpecTcl),
-    m_pMainChooser(new LayoutDialogChooser(this)),
+    m_pMainChooser(new TabLayoutDialog(this)),
     m_pBulkChooser(new BulkDrawChooser(*pSpecTcl->getHistogramList(), this))
 {
     m_pBulkChooser->hide();
