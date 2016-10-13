@@ -6,20 +6,26 @@ SUFFIXES = .xml .1
 
 bin_PROGRAMS=filtsplit
 
-filtsplit_SOURCES=cmdline.c filtsplit.cpp
+BUILT_SOURCES = cmdline.h cmdline.c
+filtsplit_SOURCES = cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
-AM_CPPFLAGS =-I@top_srcdir@/Filter
+filtsplit_CPPFLAGS =-I@top_srcdir@/Core
+filtsplit_CFLAGS =-I@top_srcdir@/Core
+filtsplit_CXXFLAGS =-I@top_srcdir@/Core
 
+filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
+		  @LIBTCLPLUS_LDFLAGS@ \
+		  @TCL_LIBS@ \
+		  -lgsl -lgslcblas
 
-cmdline.c cmdline.h: filtsplit.ggo
-	@GENGETOPT@ --unamed-opts <filtsplit.ggo
+cmdline.c cmdline.h: @srcdir@/filtsplit.ggo
+	@GENGETOPT@ --unamed-opts <@srcdir@/filtsplit.ggo
 
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
 
-filtsplit_LDADD = @top_srcdir@/Filter/CXdrInputStream.lo \
-		@top_srcdir@/Filter/CXdrOutputStream.lo
+
 
 man_MANS = filtsplit.1

@@ -51,7 +51,7 @@
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
 #elif !HAVE_WINDOWS_H
-  error No sys/shm.h needed to manipulate shared memory region!
+  #error No sys/shm.h needed to manipulate shared memory region!
 #endif
 
 #include <sys/stat.h>
@@ -129,7 +129,11 @@ void killmem()
 #else
 {
   if(Xamine_Memid > 0) {
-    shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+     struct shmid_ds stat;
+     shmctl(Xamine_Memid, IPC_STAT, &stat);
+     printf("killing mem\n");
+     shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+
   }
 }
 #endif
@@ -231,7 +235,6 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   
     CloseHandle(hMapFile);
   */
-  atexit(killmem);
 
   *ptr = pMemory;
   return TRUE;
@@ -245,19 +248,43 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   /* Create the shared memory region: */
 
   memcpy(&key, name, sizeof(key));
-  memid = shmget(key, size, 
+
+  memid = shmget(key, size,
  	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR); /* Owner rd/wr */
-  if(memid == -1) 
+  if(memid == -1) {
     return 0;
+  }
+
+  // spawn a daemon that will clean up shared memory when no more processes
+  // are attached to it.
+  int pid = fork();
+  if (pid == 0) {
+      /* child */
+
+      /* detach the child from the parent */
+      int sid = setsid();
+
+      struct shmid_ds stat;
+      shmctl(memid, IPC_STAT, &stat);
+
+      while (stat.shm_nattch != 0) {
+          sleep(1);
+          shmctl(memid, IPC_STAT, &stat);
+      }
+      shmctl(memid, IPC_RMID, 0);
+      exit(EXIT_SUCCESS);
+  }
 
   /* Attach to the shared memory region: */
 
   base = (char *)shmat(memid, NULL, 0);
-  if(base == NULL)
+  if(base == NULL) {
     return 0;
+  }
 
   Xamine_Memid = memid;		/* Save the memory id. for Atexit<. */
-  atexit(killmem);
+
+
   *ptr = (void *)base;
   return -1;			/* Indicate successful finish. */
 }				/* Unix implementation. */
@@ -368,18 +395,20 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 
   if(!genmem(name, 
 	     (volatile void **)ptr,	/* Gen shared memory region. */
-	     sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes))
+             sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes)) {
     return 0;
+  }
 
   if(!genenv(name, specbytes))	/* Generate the subprocess environment. */
     return 0;
 
-  Xamine_memsize= specbytes;
-  Xamine_memory = *ptr;		/* Save poinyter to memory for mgmnt rtns. */
+  Xamine_memsize = specbytes;
+  Xamine_memory  = *ptr;		/* Save poinyter to memory for mgmnt rtns. */
   return 1;			/* set the success code. */
 }
 int Xamine_DetachSharedMemory()
 {
+
 #ifdef HAVE_WINDOWS_H
   UnmapViewOfFile((PVOID)Xamine_memory);
 #else
@@ -571,7 +600,6 @@ void f77xamine_getmemoryname_(char *namebuffer, int maxlen)
 
 }
 
-
 /*
 ** Functional Description:
 **   Xamine_MapMemory:
@@ -660,8 +688,6 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
   */
   CloseHandle(hMapFile);
   
-  atexit(killmem);
-
   *ptr = pMemory;
   Xamine_memory = pMemory;
   return TRUE;
@@ -1126,4 +1152,47 @@ long f77xamine_allocate2d_(int *spno, int *xdim, int *ydim, char *title,
   if(!*byte) offset = offset / sizeof(short); /* Word offset. */
 
   return offset;
+}
+/**
+ * Xamine_setOverflow
+ *    Set the overflow counter of an axis of a spectrum.
+ *
+ *  @param nSpectrum -id of spetrum to set.
+ *  @param axis      - 0 xaxis, 1 y axis.
+ *  @param value     - Value to which to set the overflow.
+ */
+void
+Xamine_setOverflow(unsigned nSpectrum, int axis, unsigned value)
+{
+    nSpectrum--;
+    Xamine_memory->dsp_statistics[nSpectrum].overflows[axis] = value;
+}
+/**
+ * Xamine_setUnderflow
+ *    Same as Xamine_setOverflow but set an underflow counter.
+ *
+ *  @param nSpectrum -id of spetrum to set.
+ *  @param axis      - 0 xaxis, 1 y axis.
+ *  @param value     - Value to which to set the overflow.
+ */
+void
+Xamine_setUnderflow(unsigned nSpectrum, int axis, unsigned value)
+{
+    nSpectrum--;
+    Xamine_memory->dsp_statistics[nSpectrum].underflows[axis] = value;
+}
+/**
+ *  Xamine_clearStatitics
+ *     Clear the under/overflow statistics for a spectrum
+ *
+ *  @param nSpectrum - spectrum to clear.
+ */
+void
+Xamine_clearStatistics(unsigned nSpectrum)
+{
+    nSpectrum--;
+    Xamine_setOverflow(nSpectrum, 0, 0);
+    Xamine_setOverflow(nSpectrum, 1, 0);
+    Xamine_setUnderflow(nSpectrum, 0, 0);
+    Xamine_setUnderflow(nSpectrum, 1, 0);
 }

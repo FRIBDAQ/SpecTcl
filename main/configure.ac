@@ -1,15 +1,17 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,3.4-010, [scientificsoftware@nscl.msu.edu])
-AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
+AC_INIT(SpecTcl,5.0-00, scientificsoftware@nscl.msu.edu)
+#AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_EXEEXT
 AC_OBJEXT
+
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 # we use libtool, thus we need to include it
 LT_INIT
@@ -19,7 +21,7 @@ LT_INIT
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:4"
+SOVERSION="4:0"
 #
 
 # Checks for programs.
@@ -37,6 +39,8 @@ AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
+# needed for autotools version earlier than 1.14
+AM_PROG_CC_C_O
 
 # The following are for doctools things:
 
@@ -116,6 +120,21 @@ AH_VERBATIM([VHAVE_STD_NAMESPACE],[
 
 AC_LANG_POP(C++)
 
+#
+#  By default nscldaq will be in /usr/opt/daq/current
+#  This can be overidden with --with-nscldaq-root.
+#  We're not going to check to see if there really is an nscldaq since it's valid
+#  to install SpecTcl on a daq-less system for analysis.
+
+AC_ARG_WITH([nscldaq-root],
+    [  --with-nscldaq-root=path Path to the NSCLDAQ installation (default=/usr/opt/daq/current)],
+    [daqroot="$withval"], [daqroot="/usr/opt/daq/current"])
+
+DAQROOT=$daqroot
+
+AC_SUBST(DAQROOT)
+
+
 # -------------------- X11 tests
 
 # Locate the X11 header files and the X11 library archive. Try the
@@ -139,6 +158,7 @@ then
 else
   XLIBSW=""
 fi
+
 
 
 #
@@ -665,7 +685,6 @@ AM_CONDITIONAL([CPPUNIT], [test -n "${CPPUNIT_LIBS}"] )
 AM_CONDITIONAL([CPPUNITDONOTBUILD], [test -n ""])
 AM_CONDITIONAL([THIS_IS_NOT_DEFINED], [test -n ""])
 
-
 # We use mandb to index the man pages if it exists... not sure what the 
 # alternatives are on other systems so transform mandb -> echo if
 # we can't find it:
@@ -720,23 +739,116 @@ AC_CHECK_FILE([/usr/include/TCLInterpreterObject.h], [systemtcl="yes"], [systemt
 if test $systemtcl = "yes"
 then
 	LIBTCLPLUS_CFLAGS=""
-	LIBTCLPLUS_LDFLAGS="-ltclPlus -lException"
+	LIBEXCEPTION_LDFLAGS="-lException"
+	LIBTCLPLUS_LDFLAGS="-ltclPlus ${LIBEXCEPTION_LDFLAGS}"
 	AC_MSG_RESULT([Found in  system libraries])
 else
-	AC_MSG_RESULT([Need to build local tagged copy])
-	AC_CHECK_FILE([./libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
-	if test $havelibtcldir = "yes"
-	then
-		(cd libtcl; ./configure --prefix=${prefix}; make clean install)
-		LIBTCLPLUS_CFLAGS="-I${prefix}/include"
-		LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
-	else
-		AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
-	fi
+  AC_CHECK_FILE([${prefix}/lib/libException.so],[libtclinstalled="yes"],[libtclinstalled="no"])
+  AC_CHECK_FILE([${prefix}/lib/libtclPlus.so],[libexceptioninstalled="yes"],[libexceptioninstalled="no"])
+  AC_CHECK_FILE([${prefix}/include/TCLInterpreterObject.h],[tclinterpobjinstalled="yes"],[tclinterpobjinstalled="no"])
+  if [ [ $libtclinstalled = "no" ] || [ $libexceptioninstalled = "no" ] || [ $tclinterpobjinstalled = "no" ] ]
+  then
+    AC_CHECK_FILE([${srcdir}/libtcl], [havelibtcldir="yes"], [havelibtcldir="no"])
+	  if test $havelibtcldir = "yes"
+  	then
+      AC_MSG_RESULT([Need to build local tagged copy])
+      AC_CHECK_FILE([${srcdir}/libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
+		  (cd ${srcdir}/libtcl; ./configure --prefix=${prefix}; make clean install)
+	  else
+		  AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
+	  fi
+  else
+    AC_MSG_RESULT([Previously built version found in ${prefix}])
+  fi
+  LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+  LIBEXCEPTION_LDFLAGS="-L${prefix}/lib -lException -Wl,\"-rpath=${prefix}/lib\""
+	LIBTCLPLUS_LDFLAGS="-L${prefix}/lib -ltclPlus ${LIBEXCEPTION_LDFLAGS}"
 
 fi
 AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
+AC_SUBST(LIBEXCEPTION_LDFLAGS)
+
+####################################### Checks for Qt 
+
+# Check for Qt libraries
+PKG_CHECK_MODULES(QT, [QtCore, QtGui, QtNetwork], [], [AC_MSG_ERROR([Qt libraries are required.])])
+
+# Retrieve Qt compilation and linker flags
+CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork` $CPPFLAGS"
+LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork` $LDFLAGS"
+LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork` $LIBS"
+
+if ! `$PKG_CONFIG --atleast-version=4.6.0 QtCore`; then
+   AC_MSG_ERROR([Qt >= 4.6.0 is required.])
+fi
+
+AC_CHECK_PROGS(MOC, [moc-qt5 moc-qt4 moc])
+if test "x$MOC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program moc is required.])
+fi
+
+AC_CHECK_PROGS(UIC, [uic-qt5 uic-qt4 uic])
+if test "x$UIC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program uic is required.])
+fi
+
+AC_CHECK_PROGS(RCC, [rcc])
+if test "x$RCC" = "x" ; then
+  AC_MSG_ERROR([Qt utility program rcc is required.])
+fi
+
+# Retrieve Qt compilation and linker flags
+QT_CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork`"
+QT_LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork`"
+QT_LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork`"
+
+AC_SUBST(QT_CPPFLAGS)
+AC_SUBST(QT_LDFLAGS)
+AC_SUBST(QT_LIBS)
+AC_SUBST(MOC)
+AC_SUBST(UIC)
+AC_SUBST(RCC)
+
+
+######################################## Checks for Root 
+
+AC_CHECK_PROG(ROOTCONFIGDFLT, [root-config], [root-config], [], [$PATH])
+
+
+# override of default version
+AC_ARG_WITH([rootsys],
+	AS_HELP_STRING([--with-rootsys], [Path to ROOT install directory (a.k.a. ROOTSYS)]))
+
+AC_PATH_PROG([ROOTCONFIG], [root-config], [notfound], [$with_rootsys/bin:$PATH])
+
+if test "x$ROOTCONFIG" = "xnotfound" ; then 
+  ROOTCONFIG=$ROOTCONFIGDFLT
+  AC_MSG_NOTICE([Setting to $ROOTCONFIG])
+fi
+
+if test -z "$ROOTCONFIG" ; then
+  AC_MSG_ERROR([Unable to locate root-config that is is required.])
+else 
+  AC_MSG_NOTICE([Using root-config ... $ROOTCONFIG])
+fi
+
+ROOT_CFLAGS=`$ROOTCONFIG --cflags`
+ROOT_LDFLAGS="`$ROOTCONFIG --glibs` -lQtGSI"
+ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
+AC_SUBST(ROOT_CFLAGS)
+AC_SUBST(ROOT_LDFLAGS)
+AC_SUBST(ROOT_LIBRARY_DIR)
+AC_SUBST(ROOTCONFIG)
+
+######################################  Checks for jsoncpp
+
+# Check for Qt libraries
+PKG_CHECK_MODULES(JSONCPP, [jsoncpp], [], [AC_MSG_ERROR([jsoncpp package must be installed])])
+AC_MSG_RESULT([$JSONCPP])
+
+AC_SUBST(JSONCPP_CFLAGS)
+AC_SUBST(JSONCPP_LIBS)
 
 # mandb:
 
@@ -791,24 +903,47 @@ AC_SUBST(MANDOCBOOK)
 
 # create output files.
 
-
-AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
-        factories/Makefile					      \
-	Display/Makefile 
-	Xamine/Makefile Tape/Makefile \
-	EventSource/Makefile Events/Makefile Gates/Makefile \
-	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
-	Analysis/Makefile \
-	DecoderRing/Makefile \
-	TreeParam/Makefile \
-	Fits/Makefile	   \
-	 SpecTcl/Makefile \
-	 contrib/Makefile contrib/scriptable/Makefile \
-	 TestFiles/Makefile \
-	 Gui/Makefile splash/Makefile \
-	 treegui/Makefile \
-	 filtsplit/Makefile doc/Makefile \
-	 calibratedparams/Makefile \
-	 ccusb/Makefile ccusb/MakefileSkel \
-	 vmusb/Makefile vmusb/MakefileSkel \
-	 tkcon/Makefile compress/Makefile )
+AC_OUTPUT(Makefile 
+          calibratedparams/Makefile 
+          contrib/Makefile
+          contrib/scriptable/Makefile
+          contrib/Grace/Makefile
+          contrib/multiread/Makefile
+          contrib/treeparam/Makefile
+          compress/Makefile
+          Core/Makefile 
+          ccusb/Makefile
+          ccusb/MakefileSkel
+          XamineParsers/Makefile 
+          Display/Makefile 
+          docs/Makefile
+          docs/webpage/Makefile
+          docs/webpage/Commands/Makefile
+          docs/webpage/Commands/_vti_cnf/Makefile
+          docs/webpage/Programming/Makefile
+          docs/diagrams/Makefile
+          docs/docbook/Makefile
+          docs/man/Makefile
+          factories/Makefile
+          filtsplit/Makefile
+          Gui/Makefile
+          Replace/Makefile
+          Scripts/Makefile 
+          SpecTcl/Makefile
+          splash/Makefile
+          Tape/Makefile
+          tkcon/Makefile
+          TestFiles/Makefile
+          treegui/Makefile
+          TreeParam/Makefile 
+          Utility/Makefile
+          Utility/daqdefs.h 
+          Utility/daqdefs.tcl 
+          vmusb/Makefile
+          vmusb/MakefileSkel 
+          spectra/Makefile
+          spectra/src/Makefile
+          spectra/test/Makefile
+          spectra/spectcljson/Makefile
+          spectra/Xamine2Root/Makefile)
+          

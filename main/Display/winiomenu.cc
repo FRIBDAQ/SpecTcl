@@ -58,6 +58,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "menusetup.h"
 #include <string>		// STL String so I get around length problems.
 #include <libgen.h>
+#include <exception>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -548,20 +549,25 @@ void write_windows(XMWidget *w, XtPointer client_data,
 
   pane_db *db = Xamine_GetPaneDb();
 
-  if(!(db->win_db::write(filename))) {
-    sprintf(msg, "Failed to write window file %s\n%s",
-	    filename,
-	    strerror(errno));
-    new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
-  }
-  else {
-    string title("Xamine -- ");
-    LastFilename = filename;
-    title += filename;
+  try {
+      if(!(db->win_db::write(filename))) {
+          sprintf(msg, "Failed to write window file %s\n%s",
+                  filename,
+                  strerror(errno));
+          new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
+      }
+      else {
+          string title("Xamine -- ");
+          LastFilename = filename;
+          title += filename;
 
-    SetWindowLabel(openbox->getid(), (char*)title.c_str());  /* Set the shell title banner. */
-    Xamine_SavedWindows();
+          SetWindowLabel(openbox->getid(), (char*)title.c_str());  /* Set the shell title banner. */
+          Xamine_SavedWindows();
+      }
+  } catch (std::exception& exc) {
+          Xamine_error_msg(Xamine_Getpanemgr(), exc.what());
   }
+
 
 
 }

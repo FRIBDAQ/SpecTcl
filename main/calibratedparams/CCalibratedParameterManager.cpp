@@ -13,7 +13,7 @@
 #include <DesignByContract.h>
 #include <Exception.h>
 #include <string>
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

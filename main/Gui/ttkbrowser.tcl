@@ -140,6 +140,7 @@ image create photo ::browser::foldericon   -format png \
     
     variable parameterTerminals -array [list]
     variable spectrumTerminals  -array [list]
+    variable variableTerminals  -array [list]
 
     #---
     
@@ -250,26 +251,22 @@ image create photo ::browser::foldericon   -format png \
             set timing [time { 
             $self fillSpectrumFolder
             }]
-            puts "Fill Spectrum folder: $timing"
             
         }
         if {[lsearch -exact $options(-restrict) parameters] != -1} {
             set timing [time {
              $self fillParameterFolder
              }]
-            puts "Fill parameter folder $timing"
         }
         if {[lsearch -exact $options(-restrict) variables] != -1} {
             set timing [time {
             $self fillVariableFolder
             }]
-        
         }
         if {[lsearch -exact $options(-restrict) gates] != -1} {
             set timing [time {
             $self fillGateFolder
             }]
-
         }
 
 	#  Bindings for folders:
@@ -333,22 +330,6 @@ image create photo ::browser::foldericon   -format png \
 				-open 0 -tags spectrumFolder -image ::browser::foldericon]
 	lappend topLevelIds $spectrumFolder
 
-	# Step 1: Create an array indexed by spectrum name whose value is the gate on that
-	#         spectrum "-TRUE-" is filtered out to an empty string:
-	# NOTE: All spectra have a gate applied to them even if it's a -TRUE- gate.
-	#      this is how SpecTcl works.
-	#
-        set timing [time {
-	foreach application [apply -list] {
-	    set name [lindex $application 0]
-	    set gate [lindex [lindex $application 1] 0]
-	    if {$gate eq "-TRUE-"} {
-		set gate ""
-	    }
-	    set applications($name) $gate
-	}
-        }]
-        puts "Getting gate applications $timing"
 
 	# Now we're ready to populate the subtree:
 	# Step 2:  Create a list of spectra filtered by any -filterspectra script each element
@@ -357,29 +338,31 @@ image create photo ::browser::foldericon   -format png \
 	#
         set timing [time {
 	set spectrumList [list]
-	foreach definition [spectrum -list] {
+	foreach definition [spectrum -list -showgate] {
 	    if {$options(-filterspectra) ne ""} {
 		if {![uplevel #0 $options(-filterspectra) [list $definition]] } {
 		    continue;	# Skip if filter script rejected.
 		}
 	    }
 	    set name [lindex $definition 1]
+            set gate [lindex $definition end]
+            if {$gate eq "-TRUE-"} {
+                set gate ""
+            }
 	    lappend spectrumList [list \
 				      $name                   \
 				      "[lindex $definition 2] [lindex $definition 5]"  \
-				      $applications($name)    \
+				      $gate     \
 				      "" "" "" "" ""          \
 				      $definition]				  
 	}
         }]
-        puts "Getting cooked spectrum defs $timing"
 
 	# Fill in the spectrum tree:
 
         set timing  [time {
 	$self fillSpectrumSubtree $spectrumFolder $spectrumList
         }]
-       puts "Populating tree: $timing"
 
     }
     # fillParameterFolder
@@ -410,16 +393,15 @@ image create photo ::browser::foldericon   -format png \
             }
 	    lappend parameterList [list [lindex $parameter 0] $parameter]
 	}
-}]
-        puts "Preparing parameter list $timing"
+        }]
 
 	# Recursively stock the parameter tree algorithm is pretty much the same as
 	# for fillSpectrumSubtree
 
         set timing [time {
 	$self fillParameterSubtree $paramFolder $parameterList
-}]
-        puts "Filling parameter tree : $timing"
+        }]
+
 
    
     }
@@ -1171,12 +1153,7 @@ image create photo ::browser::foldericon   -format png \
 	}
 	# Enter the terminal nodes:
 
-	foreach variable [lsort [array names terminal]] {
-	    set varInfo  $terminal($variable)
-	    set valueList [list "" "" "" "" "" [lindex $varInfo 1] [lindex $varInfo 2]]
-	    $tree insert $id end -text $variable -image ::browser::varicon \
-		-values $valueList -tags variable
-	}
+        set variableTerminals($id) [array get terminal]
     }
     ##
     # fillGateSubtree
@@ -1440,7 +1417,7 @@ image create photo ::browser::foldericon   -format png \
     #     (the _BLTFOLDER is removed from intermediate path entries.
     #
     method getSelection {} {
-        set selected [$tree selected];         # These are ID's.
+        set selected [$tree selection];         # These are ID's.
         set names [list]
         foreach id $selected {
             lappend names [$self FullPath $id]
@@ -1553,7 +1530,16 @@ image create photo ::browser::foldericon   -format png \
             array unset spectrumTerminals $id
             return
         }
-        
+        if {[array names variableTerminals $id] ne ""} {
+            array set terminal $variableTerminals($id)
+            foreach variable [lsort [array names terminal]] {
+                set varInfo  $terminal($variable)
+                set valueList [list "" "" "" "" "" [lindex $varInfo 1] [lindex $varInfo 2]]
+                $tree insert $id end -text $variable -image ::browser::varicon \
+                    -values $valueList -tags variable
+            }
+            
+        }
         
     }
 }

@@ -46,50 +46,38 @@ CV977Unpacker.h \
 MySpecTclApp.h
 
 
-AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
-	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
-	-I@top_srcdir@/Analysis \
-	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	-I@top_srcdir@/TreeParam \
-	-I@top_srcdir@/Fits  -I@top_srcdir@/factories    \
+VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
+	-I@top_srcdir@/Core  \
+	-I@top_srcdir@/Display \
+	-I@top_srcdir@/Tape \
+	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
-VMUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
-	  ../Events/libAnalysis.la \
-	../Fits/libFits.la \
-	../Analysis/libBufferAnalysis.la \
-	../EventSource/libEventSource.la \
-	../Tape/libtape.la \
-	../Gates/libGates.la \
-	../Replace/libreplace.la \
-	../Xamine/libXplus.la \
-	../calibratedparams/libCalibrations.la \
-	../Sorter/libSorting.la \
-	../Filter/libFilter.la \
-	../SpectrumIO/libSpecio.la \
-	../TreeParam/libTreeParam.la \
-	../DecoderRing/libDecoderRing.la \
-	../Display/libXamine.la          \
+VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
+		    @top_builddir@/Tape/libtape.la \
+		    @top_builddir@/calibratedparams/libCalibrations.la \
+		    @top_builddir@/Display/libXamine.la
+
+VMUSBSpecTcl_LDFLAGS = 	\
 	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=@libdir@"
 
 
-install-exec-local: docs_built
+install-exec-local:
 	$(mkinstalldirs) @prefix@/VMUSBSkel @prefix@/share/vmusb
-	$(INSTALL_DATA) *.cpp *.h        @prefix@/VMUSBSkel
+	for f in @srcdir@/*.cpp ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
+	for f in @srcdir@/*.h ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
-	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
+	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/vmusb
-	$(INSTALL_DATA)  *.html @prefix@/share/vmusb
-	$(INSTALL_DATA)  *.pdf  @prefix@/share/vmusb
+	for f in @builddir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
+	for f in @builddir@/*.pdf ; do $(INSTALL_DATA)  $$f @prefix@/share/vmusb ; done
 	-for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \
@@ -100,12 +88,18 @@ install-exec-local: docs_built
 
 EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl
 
+BUILT_SOURCES = @builddir@/docs_built
 
 
-docs_built: vmusb.xml
-	-@MANDOCBOOK@ man $< 2>/dev/null
-	@HTMLDOCBOOK@ $<
-	@HCDOCBOOK@ $<
-	dvipdf       vmusb.dvi
-	touch docs_built
+
+@builddir@/docs_built: @srcdir@/vmusb.xml
+	@MANDOCBOOK@ man $< -o @builddir@ 2>/dev/null
+	@HTMLDOCBOOK@ $< -o @builddir@
+	@HCDOCBOOK@ $< -o @builddir@
+	dvipdf       @builddir@/vmusb.dvi @builddir@/vmusb.pdf
+	touch @builddir@/docs_built
+
+
+clean-local:
+	rm -f @builddir@/docs_built
 

@@ -967,10 +967,10 @@ static void AddPt1(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 	  float fylo  = xamine_shared->getymin_map(att->spectrum());
 	  float fxhi  = xamine_shared->getxmax_map(att->spectrum());
 	  float fyhi  = xamine_shared->getymax_map(att->spectrum());
-	  if((fx < fxlo) || (fx >= fxhi)) {
+	  if((fx < fxlo) || (fx > fxhi)) {
 	    throw "X coordinate out of range";
 	  }
-	  if((fy < fylo) || (fy >= fyhi)) {
+	  if((fy < fylo) || (fy > fyhi)) {
 	    throw "Y coordiante out of range";
 	  }
 	  dlg->SetMappedPoint1(fx, fy);
@@ -985,9 +985,9 @@ static void AddPt1(XMWidget *wid, XtPointer user_d, XtPointer call_d)
       }
       else {
 	if(dlg->GetPoint1(&x, &y)) { /* Got the two points. */
-	  if( (x < 0) || (x >= xhi))
+	  if( (x < 0) || (x > xhi))
 	    goto failed2d;
-	  if( (y < 0) || (y >= yhi))
+	  if( (y < 0) || (y > yhi))
 	    goto failed2d;
 	  /* At this point we have a good point. */
 	  dlg->SetPoint1(x,y);
@@ -1022,7 +1022,7 @@ static void AddPt1(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 
 	  float flow = xamine_shared->getxmin_map(att1->spectrum());
 	  float fhi  = xamine_shared->getxmax_map(att1->spectrum());
-	  if((fx < flow) || (fx >= fhi)) {
+	  if((fx < flow) || (fx > fhi)) {
 	    throw "Point out of bounds";
 	  }
 	  // All is golden .. save the point.
@@ -1039,7 +1039,7 @@ static void AddPt1(XMWidget *wid, XtPointer user_d, XtPointer call_d)
       }
       else {
 	if((x = dlg->GetPoint1()) >= 0) {
-	  if( (x < lo) || (x >= hi))
+	  if( (x < lo) || (x > hi))
 	    goto failed1d;
 	  /* At this point we have a good point. */
 	  dlg->SetPoint1(x);
@@ -1143,10 +1143,10 @@ static void AddPt2(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 	  float fylo  = xamine_shared->getymin_map(att->spectrum());
 	  float fxhi  = xamine_shared->getxmax_map(att->spectrum());
 	  float fyhi  = xamine_shared->getymax_map(att->spectrum());
-	  if((fx < fxlo) || (fx >= fxhi)) {
+	  if((fx < fxlo) || (fx > fxhi)) {
 	    throw "X coordinate out of range";
 	  }
-	  if((fy < fylo) || (fy >= fyhi)) {
+	  if((fy < fylo) || (fy > fyhi)) {
 	    throw "Y coordiante out of range";
 	  }
 	  dlg->SetMappedPoint2(fx, fy);
@@ -1162,9 +1162,9 @@ static void AddPt2(XMWidget *wid, XtPointer user_d, XtPointer call_d)
       else {
 
 	if(dlg->GetPoint2(&x, &y)) { /* Got the two points. */
-	  if( (x < 0) || (x >= xhi))
+	  if( (x < 0) || (x > xhi))
 	    goto failed2d;
-	  if( (y < 0) || (y >= yhi))
+	  if( (y < 0) || (y > yhi))
 	    goto failed2d;
 	  /* At this point we have a good point. */
 	  dlg->SetPoint2(x,y);
@@ -1199,7 +1199,7 @@ static void AddPt2(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 
 	  float flow = xamine_shared->getxmin_map(att1->spectrum());
 	  float fhi  = xamine_shared->getxmax_map(att1->spectrum());
-	  if((fx < flow) || (fx >= fhi)) {
+	  if((fx < flow) || (fx > fhi)) {
 	    throw "Point out of bounds";
 	  }
 	  // All is golden .. save the point.
@@ -1216,7 +1216,7 @@ static void AddPt2(XMWidget *wid, XtPointer user_d, XtPointer call_d)
       }
       else {
 	if((x = dlg->GetPoint2()) >= 0) {
-	  if( (x < lo) || (x >= hi))
+	  if( (x < lo) || (x > hi))
 	    goto failed1d;
 	  /* At this point we have a good point. */
 	  dlg->SetPoint2(x);

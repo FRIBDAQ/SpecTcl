@@ -21,11 +21,12 @@
 #include <CGaussianFit.h>
 #include <CSpectrumFit.h>
 #include <CFitDictionary.h>
-#include <Histogrammer.h>
+#include <DisplayInterface.h>
 #include <SpecTcl.h>
 #include <Spectrum.h>
 #include <CFitCommand.h>
 #include <TCLInterpreter.h>
+#include <DisplayInterface.h>
 
 #include <clientops.h>
 #include <string>
@@ -35,6 +36,7 @@ using namespace std;
 #endif
 
 #include <iostream>		// For debugging.
+#include <stdexcept>
 
 /*!
 
@@ -250,8 +252,15 @@ CFitButton::spectrumName(CButtonEvent& event)
 {
     int            bindId        = event.getPromptedSpectrum();
     SpecTcl*       pApi          = SpecTcl::getInstance();
-    CHistogrammer* pHistogrammer = pApi->GetHistogrammer();
-    CSpectrum*     pSpectrum     = pHistogrammer->DisplayBinding(bindId-1);
+    CDisplayInterface* pDispManager  = pApi->GetDisplayInterface();
+    CDisplay*      pGenericDisplay = pDispManager->getCurrentDisplay();
+    CXamine* pXamine = dynamic_cast<CXamine*>(pGenericDisplay);
+    if (pXamine == nullptr) {
+        throw std::runtime_error("CFitButton::spectrumName(CButtonEvent&) requires Xamine display");
+    }
+
+    auto spectra = pXamine->getBoundSpectra();
+    CSpectrum*     pSpectrum     = spectra.at(bindId-1);
     string spectrumName;
     if (pSpectrum) {
       spectrumName  = pSpectrum->getName();

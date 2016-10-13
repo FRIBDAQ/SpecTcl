@@ -1,13 +1,13 @@
 /*
-		    GNU GENERAL PUBLIC LICENSE
-		       Version 2, June 1991
+            GNU GENERAL PUBLIC LICENSE
+               Version 2, June 1991
 
  Copyright (C) 1989, 1991 Free Software Foundation, Inc.
                        59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-			    Preamble
+                Preamble
 
   The licenses for most software are designed to take away your
 freedom to share and change it.  By contrast, the GNU General Public
@@ -56,8 +56,8 @@ patent must be licensed for everyone's free use or not licensed at all.
 
   The precise terms and conditions for copying, distribution and
 modification follow.
-
-		    GNU GENERAL PUBLIC LICENSE
+
+            GNU GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
   0. This License applies to any program or other work which contains
@@ -111,7 +111,7 @@ above, provided that you also meet all of these conditions:
     License.  (Exception: if the Program itself is interactive but
     does not normally print such an announcement, your work based on
     the Program is not required to print an announcement.)
-
+
 These requirements apply to the modified work as a whole.  If
 identifiable sections of that work are not derived from the Program,
 and can be reasonably considered independent and separate works in
@@ -169,7 +169,7 @@ access to copy from a designated place, then offering equivalent
 access to copy the source code from the same place counts as
 distribution of the source code, even though third parties are not
 compelled to copy the source along with the object code.
-
+
   4. You may not copy, modify, sublicense, or distribute the Program
 except as expressly provided under this License.  Any attempt
 otherwise to copy, modify, sublicense or distribute the Program is
@@ -226,7 +226,7 @@ impose that choice.
 
 This section is intended to make thoroughly clear what is believed to
 be a consequence of the rest of this License.
-
+
   8. If the distribution and/or use of the Program is restricted in
 certain countries either by patents or by copyrighted interfaces, the
 original copyright holder who places the Program under this License
@@ -239,41 +239,41 @@ the limitation as if written in the body of this License.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions 
-either of that version or of any later version published by the Free Software 
+later version", you have the option of following the terms and conditions
+either of that version or of any later version published by the Free Software
 Foundation.  If the Program does not specify a version number of this License,
  you may choose any version ever published by the Free Software Foundation.
 
   10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author to 
-ask for permission.  For software which is copyrighted by the Free Software 
-Foundation, write to the Free Software Foundation; we sometimes make 
-exceptions for this.  Our decision will be guided by the two goals of 
-preserving the free status of all derivatives of our free software and of 
+programs whose distribution conditions are different, write to the author to
+ask for permission.  For software which is copyrighted by the Free Software
+Foundation, write to the Free Software Foundation; we sometimes make
+exceptions for this.  Our decision will be guided by the two goals of
+preserving the free status of all derivatives of our free software and of
 promoting the sharing and reuse of software generally.
 
-			    NO WARRANTY
+                NO WARRANTY
 
   11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
-THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
-PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE
+THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND
+PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE,
 YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
-LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
-THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO
+LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR
+THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS 
+             END OF TERMS AND CONDITIONS
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -281,7 +281,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 #include <config.h>
-#include "MySpecTclApp.h"    				
+#include "MySpecTclApp.h"
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
 #include <Event.h>
@@ -343,16 +343,16 @@ class CFixedEventUnpacker : public  CEventProcessor
 {
 public:
   virtual Bool_t operator()(const Address_t pEvent,
-			    CEvent&         rEvent,
-			    CAnalyzer&      rAnalyzer,
-			    CBufferDecoder& rDecoder);
+                CEvent&         rEvent,
+                CAnalyzer&      rAnalyzer,
+                CBufferDecoder& rDecoder);
 };
 
 Bool_t
 CFixedEventUnpacker::operator()(const Address_t pEvent,
-				CEvent&         rEvent,
-				CAnalyzer&      rAnalyzer,
-				CBufferDecoder& rDecoder)
+                CEvent&         rEvent,
+                CAnalyzer&      rAnalyzer,
+                CBufferDecoder& rDecoder)
 {
 
   // This sample unpacker unpacks a fixed length event which is
@@ -388,17 +388,17 @@ class CAddFirst2 : public CEventProcessor
 {
 public:
   virtual Bool_t operator()(const Address_t pEvent,
-			    CEvent&         rEvent,
-			    CAnalyzer&      rAnalyzer,
-			    CBufferDecoder& rDecoder);
+                CEvent&         rEvent,
+                CAnalyzer&      rAnalyzer,
+                CBufferDecoder& rDecoder);
 
 };
 
 Bool_t
 CAddFirst2::operator()(const Address_t pEvent,
-		       CEvent&         rEvent,
-		       CAnalyzer&      rAnalyzer,
-		       CBufferDecoder& rDecoder)
+               CEvent&         rEvent,
+               CAnalyzer&      rAnalyzer,
+               CBufferDecoder& rDecoder)
 {
   event.sum = event.raw[0]*vars.w1 + event.raw[1]*vars.w2;
   return kfTRUE;
@@ -413,7 +413,7 @@ static CAddFirst2          Stage2;
 
 // CFortranUnpacker:
 //   This sample unpacker is a bridge between the C++ SpecTcl
-//   and a FORTRAN unpacking/analysis package.  
+//   and a FORTRAN unpacking/analysis package.
 //   The raw event is passed as a parameter to the FORTRAN function
 //   f77unpacker.  This function has the signature:
 //     LOGICAL F77UNPACKER(EVENT)
@@ -432,10 +432,10 @@ static CAddFirst2          Stage2;
 //    At compile time, define: WITHF77UNPACKER
 //    and F77NPARAMS to be the maximum number of parameters the Fortran
 //    unpacker will fill in.
-// 
+//
 //    In the unpacker, set FPARAMETERS(i) if i has been unpacked from
 //    the event.
-//        
+//
 //
 //   PARAMETERS are copied from 1 -> NUSED into parameters numbered
 //   NOFFSET -> NUSED+NOFFSET
@@ -464,21 +464,21 @@ class CFortranUnpacker : public CEventProcessor
 {
 public:
   virtual Bool_t operator()(const Address_t pEvent, CEvent& rEvent,
-		    CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder);
+            CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder);
 };
 
 Bool_t
 CFortranUnpacker::operator()(const Address_t pEvent,
-			     CEvent&         rEvent,
-			     CAnalyzer&      rAnalyzer,
-			     CBufferDecoder& rDecoder)
+                 CEvent&         rEvent,
+                 CAnalyzer&      rAnalyzer,
+                 CBufferDecoder& rDecoder)
 {
   Bool_t result = f77unpacker_(pEvent);
   if(result) {
     int dest = f77params_.nOffset;
     for(int i = 0; i < f77params_.nUsed; i++) {
       if(f77params_.fParameters[i])
-	rEvent[dest] = f77params_.nParameters[i];
+    rEvent[dest] = f77params_.nParameters[i];
       dest++;
     }
     UShort_t* pSize = (UShort_t*)pEvent;
@@ -491,12 +491,12 @@ CFortranUnpacker::operator()(const Address_t pEvent,
 CFortranUnpacker legacyunpacker;
 
 #endif
-//  Function: 	
-//    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer) 
+//  Function:
+//    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
   Sets up an analysis pipeline.  This function is required and must
 be filled in by the SpecTcl user.  Pipeline elements are objects
@@ -512,41 +512,41 @@ elements 1 and 2 and putting the result into element 0.
 
 */
 
-void 
-CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
-{ 
+void
+CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
+{
 
 #ifdef WITHF77UNPACKER
   RegisterEventProcessor(legacyunpacker);
 #endif
-  
+
     RegisterEventProcessor(Stage1, "Raw");
     RegisterEventProcessor(Stage2, "Computed");
-}  
+}
 
 // Constructors, destructors and other replacements for compiler cannonicals:
 
 CMySpecTclApp::CMySpecTclApp ()
-{   
-} 
+{
+}
 
-	// Destructor:
+    // Destructor:
 
  CMySpecTclApp::~CMySpecTclApp ( )
 {
-} 
+}
 
 
 // Functions for class CMySpecTclApp
 
 
 
-//  Function: 	
-//    void BindTCLVariables(CTCLInterpreter& rInterp) 
+//  Function:
+//    void BindTCLVariables(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     override
-/*  
-Purpose: 	
+/*
+Purpose:
 
  Add code to this function to bind any TCL variable to
  the SpecTcl interpreter.  Note that at this time,
@@ -556,18 +556,18 @@ Purpose:
 
 
 */
-void 
-CMySpecTclApp::BindTCLVariables(CTCLInterpreter& rInterp)  
-{ 
+void
+CMySpecTclApp::BindTCLVariables(CTCLInterpreter& rInterp)
+{
   CTclGrammerApp::BindTCLVariables(rInterp);
-}  
+}
 
-//  Function: 	
-//    void SourceLimitScripts(CTCLInterpreter& rInterpreter) 
+//  Function:
+//    void SourceLimitScripts(CTCLInterpreter& rInterpreter)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
 Add code here to source additional variable setting
 scripts.  At this time the entire SpecTcl/Tk infrastructure
@@ -577,113 +577,135 @@ Typically, this might be used to set a bunch of initial values
 for variables which were bound in BindTCLVariables.
 
 */
-void 
-CMySpecTclApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)  
+void
+CMySpecTclApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)
 { CTclGrammerApp::SourceLimitScripts(rInterpreter);
-}  
+}
 
-//  Function: 	
-//    void SetLimits() 
+//  Function:
+//    void SetLimits()
 //  Operation Type:
 //     overide
-/*  
-Purpose: 	
+/*
+Purpose:
 
 Called after BindVariables and SourceLimitScripts.
 This function can be used to fetch values of bound Tcl
 variables which were modified/set by the limit scripts to
-update program default values. 
+update program default values.
 
 */
-void 
-CMySpecTclApp::SetLimits()  
+void
+CMySpecTclApp::SetLimits()
 { CTclGrammerApp::SetLimits();
-}  
+}
 
-//  Function: 	
-//    void CreateHistogrammer() 
+//  Function:
+//    void CreateHistogrammer()
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
 Creates the histogramming data sink.  If you want to override
 this in general you probably won't make use of the actual
-base class function.  You might, however extend this by 
+base class function.  You might, however extend this by
 defining a base set of parameters and histograms from within
 the program.
 
 */
-void 
-CMySpecTclApp::CreateHistogrammer()  
+void
+CMySpecTclApp::CreateHistogrammer()
 { CTclGrammerApp::CreateHistogrammer();
-}  
+}
 
-//  Function: 	
-//    void SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer) 
+/*! \brief Create custom displays
+ *
+ * If a user creates their own custom display that they want to use,
+ * they can create it here by adding it to the DisplayInterface. You could
+ * also use this to override certain parameters in the provided displays.
+ */
+void
+CMySpecTclApp::CreateDisplays()
+{
+    CTclGrammerApp::CreateDisplays();
+}
+
+//  Function:
+//    void SelectDisplayer()
 //  Operation Type:
 //     Override.
-/*  
-Purpose: 	
+/*
+Purpose:
 
-Select a displayer object and link it to the
-histogrammer.  The default code will link Xamine
-to the displayer, and set up the Xamine event handler
-to deal with gate objects accepted by Xamine interaction.
-
+Select a displayer object. The implementation in the base class
+chooses the display and starts it. There is not a whole lot of
+reason you would want to change this behavior.
 */
-void 
-CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)  
-{ CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
-}  
+void
+CMySpecTclApp::SelectDisplayer()
+{
+    CTclGrammerApp::SelectDisplayer();
+}
 
-//  Function: 	
-//    void SetupTestDataSource() 
+/*! \brief Set up a displays
+ *
+ * This is typically used to add observer objects to the displays
+ * that connect SpecTcl actions with the current display.
+ */
+void
+CMySpecTclApp::SetUpDisplay()
+{
+    CTclGrammerApp::SetUpDisplay();
+}
+
+//  Function:
+//    void SetupTestDataSource()
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
  Allows you to set up a test data source.  At
 present, SpecTcl must have a data source of some sort
-connected to it... The default test data source produces a 
+connected to it... The default test data source produces a
 fixed length event where all parameters are selected from
 a gaussian distribution.  If you can figure out how to do it,
 you can setup your own data source... as long as you don't
 start analysis, the default one is harmless.
 
 */
-void 
-CMySpecTclApp::SetupTestDataSource()  
+void
+CMySpecTclApp::SetupTestDataSource()
 { CTclGrammerApp::SetupTestDataSource();
-}  
+}
 
-//  Function: 	
-//    void CreateAnalyzer(CEventSink* pSink) 
+//  Function:
+//    void CreateAnalyzer(CEventSink* pSink)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
 Creates an analyzer.  The Analyzer is connected to the data
 source which supplies buffers.  Connected to the analyzer is a
-buffer decoder and an event unpacker.  The event unpacker is 
+buffer decoder and an event unpacker.  The event unpacker is
 the main experiment dependent chunk of code, not the analyzer.
 The analyzer constructed by the base class is a CTclAnalyzer instance.
 This is an analyzer which maintains statistics about itself in Tcl Variables.
 
 */
-void 
-CMySpecTclApp::CreateAnalyzer(CEventSink* pSink)  
+void
+CMySpecTclApp::CreateAnalyzer(CEventSink* pSink)
 { CTclGrammerApp::CreateAnalyzer(pSink);
-}  
+}
 
-//  Function: 	
-//    void SelectDecoder(CAnalyzer& rAnalyzer) 
+//  Function:
+//    void SelectDecoder(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
   Selects a decoder and attaches it to the analyzer.
 A decoder is responsible for knowing the overall structure of
@@ -692,19 +714,19 @@ constructs a CNSCLBufferDecoder object which knows the format
 of NSCL buffers.
 
 */
-void 
-CMySpecTclApp::SelectDecoder(CAnalyzer& rAnalyzer)  
+void
+CMySpecTclApp::SelectDecoder(CAnalyzer& rAnalyzer)
 { CTclGrammerApp::SelectDecoder(rAnalyzer);
-}  
+}
 
 
 
-//  Function: 	
-//    void AddCommands(CTCLInterpreter& rInterp) 
+//  Function:
+//    void AddCommands(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
 This function adds commands to extend Tcl/Tk/SpecTcl.
 The base class function registers the standard SpecTcl command
@@ -713,56 +735,56 @@ Do not remove the sample code or the SpecTcl commands will
 not get registered.
 
 */
-void 
-CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)  
+void
+CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)
 { CTclGrammerApp::AddCommands(rInterp);
-}  
+}
 
-//  Function: 	
-//    void SetupRunControl() 
+//  Function:
+//    void SetupRunControl()
 //  Operation Type:
 //     Override.
-/*  
-Purpose: 	
+/*
+Purpose:
 
   Sets up the Run control object.  The run control object
 is responsible for interacting with the underlying operating system
-and programming framework to route data from the data source to 
-the SpecTcl analyzer.  The base class object instantiates a 
-CTKRunControl object.  This object uses fd waiting within the 
+and programming framework to route data from the data source to
+the SpecTcl analyzer.  The base class object instantiates a
+CTKRunControl object.  This object uses fd waiting within the
 Tcl/TK event processing loop framework to dispatch buffers for
 processing as they become available.
 
 */
-void 
-CMySpecTclApp::SetupRunControl()  
+void
+CMySpecTclApp::SetupRunControl()
 { CTclGrammerApp::SetupRunControl();
-}  
+}
 
-//  Function: 	
-//    void SourceFunctionalScripts(CTCLInterpreter& rInterp) 
+//  Function:
+//    void SourceFunctionalScripts(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Override
-/*  
-Purpose: 	
+/*
+Purpose:
 
   This function allows the user to source scripts
 which have access to the full Tcl/Tk/SpecTcl
 command set along with whatever extensions have been
-added by the user in AddCommands.  
+added by the user in AddCommands.
 
 */
-void 
-CMySpecTclApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)  
+void
+CMySpecTclApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)
 { CTclGrammerApp::SourceFunctionalScripts(rInterp);
-}  
+}
 
-//  Function: 	
-//    int operator()() 
+//  Function:
+//    int operator()()
 //  Operation Type:
 //     Override.
-/*  
-Purpose: 	
+/*
+Purpose:
 
   Entered at Tcl/Tk initialization time (think of this
 as the entry point of the SpecTcl program).  The base
@@ -771,13 +793,14 @@ of this class in an appropriate order.  It's possible for the user
 to extend this functionality by adding code to this function.
 
 */
-int 
-CMySpecTclApp::operator()()  
-{ 
+int
+CMySpecTclApp::operator()()
+{
   return CTclGrammerApp::operator()();
 }
 
 CMySpecTclApp   myApp;
-CTclGrammerApp& app(myApp);	// Create an instance of me.
-CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
 
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
+
+int gpTCLApplication(0);

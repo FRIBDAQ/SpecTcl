@@ -325,7 +325,7 @@ private:
   bool m_fValue;            //!< Current boolean value. : 
   //  Constructors and other cannonical member functions:
 public:
-  CBoolConfigParam (const STD(string)& rName, 
+  CBoolConfigParam (const std::string& rName, 
                     bool fDefault = false); //!< Constructor
  ~ CBoolConfigParam ( );                    //!< Destructor
   CBoolConfigParam (const CBoolConfigParam& rhs); //!< copy constructor
@@ -356,7 +356,7 @@ public:
   virtual   int SetValue (CTCLInterpreter& rInterp, 
                           CTCLResult& rResult, 
                           const char* pFlag)   ; //!< Parse flag.
-  virtual STD(string) GetParameterFormat();
+  virtual std::string GetParameterFormat();
  protected:
   static Bool_t ParseFlag(const char* value);
 };

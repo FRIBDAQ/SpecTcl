@@ -24,21 +24,10 @@ CCFLAGS=$(CXXFLAGS)
 
 #  The ld flags:
 
-LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
-	-lSorting     \
-	-lXplus       \
-	-lGates       \
-	-lAnalysis    \
-	-lEventSource \
-	-lSpecio      \
+LDFLAGS=-L$(SPECLIBS) -lTclGrammerApp \
 	$(LIBTCLPLUS_LDFLAGS) \
 	-lXamine      \
 	-ltape        \
-	-lFilter      \
-	-lBufferAnalysis \
-	-lTreeParam \
-	-lFits		\
-	-lDecoderRing	\
 	-lgsl -lgslcblas	\
 	$(LIBTCLPLUS_LDFLAGS) \
 	$(X11LIBS)    \

@@ -74,7 +74,7 @@ private:
 public:
    // Constructors and other canonical functions
     CCAENDigitizerModule (CTCLInterpreter& rInterp, 
-				    const STD(string)& rName);
+				    const std::string& rName);
     virtual ~ CCAENDigitizerModule ( );
 private:
  
@@ -117,7 +117,7 @@ protected:
   // Class operations:
 
 public:
-  virtual  STD(string) getType() const;
+  virtual  std::string getType() const;
   virtual   void Setup (CAnalyzer& rAnalyzer, CHistogrammer& rHistogrammer)   ; // 
   virtual   TranslatorPointer<UShort_t> 
     Unpack (TranslatorPointer<UShort_t> pEvent, 

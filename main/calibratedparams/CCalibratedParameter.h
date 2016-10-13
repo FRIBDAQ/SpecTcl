@@ -55,7 +55,7 @@ private:
   // Private Member data:
     int    m_nParameterId;        //!<  Id of parameter raw parameter we calibrate..  
     int    m_nTargetParameterId;  //!<  Id of resulting parameter.  
-    STD(string) m_sFitName;            //!<  Name of fit that's set on us.  
+    std::string m_sFitName;            //!<  Name of fit that's set on us.  
    
     CFit*  m_pFit;                //!< 1:1 association object data member 
 
@@ -63,7 +63,7 @@ public:
     //  Constructors and other canonical operations.
     CCalibratedParameter (int nTargetId,
     					  int nRawId,
-    					  STD(string) sFitName,
+    					  std::string sFitName,
     					  CFit*  pFit);		//!< Constructor.
     virtual  ~ CCalibratedParameter ( ); //!< Destructor.
     CCalibratedParameter (const CCalibratedParameter& rSource ); //!< Copy construction.
@@ -81,7 +81,7 @@ public:
 	int getRawId() const {
 		return m_nParameterId;
 	}
-	STD(string) getFitName() const {
+	std::string getFitName() const {
 		return m_sFitName;
 	}
 	const CFit* getFit() const {

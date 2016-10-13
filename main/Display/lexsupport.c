@@ -14,10 +14,6 @@
 */
 
 #include <stdio.h>
-int windfilewrap()
-{
-  return 1;
-}
 int grobjfilewrap()
 {
   return 1;
