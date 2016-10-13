@@ -63,6 +63,9 @@ void CSpectraProcess::exec()
     if (m_pid == 0) {
         m_pid = fork();
         if (m_pid == 0) {
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
+
             // child process
             execv(generatePath().c_str(), nullptr);
             return;
