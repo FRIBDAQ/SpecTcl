@@ -1067,4 +1067,22 @@ November 30-?? 2011
 	  parameter classic gate tab to aid in generating gates.
 	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
 	  in auto_path so scripts don't have to worry about it.
-	
+
+5.0-00
+	* Major overhauls to code organization. The display functionality is 
+	separated from the CHistogrammer class and is developed into a more
+	generic interface. The parsing libraries of win files is separated into
+	its own separate library called XamineParsers. 
+	* Xamine is no longer the only display utility for viewing spectra. The 
+	Spectra program is now available for use.
+	* Core library is created that combines a lot of previously modularized 
+	code into a single central library. This fixes the circular dependencies 
+	between the libraries that were causing build problems.
+	* TclGrammerApp is no longer derived from CTclApplication. It is now 
+	a singleton. This change introduces a minor change that users will have
+	to make to their Skeleton.cpp files.
+	* win file parser is made more loosely coupled to the presence of a 
+	shared memory segment. It can parse properly win files that specify
+	spectra by their name rather than their slot id.
+	* spectrum command is no longer able to deal with pure histogram ids
+	so that it works when there is no shared memory segment.
