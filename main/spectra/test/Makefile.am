@@ -21,6 +21,7 @@ unittests_SOURCES = GGateTest.cpp \
 										WinFileWriterTest.cpp \
 										TestRunner.cpp \
 										SubscribableH1Test.cpp \
+                                                                                MainTest.cpp \
 										TestUtils.cpp
 
 

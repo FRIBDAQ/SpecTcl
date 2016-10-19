@@ -1449,3 +1449,7 @@ spectra/src/resources/unzoom_32x32.png
 spectra/src/resources/unzoom.svg
 spectra/src/resources/zoom_32x32.png
 spectra/src/resources/zoom.svg
+spectra/test/MainTest.cpp
+spectra/src/Main.h
+spectra/src/Main.cpp
+spectra/test/Makefile.am

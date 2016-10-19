@@ -4,6 +4,9 @@
 #include <QApplication>
 #include <QTimer>
 
+#include <iostream>
+using namespace std;
+
 int main( int argc, char* argv[])
 {
     // Generate the TestRunner
@@ -12,12 +15,20 @@ int main( int argc, char* argv[])
     
     QApplication app(argc, argv);
 
-    // Add the test suites
-    runner.addTest( registry.makeTest() );
+    bool wasSuccessful = false;
+    try {
+        // Add the test suites
+        runner.addTest( registry.makeTest() );
 
-    // Run the tests
-    runner.run();
+        // Run the tests
+        wasSuccessful = runner.run();
+    } catch (std::string& rFailure) {
+        cerr << "Caught a string exception from the test suites.: \n";
+        cerr << rFailure << endl;
+    }
 
     QTimer::singleShot(100, &app, SLOT(quit()));
-    return app.exec();
+    app.exec();
+
+    return !wasSuccessful;
 }

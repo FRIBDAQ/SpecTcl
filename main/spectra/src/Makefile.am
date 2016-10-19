@@ -76,7 +76,8 @@ noinst_HEADERS =  QRootCanvas.h  \
 	SubscribableH1.h \
 	TestH1Subscriber.h \
 	Logo.h \
-	Benchmark.h
+        Benchmark.h \
+        Main.h
 
 libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
@@ -147,6 +148,7 @@ libSpectra_la_SOURCES = \
 	PrintingSystem.cpp \
 	TestH1Subscriber.cpp \
 	Logo.cpp \
+        Main.cpp \
 	moc_ControlPanel.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
