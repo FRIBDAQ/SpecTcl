@@ -211,6 +211,10 @@ bool HistogramBundle::synchronize2DGates(const MasterGateList* pGateList)
     return somethingChanged;
 }
 
+//
+// Synchrnozie the 1D gates stored with this histogram bundle. The synch
+// process creates a new list of gates, checks whether it is different
+// than the existing list of gates, and then swaps it out
 bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
 {
     bool somethingChanged = false;
@@ -230,8 +234,7 @@ bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
 
       if ( QString::fromStdString(m_hInfo.s_params.at(0)) == param ) {
         // parameter matches. see if this exists already
-
-        tempList[pExtSlice->getName()] = pExtSlice.get();
+        tempList[name] = pExtSlice.get();
 
       }
 
@@ -263,12 +266,10 @@ bool HistogramBundle::synchronizeGates(const MasterGateList* pGateList)
   bool somethingChanged = false;
 
   if ( m_pHist->InheritsFrom(TH2::Class()) ) {
-
       somethingChanged = (somethingChanged || synchronize2DGates(pGateList));
 
   } else {
-
-    somethingChanged = (somethingChanged || synchronize1DGates(pGateList));
+      somethingChanged = (somethingChanged || synchronize1DGates(pGateList));
 
   }
 

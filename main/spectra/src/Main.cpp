@@ -76,6 +76,8 @@ int Main::operator()(int argc, char* argv[])
     GlobalSettings::setServerPort(m_opts.getPort());
     GlobalSettings::setPollInterval(5000);
 
+    GlobalSettings::setBatchMode(false);
+
     // start Qt AND ROOT event loops... yes we need both
     TQApplication qtEventLoop("app", &argc, argv);
     TQRootApplication rootEventLoop(argc, argv, 0);

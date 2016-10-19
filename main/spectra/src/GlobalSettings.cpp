@@ -28,6 +28,7 @@ namespace Viewer
 
 QSettings* GlobalSettings::m_instance = nullptr;
 QMutex GlobalSettings::m_mutex;
+bool GlobalSettings::m_batchMode = false;
 
 QString GlobalSettings::getServerHost()
 {
@@ -127,6 +128,16 @@ void GlobalSettings::setSharedMemorySize(int size)
 QString GlobalSettings::getSharedMemorySize()
 {
     return getInstance()->value("/session/shmem/size").toString();
+}
+
+bool GlobalSettings::getBatchMode()
+{
+    return m_batchMode;
+}
+
+void GlobalSettings::setBatchMode(bool mode)
+{
+    m_batchMode = mode;
 }
 
 } // end of namespace

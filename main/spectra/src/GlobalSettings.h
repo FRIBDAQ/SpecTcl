@@ -42,6 +42,7 @@ public:
 private:
     static QMutex m_mutex;
     static QSettings* m_instance;
+    static bool       m_batchMode;
 
     GlobalSettings() = default;
     GlobalSettings(const GlobalSettings& rhs) = delete;
@@ -80,6 +81,10 @@ public:
 
     static void setSharedMemorySize(int size);
     static QString getSharedMemorySize();
+
+    static bool getBatchMode();
+    static void setBatchMode(bool mode);
+
 
 };
 

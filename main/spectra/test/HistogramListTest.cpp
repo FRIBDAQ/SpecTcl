@@ -73,6 +73,7 @@ class HistogramListTest : public CppUnit::TestFixture
     CPPUNIT_TEST( addSlice_0 );
     CPPUNIT_TEST( addGate_0 );
     CPPUNIT_TEST( synchronize_0 );
+    CPPUNIT_TEST( synchronize_1 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -89,6 +90,7 @@ class HistogramListTest : public CppUnit::TestFixture
     void addGate_0();
 
     void synchronize_0();
+    void synchronize_1();
 
 };
 
@@ -282,7 +284,9 @@ void HistogramListTest::synchronize_0()
     m_pHistList->addHist( move(m_pHist2) );
     m_pHistList->addHist( move(m_pHist3) );
 
-    // synchronize
+    // when we are in batch mode we synchronize even when histograms are not visible.
+    GlobalSettings::setBatchMode(true);
+
     m_pHistList->synchronize(list);
 
     // this is ugly...
@@ -297,5 +301,35 @@ void HistogramListTest::synchronize_0()
     CPPUNIT_ASSERT( empty2d == m_pHistList->getHist("hist3")->getCut2Ds() );
 
 }
+
+void HistogramListTest::synchronize_1()
+{
+    // populate our gate list
+    MasterGateList list;
+    list.addCut1D(SpJs::Slice("slice", "xparam", 0, 1));
+    list.addCut2D(SpJs::Contour("gate", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}}));
+
+    // populate the hist list
+    m_pHistList->addHist( move(m_pHist0) );
+    m_pHistList->addHist( move(m_pHist1) );
+    m_pHistList->addHist( move(m_pHist2) );
+    m_pHistList->addHist( move(m_pHist3) );
+
+    // when we are not in batch mode we synchronize even when histograms are not visible.
+    GlobalSettings::setBatchMode(false);
+
+    m_pHistList->synchronize(list);
+
+    // this is ugly...
+    map<QString, GSlice*> empty1d;
+    map<QString, GGate*> empty2d;
+
+    CPPUNIT_ASSERT( empty1d == m_pHistList->getHist("hist0")->getCut1Ds() );
+    CPPUNIT_ASSERT( empty1d == m_pHistList->getHist("hist1")->getCut1Ds() );
+    CPPUNIT_ASSERT( empty2d == m_pHistList->getHist("hist2")->getCut2Ds() );
+    CPPUNIT_ASSERT( empty2d == m_pHistList->getHist("hist3")->getCut2Ds() );
+
+}
+
 
 } // end of namespace

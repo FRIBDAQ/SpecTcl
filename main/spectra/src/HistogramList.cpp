@@ -26,6 +26,7 @@
 #include "GGate.h"
 #include "SpecTclInterface.h"
 #include "SubscribableH1.h"
+#include "GlobalSettings.h"
 
 #include <HistFactory.h>
 #include <HistInfo.h>
@@ -200,8 +201,7 @@ void HistogramList::synchronize(const MasterGateList& list)
 {
 
   for (auto& bundlePair : m_hists) {
-      if (bundlePair.second->isVisible()) {
-//          std::cout << "synching " << bundlePair.first.toStdString() << std::endl;
+      if (bundlePair.second->isVisible() || GlobalSettings::getBatchMode()) {
           bundlePair.second->synchronizeGates(&list);
       }
   }
