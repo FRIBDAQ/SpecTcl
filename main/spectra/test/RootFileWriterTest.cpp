@@ -147,8 +147,8 @@ protected:
         TCanvas* pCanvas;
         m_pFile->GetObject("spectra/canvases/test_workspace", pCanvas);
 
-        ASSERTMSG("Canvas should first histogram", pCanvas->FindObject("asdf") != nullptr);
-        ASSERTMSG("Canvas should second histogram", pCanvas->FindObject("lkjh") != nullptr);
+        ASSERTMSG("Canvas should first histogram", pCanvas->FindObject("asdf_copy") != nullptr);
+        ASSERTMSG("Canvas should second histogram", pCanvas->FindObject("lkjh_copy") != nullptr);
 
     }
 
