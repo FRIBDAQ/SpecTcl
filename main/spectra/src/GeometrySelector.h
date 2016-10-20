@@ -37,6 +37,9 @@ namespace Viewer
  * A simple widget that combines two spinboxes together. It is
  * intended to be used for selecting the grid dimensions of the
  * MultiSpectrumView.
+ *
+ * The assembly of the widgets to make this megawidget is defined in GeometrySelector.ui
+ * which was created in qtdesigner.
  */
 class GeometrySelector : public QWidget
 {

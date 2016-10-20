@@ -34,6 +34,7 @@ using namespace std;
 namespace Viewer
 {
 
+/*! Base constructor */
 GSlice::GSlice(QObject *parent, const QString &name,
                const QString& param,
                double xLow, double xHigh,
@@ -51,6 +52,10 @@ GSlice::GSlice(QObject *parent, const QString &name,
     }
 }
 
+/*! Construct from SpJs::Slice
+ *
+ *  This simply delegates to the other constructor
+ */
 GSlice::GSlice(const SpJs::Slice& info)
 : GSlice(nullptr, 
           QString::fromStdString(info.getName()), 
@@ -64,6 +69,9 @@ GSlice::GSlice(const SpJs::Slice& info)
   }
 }
 
+/*!
+ * \brief Destructor
+ */
 GSlice::~GSlice()
 {
     delete m_pLow;
@@ -73,7 +81,11 @@ GSlice::~GSlice()
     m_pHigh = nullptr;
 }
 
-
+/*! Assignment
+ *
+ * QObjects are not copyable because they have an identity. However
+ * their state can be copied.
+ */
 GSlice& GSlice::operator=(const GSlice& rhs)
 {
     if (this != &rhs) {
@@ -89,6 +101,17 @@ GSlice& GSlice::operator=(const GSlice& rhs)
     return *this;
 }
 
+/*!
+ * \brief Equality comparison operator
+ * \param rhs   object to compare to
+ * \return boolean
+ *
+ * Equality is defined as the followign be equal:
+ *  * name
+ *  * lower bound
+ *  * upper bound
+ *  * parameter name
+ */
 bool GSlice::operator ==(const GSlice& rhs)
 {
 
@@ -96,6 +119,15 @@ bool GSlice::operator ==(const GSlice& rhs)
           && (getXHigh() == rhs.getXHigh()) && (getParameter() == rhs.getParameter()));
 }
 
+/*!
+ * \brief Draw both lines on specific canvas
+ *
+ * \param pCanvas canvas on which to draw
+ *
+ * these lines are drawn with the "same"  option. This also
+ * adjusts the y points in the lines so that they are always
+ * adjusted to span the height of the frame.
+ */
 void GSlice::draw(QRootCanvas *pCanvas)
 {
     Q_ASSERT(pCanvas != nullptr);
@@ -119,6 +151,11 @@ double GSlice::getXHigh() const
     return m_pHigh->GetX1();
 }
 
+/*!
+ * \brief Draw both lines on the current canvas (i.e. gPad)
+ *
+ * This does not update the y values of the lines.
+ */
 void GSlice::draw()
 {
     TFrame* pFrame = gPad->GetFrame();
@@ -127,6 +164,8 @@ void GSlice::draw()
     m_pHigh->Draw("same");
 
 }
+
+
 void GSlice::setXLow(double x)
 {
     m_pLow->SetX1(x);
@@ -139,7 +178,9 @@ void GSlice::setXHigh(double x)
     m_pHigh->SetX2(x);
 }
 
-
+/*!
+ * \brief Convenience overload of frameChanged() with current canvas
+ */
 void GSlice::frameChanged()
 {
     Q_ASSERT(m_pCanvas != nullptr);
@@ -149,6 +190,12 @@ void GSlice::frameChanged()
     frameChanged(pFrame);
 }
 
+/*!
+ * \brief Adjust the y points to span the frame height
+ *
+ * \param pFrame    frame that lines need to be adjusted to
+ *
+ */
 void GSlice::frameChanged(TFrame* pFrame)
 {
     Q_ASSERT(pFrame != nullptr);
@@ -168,12 +215,18 @@ void GSlice::nameChanged(const QString &name)
     m_name = name;
 }
 
+/*!
+ * \brief Set both lines to be uneditable
+ * \param enable    whether to make them editable or not
+ */
 void GSlice::setEditable(bool enable) 
 {
   m_pLow->setEditable(enable);
   m_pHigh->setEditable(enable);
 }
 
+/*!
+ * \return whether both lines are editable or not */
 bool GSlice::isEditable() const 
 {
   return (m_pLow->isEditable() && m_pHigh->isEditable());

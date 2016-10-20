@@ -58,6 +58,15 @@ class MasterGateList;
  * appropriately. There is a mutex owned by each HistogramBundle and it
  * should be locked when trying to read or write the state of the bundle.
  *
+ * In addition to managing the various cuts, this bundle also manages clones of the
+ * histogram. To allow the user to draw the same histogram independently on multiple
+ * different canvases and keep them independent of one another, this will draw a copy
+ * on the canvas. It keeps track of all the clones in an internal map so that it can
+ * update the content of the clones as needed. To protect against updating clones that
+ * are no longer alive, a callback mechanism is used through the SubscribableH1 that alerts
+ * the bundle when a clone is deleted. We need this because the clones are actually owned
+ * by the canvas that they are drawn upon.
+ *
  * This class assumes that there is always a TH1 object. It should never be nullptr.
  */
 class HistogramBundle {

@@ -30,10 +30,10 @@
 namespace Viewer
 {
 
-/**! Singleton class to hold the settings
-  *  
-  *  This is a convenience wrapper around a QSettings object that
-  */
+/*! Singleton class to hold the settings
+ *
+ *  This is a convenience wrapper around a QSettings object that
+ */
 class GlobalSettings {
 
 public:

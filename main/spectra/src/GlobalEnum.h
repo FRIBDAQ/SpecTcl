@@ -26,7 +26,11 @@
 
 namespace Viewer
 {
+  // Defines some enumerations that are used throughout the rest of the
+  // application.
+
   namespace Vwr {
+    // these are used in the TGo4CreateNewHistogram class
     enum Axis {
       XAxis,
       YAxis,

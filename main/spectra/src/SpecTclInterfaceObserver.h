@@ -36,7 +36,7 @@ class SpecTclInterface;
 /// There should be be a single instance of the SpecTclInterface that exists at
 /// any given time in the program. This instance can be swapped out though with a
 /// different instance. When that happens the SpecTclInterface is replaced,
-/// all of the dependent objects (HistogramView, ControlPanel, etc.) need to be passed
+/// all of the dependent objects (ControlPanel, etc.) need to be passed
 /// the new SpecTclInterface so that they can set up their respective signals and slots.
 /// Derived classes of this interface can be registered to the MainWindow to be
 /// notified when a change happens.

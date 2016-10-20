@@ -45,24 +45,26 @@ class QRootCanvas;
 /*! Graphical Slice
  *
  * This bundles together two lines and the SpecTcl information
- * for a slice. The lines are both QTLines.
+ * for a slice. The lines are both QTLines. The graphical slice is
+ * associated with a single spectcl parameter.
+ *
+ * The two lines that this manages are adjusted regularly so that they are
+ * always vertical and they always span the height of the TFrame.
  *
  * \todo Insert a SpJs::GateInfo into this.
  */
 class GSlice : public QObject
 {
+
+    // documentation can be found in the source file or in published doxygen docs.
 public:
   enum DataSource { SpecTcl, GUI };
 
     Q_OBJECT
 public:
 
-    /*! Construct from SpJs::Slice
-    */
     explicit GSlice(const SpJs::Slice& info);
 
-    /*! Constructor
-     */
     explicit GSlice(QObject *parent = 0,
                     const QString& name = QString(),
                     const QString& param = QString(),
@@ -72,11 +74,6 @@ public:
 
     virtual ~GSlice();
 
-    /*! Assignment
-     *
-     * QObjects are not copyable because they have an identity. However
-     * their state can be copied.
-     */
     GSlice& operator=(const GSlice& rhs);
     
     bool operator==(const GSlice& rhs);

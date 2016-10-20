@@ -1,3 +1,25 @@
+//    This software is Copyright by the Board of Trustees of Michigan
+//    State University (c) Copyright 2016.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//    Authors:
+//    Jeromy Tompkins
+//    NSCL
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+
 #ifndef INFORMATIONPANEL_H
 #define INFORMATIONPANEL_H
 
@@ -16,6 +38,19 @@ class SpecTclInterface;
 class TabWorkspace;
 class SpectrumView;
 
+
+/*!
+ * \brief The InformationPanel class
+ *
+ * The information panel is the panel that is drawn on the right side of main window
+ * containing information about the spectrum in the current view. An information panel
+ * is only ever associated with a single spectrum in the canvas. It should be understand
+ * to be the content of a tab in a MultiInfoPanel widget. The information panel shows:
+ *
+ *  - parameters associated with the spectrum
+ *  - statistics (total integral, view integral, minimum, maximum)
+ *  - gate manager widget for manipulating and viewing information about the gates
+ */
 class InformationPanel : public QWidget
 {
     Q_OBJECT

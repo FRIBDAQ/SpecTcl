@@ -26,7 +26,6 @@
 #include "SpectrumView.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
-#include "SpectrumDrawChooser.h"
 #include "MainWindow.h"
 #include "ui_ControlPanel.h"
 #include <set>
