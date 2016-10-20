@@ -172,12 +172,6 @@ void MainWindow::onConfigure() {
 
 //
 //
-void MainWindow::createDockWindows()
-{
-}
-
-//
-//
 void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
 }
