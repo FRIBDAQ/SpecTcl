@@ -1214,8 +1214,8 @@ spectra/src/QTLine.cpp
 spectra/src/QTLine.h
 spectra/src/RootFileWriter.cpp
 spectra/src/RootFileWriter.h
-spectra/src/SaveToRootDialog.cpp
-spectra/src/SaveToRootDialog.h
+spectra/src/SaveAsDialog.cpp
+spectra/src/SaveAsDialog.h
 spectra/src/SelectableImage.cpp
 spectra/src/SelectableImage.h
 spectra/src/ShMemKeyRequestHandler.cpp
@@ -1453,7 +1453,7 @@ spectra/test/MainTest.cpp
 spectra/src/Main.h
 spectra/src/Main.cpp
 spectra/test/Makefile.am
-spectra/src/SaveToRootDialog.ui
+spectra/src/SaveAsDialog.ui
 spectra/spectcljson/Makefile.am
 spectra/spectcljson/json/Makefile.am
 configure.ac

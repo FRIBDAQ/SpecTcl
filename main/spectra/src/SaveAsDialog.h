@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace Ui {
-class SaveToRootDialog;
+class SaveAsDialog;
 }
 
 class QCheckBox;
@@ -25,16 +25,16 @@ class SpecTclInterface;
  * The dialog this creates is the dialog reached through the "File > Save As"
  * menu.
  */
-class SaveToRootDialog : public QDialog
+class SaveAsDialog : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
+    explicit SaveAsDialog(TabbedMultiSpectrumView& tabWidget,
                               std::shared_ptr<SpecTclInterface> pSpecTcl,
                               QWidget *parent = 0);
 
-    ~SaveToRootDialog();
+    ~SaveAsDialog();
 
 
 protected:
@@ -56,7 +56,7 @@ public slots:
     void updateSaveButtonState();
 
 private:
-    Ui::SaveToRootDialog*       ui;
+    Ui::SaveAsDialog*       ui;
     TabbedMultiSpectrumView&    m_tabWidget;
     std::vector<QCheckBox*>     m_checkBoxes;
     QCheckBox*                  m_pSelectAllCheckBox;

@@ -65,7 +65,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   AutoUpdater.h \
   AutoUpdateDialog.h \
   TabFromWinFileCompositor.h \
-  SaveToRootDialog.h \
+  SaveAsDialog.h \
   RootFileWriter.h \
   WinFileWriter.h \
 	ConfigCopySelector.h \
@@ -137,7 +137,7 @@ libSpectra_la_SOURCES = \
     StatusBar.cpp \
     AutoUpdater.cpp \
     AutoUpdateDialog.cpp \
-    SaveToRootDialog.cpp \
+    SaveAsDialog.cpp \
     TabFromWinFileCompositor.cpp \
     RootFileWriter.cpp \
     WinFileWriter.cpp \
@@ -195,7 +195,7 @@ libSpectra_la_SOURCES = \
         moc_StatusBar.cpp \
         moc_AutoUpdater.cpp \
         moc_AutoUpdateDialog.cpp \
-        moc_SaveToRootDialog.cpp \
+        moc_SaveAsDialog.cpp \
 				moc_ConfigCopySelector.cpp \
 				moc_SelectableImage.cpp \
 				moc_PrintDialog.cpp \
@@ -224,7 +224,7 @@ spectraFORMS =  MainWindow.ui  \
     SpectrumDrawChooser.ui \
     StatusBar.ui \
     AutoUpdateDialog.ui \
-    SaveToRootDialog.ui
+    SaveAsDialog.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -250,7 +250,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                                                 ui_ViewDrawPanel.h \
                                                                 ui_StatusBar.h \
                                                                 ui_AutoUpdateDialog.h \
-                                                                ui_SaveToRootDialog.h \
+                                                                ui_SaveAsDialog.h \
                                                                 moc_ControlPanel.cpp \
 								moc_GeometrySelector.cpp \
 								moc_ListRequestHandler.cpp \
@@ -292,7 +292,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_StatusBar.cpp \
 								moc_AutoUpdater.cpp \
 								moc_AutoUpdateDialog.cpp \
-								moc_SaveToRootDialog.cpp \
+                                                                moc_SaveAsDialog.cpp \
 								moc_ConfigCopySelector.cpp \
 								moc_PrintDialog.cpp \
 								moc_Logo.cpp \

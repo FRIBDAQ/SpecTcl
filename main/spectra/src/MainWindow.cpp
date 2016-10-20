@@ -34,7 +34,7 @@
 #include "GlobalSettings.h"
 #include "AutoUpdateDialog.h"
 #include "TabWorkspace.h"
-#include "SaveToRootDialog.h"
+#include "SaveAsDialog.h"
 #include "ConfigCopySelector.h"
 #include "HistogramBundle.h"
 #include "HistogramList.h"
@@ -298,7 +298,7 @@ void MainWindow::createShortcuts()
 
 void MainWindow::onSaveAs() {
 
-    SaveToRootDialog dialog(*m_pView, m_specTclControl.getInterface(), this);
+    SaveAsDialog dialog(*m_pView, m_specTclControl.getInterface(), this);
     dialog.setModal(true);
     dialog.exec();
 }

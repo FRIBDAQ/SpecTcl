@@ -1,5 +1,5 @@
-#include "SaveToRootDialog.h"
-#include "ui_SaveToRootDialog.h"
+#include "SaveAsDialog.h"
+#include "ui_SaveAsDialog.h"
 #include "RootFileWriter.h"
 #include "WinFileWriter.h"
 #include "TabbedMultiSpectrumView.h"
@@ -19,11 +19,11 @@
 namespace Viewer
 {
 
-SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
+SaveAsDialog::SaveAsDialog(TabbedMultiSpectrumView& tabWidget,
                                    std::shared_ptr<SpecTclInterface> pSpecTcl,
                                    QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SaveToRootDialog),
+    ui(new Ui::SaveAsDialog),
     m_tabWidget(tabWidget),
     m_checkBoxes(),
     m_pSpecTcl(pSpecTcl)
@@ -41,12 +41,12 @@ SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
     connect(ui->pROOTSelector, SIGNAL(stateChanged(int)), this, SLOT(updateSaveButtonState()));
 }
 
-SaveToRootDialog::~SaveToRootDialog()
+SaveAsDialog::~SaveAsDialog()
 {
     delete ui;
 }
 
-void SaveToRootDialog::setUpWidget()
+void SaveAsDialog::setUpWidget()
 {
     QCommonStyle style;
     ui->pSaveButton->setEnabled(false);
@@ -78,7 +78,7 @@ void SaveToRootDialog::setUpWidget()
 
 
 
-void SaveToRootDialog::onAccepted()
+void SaveAsDialog::onAccepted()
 {
 
 
@@ -98,7 +98,7 @@ void SaveToRootDialog::onAccepted()
     }
 }
 
-void SaveToRootDialog::writeToRootFile()
+void SaveAsDialog::writeToRootFile()
 {
     QString outputPath = ui->pOutputPath->text();
     if (outputPath.lastIndexOf(QRegExp(".root$")) == -1) {
@@ -123,7 +123,7 @@ void SaveToRootDialog::writeToRootFile()
     }
 }
 
-int SaveToRootDialog::getTabSelectedCount()
+int SaveAsDialog::getTabSelectedCount()
 {
     int count = 0;
     for (auto pCheckBox : m_checkBoxes) {
@@ -134,7 +134,7 @@ int SaveToRootDialog::getTabSelectedCount()
     return count;
 }
 
-void SaveToRootDialog::writeToWinFile()
+void SaveAsDialog::writeToWinFile()
 {
 
     WinFileWriter writer;
@@ -168,12 +168,12 @@ void SaveToRootDialog::writeToWinFile()
     }
 }
 
-void SaveToRootDialog::onRejected()
+void SaveAsDialog::onRejected()
 {
     QDialog::reject();
 }
 
-void SaveToRootDialog::onBrowse()
+void SaveAsDialog::onBrowse()
 {
     QString path = QFileDialog::getSaveFileName(this,"Choose output file name",
                                                 QDir::currentPath());
@@ -183,7 +183,7 @@ void SaveToRootDialog::onBrowse()
     }
 }
 
-void SaveToRootDialog::onSelectAll()
+void SaveAsDialog::onSelectAll()
 {
     bool checked = m_pSelectAllCheckBox->isChecked();
     for (auto pCheckBox : m_checkBoxes) {
@@ -191,13 +191,13 @@ void SaveToRootDialog::onSelectAll()
     }
 }
 
-void SaveToRootDialog::onPathEdited(const QString &)
+void SaveAsDialog::onPathEdited(const QString &)
 {
     updateSaveButtonState();
 }
 
 
-QString SaveToRootDialog::formOutputPath(const QString &user_path, const QString &tabName)
+QString SaveAsDialog::formOutputPath(const QString &user_path, const QString &tabName)
 {
     QString path = user_path;
 
@@ -211,7 +211,7 @@ QString SaveToRootDialog::formOutputPath(const QString &user_path, const QString
     return path;
 }
 
-void SaveToRootDialog::updateSaveButtonState()
+void SaveAsDialog::updateSaveButtonState()
 {
     if ((ui->pWinSelector->isChecked() || ui->pROOTSelector->isChecked())
             && !ui->pOutputPath->text().isEmpty()) {
