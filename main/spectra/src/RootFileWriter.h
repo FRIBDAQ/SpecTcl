@@ -62,8 +62,8 @@ public:
     void copyObjectsIntoDirectories(TPad &rCanvas);
 
     void createDirectory(const std::string& path);
-private:
-    int convertToPadIndex(size_t canvasIndex, int nRows, int nCols);
+
+    static int convertToPadIndex(size_t canvasIndex, int nRows, int nCols);
 
 private:
     TFile*                              m_pFile;

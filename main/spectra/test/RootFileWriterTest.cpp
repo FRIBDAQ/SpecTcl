@@ -63,6 +63,8 @@ public:
     CPPUNIT_TEST(canvasContainsHists_0);
     CPPUNIT_TEST(spectraDirectoryExists_0);
     CPPUNIT_TEST(spectraDirectoryContainsHists_0);
+    CPPUNIT_TEST(padMapping_0);
+    CPPUNIT_TEST(padMapping_1);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -81,7 +83,7 @@ public:
 
         // set up the view geometry and draw
         SpectrumView& view = workspace.getView();
-        view.setGeometry(1,2);
+        view.setGeometry(2,3);
 
         view.update();
 
@@ -90,6 +92,22 @@ public:
         pHistList->getHist("asdf")->draw();
 
         pCanvas = view.getCanvas(0,1);
+        pCanvas->cd();
+        pHistList->getHist("asdf")->draw();
+
+        pCanvas = view.getCanvas(0,2);
+        pCanvas->cd();
+        pHistList->getHist("asdf")->draw();
+
+        pCanvas = view.getCanvas(1,0);
+        pCanvas->cd();
+        pHistList->getHist("lkjh")->draw();
+
+        pCanvas = view.getCanvas(1,1);
+        pCanvas->cd();
+        pHistList->getHist("lkjh")->draw();
+
+        pCanvas = view.getCanvas(1,2);
         pCanvas->cd();
         pHistList->getHist("lkjh")->draw();
 
@@ -139,8 +157,8 @@ protected:
         // a way to probe. We can at least test that there are 2 subpads using the naming scheme
         // used by root for subpads
 
-        ASSERTMSG("Canvas should have 2 subpads", pCanvas->FindObject("Canvas_2") != nullptr);
-        ASSERTMSG("Canvas should no more than 2 subpads", pCanvas->FindObject("Canvas_3") == nullptr);
+        ASSERTMSG("Canvas should have 6 subpads", pCanvas->FindObject("Canvas_6") != nullptr);
+        ASSERTMSG("Canvas should no more than 7 subpads", pCanvas->FindObject("Canvas_7") == nullptr);
     }
 
     void canvasContainsHists_0 () {
@@ -163,8 +181,62 @@ protected:
         TDirectory* pDir;
         m_pFile->GetObject("spectra", pDir);
 
-
       //  pDir->GetObject("")
+    }
+
+    void padMapping_0() {
+        TCanvas *pCanvas;
+        m_pFile->GetObject("spectra/canvases/test_workspace", pCanvas);
+
+        TList* pList = pCanvas->GetListOfPrimitives();
+        TIter next(pList);
+        TObject * pObj;
+        while (( pObj = next() )) {
+            std::cout << pObj->GetName() << std::endl;
+        }
+
+        TVirtualPad* pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_1"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("asdf_copy") != nullptr);
+
+        pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_2"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("asdf_copy") != nullptr);
+
+        pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_3"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("asdf_copy") != nullptr);
+
+        pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_4"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("lkjh_copy") != nullptr);
+
+        pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_5"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("lkjh_copy") != nullptr);
+
+        pPad = dynamic_cast<TVirtualPad*>(pCanvas->FindObject("Canvas_6"));
+        CPPUNIT_ASSERT(pPad != nullptr);
+        CPPUNIT_ASSERT_MESSAGE("Mapping correcto from tab workspace to root",
+                               pPad->FindObject("lkjh_copy") != nullptr);
+
+    }
+
+    void padMapping_1() {
+        using RFW = Viewer::RootFileWriter;
+
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 1, RFW::convertToPadIndex(0, 2, 3));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 4, RFW::convertToPadIndex(1, 2, 3));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 2, RFW::convertToPadIndex(2, 2, 3));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 5, RFW::convertToPadIndex(3, 2, 3));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 3, RFW::convertToPadIndex(4, 2, 3));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("mapping test", 6, RFW::convertToPadIndex(5, 2, 3));
+
     }
 
 };

@@ -125,7 +125,7 @@ void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
                                                               rView.getRowCount(),
                                                               rView.getColumnCount());
        pCanvas->getCanvas()->SetName(rWorkspace.objectName().toUtf8().constData());
-       std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
+//       std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
        writeCanvas(*pCanvas);
        copyObjectsIntoDirectories(*pCanvas->getCanvas());
    } else {
@@ -153,7 +153,7 @@ RootFileWriter::combineCanvases(const std::vector<QRootCanvas *> &canvases,
 
     pPad->Divide(nCols, nRows, 0.001, 0.001);
 
-    std::cout << "rows,cols = " << nRows << "," << nCols << std::endl;
+//    std::cout << "rows,cols = " << nRows << "," << nCols << std::endl;
 
     // this is a bit annoying becuase the pad id is numbered opposite to the order of
     // canvases in the vector. It expects us to iterate over columns first and then rows.
@@ -164,7 +164,7 @@ RootFileWriter::combineCanvases(const std::vector<QRootCanvas *> &canvases,
 
         TCanvas* pCanvas = canvases[canvasIndex]->getCanvas();
         if (pCanvas) {
-            std::cout << "\tcopying canvas into pad" << std::endl;
+//            std::cout << "\tcopying canvas into pad" << std::endl;
             copyCanvasIntoPad(*pCanvas, *pVPad);
         }
     }
@@ -184,7 +184,7 @@ void RootFileWriter::copyCanvasIntoPad(TCanvas& rCanvas, TVirtualPad& rPad)
     TIter next(rCanvas.GetListOfPrimitives());
     while (( pObj = next() )) {
         gROOT->SetSelectedPad(&rPad);
-        std::cout << "\t\t" << pObj->GetName() << std::endl;
+//        std::cout << "\t\t" << pObj->GetName() << std::endl;
 
         if (pObj->InheritsFrom(TH2::Class())) {
             pObj->Clone()->AppendPad("col");
@@ -205,14 +205,14 @@ void RootFileWriter::copyObjectsIntoDirectories(TPad& rCanvas)
     TObject* pObj;
     TIter next(rCanvas.GetListOfPrimitives());
     while (( pObj = next() )) {
-        std::cout << "\t\t" << pObj->GetName() << std::endl;
+ //       std::cout << "\t\t" << pObj->GetName() << std::endl;
 
         if (pObj->InheritsFrom(TH1::Class())) {
             m_pFile->cd("spectra/hists");
 
-            std::cout << pObj->GetName() << std::endl;
+//            std::cout << pObj->GetName() << std::endl;
             if (gDirectory->GetList()->FindObject(pObj->GetName()) == nullptr) {
-                std::cout << "adding to spectra/hists" << std::endl;
+ //               std::cout << "adding to spectra/hists" << std::endl;
                 gDirectory->Add(pObj->Clone());
             }
         } else if (pObj->InheritsFrom(TCutG::Class())) {
@@ -230,10 +230,10 @@ void RootFileWriter::copyObjectsIntoDirectories(TPad& rCanvas)
 //
 int RootFileWriter::convertToPadIndex(size_t canvasIndex, int nRows, int nCols)
 {
-    int rowIndex = canvasIndex / nCols;
-    int colIndex = canvasIndex % nCols;
+    int rowIndex = canvasIndex % nRows;
+    int colIndex = canvasIndex / nRows;
 
-    return colIndex * nRows + rowIndex + 1;
+    return rowIndex * nCols + colIndex + 1;
 }
 
 } // end Viewer namespace
