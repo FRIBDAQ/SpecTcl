@@ -28,6 +28,16 @@
 
 namespace Viewer {
 
+/*!
+ * \brief A widget that display the logo
+ *
+ * The top of the TabLayoutDialog displays a nice big image of the Logo and
+ * the name of the application under it. This is the widget that does that. It
+ * is very simple and encapsulates a QImage for drawing. There are two copies of
+ * the image that is maintains. There is the stored copy and the copy that it
+ * actually displays. Maintaining two copies of the image allow the active logo
+ * to be manipulated and then be faithfully restored to the original image.
+ */
 class Logo : public QWidget
 {
     Q_OBJECT
@@ -36,7 +46,6 @@ public:
 
     void paintEvent(QPaintEvent* pEvent);
     void resizeEvent(QResizeEvent* pEvent);
-
     virtual QSize sizeHint() const;
 
 private:

@@ -50,11 +50,17 @@ class SpectrumView;
  *  - parameters associated with the spectrum
  *  - statistics (total integral, view integral, minimum, maximum)
  *  - gate manager widget for manipulating and viewing information about the gates
+ *
+ * The graphical layout is primarily defined in the InformationPanel.ui file created
+ * by qtdesigner.
  */
 class InformationPanel : public QWidget
 {
     Q_OBJECT
     
+    // docs are provided in the source file. also can be found in the generated doxygen
+    // documentation
+
 public:
     explicit InformationPanel(TabWorkspace& rView,
                               std::shared_ptr<SpecTclInterface> pSpecTcl,

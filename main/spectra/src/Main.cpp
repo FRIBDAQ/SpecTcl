@@ -51,6 +51,15 @@ Main::Main()
 {
 }
 
+/*!
+ * \brief The logic of the program
+ * \param argc  number of command line parameters
+ * \param argv  array of command line parameters
+ * \return status (0 = success, 1 = failure)
+ *
+ * The command line arguments are parsed, some default configuration is
+ * is handled, the event loops are started, and then the program is off and running.
+ */
 int Main::operator()(int argc, char* argv[])
 {
     m_opts.parse(argc, argv);
@@ -134,6 +143,12 @@ bool Main::serverIsOnThisMachine(QString serverName)
     return listsShareContent(thisMachineAddresses, thatMachineAddresses);
 }
 
+/*!
+ * \brief Determine whether there is content overlap between two lists
+ * \param list0
+ * \param list1
+ * \return whether there is shared content
+ */
 bool Main::listsShareContent(QList<QHostAddress> list0, QList<QHostAddress> list1)
 {
 

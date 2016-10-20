@@ -40,17 +40,30 @@
 namespace Viewer
 {
 
-InformationPanel::InformationPanel(TabWorkspace &rView,
+/*!
+ * \brief InformationPanel::InformationPanel
+ * \param rView     tab workspace this associated with
+ * \param pSpecTcl  interface to spectcl
+ * \param histName  name of histogram this is associated with
+ * \param parent    parent widget
+ *
+ *  Assembles the widget. The gate manager widget is not created by the
+ *  InformationPanel.ui file so it is created here and added to the widget.
+ *
+ */
+InformationPanel::InformationPanel(TabWorkspace &rWorkspace,
                                    std::shared_ptr<SpecTclInterface> pSpecTcl,
                                    const QString &histName,
                                    QWidget *parent) :
     QWidget(parent),
     ui(new Ui::InformationPanel),
-    m_pView(&rView.getView())
+    m_pView(&rWorkspace.getView())
 {
+    // assembles the widget given the .ui file
     ui->setupUi(this);
 
-    m_pGateManager = new GateManagerWidget(rView.getView(), rView.getControlPanel(),
+    // create and add the GateManagerWidget
+    m_pGateManager = new GateManagerWidget(rWorkspace.getView(), rWorkspace.getControlPanel(),
                                            pSpecTcl, histName, this);
 
     ui->gridLayout->addWidget(m_pGateManager, 6, 0, 1, 0);
@@ -62,27 +75,45 @@ InformationPanel::~InformationPanel()
     delete ui;
 }
 
-
+/*!
+ * \brief Update cached spectcl interface in case users switch their interface
+ * \param pSpecTcl  the new interface
+ */
 void InformationPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
     m_pGateManager->setSpecTclInterface(pSpecTcl);
 }
 
+/*!
+ * \brief Callback to call logic for updating panel when hist changes
+ *
+ * \param rHist the new histogram
+ *
+ */
 void InformationPanel::onHistogramChanged(HistogramBundle &rHist)
 {
     updateParameterList(rHist);
     updateStatistics(rHist);
     updateGates(rHist);
-
 }
 
-
+/*!
+ * \brief Remove all entries from the parameter list
+ */
 void InformationPanel::clearParameterList()
 {
     QListWidgetItem* pItem = nullptr;
     while (( pItem = ui->pParamList->takeItem(0) )) {}
 }
 
+/*!
+ * \brief Replaces parameter list for the new histogram
+ * \param rHist     the new histogram
+ *
+ * We simply clear out all parameters in the list and the repopulate the list
+ * from scratch. This is fine because the user cannot select the elements in the
+ * list.
+ */
 void InformationPanel::updateParameterList(HistogramBundle &rHist)
 {
     clearParameterList();
@@ -92,6 +123,14 @@ void InformationPanel::updateParameterList(HistogramBundle &rHist)
     }
 }
 
+/*!
+ * \brief InformationPanel::updateStatistics
+ * \param rHist the HistogramBundle
+ *
+ * We compute all of the statistics associated with the histogram in this
+ * method. The maximum, minimum, total integral, and view integral are all
+ * computed. The widget is updated to display the new numbers.
+ */
 void InformationPanel::updateStatistics(HistogramBundle& rHist)
 {
     QTableWidget* pTable = ui->pStatTable;
@@ -143,6 +182,12 @@ void InformationPanel::updateStatistics(HistogramBundle& rHist)
     pItem->setText(QString("%1").arg(max));
 }
 
+/*!
+ * \brief InformationPanel::setUpStatisticsTable
+ *
+ * This is called by the constructor to add the tablewidgetitems
+ * into the statistics table widget for later editing.
+ */
 void InformationPanel::setUpStatisticsTable() {
     QTableWidget* pTable = ui->pStatTable;
 
@@ -165,6 +210,13 @@ void InformationPanel::setUpStatisticsTable() {
 
 }
 
+/*!
+ * \brief InformationPanel::updateGates
+ * \param rHist the new histogram
+ *
+ * Alert the gate manager widget to the updated histogram so that
+ * it also can update its displayed data.
+ */
 void InformationPanel::updateGates(HistogramBundle &rHist)
 {
     if (rHist.getHist().InheritsFrom("TH2")) {

@@ -44,8 +44,7 @@ class SpecTclInterface;
 /*!
  * \brief The MainWindow class
  *
- * This is main window. It handles the menus, the view, the control panel,
- * and the dockable widgets.
+ * This is main window. It handles the menus, the view, and the control panel.
  */
 class MainWindow : public QMainWindow
 {
@@ -78,9 +77,6 @@ public:
 
 public slots:
 
-    /*!
-     * \brief onConfigure
-     */
     void onConfigure();
 
     /*!

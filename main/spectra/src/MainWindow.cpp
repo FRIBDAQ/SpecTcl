@@ -163,19 +163,23 @@ void MainWindow::connectSignalsAndSlots()
 }
 
 
-//
-//
+/*!
+ * \brief Handle "File > Configure" drop down menu action
+ *
+ * This allows the user to change the way that he/she interfaces with spectcl
+ */
 void MainWindow::onConfigure() {
     ConnectDialog dialog(m_specTclControl);
     dialog.exec();
 }
 
-//
-//
 void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface)
 {
 }
 
+/*!
+ * \brief Handle launching "Options > Auto Update ..." dialog
+ */
 void MainWindow::launchAutoUpdateDialog()
 {
     TabWorkspace& workspace = m_pView->getCurrentWorkspace();
@@ -184,8 +188,9 @@ void MainWindow::launchAutoUpdateDialog()
     dialog.exec();
 }
 
-//
-//
+/*!
+ * \brief Handle the launching of the "Actions > Create Histogram..." drop down menu
+ */
 void MainWindow::onNewHistogram()
 {
   try {
@@ -198,6 +203,15 @@ void MainWindow::onNewHistogram()
   }
 }
 
+/*!
+ * \brief MainWindow::onCopySpectrumAttributes
+ *
+ * This opens the dialog and then uses the results of the dialog to
+ * copy the appropriate configuration settings to the appropriate spectra.
+ *
+ * \todo This should really be encapsulated rather than defined in the MainWindow
+ *       class.
+ */
 void MainWindow::onCopySpectrumAttributes()
 {
     ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView(),
@@ -290,6 +304,9 @@ void MainWindow::createShortcuts()
 {
 }
 
+/*!
+ * \brief Handle "File > Save As..." drop down menu option
+ */
 void MainWindow::onSaveAs() {
 
     SaveAsDialog dialog(*m_pView, m_specTclControl.getInterface(), this);
@@ -297,6 +314,13 @@ void MainWindow::onSaveAs() {
     dialog.exec();
 }
 
+/*!
+ * \brief This is currently not used, but it can be used to avoid popping up a window
+ *
+ * Originally the goal was to avoid creating dialogs with their own windows. To do that,
+ * the MainWindow must support swapping out the central widget with something else. However,
+ * once the user needs to return to the original central widget, this callback was used.
+ */
 void MainWindow::closeDialog()
 {
     if (m_pMainWidget != m_pView) {
@@ -310,6 +334,9 @@ void MainWindow::closeDialog()
 
 }
 
+/*!
+ * \brief Handle "File > Print" drop down menu.
+ */
 void MainWindow::onPrint()
 {
     PrintDialog dialog(m_specTclControl.getInterface(), *m_pView, this);
