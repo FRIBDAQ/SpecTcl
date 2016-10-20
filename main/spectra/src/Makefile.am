@@ -17,10 +17,8 @@ noinst_HEADERS =  QRootCanvas.h  \
   TGo4CreateNewHistogram.h  \
   Compression.h  \
   GlobalEnum.h  \
-  GateBuilderDialog.h  \
   HistogramBundle.h  \
   MasterGateList.h  \
-  GateBuilder1DDialog.h  \
   SliceTableItem.h  \
   GateListItem.h \
   GSlice.h \
@@ -93,10 +91,8 @@ libSpectra_la_SOURCES = \
   ListRequestHandler.cpp  \
   TGo4CreateNewHistogram.cpp  \
   Compression.cpp  \
-  GateBuilderDialog.cpp  \
   MasterGateList.cpp  \
   HistogramBundle.cpp  \
-  GateBuilder1DDialog.cpp  \
   SliceTableItem.cpp  \
   GateListItem.cpp \
   GSlice.cpp  \
@@ -158,13 +154,11 @@ libSpectra_la_SOURCES = \
 	moc_QRootApplication.cpp \
 	moc_HistogramView.cpp \
 	moc_MultiSpectrumView.cpp \
-	moc_GateBuilder1DDialog.cpp \
-	moc_ConnectServer.cpp \
+        moc_ConnectServer.cpp \
 	moc_QRootWindow.cpp \
 	moc_MainWindow.cpp \
 	moc_TGo4CreateNewHistogram.cpp \
-	moc_SpecTclRESTInterface.cpp \
-	moc_GateBuilderDialog.cpp \
+        moc_SpecTclRESTInterface.cpp \
   moc_QRootDialog.cpp \
 	moc_TabbedMultiSpectrumView.cpp \
   moc_GSlice.cpp \
@@ -208,8 +202,6 @@ spectraFORMS =  MainWindow.ui  \
   HistogramList.ui  \
   HistogramView.ui  \
   TGo4CreateNewHistogram.ui  \
-  GateBuilderDialog.ui  \
-  GateBuilder1DDialog.ui \
   ControlPanel.ui \
   GeometrySelector.ui \
   TabbedMultiSpectrumView.ui \
@@ -234,9 +226,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								ui_HistogramList.h \
 								ui_HistogramView.h \
 								ui_TGo4CreateNewHistogram.h \
-                                                                ui_GateBuilderDialog.h \
-								ui_GateBuilder1DDialog.h \
-								ui_ControlPanel.h \
+                                                                ui_ControlPanel.h \
 								ui_GeometrySelector.h \
 								ui_TabbedMultiSpectrumView.h \
                                                                 ui_SpectrumDrawChooser.h \
@@ -260,14 +250,12 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_QRootApplication.cpp \
 								moc_HistogramView.cpp \
 								moc_MultiSpectrumView.cpp \
-								moc_GateBuilder1DDialog.cpp \
-								moc_ConnectServer.cpp \
+                                                                moc_ConnectServer.cpp \
 								moc_QRootWindow.cpp \
 								moc_MainWindow.cpp \
 								moc_TGo4CreateNewHistogram.cpp \
 								moc_SpecTclRESTInterface.cpp \
-								moc_GateBuilderDialog.cpp \
-								moc_QRootDialog.cpp \
+                                                                moc_QRootDialog.cpp \
 								moc_TabbedMultiSpectrumView.cpp \
 								moc_GSlice.cpp \
 								moc_GGate.cpp \
