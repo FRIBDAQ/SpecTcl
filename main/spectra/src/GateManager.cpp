@@ -23,7 +23,6 @@
 #include "GateManager.h"
 #include "ui_GateManager.h"
 #include "GateBuilderDialog.h"
-#include "GateBuilder1DDialog.h"
 #include "SpectrumView.h"
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"

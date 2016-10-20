@@ -6,7 +6,6 @@
 #include "SpecTclInterface.h"
 #include "HistogramList.h"
 #include "SliceTableItem.h"
-#include "GateListItem.h"
 #include "GGate.h"
 #include "GSlice.h"
 #include "ControlPanel.h"

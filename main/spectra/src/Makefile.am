@@ -20,7 +20,6 @@ noinst_HEADERS =  QRootCanvas.h  \
   HistogramBundle.h  \
   MasterGateList.h  \
   SliceTableItem.h  \
-  GateListItem.h \
   GSlice.h \
   GGate.h \
   SpecTclInterface.h  \
@@ -94,7 +93,6 @@ libSpectra_la_SOURCES = \
   MasterGateList.cpp  \
   HistogramBundle.cpp  \
   SliceTableItem.cpp  \
-  GateListItem.cpp \
   GSlice.cpp  \
   GGate.cpp \
   SpecTclInterface.cpp  \
