@@ -88,10 +88,15 @@ ContentRequestHandler::~ContentRequestHandler()
     wait();
 }
 
-////
-//
-//
-//
+/*!
+ * \brief Queue a request for content
+ *
+ * \param url  url for the request
+ *
+ * This is the entry point for requests. It is typically going to be called
+ * from a different thread than the thread that is running the logic of the
+ * run method. This method can wake the thread that is waiting.
+ */
 void ContentRequestHandler::get(const QUrl& url)
 {
     QMutexLocker lock(&m_mutex);
@@ -108,8 +113,13 @@ void ContentRequestHandler::get(const QUrl& url)
     }
 }
 
-//
-//
+/*!
+ * \brief The child thread logic
+ *
+ * This is just a while loop that will process jobs sequentially. Once the
+ * queue is empty, it will wait on a condition variable until a new request
+ * arrives.
+ */
 void ContentRequestHandler::run()
 {
   QNetworkRequest req;
@@ -146,8 +156,11 @@ void ContentRequestHandler::run()
   } // end of while
 }
 
-//
-//
+/*!
+ * \brief getHistNameFromRequest
+ * \param request the url of the request
+ * \return the name of the histogram
+ */
 QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &request)
 {
     QUrl url = request.url();
@@ -155,8 +168,15 @@ QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &req
     return name;
 }
 
-//
-//
+/*!
+ * \brief Send the REST request to the server.
+ *
+ * \param req   network request
+ * \return the network reply object
+ *
+ * Because this is being run in a separate thread than the GUI, there is no reason to
+ * handle it asynchronously. This method will block until the full repsonse is received.
+ */
 std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkRequest& req)
 {
   ConnectionTester::Result connectionStatus;
@@ -193,9 +213,13 @@ std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkReques
   return std::move(reply);
 }
 
-
-//
-//
+/*!
+ * \brief Handles a completed reply
+ *
+ * \param reply  the response from the server
+ *
+ * This is where the response is processed.
+ */
 void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& reply)
 {
   QByteArray bytes = reply->readAll();
@@ -274,8 +298,12 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
   }
 }
 
-//
-//
+/*!
+ * \brief completeJob
+ *
+ * This clears the job from the queue. If the queue is empty after this,
+ * then thread waits on the condition variable.
+ */
 void ContentRequestHandler::completeJob()
 {
   QMutexLocker lock(&m_mutex);

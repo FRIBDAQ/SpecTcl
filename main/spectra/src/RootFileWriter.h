@@ -35,10 +35,11 @@ class HistogramBundle;
  * +-- hists
  * |    +-- histograms from the tabs in Spectra
  * +-- cuts
- * |    +-- converted (slices, bands, contours) from Spectra
+ * |    +-- converted (bands, contours) from Spectra
  * +-- canvases
  *      +-- converted
  *
+ * \note At the moment, the slices are not written to the file.
  */
 class RootFileWriter
 {
@@ -51,7 +52,7 @@ public:
 
     void writeCanvas(QRootCanvas &rCanvas);
 
-    void writeTab(TabWorkspace &rWorkspace, bool combine);
+    void writeTab(TabWorkspace &rWorkspace);
 
     std::unique_ptr<QRootCanvas> combineCanvases(const std::vector<QRootCanvas*>& canvases,
                                                  int nRows,

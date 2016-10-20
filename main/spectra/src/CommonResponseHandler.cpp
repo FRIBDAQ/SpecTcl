@@ -45,13 +45,26 @@ CommonResponseHandler::CommonResponseHandler(QObject *parent) :
             this, SLOT(processReply(QNetworkReply*)));
 }
 
-
+/*!
+ * \brief CommonResponseHandler::makeRequest
+ * \param req   request url
+ *
+ * The class will use the event loop to asynchronously handle the request.
+ * Once the transaction is finished, the CommonResponseHandler::processReply()
+ * method will be invoked through the signal/slot mechanism.
+ */
 void CommonResponseHandler::makeRequest(const QUrl &req)
 {
     m_pNAM->get(QNetworkRequest(req));
 }
 
-
+/*!
+ * \brief Handle completed replies
+ * \param reply - the response from the server
+ *
+ * This just dispatches to processSuccess or processFailure depending
+ * on whether there were any errors during the transaction.
+ */
 void CommonResponseHandler::processReply(QNetworkReply *reply)
 {
     if (reply->error() == QNetworkReply::NoError) {
@@ -60,7 +73,7 @@ void CommonResponseHandler::processReply(QNetworkReply *reply)
         processFailure(reply);
     }
 
-//    delete reply;
+    reply->deleteLater();
 
 }
 

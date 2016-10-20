@@ -1077,7 +1077,7 @@ November 30-?? 2011
 	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
 	  in auto_path so scripts don't have to worry about it.
 
-5.0-00
+5.0-000
 	* Major overhauls to code organization. The display functionality is 
 	separated from the CHistogrammer class and is developed into a more
 	generic interface. The parsing libraries of win files is separated into
@@ -1095,3 +1095,11 @@ November 30-?? 2011
 	spectra by their name rather than their slot id.
 	* spectrum command is no longer able to deal with pure histogram ids
 	so that it works when there is no shared memory segment.
+
+5.0-001
+	* Fixes bug in the layout of RootFileWriter that caused bad rendering of 
+	canvas for printing.
+	* SaveToRootDialog is changed to SaveAsDialog because it is not actually
+	just a dialog to save root files. It can also be used to save win files.
+	* Fixes some bugs in the Save As dialog that did not handle the state of
+	the "Save" button correctly.

@@ -46,6 +46,14 @@ SaveAsDialog::~SaveAsDialog()
     delete ui;
 }
 
+/*!
+ * \brief Add the tab checkboxes to the widget
+ *
+ * The bulk of the GUI layout is defined in the SaveAsDialog.ui file as xml. However,
+ * that layout does not add the tab check boxes because those are only knowable at
+ * runtime.
+ *
+ */
 void SaveAsDialog::setUpWidget()
 {
     QCommonStyle style;
@@ -98,6 +106,13 @@ void SaveAsDialog::onAccepted()
     }
 }
 
+/*!
+ * \brief SaveAsDialog::writeToRootFile
+ *
+ * The logic for the writing of ROOT files is defined mostly in
+ * the RootFileWriter class. Here we simply create an instance of it
+ * and then feed it all of the tabs.
+ */
 void SaveAsDialog::writeToRootFile()
 {
     QString outputPath = ui->pOutputPath->text();
@@ -112,7 +127,7 @@ void SaveAsDialog::writeToRootFile()
         if (pCheckBox->isChecked()) {
             TabWorkspace* pWorkspace = m_tabWidget.getTabWorkspace(pCheckBox->text());
             if (pWorkspace) {
-                writer.writeTab(*pWorkspace, true);
+                writer.writeTab(*pWorkspace);
             } else {
                 QString msg ("The requested tab (%1) does not exist. Aborting save operation.");
                 QMessageBox::warning(this, "Export failure",

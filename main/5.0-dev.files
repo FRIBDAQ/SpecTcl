@@ -1146,10 +1146,6 @@ spectra/src/ControlPanel.cpp
 spectra/src/ControlPanel.h
 spectra/src/DockableGateManager.cpp
 spectra/src/DockableGateManager.h
-spectra/src/GateBuilder1DDialog.cpp
-spectra/src/GateBuilder1DDialog.h
-spectra/src/GateBuilderDialog.cpp
-spectra/src/GateBuilderDialog.h
 spectra/src/GateDeleteRequest.cpp
 spectra/src/GateDeleteRequest.h
 spectra/src/GateEditComHandler.cpp
@@ -1157,8 +1153,6 @@ spectra/src/GateEditComHandler.h
 spectra/src/GateEditRequest.cpp
 spectra/src/GateEditRequest.h
 spectra/src/GateEditRequestTest.cpp
-spectra/src/GateListItem.cpp
-spectra/src/GateListItem.h
 spectra/src/GateListRequestHandler.cpp
 spectra/src/GateListRequestHandler.h
 spectra/src/GateManager.cpp

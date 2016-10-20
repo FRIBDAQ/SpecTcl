@@ -113,7 +113,7 @@ public:
 
         RootFileWriter writer(m_pInterface);
         writer.openFile(".testFile.root", "RECREATE");
-        writer.writeTab(workspace, true);
+        writer.writeTab(workspace);
         writer.closeFile();
 
         m_pFile = new TFile(".testFile.root", "READ");

@@ -1,5 +1,5 @@
-#ifndef SAVETOROOTDIALOG_H
-#define SAVETOROOTDIALOG_H
+#ifndef SaveAsDialog_H
+#define SaveAsDialog_H
 
 #include <QString>
 #include <QStringList>
@@ -19,11 +19,12 @@ class TabbedMultiSpectrumView;
 class SpecTclInterface;
 
 /*!
- * \brief The SaveToRootDialog class
+ * \brief The SaveAsDialog class
  *
- * This class is slightly misnamed because it can also save win files.
- * The dialog this creates is the dialog reached through the "File > Save As"
- * menu.
+ * This class is the dialog that is presented when Save As is selected from the
+ * file drop-down menu. Through it, the user has access to saving as a ROOT or a
+ * win file.
+ *
  */
 class SaveAsDialog : public QDialog
 {
@@ -65,4 +66,4 @@ private:
 
 } // end Viewer namespace
 
-#endif // SAVETOROOTDIALOG_H
+#endif // SaveAsDialog_H

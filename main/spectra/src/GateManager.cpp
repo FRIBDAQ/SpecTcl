@@ -22,7 +22,6 @@
 
 #include "GateManager.h"
 #include "ui_GateManager.h"
-#include "GateBuilderDialog.h"
 #include "SpectrumView.h"
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"
@@ -34,7 +33,6 @@
 #include "ControlPanel.h"
 
 #include "SliceTableItem.h"
-#include "GateListItem.h"
 
 #include <QTableWidget>
 #include <QMessageBox>
@@ -99,7 +97,17 @@ void GateManager::onEditButtonClicked() {
     emit editGateClicked();
 }
 
-
+/*!
+ * \brief Set the list of gates in the tablewidget
+ *
+ * \param gateNames     the names of the new that should be in list
+ *
+ * To avoid aesthetically unpleasant behavior such as changing the
+ * selection as a side effect of an update, we will perform this
+ * content update in an intelligent manner. The idea is to not touch
+ * or remove any of the list items that are not being changed. The only
+ * changes that will be made are to remove stale items and add new ones.
+ */
 void GateManager::setGateList(std::vector<QString> gateNames)
 {
     ui->gateList->setColumnCount(2);
@@ -118,6 +126,7 @@ void GateManager::setGateList(std::vector<QString> gateNames)
         }
     }
 
+    // sort the vector so that we can use a binary_search to make it faster
     std::sort(existingNames.begin(), existingNames.end());
     std::sort(gateNames.begin(), gateNames.end());
 
@@ -134,8 +143,6 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             pItem = new QTableWidgetItem(QString(tr("0")));
             ui->gateList->setItem(row, 1, pItem);
 
-//            std::cout << name.toStdString() << std::endl;
-
             m_nRows++;
         }
     }
@@ -148,7 +155,6 @@ void GateManager::setGateList(std::vector<QString> gateNames)
             if (! std::binary_search(gateNames.begin(), gateNames.end(), name)) {
                 ui->gateList->removeRow(row);
                 m_nRows--;
-//                std::cout << name.toStdString() << std::endl;
             }
         }
     }
@@ -200,14 +206,11 @@ void GateManager::onDeleteButtonClicked()
             m_pSpecTcl->deleteGate(std::get<1>(rowInfo));
 
         }
-        //ui->gateList->removeRow(std::get<0>(rowInfo));
-
-        //m_nRows--;
-//        std::cout << "nRows = " << m_nRows << std::endl;
     }
 
 }
 
+/*! \brief Connect the button signals to appropriate slots in this class */
 void GateManager::connectSignals()
 {
   connect(ui->addButton, SIGNAL(clicked()),
@@ -237,6 +240,9 @@ void GateManager::updateGateIntegrals(HistogramBundle &rHistPkg)
     is2D = rHistPkg.getHist().InheritsFrom(TH2::Class());
     rHistPkg.getMutex()->unlock();
 
+    // Integration is slightly different for 1d and 2d histograms
+    // because the TH2s must be integrated by the TCutG:IntregralHist() method.
+    // The TH1::Integral takes on a single bin range.
     if (is2D) {
         // 2d
         update2DIntegrals(rHistPkg);
@@ -244,9 +250,16 @@ void GateManager::updateGateIntegrals(HistogramBundle &rHistPkg)
         // 1d
         update1DIntegrals(rHistPkg);
     }
-
 }
 
+/*!
+ * \brief GateManager::update1DIntegrals
+ * \param rHistPkg  - the histogram bundle containing the hist to integrate
+ *
+ * This is very straight forward. The slice is located and its low and high
+ * limits are used to integrate the histogram. The results of the integration
+ * are set as the text in the table.
+ */
 void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
 {
     QMutexLocker guard(rHistPkg.getMutex());
@@ -274,12 +287,22 @@ void GateManager::update1DIntegrals(HistogramBundle& rHistPkg)
     }
 }
 
+/*!
+ * \brief GateManager::update2DIntegrals
+ * \param rHistPkg histogram bundle containing the hist to integrate
+ *
+ * This is very similar to the behavior of the update1DIntegrals except we
+ * have to rely on the TCutG::IntegralHist() method.
+ */
 void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
 {
     QMutexLocker guard(rHistPkg.getMutex());
 
+    // if this is a bad cast, a std::bad_cast is thrown by the dynamic_cast
+    // and the system will become very unhappy. This is not going to happen though
+    // because we have already used ROOT introspection API to determine that
+    // the histogram derives from TH2.
     TH2& hist = dynamic_cast<TH2&>(rHistPkg.getHist());
-
 
     std::map<QString, GGate*> cuts = rHistPkg.getCut2Ds();
     int nRows = std::min(size_t(m_nRows), cuts.size());
@@ -287,16 +310,10 @@ void GateManager::update2DIntegrals(HistogramBundle& rHistPkg)
         QTableWidgetItem* pNameItem = ui->gateList->item(row, 0);
         QTableWidgetItem* pValueItem = ui->gateList->item(row, 1);
 
-//        std::cout << "row:" << row << "\t" << pNameItem->text().toStdString() << std::endl;
-
         auto it = cuts.find(pNameItem->text());
         if (it != cuts.end()) {
             GGate* pGate = it->second;
             MyCutG* pGrObj = pGate->getGraphicObject();
-
-//            std::cout << "pGate = " << (void*)pGate ;
-//            if (pGate) std::cout << "   " << (void*) pGrObj;
-//            std::cout << std::endl;
 
             if (pGrObj) {
                 double integral = pGrObj->IntegralHist(&hist);

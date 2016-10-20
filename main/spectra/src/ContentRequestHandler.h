@@ -54,28 +54,17 @@ class ContentRequestHandler : public QThread
 {
     Q_OBJECT
 
+
+    // documentation is in the source code that can be viewed
+    // in the doxygen output.
+
 public:
     explicit ContentRequestHandler(HistogramList* pHistList, QObject *parent = 0);
     virtual ~ContentRequestHandler();
 
-    /*!
-     * \brief Queue a request for content
-     *
-     * \param url  url for the request
-     *
-     * This is the entry point for requests. It is typically going to be called
-     * from a different thread than the thread that is running the logic of the
-     * run method. This method can wake the thread that is waiting.
-     */
+
     void get (const QUrl& url);
 
-    /*!
-     * \brief The child thread logic
-     *
-     * This is just a while loop that will process jobs sequentially. Once the
-     * queue is empty, it will wait on a condition variable until a new request
-     * arrives.
-     */
     void run();
 
 
@@ -83,38 +72,11 @@ signals:
     void parsingComplete(HistogramBundle* gHist);
     void error(int code, const QString& message);
 
-
 private:
-    /*!
-     * \brief Handles a completed reply
-     *
-     * \param reply  the response from the server
-     *
-     * This is where the actual response is processed.
-     */
-    void processReply(const std::unique_ptr<QNetworkReply>& reply);
 
-    /*!
-     * \brief Send the REST request to the server.
-     *
-     * \param req   network request
-     * \return the network reply object
-     */
+    void  processReply(const std::unique_ptr<QNetworkReply>& reply);
     std::unique_ptr<QNetworkReply> doGet(const QNetworkRequest& req);
-
-    /*!
-     * \brief getHistNameFromRequest
-     * \param request the url of the request
-     * \return the name of the histogram
-     */
     QString getHistNameFromRequest(const QNetworkRequest& request);
-
-    /*!
-     * \brief completeJob
-     *
-     * This clears the job from the queue. If the queue is empty after this,
-     * then thread waits on the condition variable.
-     */
     void completeJob();
 
 private:

@@ -1,3 +1,25 @@
+//    This software is Copyright by the Board of Trustees of Michigan
+//    State University (c) Copyright 2016.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//    Authors:
+//    Jeromy Tompkins
+//    NSCL
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+
 #include "GateManagerWidget.h"
 #include "GateManager.h"
 #include "OneDimGateEdit.h"
@@ -24,6 +46,17 @@
 namespace Viewer
 {
 
+/*!
+ * \brief Constructor
+ * \param rView     the view
+ * \param rControls the control panel
+ * \param pSpecTcl  the spectcl interface
+ * \param hName     the name of the histogram
+ * \param parent    the parent widget
+ *
+ * Here we assemble the widgets and the
+ */
+
 GateManagerWidget::GateManagerWidget(SpectrumView &rView,
                                      ControlPanel &rControls,
                                      std::shared_ptr<SpecTclInterface> pSpecTcl,
@@ -36,20 +69,33 @@ GateManagerWidget::GateManagerWidget(SpectrumView &rView,
     m_histDim(1),
     m_histName(hName)
 {
-    m_pManager = new GateManager(m_view, m_controls, pSpecTcl, m_histDim, this);
-    horizontalLayout = new QHBoxLayout();
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
-
-    horizontalLayout->addWidget(m_pManager);
-    setLayout(horizontalLayout);
-
-    show();
+    setUpGUI(pSpecTcl);
 
     connect(m_pManager, SIGNAL(addGateClicked()), this, SLOT(onAddPressed()));
     connect(m_pManager, SIGNAL(editGateClicked()), this, SLOT(onEditPressed()));
     connect(m_pManager, SIGNAL(deleteGateClicked()), this, SLOT(onDeletePressed()));
 
     connect(m_pSpecTcl.get(), SIGNAL(gateListChanged()), this, SLOT(updateGateList()));
+
+}
+
+/*!
+ * \brief GateManagerWidget::setUpGUI
+ *
+ * \param pSpecTcl  the spectcl interface
+ *
+ *  Here we will only create the GateManager and add it to a layout.
+ *  Once the user selects that they want to add or edit a widget, the appropriate
+ *  widget will be created and used to replace the GateManager.
+ */
+void GateManagerWidget::setUpGUI(std::shared_ptr<SpecTclInterface> pSpecTcl)
+{
+    m_pManager = new GateManager(m_view, m_controls, pSpecTcl, m_histDim, this);
+    horizontalLayout = new QHBoxLayout();
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
+
+    horizontalLayout->addWidget(m_pManager);
+    setLayout(horizontalLayout);
 
 }
 
@@ -60,6 +106,9 @@ void GateManagerWidget::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pS
     m_pManager->setSpecTclInterface(m_pSpecTcl);
 }
 
+/*!
+ * \brief Callback for adding a get...dispatches to addGate
+ */
 void GateManagerWidget::onAddPressed()
 {
 
@@ -71,6 +120,10 @@ void GateManagerWidget::onAddPressed()
 
 }
 
+/*!
+ * \brief Common code used to initiate add or edit dialogs
+ * \returns tuple with content: (current canvas in view, histogram bundle associated with this dialog)
+ */
 std::pair<QRootCanvas*, HistogramBundle*> GateManagerWidget::setUpDialog()
 {
     auto pHistList = m_pSpecTcl->getHistogramList();
@@ -88,10 +141,27 @@ std::pair<QRootCanvas*, HistogramBundle*> GateManagerWidget::setUpDialog()
     return std::pair<QRootCanvas*,HistogramBundle*>(m_view.getCurrentCanvas(), pHistPkg);
 }
 
+/*!
+ * \brief Swap out the GateManager for an editing dialog to create new gate
+ *
+ * \param rCanvas   canvas that contains the hist and gate
+ * \param rHistPkg  histogram bundle the gate will be associate with
+ *
+ * The main thing that this needs to do is set up a OneDimGateEdit or
+ * TwoDimGateEdit widget, depending dimensionality of the gate,
+ * to use in place of the GateManager. Once the new widget is created,
+ * it is used to replace the GateManager widget in the layout and its
+ * signals are connected up to this class' slots.
+ */
 void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
 {
+    // Turn of processing of updates in the view because if we allow them to be processed,
+    // it triggers slots in this widget that really mess things up. We will be
+    // sure to tell the view to stop ignoring updates at the end of editing. The issue
+    // this addresses is primarily when the auto update feature is on.
     m_view.ignoreUpdates(true);
 
+    // Stop gate polling too
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
     }
@@ -102,7 +172,8 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
 
         TwoDimGateEdit* pDialog = new TwoDimGateEdit(rCanvas, rHistPkg,
                                                      m_pSpecTcl,
-                                                     nullptr);
+                                                     nullptr,
+                                                     this);
 
         connect(pDialog, SIGNAL(completed(GGate*)),
                 this, SLOT(registerGate(GGate*)));
@@ -133,6 +204,13 @@ void GateManagerWidget::addGate(QRootCanvas& rCanvas, HistogramBundle& rHistPkg)
 
 }
 
+/*!
+ * \brief Transition to a state where the edit widget is displayed
+ *
+ * There is very little different here from GateManagerWidget::addGate()
+ * besides the fact that we also have to find the actual gate object
+ * to edit and then pass it to the editing widget.
+ */
 void GateManagerWidget::onEditPressed()
 {
     // we don't want the spectrum to update on us and destroy
@@ -212,11 +290,21 @@ void GateManagerWidget::onEditPressed()
 
 }
 
+/*! \brief No op ... gate deletion is handled by the GateManager. */
 void GateManagerWidget::onDeletePressed()
 {
 //    std::cout << "Delete pressed" << std::endl;
 }
 
+
+/*!
+ * \brief Callback for when editing of gates is completed
+ *
+ * The point of this is to remove the editing widget and replace it
+ * with the GateManager widget again.
+ *
+ * The editing widget is deleted as well to avoid a memory leak.
+ */
 void GateManagerWidget::closeDialog()
 {
     m_view.ignoreUpdates(false);
@@ -233,7 +321,15 @@ void GateManagerWidget::closeDialog()
 }
 
 
-// 2d version
+/*!
+ * \brief Set up the GateManager gate list for 2d histogram/gates
+ *
+ * \param gateMap   mapping of gates with their names
+ *
+ * The gate manager does not take a map<QString, GGate*>. Rather, it takes
+ * as an argument a vector of gate names. This method simply extracts
+ * all of the keys in the map and sends them to the GateManager as a vector.
+ */
 void GateManagerWidget::setGateList(const std::map<QString, GGate*> &gateMap)
 {
     std::vector<QString> gateNames;
@@ -249,7 +345,13 @@ void GateManagerWidget::setGateList(const std::map<QString, GGate*> &gateMap)
     m_pManager->setGateList(gateNames);
 }
 
-// 1d version
+/*!
+ * \brief Set up the GateManager gate list for 1d histograms/gates
+ *
+ * \param gateMap   mapping gate names and gates
+ *
+ * This does the same as 2d version of setGateList().
+ */
 void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
 {
     std::vector<QString> gateNames;
@@ -265,6 +367,15 @@ void GateManagerWidget::setGateList(const std::map<QString, GSlice*> &gateMap)
     m_pManager->setGateList(gateNames);
 }
 
+/*!
+ * \brief Conditionally recompute the gate integrals in the Gate Manager
+ *
+ * \param rHistPkg  the histogrma bundle in question
+ *
+ * This only does something if the manager is visible. what is the point of
+ * doing computations if the gate manager is not even going to display
+ * their results?
+ */
 void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
 {
     if (m_pManager->isVisible()) {
@@ -273,16 +384,21 @@ void GateManagerWidget::updateGateIntegrals(HistogramBundle &rHistPkg)
 }
 
 
+/*!
+ * \brief Slot called to update the gate list
+ *
+ * This slot is called when the SpecTclInterface emits a gateListChanged()
+ * signal. The histogram gates are resynchronize to ensure they are
+ * up to date with whatever changed and then the new list of gates are
+ * passed to the GateManager indirectly.
+ */
 void GateManagerWidget::updateGateList()
 {
-//    std::cout << "GateManagerWidget::updateGateList() ... " << std::flush;
     if (! m_pManager->isVisible() || ! m_pSpecTcl) {
-//        std::cout << "skipped" << std::endl;
         return;
     }
 
     HistogramList* pList = m_pSpecTcl->getHistogramList();
-//    std::cout << m_histName.toAscii().constData() << std::endl;
 
     HistogramBundle* pHistBundle = pList->getHist(m_histName);
     if (pHistBundle) {
@@ -293,7 +409,6 @@ void GateManagerWidget::updateGateList()
             setGateList(pHistBundle->getCut2Ds());
         }
     }
-    std::cout << "completed" << std::endl;
 }
 
 } // end Viewer namespace

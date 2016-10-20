@@ -112,27 +112,27 @@ void RootFileWriter::writeCanvas(QRootCanvas &rCanvas)
     rCanvas.getCanvas()->Write();
 }
 
-//
-//
-void RootFileWriter::writeTab(TabWorkspace &rWorkspace, bool combine)
+
+/*!
+ * \brief RootFileWriter::writeTab
+ * \param rWorkspace    the workspace to write to file
+ * \param combine       whether separate canvases should be saved or not
+ *
+ *  This is the entry point used by the SaveAsDialog.
+ */
+void RootFileWriter::writeTab(TabWorkspace &rWorkspace)
 {
    SpectrumView& rView = rWorkspace.getView();
 
    std::vector<QRootCanvas*> canvases = rView.getAllCanvases();
 
-   if (combine) {
-       std::unique_ptr<QRootCanvas> pCanvas = combineCanvases(canvases,
-                                                              rView.getRowCount(),
-                                                              rView.getColumnCount());
-       pCanvas->getCanvas()->SetName(rWorkspace.objectName().toUtf8().constData());
-//       std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
-       writeCanvas(*pCanvas);
-       copyObjectsIntoDirectories(*pCanvas->getCanvas());
-   } else {
-       for (auto& pCanvas : canvases) {
-           pCanvas->getCanvas()->Write();
-       }
-   }
+   std::unique_ptr<QRootCanvas> pCanvas = combineCanvases(canvases,
+                                                          rView.getRowCount(),
+                                                          rView.getColumnCount());
+   pCanvas->getCanvas()->SetName(rWorkspace.objectName().toUtf8().constData());
+   //       std::cout << "Writing workspace : " << rWorkspace.objectName().toUtf8().constData() << std::endl;
+   writeCanvas(*pCanvas);
+   copyObjectsIntoDirectories(*pCanvas->getCanvas());
 }
 
 
