@@ -1453,3 +1453,15 @@ spectra/test/MainTest.cpp
 spectra/src/Main.h
 spectra/src/Main.cpp
 spectra/test/Makefile.am
+spectra/src/SaveToRootDialog.ui
+spectra/spectcljson/Makefile.am
+spectra/spectcljson/json/Makefile.am
+configure.ac
+Makefile.am
+Doxyfile
+LICENSE
+README
+ChangeLog
+tcl++incorp.sh
+testBuildTarball
+compress/Makefile.am

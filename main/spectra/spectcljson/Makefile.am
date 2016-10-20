@@ -2,6 +2,8 @@
 
 lib_LTLIBRARIES = libSpecTclJson.la
 
+SUBDIRS = json
+
 libSpecTclJson_la_SOURCES = BinInfo.cpp \
 														GateCmdParser.cpp \
 														GateInfo.cpp \
