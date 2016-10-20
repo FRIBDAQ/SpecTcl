@@ -38,10 +38,6 @@ class QNetworkReply;
 namespace Viewer
 {
 
-// Forward declarations
-class HistogramView;
-
-
 /*!
  * \brief The GateListRequestHandler class
  *

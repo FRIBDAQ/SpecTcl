@@ -1172,8 +1172,6 @@ spectra/src/HistogramBundle.cpp
 spectra/src/HistogramBundle.h
 spectra/src/HistogramList.cpp
 spectra/src/HistogramList.h
-spectra/src/HistogramView.cpp
-spectra/src/HistogramView.h
 spectra/src/InformationPanel.cpp
 spectra/src/InformationPanel.h
 spectra/src/TabLayoutDialog.cpp
@@ -1232,8 +1230,6 @@ spectra/src/SpecTclShMemInterface.cpp
 spectra/src/SpecTclShMemInterface.h
 spectra/src/SpectraSpectrumInterface.cpp
 spectra/src/SpectraSpectrumInterface.h
-spectra/src/SpectrumDrawChooser.cpp
-spectra/src/SpectrumDrawChooser.h
 spectra/src/SpectrumLayoutDialog.cpp
 spectra/src/SpectrumLayoutDialog.h
 spectra/src/SpectrumView.cpp

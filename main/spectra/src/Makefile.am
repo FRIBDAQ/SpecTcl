@@ -12,7 +12,6 @@ noinst_HEADERS =  QRootCanvas.h  \
   HistogramList.h  \
   GlobalSettings.h  \
   ContentRequestHandler.h  \
-  HistogramView.h  \
   ListRequestHandler.h  \
   TGo4CreateNewHistogram.h  \
   Compression.h  \
@@ -46,7 +45,6 @@ noinst_HEADERS =  QRootCanvas.h  \
   ShMemKeyRequestHandler.h \
   ShMemSizeRequestHandler.h \
   CmdLineOptions.h \
-  SpectrumDrawChooser.h \
   InformationPanel.h \
   GateManager.h \
   OneDimGateEdit.h \
@@ -86,7 +84,6 @@ libSpectra_la_SOURCES = \
   HistogramList.cpp  \
   ContentRequestHandler.cpp  \
   GlobalSettings.cpp  \
-  HistogramView.cpp  \
   ListRequestHandler.cpp  \
   TGo4CreateNewHistogram.cpp  \
   Compression.cpp  \
@@ -116,7 +113,6 @@ libSpectra_la_SOURCES = \
   ShMemKeyRequestHandler.cpp \
   ShMemSizeRequestHandler.cpp \
   CmdLineOptions.cpp \
-  SpectrumDrawChooser.cpp \
   InformationPanel.cpp \
   GateManager.cpp \
     OneDimGateEdit.cpp \
@@ -150,8 +146,7 @@ libSpectra_la_SOURCES = \
 	moc_QRootCanvas.cpp \
 	moc_ContentRequestHandler.cpp \
 	moc_QRootApplication.cpp \
-	moc_HistogramView.cpp \
-	moc_MultiSpectrumView.cpp \
+        moc_MultiSpectrumView.cpp \
         moc_ConnectServer.cpp \
 	moc_QRootWindow.cpp \
 	moc_MainWindow.cpp \
@@ -171,7 +166,6 @@ libSpectra_la_SOURCES = \
 	moc_SpecTclShMemInterface.cpp \
 	moc_ShMemKeyRequestHandler.cpp \
 	moc_ShMemSizeRequestHandler.cpp \
-        moc_SpectrumDrawChooser.cpp \
         moc_InformationPanel.cpp \
         moc_SpectrumView.cpp \
         moc_GateManager.cpp \
@@ -198,7 +192,6 @@ libSpectra_la_SOURCES = \
 spectraFORMS =  MainWindow.ui  \
   ConnectServer.ui  \
   HistogramList.ui  \
-  HistogramView.ui  \
   TGo4CreateNewHistogram.ui  \
   ControlPanel.ui \
   GeometrySelector.ui \
@@ -211,7 +204,6 @@ spectraFORMS =  MainWindow.ui  \
   TabLayoutDialog.ui \
   BulkDrawChooser.ui \
   ViewDrawPanel.ui \
-    SpectrumDrawChooser.ui \
     StatusBar.ui \
     AutoUpdateDialog.ui \
     SaveAsDialog.ui
@@ -222,12 +214,10 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 				ui_MainWindow.h \
 								ui_ConnectServer.h \
 								ui_HistogramList.h \
-								ui_HistogramView.h \
-								ui_TGo4CreateNewHistogram.h \
+                                                                ui_TGo4CreateNewHistogram.h \
                                                                 ui_ControlPanel.h \
 								ui_GeometrySelector.h \
 								ui_TabbedMultiSpectrumView.h \
-                                                                ui_SpectrumDrawChooser.h \
                                                                 ui_InformationPanel.h \
                                                                 ui_GateManager.h \
                                                                 ui_OneDimGateEdit.h \
@@ -246,8 +236,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 								moc_QRootCanvas.cpp \
 								moc_ContentRequestHandler.cpp \
 								moc_QRootApplication.cpp \
-								moc_HistogramView.cpp \
-								moc_MultiSpectrumView.cpp \
+                                                                moc_MultiSpectrumView.cpp \
                                                                 moc_ConnectServer.cpp \
 								moc_QRootWindow.cpp \
 								moc_MainWindow.cpp \

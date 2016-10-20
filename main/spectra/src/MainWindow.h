@@ -39,7 +39,6 @@ namespace Viewer
 
 // Forward declarations
 class TabbedMultiSpectrumView;
-class HistogramView;
 class SpecTclInterface;
 
 /*!
@@ -64,14 +63,6 @@ public:
      * \brief Destructor
      */
     ~MainWindow();
-
-    /*!
-     * \brief Constructs the dockable widgets
-     *
-     * The dockable widgets are the gate manager (DockableGateManager)
-     * and the histogram manager (HistogramView).
-     */
-    void createDockWindows();
 
     /*!
      * \brief Replace the SpecTclInterface with a new one
@@ -136,7 +127,6 @@ private:
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;
     TabbedMultiSpectrumView                      *m_pView;         ///< viewer
-//    HistogramView                     *m_histView;      ///< dockable histogram widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
     QWidget*                          m_pMainWidget;
 };

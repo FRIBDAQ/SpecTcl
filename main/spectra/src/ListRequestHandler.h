@@ -37,9 +37,6 @@ class QNetworkAccessManager;
 namespace Viewer
 {
 
-// forward declarations
-class HistogramView;
-
 /*!
  * \brief The ListRequestHandler class
  *
