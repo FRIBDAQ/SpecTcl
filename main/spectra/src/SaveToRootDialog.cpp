@@ -11,6 +11,8 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QDebug>
+#include <QCommonStyle>
+#include <QRegExp>
 
 #include <iostream>
 
@@ -20,7 +22,7 @@ namespace Viewer
 SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
                                    std::shared_ptr<SpecTclInterface> pSpecTcl,
                                    QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::SaveToRootDialog),
     m_tabWidget(tabWidget),
     m_checkBoxes(),
@@ -33,8 +35,10 @@ SaveToRootDialog::SaveToRootDialog(TabbedMultiSpectrumView& tabWidget,
     connect(ui->pSaveButton, SIGNAL(clicked()), this, SLOT(onAccepted()));
     connect(ui->pCancelButton, SIGNAL(clicked()), this, SLOT(onRejected()));
     connect(ui->pBrowseButton, SIGNAL(clicked()), this, SLOT(onBrowse()));
-    connect(ui->pOutputPath, SIGNAL(textEdited(const QString&)),
+    connect(ui->pOutputPath, SIGNAL(textChanged(const QString&)),
             this, SLOT(onPathEdited(const QString&)));
+    connect(ui->pWinSelector, SIGNAL(stateChanged(int)), this, SLOT(updateSaveButtonState()));
+    connect(ui->pROOTSelector, SIGNAL(stateChanged(int)), this, SLOT(updateSaveButtonState()));
 }
 
 SaveToRootDialog::~SaveToRootDialog()
@@ -44,15 +48,21 @@ SaveToRootDialog::~SaveToRootDialog()
 
 void SaveToRootDialog::setUpWidget()
 {
+    QCommonStyle style;
     ui->pSaveButton->setEnabled(false);
+    ui->pBrowseButton->setIcon(style.standardIcon(QStyle::SP_DirIcon));
 
-    int insertionRow = 1;
+    int insertionRow = 0;
     QStringList tabNames = m_tabWidget.getTabNames();
     for (size_t row =0; row<tabNames.size(); ++row) {
         auto pCheckBox = new QCheckBox(tabNames.at(row), this);
         // b/c we are only constructing this once, the column count should reflect the
         // number of actual visible columns
-        ui->verticalLayout->insertWidget(insertionRow, pCheckBox);
+        if (insertionRow == 0) {
+            ui->formLayout->insertRow(insertionRow, QString("<h2>Select tabs to save:</h2>"), pCheckBox);
+        } else {
+            ui->formLayout->insertRow(insertionRow, nullptr, pCheckBox);
+        }
 
         m_checkBoxes.push_back(pCheckBox);
 
@@ -60,9 +70,10 @@ void SaveToRootDialog::setUpWidget()
     }
 
     m_pSelectAllCheckBox = new QCheckBox("Select all", this);
-    ui->verticalLayout->insertWidget(insertionRow, m_pSelectAllCheckBox);
+    ui->formLayout->insertRow(insertionRow, nullptr, m_pSelectAllCheckBox);
 
     connect(m_pSelectAllCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onSelectAll()));
+
 }
 
 
@@ -81,14 +92,18 @@ void SaveToRootDialog::onAccepted()
 
     if ( !ui->pROOTSelector->isChecked() && !ui->pWinSelector->isChecked()) {
         QMessageBox::warning(this, "Save to file error", "Please select at least one file type before accepting");
+        QDialog::reject();
     } else {
-        emit accepted();
+        QDialog::accept();
     }
 }
 
 void SaveToRootDialog::writeToRootFile()
 {
     QString outputPath = ui->pOutputPath->text();
+    if (outputPath.lastIndexOf(QRegExp(".root$")) == -1) {
+        outputPath.append(".root");
+    }
 
     RootFileWriter writer(m_pSpecTcl);
     writer.openFile(outputPath, QString("UPDATE"));
@@ -121,11 +136,14 @@ int SaveToRootDialog::getTabSelectedCount()
 
 void SaveToRootDialog::writeToWinFile()
 {
-//    QMessageBox::warning(this, "Save to file error", "Saving to window files is not supported yet.");
 
     WinFileWriter writer;
 
     QString path = ui->pOutputPath->text();
+
+    if (path.lastIndexOf(QRegExp(".win$")) == -1) {
+        path.append(".win");
+    }
 
     bool appendIndices = false;
     int nTabsToWrite = getTabSelectedCount();
@@ -152,7 +170,7 @@ void SaveToRootDialog::writeToWinFile()
 
 void SaveToRootDialog::onRejected()
 {
-    emit rejected();
+    QDialog::reject();
 }
 
 void SaveToRootDialog::onBrowse()
@@ -173,10 +191,9 @@ void SaveToRootDialog::onSelectAll()
     }
 }
 
-void SaveToRootDialog::onPathEdited(const QString &value)
+void SaveToRootDialog::onPathEdited(const QString &)
 {
-    ui->pSaveButton->setDisabled(value.isEmpty());
-
+    updateSaveButtonState();
 }
 
 
@@ -192,6 +209,16 @@ QString SaveToRootDialog::formOutputPath(const QString &user_path, const QString
     }
 
     return path;
+}
+
+void SaveToRootDialog::updateSaveButtonState()
+{
+    if ((ui->pWinSelector->isChecked() || ui->pROOTSelector->isChecked())
+            && !ui->pOutputPath->text().isEmpty()) {
+        ui->pSaveButton->setDisabled(false);
+    } else {
+        ui->pSaveButton->setDisabled(true);
+    }
 }
 
 } // end Viewer namespace

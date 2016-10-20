@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include <QWidget>
+#include <QDialog>
 
 #include <memory>
 
@@ -25,7 +25,7 @@ class SpecTclInterface;
  * The dialog this creates is the dialog reached through the "File > Save As"
  * menu.
  */
-class SaveToRootDialog : public QWidget
+class SaveToRootDialog : public QDialog
 {
     Q_OBJECT
     
@@ -44,6 +44,7 @@ protected:
     int getTabSelectedCount();
     QString formOutputPath(const QString& user_path, const QString& tabName);
 
+
 public slots:
     void onAccepted();
     void onRejected();
@@ -52,13 +53,10 @@ public slots:
     void onSelectAll();
 
     void onPathEdited(const QString& value);
-
-signals:
-    void accepted();
-    void rejected();
+    void updateSaveButtonState();
 
 private:
-    Ui::SaveToRootDialog *ui;
+    Ui::SaveToRootDialog*       ui;
     TabbedMultiSpectrumView&    m_tabWidget;
     std::vector<QCheckBox*>     m_checkBoxes;
     QCheckBox*                  m_pSelectAllCheckBox;
