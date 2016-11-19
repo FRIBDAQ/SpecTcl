@@ -25,10 +25,10 @@ package provide gateCreate 1.0
 # Provides a megawidget for creating gates.
 # The physicsl layout of this widget is shown below:
 #
-#  +---------------------------------------------------------------+
-#  | [Create/Replace]  [Gate Select]   [Clear Dependency] [Slice]  |
-#  | <Gate name entry> < gate definition entry                  >  |
-#  +---------------------------------------------------------------+
+#  +---------------------------------------------------------------------------+
+#  | [Create/Replace]  [Gate Select] [parameter]  [Clear Dependency] [Slice]   |
+#  | <Gate name entry> < gate definition entry                  >              |
+#  +---------------------------------------------------------------------------+
 #
 #  OPTIONS
 #
@@ -62,19 +62,21 @@ snit::widget gateCreate {
     option -type  -configuremethod SetTypename
     option -typename -configuremethod SetType
     option -gates -configuremethod SetGates 
-
+    option -parameters -configuremethod SetParameters
+    
     # Dictionary whose keys populate the gate type menu
     # button drop down and whose values are the gate types
     # Expected by the SpecTcl gate definition.
+    #   4.0 - reordered so that more common gate types are at the top.
 
     typevariable gateTypes [dict create                  \
+                            Slice            s           \
+                            Contour          c           \
+			    Band             b           \
 			    And              *           \
 			    Or               +           \
 			    Not              -           \
 			    C2Band           c2band      \
-			    Slice            s           \
-			    Contour          c           \
-			    Band             b           \
 			    {Gamma Band}     gb          \
 			    {Gamma Contour}  gc          \
 			    {Gamma Slice}    gs          \
@@ -100,6 +102,8 @@ snit::widget gateCreate {
 	ttk::button     $win.create -text Create/Replace -command [mymethod Dispatch -createcmd]
 	ttk::menubutton $win.gatesel -text {Gate Select} -menu $win.gatesel.gates
 	treeMenu        $win.gatesel.gates -command [mymethod AddDependency %N]
+        ttk::menubutton $win.paramsel -text {Parameter} -menu $win.paramsel.params
+        treeMenu        $win.paramsel.params -command [mymethod AddParameter %N]
 	ttk::button     $win.clear  -text {Clear Definition} -command [mymethod ClearDefinition]
 	ttk::menubutton $win.type   -textvariable ${selfns}::options(-typename) \
 	    -menu $win.type.typemenu
@@ -126,14 +130,15 @@ snit::widget gateCreate {
 	#  Layout the widget.
 	#
 
-	grid $win.create $win.gatesel $win.clear $win.type -sticky w
+	grid $win.create $win.gatesel $win.paramsel $win.clear $win.type -sticky w
 	grid $win.name        -row 1 -column 0 -sticky w -padx 3px
-	grid $win.definition  -row 1 -column 1 -columnspan 3 -sticky ew
+	grid $win.definition  -row 1 -column 1 -columnspan 4 -sticky ew
 
 	grid columnconfigure $win 0 -weight 0
 	grid columnconfigure $win 1 -weight 1
 	grid columnconfigure $win 2 -weight 0
-	grid columnconfigure $win 3 -weight 1
+	grid columnconfigure $win 3 -weight 0
+        grid columnconfigure $win 4 -weight 1
 
 
 	# Configure the args which in turn will configure some of the widget contents.
@@ -159,6 +164,20 @@ snit::widget gateCreate {
     #-------------------------------------------------------------------
     # Configuration handlers.
 
+    
+    
+    ##
+    # SetParameters
+    #   Called to update the list of parameters that are in the parameter selection
+    #   tree menubutton.
+    #
+    #
+    method SetParameters {option value} {
+        set options($option) $value
+        destroy $win.paramsel.params
+        treeMenu $win.paramsel.params -command [mymethod AddParameter %N] -items $value
+    }
+    
     ##
     # Set the gates for the $in.gatesel.gates menu.
     # At this point in time this required killing and rebuilding that menu:
@@ -240,5 +259,14 @@ snit::widget gateCreate {
     method SetGateType {label value} {
 	set options(-typename) $label
 	set options(-type)     $value
+    }
+    ##
+    # Add Paramete
+    #   Insert a space and the most recently selected parameter name in the
+    #   gate definition line.
+    
+    method AddParameter {name} {
+        $win.definition insert end " "
+        $win.definition insert end $name
     }
 }

@@ -41,7 +41,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <stdio.h>
 #include <limits.h>
 #include <unistd.h>
-#include <Fstream.h>
+#include <fstream>
 #include <math.h>
 #include <time.h>
 #include <signal.h>

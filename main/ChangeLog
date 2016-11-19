@@ -1054,7 +1054,44 @@ November 30-?? 2011
 3.4-007 
 	*  Perfromance improvements in GUi startup and handling.
 	*  Add support in VMUSBSpecTcl for parameter-less vmusb module.
-	
 3.4-008
 	* TCLAnalyzer.h - performance improveents in counter management.
 	
+3.4-009
+	* SpectrumPackage.cpp - fix error in scoping spectrum names in
+	ListSpectrum
+
+4.0
+        * Feature #1710 Deprecate the headers: Iomanip.h, Typeinfo.h  Fstream.h Istream.h Ostream.h
+          Sstream.h Iostream.h, Applications shouls use instead <iomanip> directly
+          now that this is in the standard.
+        * Feature #3503 Fix autoconf warnings.
+        * Bug #1746 Remove fixed paths to /usr/opt/daq in SpecTcl - configure
+          them in with a default.
+        * Feature #2760 - new analysis framework to replace the 8.0 version.  
+	* Feature #3479 (change to existing functionality) Make
+	spectra/displays from [low, hi) with nchan binning.
+	* Feature #3922 - provide over/underflow statistics for spectra.
+	* Feature #382 - Add a parameter selection menu button to the tree
+	  parameter classic gate tab to aid in generating gates.
+	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
+	  in auto_path so scripts don't have to worry about it.
+
+5.0-00
+	* Major overhauls to code organization. The display functionality is 
+	separated from the CHistogrammer class and is developed into a more
+	generic interface. The parsing libraries of win files is separated into
+	its own separate library called XamineParsers. 
+	* Xamine is no longer the only display utility for viewing spectra. The 
+	Spectra program is now available for use.
+	* Core library is created that combines a lot of previously modularized 
+	code into a single central library. This fixes the circular dependencies 
+	between the libraries that were causing build problems.
+	* TclGrammerApp is no longer derived from CTclApplication. It is now 
+	a singleton. This change introduces a minor change that users will have
+	to make to their Skeleton.cpp files.
+	* win file parser is made more loosely coupled to the presence of a 
+	shared memory segment. It can parse properly win files that specify
+	spectra by their name rather than their slot id.
+	* spectrum command is no longer able to deal with pure histogram ids
+	so that it works when there is no shared memory segment.

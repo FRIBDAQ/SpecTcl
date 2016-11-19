@@ -76,6 +76,9 @@ using namespace std;
 #include "spccheck.h"
 #include "trackcursor.h"
 
+#include <chrono>
+#include <thread>
+
 
 /*
 ** Definitions:
@@ -200,8 +203,6 @@ XMWidget* Xamine_TopLevel;	// Point to the top level widget.
 
 int main(int argc, char **argv)
 {
-
-  //  sleep(30);			// 30 seconds to attach a debugger.
 
   XMApplication top("Xamine", reinterpret_cast<Cardinal*>(&argc), argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
@@ -341,4 +342,5 @@ int main(int argc, char **argv)
     top.Begin();		// Back into the event loop.
   }
 }
+
  

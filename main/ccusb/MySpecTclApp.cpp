@@ -632,8 +632,8 @@ to deal with gate objects accepted by Xamine interaction.
 
 */
 void 
-CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)  
-{ CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
+CMySpecTclApp::SelectDisplayer()
+{ CTclGrammerApp::SelectDisplayer();
 }  
 
 //  Function: 	
@@ -779,6 +779,6 @@ CMySpecTclApp::operator()()
 }
 
 CMySpecTclApp   myApp;
-CTclGrammerApp& app(myApp);	// Create an instance of me.
-CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;	// Create an instance of me.
+int gpTCLApplication(0);  // Satisfy the build by defining this
 

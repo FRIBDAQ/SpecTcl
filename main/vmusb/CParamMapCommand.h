@@ -123,12 +123,12 @@ public:
   // Virtual function overrides.
 protected:
   int operator()(CTCLInterpreter& interp,
-		 STD(vector)<CTCLObject>& objv);
+		 std::vector<CTCLObject>& objv);
 
   // utilities:
 
 private:
-  static STD(string) Usage();
+  static std::string Usage();
 };
 
 #endif

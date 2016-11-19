@@ -270,6 +270,7 @@ snit::widgetadaptor scrollingMenu  {
 	
 	# Remove the next to last elementL:
 
+
 	set lastItem [expr {[$hull index last]} -1]
 	$hull delete $lastItem
 
@@ -293,7 +294,12 @@ snit::widgetadaptor scrollingMenu  {
 		set newItem $items($bottomIndex)
 		set itemType [dict get $newItem type]
 		set itemOptions [dict get $newItem options]
-		$hull insert [expr [$hull index last] -1] $itemType {*}$itemOptions
+		
+		# Safety code in case there's only one item shown (Bug #6154)
+
+		set insindex [expr {max(([$hull index last] - 1), 0)}]
+
+		$hull insert $insindex $itemType {*}$itemOptions
 	    }
 	}
 

@@ -51,8 +51,8 @@ class CRateProcessor;
 class CRateList {
   // Public data types:
 public:
-  typedef STD(pair)<CRateProcessor*, bool> Entry;
-  typedef STD(list)<Entry>                 RateList;
+  typedef std::pair<CRateProcessor*, bool> Entry;
+  typedef std::list<Entry>                 RateList;
   typedef RateList::iterator               RateListIterator;
 
   // data members:

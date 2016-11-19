@@ -1,0 +1,1404 @@
+<!-- chapter libraries -->
+
+<chapter id="chapter.exception">
+    <title>The NSCL Exception class library</title>
+        <para>
+            C++ provides an error detection/recovery mechanism called
+            exception handling.  Exception handling, while not always easy
+            to program correctly is well suited to object oriented software
+            development.
+        </para>
+        <para>
+            Exceptions in C++ are objects that are thrown in search of catchers.
+            As each call frame is searched for a catcher, and the exception propagates up
+            the call chain.  Object destructors for non-dynamically allocated objects
+            get called ensuring proper object cleanup.  If an exception can find no
+            catcher, the application exits with an error.
+        </para>
+        <para>
+            The linguistic construction for emitting, or throwing and exception is the
+            <command>throw</command> statement. For example:
+            <programlisting>
+throw SomeObject;
+            </programlisting>
+        </para>
+        <para>
+            The linguistic mechanism for specifying exception catchers is the
+            <command>try/catch</command> block:
+            <programlisting>
+try {
+   &hellip;
+}
+catch (SomeType variable) {
+   &hellip;
+}
+&hellip;
+catch (...) {
+&hellip;
+}
+            </programlisting>
+        </para>
+        <para>
+            If an exception is thrown within the block body of the <command>catch</command>
+            statement, the catch blocks are searched for a matching data type, and the
+            textually first matching block is executed.  If none match and a
+            <command>catch (...)</command> is specified it is invoked.
+        </para>
+        <para>
+            You can also re-throw an exception after processing using an empty <command>throw</command>
+            statement.  This is used in the following example to destroy some dynamically
+            allocated memory.
+            <programlisting>
+SomeType* pType;
+try {
+   pType = new SomeType;
+   &hellip;
+}
+catch (...) {
+    delete pType;
+    throw;
+}
+            </programlisting>
+        </para>
+        <para>
+            Exception catching does allow polymorphism.  For example, suppose we have a base class
+            <classname>MyBase</classname> and a derived class <classname>Derived</classname>.
+            <programlisting>
+try {
+    &hellip;
+    throw Derived;
+    &hellip;
+}
+catch (MyBase&amp; reason) {
+    &hellip;
+}
+            </programlisting>
+            The catch block will execute, and if virtual methods are called, the <classname>Derived</classname>
+            implementation will be used.
+        </para>
+        <section>
+            <title>Incorporating the library in your programs</title>
+            <para>
+                So much for an introduction to C++ exception handling.  Based on the presentation so far,
+                however there are clear advantages to defining a hierarchy of exceptions that derive
+                from a common base class that provides a common set of reporting facilities.  The
+                NSCL Exception class library in SpecTcl and nscldaq does this.  This library named
+                <filename>libException.so</filename> that can be found in the lib directory of the
+                NSCL DAQ or SpecTcl installations.   Linking with that library is a matter of e.g.:
+                <programlisting>
+g++   &hellip;  -L/usr/opt/spectcl/3.2/lib -lException -Wl,"-rpath=/usr/opt/spectcl/3.2/lib"
+                </programlisting>
+            </para>
+            <para>
+                Be sure to substitute the correct top level directory for
+                <filename>/usr/opt/spectcl/3.2</filename> in both places in the example above.
+            </para>
+            <para>
+                The base class of the library is called <classname>CException</classname>.  All NSCL
+                frameworks and applications enclose essentially the entire program or the body of each thread
+                in a try/catch block that can catch and report the error information from a
+                <classname>CException</classname> prior to exiting.  Your code can catch this or
+                derived class issues either for error reporting or error recovery purposes.
+            </para>
+        </section>
+        <section>
+            <title>Exception classes</title>
+            <para>
+                The exception classes forma hierarchy with
+                <classname>CException</classname>
+                as the base class.
+                <classname>CException</classname> provides a unified interface
+                to all exceptions that allow you to get human readable messages
+                and status information that can be processed by computers (e.g.
+                for exception recovery).
+            </para>
+            <para>
+                All exceptions have the following member functions (virtual):
+                <itemizedlist>
+                    <listitem><para>
+                        <methodsynopsis>
+                        <modifier>virtual const</modifier> <type>char*</type> <methodname>ReasonText</methodname>
+                        <void /> <modifier>const</modifier>
+                        </methodsynopsis>
+                        Which returns a human readable error string that contains an error
+                        message describing why the exception was thrown and what was being done
+                        when the error that triggered the exception occured.
+                </para></listitem>
+                <listitem><para>
+                            <methodsynopsis>
+                                <modifier>virtual</modifier> <type>Int_t</type>
+                                <methodname>ReasonCode</methodname>
+                                <void /> <modifier>const</modifier>
+                            </methodsynopsis>
+                            Which returns some exception specific error code, that
+                            can be processed by software for error recovery.
+                          </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>
+            The example below shows the simplest handling of
+            <classname>CException</classname> types.  Note that the exception
+            is caught by reference so that member functions retain their
+            polymorphism.
+        </para>
+        <example>
+            <title>Catching <classname>CException</classname> and exiting</title>
+            <programlisting>
+#include &lt;Exception.h&gt;
+#include &lt;iostream&gt;
+using namespace std;
+...
+try {
+...
+}
+catch (CException&amp; error) {
+    cerr &lt;&lt; err.ReasonText() &lt;&lt; endl;
+    exit(-1);
+}
+            </programlisting>
+        </example>
+        <para>
+            The example prints out a meaningful error message and exits the program.
+        </para>
+    </section>
+</chapter>
+
+<!-- /chapter -->
+
+<!-- manpage 3daq -->
+
+    <refentry id="manpage.cexception">
+        
+        <refmeta>
+            <refentrytitle>CException</refentrytitle>
+            <manvolnum>3daq</manvolnum>
+        </refmeta>
+        
+        <refnamediv>
+            <refname>CException</refname>
+            <refpurpose>Abstract base class for the exception class hierarchy.</refpurpose>
+        </refnamediv>
+        
+        <refsynopsisdiv>
+          <synopsis>
+#include &lt;Exception.h&gt;
+class         <ooclass><classname>CException</classname></ooclass> {
+                <constructorsynopsis><methodname>CException</methodname>
+                    <methodparam><modifier>const</modifier><type>char*</type> <parameter>pszAction</parameter></methodparam>
+                </constructorsynopsis>
+                <constructorsynopsis><methodname>CException</methodname>
+                    <methodparam><modifier>const</modifier><type>std::string&amp;</type> <parameter>rsAction</parameter></methodparam>
+                </constructorsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual const</modifier><type>char*</type> <methodname>ReasonText</methodname>
+                            <void />
+                            <modifier> const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual</modifier><type>Int_t</type> <methodname>ReasonCode</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>const</modifier><type>char*</type> <methodname>WasDoing</methodname>
+                        <void /> <modifier>const</modifier>
+                </methodsynopsis>
+};
+               </synopsis>
+
+        </refsynopsisdiv>
+        
+        <refsect1>
+            <title>Description</title>
+            <para>
+                This class is the abstract base class of the exception class hierarchy.
+                The class hierarchy provides textual exception descriptions (that can be displayed
+                to a user), as well as support for a numerical code that can be easily processed
+                by software.  The textual description is composed by the
+                <methodname>ReasonText</methodname> function in an exception specific way. Usually
+                the resulting message includes a description of the message along with context
+                information held by this base class and retrieved via <methodname>WasDoing</methodname>.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>Public member functions</title>
+            <methodsynopsis><methodname>CException</methodname>
+                <methodparam><modifier>const</modifier><type>char*</type> <parameter>pszAction</parameter></methodparam>
+            </methodsynopsis>
+            <methodsynopsis><methodname>CException</methodname>
+                <methodparam><modifier>const</modifier><type>std::string&amp;</type> <parameter>rsAction</parameter></methodparam>
+            </methodsynopsis>
+            <para>
+                Both of the constructors described above save their parameter as the context specific
+                part of the description.  This string can be retrieved via
+                <methodname>WasDoing</methodname>.  Normally the string should give some indication
+                of what the program was doing when the exception was thrown.
+            </para>
+            <methodsynopsis>
+                <modifier>virtual const</modifier><type>char*</type> <methodname>ReasonText</methodname>
+                        <void />
+                        <modifier> const</modifier>
+            </methodsynopsis>
+            <para>
+                A virtual function that is supposed to return the reason the exception was thrown.
+                For the base class this is the string <literal>Unspecified Exception</literal>.
+            </para>
+            <methodsynopsis>
+                <modifier>virtual</modifier><type>Int_t</type> <methodname>ReasonCode </methodname>
+                    <void />
+                    <modifier>const</modifier>
+            </methodsynopsis>
+            <para>
+                Returns a number that corresponds to the exception reason within a specific
+                class of exceptions (e.g. for a <classname>CErrnoException</classname> this would
+                be the value of <varname>errno</varname> at the time the exception was constructed).
+                For the base class this will always be -1.
+            </para>
+            <methodsynopsis>
+                <modifier>const</modifier><type>char*</type> <methodname>WasDoing</methodname>
+                    <void /> <modifier>const</modifier>
+            </methodsynopsis>
+            <para>
+                Returns the context string that was passed to our constructor.  This will normally
+                be called by a derived class's <methodname>ReasonText</methodname> function when
+                constructing the text.
+            </para>
+        </refsect1>
+    </refentry>
+
+    <refentry id="manpage.CErrnoException">
+        
+        <refmeta>
+            <refentrytitle>CErrnoException</refentrytitle>
+            <manvolnum>3daq</manvolnum>
+        </refmeta>
+        
+        <refnamediv>
+            <refname>CErrnoException</refname>
+            <refpurpose>Exceptions that wrap the Unix <varname>errno</varname></refpurpose>
+        </refnamediv>
+        
+        <refsynopsisdiv>
+            <synopsis>
+#include &lt;ErrnoException.h&gt;
+class           <ooclass><classname>CErrnoException</classname></ooclass> {
+                <constructorsynopsis>
+                    <methodname>CErrnoException</methodname>
+                    <methodparam><modifier>const</modifier> <parameter>pszAction</parameter></methodparam>
+                </constructorsynopsis>
+                <constructorsynopsis>
+                    <methodname>CErrnoException</methodname>
+                    <methodparam><modifier>const</modifier> <type>std::string&amp;</type> <parameter>rsAction</parameter></methodparam>
+                </constructorsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual   const</modifier> <type>char*</type>
+                            <methodname>ReasonText</methodname>
+                            <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual</modifier>   <type>Int_t</type> <methodname>ReasonCode</methodname>
+                                <void /><modifier>const</modifier>
+                </methodsynopsis>
+};
+               </synopsis>
+               
+
+        </refsynopsisdiv>
+        
+        <refsect1>
+            <title>Description</title>
+            <para>
+                This exception class wraps the Unix <varname>errno</varname> global variable.
+                <type>errno</type> is used by most Unix system calls to provide detailed status
+                information.   Constructing this class saves a copy of the <varname>errno</varname>
+                variable.   <methodname>ReasonCode</methodname> will return the saved errno value.
+                <methodname>ReasonText</methodname> will construct a string that includes
+                the text associated with the <varname>errno</varname>.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>Public member functions</title>
+                <methodsynopsis>
+                   <methodname>CErrnoException</methodname>
+                   <methodparam><modifier>const</modifier> <parameter>pszAction</parameter></methodparam>
+               </methodsynopsis>
+               <methodsynopsis>
+                   <methodname>CErrnoException</methodname>
+                   <methodparam><modifier>const</modifier> <type>std::string&amp;</type> <parameter>rsAction</parameter></methodparam>
+               </methodsynopsis>
+               <para>
+                These constructors save the value of the <varname>errno</varname> variable and
+                construct the base class using their parameter as the exception context string
+                (returned by <methodname>WasDoing</methodname>).
+               </para>
+               <methodsynopsis>
+                   <modifier>virtual   const</modifier> <type>char*</type>
+                           <methodname>ReasonText</methodname>
+                           <void /><modifier>const</modifier>
+               </methodsynopsis>
+               <para>
+                    Returns the <function>sterror</function> applied to the saved <varname>errno</varname>.
+               </para>
+               <methodsynopsis>
+                   <modifier>virtual</modifier>   <type>Int_t</type> <methodname>ReasonCode</methodname>
+                               <void /><modifier>const</modifier>
+               </methodsynopsis>
+               <para>
+                    Returns the saved <varname>errno</varname> variable value.
+               </para>
+        </refsect1>
+    </refentry>
+    <refentry id="manpage.CRangeError">
+        
+        <refmeta>
+            <refentrytitle>CRangeError</refentrytitle>
+            <manvolnum>3daq</manvolnum>
+        </refmeta>
+        
+        <refnamediv>
+            <refname>CRangeError</refname>
+            <refpurpose>Reports and exception for a value out of allowed range.</refpurpose>
+        </refnamediv>
+        
+        <refsynopsisdiv>
+          <synopsis>
+#include &lt;CRangeError.h&gt;
+class           <ooclass><classname>CRangeError</classname></ooclass> {
+                <constructorsynopsis>
+                    <methodname>CRangeError</methodname>
+                    <methodparam><type>Int_t</type> <parameter>nLow</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nHigh</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nRequested</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>pDoing</parameter></methodparam>
+                </constructorsynopsis>
+                <constructorsynopsis>
+                    <methodname>CRangeError</methodname>
+                    <methodparam><type>Int_t</type> <parameter>nLow</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nHigh</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nRequested</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>std::string&amp;</type> <parameter>rDoing</parameter></methodparam>
+                </constructorsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual   const</modifier> <type>char*</type>
+                                                         <methodname>ReasonText</methodname>
+                                                         <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis><modifier>virtual</modifier> <type>Int_t</type>
+                        <methodname>ReasonCode</methodname>
+                        <void /> <modifier>const</modifier>
+                </methodsynopsis>
+};
+             </synopsis>
+            
+            
+        </refsynopsisdiv>
+        
+        <refsect1>
+            <title>Description</title>
+            <para>
+                Provides an exception that can be used to report parameter range errors
+                (normally for integer parameters).  The exception will construct a reason text
+                that includes the erroneous value as well as the valid range of values.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>Public member functions</title>
+                <methodsynopsis>
+                    <methodname>CRangeError</methodname>
+                    <methodparam><type>Int_t</type> <parameter>nLow</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nHigh</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nRequested</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>pDoing</parameter></methodparam>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <methodname>CRangeError</methodname>
+                    <methodparam><type>Int_t</type> <parameter>nLow</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nHigh</parameter></methodparam>
+                    <methodparam><type>Int_t</type> <parameter>nRequested</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>std::string&amp;</type> <parameter>rDoing</parameter></methodparam>
+                </methodsynopsis>
+                <para>
+                    Creates a <classname>CRangeError</classname> that can be thrown.
+                    The only difference between the two constructors is the way in which the
+                    context information is passed.  In the first, by a standard C null terminated string.
+                    In the second by a C++ <classname>std::string</classname> object.
+                </para>
+                <para>
+                    The remaining parameters describe the actual exceptional condition:
+                    <variablelist>
+                        <varlistentry>
+                            <term><parameter>nLow</parameter></term>
+                            <listitem>
+                                <para>
+                                    Is the low end of the allowed range that was violated.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><parameter>nHigh</parameter></term>
+                            <listitem>
+                                <para>
+                                    Is the high end of the allowed range that was violated.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><parameter>nRequested</parameter></term>
+                            <listitem>
+                                <para>
+                                    Is the value that violated the range described by
+                                    <parameter>nLow</parameter> and <parameter>nHigh</parameter>
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </para>
+                <methodsynopsis>
+                    <modifier>virtual   const</modifier> <type>char*</type>
+                                                         <methodname>ReasonText</methodname>
+                                                         <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns the reason for the exception.  This will be a string of the form:
+                    <literal>Range error: %v is outside the range [%l..%h]</literal> where
+                    %v, %l %h are shorthands for the value, low and high limits respectively.
+                </para>
+                <methodsynopsis><modifier>virtual</modifier> <type>Int_t</type>
+                        <methodname>ReasonCode</methodname>
+                        <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns one of the two possible reasons for the exception:
+                    <variablelist>
+                        <varlistentry>
+                            <term><classname>CRangeError</classname>::<varname>knTooHigh</varname></term>
+                            <listitem>
+                                <para>The value requested was above the upper limit of the range.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><classname>CRangeError</classname>::<varname>knTooLow</varname></term>
+                            <listitem>
+                                <para>The value requested was below the lower limit of the range.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    Note that if the requested value provided to the constuctor does not satisfy
+                    either of these relationships, invoking this member function will result in an
+                    assertion failure.
+                </para>
+        </refsect1>        
+    </refentry>
+    <refentry id="manpage.CStateException">
+        
+        <refmeta>
+            <refentrytitle>CStateException</refentrytitle>
+            <manvolnum>3daq</manvolnum>
+        </refmeta>
+        
+        <refnamediv>
+            <refname>CStateException</refname>
+            <refpurpose>Exception for invalid state transitions.</refpurpose>
+        </refnamediv>
+        
+        <refsynopsisdiv>
+         <synopsis>
+#include &lt;CStateException.h&gt;
+class          <ooclass><classname>CStateException</classname></ooclass> {
+                <constructorsynopsis>
+                    <methodname>CStateException</methodname>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>state</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>allowedStates</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>pAction</parameter></methodparam>
+                </constructorsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual const</modifier> <type>char*</type> <methodname>ReasonText</methodname>
+                                    <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual</modifier>  <type>Int_t</type> <methodname>ReasonCode</methodname>
+                                        <void /><modifier>const</modifier>
+                </methodsynopsis>
+};
+             </synopsis>
+        </refsynopsisdiv>
+        
+        <refsect1>
+            <title>Description</title>
+            <para>
+                Many programming problems can be solved by programming a <firstterm>state machine</firstterm>.
+                A state machine, or finite state automaton, simply put, is an entity that has a well defined
+                set of states it can live in.  Input stimulii may trigger well defined transitions
+                from one state to another state.  For example the <emphasis>begin</emphasis> stimulus
+                can force a run-state machine in the <emphasis>halted</emphasis> state to make a transition
+                to the <emphasis>active</emphasis> state.
+            </para>
+            <para>
+                When programming a state machine the programmer must take into account exceptional
+                cases where stimulii that are not allowed for the current state are received or,
+                in some cases, errors in implementing the state machine cause the state machine to
+                enter a state that is not legal.
+            </para>
+            <para>
+                The <classname>CStateException</classname> provides a class that can be instantiated
+                and then thrown in the event one of these cases occurs.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>Public member functions</title>
+               <methodsynopsis>
+                    <methodname>CStateException</methodname>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>state</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>allowedStates</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>char*</type> <parameter>pAction</parameter></methodparam>
+                </methodsynopsis>
+               <para>
+                    Creates a <classname>CStateException</classname> that can be thrown.
+                    <variablelist>
+                        <varlistentry>
+                            <term><parameter>state</parameter></term>
+                            <listitem>
+                                <para>
+                                    The state attempted.  This can be a state attemped via an illegal
+                                    transition or it could be an illegal state actually entered as a result
+                                    of an error in programming.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><parameter>allowedStates</parameter></term>
+                            <listitem>
+                                <para>
+                                    The allowed states at this time.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><parameter>pAction</parameter></term>
+                            <listitem>
+                                <para>
+                                    The context in which the error was detected and thrown.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+               </para>
+                <methodsynopsis>
+                    <modifier>virtual const</modifier> <type>char*</type> <methodname>ReasonText</methodname>
+                                    <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    As usual, this returns the textual reason for the failure.  This will be a string of
+                    the form:
+                    <literal>Invalid object state when: %c relevant erroneous state: %s relevant allowed state: %a</literal>
+                    Where <literal>%c</literal> is the context text supplied at construction time.
+                    <literal>%s</literal> is the state that caused the error.
+                    <literal>%a</literal> are the allowed states prior to this error.
+                </para>
+                <methodsynopsis>
+                    <modifier>virtual</modifier>  <type>Int_t</type> <methodname>ReasonCode</methodname>
+                                        <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    The error code for this exception type is always -1.
+                </para>
+        </refsect1>
+        
+    </refentry>
+    <refentry id="manpage.CStreamIOError">
+        
+        <refmeta>
+            <refentrytitle>CStreamIOError</refentrytitle>
+            <manvolnum>3daq</manvolnum>
+        </refmeta>
+        
+        <refnamediv>
+            <refname>CStreamIOError</refname>
+            <refpurpose>I/O error on a C++ stream.</refpurpose>
+        </refnamediv>
+        
+        <refsynopsisdiv>
+           <synopsis>
+#include &lt;CStreamIOError.h&gt;
+class        <ooclass><classname>CStreamIOError</classname></ooclass> {
+                <constructorsynopsis>
+                    <methodname> CStreamIOError</methodname>
+                    <methodparam><type>IoStreamConditions</type> <parameter>eReason</parameter></methodparam>
+                    <methodparam><modifier>const</modifier>  <type>char*</type> <parameter>pDoing</parameter></methodparam>
+                    <methodparam><type>std::ios&amp;</type> <parameter>rStream</parameter></methodparam>
+                </constructorsynopsis>
+                <constructorsynopsis>
+                    <methodname>CStreamIOError</methodname>
+                    <methodparam><type>IoStreamConditions</type> <parameter>eReason</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>std::string&amp;</type>  <parameter>rDoing</parameter></methodparam>
+                    <methodparam><type>std::ios&amp;</type> <parameter>rStream</parameter></methodparam>
+                </constructorsynopsis>
+
+                <methodsynopsis>
+                    <modifier>virtual const</modifier> <type>char*</type> <methodname>ReasonText</methodname>
+                                                                          <void />
+                                                                          <modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>virtual</modifier>   <type>Int_t</type> <methodname>ReasonCode</methodname>
+                                        <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <type>IoStreamConditions</type>
+                    <methodname>getReason</methodname> <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <type>std::ios&amp;</type> <methodname>getStream</methodname><void />
+                </methodsynopsis>
+                <methodsynopsis>
+                    <modifier>const</modifier> <type>char*</type>
+                        <methodname>getErrorMessage</methodname> <modifier>const</modifier>
+                </methodsynopsis>
+};
+               </synopsis>
+        </refsynopsisdiv>
+        
+        <refsect1>
+            <title>Description</title>
+            <para>
+                Captures an error condition reading from or writing to a C++ stream (&lt;iostream&gt;).
+                The errors are captured via an enumeration
+                <classname>CStreamIOError</classname>::<type>IoStreamConditions</type>.
+                See "Types and Pulbic Data" below for more information about the values
+                this can have.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>Public member functions</title>
+                <methodsynopsis>
+                    <methodname> CStreamIOError</methodname>
+                    <methodparam><type>IoStreamConditions</type> <parameter>eReason</parameter></methodparam>
+                    <methodparam><modifier>const</modifier>  <type>char*</type> <parameter>pDoing</parameter></methodparam>
+                    <methodparam><type>std::ios&amp;</type> <parameter>rStream</parameter></methodparam>
+                </methodsynopsis>
+                <methodsynopsis>
+                    <methodname>CStreamIOError</methodname>
+                    <methodparam><type>IoStreamConditions</type> <parameter>eReason</parameter></methodparam>
+                    <methodparam><modifier>const</modifier> <type>std::string&amp;</type>  <parameter>rDoing</parameter></methodparam>
+                    <methodparam><type>std::ios&amp;</type> <parameter>rStream</parameter></methodparam>
+                </methodsynopsis>
+                <para>
+                    Constructs an exception object that can later be thrown.
+                    <parameter>eReason</parameter> is the
+                    <classname>CStreamIOError</classname>::<type>IoStreamConditions</type>
+                    value that describes the error being reported.  See "Types and Public Data"
+                    for more information about allowed values.
+                </para>
+                <para>
+                    <parameter>pDoing</parameter> or <parameter>rDoing</parameter> pass in the eror
+                    context string that can be reported back to the catcher.
+                </para>
+                <para>
+                    <parameter>rStream</parameter> is a reference to the stream on which the error
+                    was detected.
+                </para>
+                <methodsynopsis>
+                    <modifier>virtual const</modifier> <type>char*</type> <methodname>ReasonText</methodname>
+                                                                          <void />
+                                                                          <modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns the reason text associated with the error.  This will be a string
+                    that describes the value of the <parameter>eReason</parameter> used to
+                    construct the exception object.
+                </para>
+                <methodsynopsis>
+                    <modifier>virtual</modifier>   <type>Int_t</type> <methodname>ReasonCode</methodname>
+                                        <void /><modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns the error condition cast to an int.  You can also use the
+                    class specific <methodname>getReason</methodname> described below.
+                </para>
+                <methodsynopsis>
+                    <type>IoStreamConditions</type>
+                    <methodname>getReason</methodname> <void /> <modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns the reason the error was thrown.
+                </para>
+                <methodsynopsis>
+                    <type>std::ios&amp;</type> <methodname>getStream</methodname><void />
+                </methodsynopsis>
+                <para>
+                    Returns a reference to the failing stream.  Note that if the catch handler
+                    is far enough up the call stack the stream may have been destroyed already.
+                    consider something as simple as:
+                </para>
+                <programlisting>
+try {
+    ifstream something("somefile");
+    somefunction(something);       // can throw...
+    ...
+}
+catch (CStreamIOError&amp; error) {
+...
+}
+                </programlisting>
+                <para>
+                    Due to the semantics of exception handling, the stream reference
+                    that would be returned would be to an already destroyed stream.
+                </para>
+                <methodsynopsis>
+                    <modifier>const</modifier> <type>char*</type>
+                        <methodname>getErrorMessage</methodname> <modifier>const</modifier>
+                </methodsynopsis>
+                <para>
+                    Returns a full error message string that includes the reason for the
+                    error and the context string as well.
+                </para>  
+        </refsect1>
+        <refsect1>
+            <title>Types and public data</title>
+            <para>
+                The type: <classname>CStreamIOError</classname>::<literal>IoStreamConditions</literal>
+                is used to capture error information.  Calling <methodname>ReasonCode</methodname>
+                and then
+                casting that value to an
+                <classname>CStreamIOError</classname>::<literal>IoStreamConditions</literal>
+                will give you one of the following values:
+                <variablelist>
+                    <varlistentry>
+                        <term><classname>CStreamIOError</classname>::<literal>EndFile</literal></term>
+                        <listitem>
+                            <para>
+                                An end file condition has been detected.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><classname>CStreamIOError</classname>::<literal>BadSet</literal></term>
+                        <listitem>
+                            <para>
+                                The bad bit in the stream's I/O status mask is set.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><classname>CStreamIOError</classname>::<literal>FailSet</literal></term>
+                        <listitem>
+                            <para>
+                                The fail bit is set in the stream's I/O status mask.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </refsect1>        
+    </refentry>
+    <refentry id="manpage.curiformatexception">
+      <refmeta>
+         <refentrytitle>CURIFormatException</refentrytitle>
+         <manvolnum>3daq</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CURIFormatException</refname>
+	 <refpurpose>Report errors in universal resource identifiers (uri)s.</refpurpose>
+      </refnamediv>
+      
+      <refsynopsisdiv>
+         <synopsis>
+#include &lt;uriFormatException.h&gt;
+class      <ooclass><classname>CURIFormatException</classname></ooclass> {
+            <constructorsynopsis>
+                <methodname>CURIFormatException</methodname>
+                <methodparam>
+                    <type>std::string</type> <parameter>uri</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>file</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>int</type> <parameter>line</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <constructorsynopsis>
+                <methodname>CURIFormatException</methodname>
+                <methodparam>
+                    <type>std::string</type> <parameter>uri</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>std::string</type> <parameter>port</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>file</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>int</type> <parameter>line</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <constructorsynopsis>
+                <methodname>CURIFormatException</methodname>
+                <methodparam>
+                    <type>std::string</type> <parameter>uri</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>host</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>file</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>int</type> <parameter>line</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <constructorsynopsis>
+                <methodname>CURIFormatException</methodname>
+                <methodparam>
+                    <type>const CURIFormatException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <destructorsynopsis>
+                <modifier>virtual</modifier>
+                <methodname>~CURIFormatException</methodname> <void />
+            </destructorsynopsis>
+            <methodsynopsis>
+                <type>CURIFormatException&amp;</type> <methodname>operator=</methodname>
+                <methodparam>
+                    <type>const CURIFormatException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator==</methodname>
+                <methodparam>
+                    <type>const CURIFormatException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+                <modifier> const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator!=</methodname>
+                <methodparam>
+                    <type>const CURIFormatException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+                <modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <modifier>virtual</modifier>
+                <type>const char*</type> <methodname>ReasonText</methodname>
+                                         <void /><modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <modifier>virtual</modifier> <type>Int_t</type>
+                <methodname>ReasonCode</methodname>
+                <void /><modifier>const</modifier>
+            </methodsynopsis>
+};
+           </synopsis>
+      </refsynopsisdiv>
+      <refsect1>
+         <title>Description</title>
+         <para>
+            This exception is a subclass of
+            <link linkend="manpage.cexception"><classname>CException</classname></link>.
+            It is specialized to report exceptions encountered parsing Uniform
+            Resource Identifiers (uris).
+            The reason text is human readable, but the reason code is always
+            <literal>-1</literal>.
+         </para>
+         <para>
+            Typcially the exception is used to either present an error message
+            to the user.  Once the exception is caught, tyipical program action
+            is to either prompt the user to correct the faulty uri or to
+            exit, depending on the level of interactivity assumed by the application.
+         </para>
+      </refsect1>
+      <refsect1>
+         <title>
+            Public member functions
+         </title>
+         <formalpara>
+            <title>Constructors.</title>
+         <para>
+            A rich set of constructors is provided to build the exception
+            according to the actual error.  In all the constructors above, the
+            current action is constructed from the
+            <parameter>file</parameter> and <parameter>line</parameter> parameters
+            which are the names of the constructing file and line number
+            at which the construction occured.  You should use the
+            preprocessor <literal>__FILE__</literal> and <literal>__LINE__</literal>
+            macros for the <parameter>file</parameter> and <parameter>line</parameter>
+            parameters unless you have some special needs.
+         </para>
+         </formalpara>
+        <constructorsynopsis>
+             <methodname>CURIFormatException</methodname>
+             <methodparam>
+                 <type>std::string</type> <parameter>uri</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>const char*</type> <parameter>file</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>int</type> <parameter>line</parameter>
+             </methodparam>
+         </constructorsynopsis>
+        <para>
+            Constructs the exception when the URI <parameter>uri</parameter>
+            just can't be parsed.
+         </para>
+         <constructorsynopsis>
+             <methodname>CURIFormatException</methodname>
+             <methodparam>
+                 <type>std::string</type> <parameter>uri</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>std::string</type> <parameter>port</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>const char*</type> <parameter>file</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>int</type> <parameter>line</parameter>
+             </methodparam>
+         </constructorsynopsis>
+         <para>
+            Constructs the exception when the URI <parameter>uri</parameter>
+            has a string <parameter>port</parameter> which should be a port
+            number but can't be properly processed as a port.
+         </para>
+         <constructorsynopsis>
+             <methodname>CURIFormatException</methodname>
+             <methodparam>
+                 <type>std::string</type> <parameter>uri</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>const char*</type> <parameter>host</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>const char*</type> <parameter>file</parameter>
+             </methodparam>
+             <methodparam>
+                 <type>int</type> <parameter>line</parameter>
+             </methodparam>
+         </constructorsynopsis>
+         <para>
+            This constructor creates the exception objects for the URI
+            <parameter>uri</parameter> when the
+            <parameter>host</parameter> should be a host name but cannot
+            be resolved to an IP address.  The assumption is that the
+            URI being constructed will actually be used.
+         </para>
+         <constructorsynopsis>
+             <methodname>CURIFormatException</methodname>
+             <methodparam>
+                 <type>const CURIFormatException&amp;</type> <parameter>rhs</parameter>
+             </methodparam>
+         </constructorsynopsis>
+        <para>
+            Copy Construction
+        </para>
+        <formalpara>
+            <title>Canonical operations</title>
+            <para>
+                The <classname>CURIFormatException</classname> class
+                supports assignment and comparisons for equality and
+                inequality such that two equal exceptions where created in
+                the same place for the same reason.
+            </para>
+        </formalpara>
+        <formalpara>
+            <title><classname>CException</classname> interface</title>
+	    <para>
+            </para>
+        </formalpara>
+        <methodsynopsis>
+            <modifier>virtual</modifier>
+            <type>const char*</type> <methodname>ReasonText</methodname>
+                                     <void /><modifier>const</modifier>
+        </methodsynopsis>
+        <para>
+            Returns a human readable exception string.
+        </para>
+        <methodsynopsis>
+            <modifier>virtual</modifier> <type>Int_t</type>
+            <methodname>ReasonCode</methodname>
+            <void /><modifier>const</modifier>
+        </methodsynopsis>
+        <para>
+            Returns <literal>-1</literal>.
+        </para>
+      </refsect1>
+   </refentry>
+         
+    <refentry id="manpage.cmonitorexception">
+      <refmeta>
+         <refentrytitle>CMonitorException</refentrytitle>
+         <manvolnum>3daq</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CMonitorException</refname>
+	 <refpurpose>Exceptions for synchronization class abuse.</refpurpose>
+      </refnamediv>
+      
+      <refsynopsisdiv>
+         <programlisting>
+#include &lt;MonitorException.h&gt;
+         </programlisting>
+         <classsynopsis>
+            <ooclass><classname>CMonitorException</classname></ooclass>
+            <constructorsynopsis>
+                <methodname>MonitorException</methodname>
+                <methodparam>
+                    <type>int</type> <parameter>correctOwner</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>int</type> <parameter>actualOwner</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>file</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>line</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <constructorsynopsis>
+                <methodname>MonitorException</methodname>
+                <methodparam>
+                    <type>const MonitorException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <destructorsynopsis>
+                <modifier>virtual</modifier> <methodname>~MonitorException</methodname>
+                                             <void />
+            </destructorsynopsis>
+            <methodsynopsis>
+                <type>MonitorException&amp;</type> <methodname>operator=</methodname>
+                <methodparam>
+                    <type>const MonitorException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator==</methodname>
+                <methodparam>
+                    <type>const MonitorException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+                    <modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator!=</methodname>
+                <methodparam>
+                    <type>const MonitorException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+                <modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <modifier>virtual</modifier>
+                <type>const char*</type> <methodname>ReasonText</methodname>
+                <void /><modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <modifier>virtual</modifier>
+                <type>Int_t</type>
+                <methodname>ReasonCode</methodname>
+                <void /><modifier>const</modifier>
+            </methodsynopsis>
+         </classsynopsis>
+      </refsynopsisdiv>
+      <refsect1>
+         <title>Description</title>
+         <para>
+            The NSCL DAQ base software includes support for an object model
+            wrapped around the pthreads threading subsystem.  This allows
+            NSCL DAQ software to be written that can take advantage of multiple
+            threads of execution.  The threading library is described in the
+            chapter;
+            <link linkend="chapter.threads">NSCL DAQ Thread Library</link>.
+            That chapter points to additional reference pages that provide
+            reference information for the classes themselves.
+         </para>
+         <para>
+            Any  non-trivial threaded application must synchronize at critical
+            points in its operation in order to maintain consistent views of
+            non-primitive data.  The NSCL DAQ thread library provides a
+            <classname>Synchronizable</classname> class and associated
+            <classname>SyncGuard</classname> class to support this synchronization.
+            These classes attempt to detect abuse of the synchronization model
+            they support. The report such abuse by throwing
+            <classname>CMonitorException</classname> objects.
+         </para>
+         <para>
+            <classname>CMonitorException</classname>
+            is derived from the
+            <link linkend="manpage.cexception">CException</link>
+            class, and therefore supports and implements all of its
+            virtual members.
+         </para>
+      </refsect1>
+      <refsect1>
+         <title>
+            Public member functions
+         </title>
+         <formalpara>
+            <title>Constructors</title>
+            <para>
+                In the description of the methods below;
+                <parameter>correctOwner</parameter>
+                is a thread id that represents the thread that should be 
+                holding ownership of a synchronizable object.
+                <parameter>actualOwner</parameter>
+                is the thread id of the thread that actually does own the
+                object, and <parameter>file</parameter> and <parameter>line</parameter>
+                are ordinarily the values of the
+                <literal>__FILE__</literal>
+                and
+                <literal>__LINE__</literal>
+                macros at the time the the exception is constructed.
+            </para>
+         </formalpara>
+            <constructorsynopsis>
+                <methodname>MonitorException</methodname>
+                <methodparam>
+                    <type>int</type> <parameter>correctOwner</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>int</type> <parameter>actualOwner</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>file</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>const char*</type> <parameter>line</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <para>
+                The normal constructor for this object.  The exception will
+                report that the ownership of the synchronizable object should have
+                been the currently executing thread but was a different thread.
+            </para>
+            <constructorsynopsis>
+                <methodname>MonitorException</methodname>
+                <methodparam>
+                    <type>const MonitorException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <para>
+                Copy construction.  The object constructed will be a duplcate
+                of the <parameter>rhs</parameter> object.
+            </para>
+            <formalpara>
+                <title>Canonical methods</title>
+                <para>
+                    The
+                    <classname>CMonitorException</classname> class supports assignment,
+                    equality comparison and inequality comparison.  Assignment
+                    creates a duplicate of the right hand side of the assignment
+                    operator.  Two
+                    <classname>CMonitorException</classname> objects are equal if
+                    the Reason text they would generate are equal.  Inequality is
+                    defined as the logical inverse of equality.
+                </para>
+            </formalpara>
+            <formalpara>
+                <title>Implementation of the <classname>CException</classname> interface</title>
+                <para>
+                </para>
+            </formalpara>
+            <methodsynopsis>
+                <modifier>virtual</modifier>
+                <type>const char*</type> <methodname>ReasonText</methodname>
+                <void /><modifier>const</modifier>
+            </methodsynopsis>
+            <para>
+                Returns the reason for the exception.  This is intended to be
+                human readable text that describes the error as well as where
+                an why it was thrown.
+            </para>
+            <methodsynopsis>
+                <modifier>virtual</modifier>
+                <type>Int_t</type>
+                <methodname>ReasonCode</methodname>
+                <void /><modifier>const</modifier>
+            </methodsynopsis>
+            <para>
+                Normally this returns an error code that can be processed
+                by computer code.  At present, there's only one reason for
+                the exception to be thrown, so this always returns
+                <literal>-1</literal>.
+            </para>
+      </refsect1>
+    </refentry>
+    <refentry id="manpage.cinvalidargumentexception">
+      <refmeta>
+         <refentrytitle>CInvalidArgumentException</refentrytitle>
+         <manvolnum>3daq</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CInvalidArgumentException</refname>
+	 <refpurpose>Report invalid function arguments.</refpurpose>
+      </refnamediv>
+      
+      <refsynopsisdiv>
+         <programlisting>
+#include &lt;CInvalidArgumentException.h&gt;
+         </programlisting>
+         <classsynopsis>
+            <ooclass><classname>CInvalidArgumentException</classname></ooclass>
+            <constructorsynopsis>
+                <methodname>CInvalidArgumentException</methodname>
+                <methodparam>
+                    <type>std::string</type> <parameter>argument</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>std::string</type> <parameter>whybad</parameter>
+                </methodparam>
+                <methodparam>
+                    <type>std::string</type> <parameter>wasDoing</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <constructorsynopsis>
+                <methodname>CInvalidArgumentException</methodname>
+                <methodparam>
+                    <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                               <parameter>rhs</parameter>
+                </methodparam>
+            </constructorsynopsis>
+            <destructorsynopsis>
+                <modifier>virtual</modifier> <methodname>~CInvalidArgumentException</methodname>
+                                             <void />
+            </destructorsynopsis>
+            <methodsynopsis>
+                <type>CInvalidArgumentException&amp;</type> <methodname>operator=</methodname>
+                <methodparam>
+                    <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                               <parameter>rhs</parameter>
+                </methodparam>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator==</methodname>
+                <methodparam>
+                    <modifier>const</modifier>
+                    <type>CInvalidArgumentException&amp;</type> <parameter>rhs</parameter>
+                </methodparam>
+                <modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <type>int</type> <methodname>operator!=</methodname>
+                <methodparam>
+                    <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                               <parameter>rhs</parameter>
+                </methodparam>
+                <modifier>const</modifier>
+            </methodsynopsis>
+            <methodsynopsis>
+                <modifier>virtual const</modifier>
+                <type>char*</type> <methodname>ReasonText</methodname>
+                <void /> <modifier>const</modifier>
+            </methodsynopsis>
+
+         </classsynopsis>
+      </refsynopsisdiv>
+      <refsect1>
+         <title>Description</title>
+         <para>
+            While
+            <link linkend="manpage.CRangeError"><classname>CRangeError</classname></link>
+            provides an exception that can be thrown if values passed to a function
+            are out of bounds, other argument errors are possible.
+            Consider a function that takes a string and converts it to an integer.
+            If the string cannot be converted, this represents an error in the
+            argument, but <classname>CRangeError</classname> is not the
+            appropriate exception.
+            <classname>CInvalidArgumentException</classname> provides a
+            class that can be thrown for arbitrary problems with parameters.
+         </para>
+         <para>
+            The thrower must be able to create  a textual
+            equivalent of the bad argument, a string that describes why the argument
+            is bad as well as supplying the usual context string.
+         </para>
+      </refsect1>
+      <refsect1>
+         <title>
+            Public member functions
+         </title>
+        <constructorsynopsis>
+            <methodname>CInvalidArgumentException</methodname>
+            <methodparam>
+                <type>std::string</type> <parameter>argument</parameter>
+            </methodparam>
+            <methodparam>
+                <type>std::string</type> <parameter>whybad</parameter>
+            </methodparam>
+            <methodparam>
+                <type>std::string</type> <parameter>wasDoing</parameter>
+            </methodparam>
+        </constructorsynopsis>
+        <para>
+            This is the constructor typically used to create a
+            <classname>CInvalidArgumentException</classname>.
+            <parameter>argument</parameter> is a textual representation of the
+            bad argument.
+            <parameter>whybad</parameter> is a text string that describes
+            why the argument was bad.  <parameter>wasDoing</parameter>
+            is the context string that all exception objects require.
+        </para>
+        <constructorsynopsis>
+            <methodname>CInvalidArgumentException</methodname>
+            <methodparam>
+                <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                           <parameter>rhs</parameter>
+            </methodparam>
+        </constructorsynopsis>
+        <para>
+            Provides for copy construction of
+            <classname>CInvalidArgumentException</classname>
+            objects.
+        </para>
+        <methodsynopsis>
+            <type>CInvalidArgumentException&amp;</type> <methodname>operator=</methodname>
+            <methodparam>
+                <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                           <parameter>rhs</parameter>
+            </methodparam>
+        </methodsynopsis>
+        <para>
+            Provides for assignment to an object from another
+            <classname>CInvalidArgumentException</classname> object;
+            <parameter>rhs</parameter>.
+        </para>
+        <methodsynopsis>
+            <type>int</type> <methodname>operator==</methodname>
+            <methodparam>
+                <modifier>const</modifier>
+                <type>CInvalidArgumentException&amp;</type> <parameter>rhs</parameter>
+            </methodparam>
+            <modifier>const</modifier>
+        </methodsynopsis>
+        <para>
+            Provides for the ability to check for equality between
+            <parameter>rhs</parameter> and a left hand side object.
+        </para>
+        <methodsynopsis>
+            <type>int</type> <methodname>operator!=</methodname>
+            <methodparam>
+                <modifier>const</modifier> <type>CInvalidArgumentException&amp;</type>
+                                           <parameter>rhs</parameter>
+            </methodparam>
+            <modifier>const</modifier>
+        </methodsynopsis>
+        <para>
+            Provides for the ability to check for inequality.
+        </para>
+        <methodsynopsis>
+            <modifier>virtual const</modifier>
+            <type>char*</type> <methodname>ReasonText</methodname>
+            <void /> <modifier>const</modifier>
+        </methodsynopsis>
+        <para>
+            Constructs and returns a pointer to a string that describes
+            the error.  This string should <emphasis>not</emphasis>
+            be <literal>delete</literal>d by the caller.
+        </para>  
+      </refsect1>
+
+   </refentry>
+
+<!-- /manpage -->

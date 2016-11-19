@@ -212,8 +212,12 @@ int f77xamine_enterpeakmarker_(int*  nSpectrum,
 			       float* fWidth,
 			       int  nNameLength);
 
-  int Xamine_EnterFitline(int nSpectrum,  int nId, char* szName, 
-			  int low, int high, char* szEvalScript);
+int Xamine_EnterFitline(int nSpectrum,  int nId, char* szName, 
+                        int low, int high, char* szEvalScript);
+
+void Xamine_setOverflow(unsigned nSpectrum, int axis, unsigned value);
+void Xamine_setUnderflow(unsigned nSpectrum, int axis, unsigned value);
+void Xamine_clearStatistics(unsigned nSpetrum);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }

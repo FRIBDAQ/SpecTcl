@@ -95,14 +95,14 @@
                                
 class CNamedItem      
 {
-  STD(string) m_sName;  // // Name of the item.
+  std::string m_sName;  // // Name of the item.
   UInt_t m_nNumber;  // Identification number of the item.
   
  public:
   //Constructor with arguments
   CNamedItem() : m_nNumber(0) 
   {}
-  CNamedItem (  STD(string) am_sName,  UInt_t am_nNumber  )
+  CNamedItem (  std::string am_sName,  UInt_t am_nNumber  )
     :
     m_sName(am_sName),
     m_nNumber (am_nNumber) {
@@ -141,7 +141,7 @@ class CNamedItem
 
   // Selectors:
  public:
-  STD(string) getName() const
+  std::string getName() const
   {
     return m_sName;
   }
@@ -153,7 +153,7 @@ class CNamedItem
   // Protected mutators:
   //
  protected:
-  void setName (const STD(string)& am_sName)
+  void setName (const std::string& am_sName)
   { 
     m_sName = am_sName;
   }
@@ -162,7 +162,7 @@ class CNamedItem
     m_nNumber = am_nNumber;
   }
  public:
-  void ChangeName(const STD(string)& rNewName) {
+  void ChangeName(const std::string& rNewName) {
     m_sName = rNewName;
   }
 };
@@ -179,9 +179,9 @@ class CMatchNamedItemId {
 };
 
 class CMatchNamedItem {
-  STD(string) Name;
+  std::string Name;
  public:
-  CMatchNamedItem(const STD(string)& rName) : 
+  CMatchNamedItem(const std::string& rName) : 
   Name(rName)
   {}
   Bool_t operator()(CNamedItem& item) {

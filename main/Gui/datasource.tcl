@@ -18,12 +18,13 @@ package require snit
 package require Iwidgets
 package require guiutilities
 package require segmentedrun
+package require daqdefs
 
 #
 #  Namespace to hold some of the configuration entries.
 #
 namespace eval datasource {
-    variable daqroot         [list /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
+    variable daqroot         [list $::daqdefs::daqroot /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
     variable lastformat      ring10
     variable lasteventfile   {}

@@ -297,8 +297,8 @@
 //
 // Copyright 
 
-#ifndef __MYSPECTCLAPP_H  //Required for current class
-#define __MYSPECTCLAPP_H
+#ifndef MYSPECTCLAPP_H  //Required for current class
+#define MYSPECTCLAPP_H
 
 // Include files:
 // Required for base classes
@@ -326,8 +326,7 @@ class CMySpecTclApp : public CTclGrammerApp {
   virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter);
   virtual void SetLimits();
   virtual void CreateHistogrammer();
-  virtual void SelectDisplayer(UInt_t nDisplaySize,
-			       CHistogrammer& rHistogrammer);
+  virtual void SelectDisplayer();
   virtual void SetupTestDataSource();
   virtual void CreateAnalyzer(CEventSink* pSink);
   virtual void SelectDecoder(CAnalyzer& rAnalyzer);

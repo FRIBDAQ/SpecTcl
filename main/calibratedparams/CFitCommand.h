@@ -128,11 +128,11 @@ public:
   
 protected:
   
-  STD(string) Usage ()   ;		//!< Return the function usage string.
+  std::string Usage ()   ;		//!< Return the function usage string.
 
   // Utilities:
 private:
-  STD(vector)<FPoint> ParsePoints(CTCLInterpreter& rInterp,
+  std::vector<FPoint> ParsePoints(CTCLInterpreter& rInterp,
 			     int argc, char** argv);
   
 };

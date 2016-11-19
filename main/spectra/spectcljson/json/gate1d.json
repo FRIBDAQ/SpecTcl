@@ -1,0 +1,10 @@
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "test",
+        "type"       : "s",
+        "parameters" : ["event.raw.00"],
+        "low"        : 0.000000,
+        "high"       : 10.000000
+    }]
+}

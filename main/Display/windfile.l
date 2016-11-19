@@ -32,7 +32,7 @@ static char *lexrevlevel = "@(#)windfile.l	8.1 6/23/95  - windows file lexical a
 #define dbgprintf(arg)
 #endif
 extern YYSTYPE yylval;
-char* yytitle;
+char yytitle[WINDOW_MAXTITLE];
 static void rd_yytitle();
 int         yylex_line;
 %}

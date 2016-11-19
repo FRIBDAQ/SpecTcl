@@ -60,6 +60,7 @@ package provide gateTabActions 1.0
     private method doScheduledLoadUpdate {} {
 	set menuUpdateAfterId -1
 	loadGateMenu
+		loadParameterMenu
     }
 
     ##
@@ -75,6 +76,7 @@ package provide gateTabActions 1.0
     private method updateGates {} {
 	loadGateTable [$widget cget -mask]
 	loadGateMenu
+		loadParameterMenu
 	    
     }
     ##
@@ -157,6 +159,18 @@ package provide gateTabActions 1.0
 	if {$status} {
 	    puts "gateChanged failed: $msg $status"
 	}
+    }
+    ##
+    # loadParameterMenu
+    #   Load the gate parameter selection button with the names of all parameters.
+    #
+    private method loadParameterMenu {} {
+        set parameters [parameter -list]
+        set names [list]
+        foreach parameter $parameters {
+            lappend names [lindex $parameter 0]
+        }
+        $widget configure -menuparams $names
     }
     ##
     # Load the gate menu with the names of all of the gates:
@@ -302,7 +316,8 @@ package provide gateTabActions 1.0
 	    -createcmd        [itcl::code $this createGate %G %T %D]
 
 	loadGateTable *
-	loadGateMenu 
+	loadGateMenu
+        loadParameterMenu
 
 	# Set up a gate add/delete trace to reload the gate menu:
 

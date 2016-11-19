@@ -1,12 +1,4 @@
 DEFS = @WCHAR_T_DEF@
-AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
-	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
-	-I@top_srcdir@/Analysis \
-	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@
 
 bin_PROGRAMS=ScriptedSpecTcl
 lib_LTLIBRARIES=libScripted.la
@@ -55,9 +47,15 @@ Main_Objects = CConfigurableObject.o   \
 
 libScripted_la_SOURCES =  $(MainSources)
 
-
-
-
+libScripted_la_CPPFLAGS =   -I@top_srcdir@/Utility \
+			    -I@top_srcdir@/Display \
+			    -I@top_srcdir@/Tape \
+			    -I@top_srcdir@/Core \
+			    @TCL_CPPFLAGS@ \
+			    @TK_CPPFLAGS@ \
+			    -DINSTALLED_IN='"$(prefix)"' \
+			    @XINCLUDES@ \
+			    @LIBTCLPLUS_CFLAGS@
 
 noinst_HEADERS =  CBoolConfigParam.h \
 	CCAENDigitizerCreator.h \
@@ -85,23 +83,30 @@ noinst_HEADERS =  CBoolConfigParam.h \
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
 ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
-	 @top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Sorter/libSorting.la @top_builddir@/Xamine/libXplus.la \
-	@top_builddir@/Gates/libGates.la \
-	@top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/Filter/libFilter.la @top_builddir@/EventSource/libEventSource.la \
-	@top_builddir@/SpectrumIO/libSpecio.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Fits/libFits.la \
 	@top_builddir@/Tape/libtape.la \
-	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
-	-lgsl -lgslcblas					\
-	@top_builddir@/DecoderRing/libDecoderRing.la		\
+	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \
+	$(LD_EXTRA_FLAGS) \
+	-lgsl \
+	-lgslcblas \
 	@LIBTCLPLUS_LDFLAGS@ \
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
+	 @TK_LIBS@ \
+	 @TCL_LIBS@ \
+	 @XLIBSW@ \
 	 -g -Wl,"-rpath=($prefix)/lib"
+
+
+ScriptedSpecTcl_CPPFLAGS =  -I@top_srcdir@/Utility \
+			    -I@top_srcdir@/Display \
+			    -I@top_srcdir@/Tape \
+			    -I@top_srcdir@/Core \
+			    @TCL_CPPFLAGS@ \
+			    @TK_CPPFLAGS@ \
+			    -DINSTALLED_IN='"$(prefix)"' \
+			    @XINCLUDES@ \
+			    @LIBTCLPLUS_CFLAGS@
+
 
 #
 #  At install time, in order to make this open ended we:
@@ -127,16 +132,16 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/contrib/scripted/src
 	$(mkinstalldirs) $(prefix)/contrib/scripted/include
 	$(mkinstalldirs) $(prefix)/contrib/scripted/skel
-	$(INSTALL_DATA) *.cpp $(prefix)/contrib/scripted/src
-	$(INSTALL_DATA) *.h   $(prefix)/contrib/scripted/include
-	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
+	$(INSTALL_DATA) @srcdir@/*.cpp $(prefix)/contrib/scripted/src
+	$(INSTALL_DATA) @srcdir@/*.h   $(prefix)/contrib/scripted/include
+	$(INSTALL_DATA) @srcdir@/MySpecTclApp.cpp @srcdir@/MySpecTclApp.h \
 			      $(prefix)/contrib/scripted/skel
 	echo "#-------- Begin auto generated stuff " \
 	                                  > Makefile.user
 	echo INSTDIR=$(prefix)           >> Makefile.user
-	cat Makefile.skel                >> Makefile.user
-	$(INSTALL_DATA) Makefile.user $(prefix)/contrib/scripted/skel/Makefile
-	$(INSTALL_DATA) scriptable_Makefile.include $(sysconfdir)
+	cat @srcdir@/Makefile.skel                >> Makefile.user
+	$(INSTALL_DATA) @builddir@/Makefile.user $(prefix)/contrib/scripted/skel/Makefile
+	$(INSTALL_DATA) @srcdir@/scriptable_Makefile.include $(sysconfdir)
 
 
 EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
@@ -146,30 +151,32 @@ if CPPUNIT
 
 noinst_PROGRAMS = unittest
 
-unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
-	UnpackerTest.cpp TestRunner.cpp
+unittest_SOURCES = SegUnpackerTest.cpp \
+		    ModuleTest.cpp \
+		    PacketTest.cpp \
+		    CreatorTest.cpp \
+		    UnpackerTest.cpp \
+		    TestRunner.cpp
 
-uinttest_CXXFLAGS=@CPPUNIT_CFLAGS@
+unittest_CXXFLAGS= -I@top_srcdir@/Core \
+		   -I@top_srcdir@/Utility \
+		    @CPPUNIT_CFLAGS@ \
+		    @TCL_CPPFLAGS@ \
+		    @LIBTCLPLUS_CFLAGS@
 
-unittest_DEPENDENCIES = $(Main_Objects)
 
-unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
-	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Sorter/libSorting.la \
-	@top_builddir@/Xamine/libXplus.la \
-	@top_builddir@/Gates/libGates.la \
-	@top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/EventSource/libEventSource.la \
-	@top_builddir@/SpectrumIO/libSpecio.la \
-	@top_builddir@/Display/libXamine.la \
-	@top_builddir@/Filter/libFilter.la \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
-	@top_builddir@/Fits/libFits.la \
-	@top_builddir@/DecoderRing/libDecoderRing.la \
-	@top_builddir@/Tape/libtape.la \
+unittest_DEPENDENCIES = @builddir@/libScripted.la
+
+unittest_LDADD =   @builddir@/libScripted.la \
+		    @top_builddir@/Core/libTclGrammerApp.la \
+		    @top_builddir@/Display/libXamine.la \
+		    @top_builddir@/Tape/libtape.la
+
+unittest_LDFLAGS = \
 	@LIBTCLPLUS_LDFLAGS@ \
-	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+	@CPPUNIT_LIBS@ \
+	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm \
+	-lgsl -lgslcblas
 
 
 #TESTS = ./unittest		#Needs Xamine to fire up :-(

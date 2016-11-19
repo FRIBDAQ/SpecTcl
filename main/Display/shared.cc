@@ -451,17 +451,15 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   /* In the UNIX implementation the name is 4 chars which map to the key */
 
   memcpy(&key, name, sizeof(key));
+
+
   id  = shmget(key, size, 0);	/* Get the memory key.. */
-  if(id < 0)
+  if(id < 0) {
     return (spec_shared *)NULL;
- 
+ }
+
   memory = (char *)shmat(id, NULL, SHM_RDONLY);
 
-  // After attaching the shared memory region, it's marked for 
-  // deletion. This prevents shared memory regions from hanging around
-  // after the program exits.
-  //
-  shmctl(id, IPC_RMID, 0);        // Mark for deletion.
   return (spec_shared *)memory;
   
 }

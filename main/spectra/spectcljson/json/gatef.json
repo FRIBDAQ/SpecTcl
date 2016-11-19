@@ -1,0 +1,7 @@
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "test",
+        "type"       : "F"
+    }]
+}

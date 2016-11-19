@@ -293,6 +293,8 @@ DAMAGES.
 #ifndef _SUPERPOS_H_INSTALLED
 #define _SUPERPOS_H_INSTALLED
 
+#include <string>
+
 /*
 ** Superposition  class definition: A superposition is a spectrum number
 ** and a rendition selector and appropriate methods for accessing them.
@@ -312,9 +314,16 @@ class Superposition {
     spectrum = spec;
     rendition= r;
   }
+  Superposition(const std::string& name, int r) {
+      spectrum = -1;
+      rendition = r;
+      specname = name;
+  }
+
   Superposition(Superposition &s) {
     spectrum = s.spectrum;
     rendition= s.rendition;
+    specname = s.specname;
   }
   /* Accessors: */
 
@@ -324,9 +333,13 @@ class Superposition {
   int Spectrum()          { return spectrum; }
   void Spectrum(int spec) { spectrum = spec; }
 
+  void SpectrumName(const std::string& name) { specname = name; }
+  std::string SpectrumName() const { return specname; }
+
  private:
   int spectrum;			/* Number of the spectrum. */
   int rendition;		/* Rendition selector. */
+  std::string specname; /* name of spectrum */
 };
 
 /*
@@ -348,6 +361,7 @@ class SuperpositionList {
 
   int Count() { return num; }	/* Return number of spectra in list. */
   void Add(int spec);		/* Add a new superposition.          */
+  void Add(const std::string& name); /* add a new superposition */
   void Clear() { num  = 0;
 	         lastrep = -1; }	/* Clear the list. */
  private:
