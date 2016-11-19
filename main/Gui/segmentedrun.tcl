@@ -106,3 +106,15 @@ proc doSegmentedRun files {
     return [tk_messageBox -title {Multi file run} \
 	-icon question -type yesno -message $message]
 }
+##
+#  segmentedPlaybackCommand
+#
+#    Returns the -pipe command for segmented playback.
+#
+# @param files  - Files in the run.
+# 
+#
+proc segmentPlaybackCommand files {
+    set command [concat cat $files]
+    return $command
+}

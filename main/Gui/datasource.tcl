@@ -17,6 +17,8 @@ package provide datasource 1.0
 package require snit
 package require Iwidgets
 package require guiutilities
+package require segmentedrun
+
 #
 #  Namespace to hold some of the configuration entries.
 #
@@ -208,8 +210,20 @@ proc attachFile {} {
 	    set ::GuiPrefs::preferences(defaultBuffersize) $size
             set ::datasource::lasteventfile $file
 	    set ::datasource::lastformat $format
-            
-            attachDataSource $format $size -file $file
+
+            # If the file is part of a segmented run, we ask the user
+	    # if they'd like us to play back the entire run:
+
+	    set segments [listRunFiles $file]
+	    if {[llength $segments] == 1} {
+		attachDataSource $format $size -file $file
+	    } else {
+		if {[doSegmentedRun $segments]} {
+		    attachDataSource $format $size -pipe [segmentPlaybackCommand $segments]
+		} else {
+		    attachDataSource $format $size -file $file;	# just do the selected file.
+		}
+	    }
         } else {
             tk_messageBox -icon error  -title {Can't read file} \
                 -message "Could not read the file $file permission problem or file does not exist"
