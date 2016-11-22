@@ -6,7 +6,11 @@ CCUSBSpecTcl_SOURCES=CC1205Unpacker.cpp \
 	CFixedSizedUnpacker.cpp \
 	CPh7xxUnpacker.cpp \
 	MySpecTclApp.cpp \
-	ParamMapCommand.cpp 
+	ParamMapCommand.cpp \
+	CPh7106Unpacker.cpp \
+	CJoergerClockUnpacker.cpp \
+	CLRS2551Unpacker.cpp
+
 
 noinst_HEADERS=CC1205Unpacker.h \
 	CCCUSBPacket.h \
@@ -14,6 +18,9 @@ noinst_HEADERS=CC1205Unpacker.h \
 	CFixedSizedUnpacker.h \
 	CPh7xxUnpacker.h \
 	MySpecTclApp.h \
+	CPh7106Unpacker.h \
+	CJoergerClockUnpacker.h \
+	CLRS2551Unpacker.h      \
 	ParamMapCommand.h
 
 
