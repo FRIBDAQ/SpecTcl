@@ -52,11 +52,14 @@ if {[info globals daqconfig] eq ""} {
 #
 # Module type numbers, extend this table as needed.
 #
-set moduleTypeCodes(ph7xxx)  0
-set moduleTypeCodes(ad811)   1
-set moduleTypeCodes(lrs2249) 2
-set moduleTypeCodes(lrs2228) 3
-set moduleTypeCodes(c1205)   4
+set moduleTypeCodes(ph7xxx)       0
+set moduleTypeCodes(ad811)        1
+set moduleTypeCodes(lrs2249)      2
+set moduleTypeCodes(lrs2228)      3
+set moduleTypeCodes(c1205)        4
+set moduleTypeCodes(joergerclock) 5
+set moduleTypeCodes(ph7106)       6
+set moduleTypeCodes(lrs2551)      7
 
 # Resolutions for each module type:
 
@@ -65,6 +68,9 @@ set moduleChannels(ad811)   4096
 set moduleChannels(lrs2249) 2048
 set moduleChannels(lrs2228) 4096
 set moduleChannels(c1205)   4096
+set moduleChannels(joergerclock) 0
+set moduleChannels(ph7106)  16
+set moduleChannels(lrs2551) 4096
 
 
 #  Processes a module.. this will be front ended by a simple 
@@ -119,10 +125,18 @@ proc c1205 args {
 }
 
 
-#  For now scalers are ignored.
 
 proc lrs2551 args {
+    module lrs2551 $args
 }
+proc joergerclock args {
+    module joergerclock $args
+}
+proc ph7106 args {
+    module ph7106 $args
+}
+#  For now scalers are ignored.
+
 proc c257 args {
 }
 
@@ -276,12 +290,22 @@ proc createMapAndSpectra modules {
 		-type  ok
 	    exit -1
 	}
-
+	# There are some special modules:
+	#
 	#  The 1205 module is special because it creates 3 parameters
 	#  for each of the 16 channels... looking like a tree array per channel.
 	#
+	#  The joergerclock modules is special because it produces no parameters.
+	#
+	#  The ph7106 module makes a bit map spectrum.
+	#
 	if {$type eq $::moduleTypeCodes(c1205)} {
 	    mapC1205Channels $id $moduleNumber $type $parameters($module)
+	} elseif {$type eq $::moduleTypeCodes(joergerclock)} {
+	    #  Pass.
+	} elseif {$type eq $::moduleTypeCodes(ph7106)} {
+	    parammap -add $moduleNumber $type $id $parameters($module)
+	    spectrum $parameters($module) b $parameters($module) [list {0 15 16}
 	} else {
 	    parammap -add $moduleNumber $type $id  $parameters($module)
 
