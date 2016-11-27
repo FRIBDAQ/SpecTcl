@@ -451,7 +451,7 @@ CParamMapCommand::list(CTCLInterpreter& interp,
 
     \param moduleNumber - the module number we want a map for.
     \return std::vector<int>*
-    \retval NULL        - There is no map (or the map is empty).
+    \retval NULL        - There is no map note; the map may be empty.
     \retval other       - Pointer to the map.
 */
 
@@ -459,14 +459,8 @@ CParamMapCommand::ParameterMap*
 CParamMapCommand::getModuleMap(unsigned int moduleNumber)
 {
   if (moduleNumber < m_modules.size()) {
-    if (m_modules[moduleNumber].s_parameterIds.size()) {
-      return &(m_modules[moduleNumber]);
-    }
-    else {
-      return reinterpret_cast<ParameterMap*>(0);
-    }
-  }
-  else {
+    return &(m_modules[moduleNumber]);
+  }  else {
     return reinterpret_cast<ParameterMap*>(0);
 
   }

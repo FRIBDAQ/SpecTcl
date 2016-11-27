@@ -302,10 +302,10 @@ proc createMapAndSpectra modules {
 	if {$type eq $::moduleTypeCodes(c1205)} {
 	    mapC1205Channels $id $moduleNumber $type $parameters($module)
 	} elseif {$type eq $::moduleTypeCodes(joergerclock)} {
-	    #  Pass.
+	    parammap -add $moduleNumber $type $id [list]; # No parameters
 	} elseif {$type eq $::moduleTypeCodes(ph7106)} {
 	    parammap -add $moduleNumber $type $id $parameters($module)
-	    spectrum $parameters($module) b $parameters($module) [list {0 15 16}
+	    spectrum $parameters($module) b $parameters($module) [list {0 15 16}]
 	} else {
 	    parammap -add $moduleNumber $type $id  $parameters($module)
 

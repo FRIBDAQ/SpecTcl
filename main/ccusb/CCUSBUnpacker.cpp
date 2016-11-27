@@ -58,6 +58,16 @@ static CCCUSBPacket* unpackers[] = {
   &Lrs2551                      // Type 7 => LRS 2551 scaler.
 };				// Indices must match types in spectclsetup.tcl
 
+static bool hasId[] = {
+  true,				// Ph7xxx has an -id
+  true,				// ad811  has an -id
+  true,				// lrs 2249w has an -id
+  true,				// lrs2228 has an -id
+  true,                         // c1205 has an -id
+  false,                        // jclock has no id
+  false,                        // ph1706 has no -id
+  false                         // lrs2551 has no -id
+};
 ///////////////////////////////////////////////////////////////////////////////////
 /*!
     Analyze an event.
@@ -114,8 +124,7 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
 
       // Do some sanity checking here specifically:
       // - The type must be valid.
-      // - The id must match the id of the next unpacker because 
-      //   all readers must at least put their id in the buffer.
+      // - The id must match the id of the next unpacker if it has one
       //
       if ((type < 0) || (type >= sizeof(unpackers)/sizeof(CCCUSBPacket*))) {
 	char message[100];
@@ -123,7 +132,7 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
 	throw string(message);
       }
       CCCUSBPacket* pUnpacker = unpackers[type];
-      if (id != *p) {
+      if (hasId[type] && (id != *p)) {
 	char message[100];
 	sprintf(message, "ID in buffer: %d does not match that of expected unpacker (%d)",
 		id, *p);

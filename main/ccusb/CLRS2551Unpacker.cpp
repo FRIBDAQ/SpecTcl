@@ -37,9 +37,10 @@ CLRS2551Unpacker::unpack(
 )
 {
   const std::vector<int>& parameterMap = pModuleInfo->s_parameterIds;
+  TranslatorPointer<ULong_t> pl(p);
   for (int i = 0; i < 12; i++) {
-    uint32_t datum = *p; ++p;
-    rEvent[parameterMap[i]] = datum;
+    uint32_t datum = *pl; ++pl;
+    rEvent[parameterMap[i]] = datum & 0x00ffffff; // Q/X are in the upper bits somewhere.
   }
-  return 12;
+  return 24;			// two words for each channel.
 }
