@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,3.5-006)
+AC_INIT(SpecTcl,3.5-006, scientificsoftware@nscl.msu.edu)
 AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 
