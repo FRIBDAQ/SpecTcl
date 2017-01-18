@@ -249,6 +249,11 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
     rResult = rExcept.ReasonText();
     return TCL_ERROR;
   }
+  // pre-compute the description string and set it.  This is because otherwise
+  // if there are a lot of spectra, spectrum -list is very expensive.
+  
+  pSpec->setTextDescription(DescribeSpectrum(*pSpec, false));
+  
   rResult = pSpec->getName();
   return TCL_OK;
 }
@@ -418,15 +423,30 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
 
     std::string name = ((p->second)->getName());
 
-    if (Tcl_StringMatch(name.c_str(), pattern) )
-      {
+    if (Tcl_StringMatch(name.c_str(), pattern) ) { 
 
 	CSpectrum* rSpec((*p).second);
-	rvProperties.push_back(DescribeSpectrum(*rSpec, showGates));
-      }
+	std::string d =  rSpec->getTextDescription();
+	if (d == "") {
+	  //  Need to compute/cache.
+	   
+	   d = DescribeSpectrum(*rSpec, false);
+	   rSpec->setTextDescription(d);            // so it's there next time
+	}
+	
+	// If necessary fold in the gate to the definition:
+
+	if (showGates) {
+	  CTCLString Description(d);
+	  const CGateContainer&  g(*(rSpec->getGate()));
+	  Description.AppendElement(g.getName());
+	  d = std::string((const char*)(Description));
+	}
+	rvProperties.push_back(d);
+
+    }
   }
 }
-
 
 /*!
  Produces a string describing the selected
