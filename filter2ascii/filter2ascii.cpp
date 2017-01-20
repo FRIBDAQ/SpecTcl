@@ -62,7 +62,7 @@ void Usage()
 string createOutputName(string inputName)
 {
   string result;
-  char* pPeriod = rindex(inputName.c_str(), '.');
+  const char* pPeriod = rindex(inputName.c_str(), '.');
   if (!pPeriod) {
     result = inputName + ".asc";
   }
