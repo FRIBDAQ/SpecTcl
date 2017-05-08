@@ -597,6 +597,26 @@ set adcChannels(<replaceable>moduleName</replaceable>) <replaceable>channel-list
                     array element is still used, however it may be interpreted
                     differently or even coupled with additional metadata.
                    </para>
+		   <refsect2>
+		     <title>CAEN 785N, 775N, 792N</title>
+		     <para>
+		       These modules have 16 NIM inputs. While functionally
+		       identical to the V785, V775, and V792 modules, only
+		       every other ADC channel is routed to the front panel.
+		       Therefore when setting up your <varname>adcChannels</varname>
+		       array element for these modules you must take this into
+		       account for example:
+		     </para>
+		     <informalexample>
+		       <programlisting>
+set adcChannels(<replaceable>moduleName</replaceable>)           \
+    [list chan0 "" chan1 "" chan2 "" chan3 "" chan4       \
+     "" chan5 "" chan6 "" chan7 \
+     "" chan8 "" chan9 "" chan10  "" chan11 \
+     "" chan12 "" chan13 "" chan14 "" chan15]
+		       </programlisting>
+		     </informalexample>
+		   </refsect2>
                    <refsect2>
                     <title>CAEN Dual range ADC's</title>
                     <para>
