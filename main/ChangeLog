@@ -1095,3 +1095,6 @@ November 30-?? 2011
 	spectra by their name rather than their slot id.
 	* spectrum command is no longer able to deal with pure histogram ids
 	so that it works when there is no shared memory segment.
+	*  Added spectcl/version URI to rest interface.
+	*  Linked docs for the fit command to the user guid.
+	
