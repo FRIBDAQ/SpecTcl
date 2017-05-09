@@ -5,9 +5,9 @@ LEXOUT = @builddir@/lex.yy.c
 $(LEXOUT):
 	$(LEX) @srcdir@/windfile.l
 
-windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
-	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
-	cp windfile_lex.h windlex.h
+#windfile_lex.cc: $(LEXOUT) @builddir@/windfile_lex.h
+#	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
+#	cp windfile_lex.h windlex.h
 
 clean-local :
 	rm -f *_lex.cc *_lex.h
