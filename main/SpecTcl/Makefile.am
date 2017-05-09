@@ -12,9 +12,10 @@ SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 
 SpecTcl_CPPFLAGS = -g
 
+# Remove:	@top_builddir@/Tape/libtape.la
+
 SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 								@top_builddir@/Display/libXamine.la \
-								@top_builddir@/Tape/libtape.la \
 								-lXt -lX11 -lgsl -lgslcblas
 
 SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
