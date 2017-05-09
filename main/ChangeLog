@@ -1099,4 +1099,5 @@ November 30-?? 2011
 	*  Linked docs for the fit command to the user guid.
 	*  Fixed bug #4960 - running SpecTcl from ~ fails. Note users will
 	need to get the new SpecTclRC.tcl from Skel.
+	* Fix for bug #5642 - Xamine compilation warnings.
 	
