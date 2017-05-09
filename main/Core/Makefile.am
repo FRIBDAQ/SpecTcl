@@ -79,12 +79,16 @@ Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
 	NSCLJumboBufferDecoder.h DopeVector.h
 
+# Removed TapeException.cpp, Tapefile
+
 EventSource_SRC = File.cpp GaussianDistribution.cpp \
-	TapeException.cpp TapeFile.cpp TestFile.cpp PipeFile.cpp  \
+	TestFile.cpp PipeFile.cpp  \
 	MultiTestSource.cpp CalibrationDistribution.cpp
 
+# Removed TapeFile.h TapeException.h
+
 EventSource_INCLUDES =  DiskFile.h Distribution.h File.h GaussianDistribution.h \
-	PipeFile.h TapeException.h TapeFile.h TestFile.h  MultiTestSource.h \
+	PipeFile.h  TestFile.h  MultiTestSource.h \
 	CalibrationDistribution.h
 
 Filter_SRC =  EventFilter.cpp \
@@ -182,11 +186,13 @@ Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
 	GatingObserver.h
 
+# TapeCommand.cc removed.
+
 TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	RunControlPackage.cpp ParameterPackage.cpp ParameterCommand.cpp \
 	SpectrumPackage.cpp ClearCommand.cpp BindCommand.cpp \
 	UnbindCommand.cpp SpectrumCommand.cpp DataSourcePackage.cpp \
-	AttachCommand.cpp TapeCommand.cpp GateCommand.cpp ApplyCommand.cpp \
+	AttachCommand.cpp GateCommand.cpp ApplyCommand.cpp \
 	UngateCommand.cpp GatePackage.cpp GateFactory.cpp \
 	GateFactoryException.cpp TCLHistogrammer.cpp \
 	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
@@ -199,13 +205,15 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp
 
+# TapeCommand.h removed
+
 TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
 	GateCommand.h GateFactory.h GateFactoryException.h GatePackage.h \
 	Globals.h ParameterCommand.h ParameterPackage.h \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
-	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
+	TCLAnalyzer.h TCLHistogrammer.h TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
@@ -215,6 +223,9 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h
 
+
+# TapeCommand.h removed
+
 SpecTcl_SRC =  MySpecTclApp.cpp \
 	AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -222,7 +233,7 @@ SpecTcl_SRC =  MySpecTclApp.cpp \
 	Globals.h MySpecTclApp.h ParameterCommand.h ParameterPackage.h \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
-	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
+	TCLAnalyzer.h TCLHistogrammer.h  TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	CFoldCommand.h
 
@@ -318,17 +329,19 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 												$(TreeParam_SRC) \
 												$(Xamine_SRC)
 
+# Removed -I@top_srcdir@/Tape
+
 libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 												 -I@top_srcdir@/Display \
 												 -I@top_srcdir@/factories \
 												 -I@top_srcdir@/Tape \
 												 @LIBTCLPLUS_CFLAGS@ \
 												 @TCL_CPPFLAGS@
+# Removed @top_builddir@/libntape.la
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
-											 @top_builddir@/Tape/libtape.la \
-											 @LIBTCLPLUS_LDFLAGS@ \
-												@TCL_LIBS@
+			 @LIBTCLPLUS_LDFLAGS@ \
+			@TCL_LIBS@
 
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
 
@@ -365,12 +378,13 @@ commonCXXFLAGS = -I@top_srcdir@/Core \
 									@TCL_CPPFLAGS@ \
 									@CPPUNIT_CFLAGS@
 
+# Removed @top_builddir@/Tape/libtape.la
+
 commonTestLdFlags = @builddir@/libTclGrammerApp.la \
-										@top_builddir@/Tape/libtape.la \
-										@LIBTCLPLUS_LDFLAGS@ \
-										@CPPUNIT_LIBS@ \
-										@TK_LIBS@ \
-										@TCL_LIBS@
+		@LIBTCLPLUS_LDFLAGS@ \
+		@CPPUNIT_LIBS@ \
+		@TK_LIBS@ \
+		@TCL_LIBS@
 
 
 scalertests_CXXFLAGS = $(commonCXXFLAGS)

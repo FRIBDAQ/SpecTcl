@@ -81,7 +81,7 @@ ScalerTests::ScalerBuffer()
 
   Buffer.body.etime = 200;
   Buffer.body.btime = 190;
-  for(int i =0; i < 20; i++) {
+  for(INT32 i =0; i < 20; i++) {
     Buffer.body.scalers[i] = i;	// Since I added 20 more longs at least.
   }
 

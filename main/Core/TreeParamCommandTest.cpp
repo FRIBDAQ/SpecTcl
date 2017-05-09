@@ -226,13 +226,13 @@ TreeCommandTest::ListFunc()
   ListAllCheck(result, " Listing all via direct ::List call");
 
   result.Clear();
-  char* argv[1] = {"moe"};
-  m_pCommand->List(*pInterp, result, 1, argv);
+  const char* argv[1] = {"moe"};
+  m_pCommand->List(*pInterp, result, 1, const_cast<char**>(argv));
   ListMoeCheck(result, "Listing moe via direct ::List call");
 
   result.Clear();
   argv[0] = "george*";
-  m_pCommand->List(*pInterp, result, 1, argv);
+  m_pCommand->List(*pInterp, result, 1, const_cast<char**>(argv));
   ListGeorgeCheck(result, "Listing george via direct ::ListCall");
 
 }
@@ -243,17 +243,17 @@ TreeCommandTest::ListSubCmd()
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
   
-  char* argv[3] = {"treeparameter", "-list", "moe"};
-  (*m_pCommand)(*pInterp, result, 2, argv);
+  const char* argv[3] = {"treeparameter", "-list", "moe"};
+  (*m_pCommand)(*pInterp, result, 2, const_cast<char**>(argv));
   ListAllCheck(result, "Listing all via dispatched call");
 
   result.Clear();
-  (*m_pCommand)(*pInterp, result, 3, argv);
+  (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   ListMoeCheck(result, "Listing moe via dispatched call");
 
   result.Clear();
   argv[2] = "george*";
-  (*m_pCommand)(*pInterp, result, 3, argv);
+  (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   ListGeorgeCheck(result, "Listing george via dispatched call");
 
 }
@@ -283,28 +283,28 @@ TreeCommandTest::SetPropFunc()
   //
   // This is 'all good'
   //
-  char* argv[7] = {"moe", "200", "0.0", "200.0", "1.0", "cm", "junk"};
-  char* saved;			// We'll use this to be able to save/restor args.
+  const char* argv[7] = {"moe", "200", "0.0", "200.0", "1.0", "cm", "junk"};
+  const char* saved;			// We'll use this to be able to save/restor args.
   int  status;
 
   // Bad counts:
 
-  status = m_pCommand->SetDefinition(*pInterp, result, 1, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("Too few parameters", TCL_ERROR, status);
-  status = m_pCommand->SetDefinition(*pInterp, result, 7, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 7, const_cast<char**>(argv));
   EQMSG("Too many parameters", TCL_ERROR, status);
 
   // Channels not a long:
 
   saved   = argv[1];
   argv[1] = "aaa";
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Real number for channels", TCL_ERROR, status);
 
   // Channels < 0 is illegal.
 
   argv[1] = "-200";
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Negative for chanels", TCL_ERROR, status);
   argv[1] = saved;		// Restore the correct original one.
 
@@ -312,11 +312,11 @@ TreeCommandTest::SetPropFunc()
 
   saved = argv[2];
   argv[2] = "abcde";
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Bad start value", TCL_ERROR, status);
 
   argv[2] = "300.0";		// Above the stop value.
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Start > stop", TCL_ERROR, status);
   argv[2] = saved;
 
@@ -324,7 +324,7 @@ TreeCommandTest::SetPropFunc()
   
   saved = argv[3];
   argv[3] = "aaa";                // bad stop value.
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Bad stop value", TCL_ERROR, status);
   argv[3] = saved;
 
@@ -332,17 +332,17 @@ TreeCommandTest::SetPropFunc()
 
   saved = argv[4];
   argv[4] = "aaaaa";
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Bad width", TCL_ERROR, status);
 
   argv[4] = "10.0";		// insconsistent width.
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Inconsitent width", TCL_ERROR, status);
 
   // Now do it right:
 
   argv[4] = saved;
-  status = m_pCommand->SetDefinition(*pInterp, result, 6, argv);
+  status = m_pCommand->SetDefinition(*pInterp, result, 6, const_cast<char**>(argv));
   EQMSG("Should be ok", TCL_OK, status);
 
 
@@ -357,9 +357,9 @@ TreeCommandTest::SetPropSubCmd()
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
 
-  char* argv[8] = {"treeparameter", "-set", "moe", 
+  const char* argv[8] = {"treeparameter", "-set", "moe", 
 		   "200", "0.0", "200.0", "1.0", "cm"};
-  int status = (*m_pCommand)(*pInterp, result, 8, argv);
+  int status = (*m_pCommand)(*pInterp, result, 8, const_cast<char**>(argv));
   EQMSG("treeparameter -set", TCL_OK, status);
 
   CheckConstructed(*m_pIndividual, " Set with CTreeParameterCommand::SetDefinition",
@@ -383,32 +383,32 @@ TreeCommandTest::SetIncFunc()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[3] = {"moe", "2.0", "junk"};
-  char* saved;
+  const char* argv[3] = {"moe", "2.0", "junk"};
+  const char* saved;
   int   status;
 
   // incorrect argument count:
 
-  status = m_pCommand->SetIncrement(*pInterp, result, 3, argv);
+  status = m_pCommand->SetIncrement(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("Too many params", TCL_ERROR, status);
-  status = m_pCommand->SetIncrement(*pInterp, result, 1, argv);
+  status = m_pCommand->SetIncrement(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("Too few params", TCL_ERROR, status);
 
   // Bad values for width:
 
   saved = argv[1];		// so it can be restored:
   argv[1] = "abcde";
-  status = m_pCommand->SetIncrement(*pInterp, result, 2, argv);
+  status = m_pCommand->SetIncrement(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Unparsable width", TCL_ERROR, status);
   
   argv[1] = "-5.0";
-  status  = m_pCommand->SetIncrement(*pInterp, result, 2, argv);
+  status  = m_pCommand->SetIncrement(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Width negative", TCL_ERROR, status);
 
   // Correct functioning:
 
   argv[1] = saved;
-  status  = m_pCommand->SetIncrement(*pInterp, result, 2, argv);
+  status  = m_pCommand->SetIncrement(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Success", TCL_OK, status);
 
   CheckConstructed(*m_pIndividual, "Set with setincfunc",
@@ -421,9 +421,9 @@ TreeCommandTest::SetIncSubCmd()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[4] = {"treeparameter", "-setinc", "moe", "2.0"}  ;
+  const  char* argv[4] = {"treeparameter", "-setinc", "moe", "2.0"}  ;
 
-  int status = (*m_pCommand)(*pInterp, result, 4, argv);
+  int status = (*m_pCommand)(*pInterp, result, 4, const_cast<char**>(argv));
   EQMSG("Success by command", TCL_OK, status);
 
   CheckConstructed(*m_pIndividual, "Set with setincsubcmd",
@@ -444,33 +444,33 @@ TreeCommandTest::SetChanFunc()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[3] = {"moe", "200", "omaki"};
+  const  char* argv[3] = {"moe", "200", "omaki"};
   int   status;
-  char* saved;
+  const char* saved;
 
   // mess with parameter count:
 
-  status = m_pCommand->SetChannelCount(*pInterp, result, 1, argv);
+  status = m_pCommand->SetChannelCount(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("Tooo few params", TCL_ERROR, status);
 
-  status = m_pCommand->SetChannelCount(*pInterp, result, 3, argv);
+  status = m_pCommand->SetChannelCount(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("Too many parameters", TCL_ERROR, status);
 
   // Mess with the value of the channel count:
 
   saved = argv[1];
   argv[1] = "aaaaaa";
-  status = m_pCommand->SetChannelCount(*pInterp, result, 2, argv);
+  status = m_pCommand->SetChannelCount(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Bad value for channel count", TCL_ERROR, status);
 
   argv[1] = "-100";
-  status = m_pCommand->SetChannelCount(*pInterp, result, 2, argv);
+  status = m_pCommand->SetChannelCount(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Negative width", TCL_ERROR, status);
 
   // Now get it all right
 
   argv[1] = saved;
-  status = m_pCommand->SetChannelCount(*pInterp, result, 2, argv);
+  status = m_pCommand->SetChannelCount(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("Should work", TCL_OK, status);
   EQMSG("Channelcount: (func)", 200U, m_pIndividual->getBins());
   
@@ -482,9 +482,9 @@ TreeCommandTest::SetChanSubCmd()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[4] = {"treeparameter", "-setbins", "moe", "200"};
+  const char* argv[4] = {"treeparameter", "-setbins", "moe", "200"};
   
-  int status = (*m_pCommand)(*pInterp, result, 4, argv);
+  int status = (*m_pCommand)(*pInterp, result, 4, const_cast<char**>(argv));
   EQMSG("-setbins dispatched", TCL_OK, status);
   EQMSG("-setbins result dispatched", 200U, m_pIndividual->getBins());
 }
@@ -497,14 +497,14 @@ TreeCommandTest::SetUnitFunc()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[3] = { "moe", "inches", "extra"};
+  const char* argv[3] = { "moe", "inches", "extra"};
 
-  int status = m_pCommand->SetUnit(*pInterp, result, 1, argv);
+  int status = m_pCommand->SetUnit(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("Too few parameters", TCL_ERROR, status);
-  status = m_pCommand->SetUnit(*pInterp, result, 3, argv);
+  status = m_pCommand->SetUnit(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("Too many parameters", TCL_ERROR, status);
 
-  status = m_pCommand->SetUnit(*pInterp, result, 2, argv);
+  status = m_pCommand->SetUnit(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("-setunit function", TCL_OK, status);
   EQMSG("-setunit function result", string("inches"), m_pIndividual->getUnit());
 
@@ -516,8 +516,8 @@ TreeCommandTest::SetUnitSubCmd()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[4] = {"treeparameter", "-setunit", "moe", "inches"};
-  int status = (*m_pCommand)(*pInterp, result, 4, argv);
+  const char* argv[4] = {"treeparameter", "-setunit", "moe", "inches"};
+  int status = (*m_pCommand)(*pInterp, result, 4, const_cast<char**>(argv));
   EQMSG("-setunit dispatched", TCL_OK, status);
   EQMSG("-setunit dispatched result", string("inches"), m_pIndividual->getUnit());
 
@@ -537,26 +537,26 @@ TreeCommandTest::SetLimitsFunc()
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
 
-  char* argv[4] = {"moe", "100.0", "200.0", "extra"};
-  char* saved;
+  const char* argv[4] = {"moe", "100.0", "200.0", "extra"};
+  const  char* saved;
   int   status;
 
 
   // Improper parameter count:
 
-  status = m_pCommand->SetLimits(*pInterp, result, 2, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("setlimits -too few parameters", TCL_ERROR, status);
-  status = m_pCommand->SetLimits(*pInterp, result, 4, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 4, const_cast<char**>(argv));
   EQMSG("setlimits -too many parameters", TCL_ERROR, status);
 
   // Lower limit not a real or too big:
 
   saved = argv[1];
   argv[1] = "aaabbb";
-  status = m_pCommand->SetLimits(*pInterp, result, 3, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("setlimits - lowlimit not real", TCL_ERROR, status);
   argv[1] = "201.0";
-  status = m_pCommand->SetLimits(*pInterp, result, 3, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("setlimits - lowlimit > hilimit", TCL_ERROR, status);
   argv[1] = saved;
 
@@ -564,13 +564,13 @@ TreeCommandTest::SetLimitsFunc()
 
   saved = argv[2];
   argv[2] = "aaaaa";
-  status = m_pCommand->SetLimits(*pInterp, result, 3, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("setlimits - hilimit not real", TCL_ERROR, status);
   argv[2] = saved;
 
   // proper functioning:
 
-  status = m_pCommand->SetLimits(*pInterp, result, 3, argv);
+  status = m_pCommand->SetLimits(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("setlimits - ok status", TCL_OK, status);
   EQMSG("setlimits lowlimitok", 100.0, m_pIndividual->getStart());
   EQMSG("setlimits hilimitok", 200.0, m_pIndividual->getStop());
@@ -583,9 +583,9 @@ TreeCommandTest::SetLimitsSubCmd()
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
 
-  char* argv[5] = {"treeparameter", "-setlimits", "moe", "100.0", "200.0"};
+  const char* argv[5] = {"treeparameter", "-setlimits", "moe", "100.0", "200.0"};
 
-  int status = (*m_pCommand)(*pInterp, result, 5, argv);
+  int status = (*m_pCommand)(*pInterp, result, 5, const_cast<char**>(argv));
   EQMSG("Status of treeparameter -setlimits dispatch", TCL_OK, status);
   EQMSG("setlimits lowlimitok (dispatch)", 100.0, m_pIndividual->getStart());
   EQMSG("setlimits hilimitok (dispatch)", 200.0, m_pIndividual->getStop());
@@ -608,25 +608,25 @@ TreeCommandTest::CheckFunc()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char*  argv[2] = {"nosuchparameter", "extra"};	// for initial failure.
+  const char*  argv[2] = {"nosuchparameter", "extra"};	// for initial failure.
   int    status;
 
   // Test proper reaction to incorrect parameter counts:
 
-  status = m_pCommand->Check(*pInterp, result, 0, argv);
+  status = m_pCommand->Check(*pInterp, result, 0, const_cast<char**>(argv));
   EQMSG("too few params", TCL_ERROR, status);
-  status = m_pCommand->Check(*pInterp, result , 2, argv);
+  status = m_pCommand->Check(*pInterp, result , 2, const_cast<char**>(argv));
   EQMSG("tto many params", TCL_ERROR, status);
 
   // Parameter does not exist:
 
-  status = m_pCommand->Check(*pInterp, result, 1, argv);
+  status = m_pCommand->Check(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("no such parameter", TCL_ERROR, status);
 
   // Now it works, and the result should be 0:
 
   argv[0] = "moe";
-  status = m_pCommand->Check(*pInterp, result, 1, argv);
+  status = m_pCommand->Check(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("no change status", TCL_OK, status);
   string answer = (string)result;
   EQMSG("no change value", string("0"), answer);
@@ -634,7 +634,7 @@ TreeCommandTest::CheckFunc()
   // Change moe and see if we get the right thing:
 
   m_pIndividual->setUnit("arbitrary"); // simplest I can do.
-  status = m_pCommand->Check(*pInterp, result, 1, argv);
+  status = m_pCommand->Check(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("change status", TCL_OK, status);
   answer = (string)result;
   EQMSG("change value", string("1"), answer);
@@ -649,16 +649,16 @@ TreeCommandTest::CheckSubCmd()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char*  argv[3] = {"treeparameter", "-check", "moe"};
+  const char*  argv[3] = {"treeparameter", "-check", "moe"};
   int    status;
 
-  status = (*m_pCommand)(*pInterp, result, 3, argv);
+  status = (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("Nochange status via dispatch", TCL_OK, status);
   string answer = (string)result;
   EQMSG("NOchange result via dispatch", string("0"), answer);
 
   m_pIndividual->setUnit("arbitrary");
-  status = (*m_pCommand)(*pInterp, result, 3, argv);
+  status = (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("change status via dispatch", TCL_OK, status);
   answer = (string)result;
   EQMSG("change result via dispatch", string("1"), answer);
@@ -678,20 +678,20 @@ TreeCommandTest::UncheckFunc()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[2] = {"notsuchparameter", "extra"};
+  const char* argv[2] = {"notsuchparameter", "extra"};
   int   status;
 
   // Verify errors on wrong parameter counts:
 
-  status = m_pCommand->UnCheck(*pInterp, result, 0, argv);
+  status = m_pCommand->UnCheck(*pInterp, result, 0, const_cast<char**>(argv));
   EQMSG("uncheck too few params (func)", TCL_ERROR, status);
-  status = m_pCommand->UnCheck(*pInterp, result, 2, argv);
+  status = m_pCommand->UnCheck(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("uncheck too many params (func)", TCL_ERROR, status);
 
   // Now uncheck before it was ever checked:
 
   argv[0] = "mo*";
-  status =m_pCommand->UnCheck(*pInterp, result, 1, argv);
+  status =m_pCommand->UnCheck(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("uncheck ok unchanged (func)", TCL_OK, status);
   EQMSG("uncheck ok unchanged value (func)", false,
 	m_pIndividual->hasChanged());
@@ -699,7 +699,7 @@ TreeCommandTest::UncheckFunc()
   // Cange moe and be sure it gets flipped to unchanged:
 
   m_pIndividual->setUnit("modified"); // This makes hasChanged() true.
-  status =m_pCommand->UnCheck(*pInterp, result, 1, argv);
+  status =m_pCommand->UnCheck(*pInterp, result, 1, const_cast<char**>(argv));
   EQMSG("uncheck ok changed (func)", TCL_OK, status);
   EQMSG("uncheck ok changed value (func)", false,
 	m_pIndividual->hasChanged());
@@ -712,11 +712,11 @@ TreeCommandTest::UncheckSubCmd()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[3]  = {"treeparameter", "-uncheck", "mo*"};
+  const char* argv[3]  = {"treeparameter", "-uncheck", "mo*"};
 
   // Assume the functionlity/parsing has already been checked.
 
-  int status = (*m_pCommand)(*pInterp, result, 3, argv);
+  int status = (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("Uncheck via dispatch", TCL_OK, status);
 }
 //
@@ -728,18 +728,18 @@ TreeCommandTest::Version()
 {
   CTCLInterpreter* pInterp = TreeTestSupport::getInterpreter();
   CTCLResult       result(pInterp);
-  char* argv[3]  = {"treeparameter", "-version", "extra*"};
+  const  char* argv[3]  = {"treeparameter", "-version", "extra*"};
   int   status;
   string answer;
 
   // Too many params:
 
-  status = (*m_pCommand)(*pInterp, result, 3, argv);
+  status = (*m_pCommand)(*pInterp, result, 3, const_cast<char**>(argv));
   EQMSG("version too many params", TCL_ERROR, status);
 
   // Get the version:
 
-  status = (*m_pCommand)(*pInterp, result, 2, argv);
+  status = (*m_pCommand)(*pInterp, result, 2, const_cast<char**>(argv));
   EQMSG("version status: ", TCL_OK, status);
   answer = (string)result;
   EQMSG("Version answer", CTreeParameter::TreeParameterVersion,
