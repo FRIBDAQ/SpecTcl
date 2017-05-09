@@ -1,11 +1,14 @@
+#removed 		-I@top_srcdir@/Tape 
+
 commonCPPFLAGS= -I@top_srcdir@/Core \
 				-I@top_srcdir@/Utility \
-				-I@top_srcdir@/Tape \
 				@LIBTCLPLUS_CFLAGS@	\
 				@TCL_CPPFLAGS@
 
+
+# Removed 		@top_builddir@/Tape/libtape.la 
+
 commonLDADD = @top_builddir@/Core/libTclGrammerApp.la \
-		@top_builddir@/Tape/libtape.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@TCL_LIBS@
 

@@ -47,9 +47,11 @@ Main_Objects = CConfigurableObject.o   \
 
 libScripted_la_SOURCES =  $(MainSources)
 
+# Removed 			    -I@top_srcdir@/Tape
+
+
 libScripted_la_CPPFLAGS =   -I@top_srcdir@/Utility \
 			    -I@top_srcdir@/Display \
-			    -I@top_srcdir@/Tape \
 			    -I@top_srcdir@/Core \
 			    @TCL_CPPFLAGS@ \
 			    @TK_CPPFLAGS@ \
@@ -82,10 +84,12 @@ noinst_HEADERS =  CBoolConfigParam.h \
 
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
+# Removed 	@top_builddir@/Tape/libtape.la 
+
+
 ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
 	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
-	@top_builddir@/Tape/libtape.la \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \
 	$(LD_EXTRA_FLAGS) \
 	-lgsl \
@@ -97,9 +101,11 @@ ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
 
+#removed 			    -I@top_srcdir@/Tape
+
+
 ScriptedSpecTcl_CPPFLAGS =  -I@top_srcdir@/Utility \
 			    -I@top_srcdir@/Display \
-			    -I@top_srcdir@/Tape \
 			    -I@top_srcdir@/Core \
 			    @TCL_CPPFLAGS@ \
 			    @TK_CPPFLAGS@ \
@@ -167,10 +173,12 @@ unittest_CXXFLAGS= -I@top_srcdir@/Core \
 
 unittest_DEPENDENCIES = @builddir@/libScripted.la
 
+# Removed 		    @top_builddir@/Tape/libtape.la
+
+
 unittest_LDADD =   @builddir@/libScripted.la \
 		    @top_builddir@/Core/libTclGrammerApp.la \
-		    @top_builddir@/Display/libXamine.la \
-		    @top_builddir@/Tape/libtape.la
+		    @top_builddir@/Display/libXamine.la
 
 unittest_LDFLAGS = \
 	@LIBTCLPLUS_LDFLAGS@ \
