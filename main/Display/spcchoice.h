@@ -329,9 +329,9 @@ DAMAGES.
 class SpectrumChooser : public XMSelector 
 {
   public:
-    SpectrumChooser(char *name, Widget parent, char *prompt = "Spectrum: ",
+    SpectrumChooser(char *name, Widget parent, const char *prompt = "Spectrum: ",
 		    XtPointer cbd = NULL);
-    SpectrumChooser(char *name, XMWidget &parent, char *prompt = "Spectrum: ",
+    SpectrumChooser(char *name, XMWidget &parent, const char *prompt = "Spectrum: ",
 		    XtPointer cbd = NULL);
     virtual ~SpectrumChooser();
 
@@ -371,10 +371,10 @@ class CompatibleSpectrumChooser : public SpectrumChooser
 {
    public:
      CompatibleSpectrumChooser(char *name, Widget parent, 
-			    char *prompt = "Spectrum: ",
+			    const char *prompt = "Spectrum: ",
 			    XtPointer cbd = NULL);
      CompatibleSpectrumChooser(char *name, XMWidget &parent,
-			    char *prompt = "Spectrum: ",
+			    const char *prompt = "Spectrum: ",
 			    XtPointer cbd = NULL);
      virtual ~CompatibleSpectrumChooser();
 
@@ -405,11 +405,11 @@ class LimitedSpectrumChooser : public SpectrumChooser
 {
   public:
     LimitedSpectrumChooser(char *name, Widget parent, 
-			   char *prompt = "Spectrum ",
+			   const char *prompt = "Spectrum ",
 			   SpectrumClass limitation = any,
 			   XtPointer cbd= NULL);
     LimitedSpectrumChooser(char *name, XMWidget &parent, 
-			   char *prompt = "Spectrum ",
+			   const char *prompt = "Spectrum ",
 			   SpectrumClass limitation = any,
 			   XtPointer cbd= NULL);
 

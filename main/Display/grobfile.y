@@ -13,13 +13,16 @@
 
 void yyerror(char *txt);
 
-
+#ifndef YYREPORTERROR 
+#define YYREPORTERROR(txt) yyerror((char*)txt)
+#endif
+ 
 int yylex();
 
 static grobj_generic *current;
 extern grobj_database *grobj_db;	/*  Pointer to graphical object database */
 static int ix,iy;
-static char *typenames[] = { " Invalid ",
+static const char *typenames[] = { " Invalid ",
                              "Cut",
 			     "1-d Summing Region",
 			     "Band",
@@ -76,13 +79,13 @@ object:   object_start object_def ENDOBJECT
 		   case summing_region_2d:
 		   case marker_2d:
 		     if(grobj_db->enter(current) == (grobj_generic *)NULL)
-		       yyerror("Graphical object database full\n");
+		       YYREPORTERROR("Graphical object database full\n");
 		     break;
 		   default:	          /* These are the illegal types; */
 		     sprintf(errmsg,
 			     "Gating graphical object of type %s ignored\n",
 			     typenames[current->type()]);
-		     yyerror(errmsg);
+		     YYREPORTERROR(errmsg);
 		     break;
 		   }
 		   delete current;
@@ -145,7 +148,7 @@ spectrum_selector: INTEGER
                      {
 		       specnum = xamine_shared->getspecid(yylval.string);
 		       if (specnum == -1) {
-			 yyerror("Spectrum  name does not match a valid spectrum");
+			 YYREPORTERROR("Spectrum  name does not match a valid spectrum");
 			 return -1;
 		       }
                      }
@@ -160,7 +163,7 @@ point:  xval COMMA yval
            {
 	     assert(current != (grobj_generic *)NULL);
 	     if(current->addpt(ix,iy) == 0)
-	       yyerror("Too many points in graphical object\n");
+	       YYREPORTERROR("Too many points in graphical object\n");
 	   }
       ;
 

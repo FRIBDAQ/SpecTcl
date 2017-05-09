@@ -244,7 +244,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   key_t key;
   int   memid;
   char *base;
-
+  pid_t pid;
   /* Create the shared memory region: */
 
   memcpy(&key, name, sizeof(key));
@@ -255,9 +255,11 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
     return 0;
   }
 
-  // spawn a daemon that will clean up shared memory when no more processes
-  // are attached to it.
-  int pid = fork();
+  /*
+    spawn a daemon that will clean up shared memory when no more processes
+    are attached to it.
+  */
+  pid = fork();
   if (pid == 0) {
       /* child */
 

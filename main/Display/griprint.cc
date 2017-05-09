@@ -1008,7 +1008,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Now get the superpositions...
     SuperpositionList SuperList = pAttrib->GetSuperpositions();
     int nSuperposCount = SuperList.Count();
-    auto_ptr<int> paSpecIds(new int[nSuperposCount+1]);
+    std::unique_ptr<int> paSpecIds(new int[nSuperposCount+1]);
     int* aSpecIds = paSpecIds.get();
 
     //    int aSpecIds[nSuperposCount+1];
@@ -1140,7 +1140,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	  fStr << i << " ";
 	}
 	//	int Counts[nSuperposCount+1];
-	auto_ptr<int> pCounts(new int[nSuperposCount+1]);
+	std::unique_ptr<int> pCounts(new int[nSuperposCount+1]);
 	int* Counts = pCounts.get();
 	for(int n = 0; n <= nSuperposCount; n++) {
 	  specID  = aSpecIds[n];

@@ -349,7 +349,7 @@ static const char *ChooserHelp[] =
 **   XtPointer cbd:
 **     Callback data that's passed in to the perform functions.
 */
-SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
+SpectrumChooser::SpectrumChooser(char *name, Widget parent, const char *prompt,
 				 XtPointer cbd) :
 		 XMSelector(name, parent, prompt, cbd)
 {
@@ -357,7 +357,7 @@ SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
   RestrictChoices();
   SetHelpText(ChooserHelp);
 }
-SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
+SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, const char *prompt,
 				 XtPointer cbd) :
                  XMSelector(name, parent, prompt, cbd)
 {

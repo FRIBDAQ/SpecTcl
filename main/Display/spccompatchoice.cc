@@ -331,13 +331,13 @@ extern spec_shared *xamine_shared;
 */
 CompatibleSpectrumChooser::CompatibleSpectrumChooser(char *name,
 						     Widget parent,
-						     char *prompt,
+						     const char *prompt,
 						     XtPointer cbd)
                           : SpectrumChooser(name, parent, prompt, cbd)
 { SetupList(); }
 CompatibleSpectrumChooser::CompatibleSpectrumChooser(char *name,
 						     XMWidget &parent,
-						     char *prompt,
+						     const char *prompt,
 						     XtPointer cbd)
                           : SpectrumChooser(name, parent, prompt, cbd)
 { SetupList(); }
