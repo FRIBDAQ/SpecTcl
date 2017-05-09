@@ -32,6 +32,8 @@ extern win_db *database;	/* Setup by the caller. */
 win_db db, *database=&db;
 #endif
 
+#define YYREPORTERROR(text) yyerror((char*)(text))
+ 
 extern Win::SpectrumQueryInterface gSpectrumInterface;
 
 extern int windfilelex_line;
@@ -61,6 +63,7 @@ static struct limit { int low;
 	      } xlim, ylim, limits;	/* Limits structures. */
 
 void windfileerror(char *c);
+#define WINDFILEERROR(text) windfileerror((char*)(text))
 %}
 %union {
   int integer;
@@ -185,7 +188,7 @@ window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
   y = $4;
   current = database->getdef(x,y);
   if(current == NULL) {
-    yyerror("Internal consistency error -- window is not defined\n");
+    YYREPORTERROR("Internal consistency error -- window is not defined\n");
     return -1;
   } else {
     // store the spectrum name or id
@@ -417,7 +420,7 @@ expanded_clause:  EXPANDED xlimit  ylimit blankline
                   { assert(current);
 		    if(current->is1d()) {
 		      windfilelex_line--; /* Compensate for blankline. */
-		      windfileerror("2-D expansion of a 1-d spectrum\n");
+		      WINDFILEERROR("2-D expansion of a 1-d spectrum\n");
 		      windfilelex_line++;
 		    } else {
           Win::SpectrumQueryResults info;
@@ -427,7 +430,7 @@ expanded_clause:  EXPANDED xlimit  ylimit blankline
 		      if( (xlim.low < 0) || (xlim.high >= topx) ||
 		          (ylim.low < 0) || (ylim.high >= topy)) {
 			 windfilelex_line--;
-			 windfileerror("2-d expansion limits out of range\n");
+			 WINDFILEERROR("2-d expansion limits out of range\n");
 			 windfilelex_line++;
 		      }
 		      else {
@@ -441,7 +444,7 @@ expanded_clause:  EXPANDED xlimit  ylimit blankline
                   { assert(current);
 		    if(!current->is1d()) {
 		      windfilelex_line--; /* compensate for blankline. */
-		      windfileerror("1-D expansion of a 2-d spectrum\n");
+		      WINDFILEERROR("1-D expansion of a 2-d spectrum\n");
 		      windfilelex_line++;
 		    } else {
           Win::SpectrumQueryResults info;
@@ -449,7 +452,7 @@ expanded_clause:  EXPANDED xlimit  ylimit blankline
 		      int topx = info.s_nBinsX;
 		      if( (limits.low < 0) || (limits.high >= topx)) {
 			 windfilelex_line--;
-		         windfileerror("1-d Expansion limits outo f range\n");
+		         WINDFILEERROR("1-d Expansion limits outo f range\n");
 			 windfilelex_line++;
 		      }
 		      else {
@@ -479,7 +482,7 @@ rendition_clause: RENDITION rend1_attribute blankline
 rend1_attribute:  SMOOTHED 
                   { assert(current);
 		    if(!current->is1d()) {
-		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 1-d rendition on 2-d spectrum\n");
 		    } else {
 		      ((win_1d *)current)->smooth();
 		    }
@@ -487,7 +490,7 @@ rend1_attribute:  SMOOTHED
                 | HISTOGRAM 
                   { assert(current);
 		    if(!current->is1d()) {
-		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 1-d rendition on 2-d spectrum\n");
 		    } else {
 		      ((win_1d *)current)->bars();
 		    }
@@ -495,7 +498,7 @@ rend1_attribute:  SMOOTHED
                 | POINTS 
                   { assert(current);
                     if(!current->is1d()) {
-		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 1-d rendition on 2-d spectrum\n");
 		    } else {
 		      ((win_1d *)current)->pts();
 		    }
@@ -503,7 +506,7 @@ rend1_attribute:  SMOOTHED
                 | LINE
                   { assert(current);
 		    if(!current->is1d()) {
-		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 1-d rendition on 2-d spectrum\n");
 		    } else {
 		      ((win_1d *)current)->line();
 		    }
@@ -513,7 +516,7 @@ rend1_attribute:  SMOOTHED
 rend2_attribute:  SCATTER 
                   { assert(current);
 		    if(current->is1d()) {
-		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 2-d rendition on 1-d spectrum\n");
 		    } else {
 		      ((win_2d *)current)->scatterplot();
 		    }
@@ -521,7 +524,7 @@ rend2_attribute:  SCATTER
                 | BOX
                   { assert(current);
 		    if(current->is1d()) {
-		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 2-d rendition on 1-d spectrum\n");
 		    } else {
 		      ((win_2d *)current)->boxplot();
 		    }
@@ -529,7 +532,7 @@ rend2_attribute:  SCATTER
                 | COLOR 
                   { assert(current);
 		    if(current->is1d()) {
-		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 2-d rendition on 1-d spectrum\n");
 		    } else {
 		      ((win_2d *)current)->colorplot();
 		    }
@@ -537,7 +540,7 @@ rend2_attribute:  SCATTER
                 | CONTOUR 
                   { assert(current);
 		    if(current->is1d()) {
-		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 2-d rendition on 1-d spectrum\n");
 		    } else {
 		      ((win_2d *)current)->contourplot();
 		    }
@@ -545,7 +548,7 @@ rend2_attribute:  SCATTER
                 | LEGO
                   { assert(current);
 		    if(current->is1d()) {
-		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
+		      WINDFILEERROR("Attempted to set 2-d rendition on 1-d spectrum\n");
 		    } else {
 		      ((win_2d *)current)->legoplot();
 		    }
@@ -558,16 +561,16 @@ superposition_clause:   SUPERIMPOSE spectrum blankline
 		     assert(current);
 		     win_1d *at1 = (win_1d *)current;
 		     if(!current->is1d()) {
-		       windfileerror("Superimpose on 2-d spectrum ignored");
+		       WINDFILEERROR("Superimpose on 2-d spectrum ignored");
                      }
                      else if(specnum >= 0) {
                         // SPECTRUM IS IDENTIFIED BY integer!
 
                         if(!superimposable(current->spectrum(), specnum)) {
-                            windfileerror("Incompatible superimpose ignored");
+                            WINDFILEERROR("Incompatible superimpose ignored");
                         }
                         else if(superimposed(at1, specnum)) {
-                            windfileerror("Redundant superimpose ignored");
+                            WINDFILEERROR("Redundant superimpose ignored");
                         }
                         else {
                             SuperpositionList &sl = at1->GetSuperpositions();
@@ -575,16 +578,16 @@ superposition_clause:   SUPERIMPOSE spectrum blankline
                                 sl.Add(specnum);
                             }
                             else {
-                                windfileerror("Too many superimposes, extra ignored");
+                                WINDFILEERROR("Too many superimposes, extra ignored");
                             }
                         }
                      } else {
                         // SPECTRUM IS IDENTIFIED BY NAME!
                         if(!superimposable(current->getSpectrumName(), specname)) {
-                            windfileerror("Incompatible superimpose ignored");
+                            WINDFILEERROR("Incompatible superimpose ignored");
                         }
                         else if(superimposed(at1, specname)) {
-                            windfileerror("Redundant superimpose ignored");
+                            WINDFILEERROR("Redundant superimpose ignored");
                         }
                         else {
                             SuperpositionList &sl = at1->GetSuperpositions();
@@ -592,7 +595,7 @@ superposition_clause:   SUPERIMPOSE spectrum blankline
                                 sl.Add(specname);
                             }
                             else {
-                                windfileerror("Too many superimposes, extra ignored");
+                                WINDFILEERROR("Too many superimposes, extra ignored");
                             }
                         }
                      }
@@ -694,7 +697,7 @@ void setUpDbEntry(int value, int x, int y)
 {
   Win::SpectrumQueryResults info = gSpectrumInterface.getSpectrumInfo(value);
   if( !info.s_exists ) {
-    yyerror("Spectrum is not defined\n");
+    YYREPORTERROR("Spectrum is not defined\n");
     return;
   } else {
     if( info.s_dimension == 1) {
@@ -709,7 +712,7 @@ void setUpDbEntry(const std::string& value, int x, int y)
 {
   Win::SpectrumQueryResults info = gSpectrumInterface.getSpectrumInfo(value);
   if( !info.s_exists ) {
-    yyerror("Spectrum is not defined\n");
+    YYREPORTERROR("Spectrum is not defined\n");
     return;
   } else {
     if( info.s_dimension == 1) {
