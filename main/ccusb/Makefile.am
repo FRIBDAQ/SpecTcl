@@ -17,15 +17,19 @@ noinst_HEADERS = CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
+# Removed 	-I@top_srcdir@/Tape 
+
+
 AM_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core \
 	-I@top_srcdir@/Display \
-	-I@top_srcdir@/Tape \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
+# removed 	@top_builddir@/Tape/libtape.la 
+
+
 CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libTclGrammerApp.la \
-	@top_builddir@/Tape/libtape.la \
 	@top_builddir@/Replace/libreplace.la \
 	@top_builddir@/calibratedparams/libCalibrations.la \
 	@top_builddir@/Display/libXamine.la          \

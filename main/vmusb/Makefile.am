@@ -45,17 +45,20 @@ CV1x90Unpacker.h \
 CV977Unpacker.h \
 MySpecTclApp.h
 
+# Removed: 	-I@top_srcdir@/Tape 
+
 
 VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core  \
 	-I@top_srcdir@/Display \
-	-I@top_srcdir@/Tape \
 	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
+# Removed 		    @top_builddir@/Tape/libtape.la 
+
+
 VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
-		    @top_builddir@/Tape/libtape.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
 		    @top_builddir@/Display/libXamine.la
 
