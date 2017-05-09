@@ -1,10 +1,11 @@
+# Remove Tape directory:
+
 SUBDIRS = Replace \
 					Scripts \
 					Utility \
 					factories \
 					XamineParsers \
 					Display \
-					Tape \
 					Core \
 					SpecTcl \
 					TreeParam \

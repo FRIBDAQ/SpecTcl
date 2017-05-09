@@ -10,12 +10,12 @@ commonLDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@TCL_LIBS@
 
 
-noinst_PROGRAMS = testfile ltwrite
+noinst_PROGRAMS = testfile # ltwrite
 
 testfile_SOURCES = testfile.cpp
 testfile_CPPFLAGS = $(commonCPPFLAGS)
 testfile_LDADD= $(commonLDADD)
 
-ltwrite_SOURCES = ltwrite.cpp
-ltwrite_CPPFLAGS = $(commonCPPFLAGS)
-ltwrite_LDADD = $(commonLDADD)
+#ltwrite_SOURCES = ltwrite.cpp
+#ltwrite_CPPFLAGS = $(commonCPPFLAGS)
+#ltwrite_LDADD = $(commonLDADD)

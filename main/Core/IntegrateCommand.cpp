@@ -808,7 +808,7 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
   // For each scan line in the bounding box, get the edge points and
   // integrate.
 
-  for (int y = miny; y <= maxy; y++) {
+  for (UInt_t y = miny; y <= maxy; y++) {
     vector<int> edgepoints = makeEdgePoints(edges, y);
     double yc              = spectrum.AxisToParameter(1, y);
     int edgecount = edgepoints.size();
@@ -817,7 +817,7 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
       if (i+1 < edgepoints.size()) { // in case it's an odd # of edges.
 	int xmin = edgepoints[i];
 	int xmax = edgepoints[i+1];
-	for (int x = xmin; x <= xmax; x++) {
+	for (UInt_t x = xmin; x <= xmax; x++) {
 	  double xc        = spectrum.AxisToParameter(0, x);
 	  UInt_t    coords[2] = {x, y};
 	  double counts    = spectrum[coords];

@@ -40,13 +40,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "DataSourcePackage.h"                               
 #include "AttachCommand.h"
+#ifdef ENABLE_TAPE
 #include "TapeCommand.h"
+#include "TapeFile.h"
+#endif
 #include "RingFormatCommand.h"
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
 #include "TKRunControl.h"
 #include "DiskFile.h"
-#include "TapeFile.h"
 #include "PipeFile.h"
 #include "MultiTestSource.h"
 #include "Globals.h"
@@ -137,12 +139,16 @@ public:
 CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp, Copyright),
   m_eSourceType(CDataSourcePackage::kTestSource),
+#ifdef ENABLE_TAPE  
   m_pTape(new CTapeCommand(pInterp, *this)),
+#endif 
   m_pAttach(new CAttachCommand(pInterp, *this)),
   m_pRingFormat(new CRingFormatCommand(pInterp, *this))
   
 {
+#ifdef ENABLE_TAPE  
   AddProcessor(m_pTape);
+#endif  
   AddProcessor(m_pAttach);
   AddProcessor(m_pRingFormat);
   
@@ -200,7 +206,7 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   rResult = "file:";
   return TCL_OK;
 }
-
+#ifdef ENABLE_TAPE
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -244,6 +250,8 @@ int CDataSourcePackage::AttachTapeSource(CTCLResult& rResult, const char* pDevic
   rResult = "tape:";
   return TCL_OK;
 }
+
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -346,7 +354,6 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   // What this means depends on the actual data source type:
   //
   //  file   - Connects the data source to a file in the filesystem.
-  //  tape   - Connects the data source to an event file on tape.
   //  pipe   - Creates a child data source process with stdout pointing
   //           at the pipe file and connects the data source to that pipe.
   //
@@ -388,10 +395,12 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
     CTKRunControl* pSource = (CTKRunControl*)gpRunControl;
     if(m_eSourceType != CDataSourcePackage::kTapeSource) 
       pSource->setBufferSize(nBufferSize);
+#ifdef ENABLE_TAPE    
     else {			// Tape sources know their own buffer size:
       CTapeFile* pTape = (CTapeFile*)gpEventSource;
       pSource->setBufferSize(pTape->getBlocksize());
     }
+#endif    
   }
   catch (CException& rExcept) {
     rResult = rExcept.ReasonText();
@@ -404,6 +413,7 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   case kFileSource:
     rResult = "file:";
     break;
+#ifdef ENABLE_TAPE    
   case kTapeSource:
     {
       rResult   = "tape:";
@@ -412,6 +422,7 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
       rResult += ":";
     }
     break;
+#endif
   case kPipeSource:
     rResult = "pipe:";
     break;
@@ -460,11 +471,11 @@ int CDataSourcePackage::CloseSource(CTCLResult& rResult) {
 
   return TCL_OK;
 }
-
+#ifdef ENABLE_TAPE
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    int OpenNextTapeFile ( CTCLResult& rResult )
+//    int OpenNextTape
 //  Operation Type:
 //     Source manipulation
 //
@@ -527,7 +538,7 @@ int CDataSourcePackage::RewindTape(CTCLResult& rResult) {
   rResult = "RewindTape -not yet supported";
   return TCL_ERROR;
 }
-
+#endif
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
