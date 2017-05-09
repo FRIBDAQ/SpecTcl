@@ -818,7 +818,7 @@ void f77xamine_freememory_(int *loc)
 **  spec_type type:
 **      Type of spectrum to create.
 */
-void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
+void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, const char *title,
 			     caddr_t loc, spec_type type)
 {
   int channels;
@@ -906,7 +906,7 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
 **   spec_label xlabel:
 **      Units of the min and max values
 */
-void Xamine_SetMap1d(int spno, float xmin, float xmax, spec_label xlabel)
+void Xamine_SetMap1d(int spno, float xmin, float xmax, const spec_label xlabel)
 {
   Xamine_memory->dsp_map[spno-1].xmin = xmin;
   Xamine_memory->dsp_map[spno-1].xmax = xmax;
@@ -942,8 +942,8 @@ void Xamine_SetMap1d(int spno, float xmin, float xmax, spec_label xlabel)
 **   spec_label ylabel:
 **      Units of the min and max values 
 */
-void Xamine_SetMap2d(int spno, float xmin, float xmax, spec_label xlabel,
-		     float ymin, float ymax, spec_label ylabel) 
+void Xamine_SetMap2d(int spno, float xmin, float xmax, const spec_label xlabel,
+		     float ymin, float ymax, const spec_label ylabel) 
 {
   Xamine_memory->dsp_map[spno-1].xmin = xmin;
   Xamine_memory->dsp_map[spno-1].xmax = xmax;
@@ -1003,7 +1003,7 @@ void f77xamine_describespectrum_(int *spno, int *xdim, int *ydim,
 **   Note that f77 versions return the offset word to use for the appropriate
 **   spectrum type.
 */
-caddr_t Xamine_Allocate1d(int *spno, int xdim, char *title, int word)
+caddr_t Xamine_Allocate1d(int *spno, int xdim, const char *title, int word)
 {
   int      bytes;
   caddr_t  storage;
@@ -1082,7 +1082,7 @@ long f77xamine_allocate1d_(int *spno, int *xdim, char *title, int *word,
 **    Pointer to the spectrum memory.  NOte that f77 versions return the
 **    spectrum offset value.
 */
-caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int type)
+caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, const char *title, int type)
 {
   int s_amount = xdim*ydim;	/* Number of channels... */
   caddr_t storage;

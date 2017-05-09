@@ -143,7 +143,7 @@ void    f77Xamine_FreeMemory_(int  *offset);
 */
 
 void Xamine_DescribeSpectrum(int spno, int xdim, int ydim,
-			     char *title, caddr_t loc,
+			     const char *title, caddr_t loc,
 			     spec_type type);
 void f77Xamine_DescribeSpectrum_(int *spno, int *xdim, int *ydim,
 				 char *title, int *loc,
@@ -154,17 +154,17 @@ void f77Xamine_DescribeSpectrum_(int *spno, int *xdim, int *ydim,
 ** the memory management routines.
 */
 
-caddr_t Xamine_Allocate1d(int *spno, int xdim, char *title, int word);
-caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, 
+caddr_t Xamine_Allocate1d(int *spno, int xdim, const char *title, int word);
+caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, const char *title, 
 			  int type);
 long f77Xamine_Allocate1d_(int *spno, int *xdim, char *title, 
 			  int *word, int tlen);
 long f77Xamine_Allocate2d_(int *spno, int *xdim, int *ydim, char *title, 
 			   int *byte, int tlen);
 
-void Xamine_SetMap1d(int spno, float xmin, float xmax, spec_label xlabel);
-void Xamine_SetMap2d(int spno, float xmin, float xmax, spec_label xlabel,
-		     float ymin, float ymax, spec_label ylabel);
+void Xamine_SetMap1d(int spno, float xmin, float xmax, const spec_label xlabel);
+void Xamine_SetMap2d(int spno, float xmin, float xmax, const spec_label xlabel,
+		     float ymin, float ymax, const spec_label ylabel);
 
 
 /*
