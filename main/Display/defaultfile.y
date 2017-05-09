@@ -14,7 +14,7 @@
 ** Revision level:
 **   @(#)defaultfile.y	2.1 12/22/93 
 */
-static char *yaccrevlevel = "@(#)defaultfile.y	2.1 12/22/93  - windows file parser\n";
+static const char *yaccrevlevel = "@(#)defaultfile.y	2.1 12/22/93  - windows file parser\n";
 extern void windfileerror(char *text);
 /* #define SHARED extern */
 #include <config.h>
@@ -30,7 +30,7 @@ extern void windfileerror(char *text);
 #include "grobjdisplay.h"
 #include "panemgr.h"
 #include "printer.h"
-#define defaultfileerror(text) windfileerror((text))
+#define defaultfileerror(text) windfileerror(const_cast<char*>((text)))
 #define yylex         defaultfilelex
 #define windfilelex() defaultfilelex
 #define yyleng dfyyleng

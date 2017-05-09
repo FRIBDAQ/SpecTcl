@@ -58,7 +58,7 @@ number  [0-9]+
 */
 
 struct ktbl {
-              char *key;
+              const char *key;
               int  keylen;
               int keyval;
             };
