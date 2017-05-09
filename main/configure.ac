@@ -902,6 +902,7 @@ AC_SUBST(MANDOCBOOK)
 
 
 # create output files.
+# Removed           Tape/Makefile
 
 AC_OUTPUT(Makefile 
           calibratedparams/Makefile 
@@ -931,7 +932,6 @@ AC_OUTPUT(Makefile
           Scripts/Makefile 
           SpecTcl/Makefile
           splash/Makefile
-          Tape/Makefile
           tkcon/Makefile
           TestFiles/Makefile
           treegui/Makefile
