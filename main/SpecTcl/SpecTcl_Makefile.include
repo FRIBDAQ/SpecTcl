@@ -23,11 +23,12 @@ CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS)
 CCFLAGS=$(CXXFLAGS)
 
 #  The ld flags:
+# Removed: 	-ltape  
+
 
 LDFLAGS=-L$(SPECLIBS) -lTclGrammerApp \
 	$(LIBTCLPLUS_LDFLAGS) \
 	-lXamine      \
-	-ltape        \
 	-lgsl -lgslcblas	\
 	$(LIBTCLPLUS_LDFLAGS) \
 	$(X11LIBS)    \
