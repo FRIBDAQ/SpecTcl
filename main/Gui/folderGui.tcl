@@ -1062,10 +1062,6 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     menu .topmenu.edit -tearoff 0
     .topmenu.edit add command -label Preferences.. -command editPrefs
 
-    menu .topmenu.help -tearoff 0
-    .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
-    .topmenu.help add command -label SpecTcl... -command spectclProgramHelp
-    .topmenu.help add command -label About.. -command aboutMeDialog
 
     menu .topmenu.source -tearoff 0
     .topmenu.source add command -label {Online...} -command attachOnline
@@ -1109,7 +1105,10 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu add cascade -label {Spectra}     -menu .topmenu.spectra
     .topmenu add cascade -label {Gate}        -menu .topmenu.gate
 
-
+    menu .topmenu.help -tearoff 0
+    .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
+    .topmenu.help add command -label SpecTcl... -command spectclProgramHelp
+    .topmenu.help add command -label About.. -command aboutMeDialog
 
     set timing [time {
     browser $parent.b -spectrumfoldercommand   spectrumFolderContextMenu  \
