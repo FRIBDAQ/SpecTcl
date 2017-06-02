@@ -321,7 +321,7 @@
                 </listitem>
                 <listitem>
                     <para>
-                        <fistterm>Filters</fistterm>;  Usually analysis, at least
+                        <firstterm>Filters</firstterm>;  Usually analysis, at least
                         initially, procedes in several stages.   Often each stage
                         of analysis refines the set of events that are interesting
                         to the experiment.  The unpacking of each event from raw
@@ -1136,7 +1136,7 @@ gate alphas c {X TOF {{10 10 } {200 10} {200 200} {10 200}}}}
 
             <variablelist>
                 <varlistentry>
-                    <term><literal>-</literal></term> - not gate
+                    <term><literal>-</literal> - not gate</term>
                     <listitem>
                         <para>
                             Not gates only operate on a single gate.  The
@@ -1176,7 +1176,7 @@ gate anyAlpha + {alpha1 alpha2 alpha3 alpha4}
 gate 30MeVAlpha * {alpha 30Mev}
                 </programlisting>
             </example>
-            <formalparam>
+            <formalpara>
                 <title>listing gates</title>
                 <para>
                     As with the <command>parameter</command> command,
@@ -1184,7 +1184,7 @@ gate 30MeVAlpha * {alpha 30Mev}
                     <option>-list</option> option.  When this is done, the
                     command lists all or some of the gates that are currently defined.
                 </para>
-            </formalparam>
+            </formalpara>
             <para>
                 The form of this command is:
             </para>
@@ -1247,13 +1247,17 @@ gate <option>-list</option> ?<replaceable>pattern</replaceable>>
                     for the spectrum and the gate applied to it is true for
                     that event.
                 </para>
-                <para>
-                    The <command>apply</command> command applies gates to
-                    spectra.  It looks like this:
-                </para>
             </formalpara>
+            <para>
+                The <command>apply</command> command applies gates to
+                spectra.  It looks like this:
+            </para>
             <informalexample>
-apply <replaceable>gatename spec1 ?spec2 ...?</replaceable>
+                <cmdsynopsis>
+                    <command>
+apply <replaceable>gatename spec1 ?spec2 ...?</replaceable>                        
+                    </command>
+                </cmdsynopsis>
             </informalexample>
             <para>
                 Where <parameter>gatename</parameter> is the name of a gate and
@@ -1358,7 +1362,7 @@ apply <replaceable>gatename spec1 ?spec2 ...?</replaceable>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term><filenanme>MySpecTclApp.cpp</filenanme></term>
+                        <term><filename>MySpecTclApp.cpp</filename></term>
                         <listitem>
                             <para>
                                 Implementation of the application class that you
@@ -2438,8 +2442,8 @@ OBJECTS=MySpecTclApp.o SimpleTree.o
                 <listitem>
                     <para>
                         SpecTcl 5.0 and later support two visualization programs,
-                        the original <appname>Xamine</appname> and the Root
-                        based <appname>Spectra</appname>.  This variable
+                        the original <application>Xamine</application> and the Root
+                        based <application>Spectra</application>.  This variable
                         selects the visualizer that will be used:
                         <literal>spectra</literal> will start the Root based
                         Spectra
@@ -2875,15 +2879,15 @@ set first("Fox") Ron
                         the flow control commands I'll give an example that shows
                         why this is.
                     </para>
-                    <para>
-                        Note also that the bodies of flow control commands are
-                        scripts but, again <literal>{}</literal> quotation
-                        is needed for all scripts that require more than one
-                        word since each body is a single word of the command.
-                        This may sound puzzling but actually looks quite natural
-                        as we'll see in the examples.
-                    </para>
                 </formalpara>
+                <para>
+                    Note also that the bodies of flow control commands are
+                    scripts but, again <literal>{}</literal> quotation
+                    is needed for all scripts that require more than one
+                    word since each body is a single word of the command.
+                    This may sound puzzling but actually looks quite natural
+                    as we'll see in the examples.
+                </para>
                 <para>
                     Tcl provides the following flow control commands:
                 </para>
@@ -3009,10 +3013,12 @@ while {$sq &lt; 81} {
 }
                     </programlisting>
                 </informalexample>
-                I said that the condition clauses for all flow control command
-                should be braced.  The example above is a great example why this
-                is true. Suppose I'd written the <command>while</command> command
-                as:
+                <para>
+                    I said that the condition clauses for all flow control command
+                    should be braced.  The example above is a great example why this
+                    is true. Suppose I'd written the <command>while</command> command
+                    as:
+                </para>
                 <informalexample>
                     <programlisting>
 set sq 0
@@ -3458,7 +3464,7 @@ proc ::MultiApply::GateComboBox {widget} {
                         the widget passed in is returned to the caller.
                     </para>
                 </callout>
-                <callout arearfs='mapply.gatenames'>
+                <callout arearefs='mapply.gatenames'>
                     <para>
                         Recall that the
                         <command>::MultiApply::_FillGateList</command> is the
@@ -3681,9 +3687,6 @@ proc ::MultiApply::SpectrumListBox {parent} {
                     </para>
                 </callout>
                 <callout arearefs='mapply.savelistbox'>
-                    
-                </callout>
-                <callout arearefs='mapply.spectrumtraces'>
                     <para>
                         Once the list box is created its widget command is saved
                         int <varname>MultiApply::listbox</varname>.  Note again
@@ -3941,8 +3944,8 @@ proc ::MultiApply::MultiApply widget {
     grid $widget.selectors -sticky nsew                <co id='mapply.toplayout' />
     grid $widget.apply     -sticky ns
 
-    grid columnconfigure $widget 0 -weight 1
-    grid rowconfigure    $widget 0 -weight 1          <co id='mapply.top resize' />
+    grid columnconfigure $widgxet 0 -weight 1
+    grid rowconfigure    $widget 0 -weight 1          <co id='mapply.topresize' />
     grid rowconfigure    $widget 1 -weight 0
 
     return $widget
@@ -3970,10 +3973,12 @@ proc ::MultiApply::MultiApply widget {
                     </para>
                 </callout>
                 <callout arearefs='mapply.selectorcreation' >
-                    The two selectors get created as children of the frame.
-                    While not always necessary, in general Tk is better behaved
-                    if widgets that live an a container are descendents in the
-                    widget tree of the container.
+                    <para>
+                        The two selectors get created as children of the frame.
+                        While not always necessary, in general Tk is better behaved
+                        if widgets that live an a container are descendents in the
+                        widget tree of the container.
+                    </para>
                 </callout>
                 <callout arearefs='mapply.selectorlayout'>
                     <para>
@@ -3982,7 +3987,7 @@ proc ::MultiApply::MultiApply widget {
                         stuck to all four sides of its cell (the better to expand in x/y), 
                     </para>
                 </callout>
-                <callout arearefs='mapply.selectoresize'>
+                <callout arearefs='mapply.selectorresize'>
                     <para>
                         By now hopefully you have some familiarity with column
                         and row weights.  The weights given here allow the
@@ -4022,7 +4027,7 @@ proc ::MultiApply::MultiApply widget {
                         horizontal extent but is stuck to the top and bottom.
                     </para>
                 </callout>
-                <callout arearefs='mapply.top resize'>
+                <callout arearefs='mapply.topresize'>
                     <para>
                         The row and column weights are set so that both rows
                         can expand in X but only the top row can expand in Y.
@@ -4116,12 +4121,12 @@ apply somegate {*}{spec1 spec2}
                     <programlisting>
 apply somegate spec1 spec2
                     </programlisting>
+                    <para>
+                        The <command>apply </command> command does not accept a
+                        list of spectra as a single parameter but the latter form
+                        where each spectrum name is a single parameter.
+                    </para>
                 </callout>
-                <para>
-                    The <command>apply </command> command does not accept a
-                    list of spectra as a single parameter but the latter form
-                    where each spectrum name is a single parameter.
-                </para>
             </calloutlist>
             <para>
                 This completes the user interface.  If all of this code is in
@@ -4453,7 +4458,7 @@ Calibrator::getSlope()
                     </callout>
                     <callout arearefs='calibget.varget'>
                         <para>
-                            The <method>Get</method> method returns the
+                            The <methodname>Get</methodname> method returns the
                             string representation of the variable's value.
                             Recall that in Tcl all objects have a string
                             representation.  Not shown are a set of
@@ -4519,7 +4524,7 @@ Calibrator::getOffset()
                     </programlisting>
                 </example>
                 <para>
-                    The only difference from <methodname>getSlop</methodname>
+                    The only difference from <methodname>getSlope</methodname>
                     is the name of the variable we care about and the default
                     value.
                 </para>
@@ -4598,11 +4603,11 @@ private:
   CTreeParameter  m_raw;                   
   CTreeParameter  m_calibrated;            
 
-  <emphasis Role='bold'>double          m_slope;</emphasis>
-  <emphasis Role='bold'>double          m_offset;</emphasis>
+  <emphasis role='bold'>double          m_slope;</emphasis>
+  <emphasis role='bold'>double          m_offset;</emphasis>
 public:
   Calibrator();
-  <emphasis Role='bold'>virtual ~Calibrator();</emphasis>
+  <emphasis role='bold'>virtual ~Calibrator();</emphasis>
   Bool_t operator()(const Address_t pEvent, CEvent&amp; rEvent,
                     CAnalyzer&amp; rAnalyzer, CBufferDecoder&amp; rDecoder);
 private:
@@ -5332,7 +5337,6 @@ SetCalibCommand::operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObje
                             
                         </programlisting>
                     </example>
-                </section>
                 <calloutlist>
                     <callout arearefs='setcalib.statoptimism' >
                         <para>
@@ -5534,14 +5538,14 @@ SetCalibCommand::operator()(CTCLInterpreter&amp; interp, std::vector&lt;CTCLObje
 #include "SetCalibCommand.h"
                         </programlisting>
                     </informalexample>
-                    <informalpara>
+                    <formalpara>
                         <title>Instantiate and register the event processor</title>
                         <para>
                             We're going to statically create the event processor.
                             Registration will be done in the usual mannner
                             in <methodname>CreateAnalysisPipeline</methodname>.
                         </para>
-                    </informalpara>
+                    </formalpara>
                     <para>
                         Just prior to <methodname>CreateAnalysisPipeline</methodname>
                         create an instance of the event processor.  With intervening
@@ -5600,6 +5604,7 @@ CMySpecTclApp::AddCommands(CTCLInterpreter&amp; rInterp)
                     </para>
                 </section>
             </section>
+        </section>
         </section>
     </chapter>
     <chapter id='chap.gui'>
@@ -6027,7 +6032,7 @@ puts " Done"
                 </para>
                 <figure>
                     <title>File data source choooser</title>
-                    <graphic format='png' filref='filechooser.png' />
+                    <graphic format='PNG' fileref='filechooser.png' />
                 </figure>
                 <para>
                     The top part of the dialog is just a file chooser that
@@ -6134,7 +6139,7 @@ puts " Done"
                 <para>
                     SpecTcl must be prepared to read back filter files.
                     The specifics of that are described in
-                    <link linkend='chap.filter' endterm='chap.filter.title' />.
+                    <link linkend='chap.filteranalysis' endterm='chap.filteranalysis.title' />.
                     The <guimenu>Filters</guimenu> menu allows you to:
                 </para>
                 <itemizedlist>
@@ -6266,7 +6271,7 @@ puts " Done"
                         Note that to successfullly do this your SpecTcl must
                         have been configured to decode data from
                         filter files.  See
-                        <link linkend='chap.filter' endterm='chap.filter.title' />
+                        <link linkend='chap.filteranalysis' endterm='chap.filteranalysis.title' />
                         for instructions.
                     </para>
                 </formalpara>
@@ -6366,31 +6371,31 @@ puts " Done"
                         event has satisfied the gate applied to the specturm and
                         the event has set values for the required parameters.
                     </para>
-                    <para>
-                        This menu command allows you  to change the gate that
-                        is applied to a set of spectra.  Note that the
-                        Spectra tab has a control that does this easily for
-                        single spectra.  The dialog used by the menu command
-                        allows the same gate to be applied to several spectra.
-                    </para>
-                    <figure>
-                        <title>Gate application dialog</title>
-                        <graphic format='PNG' fileref='applygatedialog.png' />
-                    </figure>
-                    <para>
-                        Using the spectra folder hierarchy, select the
-                        spectra that will have a gate applied.  Using the
-                        Gates folder hierearchy, chose the gate to apply.
-                        If you selected an incorrect spectrum, you can remove
-                        it from the Spectra: list box by double clicking it.
-                        If  you chose the wrong gate, simply choose another.
-                    </para>
-                    <para>
-                        When the gate and spectra have been properly chosen,
-                        click <guibutton>Ok</guibutton> to apply the gate
-                        to the designated spectra.
-                    </para>
                 </formalpara>
+                <para>
+                    This menu command allows you  to change the gate that
+                    is applied to a set of spectra.  Note that the
+                    Spectra tab has a control that does this easily for
+                    single spectra.  The dialog used by the menu command
+                    allows the same gate to be applied to several spectra.
+                </para>
+                <figure>
+                    <title>Gate application dialog</title>
+                    <graphic format='PNG' fileref='applygatedialog.png' />
+                </figure>
+                <para>
+                    Using the spectra folder hierarchy, select the
+                    spectra that will have a gate applied.  Using the
+                    Gates folder hierearchy, chose the gate to apply.
+                    If you selected an incorrect spectrum, you can remove
+                    it from the Spectra: list box by double clicking it.
+                    If  you chose the wrong gate, simply choose another.
+                </para>
+                <para>
+                    When the gate and spectra have been properly chosen,
+                    click <guibutton>Ok</guibutton> to apply the gate
+                    to the designated spectra.
+                </para>
             </section>
             <section>
                 <title>The Gate menu</title>
@@ -6432,13 +6437,14 @@ puts " Done"
                 </formalpara>
                 <formalpara>
                     <title><guimenu>Gate</guimenu><guimenuitem>Delete...</guimenuitem></title>
-                    Allows you to select a set of gates to delete.  Note that
-                    in order to make compound gate handling predicatable and
-                    uniform as gates are deleted, deleted gates are actually
-                    replaced with gates that are always <literal>False</literal>
-                    rather than being totally deleted.
+                    <para>
+                        Allows you to select a set of gates to delete.  Note that
+                        in order to make compound gate handling predicatable and
+                        uniform as gates are deleted, deleted gates are actually
+                        replaced with gates that are always <literal>False</literal>
+                        rather than being totally deleted.
+                    </para>
                 </formalpara>
-            </section>
             <para>
                 This command brings up the dialog below:
             </para>
@@ -6455,6 +6461,7 @@ puts " Done"
                 be destroyed.
             </para>
             
+        </section>
         </section>
         <section>
             <title>Using the Spectra page</title>
@@ -6474,7 +6481,7 @@ puts " Done"
             </para>
             <figure>
                 <title>The spectrum list</title>
-                <graph format='png' fileref='spectrumlist.png' />
+                <graphic format='PNG' fileref='spectrumlist.png' />
             </figure>
             <para>
                 The headings of the list box make the list fairly self
@@ -6775,7 +6782,7 @@ puts " Done"
             </para>
             <figure>
                 <title>Parameters page</title>
-                <graph format='PNG' fileref='parameterpage.png' />
+                <graphic format='PNG' fileref='parameterpage.png' />
             </figure>
             <para>
                 At any time, exactly one line is active.  The line with its
@@ -6824,7 +6831,7 @@ puts " Done"
             </para>
             <figure>
                 <title>The Variable page</title>
-                <graph format='PNG' fileref='variablepage.png' />
+                <graphic format='PNG' fileref='variablepage.png' />
             </figure>
             <para>
                 The differences between the parameter and variable page are:
@@ -7114,7 +7121,7 @@ puts " Done"
                         you need, you edit axis definitions and you optionally
                         select a gate.  When the spectrum is defined as
                         you desire, simply click <guibutton>Ok</guibutton> to
-                        create and dismiss the dialog or <guibuttion>Accept</guibuttion>
+                        create and dismiss the dialog or <guibutton>Accept</guibutton>
                         to create the dialog but leave it open to define another
                         spectrum.  <guibutton>Cancel</guibutton> dismisses the
                         dialog doing nothing.  <guibutton>Help</guibutton>
@@ -7387,7 +7394,7 @@ puts " Done"
                     </para>
                     <figure>
                         <title>Summary spectrum editor</title>
-                        <graphic format='PNG' file='spectrumsummaryeditor.png' />
+                        <graphic format='PNG' fileref='spectrumsummaryeditor.png' />
                     </figure>
                     <para>
                         Double click parameters to add them to the parameter list box.
@@ -7863,7 +7870,7 @@ return [expr ${raw.par1} + ${raw.par2}]
                         easily graphically.
                     </para>
                     <figure id='fig.sliceeditor'>
-                        <title id='fig.sliceditor.title'>Slice gate editor</title>
+                        <title id='fig.sliceeditor.title'>Slice gate editor</title>
                         <graphic format='PNG' fileref='sliceditor.png' />
                     </figure>
                     <para>
@@ -7886,7 +7893,7 @@ return [expr ${raw.par1} + ${raw.par2}]
                     </formalpara>
                     <para>
                         The gamma slice editor is identical to
-                        <link linkend='fig.sliceditor' endterm='fig.sliceditor.title' />
+                        <link linkend='fig.sliceeditor' endterm='fig.sliceeditor.title' />
                         except that an arbitrary number of parameters can be added to
                         the selected parameter list box.  If a gamma  1-D spectrum
                         has been created with the appropriate parameters, a gamma
@@ -7933,7 +7940,7 @@ return [expr ${raw.par1} + ${raw.par2}]
                         separated by whitespace.  The <keycap>Enter</keycap> key
                         adds the point, as does the <guibutton>Accept Point</guibutton>
                         button.  Points can be removed either by clicking
-                        <guitbutton>Delete Last</guitbutton> which deletes the
+                        <guibutton>Delete Last</guibutton> which deletes the
                         last point and double cliking on the point to delete.
                     </para>
                     <formalpara>
@@ -8116,7 +8123,7 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
                         tree parameters it needs.
                     </para>
                 </callout>
-                <calllout arearefs='filtera.conditional'>
+                <callout arearefs='filtera.conditional'>
                     <para>
                         What we do here is use conditional compilation so that
                         we can compile  SpecTcl to either register the
@@ -8124,7 +8131,7 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
                         event processors depending on the preprocessor
                         definition (or lack thereof) of <literal>ANALYZE_FILTERS</literal>.
                     </para>
-                </calllout>
+                </callout>
             </calloutlist>
             <para>
                 To add in the filter event processor we have to include its
