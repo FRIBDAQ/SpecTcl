@@ -1091,6 +1091,12 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu.spectra add separator
     .topmenu.spectra add command -label {Apply Gate...}   -command "selectAndApplyGate; ::FolderGui::updateBrowser"
 
+    menu .topmenu.help -tearoff 0
+    .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
+    .topmenu.help add command -label SpecTcl... -command spectclProgramHelp
+    .topmenu.help add command -label About.. -command aboutMeDialog
+
+    
     menu .topmenu.gate -tearoff 0
     .topmenu.gate add command -label Create...        -command "createGate; ::FolderGui::updateBrowser"
     .topmenu.gate add command -label Apply...         -command "selectAndApplyGate; ::FolderGui::updateBrowser"
@@ -1099,16 +1105,12 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 
     .topmenu add cascade -label File -menu .topmenu.filemenu
     .topmenu add cascade -label Edit -menu .topmenu.edit
-    .topmenu add cascade -label Help -menu .topmenu.help
     .topmenu add cascade -label {Data Source} -menu .topmenu.source
     .topmenu add cascade -label {Filters}     -menu .topmenu.filter
     .topmenu add cascade -label {Spectra}     -menu .topmenu.spectra
     .topmenu add cascade -label {Gate}        -menu .topmenu.gate
+    .topmenu add cascade -label Help -menu .topmenu.help
 
-    menu .topmenu.help -tearoff 0
-    .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
-    .topmenu.help add command -label SpecTcl... -command spectclProgramHelp
-    .topmenu.help add command -label About.. -command aboutMeDialog
 
     set timing [time {
     browser $parent.b -spectrumfoldercommand   spectrumFolderContextMenu  \
