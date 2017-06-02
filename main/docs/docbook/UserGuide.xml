@@ -8176,6 +8176,140 @@ USERCXXFLAGS=-DANALYZE_FILTERS
                 It's more than a bit technical and can be skipped by anybody not
                 planning to process event files outside of SpecTcl.
             </para>
+            <para>
+                The built in SpecTcl filter file format uses Xdr to ensure that
+                filter files can be read on all systems, regardless of byte order.
+                Most, if not all, unix-like systems provide an Xdr I/O library.
+                See <command>man 3 xdr</command> for information about that
+                library on your system.
+            </para>
+            <note>
+                <title>Filter file formats are extensible</title>
+                <para>
+                    The filter file format is extensible and that is used
+                    by the Root Filter format extension which writes
+                    filter files as root ntuples.  Information about
+                    how to extend filter file formats is given in the programming
+                    guide.
+                </para>
+            </note>
+            <para>
+                Filter file formats are made up of two types of records. The
+                record type is identified by a text string as the first
+                item in each record.  The <literal>header</literal>
+                record describes the parameters the filter file has.
+                There will be only one of these and it must be the first record
+                in the file.  The <literal>event</literal> record contains
+                the data for a single event.  There will typically be many of these
+                in the output file.
+            </para>
+            <section>
+                <title>The <literal>header</literal> record</title>
+                <para>
+                    The first thing in a header is the string
+                    <literal>header</literal>.  Furthermore, XDR filter files
+                    must begin with a header record.
+                </para>
+                <para>
+                    Following the <literal>header</literal> string, is an integer
+                    that is the number of parameters in the filter file.
+                </para>
+                <para>
+                    The next thing in a <literal>header</literal> record is
+                    a sequence of strings.  The number of strings is the number
+                    of parameters in the filter file.  Each string is a parameter
+                    name.  
+                </para>
+                <para>
+                    It is important to keep track of the order of those strings as
+                    they represent the order of bits in the parameter present bit
+                    mask in the <literal>event</literal> records (see below).
+                    Note that SpecTcl, on reading the header does not create
+                    parameters in this list that have not yet been defined.
+                    Those parameters, when seen events, are discarded.
+                </para>
+            </section>
+            <section>
+                <title>The <literal>event</literal> record</title>
+                <para>
+                    The first thing in an event is the string <literal>event</literal>.
+                    This indicates the record contains a description of a single event.
+                </para>
+                <para>
+                    The record identification string is followed by a sequence of
+                    integers.  These contain bit masks that describe which
+                    parameters are present.  
+                </para>
+                <para>
+                    As many unsigned bit masks will be present as rerquired to
+                    provide one bit for each parameter.  Bits will be set in the
+                    bit mask for each parameter that is defined in the event.
+                    Bits are allocated from low order to high order, first mask
+                    to last mask in the order of the parameter names in the
+                    header record.  
+                </para>
+                <para>
+                    For example, suppose there are two parameters <literal>a</literal>
+                    and <literal>b</literal> that appear in that order in the
+                    header parameter name list.  <literal>a</literal> will be
+                    allocated the bottom, 1's, bit of the first (and only mask) and
+                    <literal>b</literal> will be allocated the next, 2's bit in that
+                    mask.
+                </para>
+                <para>
+                    Following the bit masks are the parameter values as doubles.
+                    The parameters are written in order of their names of in the
+                    name list in the header, and only the parameters that have bits
+                    set will be written.
+                </para>
+                <para>
+                    Suppose, for example parameters <literal>a</literal>,
+                    <literal>b</literal> and <literal>c</literal> are in the
+                    filter and listed in that order in the parameter name list
+                    in the header.  An event which gave a value only to
+                    parameters <literal>a</literal> and <literal>c</literal>,
+                    will have a bit mask of <literal>b101</literal>.  The bitmask
+                    will then be followed first by the value of parameter 
+                    <literal>a</literal> and then by the value of
+                    parameter <literal>c</literal>.  Parameter <literal>b</literal>
+                    is omitted since it's bit is not set in the mask.
+                </para>
+                <para>
+                    For more information about this, see the following
+                    source files in SpecTcl's <filename>Core</filename>
+                    directory:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><filename>CXdrOutputStream.{cpp,h}</filename>, <filename>CXdrInputStream.{cpp,h}</filename></term>
+                        <listitem>
+                            <para>
+                                Provides streaming operators (<literal>&lt;&lt;</literal>
+                                and <literal>&gt;&gt;</literal>) that wrap
+                                the library functions for doing I/O to XDR files.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><filename>CXdrFilterOutputStage.{cpp,h}</filename></term>
+                        <listitem>
+                            <para>
+                                The output class used by the filter
+                                system to write filter files in XDR format.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><filename>FilterBufferDecoder.{h,cpp}</filename></term>
+                        <listitem>
+                            <para>
+                                The input class used by the filter system to
+                                read filter files in XDR format.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
         </section>
     </chapter>
 </book>
