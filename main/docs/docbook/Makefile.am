@@ -5,7 +5,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/UserGuide
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
-	$(INSTALL_DATA) @builddir@/UserGuide/* @srcdir@/userguide/* @prefix@/share/UserGuide
+	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
 
 
 EXTRA_DIST = analysis.xml images.tar.gz userguideimages/*
