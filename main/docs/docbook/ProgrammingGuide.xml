@@ -107,7 +107,7 @@
         </varlistentry>
         <varlistentry>
             <term>
-                <link linked='chap.spectrumfileformat' endterm='chap.spectrumfileformat.title' />
+                <link linkend='chap.spectrumfileformat' endterm='chap.spectrumfileformat.title' />
             </term>
             <listitem>
                 <para>
@@ -120,6 +120,115 @@
                 </para>
             </listitem>
         </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.filterformat' endterm='chap.filterformat.title' />
+            </term>
+            <listitem>
+                <para>
+                    The format of files written by SpecTcl filters is extensible.
+                    In this chapter we'll show how to extend the set of formats
+                    available.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.fittypes' endterm='chap.fittypes.title' />
+            </term>
+            <listitem>
+                <para>
+                    The SpecTcl fitting subsystem allows you to add additional
+                    fit types.  In this chapter we'll show how to add a new
+                    fit-type to SpecTcl.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.dataformat' endterm='chap.dataformat.title' />
+            </term>
+            <listitem>
+                <para>
+                    SpecTcl is data acquisition system neutral.  This chapter
+                    will explore how this is managed and describe how to extend
+                    SpecTcl so that it can handle data from another data acquisition
+                    system.
+                </para>
+            </listitem>
+        </varlistentry>
     </variablelist>
-</chapter>  
+</chapter>
+<chapter id='chap.processingmodel'>
+    <title id='chap.processingmodel.title'>
+        The SpecTcl processing model.    
+    </title>
+    <para></para>
+</chapter>
+<chapter id='chap.eventprocessingpipeline'>
+    <title id='chap.eventprocessingpipeline.title'>
+        The SpecTcl event processing pipeline.
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.eventsinkpipeline'>
+    <title id='chap.eventsinkpipeline.title'>
+        The SpecTcl event sink pipeline
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.addingcommands'>
+    <title id='chap.addingcommands.title'>
+        libTcl++ and adding commands to SpecTcl
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.xaminebuttonbox'>
+    <title id='chap.xaminebuttonbox.title'>
+        Xamine's button box
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.spectrumfileformat'>
+    <title id='chap.spectrumfileformat.title'>
+        Extending SpecTcl spectrum file formats
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.filterformat'>
+    <title id='chap.filterformat.title'>
+        Extending SpecTcl's filter file formats
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.fittypes'>
+    <title id='chap.fittypes.title'>
+        Extending the set of SpecTcl fit types.
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+<chapter id='chap.dataformat'>
+    <title id='chap.dataformat.title'>
+        Interfacing SpecTcl with data from other data acquisition systems.
+    </title>
+    <para>
+        
+    </para>
+</chapter>
+
+
 </book>
