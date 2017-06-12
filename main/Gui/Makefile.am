@@ -4,6 +4,7 @@ ICONDEST   = $(prefix)/Script/icons
 
 install-exec-local:
 	$(mkinstalldirs) $(SCRIPTDEST) $(HELPDEST) $(ICONDEST)
+	echo pkg_mkIndex $(SCRIPTDEST) "*.tcl" | @TCLSH@
 	$(INSTALL_PROGRAM) $(srcdir)/*.tcl   $(SCRIPTDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.html  $(HELPDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.gif   $(ICONDEST)
