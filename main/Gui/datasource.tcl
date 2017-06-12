@@ -19,6 +19,7 @@ package require Iwidgets
 package require guiutilities
 
 package require daqdefs
+package require segmentedrun
 
 package require segmentedrun
 
