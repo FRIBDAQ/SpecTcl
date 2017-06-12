@@ -16,5 +16,110 @@
           </revision>
       </revhistory>
     </bookinfo>
-    
+
+<chapter>
+    <title>Introduction</title>
+    <para>
+        This book is intended to cover several topics people programming
+        within the SpecTcl histogramming framework might need.  The intended audience
+        are those who might be tailoring SpecTcl to analyze the data from a
+        specific experiment from the NSCLDAQ as well as those who may want to
+        go further.  This guide is intended to be used in conjunction with the
+        programming reference manual which provides detailed class reference
+        information for the key classes.
+    </para>
+    <para>
+        Topics we are going to consider in this manual include:
+    </para>
+    <variablelist>
+        <varlistentry>
+            <term>
+                <link linkend='chap.processingmodel' endterm='chap.processingmodel.title' />
+            </term>
+            <listitem>
+                <para>
+                    Which covers the processing model used by SpecTcl.  This will
+                    be covered in a bit greater detail than in the user guide.
+                    Understanding this model, and where to attach your code
+                    to it can be important to following the path of least resistance
+                    in accomplishing your programming goals.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.eventprocessingpipeline' endterm='chap.eventprocessingpipeline.title' />
+            </term>
+            <listitem>
+                <para>
+                    The event processing pipeline is the set of objects that
+                    transform raw events into parameters that SpecTcl processes.
+                    We'll take a look at this and describe how to write event
+                    process pipeline elements as well as how to prepare SpecTcl
+                    to anlyze filtered data.  Along the way the SpecTclAPI object
+                    will be introduced.  It provides stable interfaces to several
+                    important subsystems of SpecTcl
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.eventsinkpipeline' endterm='chap.eventsinkpipeline' />
+            </term>
+            <listitem>
+                <para>
+                    The event sink pipeline takes over where the event
+                    processing pipeline leaves off.  It performs all processing
+                    on the unpacked event.  The built in processing includes
+                    Histograming and processing any filters that are active.
+                    You can, however, hook your own code to the event sink
+                    pipeline.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.addingcommands' endterm='chap.addingcommands.title' />
+            </term>
+            <listitem>
+                <para>
+                    SpecTcl uses the Tcl scripting language as its base command
+                    language.  There are cases where adding a compiled command
+                    to SpecTcl is useful.  This chapter introduces the
+                    Tcl++ C++ wrapping of the Tcl interpreter and how to use
+                    it to add commands and interface with other interpreter
+                    elements.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.xaminebuttonbox' endterm='chap.xaminebuttonbox.title' />
+            </term>
+            <listitem>
+                <para>
+                    Xamine is one of two displayers that SpecTcl supports. One
+                    of Xamine's little known features it the ability for its
+                    clients to add a set of buttons to the Xamine GUI.  This
+                    chapter introduces the Xamine button box and how to use it.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <link linked='chap.spectrumfileformat' endterm='chap.spectrumfileformat.title' />
+            </term>
+            <listitem>
+                <para>
+                    The SpecTcl <command>sread</command> and <command>swrite</command>
+                    commands write spectra to file.  They have a
+                    <option>-format</option> option that determines the format
+                    in which spectra are written.    This chapter describes
+                    how to add spectrum formats to the <command>swrite</command>
+                    and <command>sread</command> commands.
+                </para>
+            </listitem>
+        </varlistentry>
+    </variablelist>
+</chapter>  
 </book>
