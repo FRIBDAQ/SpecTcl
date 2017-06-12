@@ -17,7 +17,9 @@ package provide datasource 1.0
 package require snit
 package require Iwidgets
 package require guiutilities
+
 package require daqdefs
+
 package require segmentedrun
 
 #
