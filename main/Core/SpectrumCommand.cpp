@@ -756,7 +756,7 @@ CSpectrumCommand::Trace(CTCLInterpreter& rInterp,
 
   CTCLObject* pTraceScript(0);
   if (argc < 1) {
-    rResult = "Need a trace op read | write\n";
+    rResult = "Need a trace op add | delete\n";
     Usage(rResult);
     return TCL_ERROR;
   }
