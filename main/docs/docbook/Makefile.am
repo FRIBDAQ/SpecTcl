@@ -22,6 +22,17 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/UserGuide.xml -o @builddir@/userguide
 	@HTMLDOCBOOK@ @srcdir@/CommandReference.xml -o @builddir@/cmdref
 	@HTMLDOCBOOK@ @srcdir@/ProgrammingGuide.xml -o @builddir@/pgmguide
+
+
+EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages/* \
+	cmdrefimages/*
+
+BUILT_SOURCES = @builddir@/docs_built
+
+@builddir@/docs_built: @srcdir@/analysis.xml @srcdir@/UserGuide.xml @srcdir@/CommandReference.xml
+	@HTMLDOCBOOK@ @srcdir@/analysis.xml -o @builddir@
+	@HTMLDOCBOOK@ @srcdir@/UserGuide.xml -o @builddir@/userguide
+	@HTMLDOCBOOK@ @srcdir@/CommandReference.xml -o @builddir@/cmdref
 	touch @builddir@/docs_built
 
 
