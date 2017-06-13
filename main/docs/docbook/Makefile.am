@@ -9,10 +9,10 @@ install-exec-local:
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
 	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @prefix@/share/cmdref
-	$(INSTALL_DATA) @builddir@/pgmguide/* @prefix@/share/pgmguide
+	$(INSTALL_DATA) @builddir@/pgmguide/* pgmguideimages/* @prefix@/share/pgmguide
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
-	cmdrefimages ProgrammingGuide.xml
+	cmdrefimages ProgrammingGuide.xml pgmguideimages
 
 BUILT_SOURCES = @builddir@/docs_built
 
