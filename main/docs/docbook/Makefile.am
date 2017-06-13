@@ -11,8 +11,8 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @prefix@/share/cmdref
 	$(INSTALL_DATA) @builddir@/pgmguide/* @prefix@/share/pgmguide
 
-EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages/* \
-	cmdrefimages/* ProgrammingGuide.xml
+EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
+	cmdrefimages ProgrammingGuide.xml
 
 BUILT_SOURCES = @builddir@/docs_built
 
