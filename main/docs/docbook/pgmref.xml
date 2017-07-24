@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl Programming Reference.</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>July 24, 2017 and following</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            This manual provides reference pages for classes, scripts and
+            file formats for the NSCL SpecTcl histogramming program.  Command
+            reference information is explicitly not given here but in a separate
+            command reference manual.
+        </para>
+        <para>
+            The reference information is divided into the following parts:
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    The SpecTcl API provides a reference page for the
+                    SpecTcl API class <classname>SpecTcl</classname>.  This
+                    is sort of a stovepipe class that provides access to the
+                    rest of the public API used by SpecTcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    The Tree parameter/TreeVariable API provide structure as well
+                    as metadata on top of SpecTcl's flat parameter array.
+                    Authors of  event processors should write in terms of this API.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Tcl++ is a separate package, however it is so much an integral
+                    part of the SpecTcl interface, that reference information
+                    for that package is provided here as well.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Core SpecTcl classes include parameters, histograms,
+                    and gates.  This part documents these core classes as well
+                    as the methods of the <classname>CHistogrammer</classname>
+                    class intended to be available for extension programs.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    File formats.  This part describes the format of filter files
+                    as well as both the binary and ASCII format of spectrum
+                    files written by the <command>swrite</command> command.
+                </para>
+            </listitem>
+        </orderedlist>
+    </chapter>
+    <part>
+        <title>SpecTclAPI class</title>
+        <chapter>
+            <title>SpecTcl</title>
+            <para>
+                The <classname>SpecTcl</classname> class should be the starting
+                point for any application needing services from SpecTcl.
+                You should use it rather than any knowledge of the internals of
+                SpecTcl when writing programs that extend or tailor SpecTcl.
+            </para>
+        </chapter>
+        <refentry >
+            <refmeta>
+                <refentrytitle >SpecTcl</refentrytitle>
+                <manvolnum>3spectcl</manvolnum>
+            </refmeta>
+            
+            <refnamediv>
+                <refname>SpecTcl</refname>
+                <refpurpose>API Singleton class.</refpurpose>
+            </refnamediv>
+            
+            <refsynopsisdiv>
+                <synopsis>
+#include <filename>&lt;SpecTcl.h&gt;</filename>
+<classname>SpecTcl</classname>
+{
+public:
+  static SpecTcl* getInstance();
+  void addBufferDecoder(std::string                      type,
+                        CAttachCommand::CDecoderCreator* creator);
+  UInt_t AssignParameterId();
+  CParameter* AddParameter(std::string name,
+                           UInt_t Id,
+                           std::string Units);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale,
+                           Float_t low, Float_t high,
+                           std::string units);
+  CParameter* RemoveParameter(std::string name);
+  CParameter* FindParameter(std::string name);
+  CParameter* FindParameter(UInt_t Id);
+  ParameterDictionaryIterator BeginParameters();
+  ParameterDictionaryIterator EndParameters();
+  UInt_t ParameterCount();
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t dataType,
+                            std::vector&lt;std::string&gt; parameters,
+                            std::vector&lt;UInt_t&gt; channels,
+                            std::vector&lt;Float_t&gt;* pLows,
+                            std::vector&lt;Float_t&gt;* pHighs);
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t     dataType,
+                            std::vector&lt;std::string&gt; xParameters,
+                            std::vector&lt;std::string&gt; yParameters,
+                            std::vector&lt;UInt_t&gt;      channels,
+                            std::vector&lt;Float_t&gt;*    pLows,
+                            std::vector&lt;Float_t&gt;*    pHighs);
+
+  CSpectrum* CreateSpectrum(std::string           Name,
+                            SpectrumType_t        type,
+                            DataType_t            dataType,
+                            std::vector&lt;std::vector&lt;std::string&gt; &gt; parameters,
+                            std::vector&lt;UInt_t&gt;   channels,
+                            std::vector&lt;Float_t&gt;* lows,
+                            std::vector&lt;Float_t&gt;* highs);
+
+  CSpectrum* CreateGammaSummary(std::string                      Name,
+                                DataType_t                       dataType,
+                                std::vector&lt;std::vector&lt;std::string&gt; &gt; parameters,
+                                UInt_t                           nChannels,
+                                std::vector&lt;Float_t&gt;*            low,
+                                std::vector&lt;Float_t&gt;*            high);
+
+  CSpectrum* CreateG2DDeluxe(std::string Name,
+                        DataType_t     dataType,
+                        std::vector&lt;std::string&gt; xParameters,
+                        std::vector&lt;std::string&gt; yParameters,
+                        std::vector&lt;UInt_t&gt;      channels,
+                        std::vector&lt;Float_t&gt;*    pLows,
+                        std::vector&lt;Float_t&gt;*    pHighs);
+
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; parameter,
+                      UInt_t channels);
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; parameter,
+                      UInt_t channels,
+                      Float_t lowLimit, Float_t hiLimit);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; xParameter,
+                      CParameter&amp; yParmaeter,
+                      UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; xParameter, CParameter&amp; yParameter,
+                      UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                      UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t channels);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t channels,
+                       Float_t lowLimit,
+                       Float_t hiLimit);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t xChannesl, Float_t xLow, Float_t xHigh,
+                       UInt_t yChannesl, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&amp; parameter,
+                       UInt_t channels);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&amp; parameter,
+                       UInt_t channels, UInt_t lowBit);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&lt;CParameter&gt; parameters,
+                           UInt_t channels);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&lt;CParameter&gt; parameters,
+                           UInt_t nChannels, Float_t low, Float_t high);
+
+
+  CSpectrum* CreateGamma2DD(std::string name,
+                            DataType_t dataType,
+                            std::vector&lt;CParameter&gt; xParameters,
+                            std::vector&lt;CParameter&gt; yParameters,
+                            UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                            UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* Create2DSum(std::string name,
+                         DataType_t  dataType,
+                         std::vector&lt;CParameter&gt; xParameters,
+                         std::vector&lt;CParameter&gt; yParameters,
+                         UInt_t xChans, Float_t xLow, Float_t xHigh,
+                         UInt_t yChans, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateStripChart(std::string name,
+                              DataType_t  dataType,
+                              CParameter  counts,
+                              CParameter  time,
+                              UInt_t      channels, Float_t xLow, Float_t xHigh);
+
+
+  // Manipulate the spectrum dictionary:
+
+  void AddSpectrum(CSpectrum&amp; spectrum);
+  CSpectrum* RemoveSpectrum(std::string name);
+  CSpectrum* FindSpectrum(std::string name);
+  CSpectrum* FindSpectrum(UInt_t id);
+  SpectrumDictionaryIterator SpectrumBegin();
+  SpectrumDictionaryIterator SpectrumEnd();
+  UInt_t SpectrumCount();
+
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
+  // Misc spectrum utilities:
+
+  void ClearSpectrum(std::string name);
+  void ClearAllSpectra();
+
+  // Create gates of various types:
+
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; names);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; parameters,
+                    std::vector&lt;FPoint&gt; points);
+  CGate* CreateGate(CGateFactory::GateType   gateType,
+                    std::vector&lt;FPoint&gt;      points,
+                    std::vector&lt;UInt_t&gt; parameters);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; rparameters,
+                    long comparison);
+  CGate* CreateTrueGate();
+  CGate* CreateFalseGate();
+  CGate* CreateBand(std::string xparameter, std::string yparameter,
+                    std::vector&lt;FPoint&gt; points);
+  CGate* CreateContour(std::string xParameter, std::string yParameter,
+                       std::vector&lt;FPoint&gt; points);
+  CGate* CreateBandContour(std::string firstBand, std::string secondBand);
+  CGate* CreateNotGate(std::string name);
+  CGate* CreateAndGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateOrGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateCut(std::string parameter, Float_t low, Float_t high);
+  CGate* CreateGammaCut(Float_t low, Float_t high, std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaBand(std::vector&lt;FPoint&gt; points,
+                         std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaContour(std::vector&lt;FPoint&gt; points,
+                            std::vector&lt;std::string&gt; constituents);
+  CGate* CreateMaskEqualGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+  CGate* CreateMaskAndGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+  CGate* CreateMaskNotGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+
+
+  // Gate dictionary manipulation:
+
+  void AddGate(std::string name, CGate* gate);
+  void DeleteGate(std::string gateName);
+  void ReplaceGate(std::string gateName, CGate&amp; newGate);
+  CGateContainer* FindGate(std::string gateName);
+  CGateDictionaryIterator GateBegin();
+  CGateDictionaryIterator GateEnd();
+  UInt_t GateCount();
+
+  void addGateDictionaryObserver(CGateObserver* observer);
+  void removeGateDictionaryObserver(CGateObserver* observer);
+
+
+
+  void ApplyGate(std::string gateName, std::string spectrumName);
+
+  // Manipulating the event processor pipeline.
+
+  void AddEventProcessor(CEventProcessor&amp; eventProcessor,
+                         const char* name = 0);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor&amp; processor);
+  void InsertEventProcessor(CEventProcessor&amp; processor,
+                            CTclAnalyzer::EventProcessorIterator where,
+                            const char*  name = 0);
+  void RemoveEventProcessor(std::string name);
+  void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
+  UInt_t ProcessingPipelineSize();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+
+  void AddSpectrumFormatter(std::string name, CSpectrumFormatter&amp; formatter);
+
+  void AddEventSink(CEventSink&amp; sink, const char* name = 0);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(std::string sinkName);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink&amp; sink);
+  void InsertEventSink(CEventSink&amp; sink, CEventSinkPipeline::EventSinkIterator here,
+                       const char* name = 0);
+  CEventSink* RemoveEventSink(std::string name);
+  CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
+  UInt_t EventSinkPipelineSize();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineEnd();
+
+  void               createFilter(std::string name, CGatedEventFilter* pFilter);
+  CGatedEventFilter* findFilter(std::string name);
+  bool               filterExists(CGatedEventFilter* pFilter);
+  void               deleteFilter(CGatedEventFilter* pFilter);
+  void               deleteFilter(std::string filterName);
+  void               addFilterOutputFormat(CFilterOutputStageCreator&amp; creator);
+
+
+  // Expose the guts for the really curious and those who need more
+  // than we can offer.
+
+  CTCLInterpreter*    getInterpreter();
+  CHistogrammer*      GetHistogrammer();
+  CTclAnalyzer*       GetAnalyzer();
+  CEventSinkPipeline* GetEventSinkPipeline();
+  CDisplayInterface *GetDisplayInterface();
+  void SetDisplayInterface(CDisplayInterface&amp; rInterface);
+  std::vector&lt;UInt_t&gt;      parameterIds(std::vector&lt;std::string&gt; names);
+
+
+};
+
+                </synopsis>
+            </refsynopsisdiv>
+            
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    <classname>SpecTcl</classname> is a singleton class that
+                    provides an application programming interface to the
+                    functions SpecTcl considers public.  While every method in
+                    this class is available in some way as a public method
+                    in some other SpecTcl class, this set of interfaces is
+                    gauranteed to remain avaiable through modifications to
+                    SpecTcl's internal structures and algorithms.
+                </para>
+                <para>
+                    As a singleton, the constructor and destructor of this
+                    class are declared as <literal>private</literal>.  Use
+                    the <methodname>getInstance</methodname> method to
+                    obtain a pointer to the single instance of this class.
+                </para>
+            </refsect1>
+            
+            <refsect1>
+                <title>METHODS</title>
+                <variablelist>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>static </modifier>
+                                <type>SpecTcl* </type>
+                                <methodname>getInstance</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Returns a pointer to the singleton instance
+                                of this class.   This is the only supported
+                                way to get an instance of this class.
+                                Any two calls to <methodname>getInstance</methodname>
+                                will return the same value.
+                            </para>
+                            <para>
+                                There is no gaurantee that an instance of this
+                                class will exist until the first call to this
+                                method.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+<varlistentry>
+    <term></term>
+    <listitem>
+        <para>
+  void addBufferDecoder(std::string                      type,
+                        CAttachCommand::CDecoderCreator* creator);
+  UInt_t AssignParameterId();
+  CParameter* AddParameter(std::string name,
+                           UInt_t Id,
+                           std::string Units);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale,
+                           Float_t low, Float_t high,
+                           std::string units);
+  CParameter* RemoveParameter(std::string name);
+  CParameter* FindParameter(std::string name);
+  CParameter* FindParameter(UInt_t Id);
+  ParameterDictionaryIterator BeginParameters();
+  ParameterDictionaryIterator EndParameters();
+  UInt_t ParameterCount();
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t dataType,
+                            std::vector&lt;std::string&gt; parameters,
+                            std::vector&lt;UInt_t&gt; channels,
+                            std::vector&lt;Float_t&gt;* pLows,
+                            std::vector&lt;Float_t&gt;* pHighs);
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t     dataType,
+                            std::vector&lt;std::string&gt; xParameters,
+                            std::vector&lt;std::string&gt; yParameters,
+                            std::vector&lt;UInt_t&gt;      channels,
+                            std::vector&lt;Float_t&gt;*    pLows,
+                            std::vector&lt;Float_t&gt;*    pHighs);
+
+  CSpectrum* CreateSpectrum(std::string           Name,
+                            SpectrumType_t        type,
+                            DataType_t            dataType,
+                            std::vector&lt;std::vector&lt;std::string&gt; &gt; parameters,
+                            std::vector&lt;UInt_t&gt;   channels,
+                            std::vector&lt;Float_t&gt;* lows,
+                            std::vector&lt;Float_t&gt;* highs);
+
+  CSpectrum* CreateGammaSummary(std::string                      Name,
+                                DataType_t                       dataType,
+                                std::vector&lt;std::vector&lt;std::string&gt; &gt; parameters,
+                                UInt_t                           nChannels,
+                                std::vector&lt;Float_t&gt;*            low,
+                                std::vector&lt;Float_t&gt;*            high);
+
+  CSpectrum* CreateG2DDeluxe(std::string Name,
+                        DataType_t     dataType,
+                        std::vector&lt;std::string&gt; xParameters,
+                        std::vector&lt;std::string&gt; yParameters,
+                        std::vector&lt;UInt_t&gt;      channels,
+                        std::vector&lt;Float_t&gt;*    pLows,
+                        std::vector&lt;Float_t&gt;*    pHighs);
+
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; parameter,
+                      UInt_t channels);
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; parameter,
+                      UInt_t channels,
+                      Float_t lowLimit, Float_t hiLimit);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; xParameter,
+                      CParameter&amp; yParmaeter,
+                      UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&amp; xParameter, CParameter&amp; yParameter,
+                      UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                      UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t channels);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t channels,
+                       Float_t lowLimit,
+                       Float_t hiLimit);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&lt;CParameter&gt; parameters,
+                       UInt_t xChannesl, Float_t xLow, Float_t xHigh,
+                       UInt_t yChannesl, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&amp; parameter,
+                       UInt_t channels);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&amp; parameter,
+                       UInt_t channels, UInt_t lowBit);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&lt;CParameter&gt; parameters,
+                           UInt_t channels);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&lt;CParameter&gt; parameters,
+                           UInt_t nChannels, Float_t low, Float_t high);
+
+
+  CSpectrum* CreateGamma2DD(std::string name,
+                            DataType_t dataType,
+                            std::vector&lt;CParameter&gt; xParameters,
+                            std::vector&lt;CParameter&gt; yParameters,
+                            UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                            UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* Create2DSum(std::string name,
+                         DataType_t  dataType,
+                         std::vector&lt;CParameter&gt; xParameters,
+                         std::vector&lt;CParameter&gt; yParameters,
+                         UInt_t xChans, Float_t xLow, Float_t xHigh,
+                         UInt_t yChans, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateStripChart(std::string name,
+                              DataType_t  dataType,
+                              CParameter  counts,
+                              CParameter  time,
+                              UInt_t      channels, Float_t xLow, Float_t xHigh);
+
+
+  // Manipulate the spectrum dictionary:
+
+  void AddSpectrum(CSpectrum&amp; spectrum);
+  CSpectrum* RemoveSpectrum(std::string name);
+  CSpectrum* FindSpectrum(std::string name);
+  CSpectrum* FindSpectrum(UInt_t id);
+  SpectrumDictionaryIterator SpectrumBegin();
+  SpectrumDictionaryIterator SpectrumEnd();
+  UInt_t SpectrumCount();
+
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
+  // Misc spectrum utilities:
+
+  void ClearSpectrum(std::string name);
+  void ClearAllSpectra();
+
+  // Create gates of various types:
+
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; names);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; parameters,
+                    std::vector&lt;FPoint&gt; points);
+  CGate* CreateGate(CGateFactory::GateType   gateType,
+                    std::vector&lt;FPoint&gt;      points,
+                    std::vector&lt;UInt_t&gt; parameters);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&lt;std::string&gt; rparameters,
+                    long comparison);
+  CGate* CreateTrueGate();
+  CGate* CreateFalseGate();
+  CGate* CreateBand(std::string xparameter, std::string yparameter,
+                    std::vector&lt;FPoint&gt; points);
+  CGate* CreateContour(std::string xParameter, std::string yParameter,
+                       std::vector&lt;FPoint&gt; points);
+  CGate* CreateBandContour(std::string firstBand, std::string secondBand);
+  CGate* CreateNotGate(std::string name);
+  CGate* CreateAndGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateOrGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateCut(std::string parameter, Float_t low, Float_t high);
+  CGate* CreateGammaCut(Float_t low, Float_t high, std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaBand(std::vector&lt;FPoint&gt; points,
+                         std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaContour(std::vector&lt;FPoint&gt; points,
+                            std::vector&lt;std::string&gt; constituents);
+  CGate* CreateMaskEqualGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+  CGate* CreateMaskAndGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+  CGate* CreateMaskNotGate(std::vector&lt;std::string&gt; rParameterName,
+                             long Compare);
+
+
+  // Gate dictionary manipulation:
+
+  void AddGate(std::string name, CGate* gate);
+  void DeleteGate(std::string gateName);
+  void ReplaceGate(std::string gateName, CGate&amp; newGate);
+  CGateContainer* FindGate(std::string gateName);
+  CGateDictionaryIterator GateBegin();
+  CGateDictionaryIterator GateEnd();
+  UInt_t GateCount();
+
+  void addGateDictionaryObserver(CGateObserver* observer);
+  void removeGateDictionaryObserver(CGateObserver* observer);
+
+
+
+  void ApplyGate(std::string gateName, std::string spectrumName);
+
+  // Manipulating the event processor pipeline.
+
+  void AddEventProcessor(CEventProcessor&amp; eventProcessor,
+                         const char* name = 0);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor&amp; processor);
+  void InsertEventProcessor(CEventProcessor&amp; processor,
+                            CTclAnalyzer::EventProcessorIterator where,
+                            const char*  name = 0);
+  void RemoveEventProcessor(std::string name);
+  void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
+  UInt_t ProcessingPipelineSize();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+
+  void AddSpectrumFormatter(std::string name, CSpectrumFormatter&amp; formatter);
+
+  void AddEventSink(CEventSink&amp; sink, const char* name = 0);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(std::string sinkName);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink&amp; sink);
+  void InsertEventSink(CEventSink&amp; sink, CEventSinkPipeline::EventSinkIterator here,
+                       const char* name = 0);
+  CEventSink* RemoveEventSink(std::string name);
+  CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
+  UInt_t EventSinkPipelineSize();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineEnd();
+
+  void               createFilter(std::string name, CGatedEventFilter* pFilter);
+  CGatedEventFilter* findFilter(std::string name);
+  bool               filterExists(CGatedEventFilter* pFilter);
+  void               deleteFilter(CGatedEventFilter* pFilter);
+  void               deleteFilter(std::string filterName);
+  void               addFilterOutputFormat(CFilterOutputStageCreator&amp; creator);
+
+
+  // Expose the guts for the really curious and those who need more
+  // than we can offer.
+
+  CTCLInterpreter*    getInterpreter();
+  CHistogrammer*      GetHistogrammer();
+  CTclAnalyzer*       GetAnalyzer();
+  CEventSinkPipeline* GetEventSinkPipeline();
+  CDisplayInterface *GetDisplayInterface();
+  void SetDisplayInterface(CDisplayInterface&amp; rInterface);
+  std::vector&lt;UInt_t&gt;      parameterIds(std::vector&lt;std::string&gt; names);
+</para>
+</listitem>
+</varlistentry>
+
+                </variablelist>
+            </refsect1>
+            
+            <refsect1>
+                <title>EXAMPLES</title>
+                <para>
+                    
+                </para>
+            </refsect1>
+            
+            <refsect1>
+                <title>SEE ALSO</title>
+                <para>
+                    
+                </para>
+            </refsect1>
+        </refentry>    
+    </part>
+</book>
