@@ -64,7 +64,7 @@
         </varlistentry>
         <varlistentry>
             <term>
-                <link linkend='chap.eventsinkpipeline' endterm='chap.eventsinkpipeline' />
+                <link linkend='chap.eventsinkpipeline' endterm='chap.eventsinkpipeline.title' />
             </term>
             <listitem>
                 <para>
@@ -6429,12 +6429,3519 @@ public:
         into chucks of events which are then passed to the analyzer which
         forwards them on to the event processing pipeline.
     </para>
+    <para>
+        Let's have a look at how this all hangs together:
+    </para>
+    <figure>
+        <title>SpecTcl event decode process</title>
+        <graphic format='PNG' fileref='Datadecode.png' />
+    </figure>
+    <para>
+        SpecTcl's data comes from data sources.  Each data source type has a
+        I/O class.  This class passes fixed sized blocks of data to a buffer
+        decoder object.  The buffer decoder object.  
+    </para>
+    <para>
+        The buffer decoder is supposed to understand how data are packaged by
+        the source data acquisition system.   It is supposed to pass blocks
+        of events to the analyzer in a way that allows that object to call the
+        event processing pipeline.  Secondarily, the decoder is supposed to
+        create and make avaialble information about the source system byte
+        ordering so that clients of the data can construct appropriate data
+        translation objects.
+    </para>
+    <para>
+        The buffer decoder is selected by the <command>attach</command> command.
+        The class that implements that provides a method for extending the
+        set of values for its <option>-format</option> switch.
+    </para>
+    <para>
+        Note that this has actually been done for two non NSCL data acquisition
+        systems over the life of SpecTcl (that I know about).  Specifically,
+        SpecTcl has analyzed data from IUCF XSYS (at Kansas State University's
+        Macdonald Laboratory), and from the Lucid data acquisition system (at
+        the Saskatchewan Accelerator Laboratory, decommissioned in 1999).
+        )
+    </para>
+    <para>
+        In the remainder of this chapter we will:
+    </para>
+    <itemizedlist>
+        <listitem>
+            <para>
+                Describe in detail the key classes involved in the flow of
+                data from data source to analyzer.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Describe the steps needed to support data from another data
+                acquisition systsem.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Give a simple example supporting data from some fictitious
+                data acquisition system.   The data format will be chosen
+                so that the actual programming is minimal.
+            </para>
+        </listitem>
+    </itemizedlist>
+    <section>
+        <title>The classes involved in getting data from source to analyzer</title>
+        <para>
+            SpecTcl uses classes derived from the following base classes to
+            get data from data source to analyzer:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><classname>CFile</classname></term>
+                <listitem>
+                    <para>
+                        Represents a data source from a file descriptor.  This
+                        is not an abstract base class, as it's used  to accept
+                        data from file data sources.  It is also the base class
+                        for <classname>CPipeFile</classname> which gets data
+                        from a program helper along a pipe.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>CBufferDecoder</classname></term>
+                <listitem>
+                    <para>
+                        Understands how items are packaged by the data
+                        acquisition system.  Once the <classname>CFile</classname>
+                        object has been asked to read a block of data from its
+                        encapsulated file descriptor, that block of data is passed
+                        to the <classname>CBufferDecoder</classname>.  That
+                        object unpackes items from the data block and
+                        calls appropriate methods in the
+                        <classname>CAnalyzer</classname> object.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>CAnalyzer</classname></term>
+                <listitem>
+                    <para>
+                        Dispatches items from the buffer decoder to the
+                        appropriate methods of the event processors in the
+                        event processing pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>TranslatorPointer</classname></term>
+                <listitem>
+                    <para>
+                        A templated class that has the semantics of a pointer
+                        but transparently performs byte reordering if needed.
+                        This operates by encapsulating a
+                        <classname>BufferTranslator</classname> object which
+                        may or my not swap items as needed.  
+                    </para>
+                    <para>
+                        The <classname>BufferFactory</classname> knows how to
+                        instantiate the right type of <classname>BufferTranslator</classname>
+                        by being given an appropriate set of signature bytes which
+                        define the byte order of the originating system.
+                        These are compared against signature bytes generated
+                        by the running system to determine the required byte ordering.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Let's loopk at the <classname>CFile</classname>, <classname>CBufferDecoder</classname>,
+            and <classname>CAnalyzer</classname> classes individually.  The
+            <classname>TranslatorPointer</classname>, <classname>BufferTranslator</classname>
+            and <classname>BufferFactory</classname> are quite tightly coupled
+            so we'll look at those together.
+        </para>
+        <formalpara>
+            <title><classname>CFile</classname> data source base class</title>
+            <para>
+                This class and its derivations supply I/O support for SpecTcl.
+                Early versions of SpecTcl supported ANSI labeled tapes as a
+                data source in addition to disk files and pipes.  This support
+                was removed since very few if any people want to analyze data
+                directly from tape.
+            </para>
+        </formalpara>
+        
+        <para>
+            The base class for I/O support is <classname>CFile</classname>
+            and it is not an abstract class but supports disk file I/O.
+            This class is defined in <filename>File.h</filename>
+            Technically it could also be used to read data from tapes that
+            have been prepositioned to the appropriate data file.
+        </para>
+        <para>
+            Here is the important part of the definition of this class:
+        </para>
+        <example>
+            <title><classname>CFile</classname> class definition</title>
+            <programlisting>
+class CFile
+{
+  CFile ();
+  CFile (  UInt_t am_nFd,
+           bool fixedLength=true);
+
+  UInt_t getFd() const
+  FileState_t getState() const
+  
+  virtual   Int_t Read (Address_t pBuffer, UInt_t nSize)  ;
+  virtual   Int_t Write (const Address_t pBuffer, UInt_t nBytes)  ;
+  virtual   void Open (const std::string&amp; rsFilename, UInt_t nAccess,
+                       bool fullBlocks = true)  ;
+  virtual   void Open(UInt_t nFd);
+  virtual   void Close ()  ;
+  virtual   Bool_t IsReadable(UInt_t nMs) const;
+  void      setVariableRecord();
+  void      setFixedRecord();
+};
+
+            </programlisting>
+        </example>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CFile</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is the normal constructor.  The state of the file
+                        is <literal>kfsClosed</literal>, indicating the
+                        object is not yet connected to a file.  The
+                        <methodname>Open</methodname> method is normally
+                        then used to open a file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>
+                            CFile
+                        </methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t</type><parameter>nFd</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>bool</type><parameter>fixedLength</parameter>
+                            <initializer>=true</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs the object in an
+                        <literal>kfsOpen</literal> state.  The
+                        <parameter>nFd</parameter> parameter is an already
+                        file descriptor openon whatever data source the object
+                        will read from or write to.
+                    </para>
+                    <para>
+                        <parameter>fixedLength</parameter> means that the client will
+                        perform reads of fixed sized blocks of data.   This
+                        means, specifically, that the read operations will
+                        block on a read until all requested bytes have been
+                        accepted or until an error or endfile condition
+                        is signaled.
+                    </para>
+                    <para>
+                        If <parameter>fixedLength</parameter> is false, read
+                        will be done in non-blocking mode.  This allows for
+                        partial transfers which can be useful in some
+                        applications.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getFd</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>                    
+                </term>
+                <listitem>
+                    <para>
+                        Gets the file descriptor that's bound to the object.
+                        This only has meaning if the object's state iss
+                        <literal>kfsOpen</literal>.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>FileState_t </type>
+                        <methodname>getState</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the object state.  This can be on of
+                        <literal>kfsOpen</literal> in which case the file can be
+                        considered open.   It can also be
+                        <literal>kfsClosed</literal> un which case the
+                        file should be considered closed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Int_t </type>
+                        <methodname>Read</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>Address_t </type><parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nSize</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Attempts to read <parameter>nSize</parameter> bytes
+                        from the file descriptor associated with the
+                        object into <parameter>pBuffer</parameter>.
+                        This throws an error if the object is in the
+                        <literal>kfsClosed</literal> state.
+                    </para>
+                    <para>
+                        The number of bytes actually read is returned.  Note
+                        that the behavior of this method depends on whether or not
+                        the object has been told to run in fixed block size mode.
+                        In Linux reads may terminate transferring some, all or
+                        none of the data.    
+                    </para>
+                    <para>
+                        IF fixed size block mode is enabled and the underlying
+                        read returns fewer than the requested number of bytes,
+                        additional reads are performed until the requested number
+                        of bytes have been received.  If fixed sized mode is off,
+                        only one read will ever be performed.
+                    </para>
+                    <para>
+                        All errors are signalled by throwing a
+                        <classname>CErrnoException</classname>.
+                        If an end file  is reached, the method returns
+                        <literal>0</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Int_t </type>
+                        <methodname>Write</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> Address_t </type><parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nBytes</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Writes <parameter>nBytes</parameter> of data to the
+                        file descriptor that is associated with this object.
+                        The data comes from the storage pointed to by
+                        <parameter>pBuffer</parameter>.  An exception is thrown
+                        if the object is not in the <literal>kfsOpen</literal>
+                        state.  An exception is also thrown if the write fails.
+                    </para>
+                    <para>
+                        It is possible that the write will transfer fewer bytes
+                        of data than requested.  The actual number of bytes
+                        transfered is the method's return value.  Unlike
+                        <methodname>Read</methodname>, only one write is ever
+                        performed and the
+                        <emphasis>caller</emphasis> will need to perform additional
+                        transfers, if necessary,  until the entire block of
+                        data is written.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Open </methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>rsFilename</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t</type><parameter>nAccess</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>bool </type><parameter>fullBlocks </parameter>
+                            <initializer>true</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Opens a file, binding its file descriptor into the
+                        object.  If the state of the object is
+                        <literal>kfsOpen</literal>, the existing file is
+                        closed prior to opening the new file.
+                    </para>
+                    <para>
+                        The file opened is <parameter>rsFilename</parameter>.
+                        The <parameter>nAccess</parameter> parameter is a bit
+                        mask of <literal>kacRead</literal> (file is readable),
+                        <literal>kacWrite</literal> (file is writable) and
+                        <literal>kacCreate</literal> (file can be created if
+                        needed). 
+                    </para>
+                    <para>
+                         If <parameter>fullBlocks</parameter> is true,
+                        reads will be done in blocking mode and however many
+                        reads needed to fill the user buffer will be performed.
+                        If, on the other hand, <parameter>fullBlocks</parameter>
+                        is false, reads are done with blocking turned off and
+                        only one read is done to attempt to satisfy a
+                        <methodname>Read</methodname> requests.
+                    </para>
+                    <para>
+                        On success, the state of the object will be
+                        <literal>kfsOpen</literal>.  On failure,
+                        an exception will be thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Open</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nFd</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the state of the object into
+                        <literal>kfsOpen</literal> and binds the
+                        <parameter>nFd</parameter> parameter as the object's
+                        file descriptor.  If there's already an open file descriptor
+                        it is first closed.
+                    </para>
+                    <para>
+                        The intent of this method is to allow a file descriptor
+                        opened outside of <classname>CFile</classname> to
+                        be used with <classname>CFile</classname> objects.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Close </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Closes the file descriptor bound to the object and
+                        sets the state to <literal>kfsClosed</literal>.  If
+                        there is no open file descriptor bound to the object,
+                        an exception is thrown..
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>IsReadable</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nMs</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTRUE</literal> if the file descriptor
+                        bound to the object becomes readable within
+                        <parameter>nMs</parameter> milliseconds.  If the
+                        object state is <literal>kfsClosed</literal>,
+                        <literal>kfFALSE</literal> is returned.
+                    </para>
+                    <para>
+                        Note that the base class implementation, simply returns
+                        true if the file is open and false if not.  This is suitable
+                        for disk files that are always readable.  Derived classes
+                        may want to override this, implementing it in terms of
+                        <function>select(2)</function>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <formalpara>
+            <title>The <classname>CAnalyzer</classname> class.</title>
+            <para>
+                This class invokes the buffer decoder's
+                <methodname>operator()</methodname> method and provides
+                methods the buffer decoder calls back as it decodes
+                the outer structures of the data.
+            </para>
+        </formalpara>
+        <para>
+            The sequence, in fact, is that SpecTcl, on determining a data
+            source can be read reads a block of data from that event
+            source and passes it to <methodname>CAnalyzer::OnBuffer</methodname>.
+            The analyzer, in turn passes the buffer to the current
+            <classname>CBufferDecoder</classname> object
+            which does a high level parse of the buffer calling one or more
+            <classname>CAnalyzer</classname> methods to process each run.
+            The <classname>CBufferDecoder</classname> provides several methods
+            that can be used by both the analyzer and the event processing
+            pipeline.
+        </para>
+        <para>
+            The <classname>CAnalyzer</classname> base class is defined in
+            <filename>Analyzer.h</filename>.  The important parts of this
+            class definition are shown below:
+        </para>
+        <example>
+            <title><classname>CAnalyzer</classname> base class definition</title>
+            <programlisting>
+
+
+class CAnalyzer {
+public:
+  CAnalyzer(); 
+  CAnalyzer(UInt_t am_nParametersInEvent,
+            UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold);
+ public:
+  UInt_t getEventThreshold() const;
+  UInt_t getParametersInEvent() const;
+  CEventList&amp; getEventList();
+  CBufferDecoder* getDecoder();
+  CEventSink* getSink();
+
+ public:
+  virtual void OnBuffer(UInt_t nBytes, Address_t pData);
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnPhysics(CBufferDecoder&amp; rDecoder);
+  virtual void OnScaler(CBufferDecoder&amp; rDecoder);
+  virtual void OnOther(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnEndFile();
+  virtual void OnInitialize();
+
+  CBufferDecoder* AttachDecoder(CBufferDecoder&amp; rDecoder);
+  CBufferDecoder* DetachDecoder();
+  CEventSink*     AttachSink(CEventSink&amp; rSink);
+  CEventSink*     DetachSink();
+  void            entityNotDone();
+
+};
+
+                
+            </programlisting>
+        </example>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CAnalyzer</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CAnalyzer</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nParametersInEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nThreshold</parameter>
+                            <initializer> CAnalyzer::m_nDefaultEventThreshold</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These constructors create the base class. Two parameters
+                        control when the event sink is run and how events are
+                        allocated.
+                    </para>
+                    <para>
+                        <parameter>nParametersInEvent</parameter> is the number
+                        of paramters that are initially in the
+                        event array like object that is passed to the
+                        event processig pipeline.  This gets expanded as needed.
+                        Furthermore, these objects are now recycled, so the
+                        impact of getting this wrong is not nearly what it
+                        used to be.
+                    </para>
+                    <para>
+                        <parameter>nThreshold</parameter> is the maximum
+                        number of events that will be accumulated from
+                        successive runs of the evet analysis pipeline before
+                        the event sink pipeline is called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEventThreshold</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of events that need to be accumulated
+                        before they are passed through the event sink pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getParametersInEvent</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the initial size for event objects.  Events are
+                        dynamically expanded.  Furthermore, once used and analyzed,
+                        they are invalidated, rather than destroyed and
+                        re-used later. 
+                    </para>
+                    <para>
+                        The effect of this is that eventually events grow to the
+                        fit the largest numbered paramter used by the analysis case.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventList&amp; </type>
+                        <methodname>getEventList</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The analyzer collects all events into an event list
+                        (a wrapped vector of events).  This event list is then
+                        iterated over to send events to the analysis pipeline.
+                        This method returns a reference to the event list.
+                    </para>
+                    <para>
+                        The event list should not be confused with the event pool,
+                        also maintained by the analyzer but not available externally.
+                        The event pool is a <classname>CEventList</classname> that contains
+                        invalidated events that may be handed to runs of the 
+                        event analysis pipeline. The Analyzer passes events from
+                        the event pool to the analysis pipeline, whereupon they
+                        are put in the event list.  The event list is passed,
+                        event by event, to the event sink pipeline whereupon
+                        each event is invalidated and putback in the event pool.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CBufferDecoder* </type>
+                        <methodname>getDecoder</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the current buffer decoder.  The
+                        buffer decoder is selected by the <option>-format</option>
+                        option of the <command>attach</command> command.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink* </type>
+                        <methodname>getSink</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the analyzer's event sink. In
+                        practice this is actually a pointer to an
+                        <classname>CEventSinkPipeline</classname> which, itself,
+                        contains an ordered list of <classname>CEventSink</classname>
+                        objects including a <classname>CHistogrammer</classname>
+                        and zero or more <classname>CEventFilter</classname> objects.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnBuffer</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>Address_t </type><parameter>pData</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is invoked by SpecTcl when a block of data
+                        has been read from the data source.
+                        <parameter>pData</parameter> points to that block and
+                        <parameter>nBytes</parameter> is the number of bytes
+                        actually read. 
+                    </para>
+                    <para>
+                        This base class simply invokes the buffer decoder's
+                        <methodname>operator()</methodname> method which
+                        is expected to break apart the buffer into bits the
+                        analyzer cares about and make callbacks to the analyzer.
+                        Many of the remaining methods are normally called by
+                        the buffer decoder from within its
+                        <methodname>operator()</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnStateChange</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the buffer decoder to process state change items.
+                        State change items are supposed to indicate a change in
+                        run state such as begin run.  Note that not all
+                        data acquisition systems emit state change items.
+                        Not all analysis cases need them.
+                    </para>
+                    <para>
+                        The <parameter>nType</parameter> parameter identifies the
+                        type of state change.  For NSCLDAQ, these are
+                        defined in <filename>buftypes.h</filename>.  The
+                        ones that could be passed in to this method in NSCLDAQ
+                        are <literal>BEGRUNBF</literal> (begin run),
+                        <literal>ENDRUNBF</literal> (end run),
+                        <literal>PAUSBF</literal> (pause run),
+                        and <literal>RESUMEBF</literal> (resume run).
+                    </para>
+                    <para>
+                        Note to the astute reader that the ring buffer decoder maps
+                        the ring item types for state changes into these values
+                        in order to retain compatibility with older analysis
+                        cases.
+                    </para>
+                    <para>
+                        <parameter>rDecoder</parameter> references the decoder.
+                        The decoder can be used to fetch key bits of information
+                        about the item the decoder has plucked from the item.
+                    </para>
+                    <para>
+                        Typically the decoder can now respond to
+                        calls back to
+                        <methodname>getRun</methodname>, <methodname>getTitle</methodname>
+                        with the run number and title of this run respectively
+                        (if available).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnPhysics</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is invoked by the buffer decoder when a
+                        run of physics events has been detected.  The
+                        buffer decoder must be prepared to reply to
+                        method calls to
+                        <methodname>getBody</methodname>, <methodname>getBodySize</methodname>
+                        and <methodname>getEntityCount</methodname> to allow
+                        <methodname>OnPhysics</methodname> to know the location,
+                        extent
+                        of the data and how many events to expect.
+                    </para>
+                    <para>
+                        If the event processing pipeline attempts to run the analyzer
+                        off the end of the extent of the data
+                        (indicated by <methodname>getBodySize</methodname>, the analyzer
+                        will throw an exception and abort processing of that chunk.
+                        If the event processing pipeline does not consume all of
+                        the data after analyzing the number of events indicated
+                        by <methodname>getEntityCount</methodname> an error
+                        message is emitted as well.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnScaler</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CBufferDecoder&amp;</type><parameter> rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the buffer decoder when a scaler item has been
+                        encountered in the input data.  Scaler items are expected
+                        to have a set of counters.  The buffer decoder must be
+                        ready to respond to invocations of the
+                        buffer decoder's
+                        <methodname>getBody</methodname>, <methodname>getBodySize</methodname>
+                        and <methodname>getEntityCount</methodname> from the
+                        event analysis pipeline as the analyzer makes no assumptions
+                        about the format of the scaler item.
+                    </para>
+                    <para>
+                        Convention holds that
+                        <methodname>getBodySize</methodname> will give the size
+                        of the scaler item pointed to by  <methodname>getBody</methodname>
+                        and <methodname>getEntityCount</methodname> returns the
+                        number of scalers in the item.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnOther</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type><parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the buffer decoder for other types of
+                        items.  <parameter>nType</parameter> is the type of
+                        data item encountered.  This value depends on the
+                        data acquisition system contributing data. Note that
+                        NSCLDAQ's ring buffer decoders map ring items to
+                        values in <filename>bftypes.h</filename>, buffer types
+                        for the NSCLDAQ-8.x system (prior to ring buffers).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Invoked by the data source, I/O subsystem when an endfile
+                        was detected on the data source.  For pipe files, this
+                        implies the program on the other end of the pipe
+                        either exited or closed its <literal>stdout</literal>.
+                        For actual disk file data sources this is invoked
+                        whenthe entire file has been read.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnInitialize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the SpecTcl main application object when
+                        SpecTcl initialization is completed. One of the
+                        expectations of this method is that it will invoke
+                        <methodname>OnInitialize</methodname> for all elements
+                        of the event analysis pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CBufferDecoder* </type>
+                        <methodname>AttachDecoder</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the SpecTcl framework to attach a new buffer
+                        decoder, <parameter>rDecoder</parameter>.  A pointer
+                        to the prior decoder is returned.  If there is no
+                        prior decoder, a null pointer should be returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CBufferDecoder* </type>
+                        <methodname>DetachDecoder</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Detaches the current decoder from the the analyzer.
+                        This returns a pointer to the previous decoder.  Note
+                        that attempting to use the analyzer when no decoder is
+                        attached will most likely cause program failure.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink*     </type>
+                        <methodname>AttachSink</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>CEventSink&amp; </type><parameter>rSink</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Attaches a new event sink to the analyzer.  Normally,
+                        the event sink is an <classname>CEventSinkPipeline</classname>
+                        (defined in <filename>EventSinkPipeline.h</filename>).
+                        <classname>CEventSinkPipeline</classname> is a container
+                        for an ordered set of <classname>CEventSink</classname>
+                        objects (including a <classname>CHistogrammer</classname>).
+                    </para>
+                    <para>
+                        It is rare that you'll need to invoke this method.
+                        The return value of this method is a pointer to the
+                        prior event sink object or <literal>nullptr</literal>
+                        if there is no prior event sink.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink*</type>
+                        <methodname>DetachSink</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Detaches the event sink from the analyzer.  The result
+                        of this method is a pointer to the previously attached
+                        event sink.  It is likely that using the
+                        analyzer when no event sink is attached will cause
+                        program failure.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>entityNotDone</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method can be called from within the event processing
+                        pipeline's <methodname>operator()</methodname> method.
+                        It  is called to indicate that when the event processing
+                        pipeline is
+                        complete, while the size of the event should be
+                        used to advance the event pointer, the number of entities
+                        should not be decremented.
+                    </para>
+                    <para>
+                        The purpose of this method is to simplify event processing
+                        for data acquisition systems that have the capability to
+                        emit <firstterm>super events</firstterm>.  A super event
+                        is an event like chunk of data that contains several
+                        events.  An example of a use of super events would
+                        be processing hardware containing multi-event buffers.
+                        The devices might be drained responding to a single trigger
+                        leaving a structure that contains several physics events.
+                    </para>
+                    <para>
+                        In cases like that, the event processing pipeline needs
+                        to be invoked for each event contained in the super
+                        event and therefore needs control over when to report
+                        that it has completed processing of the outer entity.
+                    </para>
+                    <para>
+                        Another alternative is to produce a buffer decoder
+                        that treats each super event as a run of events, however
+                        that would require that the buffer decoder know enough
+                        about the internal structure of the super event to
+                        be able to determine the number of events each
+                        super event contains.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <formalpara>
+            <title>The <classname>CBufferDecoder</classname> class</title>
+            <para>
+                Objects of this class are attached to the analyzer.  The analyzer,
+                on receiving a block of data, delegates the outer decode
+                of that block of data to the buffer decoder.  In turn, the
+                buffer decoder will call back methods of the analyzer
+                we described above.
+            </para>
+        </formalpara>
+        <para>
+            Buffer decoders are derived from the abstract base class
+            <classname>CBufferDecoder</classname>.  This class is defined in
+            <filename>BufferDecoder.h</filename>.  Key parts of that header are
+            shown below.
+        </para>
+        <example>
+            <title>The <classname>CBufferDecoder</classname> abstract base class</title>
+            <programlisting>
+class CBufferDecoder {
+
+ public:
+  virtual BufferTranslator* getBufferTranslator()
+  virtual const Address_t getBody() = 0;
+  virtual UInt_t getBodySize() = 0;
+  virtual UInt_t getRun() = 0;
+  virtual UInt_t getEntityCount() = 0;
+  virtual UInt_t getSequenceNo() = 0;
+  virtual UInt_t getLamCount() = 0;
+  virtual UInt_t getPatternCount() = 0;
+  virtual UInt_t getBufferType() = 0;
+  virtual void getByteOrder(Short_t&amp; Signature16,
+                            Int_t&amp; Signature32) = 0;
+  virtual std::string getTitle() = 0;
+  virtual void operator() (UInt_t nBytes,
+                           Address_t pBuffer,
+                           CAnalyzer&amp; rAnalyzer);
+
+  virtual void OnAttach(CAnalyzer&amp; rAnalyzer);
+  virtual void OnDetach(CAnalyzer&amp; rAnalyzer);
+  virtual bool blockMode();     // True if data source must deliver fixed sized blocks.
+
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
+
+};
+
+            </programlisting>
+        </example>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>BufferTranslator* </type>
+                        <methodname>getBufferTranslator</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is expected to return a <classname>BufferTranslator</classname>
+                        that, in turn, can be used to instantiate
+                        <classname>TranslatorPointers</classname>.  These
+                        are part of SpecTcl's scheme to insulate programmers
+                        from byte order differences that might exist between
+                        the data source and SpecTcl.  
+                    </para>
+                    <para>
+                        NSCL data acquisition systems provide byte order
+                        signatures that allow consumers to determine if these
+                        differences exist (though the mechanism differs between
+                        NSCLDAQ 8 and earlier and NSCLDAQ 10 and later [there
+                        is no NSCLDAQ 9).
+                    </para>
+                    <para>
+                        If you are processing data from a system that does not
+                        provide these hints, you'll need to use your knoweledge
+                        of the byte order of the source system and probe the
+                        system SpecTcl is running on to produce the proper
+                        <classname>BufferTranslator</classname> object.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getBody</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method is expected to return the
+                        body of the item currently being processed.  In many
+                        cases the item has a single logical entity (e.g.
+                        information about a state change), however in others,
+                        such as physics event items, the item may contain
+                        more than one entity in which case
+                        <methodname>getBody</methodname> returns a pointer to the
+                        first of these entities.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBodySize</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the size of the block of data pointed to by the
+                        return value of <methodname>getBody</methodname>. The
+                        analyzer and event processing pipeline should ensure that
+                        processing is confined to the storage defined by
+                        <methodname>getBody</methodname> and
+                        <methodname>getBodySize</methodname> or else the
+                        results are not well defined.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getRun</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the underlying data acquisition system has run numbers
+                        that can be gotten from the data (presumably in data
+                        towards the start of an event file), this is expected
+                        to return the run number of the data set currently being
+                        analyzed.
+                    </para>
+                    <para>
+                        Data acquisition systems may not make it possible to determine
+                        the run number from the data. In that case this method
+                        should just return some value such as
+                        <literal>UINT_MAX</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEntityCount</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of entities present in the current item.
+                        For scaler data this is, by convention, the number of
+                        scalers present.  For event data this is the number of
+                        events in the block of data defined by
+                        <methodname>getBody</methodname> and
+                        <methodname>getBodySize</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getSequenceNo</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        For data acquisition systems in which it's possible to
+                        extract an event number, or buffer number, this is expected to return that
+                        number.  SpecTcl's GUI's use this information to attempt
+                        to provide information about the fraction of events
+                        analyzed by the online system.
+                    </para>
+                    <para>
+                        If the underlying DAQ system does not provide this
+                        we recommend returning the number of physics triggers
+                        seen.  This will result in an analysis fraction of
+                        <literal>1.0</literal> which while wrong, at least
+                        does not result in program failure (e.g. divide by
+                        zero).
+                    </para>
+                    <para>
+                        NSCLDAQ 8 and earlier provide a buffer sequence number
+                        and that is used.  NSCLDAQ 10 and later emit periodic
+                        trigger count records.  The number of triggers in the
+                        most recent trigger count record is returne by those
+                        buffer decoders.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getLamCount </methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        In CAMAC based system that provide masks of the LAMS
+                        seen in the crates involved in an event, this provides
+                        the number of LAM masks present.  This is supplied by
+                        NSCLDAQ 8 and earlier but, as non CAMAC systems became
+                        the rule rapidly became obsolete.
+                    </para>
+                    <para>
+                        If your DAQ system is not able to provide this just
+                        return 0.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getPatternCount</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        In some event formats, Readout is driven by some trigger
+                        pattern register.  In those systems, this is supposed
+                        to return the number of pattern register items each
+                        event will have (as the decoding of the event may
+                        depend on knowing this).  
+                    </para>
+                    <para>
+                        This value is also increasingly obsolete and, you may
+                        retrun <literal>0</literal> if the DAQ system you
+                        are using (NSCLDAQ 10.0 and later e.g.) cannot
+                        supply this information.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBufferType</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the type of entity being processed.  This
+                        should be a value from
+                        <filename>buftypes.h</filename>
+                    </para>
+                    <para>
+                        If your DAQ system has packed heterogenous data into
+                        'data units', the main job of the buffer decoder
+                        is to break each data unit up into one or more
+                        homogenously typed item.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual </modifier>
+                        <type>void </type>
+                        <methodname>getByteOrder </methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Short_t&amp; </type><parameter>Signature16</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t&amp; </type><parameter>Signature32</parameter>
+                        </methodparam>
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the 16 and 32 bit SpecTcl byte order signatures
+                        for the system that sourced the data. SpecTcl uses host
+                        and source byte order signatures to not only determine if
+                        there is a byte order difference between the two, but
+                        to map the transformation required to take data
+                        in source format to data in host format.
+                    </para>
+                    <para>
+                        The 16 bit byte order signature,
+                        <parameter>Signature16</parameter>
+                        will be writtenwith the value
+                        <literal>0x0102</literal> in the byte order of
+                        the source system.  The <parameter>Signature32</parameter>
+                        32 bit signature, on the other hand, will be written
+                        with the value <literal>0x01020304</literal> in the
+                        byte order of the source system.
+                    </para>
+                    <para>
+                        The values provided allow SpecTcl to determine how to
+                        transform arbitrary byte order differences between 16
+                        and 32 bit values.  In practice, there are two byte orderings
+                        in use in computer systems throughout the world.
+                        Little endian (predominates because it is what Intel uses),
+                        and Big endian. 
+                    </para>
+                    <para>
+                        If we view memory as an array of 8 bit bytes, for multi-byte
+                        values, little endian systems store the low order bytes in
+                        lower addresses while big endian systems store the high order
+                        bytes in lower addresses.
+                    </para>
+                    <para>
+                        Thus the byte-wise representation of <literal>0x0102034</literal>,
+                        the 32 bit byte order signature for little endian systems
+                        is: <literal>0x04, 0x03, 0x02, 0x01</literal> while on a
+                        bit endian system, the same signature's byte-wise values are:
+                        <literal>0x01, 0x02, 0x03, 0x04</literal>.
+                    </para>
+                    <para>
+                        If the source system provides <emphasis>some</emphasis>
+                        indicatiuon of its byte ordering in the data, this method
+                        should transform that indicator into the byte order signatures
+                        expected by SpecTcl.  If not, you have to use your knowledge
+                        of the byte ordering of the source system to construct
+                        these signatures out of thin air.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        For data acquisition systems where runs have a textual
+                        title that can be extracted from the event data, this
+                        method returns this title.  If the data acquisition
+                        system has no title or it cannot be extracted from the
+                        data we recommend returning an empty string.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type><parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type><parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called  when a block of data has been read from the
+                        data source.   <parameter>nBytes</parameter> is the
+                        number of bytes of data and <parameter>pBuffer</parameter>
+                        points to the data block.  <parameter>rAnalyzer</parameter>
+                        is the analyzer that's orchestrating the data analysis.
+                        This method will typically some methods of this analyzer.
+                    </para>
+                    <para>
+                        The block of data must be parsed into individual
+                        items of specific data types
+                        containing individual items as well as blocks of event
+                        data.  Depending on the data type, the approprite analyzer
+                        method(s) must be called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnAttach</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                         Called when the buffer decoder is attached to the analyzer.
+                         Potentially this is done each time a data source is
+                         attached.  <parameter>rAnalyzer</parameter> is a reference
+                         to the analyzer this buffer decoder is being attached to.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnDetach</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp;</type><parameter> rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called to detach the buffer decoder from the analyzer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual </modifier>
+                        <type>bool </type>
+                        <methodname>blockMode</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This should return <literal>true</literal> if the
+                        decoder expects fixed sized blocks and
+                        <literal>false</literal> oterhwsis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void OnSourceAttach</type>
+                        <methodname></methodname>
+                        <void ></void>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a new event soruce is attached.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual </modifier>
+                    <type>void </type>
+                    <methodname>OnSourceDetach</methodname>
+                    <void />
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Called when a data source is deteached from SpecTcl.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname> OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an end file is detected on a data source.
+                        For file data sources this indicates the reads of the
+                        source have run into the end of the file.  For pipe
+                        data sources this means either that the pipe program
+                        has exited or that it has closed its
+                        <literal>stdout</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <formalpara>
+            <title>Byte order transformations</title>
+            <para>
+                SpecTcl provides a set of classes that allow programmers to
+                instantiate pointer-like objects that can transparenty perform
+                any required byte order transformations between the source system
+                and the SpecTcl host system.    The following sets of classes are required:
+                <classname>BufferTranslator</classname> encapsulates a buffer of
+                data and allows fetches to be done from that bufer, returning
+                data in the byte order of the executing host.  The
+                <classname>BufferFactory</classname> class can provide you with
+                a <classname>BufferTranslator</classname> given the 32 bit
+                byte order signature of the source system.
+            </para>
+        </formalpara>
+        <para>
+            <classname>TranslatorPointer</classname> provides the actual pointer
+            like object.  It encapsulates a <classname>BufferTranslator</classname>
+            and uses it to provide pointer like semantics to the caller.
+            Let's look first at the <classname>BufferTranslator</classname>
+            class and its factory before turning our attention to the
+            pointer-like <classname>Translator pointer</classname>.
+        </para>
+        <para>
+            The <classname>BufferTranslator</classname> family of classes
+            and <classname>BufferFactory</classname> class are defined in
+            <filename>BufferTranslator.h</filename>.  Here are the important
+            parts of that header:
+        </para>
+        <example>
+            <title><filename>BufferTranslator.h</filename> important bits:</title>
+            <programlisting>
+class BufferTranslator
+{
+
+public:
+
+  UChar_t GetByte( UInt_t );
+  Short_t GetWord( UInt_t );
+  Long_t GetLongword( UInt_t );
+  Address_t getBuffer();
+  void newBuffer(Address_t pBuffer);
+
+  virtual void GetBlock( const Address_t, Int_t, Int_t ) = 0;
+  virtual Long_t TranslateLong(ULong_t value);
+  virtual uint64_t getQuad(uint64_t value) = 0;
+};
+
+class BufferFactory
+{
+ public:
+  enum Endian {little, big};
+  static BufferTranslator*
+    CreateBuffer(Address_t pBuffer, Int_t Signature32);
+};
+
+BufferFactory::Endian MyEndianess();
+            </programlisting>
+        </example>
+        <para>
+            <classname>BufferTranslator</classname> is a base class for
+            <classname>SwappingBufferTranslator</classname>
+            which must perfrom byte translations, and
+            <classname>NonSwappingBufferTranslator</classname> which
+            does not need to perform any byte order transformations.
+            Note that both of those classes construct with a
+            (protected) buffer which is
+            managed by this base class.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UChar_t </type>
+                        <methodname>GetByte</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type><parameter>offset</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the raw byte at the byte offset specified by
+                        <parameter>offset</parameter> into the buffer on which
+                        the object was constructed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Short_t </type>
+                        <methodname>GetWord</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t</type><parameter>offset</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the translated 16 bit item at the
+                        <emphasis>byte</emphasis> offset specified by
+                        <parameter>offset</parameter>.  The method
+                        invokes the virtual method
+                        <methodname>GetBlock</methodname> which is implemented
+                        in concrete classes and does the actual byte re-ordering
+                        if needed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Long_t </type>
+                        <methodname>GetLongword</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t</type><parameter>offset</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the translated 32 bit item at the
+                        <emphasis>byte</emphasis> offset specified
+                        by <parameter>offset</parameter>.
+                        The method invokes the virtual method
+                        <methodname>GetBlock</methodname> which is
+                        implemented in concrete classes to do the actual
+                        byte-reordering.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Address_t </type>
+                        <methodname>getBuffer(</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The base class contains a pointer to the
+                        storage for the buffer being operated
+                        on by concrete classes.  This returns a pointer to that
+                        buffer. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>newBuffer</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type><parameter>pBuffer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Replaces the pointer to the buffer operated on by
+                        the object with <parameter>pBuffer</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname>GetBlock</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>Address_t</type><parameter>pItem</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t</type><parameter>size</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t</type><parameter>offset</parameter>
+                        </methodparam>
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Gets a block of data at
+                        the byte offset <parameter>offset from the start of the buffer
+                        into.
+                        </parameter><parameter>pItem</parameter>.  The
+                        block gotten is <parameter>size</parameter> bytes long.
+                        For swapping translators, the bytes from the buffer are
+                        reversed.  This makes this method suitable for
+                        fetching multi-byte objects of 'normal' size like
+                        16 bit, 32, or 64 bit integers.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>Long_t </type>
+                        <methodname>TranslateLong</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>ULong_t </type><parameter>value</parameter>
+                        </methodparam>
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given an arbitrary 32 bit item, <parameter>value</parameter>,
+                        known to be in the source system byte ordering, returns
+                        it byte translated to the calling host.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>uint64_t </type>
+                        <methodname>getQuad</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint64_t </type><parameter>value</parameter>
+                        </methodparam>
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given the 64 bit <parameter>value</parameter> known to
+                        be in the source byte order representation, returns it
+                        translated into the calling host representation.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The buffer factory has a single method:
+        </para>
+        <methodsynopsis>
+            <modifier>  static </modifier>
+            <type>BufferTranslator*</type>
+            <methodname>CreateBuffer</methodname>
+            <methodparam>
+               <modifier></modifier>
+               <type>Address_t </type><parameter>pBuffer</parameter>
+            </methodparam>
+            <methodparam>
+               <modifier></modifier>
+               <type>Int_t</type><parameter> Signature32</parameter>
+            </methodparam>
+            <modifier></modifier>
+        </methodsynopsis>
+        <para>
+            This returns a pointer to a dynamically allocated,
+            <classname>BufferTranslator</classname> for the buffer
+            <parameter>pBuffer</parameter> from a source system with the
+            32 bit byte order signature <parameter>Signature32</parameter>.
+        </para>
+        <para>
+            There is also a utility function:
+        </para>
+        <methodsynopsis>
+            <modifier></modifier>
+            <type>BufferFactory::Endian</type>
+            <methodname>MyEndianess</methodname>
+            <void />
+            <modifier></modifier>
+        </methodsynopsis>
+        <para>
+            This returns the endianness of the host.  This will be one
+            of the values: <literal>BufferFactory::little</literal>, or
+            <literal>BufferFactory::big</literal>.
+        </para>
+
+        <para>
+            In addition to creating a buffer decoder we also need to tell the
+            SpecTcl attach command that the buffer decoder we created shouild
+            be used for a specific format of data.   That is, we need to associate
+            instances of our buffer decoder class with a specific value of the
+            <option>-format</option> option of the <command>attach</command>
+            comand.
+        </para>
+        <para>
+            The <command>attach</command> command processor, defined
+            in <filename>AttachCommand.h</filename> has a static method:
+        </para>
+        <methodsynopsis>
+            <modifier></modifier>
+            <type>void</type>
+            <methodname>addDecoderType</methodname>
+            <methodparam>
+               <modifier></modifier>
+               <type>std::string</type><parameter>type</parameter>
+            </methodparam>
+            <methodparam>
+               <modifier></modifier>
+               <type>CDecoderCreator*</type><parameter>creator</parameter>
+            </methodparam>
+            <modifier></modifier>
+        </methodsynopsis>
+        <para>
+            This fits the well known pattern of extensible factories that
+            SpecTcl employs in many other parts of its implementatiuon.
+            We can register an object that knows how to create out buffer decoder
+            and associate it with a keyword passed to the
+            <option>-format</option> option.
+        </para>
+        <para>
+            The <classname>CDecoderCreator</classname> class is defined as a typedef
+            in the <filename>AttachCommand.h</filename> header as well:
+        </para>
+        <programlisting>
+typedef CCreator&lt;CBufferDecoder&gt;            CDecoderCreator;            
+        </programlisting>
+        <para>
+            <classname>CCreator</classname> is a template class defined in
+            <filename>CCreator.h</filename>.  It is part of the extensible
+            factory templated subsystem that was developed later in SpecTcl's life.
+            <classname>CCreator</classname> looks like this:
+        </para>
+        <example>
+            <title><classname>CCreator</classname> definition</title>
+            <programlisting>
+template &lt;class T&gt;
+class CCreator
+{
+public:
+  virtual T* operator()() = 0;
+  virtual std::string describe() const = 0;
+};
+
+            </programlisting>
+            <para>
+                What all htis means is that when <methodname>operator()</methodname>
+                is called for your creator, you must return a pointrer to a new
+                instance of your decoder class.  When <methodname>describe</methodname>
+                is called, you must provide a textual description of your decoder
+                class.
+            </para>
+        </example>
+    </section>
+    <section>
+        <title>Step by step recipe for adding support for a new data format</title>
+        <para>
+            From the discussion in the previous section, we can derive a
+            step by step recipe for adding support for a new data format to
+            SpecTcl.
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    Write a buffer decoder that invokes appropriate methods of
+                    the <classname>CAnalyzer</classname> at appropriate times
+                    given blocks of data from the data source.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Write a creator object for the buffer decoder we created in the
+                    first step.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    In <filename>MySpecTclApp.cpp</filename> create an instance
+                    of our creator and associate it with a new
+                    <command>attach</command> <option>-format</option> keyword
+                    so that when that format is requested, the <command>attach</command>
+                    command can make an instance of our buffer decoder and
+                    attach it to the analyzer.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            In the next section, we will write code to do this for a simple
+            data acquisition system data format.
+        </para>
+    </section>
+    <section>
+        <title>Worked example for supporting a new data format</title>
+        <para>
+            In this section we are going to build support for a simple, fictional
+            data acquisition system data format.  The internal format of the data
+            bears some resemblence to the ring buffer data format used by
+            NSCLDAQ 10.x and later, however that resemblance is purely coincidental
+            and you should not conclude from it that any of this code is actually
+            used by SpecTcl to decode NSCLDAQ data.
+        </para>
+        <para>
+            Before writing any code we need to have a clear understanding of the
+            format of the data we're going to decode.  This is as true for
+            a real case as it is for this imaginary case.
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    Data will come to us in fixed length blocks.  No item
+                    will extend across block boundaries (this simplifies things'
+                    tremendously).
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Each block will have a header that consists of several
+                    <type>uint32_t</type>.  These are, in order, the number
+                    of 8 bit bytes occupied by useful data, the number of
+                    items in the block, a sequence number that tells us the
+                    number of the block in the event file or data taking run and
+                    a 32 bit SpecTcl byte order signature.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    The block is divided int items.  Each item consists of
+                    a self inclusive size in bytes and a type (both are
+                    <type>uint32_t</type>) followed by a  body whose structure
+                    depends on the type value.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Type 1 indicates a run start, type 2 indicates a run end,
+                    Type 3 indicates scaler data and type 4 indicates data
+                    taken in response to a physics trigger.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    The structure of type 1,2 data are the same and look
+                    like this:
+                </para>
+                <programlisting>
+                    struct {
+                        header    s_header;
+                        uint32_t  s_runNumber;
+                        char      s_title[];
+                    };
+                </programlisting>
+                <para>
+                    Where header is the item header described above.  The title
+                    is a null terminated variable length string.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Scaler data (type 3), has the following structure:
+                </para>
+                <programlisting>
+                    struct {
+                        header    s_header;
+                        uint32_t  s_numScalers;
+                        uint32_t  s_counters[];
+                    };
+                </programlisting>
+                <para>
+                    s_counters are the array of scaler values.
+                    <structfield>s_numScalers</structfield> tells us how many
+                    of those there are.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Type 4 (physics event data) is just an array of bytes
+                    whose structure and meaning depend on the actual experiment
+                    performed using this data acquisition system.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            Let's first create a header, <filename>expdata.h</filename> that
+            captures the structure of the data described above.  In order
+            to minimize the chances for <firstterm>name collission</firstterm>,
+            we're going to put all of those definitions in a
+            <firstterm>namespace</firstterm> (<literal>SomeDaqSystem</literal>):
+        </para>
+        <example>
+            <title>Structure of data from SomeDaqSystem</title>
+            <programlisting>
+#ifndef EXPDATA_H
+#define EXPDATA_H
+
+#include &lt;cstdint&gt;
+
+
+
+namespace SomeDaqSystem {
+  static const unsigned BEGIN(1);
+  static const unsigned END(2);
+  static const unsigned SCALER(3);
+  static const unsigned EVENT(4);
+  
+  typedef struct _Header {
+    std::uint32_t    s_size;
+    std::uint32_t    s_type;
+  } Header;
+
+  typedef struct _StateChange {
+    Header          s_header;
+    std::uint32_t   s_runNumber;
+    char            s_title[];
+  } StateChange;
+
+  typedef struct _Scalers {
+    Header         s_header;
+    std::uint32_t  s_numScalers;
+    std::uint32_t  s_counters[];
+  } Scalers;
+
+  typedef struct _Event {
+    Header    s_header;
+    char      s_body[];
+  } Event;
+
+  typedef struct _BufferHeader {
+    std::uint32_t s_bytesUsed;
+    std::uint32_t s_itemCount;
+    std::uint32_t s_sequence;
+    std::uint32_t s_signature;
+  } BufferHeader;
+    
+};
+
+#endif
+                
+            </programlisting>
+        </example>
+        <para>
+            The use of <literal>static const unsigned</literal> above fulfils
+            the same purpose as <literal>#define</literal> but places those
+            definitions inside the namespace, rather than potentially conflicting
+            with other <literal>#define</literal>s the preprocessor knows
+            about.
+        </para>
+        <para>
+            Let's look at the header for our decoder class.  We're going to
+            dispatch various types to type specific handlers.
+            We're going to hand events one at a time to the analyzer rather than
+            trying to 
+            We're also
+            going to ensure we are able to deal with new item types without
+            failing:
+        </para>
+        <example>
+            <title><classname>SomeDaqBufferDecoder</classname> header.</title>
+            <programlisting>
+#ifndef SOMEDAQBUFFERDECODER_H
+#define SOMEDAQBUFFERDECODER_H
+
+
+#include &lt;BufferDecoder.h&gt;
+#include "expdata.h"
+#include &lt;string&gt;
+
+class SomeDaqBufferDecoder : public CBufferDecoder
+{
+private:
+  
+  SomeDaqSystem::BufferHeader   m_lastHeader;
+  std::string                   m_lastTitle;
+  std::uint32_t                 m_lastRunNumber;    <co id="decoder_data" />
+  unsigned                      m_entities;
+  SomeDaqSystem::Header*        m_pCurrentItem;
+
+public:                                             <co id='decoder_interface' />
+  virtual BufferTranslator* getBufferTranslator();
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize() ;
+  virtual UInt_t getRun() ;
+  virtual UInt_t getEntityCount() ;
+  virtual UInt_t getSequenceNo() ;
+  virtual UInt_t getLamCount() ;
+  virtual UInt_t getPatternCount() ;
+  virtual UInt_t getBufferType() ;
+  virtual void getByteOrder(Short_t&amp; Signature16,
+			    Int_t&amp; Signature32) ;
+  virtual std::string getTitle() ;
+
+  virtual void operator() (UInt_t nBytes,        <co id='decoder_fcallop' />
+			   Address_t pBuffer,
+			   CAnalyzer&amp; rAnalyzer);
+
+private:
+  void stateChange(CAnalyzer&amp; rAnalyzer);  <co id='decoder_typehandlers' />
+  void scaler(CAnalyzer&amp; rAnalyzer);
+  void event(CAnalyzer&amp; rAnalyzer);
+  void other(CAnalyzer&amp; rAnalyzer);        <co id='decoder_unanticipated' />
+};
+                
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs="decoder_data">
+                <para>
+                    This local data will be used as follows:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><varname>m_lastHeader</varname></term>
+                        <listitem>
+                            <para>
+                                Each time we get a new block of data from
+                                the source, we'll cache a copy of the
+                                block header here.  The block header provides
+                                byte order signatures as well as other useful
+                                book keeping information we'll want in processing
+                                the buffer.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>m_lastTitle</varname></term>
+                        <listitem>
+                            <para>
+                                For each state change item encountered, we'll
+                                pull the run title out and copy it into this
+                                member data.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>m_lastRunNumber</varname></term>
+                        <listitem>
+                            <para>
+                                For each state change item encountered we'll
+                                pull the run number out and copy it into this
+                                member data.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>m_entities</varname></term>
+                        <listitem>
+                            <para>
+                                We'll put the number of entities in each item
+                                here.  For all but scaler items, this is just
+                                <literal>1</literal>.  For scaler items,
+                                this is the number of scalers in the scaler
+                                item.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>m_pCurrentItem</varname></term>
+                        <listitem>
+                            <para>
+                                Points to the item we're working on in the
+                                current buffer (note that this allows us to
+                                return the body pointer and body size).
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </callout>
+            <callout arearefs='decoder_interface'>
+                <para>
+                    The methods below indicate that we will implement the
+                    <classname>CBufferDecoder</classname> interface.
+                </para>
+            </callout>
+            <callout arearefs='decoder_fcallop'>
+                <para>
+                    This method will get called by the data source, I/O
+                    handler when a data block is available.
+                </para>
+            </callout>
+            <callout arearefs='decoder_typehandlers'>
+                <para>
+                    This set of methods provides handlers for each of the
+                    item types the data acquisition system can provide us.
+                </para>
+            </callout>
+            <callout arearefs='decoder_unanticipated'>
+                <para>
+                    Povides a handler for item types we don't recognize.  This
+                    allows us to continue to operate
+                    at some basic level if additional
+                    item types are introduced.
+                </para>
+            </callout>
+        </calloutlist>
+        <para>
+            In spite of the ordering of the methods in the header, the
+            best place to start is probable with the <methodname>operator()</methodname>
+            method.  Once we've coded that and the type specific handlers,
+            the <firstterm>getter</firstterm> methods should fall into place
+            fairly easily.
+        </para>
+        <example>
+            <title><methodname>SomeDaqBufferDecoder::operator()</methodname> implementation</title>
+            <programlisting>
+void
+SomeDaqBufferDecoder::operator()(
+    UInt_t nBytes, Address_t pBuffer, CAnalyzer&amp; rAnalyzer
+)
+{
+  SomeDaqSystem::BufferHeader* pHeader =                       <co id='decoder_op_savehdr' />
+    reinterpret_cast&lt;SomeDaqSystem::BufferHeader*&gt;(pBuffer);
+  std::memcpy(&amp;m_lastHeader, pHeader, sizeof(SomeDaqSystem::BufferHeader));
+
+  pHeader++;                                                    <co id='decoder_op_firstitem' />
+  m_pCurrentItem = reinterpret_cast&lt;SomeDaqSystem::Header*&gt;(pHeader);
+
+  BufferTranslator* pT =                                        <co id='decoder_op_translator' />
+    BufferFactory::CreateBuffer(pBuffer, m_lastHeader.s_signature);
+  
+  for (int i = 0; i &lt; pT-&gt;TranslateLong(m_lastHeader.s_itemCount); i++) {  <co id='decoder_op_itemloop' />
+
+    switch(pT-&gt;TranslateLong(m_pCurrentItem-&gt;s_type)) {
+    case SomeDaqSystem::BEGIN:
+    case SomeDaqSystem::END:
+      stateChange(rAnalyzer);
+      break;
+    case SomeDaqSystem::SCALER:                               <co id='decoder_op_dispatch' />
+      scaler(rAnalyzer);
+      break;
+    case SomeDaqSystem::EVENT:
+      event(rAnalyzer);
+      break;
+    default:
+      other(rAnalyzer);
+      break;
+    }
+                                                             <co id='decoder_op_nextitem' />
+    std::uint8_t* pBytes = reinterpret_cast&lt;std::uint8_t*&gt;(m_pCurrentItem);  
+    pBytes += pT-&gt;TranslateLong(m_pCurrentItem-&gt;s_size);
+    m_pCurrentItem = reinterpret_cast&lt;SomeDaqSystem::Header*&gt;(pBytes);
+  }
+
+  delete pT;                                                <co id='decoder_op_freetranslator' />
+  
+}
+
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='decoder_op_savehdr'>
+                <para>
+                    This chunk of code saves the buffer header in the member
+                    data we set aside for this purpose.  The buffer
+                    header has two fields we care very much about, the number
+                    of items to process and the byte order signature of the
+                    originating system.
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_firstitem'>
+                <para>
+                    Immediately following the buffer header is the first item.
+                    This chunk of code forms a pointer to that first item.
+                    As we process the buffer, <varname>m_pCurrentItem</varname>
+                    will always point to the current item.  
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_translator'>
+                <para>
+                    It is possible the originating system has a different
+                    byte ordering than the host.  This block of code provides
+                    us with a buffer translator that can be used  to reorder
+                    items from the buffer into our byte ordering.  
+                </para>
+                <para>
+                    We don't use this much so it's not worth making a
+                    translating pointer.  In the code that follows we'll use
+                    <methodname>TranslateLong</methodname> to translate 32
+                    bit items from the data acquisition system to our
+                    byte ordering.
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_itemloop'>
+                <para>
+                    This loop loops over all the items in the buffer.  Note the
+                    use of <methodname>TranslateLong</methodname> to ensure that
+                    the item count inthe buffer header is translated to our
+                    host's byte order.
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_dispatch'>
+                <para>
+                    This switch dispatches control to the handler for the
+                    appropriate data type.  Note again the use of
+                    <methodname>TranslateLong</methodname> to ensure the
+                    item type is expressed in our own ordering.
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_nextitem'>
+                <para>
+                    Performs the book keeping needed to advance to the
+                    next item in the buffer. Note again the use of
+                    <methodname>TranslateLong</methodname> to ensure the
+                    size of the item is expressed in our native byte ordering.
+                </para>
+            </callout>
+            <callout arearefs='decoder_op_freetranslator'>
+                <para>
+                    Delete the buffer translator we created.  Note that re-creating
+                    it for each buffer allows for the pathalogical case that the
+                    data is coming from some heterogenous set of systems.
+                </para>
+            </callout>
+        </calloutlist>
+        <para>
+            Let's look at the state transition method.  What that needs to do is:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Set the entity count to 1.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Extract the run number (remember byte order translation).
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Extract the title.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Invoke the analyzer's <methodname>OnStateChange</methodname>
+                    method with the appropriate item type.   We're going to
+                    provide a helper method called
+                    <methodname>translateItemType</methodname> that will
+                    translate an item type into one of the types expected by
+                    SpecTcl.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <example>
+            <title>Implementation of <methodname>SomeDaqBufferDecoder::stateChange</methodname></title>
+            <programlisting>
+void
+SomeDaqBufferDecoder::stateChange(CAnalyzer&amp; rAnalyzer)
+{
+  
+  BufferTranslator* pT =
+    BufferFactory::CreateBuffer(m_pCurrentItem, m_lastHeader.s_signature);
+  SomeDaqSystem::StateChange* pItem =
+    reinterpret_cast&lt;SomeDaqSystem::StateChange*&gt;(m_pCurrentItem);
+  
+  m_entities = 1;
+  m_lastRunNumber = pT-&gt;TranslateLong(pItem->&gt;s_runNumber);
+  m_lastTitle    = pItem-&gt;s_title;
+
+  rAnalyzer.OnStateChange(
+     translateItemType(pT-&gt;TranslateLong(pItem-&gt;s_header.s_type)),
+     *this
+  );
+  delete pT;
+				     
+}
+            </programlisting>
+        </example>
+        <para>
+            The code above pretty much is what you'd expect to see from the
+            specification provided.
+        </para>
+        <para>
+            The only differences between <methodname>scaler</methodname>
+            and <methodname>stateChange</methodname> are that we
+            fill in the entity count from the number of scalers in the
+            scaler item, and there's no run number or title to extract from
+            the item.
+        </para>
+        <example>
+            <title>Implementation of <methodname>SomeDaqBufferDecoder::scaler</methodname></title>
+            <programlisting>
+void
+SomeDaqBufferDecoder::scaler(CAnalyzer&amp; rAnalyzer)
+{
+ BufferTranslator* pT =
+    BufferFactory::CreateBuffer(m_pCurrentItem, m_lastHeader.s_signature);
+  SomeDaqSystem::Scalers* pScaler =
+    reinterpret_cast&lt;SomeDaqSystem::Scalers*&gt;(m_pCurrentItem);
+
+  m_entities = pT-&gt;TranslateLong(pScaler-&gt;s_numScalers);
+
+  rAnalyzer.OnScaler(*this);
+
+  delete pT;
+  
+}             
+            </programlisting>
+        </example>
+        <para>
+            Again I think the code is pretty well self explanatory.
+        </para>
+        <para>
+            For events, we're just going to set the entity count to 1
+            and invoke <methodname>OnPhysics</methodname>.  While
+            <methodname>OnPhysics</methodname> can handle a block of events,
+            we're not going to try to do that in this simple example.
+        </para>
+        <example>
+            <title>Implementation of <methodname>SomeDaqBufferDecoder::event</methodname></title>
+            <programlisting>
+void
+SomeDaqBufferDecoder::event(CAnalyzer&amp; rAnalyzer)
+{
+  m_entities = 1;
+  rAnalyzer.OnPhysics(*this);
+}
+                
+            </programlisting>
+        </example>
+        <para>
+            <methodname>other</methodname> is similarly simple, however, once
+            more we need to get the item type.
+        </para>
+        <example>
+            <title>Implementation of <methodname>SomeDaqBufferDecoder::other</methodname></title>
+            <programlisting>
+void
+SomeDaqBufferDecoder::other(CAnalyzer&amp; rAnalyzer)
+{
+ BufferTranslator* pT =
+    BufferFactory::CreateBuffer(m_pCurrentItem, m_lastHeader.s_signature);
+
+ m_entities = 1;
+ 
+ rAnalyzer.OnOther(
+    translateItemType(pT->TranslateLong(m_pCurrentItem->s_type)),
+    *this
+  );
+
+ delete pT;
+}
+                
+            </programlisting>
+        </example>
+        <para>
+            Let's implement <methodname>translateItemType</methodname> before
+            we turn to the getter menthods.  The only choice we really need
+            to make is how to handle item types that are not yet defined.
+            For now we'll add the type to <literal>MAXSYSBUFTYPE</literal>
+            turning it into a user item type.  In doing so, we're making the
+            implicit assumption item types won't be zero.
+        </para>
+        <example>
+            <title>Implementation of <methodname>SomeDaqBufferDecoder::translateItemType</methodname></title>
+            <programlisting>
+std::uint32_t
+SomeDaqBufferDecoder::translateItemType(std::uint32_t type)
+{
+  static std::map&lt;uint32_t, uint32_t&gt;  typeMap = {
+    {1, BEGRUNBF}, {2, ENDRUNBF}, {3, SCALERBF}, {4, DATABF}
+  };
+
+  auto p = typeMap.find(type);
+  if (p != typeMap.end()) {
+    return p->second;
+  } else {
+    return MAXSYSBUFTYPE + type;
+  }
+}
+            </programlisting>
+        </example>
+        <para>
+            The only thing interesting is the use of an std::map.  This is an
+            associative container.  It maps keys to values supporting an efficent
+            <methodname>find</methodname> method.  The <literal>auto</literal> keyword
+            declaring <varname>p</varname> allows the compiler to infer the type
+            to be <type>std::map&lt;std::uint32_t, std::uint32_t&gt;::iterator</type>.
+            This is a pointer like object to an std::pair whose first member is a
+            map index and whose second is the value of the map entry associated
+            with that index.
+        </para>
+        <para>
+            Now we can look at the trivial, one-liner getter methods:
+        </para>
+        <example>
+            <title>Trivial getter implementations</title>
+            <programlisting>
+
+const Address_t
+SomeDaqBufferDecoder::getBody()
+{
+  return m_pCurrentItem + 1;
+}
+UInt_t
+SomeDaqBufferDecoder::getRun()
+{
+  return m_lastRunNumber;
+}
+UInt_t
+SomeDaqBufferDecoder::getEntityCount()
+{
+  return m_entities;
+}
+UInt_t
+SomeDaqBufferDecoder::getLamCount()
+{
+  return 0;
+}
+UInt_t
+SomeDaqBufferDecoder::getPatternCount()
+{
+  return 0;
+}
+void
+SomeDaqBufferDecoder::getByteOrder(Short_t&amp; sig16, Int_t&amp; sig32)
+{
+  sig32 = m_lastHeader.s_signature;
+  sig16 = (m_lastHeader.s_signature &amp; 0xffff);
+}
+
+std::string
+SomeDaqBufferDecoder::getTitle()
+{
+  return m_lastTitle;
+}
+
+            </programlisting>
+        </example>
+        <para>
+            The next getters take a bit more work, but not much:
+        </para>
+        <example>
+            <title>Not as trivial getters:</title>
+            <programlisting>
+BufferTranslator*
+SomeDaqBufferDecoder::getBufferTranslator()
+{
+  return  BufferFactory::CreateBuffer(
+    m_pCurrentItem, m_lastHeader.s_signature
+  );
+}
+
+UInt_t
+SomeDaqBufferDecoder::getBodySize()
+{
+  BufferTranslator* pT = getBufferTranslator();
+  UInt_t size  = pT->TranslateLong(m_pCurrentItem->s_size);
+
+  delete pT;
+  return size;
+}
+UInt_t
+SomeDaqBufferDecoder::getSequenceNo()
+{
+  BufferTranslator* pT = getBufferTranslator();
+  UInt_t seq = pT->TranslateLong(m_lastHeader.s_sequence);
+  
+  delete pT;
+  return seq;
+}
+
+UInt_t
+SomeDaqBufferDecoder::getBufferType()
+{
+  BufferTranslator* pT = getBufferTranslator();
+  UInt_t            rawType = pT->TranslateLong(m_pCurrentItem->s_type);
+  delete pT;
+
+  return translateItemType(rawType);
+}
+
+            </programlisting>
+        </example>
+        <para>
+            Next we need to write a creator for this that can be passed to
+            <methodname>CAttachCommand::addDecoderType</methodname>.  This
+            is pretty trivial.  Almost the hardest part is to choose
+            a <option>-format</option> value to associate with this
+            decoder.  Let's use <literal>blockring</literal> to indicate
+            that these are essentially ring items but in fixed sized blocks.
+        </para>
+        <para>
+            Here's the header, <filename>SomeDaqDecoderCreator.h</filename>:
+        </para>
+        <example>
+            <title>Header for <classname>SomeDaqDecoderCreator</classname></title>
+            <programlisting>
+#ifndef SOMEDAQDECODERCREATOR_H
+#define SOMEDAQDECODERCREATOR_H
+
+#include &lt;AttachCommand.h&gt;
+#include &lt;CCreator.h&gt;
+
+class SomeDaqDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder*  operator()();
+  virtual std::string describe() const;
+};
+
+
+#endif
+
+            </programlisting>
+        </example>
+        <para>
+            As previously described, we need to implement both pure virutal
+            methods.  The <methodname>operator()</methodname> just needs
+            to create a new SomeDaqBufferDecoder object and
+            <methodname>describe</methodname> just has to return a description
+            of the decoder.
+        </para>
+        <para>
+            Here's the entire class implementation:
+        </para>
+        <example>
+            <title>Implementation of <methodname>SomeDaqDecoderCreator</methodname></title>
+            <programlisting>
+#include "SomeDaqDecoderCreator.h"
+#include "SomeDaqBufferDecoder.h"
+
+CBufferDecoder*
+SomeDaqDecoderCreator::operator()()
+{
+  return new SomeDaqBufferDecoder;
+}
+
+std::string
+SomeDaqDecoderCreator::describe() const
+{
+  return "Decode buffers from blocked 'ring items'";
+}                
+            </programlisting>
+        </example>
+        <para>
+            In <methodname>CMySpecTclApp::AddCommands</methodname>, we can then
+            add a line that looks like:
+        </para>
+        <programlisting>
+CAttachCommand::addDecoderType("blockring", new SomeDaqDecoderCreator);            
+        </programlisting>
+        <para>
+            To make the new decoder we wrote available to SpecTcl
+        </para>
+    </section>
 </chapter>
 <chapter id='chap.plugins'>
     <title id='chap.plugins.title'>SpecTcl plugins</title>
     <para>
-        
+        Until now we've only talked about code that is statically compiled
+        into SpecTcl to extend its functionlity.  Plugins are shared libraries
+        that are loaded on command to dynamically extend SpecTcl's functionality
+        at run time.  Two examples of plugins that are available from the NSCl are
+        the Radware I/O plugin that adds commands to save spectra in Radware format
+        and the Root Filter format plugin that adds the ability to save filtered
+        data as Root Ntuples so filtered events can easily be impoted to Root.
     </para>
+    <para>
+        The ability to write a SpecTcl plugin really comes as a natural consequence
+        of using Tcl as the SpecTcl command langauge.  The Tcl built in command
+        <command>load</command> loads a shared library and invokes a specific
+        initialization function.  This in conjunction with the SpecTcl
+        package subsystem allows plugins to be defined, made known to SpecTcl
+        and loaded via the <command>package require</command> Tcl command.
+    </para>
+    <para>
+        In this chapter:
+    </para>
+    <itemizedlist>
+        <listitem>
+            <para>
+                I'll provide an overview of the process of writing Tcl loadable
+                packages.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                I'll describe how to make those packages known to SpecTcl.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                We'll work through an example;  wrapping the buffer decoder
+                we wrote in the previous chapter into a plugin that can be
+                loaded on demand rather than compiled in.
+            </para>
+        </listitem>
+    </itemizedlist>
+    <note>
+        <title>NOTE</title>
+        <para>
+            The use of plugins is not absolutely necessary.  It does, however
+            make distributing SpecTcl extensions somewhat simpler.  Feel free
+            to skip this chapter on a first reading, however.  Come back to it
+            as needed.
+        </para>
+    </note>
+    <section>
+        <title>Writing and publishing compiled Tcl packages</title>
+        <para>
+            To write and publish plugin you must:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Write code to support the functionality of your plugin.
+                    For our example, we've already done this in the previous chapter.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Write A Tcl loadable module initialization function. Note
+                    that this must have C not C++ bindings.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Produce a package index file,
+                    <filename>pkgIndex.tcl</filename> with the appropriate
+                    <command>package ifneeded</command> commands.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Package the shared library and package index in a directory
+                    that is already part of or is added to the Tcl package
+                    search path (<varname>auto_path</varname>).
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            We're going to start this section with a discussion of the initialization
+            function as we've already got code to support our plugin's functionality.
+            The name of the initialization function is important.   The name of the
+            initialization function is derived from the name of the shared library
+            you are making by:
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    Removing the leading lib
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Removing the trailing .so and anything after that
+                    (e.g. version numbers).
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Making the first name of all that remains upper case.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Making all the remaining parts of the name lower case.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Appending <literal>_Init</literal> to the result.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            So, for example,  if we decide we're going to build the
+            shared library: <filename>libSomeDaqDecoder.so</filename>,
+            our initialization function must be called:
+            <function>Somedaqdecoder_Init</function>.
+        </para>
+        <para>
+            The function receives the interpreter (raw interpreter of type
+            <type>Tcl_Interp*</type>) as its only argument and, on success
+            is supposed to return <literal>TCL_OK</literal>, and on failure
+            <literal>TCL_ERROR</literal>.
+        </para>
+        <para>
+            The initialization function should:
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    Initialize the Tcl stubs interface, if Tcl is stubs enabled
+                    and you want your extension to be stubs enabled (you should
+                    as this insulates you from the exact Tcl version SpecTcl
+                    is built with enabling your plugin to be more portable).
+                </para>
+                <para>
+                    This is done by invoking <function>Tcl_InitStubs</function>.
+                    You must also be sure to link your plugin to the stubs
+                    library rather than Tcl directly.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Make the name and version of the package you intend to supply
+                    to the interpreterk nown, via a call to
+                    <function>Tcl_PkgProvide</function>.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Do whatever's necessary to incorporate your package into
+                    SpecTcl.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            Much of this is best covered by example in the next section.
+            We'll say a bit here about packages, package indices and the package
+            load process.  This will serve as a bit of background on how to
+            distribute your plugin so that it can be incorporated into SpecTcl.
+            Note that this is a Tcl topic, not a SpecTcl topic.
+        </para>
+        <para>
+            When Tcl processes the <command>package require</command> command
+            for a package that isn ot already loaded, it searches the directories
+            in <varname>auto_path</varname> one by one for a file named
+            <filename>pkgIndex.tcl</filename>.  If that file is located, it is
+            sourced into the interpreter.
+        </para>
+        <para>
+            Typically <filename>pkgIndex</filename> will contain a series of
+            <command>package ifneeded</command> commands that define how
+            to load a set of packages into the interpreter.  When sourced,
+            the Tcl variable <varname>dir</varname> is the full path
+            to the directory in which the <filename>pkgIndex.tcl</filename>
+            script is installed.
+        </para>
+        <para>
+            The form of the <command>package ifneeded</command> command is:
+        </para>
+        <cmdsynopsis>
+            <command>
+package ifneeded <replaceable>name version load-script</replaceable>
+            </command>
+        </cmdsynopsis>
+        <para>
+            Where <parameter>name</parameter> is the name of a package,
+            <parameter>version</parameter> is a version of that package and
+            <parameter>load-script</parameter> are the commands needed to
+            load that package into the interpreter.  Note that the
+            <command>package require</command> command can specify a version
+            as well as matching criteria and you can have
+            <command>package ifneeded</command> commands for several versions
+            of the same package.
+        </para>
+        <para>
+            For a compiled extension, the script must be a <command>load</command>
+            command for the appropriate shared library.  For example for
+            libSomDaqDecoder.so, providing version 1.0 of the package
+            SomeDaqDecoder, the <filename>pkgIndex.tcl</filename> file might
+            contain:
+        </para>
+        <programlisting>
+
+package ifneeded SomeDaqDecoder 1.0  \
+    [list load [file join $dir libSomeDaqDecoder.so]]
+        </programlisting>
+        <para>
+            The Tcl <command>list</command> command can be used to build up
+            command forcing appropriate quoting and the
+            <command>file join</command> command supplies a system independent
+            mechanism for joining file path elements in to a file path.
+        </para>
+    </section>
+    <section>
+        <title>Distributing the <classname>SomeDaqBufferDecoder</classname> as a plugin</title>
+        <para>
+            In the previous section we described, in theoretical terms what we
+            need to do to create a Tcl extension and, thus, a SpecTcl plugin.
+            In this section we will take concrete steps to turn the
+            the buffer decoder developed in the previous chapter into a plugin.
+            We will:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Show the initialization function for this function.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Show a modified Makefile for SpecTcl that also generates
+                    the shared library for the extension/plugin
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Show a <filename>pkgIndex.tcl</filename> file which
+                    provides the proper package index for this extension/plugin
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Show a screen log of a short SpecTcl session showing that
+                    the extension/plugin loads and integrates with SpecTcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Describe what you'd need to do to distribute the plugin in
+                    binary form.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            From now I'm going to use the word <firstterm>plugin</firstterm> rather than
+            the Tcl term extension to describe our work.  
+        </para>
+        <para>
+            Let's see what the plugin's initialization function looks like:
+        </para>
+        <example>
+            <title>Plugin initialization for the sample daq decoder plugin</title>
+            <programlisting>
+#define USE_TCL_STUBS 1                            <co id='plugin_usetclstubs' />
+
+#include &lt;tcl.h&gt;
+#include &lt;AttachCommand.h&gt;                   <co id='plugin_headers' />
+#include "SomeDaqDecoderCreator.h"
+
+const char* packageName    = "SomeDaqDecoder";
+const char* packageVersion = "1.0";                <co id='plugin_strings' />
+const char* TclMinVersion  = "8.5";
+
+extern "C" {                                       <co id='plugin_cbinding' />
+  int Somedaqdecoder_Init(Tcl_Interp* interp)      <co id='plugin_initentry' />
+  {
+    const char* actualVersion = Tcl_InitStubs(interp, TclMinVersion, 0); <co id='plugin_initstubs' />
+    if (!actualVersion) {
+      Tcl_AppendResult(interp, "Unable to initialize Tcl Stubs", NULL); <co id='plugin_initstubserror' />
+      return TCL_ERROR;
+    }
+
+    int status = Tcl_PkgProvide(interp,
+                            const_cast&lt;char*&gt;(packageName),       <co id='plugin_pkgprovide' />
+                            const_cast&lt;char*&gt;(packageVersion));
+    if (status != TCL_OK) status;
+
+
+    CAttachCommand::addDecoderType("blockring", new SomeDaqDecoderCreator);  <co id='plugin_registercreator' />
+
+    return TCL_OK;                                <co id='plugin_normalstatus' />
+  }
+}
+
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='plugin_usetclstubs'>
+                <para>
+                    This preprocessor definition switches on the plugin interface
+                    in the <filename>tcl.h</filename> header.  This definition
+                    could also  have been, and often is added to the compiler's
+                    command line flags (<literal>-DUSE_TCL_STUBS</literal>).
+                </para>
+                <para>
+                    In this case we really want to be sure that we're using
+                    the stubs interface because that employes a jump table
+                    rather than direct linkages to the Tcl run time libraries
+                    to insulate us from Tcl version.  
+                </para>
+            </callout>
+            <callout arearefs='plugin_headers'>
+                <para>
+                    We need several headers to correctly compile:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><filename>tcl.h</filename></term>
+                        <listitem>
+                            <para>
+                                Defines the Tcl API functions and data types.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><filename>AttachCommand.h</filename></term>
+                        <listitem>
+                            <para>
+                                Provides the bits of the SpecTcl library we need,
+                                specifically how to register our decoder creator
+                                with SpecTcl's <command>attach</command>
+                                command.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><filename>SomeDaqDecoderCreator.h</filename></term>
+                        <listitem>
+                            <para>
+                                In order to register our decoder with the
+                                <command>attach</command> command we'll need
+                                to provide an instance of <classname>SomeDaqDecoderCreator</classname>,.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </callout>
+            <callout arearefs='plugin_strings'>
+                <para>
+                    Defines several constant strings we'll need:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><varname>pakageName</varname></term>
+                        <listitem>
+                            <para>
+                                The name of the package we are initializing.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>packageVersion</varname></term>
+                        <listitem>
+                            <para>
+                                The version of the package initialized by this
+                                code.  Package versions allow clients to distinguish
+                                between historical implementations of a package
+                                that may not be forward or backwards compatible.
+                                See the documetation of the
+                                <command>package provide</command> command
+                                for more information.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><varname>TclMinVersion</varname></term>
+                        <listitem>
+                            <para>
+                                Initialization of the Tcl stubs interface requires
+                                some information about the specific versions of
+                                Tcl our package complies with.  We'll us this
+                                to indicate that the value of this string
+                                specifies the minimum acceptable version of
+                                Tcl.
+                            </para>
+                            <para>
+                                Note to nitpickers.  Probably this package runs
+                                just fine on Tcl 8.0 or later but I've not had
+                                the motivation to try it out on that version.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </callout>
+           <callout arearefs='plugin_cbinding'>
+            <para>
+                Since the Tcl API is written in C it is important not to allow
+                C++ to modify the name of our initialization  entry point to
+                indicate the argument signature (name decoration or mangling is
+                how C++ supports function name overloading in the face of
+                linkers that know nothing of argument signatures).
+                The <literal>extern "C"</literal> declaration here means that
+                the block of code that follows will use C not C++ linkage
+                conventions wich, in turn, means that function names won't get
+                decorated.
+            </para>
+            <para>
+                If we forget to  do this, at load time Tcl will complain that it
+                can't find our initialization function.
+            </para>
+           </callout>
+           <callout arearefs='plugin_initentry'>
+            <para>
+                This is the initialization function entry.  The name
+                depends on the name of the library our plugin will be
+                built into.  We chose
+                <filename>libSomeDaqDecoder.so</filename>, and that forces us
+                touse the name <function>Somedaqdecoder_Init</function>.
+            </para>
+           </callout>
+           <callout arearefs='plugin_initstubs'>
+            <para>
+                <function>Tcl_InitStubs</function> initializes the Tcl stubs
+                interface by building a jump table in the stubs library so that
+                calls to stubs interfaces get forwarded to the actual API
+                functions in the Tcl API shared library loaded by SpecTcl.
+            </para>
+            <para>
+                The first parameter is the interpreter.  The second is a Tcl
+                version number string.  The final parameter is nonzero
+                if the version string passed in must exactly match the
+                version string of the Tcl shared library linked into SpecTcl,
+                and false if that version or any newer version will satisfy
+                our requirements.
+            </para>
+           </callout>
+           <callout arearefs='plugin_initstubserror'>
+            <para>
+                <function>Tcl_InitStubs</function> returns a pointer to a string
+                that is the Tcl version actually loaded on success or a Null
+                pointer if the call fails.  If the call fails, we
+                append a message (hopefully the reason the call fails is already
+                in the result string), to the interpreter result string so this
+                error can be properly reported to the user.
+            </para>
+            <para>
+                Package initialization returns <literal>TCL_ERROR</literal>
+                to indicate the initialization failed and the package
+                is not loaded.
+            </para>
+           </callout>
+           <callout arearefs='plugin_pkgprovide'>
+            <para>
+                <function>Tcl_PkgProvide</function> lets Tcl know that initializing
+                this library provides a Tcl package.
+                The first parameter is the interpreter, the second the package name
+                and the third, the package version number.
+            </para>
+            <para>
+                The function returns <literal>TCL_OK</literal> on success.
+                On failure we just pass the return code back to our caller indicating
+                the package did not load.  There's a tacit hope that
+                <function>Tcl_PkgProvide</function> has left an interpreter result
+                that describes the reason for failure.
+            </para>
+           </callout>
+           <callout arearefs='plugin_registercreator'>
+            <para>
+                The point of our initialization is to add our buffer decoder to
+                the list that <command>attach</command> can use by associating
+                it with a <option>-format</option> keyword.  This
+                line performs that operation.
+            </para>
+           </callout>
+           <callout arearefs='plugin_normalstatus'>
+            <para>
+                Since all has gone well we return <literal>TCL_OK</literal>
+                to show that.
+            </para>
+           </callout>
+           
+        </calloutlist>
+        <para>
+            Let's look at the Makefile for a tailored SpecTcl modified
+            to also produce our plugin library:
+        </para>
+        <example>
+            <title>Makefile that can produce the plugin</title>
+            <programlisting>
+...
+USERCXXFLAGS=-std=c++11 -fPIC                 <co id='plugin_PIC' />
+
+USERCCFLAGS=$(USERCXXFLAGS)
+
+USERLDFLAGS=
+
+OBJECTS=MySpecTclApp.o
+
+all: SpecTcl libSomeDaqDecoder.so            <co id='plugin_newtarget' />
+
+SpecTcl: $(OBJECTS)
+        $(CXXLD)  -o SpecTcl $(OBJECTS) $(USERLDFLAGS) \
+        $(LDFLAGS)
+
+
+clean:  cleanlib
+        rm -f $(OBJECTS) SpecTcl
+
+depend:
+        makedepend $(USERCXXFLAGS) *.cpp *.c
+
+help:
+        echo "make                 - Build customized SpecTcl"
+        echo "make clean           - Remove objects from previous builds"
+        echo "make depend          - Add dependencies to the Makefile. "
+
+                                 <co id='plugin_libtarget' />
+libSomeDaqDecoder.so: SomeDaqBufferDecoder.o  SomeDaqDecoderCreator.o packageInit.o
+        $(CXXLD) -shared -o libSomeDaqDecoder.so  $^  -ltclstub8.5 $(LDFLAGS)
+
+
+                                 <co id='plugin_libsources' />
+
+SomeDaqBufferDecoder.o: SomeDaqBufferDecoder.cpp SomeDaqBufferDecoder.h expdata.h
+
+SomeDaqBufferCreator.o: SomeDaqBufferCreator.cpp SomeDaqBufferCreator.h
+
+packageInit.o: packageInit.cpp SomeDaqDecoderCreator.h
+
+                       
+
+cleanlib:                         <co id='plugin_clean' />
+        rm -f SomeDaq*.o
+        rm -f libSomeDaq*.so*
+
+            </programlisting>
+        </example>
+        <para>
+            Some comments have been removed for brevity.
+        </para>
+        <calloutlist>
+            <callout arearefs='plugin_PIC'>
+                <para>
+                    To build shared libraries requires that code be compiled
+                    as <firstterm>position independent</firstterm>.  This means
+                    that all branches and variable references must be relative
+                    to somethign (self in the case of branches or a pointer to
+                    data in the case of data).  The <literal>-fPIC</literal>
+                    compiler flag instructs the compiler to build
+                    position independent code.
+                </para>
+            </callout>
+            <callout arearefs='plugin_newtarget'>
+                <para>
+                    This added line defines the first target <literal>all</literal>
+                    to build not only <literal>SpecTcl</literal> but also
+                    <filename>libSomeDaqDecoder.so</filename>.
+                </para>
+                <para>
+                    The <command>make</command> command with no target
+                    builds the first target in the Makefile, in this case
+                    <literal>all</literal>
+                </para>
+            </callout>
+            <callout arearefs='plugin_libtarget'>
+                <para>
+                    Describes what's needed to make the objects needed by
+                    <filename>libSomeDaqDecoder.so</filename>, and
+                    how to build the library.  Note that
+                    <literal>$^</literal> is a Makefile variable that
+                    translates to the dependencies for the target.
+                    <literal>-ltclstub8.5</literal>, the stubs library, is specified
+                    prior to the standard SpecTcl load  options to ensure
+                    that it satisfies all of the Tcl externals prior to
+                    the <literal>-ltcl8.6</literal> in the SpecTcl
+                    <literal>LDFLAGS</literal> variable.
+                </para>
+                <para>
+                    <option>-shared</option> instructs the linker that the
+                    output of the link should be a shared library rather than
+                    an executable.  
+                </para>
+            </callout>
+            <callout arearefs='plugin_libsources'>
+                <para>
+                    These lines build the objects needed by the shared library
+                    from the individual source files.  They also describe
+                    which headers each source depends on so that a change
+                    to a header will also result in an appropriate
+                    set of recompilations.
+                </para>
+            </callout>
+            <callout arearefs='plugin_clean'>
+                <para>
+                    Describes how to clean the results of the shared library
+                    build. This will get invoked on
+                    <command>make clean</command> because we indicated that
+                    <literal>cleanlib</literal> is a dependency for
+                    the <literal>clean</literal> target.
+                </para>
+            </callout>            
+        </calloutlist>
+        <para>
+            The package index file <filename>pkgIndex.tcl</filename> is
+            relatively simple:
+        </para>
+        <programlisting>
+package ifneeded SomeDaqDecoder 1.0 \
+    [list load [file join $dir libSomeDaqDecoder.so]]
+
+        </programlisting>
+        <para>
+            The <command>list</command> command can build up a Tcl command
+            with appropriate quoting.  The <command>file join</command>
+            command joins filename path elements into a file path in a manner
+            independent of the operating system.  The <varname>dir</varname>
+            variable is the directory the Tcl
+            <command>package require</command> command is searching when this
+            script is sourced.
+        </para>
+        <para>
+            Let's see if all of this works.  We'll run SpecTcl and show a screen
+            log of the process of checking the set of buffer decoders registered
+            with <command>attach</command>, adding the package directory to
+            <varname>auto_path</varname>, loading the package and
+            checking the buffer decoders after the load.
+        </para>
+        <programlisting>
+<computeroutput>%</computeroutput> <command>attach</command>
+<computeroutput>
+You must have exactly one data source type
+Usage:
+  attach {switches...} connection
+  Where:
+     Switches are taken from the following:
+     -format {format type}
+     -size nBytes - Number of bytes per buffer.
+     {sourcetype} which can be only one of:
+        -file  when connection is the name of the file
+               from which data will be taken
+        -pipe  When connection is a command whose stdout is
+               taken as the event source.
+        -test  When connection selects one of the test data sources
+        -null  No events will be made available.
+Available format types are:
+filter - SpecTcl filter format files.                    <co id='plugin_attnosample' />
+jumbo - NSCL 'standard' buffer format with jumbo sized buffers
+nscl - NSCL 'standard' buffer format decoder'
+ring  - NSCL DAQ Ring buffer data acquisition system
+
+%</computeroutput> <command>lappend auto_path .</command>  <co id='plugin_autopath' />
+<computeroutput>/usr/share/tcltk/tcl8.6 /usr/share/tcltk
+/user/fox/test/pgmguideexamples/lib /usr/local/lib/tcltk /usr/local/share/tcltk
+/usr/lib/tcltk/x86_64-linux-gnu /usr/lib/tcltk /usr/lib/tcltk/tcl8.6 /usr/lib
+/usr/opt/spectcl/5.0/TclLibs /usr/opt/spectcl/5.0/TclLibs
+/usr/share/tcltk/tklib0.6 /usr/share/tcltk/tcllib1.16 /usr/share/tcltk/tk8.6
+/usr/share/tcltk/tk8.6/ttk /usr/opt/spectcl/5.0/TclLibs
+/usr/opt/spectcl/5.0/Script /usr/share/tcltk/itk3.3
+/usr/share/tcltk/iwidgets4.0.1 /usr/share/tcltk/iwidgets4.0.1/generic
+/usr/share/tcltk/iwidgets4.0.1/scripts /usr/opt/spectcl/5.0/Script .
+%</computeroutput> <command>package require SomeDaqDecoder</command> <co id='plugin_require' />
+<computeroutput>1.0                                        <co id='plugin_loadok' />
+%</computeroutput> <command>attach</command>
+<computeroutput>You must have exactly one data source type
+Usage:
+  attach {switches...} connection
+  Where:
+     Switches are taken from the following:
+     -format {format type}
+     -size nBytes - Number of bytes per buffer.
+     {sourcetype} which can be only one of:
+        -file  when connection is the name of the file
+               from which data will be taken
+        -pipe  When connection is a command whose stdout is
+               taken as the event source.
+        -test  When connection selects one of the test data sources
+        -null  No events will be made available.
+Available format types are:
+blockring - Decode buffers from blocked 'ring items'            <co id='plugin_attsample' />
+filter - SpecTcl filter format files.
+jumbo - NSCL 'standard' buffer format with jumbo sized buffers
+nscl - NSCL 'standard' buffer format decoder'
+ring  - NSCL DAQ Ring buffer data acquisition system
+
+%</computeroutput>
+
+        </programlisting>
+        <calloutlist>
+            <callout arearefs='plugin_attnosample'>
+                <para>
+                    When most SpecTcl commands are issued with an error in
+                    their syntax, they will output detailed help on the
+                    usage of the command.  In this case, the
+                    <command>attach</command> command, among other things,
+                    lists the set of legal format types.  Note that
+                    <literal>blockring</literal> is not listed.
+                </para>
+            </callout>
+            <callout arearefs='plugin_autopath'>
+                <para>
+                    We add the current working directory (<literal>.</literal>)
+                    to the <varname>auto_path</varname>.  This means
+                    that <command>package require</command> will look in
+                    this directory for a <command>pkgIndex.tcl</command>
+                    script.  For this demonstration, the index file and the
+                    shared library are both in the same directory from which
+                    we ran SpecTcl.
+                </para>
+            </callout>
+            <callout arearefs='plugin_require'>
+                <para>
+                    This <command>package require</command> command attempts to
+                    load the package.
+                </para>
+            </callout>
+            <callout arearefs='plugin_loadok'>
+                <para>
+                    When <command>package require</command> successfully loads
+                    a package, the return value from the command is the
+                    package version string.  This <literal>1.0</literal>
+                    indicates the package was successfully loaded.
+                </para>
+            </callout>
+            <callout arearefs='plugin_attsample'>
+                <para>
+                    After the load note that the <literal>blockring</literal>
+                    format is shown as available to the
+                    <command>attach</command> commmand.  This indicates our
+                    package was able to register its creator.
+                </para>
+            </callout>
+             
+        </calloutlist>
+        <para>
+            One of the interesting things about plugins is that they can
+            be distributed by only supplying their package index file and
+            their shared library.  That can be put in a Tarball and
+            handed off to any user.  This is the advantage of using the
+            Tcl stubs library as you are insulated from the need to know
+            the specific version of Tcl SpecTcl was linked against.
+        </para>
+        <para>
+            To install a plugin so that it's automatically available to all
+            SpecTcl users, you can ask your system administrator to
+            install the plugin in a directory under the
+            <filename>TclLibs</filename> subdirectory of the Tcl
+            installation.
+        </para>
+    </section>
 </chapter>
 
 </book>
