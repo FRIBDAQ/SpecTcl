@@ -160,12 +160,7 @@ public:
   void Initialize(std::string name, UInt_t channels, 
 		  double lowLimit, double highLimit, std::string units);
   
-  // Other member functions.
-  
-  static void BindParameters();
-  static void setEvent(CEvent& rEvent);
-  bool isBound();
-  
+ 
 	// Arithmetic operations...
   
   operator double();
@@ -204,6 +199,13 @@ public:
   void   setChanged();
   void   resetChanged();
   static void ResetAll();
+  
+
+ // Other member functions.
+  
+  static void BindParameters();
+  static void setEvent(CEvent& rEvent);
+  bool isBound();
   
   // Iteration and location.
   
