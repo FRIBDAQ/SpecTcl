@@ -55,6 +55,12 @@ void SpectrumDictionaryFitObserver::onRemove(std::string name, CSpectrum *&item)
             // JRT comment  starts: - not sure if this is needed because the fit dict is an associative
             // container... leaving it here for now. Could potentially be removed after
             // successful testing.
+	    // RF rebuttal starts:
+	    // Yes it's necessary according to the STL docs on erase:
+	    // "...References and iterators to the erased elements are invalidated."
+	    // See: http://en.cppreference.com/w/cpp/container/map/erase  as the dictionary
+	    // underlying container is an std::map.
+	    //
             iFit = Fits.begin();
         }
         else {
