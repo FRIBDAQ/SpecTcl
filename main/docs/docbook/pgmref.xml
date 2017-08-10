@@ -14436,35 +14436,1993 @@ void MySpecTclApp::SourceLimitScripts(CTCLInterpreter&amp; interp)
                 </para>
                 <variablelist>
                     <varlistentry>
-                        <term></term>
+                        <term>
+                            <methodsynopsis>
+                                <modifier></modifier>
+                                <type>void </type>
+                                <methodname>setDisplaySize </methodname>
+                                <methodparam>
+                                   <modifier>const</modifier>
+                                   <type>UInt_t </type><parameter>am_nDisplaySize</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
                         <listitem>
                             <para>
+                                Sets the display memory size in megabytes.  This
+                                must be called after
+                                <methodname>SourceLimitScripts</methodname> to
+                                override the value in those scripts or prior to
+                                set the default value.   It should also be
+                                called prior to
+                                <methodname>CreateDisplays</methodname> which
+                                actually sets up the display shared memory.
                             </para>
                         </listitem>
                     </varlistentry>                    
-  
-
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier></modifier>
+                                <type>void </type>
+                                <methodname>setParams </methodname>
+                                <methodparam>
+                                   <modifier>const </modifier>
+                                   <type>UInt_t </type><parameter>am_nParams</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sets the number of parameters that will be used
+                                as the initial size for <classname>CEvent</classname>
+                                vectors.   To override the user's settings, this
+                                should be called after
+                                <methodname>SourceLimitScripts</methodname>, otherwise
+                                it is used as a default value for that
+                                parameter if it is not set in the user's scripts.
+                            </para>
+                            <para>
+                                As previously discussed, setting this has
+                                essentially no impact on SpecTcl's performance
+                                due to the autosizing and recycling of parameter
+                                vectors.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier></modifier>
+                                <type>
+                                    void 
+                                </type>
+                                <methodname>setListSize </methodname>
+                                <methodparam>
+                                   <modifier>const </modifier>
+                                   <type>UInt_t </type><parameter>am_nListSize</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sets the event list size.  This is the number
+                                of events that is analyzed by the event processing
+                                pipeline before those events are passed to the
+                                event sink pipeline for histogramming and
+                                other processing.
+                            </para>
+                        </listitem>
+                    </varlistentry>
                 </variablelist>
                 <para>
-void setDisplaySize (const UInt_t am_nDisplaySize);
-  void setParams (const UInt_t am_nParams);
-  void setListSize (const UInt_t am_nListSize);
-  void setAnalyzer (CAnalyzer* am_pAnalyzer);
-  void setHistogrammer (CTCLHistogrammer* am_pHistogrammer);
-  void setRunControl (CTKRunControl* am_pRunControl);
-  void setXamineEvents (CXamineEventHandler* am_pXamineEvents);
-  void setRunControlPackage (CRunControlPackage* am_pRunControlPackage);
-  void setParameterPackage (CParameterPackage* am_pParameterPackage);
-  void setSpectrumPackage (CSpectrumPackage* am_pSpectrumPackage);
-  void setDataSourcePackage (CDataSourcePackage* am_pDataSourcePackage);
-  void setGatePackage (CGatePackage* am_pGatePackage);
-  void setRCFile (const CTCLVariable am_RCFile);
-  void setTclDisplaySize (const CTCLVariable am_TclDisplaySize);
-  void setTclParameterCount (const CTCLVariable am_TclParameterCount);
-  void setTclEventListSize (const CTCLVariable am_TclEventListSize);
-  void setDisplayInterface(CDisplayInterface* pInterface);                    
+                    This set of methods are virtual and therefore can be overridden.
+                    These methods are all exposed in the
+                    <classname>MySpecTclApp</classname> class in the SpecTcl
+                    Skeleton.  In that class, the base class method is invoked.
+                    You can add code as needed to meet your needs.
                 </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier> </modifier>
+                                <type>void</type>
+                                <methodname>RegisterEventProcessor</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CEventProcessor&amp;</type><parameter> rEventProcessor</parameter>
+                                </methodparam>
+                                <methodparam>
+                                   <modifier>const</modifier>
+                                   <type> char* </type><parameter>name </parameter>
+                                   <initializer>0</initializer>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Not actually a virtual method, this method is
+                                used to add an event processor to the end of
+                                the event processing pipeline.
+                                <parameter>rEventProcessor</parameter>, is the
+                                processor to add and <parameter>name</parameter>,
+                                if supplied is a name associated with the event
+                                processor.  If <parameter>name</parameter>
+                                is not supplied, one is assigned.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>BindTCLVariables</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLInterpreter&amp; </type><parameter>rInterp</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This is called to bind SpecTcl's special Tcl
+                                variables to this object's
+                                <classname>CTCLVariable</classname>
+                                members.  Doing this allows those objects
+                                to access the underlying Tcl variables.
+                                Variables bound and created include:
+                            </para>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>
+                                        <varname>tcl_rcFilename</varname>
+                                        The name of the early Tcl initialization
+                                        file.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        <varname>DisplayMegabytes</varname>
+                                        Number of megabytes of display shared
+                                        memory allocated.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        <varname>ParameterCount</varname>
+                                        Number of parameers allocated in the
+                                        initial create of <classname>CEvent</classname>
+                                        objects.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        <varname>EventListSize</varname>
+                                        Number events analyzed by the analysis
+                                        pipeline before passing them on to the
+                                        sink pipeline.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        <varname>DisplayType</varname>
+                                        type of displayer used.
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SourceLimitScripts</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLInterpreter&amp;</type><parameter> rInterpreter</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sources the limit setting scripts
+                                (<filename>SpecTclInit.tcl</filename>) into
+                                <parameter>rInterpreter</parameter>.  All
+                                of the following locations are searched and for
+                                the reasons given:
+                            </para>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>
+                                        The <filename>etc</filename> subdirectory
+                                        of the SpecTcl installation is searched
+                                        to provide system defaults that override
+                                        the default values compiled in to
+                                        SpecTcl.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        The user's home directory is searched
+                                        to provide account wide settings that may
+                                        override the system wide settings.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        The current working directory is searched
+                                         to provide project specific settings.
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SetLimits</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Updates the SpecTcl Tcl variables from the
+                                final tuning values after
+                                <methodname>SourceLimitScripts</methodname>
+                                has been executed.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual</modifier>
+                                <type> void </type>
+                                <methodname>CreateHistogrammer</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This method creates the event sink pipeline,
+                                assigning a pointer to it to
+                                <varname>gpEventSinkPipeline</varname>.
+                                It then immediately creates a
+                                <classname>CHistogrammer</classname> object
+                                saving it's pointer in
+                                <varname>gpEventSink</varname> and adding it
+                                to the end of the event sink pipeline.
+                            </para>
+                            <para>
+                                In addition an observer is attached to the
+                                spectrum dictionary (part of the histogrammer).
+                                This observer, a
+                                <classname>SpectrumDictionaryFitObserver</classname>
+                                destroys fits on spectra that are being removed
+                                from the spectrum dictionary.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>CreateDisplays</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                SpecTcl supports more than one displayer.
+                                Currently it supports Xamine, a displayer built
+                                directly on Motif and the Xt/X11 toolkit and
+                                Spectra, a displayer build on Root.
+                                This method sets up a factory of display
+                                interfaces.
+                                It stocks it with creators for
+                                Xamine, Spectra and headless (batch) mode.
+                            </para>
+                            
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SelectDisplayer</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Selects and starts the displayer whose name is
+                                stored in the Tcl variable
+                                <varname>DisplayType</varname>.
+                                <varname>DisplayType</varname> must have been
+                                set prior to
+                                <methodname>SourceLimitScripts</methodname>.
+                            </para>
+                            <para>
+                                The displayer process is started if appropriate.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SetUpDisplay</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sets up communication between SpecTcl and the
+                                displayer.  Specifically, when gates are
+                                created or destroyed, when spectra have gates
+                                applied to them or are ungated, the displayer
+                                may provide visual cues.  This method sets up
+                                observers on the SpecTcl side that
+                                detect appropriate changes and communicate
+                                with the selected displayer so that this
+                                information is updated by the displayer..
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SetupTestDataSource</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                SpecTcl has a test data source.  If analysis
+                                is started, prior to attaching to a data source,
+                                the test source will supply data.  The
+                                test data source is, by default, a
+                                <classname>CMlutiTestSource</classname> which
+                                is can be a container for several types of
+                                data sources.  
+                            </para>
+                            <para>
+                                This method establishes that data source
+                                and selects its default data source.
+                                The default data source delivers fixed sized
+                                events that contain several parameters of
+                                gaussian distributed parameters.
+                            </para>
+                            <para>
+                                The SpecTcl skeleton files can analyze data
+                                from the default test source without modification.
+                                This is one way to use and become familiar with
+                                SpecTcl.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>CreateAnalyzer</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CEventSink* </type>
+                                   <parameter>pSink</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Creates and attaches the analyzer to the system.
+                                The analyzer is the object that controls the
+                                flow of data from a data source through the
+                                analysis pipeline and to the event sink
+                                pipeline.
+                            </para>
+                            <para>
+                                By default a <classname>CTclAnalyzer</classname>
+                                is instantiated and hooked in to SpecTcl.
+                                A pointer to the analyzer object is stored
+                                in <varname>gpAnalyzer</varname> as well
+                                as in the attribute
+                                <varname>m_pAnalyzer</varname>.  Both should
+                                be updated to change the analyzer, if that's
+                                desired.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SelectDecoder</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CAnalyzer&amp; </type>
+                                   <parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sets the initial buffer decoder. Note that
+                                in most cases, SpecTcl's
+                                <command>attach</command> command will
+                                select a new buffer decoder object to match the
+                                <option>-format</option> value, implied by
+                                or explicit in the command.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>CreateAnalysisPipeline</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CAnalyzer&amp; </type>
+                                   <parameter>rAnalyzer</parameter>
+                                   <initializer>0</initializer>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This is a pure virtual method and therefore
+                                must be implemented by any subclass that
+                                can be instantiated.  The code in this
+                                method should create and add elements
+                                to the event processing pipeline.                         
+                            </para>
+                            <para>
+                                <methodname>RegisterEventProcessor</methodname>
+                                is provided as a convenience method for
+                                adding event processors to the analyzer.
+                                Note that event processors are a property
+                                of the <classname>CTclAnalyzer</classname>
+                                class and its descendents.  
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>AddCommands</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLInterpreter&amp; </type>
+                                   <parameter>rInterp</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Adds SpecTcl specific commands to the
+                                Tcl interpreter
+                                <parameter>rInterp</parameter>.
+                                The base class method creates and adds
+                                all of the command packages that hold most
+                                of SpecTcl's commands.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier></modifier>
+                                <type>void </type>
+                                <methodname>SetupRunControl</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Not virtual and therefore cannot be overridden,
+                                this method creates a new
+                                <classname>CTkRunControl</classname>
+                                object, stores a pointer to it in 
+                                <varname>gpRunControl</varname> which
+                                establishes it as the run control object
+                                that SpecTcl uses.  The object's pointer is
+                                also stored in the attribute
+                                <varname>m_pRunControl</varname>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>void </type>
+                                <methodname>SourceFunctionalScripts</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLInterpreter&amp; </type>
+                                   <parameter>rInterp</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Sources functional setup scripts into
+                                <parameter>rInterp</parameter>.  The
+                                functional setup scripts are those named
+                                <filename>SpecTclRC.tcl</filename>.  SpecTcl
+                                will first run any script by this name that
+                                exists in the user's home directory.  Next it
+                                will run any script by that name that exists in
+                                the current working directory.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>int </type>
+                                <methodname>operator()</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Entry point.  This method invokes all of the
+                                initialization methods in turn.
+                                It should return
+                                <literal>TCL_OK</literal> if successful
+                                and <literal>TCL_ERROR</literal> on
+                                any failure.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    The remainder of the methods we'll document are
+                    utility functions.  These are protected and therefore
+                    can only be called from methods in this class or a
+                    class derived from this class
+                    (e.g. <classname>MySpecTclApp</classname>).
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>static</modifier>
+                                <type> void </type>
+                                <methodname>UpdateUInt</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLVariable&amp; </type>
+                                   <parameter>rVar</parameter>
+                                </methodparam>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>UInt_t&amp;</type>
+                                   <parameter> rValue</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This utility method accepts a
+                                Tcl variable object
+                                (<parameter>rVar</parameter>) which is
+                                supposed to hold an
+                                unsigned integer and sets
+                                <parameter>rValue</parameter> to the value
+                                of that integer.  If the variable does not
+                                exist in the Tcl interpreter, no error
+                                is thrown and the <parameter>rValue</parameter>
+                                is un-modified.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>static</modifier>
+                                <type> void </type>
+                                <methodname>UpdateString</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLVariable&amp; </type>
+                                   <parameter>rVar</parameter>
+                                </methodparam>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>std::string&amp; </type>
+                                   <parameter>rString</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Similiar to
+                                <methodname>UpdateUInt</methodname>
+                                but the Tcl variable is an arbitrary
+                                string.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>static </modifier>
+                                <type>std::string </type>
+                                <methodname>SourceOptionalFile</methodname>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>CTCLInterpreter&amp; </type>
+                                   <parameter>rInterp</parameter>
+                                </methodparam>
+                                <methodparam>
+                                   <modifier></modifier>
+                                   <type>std::string </type>
+                                   <parameter>filename</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This method attempts to source the file
+                                <parameter>filename</parameter> into the
+                                interpreter <parameter>rInterp</parameter>.
+                                It is not an error for the file to not exist.
+                                That's the meaning of the
+                                "optional" part of this method's name.
+                            </para>
+                            <para>
+                                The return value from this method is an empty
+                                string on success (including missing file)
+                                and an error message string if an error occured
+                                (such as the script failing).
+                            </para>
+                        </listitem>
+                    </varlistentry>
+
+                </variablelist>
             </refsection>
         </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CHistogrammer</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CHistogrammer</refname>
+        <refpurpose>SpecTcl histogramming core</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+
+class <classname>CHistogrammer</classname> : public <classname>CEventSink</classname> {
+
+  typedef std::list&lt;CGateObserver*&gt;   GateObserverList;
+  typedef std::list&lt;CGatingObserver*&gt; GatingObserverList;
+
+  ParameterDictionary m_ParameterDictionary;
+  SpectrumDictionary  m_SpectrumDictionary;
+  CGateDictionary     m_GateDictionary; 
+  GateObserverList    m_gateObservers;  
+  GatingObserverList  m_gatingObservers;
+
+
+  CFlattenedGateList*   m_pGateList;
+  CSpectrumByParameter* m_pSpectrumLists;
+
+
+ public:
+
+  const ParameterDictionary&amp; getParameterDictionary() const ;
+
+  const SpectrumDictionary&amp; getSpectrumDictionary() const ;
+
+ protected:
+
+  void setParameterDictionary(const ParameterDictionary&amp; am_ParameterDictionary);
+
+  void setSpectrumDictionary(const SpectrumDictionary&amp; am_SpectrumDictionary) ;
+
+ public:
+
+  virtual void operator() (const CEvent&amp;     rEvent);
+  virtual void operator() (CEventList&amp; rEventList);
+
+
+  CParameter* AddParameter (const std::string&amp; sName,
+			    UInt_t nId,
+			    const char* pUnits);
+  CParameter* AddParameter (const std::string&amp; sName,
+			    UInt_t nId,
+			    UInt_t  nScale);
+  CParameter* AddParameter (const std::string&amp; sName,
+			    UInt_t nId, UInt_t nScale,
+			    Float_t nLow, Float_t nHi,
+			    const std::string&amp; sUnits);
+  CParameter* RemoveParameter (const std::string&amp; sName);
+  CParameter* FindParameter (const std::string&amp; rName);
+  CParameter* FindParameter (UInt_t nPar);
+  ParameterDictionaryIterator ParameterBegin();
+  ParameterDictionaryIterator ParameterEnd();
+  UInt_t ParameterCount();
+
+
+  void AddSpectrum(CSpectrum&amp; rSpectrum);
+  CSpectrum* RemoveSpectrum(const std::string sName);
+  void ClearSpectrum(const std::string&amp; rsName);
+  void ClearAllSpectra();
+  CSpectrum* FindSpectrum(const std::string&amp; rName);
+  CSpectrum* FindSpectrum(UInt_t id);
+  SpectrumDictionaryIterator SpectrumBegin();
+  SpectrumDictionaryIterator SpectrumEnd();
+  UInt_t SpectrumCount();
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
+  void UnGate(const std::string&amp; rSpectrum); 
+
+  void AddGate(const std::string&amp; rName, UInt_t nId, CGate&amp; rGate);
+  void DeleteGate(const std::string&amp; rGateName);
+  void ReplaceGate(const std::string&amp; rGateName, CGate&amp; rGate);
+  void ApplyGate(const std::string&amp; rGateName,  const std::string&amp; rSpectrum);
+  CGateContainer* FindGate(const std::string&amp; rGate);
+  CGateContainer* FindGate(UInt_t nId);
+  CGateDictionaryIterator GateBegin();
+  CGateDictionaryIterator GateEnd();
+  UInt_t GateCount();
+
+  void addGateObserver(CGateObserver* observer);
+  void removeGateObserver(CGateObserver* observer);
+
+  void addGatingObserver(CGatingObserver* observer);
+  void removeGatingObserver(CGatingObserver* observer);
+
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsection>
+        <title>DESCRIPTION</title>
+        <para>
+            Histogramming core of SpecTcl.  In addition to performing the
+            actual histogramming, this class encapsulates SpecTcl's dictionaries.
+        </para>
+    </refsection>
+    <refsection>
+        <title>METHODS</title>
+        <para>
+            The first set of methods get and set attributes.  The getter methods
+            are public while the setters are all protected.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>ParameterDictionary&amp;</type>
+                        <methodname> getParameterDictionary</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a reference to the SpecTcl parameter dictionary.
+                        This is a dictionary that contains all of the
+                        parameter definitions known to SpecTcl. Note that
+                        the <classname>SpecTcl</classname> API class
+                        provides the access to this dictionary that most
+                        applications need and should be used instead rather than
+                        directly accessing the dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>SpectrumDictionary&amp; </type>
+                        <methodname>getSpectrumDictionary</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a reference to the Spectrum dictionary.
+                        This contains all of the objects that define the
+                        spectra the histogrammer increments.  Note that
+                        the <classname>SpecTcl</classname> API class
+                        provides the access to this dictionary that most
+                        applications need and should be used instead rather than
+                        directly accessing the dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected:</modifier>
+                        <type>void </type>
+                        <methodname>setParameterDictionary</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> ParameterDictionary&amp;</type>
+                           <parameter> am_ParameterDictionary</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Allows derived classes to replace the parameter dictionary.
+                        This is only useful in the unlikely event you've
+                        derived a new dictionary class from the
+                        <classname>ParameterDictionary</classname> class.
+                    </para>
+                    <para>
+                        This method should be called early in the lifetime of
+                        the derived class to ensure you don't lose existing definitions
+                        when replacing the object.  The constructor would be
+                        a good place to do this.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>  void </type>
+                        <methodname>setSpectrumDictionary</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>SpectrumDictionary&amp; </type>
+                           <parameter>am_SpectrumDictionary</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides a replacement for a spectrum dictionary.
+                        Most of the comments associated with
+                        <methodname>setParameterDictionary</methodname>
+                        apply here.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The next set of methods are invoked externally to perform histogramming.
+            Normally the analyzer object invokes these after building an
+            event list from the results of the analysis pipeline.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> CEvent&amp;     </type>
+                           <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Resets all of the gates and histograms the
+                        <parameter>rEvent</parameter>, a single event.
+                        Note that the histograms check the gates needed to
+                        be incremented so there's no separate pass taken to
+                        check all gates.  Furthermore, gates cache their
+                        results so the actual gate computation is not only
+                        performed only on the gates needed but at most once per
+                        gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator() </methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEventList&amp;</type>
+                           <parameter> rEventList</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Iterates over each event in <parameter>rEventlist</parameter>
+                        invoking the previous overloaded <methodname>operator()</methodname>
+                        for each element in that list.   This is the method
+                        invoked by the analyzer object to process events from
+                        the event processing pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+        <para>
+            The next set of methods mainpulate the parameter dictionary.
+            Note that the
+            <classname>SpecTcl</classname>
+            API provides methods to accomplish
+            everything these methods accomplish.  I recommend
+            using the API singleton to do parameter manipulation or,
+            even simpler, use <classname>CTreeParameter</classname>
+            objects instead of directly working with SpecTcl low level
+            parameters.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter* </type>
+                        <methodname>AddParameter</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp;</type>
+                           <parameter> sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>char*</type>
+                           <parameter> pUnits</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>                  
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter* </type>
+                        <methodname>AddParameter</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t</type>
+                           <parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t  </type>
+                           <parameter>nScale</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter* </type>
+                        <methodname>AddParameter </methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t</type>
+                           <parameter> nLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>nHi</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>sUnits</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods create a new parameter and
+                        add it to the parameter dictionary.
+                    </para>
+                    <para>
+                        <parameter>sName</parameter> is the name of the new parameter.
+                        If a parameter with that name already exists,
+                        a <classname>CDictionaryException</classname> is thrown.
+                        <parameter>nId</parameter> is the parameter's id which
+                        is the slot in the <classname>CEvent</classname> array
+                        like object in which parameter values are put.
+                        A <classname>CDictionaryException</classname> is
+                        also thrown
+                        if a parameter with that Id already exists.
+                    </para>
+                    <para>
+                        <parameter>nScale</parameter> determines the
+                        resolution of the parameter in bits. When creating
+                        a spetrum on a parameter, consider being informed
+                        by this value when determining the binning for axes
+                        involving this parameter.
+                    </para>
+                    <para>
+                        <parameter>nLow</parameter> and <parameter>nHigh</parameter>
+                        are soft limits on the values stored in the parameter.
+                        Spectra created with axes defined on this parameter
+                        should use these values to inform decisions about the
+                        limits on those axes.
+                    </para>
+                    <para>
+                        <parameter>sUnits</parameter> is the units of measure
+                        for the parameter.   Spectra can label axes with that as
+                        a unix of meausre appropriately.
+                    </para>
+                    <para>
+                        On successful return, a pointer to the new
+                        <classname>CParameter</classname> object is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter*</type>
+                        <methodname> RemoveParameter </methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>sName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the parameter identified by
+                        <parameter>sName</parameter> from the parameter
+                        dictionary. The parameter object is copy constructed
+                        into a dynamically allocated <classname>CParameter</classname>
+                        object whose pointer is returned.  The return value
+                        must therefore be <literal>delete</literal>d in order
+                        to prevent memory leaks.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter* </type>
+                        <methodname>FindParameter</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameter* </type>
+                        <methodname>FindParameter </methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nPar</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to a <classname>CParameter</classname>
+                        object in the parameter dictionary.  The parameter
+                        returned either has a name equal to
+                        <parameter>rName</parameter> or a parameter id
+                        equal to <parameter>nPar</parameter> depending on which
+                        actual method is called.
+                    </para>
+                    <para>
+                        If there is no matching parameter a null pointer is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>ParameterDictionaryIterator </type>
+                        <methodname>ParameterBegin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator to the first element of the
+                        parameter dictionary.  Parameter dictionary Iterators
+                        act like pointers that point to an
+                        <classname>std::pair&lt;std::string, CParameter&gt;</classname>.
+                        The first element of this pair is the name of the
+                        parameter while the second is the parameter itself.
+                    </para>
+                    <para>
+                        Incrementing an iterator points to the next element
+                        of the container.  Incrementing an iterator that points
+                        to the last container element returns
+                        the same value as returned by
+                        <methodname>ParameterEnd</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>ParameterDictionaryIterator </type>
+                        <methodname>ParameterEnd</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an value that is no longer in the container.
+                        Typical iteration over the parameter dictionary follows
+                        this pattern:
+                    </para>
+                    <programlisting>
+CHistogrammer* pH;                     // Assume this points to the histogrammer.
+for (auto p = pH->ParameterBegin(); p != pH->ParameteEnd(); p++) {
+        // do something with p->first and p->second.
+        ...
+}
+
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>ParameterCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of elements in the parameter
+                        dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The next methods manipulate the spectrum dictionary. The
+            <classname>SpecTcl</classname> API singleton class
+            provides these services as well and we recommend you use it rather
+            than relyingo n these methods.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>AddSpectrum</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CSpectrum&amp; </type>
+                           <parameter>rSpectrum</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a new spectrum object to the spectrum dictionary.
+                        The Spectrum's  name is used as the dictionary key.
+                        The spectrum's id is used as the spectrum number.
+                    </para>
+                    <para>
+                        If a spectrum matches either the name or the id,
+                        a <classname>CDictionaryException</classname>
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CSpectrum* </type>
+                        <methodname>RemoveSpectrum</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string </type>
+                           <parameter>sName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes a spectrum with the name
+                        <parameter>sName</parameter> from the spectrum dictionary.
+                        A pointer to the removed spectrum is returned to the
+                        caller.  If there is no matching spectrum,
+                        a null pointer is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ClearSpectrum</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>rsName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Locates the spectrum in the spectrum dictionary
+                        that is named <parameter>rsName</parameter>.  That
+                        spectrum's <methodname>clear</methodname> method is
+                        called.  Normally that method sets all of the channels of
+                        the spectrum to <literal>0</literal>.
+                    </para>
+                    <para>
+                        If there is no matching spectrum, a
+                        <classname>CDictionaryException</classname> is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ClearAllSpectra</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Iterates through the spectrum dictionary invoking each
+                        <classname>CSpectrum</classname> object's
+                        <methodname>clear</methodname> method.  This sets all
+                        channels for all spectra to zero (assuming that's what
+                        the <methodname>clear</methodname> method does for all
+                        subclasses of <classname>CSpectrum</classname>).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CSpectrum* </type>
+                        <methodname>FindSpectrum</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CSpectrum* </type>
+                        <methodname>FindSpectrum</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>id</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The return value of <methodname>FindSpectrum</methodname>
+                        is a pointer to the <classname>CSpectrum</classname> object
+                        in the spectrum dictionary that matches the search criterion
+                        passed in as an argument.
+                        <parameter>rName</parameter> is the name of the spectrum
+                        that must match exactly. <parameter>id</parameter> is the
+                        spectrum id.
+                    </para>
+                    <para>
+                        If there is no matching spectrum in the dictionary,
+                        a null pointer is returned.  Note that the dictionary
+                        management methods ensure that there can be at most
+                        one match.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>SpectrumDictionaryIterator </type>
+                        <methodname>SpectrumBegin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>SpectrumDictionaryIterator </type>
+                        <methodname>SpectrumEnd</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods can be used to iterate over all of the
+                        entries in the spectrum dictionary.  Both methods return
+                        a <classname>SpectrumDictionaryIterator</classname>. This
+                        object acts like a pointer to a
+                        <classname>std::pair&lt;std:;string, CSpectrum*&gt;</classname>
+                        object.  The first element of the pair is the name of an
+                        entry in the dictinoary (spectrum name), the second a pointer
+                        to the spectrum with that name.
+                    </para>
+                    <para>
+                        <methodname>SpectrumBegin</methodname> provides an iterator
+                        that points to information about the first entry in the
+                        dictionary.
+                        Incrementing an iterator via its <methodname>operator++</methodname>
+                        points it to the next entry in the dictionary.  Incremeting
+                        the  iterator when it points to the last entry of the
+                        container makes it equal to the value returned from
+                        <methodname>SpectrumEnd</methodname>.  
+                    </para>
+                    <para>
+                        Typical spectrum dictionary iteration can use the
+                        STL algorithm std::for_each if you have a functor it can call,
+                        or can express your operation as a C++ lambda or, without
+                        being fancy looks something like (<varname>pHisto</varname>
+                        is a pointer to the histogrammer object).
+                    </para>
+                    <programlisting>
+    for (auto p = pHisto-&gt;SpectrumBegin(); p != pHisto-&gt;SpectrumEnd(); p++) {
+        std::string name = p-&gt;first;
+        CSpectrum*   pSpec= p-&gt;second;
+        
+        // Do something with the spectrum or name or both.
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>SpectrumCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of spectra in the spectrum dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addSpectrumDictionaryObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>SpectrumDictionaryObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeSpectrumDictionaryObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>SpectrumDictionaryObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods control <firstterm>observers</firstterm> of
+                        the spectrum dictionary.  For information about the
+                        observer programming pattern see:
+                        <ulink url='https://en.wikipedia.org/wiki/Observer_pattern' />.
+                        For information about the
+                        <classname>SpectrumDictionaryObserver</classname> abstract
+                        base class, see <literal>DATA TYPES</literal> below.
+                    </para>
+                    <para>
+                        <methodname>addSpectrumDictionaryObserver</methodname>
+                        adds an observer whose methods will be called when
+                        changes are made to the spectrum dictionary (adding or
+                        removing spectra).  <methodname>removeSpectrumObserver</methodname>
+                        removes an existing observer (<parameter>observer</parameter>).
+                        If the specified <parameter>observer</parameter> has not
+                        been established,
+                        <methodname>removeSpectrumObserver</methodname>
+                        does nothing.
+                    </para>
+                    <para>
+                        It is possible to register a single observer object more
+                        than once.  This is considered a pathology but no
+                        effort is made to stop you from doing that.  If an
+                        observer has been multiply registered,
+                        <methodname>removeSpectrumObserver</methodname> will
+                        remove all instances of that observer object.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The Next group of methods are used to mainpulate gates.  In addition
+            to adding and replacing gates in the gate dictionary, this set of
+            methods can apply gates to a spectrum as well as remove any
+            gate application from a spectrum (called <firstterm>ungating</firstterm>).
+        </para>
+        <para>
+            A couple of words about why gates can't actually
+            be removed/deleted from
+            the gate dictionary.  Many gate types are compound gates.
+            Compound gates are formed from logical combinations of othe gates.
+            For example an <literal>and</literal> gate is true if all of its
+            constituent gates (some of which might also be compound) are
+            true.
+        </para>
+        <para>
+            It's very hard, therefore to get a good definition of the effect
+            on a compound gate when a gate it depends on (directly or indirectly)
+            is destroyed.  Therefore SpecTcl's commands, normally "deletes" a gate not
+            by destroying it but by replacing it with a False gate.  This has a
+            consistent well defined behavior with respect not only to gates
+            that directly depend on the 'deleted' gate but also indirectly
+            dependent gates.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>AddGate</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>const std::string&amp; </type>
+                           <parameter>rName, UInt_t nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGate&amp; </type>
+                           <parameter>rGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a new gate to the gate dictionary.
+                        <parameter>rName</parameter> is the name that is given
+                        to the gate.  It must be unique or else a
+                        <classname>CDictionaryException</classname> will be thrown.
+                    </para>
+                    <para>
+                        <parameter>nId</parameter> is a gate id number.  It's value
+                        is not actually important to SpecTcl's processing but
+                        it too must be unique, or else a
+                        <classname>CDictionaryException</classname> will be thrown
+                    </para>
+                    <para>
+                        <parameter>rGate</parameter> is a reference to the
+                        gate that will be added.  The  object is cloned
+                        so that a dynamically created copy is actually stored.
+                    </para>
+                </listitem>
+            </varlistentry>          
+        <varlistentry>
+            <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>void </type>
+                    <methodname>ReplaceGate</methodname>
+                    <methodparam>
+                       <modifier></modifier>
+                       <type>const std::string&amp; </type>
+                       <parameter>rGateName, </parameter>
+                    </methodparam>
+                    <methodparam>
+                       <modifier></modifier>
+                       <type>CGate&amp;</type>
+                       <parameter> rGate</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis>           
+            </term>
+            <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>void </type>
+                    <methodname>DeleteGate</methodname>
+                    <methodparam>
+                       <modifier>const</modifier>
+                       <type> std::string&amp; </type>
+                       <parameter>rGateName</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis>
+            </term>
+            <listitem>
+                <para>
+                    These methods both actually replace the definition of
+                    an existing gate.  <methodname>ReplaceGate</methodname>
+                    replaces the defintion of the gate named
+                    <parameter>rGateName</parameter> with the gate
+                    <parameter>rGate</parameter>. The previous gate
+                    definition object is deleted (recall that
+                    <methodname>addGate</methodname> makes a dynamic clone).
+                </para>
+                <para>
+                    <methodname>DeleteGate</methodname> simply calls
+                    <methodname>ReplaceGate</methodname> with a false gate.
+                    SpecTcl's commands understand that such gates are actually
+                    deleted when listing gates.
+                </para>
+                <para>
+                    If no gate named <parameter>rGateName</parameter>
+                    is defined in the gate dictionary, a
+                    <classname>CDictionaryException</classname> is thrown.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>CGateContainer* </type>
+                    <methodname>FindGate</methodname>
+                    <methodparam>
+                       <modifier></modifier>
+                       <type>const std::string&amp; </type>
+                       <parameter>rGate</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis>
+            </term>
+            <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>CGateContainer* </type>
+                    <methodname>FindGate</methodname>
+                    <methodparam>
+                       <modifier></modifier>
+                       <type>UInt_t </type>
+                       <parameter>nId</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis>
+            </term>
+            <listitem>
+                <para>
+                    Locates a gate either by its
+                    name (<parameter>rGate</parameter>) or integer gate
+                    id (<parameter>nId</parameter>).  If no matching gate
+                    is found in the gate dictionary; a nul pointer is returned.
+                </para>
+                <para>
+                    The return value is a pointer to a <classname>CGateContainer</classname>.
+                    For all purposes, you can treat a <classname>CGateContainer</classname>
+                    as a pointer to the gate itself.  The gate container is what
+                    dependent gates actually use as this allows gate definitions
+                    to be modified transparently.
+                </para>
+                <para>
+                    Note that for any specific matched gate, SpecTcl
+                    gaurantees that a subsequent search for the same gate
+                    (by name or id) will return the same
+                    <classname>CGateContainer</classname>.  Furthermore
+                    a search for the same gate either by id or by name
+                    will, when matched both return the same gate container pointer.
+                </para>
+            </listitem>
+        </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateDictionaryIterator </type>
+                        <methodname>GateBegin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateDictionaryIterator </type>
+                        <methodname>GateEnd</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods iteration over thee gate dictionary.  A
+                        <classname>CGateDictionaryIterator</classname>
+                        is like a pointer to a
+                        <classname>std::pair&lt;std::string, CGateContainer*&gt;</classname>.
+                        The first element of the pair is a gate name.  The second a
+                        gate container that points to the gate that's currently
+                        bound to  that name.
+                    </para>
+                    <para>
+                        <methodname>GateBegin</methodname> returns an iterator that
+                        points to the first element in the gate dictionary.
+                        Incrementing this iterator points to the next element of the
+                        dictionary.  Incrementing the iterator when it points to the
+                        last element of the dictionary results in the value
+                        returned by <methodname>GetEnd</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>GateCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of entries in the gate dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addGateObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGateObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>              
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeGateObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGateObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods manage observers on the gate dictionary.
+                        For information about the
+                        observer programming pattern see:
+                        <ulink url='https://en.wikipedia.org/wiki/Observer_pattern' />.
+                        For information about the
+                        <classname>CGateObserver</classname> abstract
+                        base class, see <literal>DATA TYPES</literal> below.
+                    </para>
+                    <para>
+                        <methodname>addGateObserver</methodname> adds a new
+                        <parameter>observer</parameter>
+                        to the end of the list of observers of the
+                        gate dictionary.  <methodname>removeGateObserver</methodname>
+                        removes the <parameter>observer</parameter> from the
+                        set of observers established on the gate dictionary.
+                    </para>
+                    <para>
+                        While establishing the same observer more than once is
+                        pathalogical, nothing is done to prevent that.  If
+                        <methodname>removeGateObserver</methodname> is passed
+                        an <parameter>observer</parameter> that has been
+                        added more than once, all instances of that observer
+                        are removed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ApplyGate</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>const std::string&amp; </type>
+                           <parameter>rGateName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>rSpectrum</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term> 
+                <listitem>
+                    <para>
+                        Applies the gate named
+                        <parameter>rGateName</parameter> to the spectrum
+                        named <parameter>rSpectrum</parameter>.  If either the
+                        gate or the spectrum are not in their respective
+                        dictionaries, a <classname>CDictionaryException</classname>
+                        is thrown.
+                    </para>
+                    <para>
+                        Any previously applied gate remains defined but no longer
+                        affects when the spectrum is incremented.  If successful,
+                        the spectrum can only be incremented if the
+                        gate named by <parameter>rGateName</parameter> evaluates
+                        to true for the event.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>UnGate</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>rSpectrum</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is like doing a call to
+                        <methodname>ApplyGate</methodname> to the spectrum named
+                        <parameter>rSpectrum</parameter> passing a gate that is
+                        a true gate.  
+                    </para>
+                    <para>
+                        If <parameter>rSpectrum</parameter> does not name
+                        a spectrum that is defined in the spectrum dictionary
+                        a <classname>CDictionaryException</classname> is thrown.
+                        If successful, <parameter>rSpectrum</parameter> is incremented
+                        whenever all of the parameters required are present and
+                        inside the spectrum's axis bounds.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addGatingObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGatingObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeGatingObserver</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGatingObserver* </type>
+                           <parameter>observer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Manage the gating observers.  Gating observers
+                        observe the application of gates to spectra as well
+                        as the ungating of spectra.
+                        For infoirmation about the observer pattern see
+                        <ulink url='https://en.wikipedia.org/wiki/Observer_pattern' />.
+                        For information about
+                        <classname>CGatingObserver*</classname> objects
+                        see <literal>DATA TYPES</literal> below.
+                    </para>
+                    <para>
+                        <methodname>addGatingObserver</methodname> adds a new
+                        <parameter>observer</parameter> to the end of the list of
+                        observers that will be invoked when gate applications/removals
+                        are done.  <methodname>removeGatingObserver</methodname>
+                        removes the observer <parameter>observer</parameter>
+                        from the list of gating observers.
+                    </para>
+                    <para>
+                        While it is pathalogical to add the same observer more
+                        than once, no steps are taken to block this.   Furthermore,
+                        if <methodname>removeGatingObserver</methodname> is asked
+                        to remove a gating observer that has been multiply added,
+                        <emphasis>all</emphasis> instances of it in the observer
+                        list are removed.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        
+    </refsection>
+    <refsection>
+        <title>DATA TYPES</title>
+        <para>
+  typedef std::list&lt;CGateObserver*&gt;   GateObserverList;
+  typedef std::list&lt;CGatingObserver*&gt; GatingObserverList;
+
+  ParameterDictionary m_ParameterDictionary;
+  SpectrumDictionary  m_SpectrumDictionary;
+  CGateDictionary     m_GateDictionary; 
+  GateObserverList    m_gateObservers;  
+  GatingObserverList  m_gatingObservers;
+
+
+  CFlattenedGateList*   m_pGateList;
+  CSpectrumByParameter* m_pSpectrumLists;
+
+        </para>
+    </refsection>
+
+</refentry>
+        <chapter>
+            <title>Stuff to do</title>
+        
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Dictionary.h , CFitDictionary. CFilterDictionary.h
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    CAnalyzer
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    CTCLAnalyzer
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                   CParameter, CEvent
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Spectrum classes.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Gate Classes, and CGateContainer, Gating observer
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Fitting subsystem
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Filter subsystem
+                </para>
+            </listitem>
+        </itemizedlist>
+        </chapter>
     </part>
 </book>

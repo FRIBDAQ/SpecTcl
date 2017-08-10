@@ -176,7 +176,7 @@ class CHistogrammer : public CEventSink {
     m_ParameterDictionary = am_ParameterDictionary;
   }
 
-  void setSpectrumDictionary(const SpectrumDictionary am_SpectrumDictionary) {
+  void setSpectrumDictionary(const SpectrumDictionary& am_SpectrumDictionary) {
     m_SpectrumDictionary = am_SpectrumDictionary;
   }
 
