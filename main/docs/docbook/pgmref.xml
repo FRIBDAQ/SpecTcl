@@ -16361,22 +16361,390 @@ for (auto p = pH->ParameterBegin(); p != pH->ParameteEnd(); p++) {
     <refsection>
         <title>DATA TYPES</title>
         <para>
-  typedef std::list&lt;CGateObserver*&gt;   GateObserverList;
-  typedef std::list&lt;CGatingObserver*&gt; GatingObserverList;
-
-  ParameterDictionary m_ParameterDictionary;
-  SpectrumDictionary  m_SpectrumDictionary;
-  CGateDictionary     m_GateDictionary; 
-  GateObserverList    m_gateObservers;  
-  GatingObserverList  m_gatingObservers;
-
-
-  CFlattenedGateList*   m_pGateList;
-  CSpectrumByParameter* m_pSpectrumLists;
-
+            The <classname>CHistogrammer</classname> methods use a number
+            of data types.  These will be documented in full later in this
+            part of the manual.  A brief overview of some of them is given here.
         </para>
+        <para>
+            Let's start with dictionaries.  The <filename>Dictionary.h</filename>
+            is a templated class that wraps an <classname>std::map</classname>
+            object that is indexed by a string.  The actual object contained
+            by the map is templated.  The functionality added by
+            <classname>Dictionaries</classname> is support for observation.
+        </para>
+        <para>
+            Observation, or the observer pattern, is an object oriented
+            programming pattern that allows external objects (observers)
+            to be notified
+            of state changes in another objecdt (the observed objecdt).
+            <classname>Dictionary</classname> objects maintain a list of
+            observers.  
+        </para>
+        <para>
+            Each observer is an object from  class that is derived from
+            <classname>DictionaryObserver</classname>.  This is, inn turn
+            a templated class, templated by the type of object contained by
+            the <classname>Dictionary</classname>  it observers.
+        </para>
+        <para>
+            The observer base class provides an interface that looks like:
+        </para>
+        <programlisting>
+template &lt;class T&gt;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&amp; item) {}
+  virtual void onRemove( std::string name,    T&amp; item) {}
+
+};            
+        </programlisting>
+        <para>
+            Provided a do nothing implementation for each observer method
+            allows useful observers to only implement the methods they care about.
+        </para>
+        <para>
+            <methodname>onAdd</methodname> is called whenever <parameter>item</parameter>
+            is added to the dictionary with the name <parameter>name</parameter>.
+            This observer method is called after <parameter>item</parameter>
+            has been successfullly added to the dictionary.
+        </para>
+        <para>
+            <methodname>onRemove</methodname> is invoked whenever the
+            <parameter>item</parameter> associated with <parameter>name</parameter>
+            is removed from the dictionary.  It is called just prior to
+            <parameter>item</parameter>'s erasure from the map.
+        </para>
+        <para>
+            All observers form an ordered list and are called in the order in which
+            they were registered.
+        </para>
+        <para>
+            While we are talking about <classname>Dictionary</classname> observers,
+            let's look as well at <classname>GatingObserver</classname> objects.
+            These allow code to observer the application of gates to spectra
+            and the ungating of a spectrum.  As such they don't actually
+            fit well into the dictionary observers described.
+        </para>
+        <para>
+            Here's the interface presented by a <classname>GatingOBserver</classname>:
+        </para>
+        <programlisting>
+class CGatingObserver
+{
+public:
+    virtual void onApply(const CGateContainer&amp; rGate, CSpectrum&amp; rSpectrum,
+                         CHistogrammer&amp; rSorter) = 0;
+    virtual void onRemove(const CGateContainer&amp; rGate, CSpectrum&amp; rSpectrum,
+                          CHistogrammer&amp; rSorter) = 0;
+
+};
+
+        </programlisting>
+        <para>
+            As you can guess, <methodname>onApply</methodname> is invoked when
+            <parameter>rGate</parameter> is applied to
+            <parameter>rSpectrum</parameter>.  Similarly,
+            <methodname>onRemove</methodname> is applied when
+            <parameter>rSpectrum</parameter> is un-gated. In that case,
+            <parameter>rGate</parameter> is the gate that used to be applied
+            to that spectrum.  Note that in all cases,
+            <parameter>rSorter</parameter> is a reference to the histogrammer
+            object itself.
+        </para>
+        <para>
+            Next let's look at the type of dictinoaries
+            <classname>CHistogrammer</classname> maintains.  Each dictionary
+            represents a name indexed store of one of the fundamental
+            classes SpecTcl defines:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><classname>ParameterDictionary</classname></term>
+                <listitem>
+                    <para>
+                        The objects contained by this dictionary are
+                        <classname>CParameter</classname> objects.
+                        Note that
+                        this class is a final class; no subclasses are defined.
+                        The class supports copy construction allowing
+                        <classname>ParameterDictionary</classname> to
+                        contains <classname>CParameter</classname> objects rather
+                        than pointers or references.
+                    </para>
+                    <para>
+                        Once created  a <classname>CParameter</classname> object
+                        is considered immutable.
+                        See the <classname>CParameter</classname> reference
+                        page for more information about that object.  Normal code,
+                        however should strongly consider using
+                        <classname>CTreeParameter</classname> and
+                        <classname>CTreeParameterArray</classname> objects
+                        as front ends to the <classname>CParameter</classname>
+                        objects SpecTcl's guts use.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>SpectrumDictionary</classname></term>
+                <listitem>
+                    <para>
+                        This dictionary contains pointers to
+                        <classname>CSpectrum</classname> objects.  The
+                        <classname>CSpectrum</classname> class is an
+                        abstract base class for concrete classes that
+                        implement the rich variety of spectra SpecTcl supports.
+                    </para>
+                    <para>
+                        Therefore, spectrum objects must be created and then
+                        added to the dictionary in a separate step.
+                        
+                    </para>
+                    <para>
+                        In parallel with the spectrum dictionary, SpecTcl maintains
+                        data structures that facilitate parameter driven
+                        histogramming.  Those structures are maintained using the
+                        dictionary observer mechanism.  Their purpose is to restrict
+                        the number of histograms that must be asked to increment
+                        themselves for each event to those that depend on at least
+                        one parameter present in that event.  For sparse events,
+                        this results in significant performance improvements.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>CGateDictionary</classname></term>
+                <listitem>
+                    <para>
+                        Contains pointers to <classname>CGateContainer</classname>
+                        objects.  <classname>CGateContainer</classname> objects
+                        are wrappers for pointers to <classname>CGate</classname>
+                        objects.  When they were developed the various
+                        pointer like objects in the standard C++ library had not
+                        yet been defined and implemented.
+                    </para>
+                    <para>
+                        A <classname>CGateContainer</classname> object is a fixed
+                        object that can be handed to a user of a gate that is
+                        invariant, although the gate it points to may vary with time.
+                        If, for example, spectra contained a pointer to their gate,
+                        each time the definition of that gate changed, the
+                        value of that pointer would need to change too.
+                        You can think of a <classname>CGateContainer</classname>
+                        as a hidden pointer the gate pointer with methods that
+                        allow it to look like the gate pointer itself.
+                    </para>
+                    <para>
+                        By handing gated spectra a pointer to their gate's
+                        <classname>CGateContainer</classname> object the
+                        underlying gate pointer can be transparently modified
+                        with respect to the gate clients.
+                    </para>
+                    <para>
+                        <classname>CGate</classname> objects, which are what
+                        <classname>CGateContainers</classname> appear to point at,
+                        implement SpecTcl Gates.  <classname>CGate</classname>
+                        is an abstract base class for the class hierarchy that
+                        represents the rich set of gates SpecTcl defines.
+                    </para>
+                    <para>
+                        See reference information  on gate classes and
+                        the gate container for more information.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
     </refsection>
 
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>Dictionaries</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>Dictionaries</refname>
+        <refpurpose>Describe dictionaries used by SpecTcl</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Dictionary.h&gt;
+template &lt;class T&gt;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&amp; item) {}
+  virtual void onRemove( std::string name,    T&amp; item) {}
+
+};
+
+template &lt;class T&gt;
+class CDictionaryObserverManager 
+{
+  void addObserver(DictionaryObserver&lt;T&gt;* observer);
+  void removeObserver(DictionaryObserver&lt;T&gt;* observer);
+  void invokeAdd(const std::string name, T&amp; item);
+  void invokeRemove(const std::string name, T&amp; item);
+
+};
+
+template &lt;class T&gt;
+class CDictionary      
+{
+  DictionaryIterator Lookup(std::string sName);
+  ConstDictionaryIterator Lookup(std::string sName);
+  template&lt;class Predicate&gt;
+    DictionaryIterator FindMatch(Predicate p);
+  template&lt;class Predicate&gt;
+    ConstDictionaryIterator FindMatch(Predicate p);
+  void Enter(std::string sName, T&amp; Item);
+  void Remove(std::string rsName);
+
+  DictionaryIterator begin();
+  ConstDictionaryIterator begin() const;
+  DictionaryIterator end();
+  ConstDictionaryIterator end() const ;
+
+  UInt_t size() const;
+  void addObserver(DictionaryObserver&lt;T&gt;* observer);
+  void removeObserver(DictionaryObserver&lt;T&gt;* observer);
+};
+
+        </synopsis>
+        <synopsis>
+#include &lt;DictionaryException&gt;
+class CDictionaryException  : public CException        
+{
+public:
+  enum {
+    knDuplicateKey,
+    knDuplicateId,
+    knNoSuchId,
+    knNoSuchKey,
+    knWrongGateType
+  };
+  
+public:
+  CDictionaryException(Int_t nReason, const char* pDoing, 
+		       const char* pName);
+  CDictionaryException(Int_t nReason, const char* pDoing, 
+		       const std::string&amp; rName);
+  CDictionaryException(Int_t nReason, const std::string&amp; rDoing,
+		       const char* pName);
+  CDictionaryException(Int_t nReason, const std::string&amp; rDoing,
+		       const std::string&amp; rName);
+  CDictionaryException(Int_t nReason, const char* pDoing,
+		       UInt_t nId) ;
+  CDictionaryException(Int_t nReason, const std::string&amp; rDoing,
+		       UInt_t nId) ;
+
+  virtual   const char* ReasonText ()  const;
+  virtual   Int_t ReasonCode () const  ;
+};
+
+        </synopsis>
+        <synopsis>
+#include &lt;CFitDictionary.h&gt;
+class CFitDictionary {
+public:
+  typedef std::map&lt;std::string, CSpectrumFit*&gt; FitMap;
+  typedef FitMap::iterator      iterator;
+
+  class CObserver {
+  public:
+    virtual void Add(CSpectrumFit&amp; fit) =0;
+    virtual void Delete(CSpectrumFit&amp; fit) = 0;
+    virtual void Update(CSpectrumFit&amp; fit) = 0;
+
+  };
+
+  typedef std::list&lt;CObserver*&gt; ObserverList;
+
+  static CFitDictionary&amp; getInstance();
+
+  void add(CSpectrumFit&amp; fit);
+  void addOrReplace(CSpectrumFit&amp; fit);
+  void Delete(std::string name);
+
+  iterator begin();
+  iterator end();
+  size_t   size();
+  iterator find(std::string name);
+  void     erase(iterator here);
+  void     erase(iterator first, iterator last);
+
+  void updateFits(std::string name=std::string("*")); 
+
+  void addObserver(CObserver&amp; obs);
+  void removeObserver(CObserver&amp; obs);
+ 
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsection>
+        <title>DESCRIPTION</title>
+        <para>
+            This page describes SpecTcl dictionaries and their related classes.
+        </para>
+        <para>
+            The <classname>CDictionary</classname> class is a templated
+            class that associates names with arbitrary objects.  It adds to the
+            <classname>std::map</classname> class the ability to maintain
+            a set of <firstterm>observers</firstterm>.  Observers are objects
+            that are informed of changes in the dictionary (specifically
+            the addition and removal of items from the dictionary).
+        </para>
+        <para>
+            Closely related to the <classname>CDictionary</classname> class,
+            therefore are <classname>DictionaryObserver</classname>, the
+            templated base class of observers.  Applications will subclass this
+            and provide the appropriate template arguments for the dictionary
+            used to make use of them.  Note that in most cases where SpecTcl
+            uses a dictionary, it provides a typedef for the observer base class
+            that already has provided the template parameters.
+        </para>
+        <para>
+            <classname>CDictionaryObserverManager</classname> is actually
+            usable by wrapers of any name/value container (e.g. hashes and
+            multimaps).  It maintains a list of observer and provides
+            methods to invoke the observers it maintains.
+        </para>
+        <para>
+            The <classname>CDictionaryException</classname> class provides
+            an exception derived from <classname>CException</classname>
+            SpecTcl throws for many dictionary use violations.  These
+            are not normally thrown by the dictionary itself but by SpecTcl
+            code that provides a higher level API to specific dictionaries.
+        </para>
+        <para>
+            For example, the <classname>CHistogrammer</classname> throws these
+            if there is an attempt to duplicate the name or id of a dictionary
+            entry.
+        </para>
+        <para>
+            The <classname>CFitDictionary</classname> provides a dictionary
+            that manages SpecTcl fit objects.  In addition, the observers
+            maintained by fit dictionaries, contain a callback that is invoked
+            if a fit is modified, as well as if it is added or removed
+            from the dictionary.
+        </para>
+    </refsection>
+    <refsection>
+        <title>CDictionaryObserverManager</title><para></para>
+    </refsection>
+    <refsection>
+        <title>CDictionaryObserver</title><para></para>
+    </refsection>
+    <refsection>
+        <title>CDictionary</title><para></para>
+    </refsection>
+    <refsection>
+        <title>CDictionaryException</title><para></para>
+    </refsection>
+    <refsection>
+        <title>CFitDictionary></title><para></para>
+    </refsection>
 </refentry>
         <chapter>
             <title>Stuff to do</title>
