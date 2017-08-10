@@ -1080,7 +1080,6 @@ CHistogrammer::removeGatingObserver(CGatingObserver* observer)
   while (p != m_gatingObservers.end()) {
     if (*p == observer) {
       m_gatingObservers.erase(p);
-      return;
     }
     p++;
   }
