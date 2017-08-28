@@ -7589,7 +7589,7 @@ public:
 
 <refentry id="manpage.CTCLInterpreter">
     <refmeta>
-        <refentrytitle>CTCLInterpreter</refentrytitle>
+        <refentrytitle id='manpage.CTCLInterpreter.title'>CTCLInterpreter</refentrytitle>
         <manvolnum>3daq</manvolnum>
     </refmeta>
     <refnamediv>
@@ -17731,19 +17731,2976 @@ j  // Item was not found.
             </varlistentry>
         </variablelist>
     </refsect1>
+    
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CAnalyzer</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CAnalyzer</refname>
+        <refpurpose>Analyzer base class and classic analyzer</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Analyzer.h&gt;
+
+class CAnalyzer
+{
+public:
+  virtual void OnBuffer(UInt_t nBytes, Address_t pData);
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnPhysics(CBufferDecoder&amp; rDecoder);
+  virtual void OnScaler(CBufferDecoder&amp; rDecoder);
+  virtual void OnOther(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnEndFile();
+  virtual void OnInitialize();
+
+  CEventList&amp; getEventList();
+  CBufferDecoder* getDecoder() ;
+  CEventSink* getSink() ;
+
+  CBufferDecoder* AttachDecoder(CBufferDecoder&amp; rDecoder);
+  CBufferDecoder* DetachDecoder();
+  CEventSink*     AttachSink(CEventSink&amp; rSink);
+  CEventSink*     DetachSink();
+  void            entityNotDone();
+
+  
+protected:
+  virtual UInt_t OnEvent(Address_t pRawData, CEvent&amp; anEvent);
+
+  void           AbortEvent();
+
+  void CopyEventList(const CEventList&amp; rhs);
+  void CopyEventPool(const CEventList&amp; rhs);
+  void DetachAll();
+  CEvent* CreateEvent();
+  void ReturnEvent(CEvent* pEvent);
+  void ClearEventList();
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This class is currently used as the base class for the
+            <classname>CTclAnalyzer</classname> class used as the analyzer
+            in modern SpecTcl.  In the original SpecTcl version, this
+            <emphasis>was</emphasis>
+            the analyzer. 
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>PUBLIC METHODS</title>
+        <para>
+            The public interfaces to <classname>CAnalyzer</classname>
+            come in groups.  The first group defines the interface to the
+            analyzer used when handling data from an event source.  New analyzers
+            (such as <classname>CTclAnalyzer</classname>) can be built
+            by deriving a new class from these and overriding the
+            desired methods.
+        </para>
+        <para>
+            The second group of methods are public utilities.  These
+            provide methods that are related to the configuration of the
+            analyzer.  External entities may also call them but they
+            are not, strictly speaking, behavioral methods.
+        </para>
+        <para>
+            Let's look at the set of virtual public  methods that implement
+            the behavior of the analyzer first.  Note that 
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnBuffer</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>pData</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is invoked by the event input subsystem
+                        when a block of data is available on the data source.
+                        It will typically pass the block to the
+                        buffer decoder.  The buffer decoder will locate
+                        items within the block and make appropriate calls
+                        back to the analyzer to analyze those items.
+                    </para>
+                    <para>
+                        <parameter>nBytes</parameter> are the number
+                        of bytes of data in the block pointed to by
+                        <parameter>pData</parameter>.
+                    </para>
+                    <para>
+                        Typically derived classes don't need to override this
+                        method or at least can call it as part of their
+                        override.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnStateChange</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the buffer decoder when a state change item
+                        has been detected in the data block it was passed
+                        by <parameter>OnBuffer</parameter>.  State change
+                        items indicate that a run has changed state.
+                    </para>
+                    <para>
+                        <parameter>nType</parameter> is the item type from
+                        <filename>bufftypes.h</filename>.  It should normally
+                        be one of the following values.
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>BEGRUNBF</literal></term>
+                            <listitem>
+                                <para>
+                                    The state change indicates the beginning
+                                    of a new run.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <literal>ENDRUNBF</literal>
+                            </term>
+                            <listitem>
+                                <para>
+                                    The state change indicates the end of the
+                                    active run
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>PAUSEBF</literal></term>
+                            <listitem>
+                                <para>
+                                    The state change indicates a pause in data taking.
+                                    Note that it is perfectly legal for this to be
+                                    immediately followed by an end of run.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>RESUMEBF</literal></term>
+                            <listitem>
+                                <para>
+                                    The state change indicates a paused run
+                                    is being resumed.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <para>
+                        <parameter>rDecoder</parameter>, on the other hand
+                        refers to the buffer decoder that is calling this method.
+                        This is provided because the buffer decoder may have
+                        stashed items from the run state method that can be
+                        retrieved via some of its methods.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> void </type>
+                        <methodname>OnPhysics</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when one or more physics events is received.
+                        <parameter>rDecoder</parameter> is a reference to the
+                        decoder that called us.
+                    </para>
+                    <para>
+                        Looking at this method you might rightfully wonder
+                        where the data is hiding.  The answer is that
+                        the decoder; <parameter>rDecoder</parameter>
+                        has methods that can be used to get several pieces of
+                        information:
+                    </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                The number of physics events being made available.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                The number of bytes of data required to store
+                                these events.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                A pointer to the first of those events.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>
+                        Note that the buffer decoder is not responsible for
+                        telling you where the boundaries between events are.
+                        That's the responsibility of the event processor.
+                        Pushing that responsibility off to the event processor
+                        allows for the possibility that the DAQ system might
+                        be able to produce <firstterm>superevents</firstterm>, that
+                        is events that actually contain more than one single
+                        SpecTcl event.
+                    </para>
+                    <para>
+                        The base class method calls the
+                        <methodname>OnEvent</methodname> method for each
+                        event in the run of events.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> void </type>
+                        <methodname>OnScaler</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called if the buffer decoder locates a scaler event.
+                        In this case, the buffer decoder is supposed to supply
+                        the number of scalers and a pointer to the body of the
+                        scaler item.  The shape of a scaler item varies depending
+                        on the data acquisition system that created it.
+                        This implies that specialized user software is required
+                        to process scalers.
+                    </para>
+                    <para>
+                        If old versions of SpecTcl were used, the analysis of
+                        scaler data would have required subclassing
+                        <classname>CAnalyzer</classname> with a class that
+                        understood the specific scaler format and replacing
+                        the standard analyzer with an instance of this subclass.
+                        With current versions of SpecTcl, the understanding of
+                        scaler data is handled by the event processor.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> void </type>
+                        <methodname>OnOther</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when the decoder finds items in a buffer that
+                        don't fit into the catagories handled by the other
+                        types.  <parameter>nType</parameter> should be an
+                        item type from <filename>buftypes.h</filename>.
+                        for example <literal>STATEVARBF</literal> for an item
+                        containing state variables. <parameter>rDecoder</parameter>,
+                        once more, is a reference to the decoder object.
+                    </para> 
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when by the input handlers when an end file has
+                        been detected on the event source.    At present this
+                        invokes the decoder's <methodname>OnEnd</methodname>
+                        giving it a chance to flush out any unprocessed items.
+                        Unprocessed items can result from data sources that don't
+                        produce fixed size blocks of data (e.g. NSCLDAQ-10.x and later).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnInitialize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called after SpecTcl is fully initialized and
+                        is about to start processing commands.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Now let's look at the methods that are not functional in  nature.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventList&amp; </type>
+                        <methodname>getEventList</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        SpecTcl's event processing builds lists of
+                        <classname>CEvent</classname> objects produced
+                        by the <methodname>OnPhysics</methodname> method.
+                        When the event list has been sufficiently filled,
+                        the event sink is called to, among other things
+                        histogram the event.
+                    </para>
+                    <para>
+                        This method returns a reference to the list of events
+                        that have not yet been processed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier></modifier>
+                    <type>CBufferDecoder* </type>
+                    <methodname>getDecoder</methodname>
+                    <void />
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the analyzer's current buffer
+                        decoder.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink* </type>
+                        <methodname>getSink</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the event sink.  When this
+                        analyzer is used (usually not), this should
+                        return the histogrammer object. This analyzer does
+                        not pipeline the event sink, holding filters as
+                        a separate set of objects (another reason to use
+                        <classname>CTCLAnalyzer</classname>.
+                    </para>
+                    
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CBufferDecoder* </type>
+                        <methodname>AttachDecoder</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Attach a new buffer decoder to the analyzer.
+                        If there is already a buffer decoder its
+                        <methodname>OnDetach</methodname> method is invoked.
+                        <parameter>rDecoder</parameter>'s
+                        <methodname>OnAttach</methodname> is invoked.
+                    </para>
+                    <para>
+                        The return value is a pointer to the previous buffer
+                        decoder (NULL if there is none).  It is the
+                        responsibility of the caller to <literal>delete</literal>
+                        this decoder if it was dynamically allocated.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CBufferDecoder* </type>
+                        <methodname>DetachDecoder</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Detaches the current buffer decoder from the
+                        analyzer.  The current buffer decoder, if any
+                        will have its <methodname>OnDetach</methodname>
+                        method invoked.  A pointer to that decoder
+                        will be returned.
+                    </para>
+                    <para>
+                        If there was no current buffer decoder, a null pointer
+                        is returned.  If the buffer decoder returned was
+                        dynamically allocated its up to the caller to
+                        <literal>delete</literal> it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink*     </type>
+                        <methodname>AttachSink</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEventSink&amp; </type>
+                           <parameter>rSink</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Replaces the current event sink (normall the histogrammer)
+                        with <parameter>rSink</parameter>.  If there's a
+                        prior event sink its <methodname>OnDetach</methodname>
+                        is called.  <parameter>rSink</parameter>'s
+                        <methodname>OnAttach</methodname> method is called.
+                    </para>
+                    <para>
+                        A pointer to the previous event sink is returned.
+                        If there is none, a null pointer is returned.
+                        If the previous event sink was dynamically created the
+                        caller must <literal>delete</literal> it.
+                    </para>
+                    <para>
+                        Since most SpecTcls use a <classname>CTCLAnalyzer</classname>,
+                        which supports a pipeline of event sinks, there's
+                        not a reason to call this in a modern SpecTcl.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventSink*     </type>
+                        <methodname>DetachSink</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Detaches the current event sink from the analyzer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>entityNotDone</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This can be called from an event processor handling
+                        physics events.  When that event processor returns,
+                        the pointer will advance through the buffer, but
+                        the remaining entity count won't be decremented.
+                    </para>
+                    <para>
+                        The intent of this method is to provide support for
+                        <firstterm>superevent</firstterm>.  A superevent
+                        is an entity that appears to the buffer decoder like
+                        a single event, but actually contains several
+                        events.
+                    </para>
+                    <para>
+                        This has been used for high performance singles experiments,
+                        when muli-event ADC's are used.   In those experiments,
+                        the ADC's were allowed to use VME interrupts to signal
+                        they had some number of events to readout.  The
+                        ADCs were then drained completely for each of these
+                        'triggers'.  The result was an event from the standpoint
+                        of NSCLDAQ which contained several singles events.
+                    </para>
+                </listitem>
+            </varlistentry>
+          
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>PROTECTED METHODS</title>
+        <para>
+            These methods are used by derived classes.  They provide services
+            as well as a behavioral method (<methodname>OnEvent</methodname>).
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> UInt_t </type>
+                        <methodname>OnEvent</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>pRawData</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEvent&amp; </type>
+                           <parameter>anEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the anaylzer for each event.
+                        <parameter>pRawData</parameter> is a pointer to the
+                        event body while <parameter>anEvent</parameter> is
+                        the <classname>CEvent</classname> 'array' this method
+                        should fill in.  The  method must return the
+                        number of bytes processed.
+                    </para>
+                    <para>
+                        This version <classname>CAnalyzer</classname> base class
+                        is used by creating a derived class that implements an
+                        appropriate <methodname>OnEvent</methodname> method and
+                        registering an instance of the derived class as the
+                        analyzer.  Modern SpecTcl's, register a
+                        <classname>CTCLAnalyzer</classname> instance which
+                        implements an <methodname>OnEvent</methodname> method
+                        that executes an event processing pipeline instead.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void  </type>
+                        <methodname>AbortEvent</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called frrom <methodname>OnEvent</methodname> to prevent
+                        an  event from being histogrammed.  This can be called
+                        either as a software trigger on the event or, if a
+                        structural problem was detected with the event that makes
+                        the data untrustworthy.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void CopyEventList</type>
+                        <methodname></methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>CEventList&amp; </type>
+                           <parameter>rhs</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The event list are the set of events that have been
+                        unpacked by <methodname>OnPhysics</methodname> but not yet
+                        passed to the event sink.  This method makes a copy of
+                        the event list into <parameter>rhs</parameter>.
+                    </para>
+                    <para>
+                        This is primarily used by the assignment operator and
+                        copy constructor.  In other words, if you find yourself
+                        using this method, you're probably doing something
+                        very odd.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>CopyEventPool</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>const CEventList&amp; </type>
+                           <parameter>rhs</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        When <classname>CEvent</classname> objects have
+                        been analyzed by the event sink, they are
+                        invalidated and returned to an
+                        <firstterm>event pool</firstterm>.  This allows them
+                        to be recycled, removing the overhead of deletion and
+                        re-creation (an event serial is used so that the
+                        invalidation is short constant time as well).
+                    </para>
+                    <para>
+                        This method copies the contents of the current
+                        event pool to the <parameter>rhs</parameter>.
+                        This method is used by the assignment operator and
+                        copy constructor.  If you find yourself using this
+                        method for other purposes, you're probably doing something
+                        odd.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void</type>
+                        <methodname> DetachAll</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Detaches both  the event sink and the buffer decoder.
+                        Note that this will leak memory if either of those
+                        objects was dynamically created.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEvent* </type>
+                        <methodname>CreateEvent</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides a new invalidated event. Invalidated, in this
+                        context means any parameters in the array have not
+                        yet been assigned a value.
+                    </para>
+                    <para>
+                        If there are entries in the event pool, on eis removed
+                        and a pointer to it is returned.  If not, <literal>new</literal>
+                        is used to create a new event.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ReturnEvent</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEvent* </type>
+                           <parameter>pEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Puts the event pointed to by <parameter>pEvent</parameter>
+                        back into the event pool.  Normally the event is
+                        invalidated first.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ClearEventList</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        All events in the eventl ist are put into the event pool.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CTclAnalyzer</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTclAnalyzer</refname>
+        <refpurpose>Analyzer integrated with Tcl supporting pipeline</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;TCLAnalyzer.h&gt;
+
+class CTclAnalyzer {
+public:
+  typedef std::pair&lt;std::string, CEventProcessor*&gt; PipelineElement;
+  typedef std::list&lt;PipelineElement&gt; EventProcessingPipeline;
+  typedef EventProcessingPipeline::iterator EventProcessorIterator;
+  typedef std::vector&lt;CTCLVariable*&gt;  VariableArray;
+  
+public:
+  CTclAnalyzer(CTCLInterpreter&amp; rInterp, UInt_t nP, UInt_t nBunch);
+  CTCLInterpreter* getInterpreter();
+  
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnPhysics(CBufferDecoder&amp; rDecoder);
+  virtual void OnOther(UInt_t nType, CBufferDecoder&amp; rDecoder);
+  virtual void OnScaler(CBufferDecoder&amp; rDecoder);
+  virtual void OnEndFile();
+  
+  virtual void OnBegin(CBufferDecoder* rDecoder);
+  virtual void OnEnd(CBufferDecoder*   rDecoder);
+  virtual void OnPause(CBufferDecoder* rDecoder);
+  virtual void OnResume(CBufferDecoder* rDecoder);
+  virtual void OnInitialize();
+
+  void AddEventProcessor(CEventProcessor&amp; rProcessor,
+			 const char* pName = 0); // Append to pipe.
+  EventProcessorIterator FindEventProcessor(std::string name);
+  EventProcessorIterator FindEventProcessor(CEventProcessor&amp; processor);
+  void InsertEventProcessor(CEventProcessor&amp; processor, 
+			    EventProcessorIterator here, 
+			    const char* name = 0);
+  CEventProcessor* RemoveEventProcessor(std::string name);
+  CEventProcessor* RemoveEventProcessor(EventProcessorIterator here);
+  UInt_t size();
+  EventProcessorIterator begin();
+  EventProcessorIterator end();
+
+  void IncrementCounter(Counter eSelect, UInt_t incr = 1);
+  void ClearCounter(Counter eSelect);
+
+  void SetEventSize(UInt_t nSize);
+  void IncrementEventSize(UInt_t nIncr=2) ;
+  UInt_t GetEventSize() ;
+  
+};
+enum Counter {
+  RunsAnalyzed          = 0,
+  EventsAnalyzed        = 1,
+  EventsAnalyzedThisRun = 2,
+  EventsAccepted        = 3,
+  EventsAcceptedThisRun = 4,
+  EventsRejected        = 5,
+  EventsRejectedThisRun = 6
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+             The <classname>CTclAnalyzer</classname> class is a SpecTcl analyzer
+             that extends the base class by:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Maintaining statistical counters that can be retrieved from
+                    Tcl
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Supporting a list of event processors, rather than a single
+                    one.  The list is called the
+                    <firstterm>Event processing pipeline</firstterm>. 
+                </para>
+            </listitem>
+        </itemizedlist>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CTclAnalyzer</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CTCLInterpreter&amp; </type>
+                           <parameter>rInterp</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nP</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nBunch</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+   
+                </term>
+                <listitem>
+                    <para>
+                        The constructor sets up several variables that
+                        are defined in 
+                        <parameter>rInterp</parameter>.  This interpreter
+                        should be the SpecTcl command interpreter so that these
+                        variables will be visible to commands executed by SpecTcl.
+                    </para>
+                    <para>
+                        <parameter>nP</parameter> is the initial number of parameters
+                        for each <classname>CEvent</classname> object
+                        constructed by the base class.  Since these objects are
+                        recycled from event to event, the value of this
+                        has no effect on performance.
+                        <parameter>nBunch</parameter> is the size of the bunch
+                        of events that will be accumulated before invoking the
+                        event sink pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CTCLInterpreter* </type>
+                        <methodname>getInterpreter</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the interpreter in which this analyzer
+                        maintains its statistics variables.  Normally, this is
+                        the SpecTcl command processing interpreter.  
+                    </para>
+                    <para>
+                        Note that the return value is a pointer to a
+                        <classname>CTCLInterpreter</classname> object.  The
+                        reference documentation on the Tcl++ library describes
+                        this and related classes.  The
+                        <link linkend='manpage.CTCLInterpreter'
+                              endterm='manpage.CTCLInterpreter.title' /> manpage
+                              provides details about this specific claass.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnStateChange</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Overrides the base class's method that processes
+                        state change operations.  After calling the base
+                        class's <methodname>OnStateChange</methodname> method,
+                        this method fans out
+                        the state change processing for the following
+                        item types:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>BEGRUNBF</literal></term>
+                            <listitem>
+                                <para>
+                                    Invokes <methodname>OnBegin</methodname>
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>ENDRUNBF</literal></term>
+                            <listitem>
+                                <para>
+                                    Invokes
+                                    <methodname>OnEnd</methodname>.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>PAUSEBF</literal></term>
+                            <listitem>
+                                <para>
+                                    Invokes <methodname>OnPause</methodname>
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>RESUMEBF</literal></term>
+                            <listitem>
+                                <para>
+                                    Invokes <methodname>OnResume</methodname>
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnPhysics</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier>
+
+                        </modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        After invoking the base class <methodname>OnPhysics</methodname>
+                        method, increments statistics variables that
+                        indicate the number of items analyzed and the
+                        sequence number of the last item analyzed. For
+                        NSCLDAQ-8.x and earlier, the decoder gets the
+                        sequence number from the buffer header.  For
+                        NSCLDAQ-10.0 and later, this sequence number is
+                        number of triggers from the most recently seen
+                        <literal>PHYSICS_EVENT_COUNT</literal> item.
+                    </para>
+                    <para>
+                        Note that no effort is made to actually analyze the
+                        data in this method.  The Tcl analyzer establishes
+                        an event processor for the base class that contains
+                        an ordered list of event processors.   When the
+                        base class <methodname>OnPhysics</methodname>
+                        method
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnOther</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type> CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Iterates over the event processors in the
+                        event processing pipeline invoking their
+                        <methodname>OnOther</methodname> methods.
+                        If an event processor returns a false value
+                        (<literal>kfFALSE</literal>), iteration is aborted
+                        after that stage of the pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnScaler</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder&amp; </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a scaler item is received.  This
+                        invokes <methodname>OnOther</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an end file is encountered on a data source.
+                        For file data sources this happens when there's no
+                        more data in the file.  For pipe data sources this
+                        happens when the program feeding the pipeline
+                        exits.
+                    </para>
+                    <para>
+                        The event processors in the pipeline are iterated
+                        calling <methodname>OnEventSourcEOF</methodname>.
+                        If one of the event processors returns
+                        false, event processor pipeline processing is terminated.
+                    </para>
+                    <para>
+                        Regardless, the <varname>RunState</varname> Tcl variable
+                        is set to <literal>Halted</literal> indicating that
+                        SpecTcl is no longer processing event data. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEnd</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder*   </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an end run item is encounterd.  Sets the
+                        <varname>RunState</varname> variable to
+                        <literal>Halted</literal> indicating analysis is no longer
+                        active and then calls the <methodname>OnEnd</methodname>
+                        method of each event processor in the event processing
+                        pipeline.
+                    </para>
+                    <para>
+                        If an event processor returns false, no more event
+                        processors will be called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnPause</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder* </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>                  
+                </term>
+                <listitem>
+                    <para>
+                        Called when a pause run item is received. The
+                        <varname>RunState</varname> variable is set to
+                        <literal>Paused</literal> and the
+                        <methodname>OnPause</methodname> method is
+                        called for each element of the event processing pipeline.
+                    </para>
+                    <para>
+                        If an event processing pipeline element returns
+                        false, no futher event processors are called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnResume</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CBufferDecoder* </type>
+                           <parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a resume item is received.  The
+                        <varname>RunState</varname> variable is set to
+                        <literal>Active</literal> indicating data is being
+                        analyzed.  The 
+                        <methodname>OnResume</methodname> method is invoked
+                        for each element of the event processing pipeline.
+                        If an element  of the pipeline returns false,
+                        no more event processors are invoked.
+                    </para>
+                    <para>
+                        Note that when analyzing a file data source, the
+                        <varname>RunState</varname> variable will flip quickly
+                        between <literal>Paused</literal> and
+                        <literal>Active</literal> for a run that is paused and
+                        resumed.  For a pipe data source connected to live data,
+                        however, this variable will remain in the
+                        <literal>Paused</literal> state until the user
+                        resumes the run.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                    <modifier>virtual </modifier>
+                    <type>void </type>
+                    <methodname>OnInitialize</methodname>
+                    <void />
+                    <modifier></modifier>
+                </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called after SpecTcl's initialization is complete.
+                        The <methodname>OnInitialize</methodname> method
+                        of each element of the event processign pipeline is
+                        called.  If any element returns false, no more elements
+                        are called.
+                    </para>
+                    <para>
+                        This is intended for use when initialization requires
+                        knowing that all of SpeTcl's services are available.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void</type>
+                        <methodname> AddEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEventProcessor&amp; </type>
+                           <parameter>rProcessor</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>char* </type>
+                           <parameter>pName</parameter><initializer> 0</initializer>
+                        </methodparam>
+			 
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds <parameter>rProcessor</parameter> as to the
+                        end of the event processing pipeline.  The object
+                        must be live as long as it is in the event processing
+                        pipeline.
+                    </para>
+                    <para>
+                        If provided, <parameter>pName</parameter> is used to name
+                        the event processor.  If this is not provided, a unique
+                        name of the form <literal>Anonymous::</literal><replaceable>number</replaceable>
+                        is assigned where <replaceable>number</replaceable>
+                        is a sequentially assigned integer number.
+                    </para>
+                </listitem>
+            </varlistentry>          
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>EventProcessorIterator </type>
+                        <methodname>FindEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>std::string </type>
+                           <parameter>name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator to the element of the event processing
+                        pipeline that has the name <parameter>name</parameter>.
+                        If no such element exists, the value returned is the
+                        same as that returned from
+                        <methodname>end</methodname>.
+                    </para>
+                    <para>
+                        Event processor iterators can be treated as if they
+                        were pointers to an
+                        <classname>std::pair&lt;std::string, CEventProcessor*&gt;</classname>.
+                        The first element of the pair is the name of an event processor.
+                        The second, a pointer to the event processor itself.
+                    </para>
+                    <para>
+                        Incrementing an iterator points it to the next pipeline
+                        element.  Incrementing the iterator when it points to the
+                        last element of the pipeline returns
+                        the same value as that returned from
+                        <methodname>end</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>EventProcessorIterator </type>
+                        <methodname>FindEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEventProcessor&amp; </type>
+                           <parameter>processor</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Locates an event processor given a reference to it.
+                        The use case for this is to delete an anonymous event
+                        processor from the eventprocessing pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>InsertEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CEventProcessor&amp;</type>
+                           <parameter> processor</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>EventProcessorIterator </type>
+                           <parameter>here</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> char* </type>
+                           <parameter>name</parameter><initializer>0</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides the ability to insert an event processor anywhere
+                        in the event processing pipeline.  The event processor
+                        is inserted just prior  to the item pointed to by
+                        <parameter>here</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventProcessor* </type>
+                        <methodname>RemoveEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>std::string</type>
+                           <parameter> name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the named event processor
+                        <parameter>name</parameter>.    The return value
+                        is a pointer to the event processor removed from
+                        the list.  No steps are taken to destroy that processor so
+                        if it has been dynamically created with <literal>new</literal>
+                        it must be destroyed with <literal>delete</literal>
+                    </para>
+                    <para>
+                        If there is no event processor in the event processing
+                        pipeline, the return value is a null pointer. It is up
+                        to the caller to decide if this represents an error.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventProcessor* </type>
+                        <methodname>RemoveEventProcessor</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>EventProcessorIterator</type>
+                           <parameter> here</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the event processor pointed to by the iterator
+                        <parameter>here</parameter>.  The return value is
+                        a pointer to the event processor that was removed.
+                        It is up to the caller to destroy that event processor,
+                        if desired.
+                    </para>
+                    <para>
+                        Note this method invalidates the iterator <parameter>here</parameter>.
+                        Destruction and assignment become the only operatiosn with
+                        defined meaning.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of elements in the event procesing
+                        pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>EventProcessorIterator </type>
+                        <methodname>begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator that points to the first element of
+                        the event processing pipeline. See
+                        <methodname>find</methodname> above for a description of
+                        <classname>EventProcessorIterator</classname> objects.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>EventProcessorIterator </type>
+                        <methodname>end</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an end of iteration iterator.  This is the value of
+                        the iterator that results from incrementing an iterator
+                        that points to the last <classname>PipelineElement</classname>
+                    </para>
+                    <para>
+                        Here is sample code that might list the names of all
+                        event processors:
+                    </para>
+                    <programlisting>
+CAnalyzer* pA;
+...                       // Assume pA got set to point at the analyzer:
+
+for (auto p = pA->begin(), p != pA->end(); p++) {
+    std::cout &lt;&lt; p-&gt;first &lt;&lt; std::endl;
+}
+                    </programlisting>
+                    <para>
+                        The code above is intended just to show a typical use of
+                        <methodname>begin</methodname> and
+                        <methodname>end</methodname> to iterate over the entire
+                        event processing pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                     <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>IncrementCounter</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Counter </type>
+                           <parameter>eSelect</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>incr </parameter>
+                           <initializer>1</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                     </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Increments one of the Tcl statistics counters
+                        maintained by this object.  <parameter>eSelect</parameter>
+                        selects which counter to increment.  It is described
+                        in <literal>DATA TYPES</literal> below.  
+                    </para>
+                    <para>
+                        Unless <parameter>incr</parameter> is supplied, the
+                        counter is incremented by <literal>1</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ClearCounter</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Counter </type>
+                           <parameter>eSelect</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Clears the counter selected by
+                        <parameter>eSelect</parameter>.  This values this
+                        enumerated parameter can have are described
+                        in <literal>DATA TYPES</literal> below.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>SetEventSize</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nSize</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        At least one event processor must invoke this.
+                        The event size in bytes is set to be <parameter>nSize</parameter>.
+                        This is used to determine where the next event in a run of
+                        events is.  
+                    </para>
+                    <para>
+                        Note that if a supervent has been declared this will
+                        be used to point to the next event in the superevent.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>IncrementEventSize</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nIncr</parameter><initializer>2</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds <parameter>nIncr</parameter> to the size of the
+                        event. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t</type>
+                        <methodname> GetEventSize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the current understanding of the size
+                        of this event.
+                    </para>
+                </listitem>
+            </varlistentry>
+  
+           
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            The header <filename>TCLAnalyzer.h</filename> defines both nested
+            and global level data types.  This section will first describe the
+            globally defined data types and then the nested type.
+        </para>
+        <para>
+            One globally defined data type <classname>Counter</classname>
+            is defined.  This is an enumerated type whose values select the
+            Tcl counter operated on by e.g. <methodname>IncrementCounter</methodname>.
+            These statistics are maintained in the Tcl array
+            <varname>Statistics</varname>.
+            The type can have any of the following values.  
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><literal>RunsAnalyzed</literal></term>
+                <listitem>
+                    <para>
+                        Increments the <literal>RunsAnalyzed</literal> element
+                        of <varname>Statistics</varname>.  This counter
+                        is incremented by the analyzer whenever it
+                        executes its
+                        <methodname>OnBegin</methodname> method.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>EventsAnalyzed </literal></term>
+                <listitem>
+                    <para>
+                        Selects the element
+                        <literal>EventsAnalyzed</literal> from the
+                        <varname>Statistics</varname> array.  This counter
+                        is incremented every time
+                        <methodname>OnEvent</methodname> is executed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>EventsAnalyzedThisRun </literal></term>
+                <listitem>
+                    <para>
+                        Selects <literal>EventsAnalyzedThisRun</literal>.
+                        Same as <literal>EventsAnalyzed</literal> but
+                        additionally, this counter is also cleared by
+                        <methodname>OnBegin</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>EventsAccepted</literal></term>
+                <listitem>
+                    <para>
+                        Selects <literal>EventsSelected</literal>.  This
+                        counts the number of events that made it through
+                        the entire event processing pipeline without
+                        any element returning false.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>EventsAcceptedThisRun</literal></term>
+                <listitem>
+                    <para>
+                        Selects <literal>EventsAcceptedThisRun</literal>.
+                        Same as <literal>EventsAccepted</literal> but is also
+                        cleared by <methodname>OnBegin</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>EventsRejected</literal></term>
+                <listitem>
+                    <para>
+                        Selects <literal>EventsRejected</literal>.  Incremented
+                        for each event for which the event processing  pipeline was aborted
+                        because an event processor returned false.  Note that
+                        exceptions thrown by an event processor caught by the
+                        <classname>CTclAnalyzer</classname> object are
+                        treated as pipeline aborts for the purpose
+                        of this counter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <literal>EventsRejectedThisRun</literal>
+                </term>
+                <listitem>
+                    <para>
+                        Selects <literal>EventsRejectedThisRun</literal>. This
+                        is the same as <literal>EventsRejected</literal> but
+                        is also cleared by
+                        <methodname>OnBegin</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Several data types are defined within the <classname>CTclAnalyzer</classname>
+            class.  These are mostly related to the event processing pipeline.
+            These types are defined via <literal>typedef</literal>.  To specify
+            these types in your code you'll need to use the scope resolution
+            operator.  For example, <classname>PipelineElement</classname>
+            must be referred to as a <classname>CTclAnalyzer::PipelineElement</classname>.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><classname>PipelineElement</classname></term>
+                <listitem>
+                    <para>
+                        This is an element of the list that contains
+                        an event processing pipeline element. It associates
+                        an event processor with a name and places it in an ordered
+                        container of event processors.
+                    </para>
+                    <para>
+                        The actual type is:
+                        <classname>std::pair&lt;std::string, CEventProcessor*&gt;</classname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>EventProcessingPipeline</classname></term>
+                <listitem>
+                    <para>
+                        The actual event processing pipeline.  This is actually a
+                        <classname>std::list&lt;PipelineElement&gt;</classname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>EventProcessorIterator</classname></term>
+                <listitem>
+                    <para>
+                        Represents an iterator into the event processing
+                        pipeline container.  This is actually a
+                        <classname>EventProcessingPipeline::iterator</classname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><classname>VariableArray</classname></term>
+                <listitem>
+                    <para>
+                        Defines a vector that contains TCL variables:
+                        <classname>std::vector&lt;CTCLVariable*&gt;</classname>
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>   
+        
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CBufferDecoder</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CBufferDecoder</refname>
+        <refpurpose>Base class for SpecTcl buffer decoders</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;BufferDecoder.h&gt;
+
+class CBufferDecoder {
+ protected:
+  UInt_t    m_nSize;    // Number of bytes in buffer.
+
+ public:
+  CBufferDecoder(); 
+  virtual ~CBufferDecoder();
+  int operator==(const CBufferDecoder&amp; aCBufferDecoder);
+  const Address_t getBuffer();
+ protected:
+  void setBuffer (Address_t am_pBuffer);
+ public:
+  virtual BufferTranslator* getBufferTranslator();
+  virtual const Address_t getBody() = 0;
+  virtual UInt_t getBodySize() = 0;
+  virtual UInt_t getRun() = 0;
+  virtual UInt_t getEntityCount() = 0;
+  virtual UInt_t getSequenceNo() = 0;
+  virtual UInt_t getLamCount() = 0;
+  virtual UInt_t getPatternCount() = 0;
+  virtual UInt_t getBufferType() = 0;
+  virtual void getByteOrder(Short_t&amp; Signature16,
+			    Int_t&amp; Signature32) = 0;
+  virtual std::string getTitle() = 0;
+  virtual void operator() (UInt_t nBytes,
+			   Address_t pBuffer,
+			   CAnalyzer&amp; rAnalyzer);
+
+  virtual void OnAttach(CAnalyzer&amp; rAnalyzer);
+  virtual void OnDetach(CAnalyzer&amp; rAnalyzer);
+  virtual bool blockMode();	
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
+
+ protected:
+  void ThrowIfNoBuffer(const char* pszWhatImDoing);
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This class is an abstract base class for the set of buffer decoders.
+            Buffer decoders are responsible for taking a block of data received
+            from a data source and breaking it up into items.  These items are
+            then passed to the appropriate analyzer methods for
+            detailed processing.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CBufferDecoder</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The base class constructor is a default constructor.
+                        It has no parameters.  Typically, the state of a
+                        buffer decoder is meaningless until data arrives.
+                        This is because only when data arrives does the
+                        buffer decoder do anything.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getBuffer</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the data most recently received.
+                        If, for some pathalogical reason, data has not yet
+                        been received, a null pointer is received.
+                    </para>
+                    <para>
+                        Note that it is possible that derived classes will have
+                        their own book-keeping for buffers of data received from
+                        the data source.  Those decoders should, nonetheless
+                        use <methodname>setBuffer</methodname> to set the
+                        buffer member data of their base class to ensure
+                        this methiod works.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>BufferTranslator* </type>
+                        <methodname>getBufferTranslator</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to a buffer translator for this
+                        block of data.  A buffer translator is an object
+                        that knows how to perform byte order translations between
+                        the byte ordering of the source system and the system
+                        SpecTcl is executing on.
+                    </para>
+                    <para>
+                        In most cases the default implementation will not be
+                        useful as it was written with NSCLDAQ-7.x/8.x
+                        buffer formats in mind.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getBody</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the body of the block of data
+                        the decoder is currently working on.  Normally, this is
+                        a pointer to the next item, or run of items the
+                        analyzer should process.  For NSCLDAQ-10.x and later,
+                        for example, this will be a pointer to the body
+                        of a ring item.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBodySize</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of bytes in the body.  This will
+                        be the number of bytes of data in the block pointed
+                        to by the pointer returned from
+                        <methodname>getBody</methodname>.  Note that actually
+                        this will be the number of bytes from that body to be
+                        processed by the analyzer and may, in fact, be smaller
+                        than the storage pointeed to by
+                        <methodname>getBody</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEntityCount</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of items in the block of data
+                        pointed to by <methodname>getBody</methodname>.  This is
+                        mostly intended for use with blocks containing runs of
+                        events from physics triggers.  
+                    </para>
+                    <para>
+                        The analyzer's
+                        <methodname>OnPhysics</methodname> can use this and
+                        <methodname>getBodySize</methodname> to know how much
+                        data to process and to double check the
+                        event processor does  not over step the boundaries of
+                        the block or leave data unprocessed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getSequenceNo</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the sequence number of the last item processed.
+                        Note that this may not be precisely determined for
+                        some DAQ systems, and may not even be available.
+                    </para>
+                    <para>
+                        This value is maintained by SpecTcl in Tcl variables
+                        so that the GUI can display the analysis efficiency
+                        (which maybe less than 1 for online analysis).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getLamCount</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        From the traditional nscldaq, returns the number of LAM
+                        registers.  This comes from the tradition of CAMAC where LAM bit masks
+                        show the set of modules with data available in a crate.
+                        This is vestigial; allowing NSCLDAQ-7.x/8.x to report
+                        the number of CAMAC crates in a 'larger' experiment.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getPatternCount</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Vestigial method from when readouts were pattern register
+                        driven.  This method used to return the number
+                        of pattern registers used to drive the readout pattern.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBufferType</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the item type in the block of data currently
+                        being processed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>getByteOrder</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Short_t&amp;</type>
+                           <parameter> Signature16</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t&amp; </type>
+                           <parameter>Signature32</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns byte order signatures that describe the order
+                        of bytes in the data.  <parameter>Signature16</parameter>
+                        will be written with the value <literal>0x0102</literal>
+                        in the byte ordering of the creating system.
+                        <parameter>Signature32</parameter>, will similarly be written
+                        with <literal>0x01020304</literal> in the byte ordering
+                        of the originating system.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the title from the most recently received
+                        begin run information.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type> UInt_t </type>
+                           <parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a new chunk of data comes in.  <parameter>nBytes</parameter>
+                        is the number of bytes of data received. <parameter>pBuffer</parameter>
+                        is pointer to the data received. <parameter>rAnalyzer</parameter>
+                        refers to the analyzer that should be called back
+                        to handle specific items and runs of items.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnAttach</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is called when a decoder object is
+                        attached to SpecTcl. This can happen at startup time, but
+                        also can happen when the
+                        <command>attach</command> command specifies a format
+                        that selects a specific decoder object type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnDetach</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when the buffer decoder is detached from SpecTcl.
+                        This will happen when a new one is attached.  Typically
+                        this will be because the <command>attach</command>
+                        command is used to start taking data from a source
+                        that has a different format than the prior source.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>bool </type>
+                        <methodname>blockMode</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If this method returns <literal>true</literal>,
+                        SpecTcl will require that a full fixed size block
+                        of data be read before invoking the decoder.  If,
+                        however <literal>false</literal> is returned,
+                        the buffer decoder is invoked on the successful
+                        completion of any read from the data source.
+                    </para>
+                    <para>
+                        This only has any impact on how pipe data sources
+                        are handled.  Note that there's still no guarantee
+                        the  a block read is a clean multiple of the
+                        data items
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnSourceAttach</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Invoked when a new data source is attached to SpecTcl.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnSourceDetach</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a data source is detached from SpecTcl.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an end file is encountered on the current
+                        data source.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected: </modifier>
+                        <type>void </type>
+                        <methodname>setBuffer </methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>am_pBuffer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the value returned from
+                        <methodname>getBuffer</methodname> to be
+                        <parameter>am_pBuffer</parameter>.  This can be used
+                        by a derived class when it needs to do its oown buffer
+                        management to keep this base class apprised of the data
+                        it is operating on.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected: </modifier>
+                        <type>void </type>
+                        <methodname>ThrowIfNoBuffer</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>char*</type>
+                           <parameter> pszWhatImDoing</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        To use this a derived class must use
+                        <methodname>setBuffer</methodname> to always maintain
+                        the a valid buffer pointer.  If this is called and
+                        either <methodname>setBuffer</methodname> last
+                        set a null pointer or was never called, a
+                        <classname>CEventFormatError</classname> exception
+                        is called with a reason code of
+                        <literal>CEventFormatError::knNoCurrentBuffer</literal>
+                        and a was doing text of <parameter>pszWhatImDoint</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>     
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+            (3SpecTcl)CNSCLBufferDecoder,
+                    (3SpecTcl)CNSCLJumboBufferDecoder, (3SpecTcl)CRingBufferDecoder,
+        </para>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CNSCLBufferDecoder</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CNSCLBufferDecoder</refname>
+        <refpurpose>Decode fixed sized event buffers from NSCLDAQ-7.x/8.x</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;NSCLBufferDecoder.h&gt;
+
+class CNSCLBufferDecoder : public CBufferDecoder {
+public:
+  CNSCLBufferDecoder();
+  virtual ~CNSCLBufferDecoder();
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize();
+  virtual UInt_t getRun();
+  virtual UInt_t getEntityCount();
+  virtual UInt_t getSequenceNo();
+  virtual UInt_t getLamCount();
+  virtual UInt_t getPatternCount();
+  virtual UInt_t getBufferType();
+  virtual void getByteOrder(Short_t&amp; Signature16, Int_t&amp; Signature32);
+  virtual std::string getTitle();
+  virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer&amp; rAnalyzer);
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This buffer decoder decodes fixed length event bufers from
+            NSCLDAQ-7.x/8.x.  These buffers are typically 8Kbytes long, however
+            they may be longer or shorter as long as the total number of bytes
+            per buffer is no larger than 128K-2 bytes.
+        </para>
+        <para>
+            See CNSCLJumboBufferDecoder for larger bufer sizess.
+        </para>
+        <para>
+            This data format uses homogeneous buffers.  Typically, non event buffers
+            have a single item.  Event buffers, however are packed with as
+            many items as will fit.  This means that buffers that contain non
+            event data are typically very space wasteful.  Fortunately in most
+            cases they are also not frequently emitted compared with event
+            data buffers.
+        </para>
+        <para>
+            This class is concrete.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CNSCLBufferDecoder</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructor. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getBody</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        NSCLDAQ 7.x/8.x buffers have a header of 32 bytes
+                        (16 uin16_t).  This method returns a pointer to the
+                        first byte after this header.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBodySize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of words used in the body of the
+                        buffer.  Note that not all words of the buffer
+                        may be used.  THe first 16 bits of the buffer contain
+                        the number of used 16 bit words  in the buffer;
+                        <varname>nwds</varname>.  This method,
+                        therefore returns
+                        <literal>(nwds - 16) * sizeof(uint16_t)</literal> 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getRun</methodname>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The header of NSCLDAQ 7.x/8.x buffers contains
+                        the run number.  This method returns the run number
+                        from the most recently received buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEntityCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>               
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of entities in the buffer.
+                        For physics buffers, this is the number of events in the
+                        buffer.  For scaler events, this is the number of
+                        scaler channels present in the buffer.  For all other
+                        item typesm, this is <literal>1</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getSequenceNo</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        NSCLDAQ 7.x/8.x buffers have sequence numbers.  These,
+                        together with a count of the number of buffers seen
+                        can be used to approximate the sampling fraction for
+                        online analysis (when SpecTcl may not be able to
+                        keep up with the data rate).
+                    </para>
+                    <para>
+                        This method returns the sequence number from the last
+                        buffer received.  Note that sequence numbers start from
+                        zero at the beginning of each run.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getLamCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The header of NSCLDAQ 7.x/8.x buffers includes a
+                        word that contains the number of lam masks in an event.
+                        This actually is vestigial dating back to K500 days
+                        when events has a much more fixed format that include
+                        a set of pattern registers and a set of LAM registers.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getPatternCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Same as for <methodname>getLamCount</methodname> but the
+                        method returns the header field containing the pattern
+                        register count.  This too is vestigial.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBufferType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>getByteOrder</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Short_t&amp; </type>
+                           <parameter>Signature16</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t&amp; </type>
+                           <parameter>Signature32</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the byte order signatures that describe the
+                        byte ordering of the system that generated the
+                        most recent data buffer.  Note that these values
+                        are header members for buffers from
+                        NSCLDAQ 7.x/8.x
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the title of the current run.  In
+                        NSCLDAQ 7.x/8.x run titles are stored in state
+                        transition buffers.  The value returnes is the
+                        value from the most recently received state transition
+                        buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type> CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Processes a new buffer of data.
+                        <parameter>nBytes</parameter> is the physical size
+                        of the buffer.  The header of the buffer determines how
+                        much of the physical buffer contains useful data.
+                        <parameter>pBuffer</parameter> points to the data and
+                        <parameter>rAnalyzer</parameter> is a reference
+                        to the analyzer we must call back for item processing.
+                    </para>
+                </listitem>
+            </varlistentry>           
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CNSCLJumboBufferDecoder</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CNSCLJumboBufferDecoder</refname>
+        <refpurpose>Decode NSCLDAQ 7.x/8.x buffers bigger than 128Kbytes.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CNSCLJumbBufferDecoder&gt;
+
+class CNSCLJumboBufferDecoder : public CBufferDecoder {
+public:
+  CNSCLJumboBufferDecoder();
+  virtual ~CNSCLJumboBufferDecoder() ;
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize();
+  virtual UInt_t getRun();
+  virtual UInt_t getEntityCount();
+  virtual UInt_t getSequenceNo();
+  virtual UInt_t getLamCount();
+  virtual UInt_t getPatternCount();
+  virtual UInt_t getBufferType();
+  virtual void getByteOrder(Short_t&amp; Signature16, Int_t&amp; Signature32);
+  virtual std::string getTitle();
+  virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer&amp; rAnalyzer);
+
+        </synopsis>        
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This decoder is a special version of the
+            <classname>CNSCLBufferDecoderr</classname> class.  An unused
+            header words is repurposed to hold the top bits of a 32 bit buffer
+            size.  Furthermore;  events in physics buffers have a 32 bit event
+            size as their header.  This allows both for buffers bigger than
+            64Kwords and for events larger than 64Kwords.
+        </para>
+        <para>
+            The motivation for this type of buffer was a series of experiments
+            that used a waveform capture device capable of delivering
+            events much larger than 64Kwords of data.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CNSCLJumboBufferDecoder</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructor for objects of this class.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>const Address_t</type>
+                        <methodname> getBody</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Operates the same as for <classname>CNSCLBufferDecoder</classname>;
+                        returns a pointer tot he first byte after the 32 byte
+                        header.
+                    </para>
+                </listitem>
+            </varlistentry>          
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t</type>
+                        <methodname> getBodySize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of bytes used in the buffer.
+                        The jumbo buffer format holds the low
+                        16 bit of the used buffer size (words) in the first
+                        element of the buffer header.   A previously unused
+                        word in the buffer (<structfield>nwdsHigh</structfield>)
+                        is used to hold the top 16 bits of the used buffer size.
+                    </para>
+                    <para>
+                        The decoder combines these to form a 32 bit value
+                        and subtracts the size of the buffer header from that
+                        to get the final size.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getRun</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As with <classname>CNSCLBufferDecoder</classname>, returns
+                        the run number from the buffer header.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEntityCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As with <classname>CNSCLBufferDecoder</classname>,
+                        returns the number of entities in the buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getSequenceNo</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As with <classname>CNSCLBufferDecoder</classname>,
+                        returns the sequence number of the last buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t</type>
+                        <methodname> getLamCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As for <classname>CNSCLBufferDecoder</classname>,
+                        returns the lam count from the buffer header.
+                        This is deprecated as LAM register counts have not
+                        been part of typical NSCL events for decades.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getPatternCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As with <classname>CNSCLBufferDecoder</classname>,
+                        returns the pattern register count from the
+                        buffer header.  This is deprecated as most
+                        events, these days, don't actually have any pattern
+                        registers, thanks to the ability of digitizers
+                        to auto-zero suppress.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t</type>
+                        <methodname> getBufferType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the type of data in the buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>getByteOrder</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Short_t&amp; </type>
+                           <parameter>Signature16</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t&amp; </type>
+                           <parameter>Signature32</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As with <classname>CNSCLBufferDecoder</classname>,
+                        returns the byte order signatures in
+                        <parameter>Signature16</parameter> and
+                        <parameter>Signature32</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns title from the most recent run state
+                        transition buffer.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called for each block of data received from the data
+                        source.  This is a fixed block sized buffer decoder
+                        so the value of <parameter>nBytes</parameter> should
+                        always be the same within a run.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
 </refentry>
         <chapter>
             <title>Stuff to do</title>
         
         <itemizedlist>
+            
             <listitem>
                 <para>
-                    CAnalyzer
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    CTCLAnalyzer
+                    CRingBufferDecoder
                 </para>
             </listitem>
             <listitem>
