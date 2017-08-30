@@ -20693,6 +20693,729 @@ public:
         </variablelist>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CRingBufferDecoder</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CRingBufferDecoder</refname>
+        <refpurpose>Decode data from ring buffers</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CRingBufferDecoder&gt;
+ 
+class CRingBufferDecoder : public CBufferDecoder
+{
+public:
+  CRingBufferDecoder();
+  virtual ~CRingBufferDecoder();
+
+  virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer&amp; rAnalyzer);
+
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize();
+  virtual UInt_t getRun();
+  virtual UInt_t getEntityCount();
+  virtual UInt_t getSequenceNo();
+  virtual UInt_t getLamCount();
+  virtual UInt_t getBufferType();
+  virtual UInt_t getPatternCount();
+  virtual void   getByteOrder(Short_t&amp; signature16,
+			      Int_t&amp;   signature32);
+  virtual std::string    getTitle();
+  virtual BufferTranslator* getBufferTranslator();
+
+  virtual bool blockMode();	// True if data source must deliver fixed sized blocks.
+  
+  // Format helpers and stuff that gets you at what they know.
+  
+
+  bool  hasBodyHeader();
+  void* getBodyHeaderPointer();
+  void* getItemPointer();
+
+  void  setFormatHelper(CRingFormatHelper* pHelper);
+  void  setDefaultFormatHelper(CRingFormatHelper* pHelper);
+  CRingFormatHelper* getCurrentFormatHelper();
+  CRingFormatHelper* getDefaultFormatHelper();
+  
+  CRingFormatHelperFactory* getFormatFactory();
+  
+  // Members called that can invalidate the format helper:
+  
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
+};       
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This class decodes data from NSCLDAQ 10.x and above.  Since the
+            format of ring items differs between NSCLDAQ 10.x and NSCLDAQ 11.0 and
+            above (11.0 introduces body headers to better support event building),
+            this decoder relies on a <classname>CRingFormatHelper</classname>
+            to deal with these differences.
+        </para>
+        <para>
+            When a data source is first opened with <option>-format</option> ring,
+            you can use the <command>ringformat</command> command to specify
+            the NSCLDAQ version used.  Alternatively, if you are certain
+            that the data source will see the beginning of a run
+            (not joining a run in progress on an online system), the
+            class will use the presence (or absence) of a ring format item
+            to select the appropriate format helper.   The absence of a ring
+            format item selects the 10.x helper, while the version information
+            in a ring format item will select the proper helper, if present.
+        </para>
+        <para>
+            Finally, the format helper can be set programmatically
+            via the <methodname>setFormatHelper</methodname> and
+            <methodname>setDefaultFormatHelper</methodname> methods, depending
+            on what you are trying to do.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CRingBufferDecoder</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructor.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nBytes</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type> Address_t</type>
+                           <parameter> pBuffer</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CAnalyzer&amp; </type>
+                           <parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called whenever data has been received from the source.
+                        This method breaks the <parameter>nBytes</parameter> bytes
+                        of data in <parameter>pBuffer</parameter> into ring items.
+                        Each item is then passed to the appropriate
+                        method of <parameter>rAnalyzer</parameter>.
+                    </para>
+                    <para>
+                        Note that since SpecTcl does fixed sizedd reads and
+                        ring items are inherently variable sized, it is possible
+                        for ring items to span from one buffer to the next.
+                        This decoder recognizes this and mates partial ring items
+                        at the end of each buffer with partial ring items at the
+                        beginning of the next buffer.
+                    </para>
+                    <para>
+                        Since ring items are atomically read from the ring buffer,
+                        it must be possible to reconstruct ring items that have
+                        been split across buffer boundaries as sampling is done
+                        at the ring item leve, not the buffer level.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getBody</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the body of the ring item being processed.  Note
+                        that if the nscldaq-11.x helper has been selected,
+                        this will be a pointer to the data <emphasis>following</emphasis>
+                        the body header.  Otherwise it will point just after
+                        the ring item header, as 10.x does not have body headers.
+                    </para>
+                    <para>
+                        The 11.x helper knows about the potential for zero length
+                        body headers.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> UInt_t </type>
+                        <methodname>getBodySize</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the size of the ring item body.  Note that this
+                        is the amount of data pointed to by the return value
+                        from <methodname>getBody</methodname>.
+                    </para>
+                    <para>
+                        To clarify, for the nscldaq 11.x helper, this value does
+                        not include the size of the body header.  This choice was
+                        made because the purpose of this method is to return
+                        the number of bytes that must be processed by the
+                        analyzer for data returned by
+                        <methodname>getBody</methodname>.  The decoder
+                        treats body headers as ancillary metadata for events that
+                        can be retrieved by user code via special methods
+                        provided by this class.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getRun</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the last run number seen.  Note that in
+                        ring buffer NSCLDAQ systems, the run number is only
+                        present in state change ring items.  If one of those
+                        has not yet been seen, because SpecTcl is joining an
+                        online run in progress, the run number returned will
+                        be zero, or the most recent run from the prior data source,
+                        if there was one.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getEntityCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of items in the data pointed to
+                        by <methodname>getBody</methodname>.   Normally this
+                        will be <literal>1</literal>, however for scaler items,
+                        this will be the number of scaler channels present in
+                        the item.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> UInt_t </type>
+                        <methodname>getSequenceNo</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an approximation of the number of triggers seen.
+                        NSCLDAQ 10.x don't maintain sequence numbers in ring items.
+                        Instead periodically a ring item is emitted with trigger
+                        statistics.  The value of this method is the
+                        number of triggers for which data was emitterd for
+                        this run, from the most recently received trigger count
+                        item.  As the run evolves in time, this allows a
+                        reasonable estimate of the analysis efficiency since
+                        the percent error in the number of triggers will
+                        go towards zero in the limit as the run time goes to
+                        infinity.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getLamCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>0</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>UInt_t </type>
+                        <methodname>getBufferType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the SpecTcl type of the item type currently
+                        being processed.  For historical reasons these differ
+                        from ring item types and are mapped as follows from
+                        types in <filename>dataformat.h</filename> in NSCLDAQ
+                        to <filename>buftypes.h</filename>:
+                    </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                <literal>BEGIN_RUN</literal> maps to
+                                <literal>BEGRUNBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>END_RUN</literal> maps to
+                                <literal>ENDRUNBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>PAUSE_RUN</literal> maps to
+                                <literal>PAUSEBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>RESUME_RUN</literal> maps to
+                                <literal>RESUMEBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>PACKET_TYPES</literal> maps to
+                                <literal>PKTDOCBF</literal>.  Though I should
+                                point out that these items are rare in
+                                NSCLDAQ-10.x and later readouts.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>MONITORED_VARIABLES</literal>
+                                maps to <literal>RUNVARBF</literal>.  This
+                                is mostly used by NSCLDAQ 10.x and later
+                                when injection of EPICS data into the data stream
+                                is done as that's the known use-case now
+                                for these item types.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>PERIODIC_SCALERS</literal> this
+                                NSCLDAQ-11 type maps to
+                                <literal>SCALERBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>NSCLDAQ10::INCREMENTAL_SCALERS</literal>
+                                This NSClDAQ-10 type maps to
+                                <literal>SCALERBF</literal>.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <literal>PHYSICS_EVENT</literal> maps to
+                                <literal>DATABF</literal>
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                Any other type is not modified and will, therefore,
+                                cause <methodname>OnOther</methodname> to be
+                                called in the analyzer.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                    
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> UInt_t </type>
+                        <methodname>getPatternCount</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>0</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void   </type>
+                        <methodname>getByteOrder</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Short_t&amp; </type>
+                           <parameter>signature16</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Int_t&amp;   </type>
+                           <parameter>signature32</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns byte order signatures for the current ring item.
+                        Each ring item type is a 16 bit value in a 32 bit word
+                        with the most significant bits (in the generating system)
+                        zero.  This allows consuming systems to determine the
+                        relative byte ordering and, therefore, generate
+                        accurate generating byte order signatures.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string    </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the title from the last state change item.  If
+                        no state change items have been seen yet (can happen
+                        if SpecTcl starts analyzing on line data in the
+                        middle of an active run), an empty string is returned.,
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>BufferTranslator* </type>
+                        <methodname>getBufferTranslator</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the buffer translator being used
+                        to perform any byte order manipulations to transform
+                        the data into the format used by the host executing
+                        SpecTcl.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>bool </type>
+                        <methodname>blockMode</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>false</literal>.  Ring buffer data
+                        can  accept data buffers shorter than the requested
+                        read size and this can (and probably will) happen at
+                        the end of a run.
+                    </para>
+                </listitem>
+            </varlistentry>          
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> </modifier>
+                        <type>bool </type>
+                        <methodname>hasBodyHeader</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the item has a body header <literal>true</literal>
+                        is returned, otherwise, <parameter>false</parameter>
+                        is returned.  See also <methodname>getBodyHeaderPointer</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void* </type>
+                        <methodname>getBodyHeaderPointer</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the body header of a ring item.
+                        If the ring item has no body header (NSCLDAQ 10.x) or has
+                        a body header length of zero (NSCLDAQ 11.x item with no
+                        body header), then a null pointer is returned.
+                    </para>
+                </listitem>
+            </varlistentry>  
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void* </type>
+                        <methodname>getItemPointer</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the ring item being processed.
+                        In all versions this returns a pointer to the ring item
+                        header.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void  </type>
+                        <methodname>setFormatHelper</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CRingFormatHelper* </type>
+                           <parameter>pHelper</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Replaces the current ring format helper with
+                        <parameter>pHelper</parameter>.
+                        <parameter>pHelper</parameter> must have been
+                        created with <literal>new</literal>
+                        
+                    </para>
+                    <para>
+                        Note that if
+                        a ring format item is seen after this is called, the
+                        ring format helper is destroyed and replaced by the
+                        appropriate one.  Therefore it's recommended, instead,
+                        to use <methodname>setDefaultFormatHelper</methodname>
+                        to set a default ring format helper.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void  </type>
+                        <methodname>setDefaultFormatHelper</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CRingFormatHelper* </type>
+                           <parameter>pHelper</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the default format helper to use for a new run
+                        until (or unless) a format item is seen.  If a format
+                        item is seen, that is used to select a (potentially)
+                        new format helper.
+                    </para>
+                    <para>
+                        Since NSCLDAQ 10 does not have ring format items,
+                        it is wise to use the format helper
+                        <classname>CRingFormatHelper10</classname> unless
+                        you have good reason to believe that the software
+                        will be analyzing NSCLDAQ 11.0 and later and will be
+                        joining runs online in the middle of the run.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CRingFormatHelper* </type>
+                        <methodname>getCurrentFormatHelper</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the format helper currently being
+                        used by the decoder.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CRingFormatHelper* </type>
+                        <methodname>getDefaultFormatHelper</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the default format helper currently
+                        in effect.  Note that it is possible that the this does
+                        not represent the active format helper, especially if
+                        a ring format item was encountered that indicates a different
+                        format helper should be u7sed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CRingFormatHelperFactory* </type>
+                        <methodname>getFormatFactory</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the ring format
+                        helper factory
+                        being used by this object.  The ring format
+                        factory is responsible for selecting and creating
+                        a ring format helper compatible with the data
+                        that has been seen by the decoder.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnSourceAttach</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a new data source is attached.  The
+                        current buffer format helper is deleted and, for now,
+                        the decoder falls back on the default buffer format
+                        helper.
+                    </para>
+                    <para>
+                        Once a ring format item is seen, (or rather if one
+                        is seen), the ring format helper factory is used
+                        to select an appropriate helper for the current
+                        data source.  Furthermore, the format helper can be
+                        set programmatically by calling
+                        <methodname>setFormatHelper</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname> OnSourceDetach</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when  data source is detached. This invalidates
+                        the current buffer format helper in much the same manner
+                        as <methodname>OnSourceAttach</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>OnEndFile</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an end file is encountered on a data source.
+                        This also invalidates the ring format helper.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+
         <chapter>
             <title>Stuff to do</title>
         
@@ -20700,7 +21423,7 @@ public:
             
             <listitem>
                 <para>
-                    CRingBufferDecoder
+                     CRingFormatHelper, 10, 11.  RingFormatHelperFactory
                 </para>
             </listitem>
             <listitem>
