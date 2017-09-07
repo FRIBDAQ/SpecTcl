@@ -52,24 +52,6 @@ bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
     return !(GateInfo2D::operator==(rhs));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-True::True(const string& name) : GateInfo(name, TrueGate)  {}
-True::True() : True("") {}
-
-unique_ptr<GateInfo> True::clone() const {
-  return unique_ptr<GateInfo>(new True(*this));
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-False::False(const string& name) : GateInfo(name, FalseGate)  {}
-False::False() : False("") {}
-
-unique_ptr<GateInfo> False::clone() const { 
-  return unique_ptr<GateInfo>(new False(*this));
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

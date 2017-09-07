@@ -99,10 +99,6 @@ namespace SpJs
         GateInfo* pUndisplayable = new GateInfo(gate["name"].asString(), type);
         pInfo.reset(pUndisplayable);
         
-      //} else if (typeStr == "F") {
-      //    pInfo = parseFalse(gate);
-      //} else if (typeStr == "T") {
-      //    pInfo = parseTrue(gate);
       } else {
       
         GateInfo* pGate = new GateInfo(gate["name"].asString(), SpJs::UnrecognizedGateType);
@@ -200,27 +196,6 @@ namespace SpJs
       return std::move(pInfo);
   }
 
-  std::unique_ptr<GateInfo> GateCmdParser::parseFalse(const Json::Value& gate)
-  {
-    False* pDerived;
-    unique_ptr<GateInfo> pInfo(pDerived = new False());
-
-    // there is only one element... the name
-    pInfo->setName(gate["name"].asString());
-
-    return std::move(pInfo);
-  }
-
-  std::unique_ptr<GateInfo> GateCmdParser::parseTrue(const Json::Value& gate)
-  {
-    True* pDerived;
-    unique_ptr<GateInfo> pInfo(pDerived = new True());
-
-    // there is only one element... the name
-    pInfo->setName(gate["name"].asString());
-
-    return std::move(pInfo);
-  }
 
 } // end of namespace
 

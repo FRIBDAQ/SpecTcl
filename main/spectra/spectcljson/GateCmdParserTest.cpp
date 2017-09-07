@@ -144,10 +144,10 @@ void GateCmdParserTest::parseList_3()
     CPPUNIT_ASSERT_NO_THROW(res = SpJs::GateCmdParser().parseList(value));
     CPPUNIT_ASSERT_EQUAL(size_t(1), res.size());
 
-    SpJs::False act;
-    CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<SpJs::False&>(*(res.at(0).get())) );
-
-    SpJs::False exp("test");
+    SpJs::GateInfo act("test", SpJs::FalseGate);
+    CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<SpJs::GateInfo&>(*(res.at(0).get())) );
+    CPPUNIT_ASSERT_EQUAL(SpJs::FalseGate, res.at(0).get()->getType());
+    SpJs::GateInfo exp("test", SpJs::FalseGate);
     CPPUNIT_ASSERT(exp == act);
 
 }

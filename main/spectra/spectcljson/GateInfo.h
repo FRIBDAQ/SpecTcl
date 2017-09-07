@@ -68,32 +68,11 @@ namespace SpJs
   };
 
   // Forward declarations of classes
-  class True;
-  class False;
+
   class Slice;
   class Band;
   class Contour;
 
-  struct True : public GateInfo
-  {
-    public:
-    True();
-    True(const std::string& name);
-
-    GateType getType() const { return m_type; }
-    std::unique_ptr<GateInfo> clone() const;
-  };
-
-
-  struct False : public GateInfo
-  {
-    public:
-    False();
-    False(const std::string& name);
-
-    GateType getType() const { return m_type; }
-    std::unique_ptr<GateInfo> clone() const;
-  };
 
   /**! \brief Slices are 1d gates on a single parameter
    *
