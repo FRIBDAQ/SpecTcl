@@ -9,7 +9,9 @@
 namespace SpJs
 {
 
-  enum GateType { SliceGate, ContourGate, BandGate, FalseGate, TrueGate };
+  enum GateType { SliceGate, ContourGate, BandGate, FalseGate, TrueGate, C2BandGate,
+                  GammaSliceGate, GammaBandGate, GammaContourGate, EqualMaskGate, AndMaskGate,
+                  NotMaskGate, NotGate, OrGate, AndGate, UnrecognizedGateType};
 
   struct GateInfo 
   {
@@ -24,8 +26,12 @@ namespace SpJs
 
     virtual ~GateInfo();
 
-    virtual GateType getType() const = 0;
-    virtual std::unique_ptr<GateInfo> clone() const = 0;
+    virtual GateType getType() const {          // Reasonable default impls.
+      return m_type;
+    }
+    virtual std::unique_ptr<GateInfo> clone() const {
+      return std::move(std::unique_ptr<GateInfo>(new GateInfo(*this)));
+    };
 
     void setName(const std::string& name) { m_name = name; }
     std::string getName() const { return m_name; }

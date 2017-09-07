@@ -2,6 +2,7 @@
 #include "GateCmdParser.h"
 
 #include <vector>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include "GateInfo.h"
@@ -11,6 +12,25 @@ using namespace std;
 
 namespace SpJs
 {
+  static std::map<std::string, SpJs::GateType> typeTranslations;
+  static SpJs::GateType typeStrToType(std::string typeName) {
+    if (typeTranslations.empty()) {
+      typeTranslations["c2band"] = SpJs::C2BandGate;
+      typeTranslations["gs"]     = SpJs::GammaSliceGate;
+      typeTranslations["gb"]     = SpJs::GammaBandGate;
+      typeTranslations["gc"]     = SpJs::GammaContourGate;
+      typeTranslations["em"]     = SpJs::EqualMaskGate;
+      typeTranslations["am"]     = SpJs::AndMaskGate;
+      typeTranslations["nm"]     = SpJs::NotMaskGate;
+      typeTranslations["-"]      = SpJs::NotGate;
+      typeTranslations["+"]      = SpJs::OrGate;
+      typeTranslations["*"]      = SpJs::AndGate;
+      typeTranslations["T"]      = SpJs::TrueGate;
+      typeTranslations["F"]      = SpJs::FalseGate;
+    }
+    return typeTranslations[typeName];
+  }
+  
   vector<unique_ptr<GateInfo>> GateCmdParser::parseList(const Json::Value& value)
   {
     using Json::Value;
@@ -23,6 +43,12 @@ namespace SpJs
     const Value& detail = value["detail"];
 
     int nGates = detail.size();
+
+    // Loop over all the gates.
+    // Note some gates are not displayable (for example +, -, *, T, F).
+    // these must still be parsed and added to the list so that the gate listbox
+    // contains them.
+
     for (int index=0; index<nGates; ++index) {
       unique_ptr<GateInfo> pInfo;
       const Value& gate = detail[index];
@@ -39,17 +65,49 @@ namespace SpJs
       } else if (typeStr == "c") {
           pInfo = parseContour(gate);
 
-      } else if (typeStr == "F") {
-          pInfo = parseFalse(gate);
-      } else if (typeStr == "T") {
-          pInfo = parseTrue(gate);
+      // Missing gate types are:
+      // c2band - contour from 2 bands (compound).
+      // gs     - gamma slice.
+      // gb     - gamma band
+      // gc     - gamma contour
+      // em     - Makd equal
+      // am     - And mask.
+      // nm     - Nand mask.
+      // -      - Not gate.
+      // +      - OR gate.
+      // *      - And gate.
+      
+      // For now just make these bare GateInfo Structs with only the
+      // type and name filled in.  That may at least put them in the
+      // list of displayed gates and keep us from emitting error messages
+      // see the kludge comment.
+      
+      } else if (typeStr == "c2band"               ||
+                 typeStr == "gs"                   ||
+                 typeStr == "gb"                   ||
+                 typeStr == "gc"                   ||
+                 typeStr == "em"                   ||
+                 typeStr == "am"                   ||
+                 typeStr == "nm"                   ||
+                 typeStr == "-"                    ||
+                 typeStr == "+"                    ||
+                 typeStr == "*"                    ||
+                 typeStr == "F"                    ||
+                 typeStr == "T"  ) {
+        
+        SpJs::GateType type = typeStrToType(typeStr);
+        GateInfo* pUndisplayable = new GateInfo(gate["name"].asString(), type);
+        pInfo.reset(pUndisplayable);
+        
+      //} else if (typeStr == "F") {
+      //    pInfo = parseFalse(gate);
+      //} else if (typeStr == "T") {
+      //    pInfo = parseTrue(gate);
       } else {
-          string err = "Gate type ";
-          err += typeStr;
-          err += " is not understood";
-          throw runtime_error(err);
+      
+        GateInfo* pGate = new GateInfo(gate["name"].asString(), SpJs::UnrecognizedGateType);
+        pInfo.reset(pGate);
       }
-
       result.push_back(std::move(pInfo));
     }
     
