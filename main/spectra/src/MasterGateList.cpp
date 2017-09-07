@@ -36,12 +36,25 @@ using namespace std;
 namespace Viewer
 {
 
+/**
+ ** This nested 'struct' provides a predicate that allows two gates to
+ ** be compared. by name.
+ **   @param   - left hand side of the comparison.
+ **   @param   - right hand side of the comparison.
+ **   @return bool - if the lhs name is lexicographically earlier than rhs's name
+ **/
 bool MasterGateList::Compare1D::operator()(const std::unique_ptr<GSlice>& lhs,
                                     const std::unique_ptr<GSlice>& rhs) const 
 {
   return (lhs->getName().compare(rhs->getName()))<0;
 }
 
+
+/**
+ *  See Compare2D - this is an unfortunate consequence of not deriving all
+ *  gates from a 'named item' base class in which case both  there would
+ *  not be a need to differentiate how 2d an 2d gate names are compared.
+ */
 bool MasterGateList::Compare2D::operator()(const std::unique_ptr<GGate>& lhs,
                                       const std::unique_ptr<GGate>& rhs) const 
 {
