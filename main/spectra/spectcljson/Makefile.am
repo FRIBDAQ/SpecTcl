@@ -1,5 +1,3 @@
-
-
 lib_LTLIBRARIES = libSpecTclJson.la
 
 SUBDIRS = json
