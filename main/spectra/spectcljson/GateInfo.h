@@ -73,35 +73,55 @@ namespace SpJs
   class Band;
   class Contour;
 
+  /**
+   * Cuts are gates with a low and a high limit.
+   * They are the base for slices and gamma slices...both of which
+   * have a low and a high limit value.
+   */
+  struct Cut : public GateInfo
+  {
+  private:
+    double m_low;
+    double m_high;
+  
+  public:
+    Cut(GateType type);
+    Cut(const std::string& name, GateType type, double low, double high);
+    Cut(const Cut& rhs);
+    virtual ~Cut();
+    
+    virtual std::unique_ptr<GateInfo> clone() const;
+    
+  public:
+    void setLowerLimit(double value) { m_low = value; }
+    double getLowerLimit() const { return m_low; }
+
+    void setUpperLimit(double value) { m_high = value; }
+    double getUpperLimit() const { return m_high; }
+    
+  public:
+    virtual bool operator==(const Cut& rhs) const;
+    virtual bool operator!=(const Cut& rhs) const;
+
+  };
 
   /**! \brief Slices are 1d gates on a single parameter
    *
    */
-  struct Slice : public GateInfo
+  struct Slice : public Cut
   {
   private:
     std::string m_param;
-    double m_low;
-    double m_high;
-
   public:
     Slice();
     Slice(const std::string& name, const std::string& parameter, double low, double high);
     Slice(const Slice& rhs);
     virtual ~Slice();
 
-    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
 
     void setParameter(const std::string& paramName) { m_param = paramName; }
     std::string getParameter() const { return m_param; }
-
-    void setLowerLimit(double value) { m_low = value; }
-    double getLowerLimit() const { return m_low; }
-
-    void setUpperLimit(double value) { m_high = value; }
-    double getUpperLimit() const { return m_high; }
-
 
     virtual bool operator==(const Slice& rhs) const;
     virtual bool operator!=(const Slice& rhs) const;

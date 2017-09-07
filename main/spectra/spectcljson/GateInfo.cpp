@@ -52,6 +52,65 @@ bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
     return !(GateInfo2D::operator==(rhs));
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Cut Implementation:
+
+/**
+ * Closest to a default constructor we have:
+ *    @param type - actual gate type -should be compatible with a cut-like gate.
+*/
+Cut::Cut(GateType type) :
+    Cut("", type, 0, 0)
+{}
+
+/**
+ *  Full constructor
+ *  @param name - name of the gate.
+ *  @param type - gate type.
+ *  @param low  - initial low limit.
+ *  @param high - initial high limit.
+ */
+Cut::Cut(const std::string& name, GateType type, double low, double high) :
+    GateInfo(name, type),
+    m_low(low), m_high(high)
+{}
+/**
+ * Copy construtor
+ */
+Cut::Cut(const Cut& rhs) :
+    GateInfo(rhs),
+    m_low(rhs.m_low), m_high(rhs.m_high)
+{}
+
+/**
+ * Nothing dynamic to destruct:
+ */
+Cut::~Cut() {}
+
+/**
+ * clone basically virtual copy constructor:
+ */
+std::unique_ptr<GateInfo>
+Cut::clone() const
+{
+    return std::unique_ptr<GateInfo>(new Cut(*this));
+}
+
+/**
+ * Comparison:
+ */
+
+bool
+Cut::operator==(const Cut& rhs) const
+{
+    return GateInfo::operator==(rhs) &&
+            (m_low == rhs.m_low) && (m_high == rhs.m_high);
+}
+bool
+Cut::operator!=(const Cut& rhs) const
+{
+    return !(*this == rhs);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,17 +123,13 @@ Slice::Slice(const string &name,
              const string &parameter,
              double low,
              double high)
-    : GateInfo(name, SliceGate),
-      m_param(parameter),
-      m_low(low),
-      m_high(high)
+    : Cut(name, SliceGate, low, high),
+      m_param(parameter)
 {}
 
 Slice::Slice(const Slice &rhs)
-    : GateInfo(rhs),
-      m_param(rhs.m_param),
-      m_low(rhs.m_low),
-      m_high(rhs.m_high)
+    : Cut(rhs),
+      m_param(rhs.m_param)
 {}
 
 Slice::~Slice() {}
@@ -82,14 +137,10 @@ Slice::~Slice() {}
 bool Slice::operator==(const Slice& rhs) const {
 
     // honor thy parents
-    bool same = GateInfo::operator==(rhs);
+    bool same = Cut::operator==(rhs);
 
     // are the params the same
-    same &= equal(m_param.begin(), m_param.end(), rhs.m_param.begin());
-
-    // how about high and low
-    same &= (m_low == rhs.m_low);
-    same &= (m_high == rhs.m_high);
+    same &= (m_param == rhs.m_param);
 
     return same;
 }
