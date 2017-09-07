@@ -20,3 +20,5 @@ set EventListSize    1
 set ParameterOverwriteAction query
 set SpectrumOverwriteAction  query
 set splashImage $SpecTclHome/share/html/images/hh00706_.jpg;   # SpecTcl icon for splashscreen.
+#set DisplayType spectra
+set DisplayType xamine
