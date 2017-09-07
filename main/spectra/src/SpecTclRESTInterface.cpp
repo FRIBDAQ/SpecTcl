@@ -148,7 +148,8 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
 //  std::cout << "SpecTclRESTInterface::onGateListReceived()" << std::endl;
 
-  if (! pollGates) {
+
+  if (! pollGates) {              // Does this
       // free the gates... they have done their job
       for (auto ptr : gates) { delete ptr; }
 
