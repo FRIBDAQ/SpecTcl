@@ -64,10 +64,11 @@ namespace SpJs
 
       } else if (typeStr == "c") {
           pInfo = parseContour(gate);
+      } else if (typeStr == "gs") {
+          pInfo = parseGammaSlice(gate);
 
       // Missing gate types are:
       // c2band - contour from 2 bands (compound).
-      // gs     - gamma slice.
       // gb     - gamma band
       // gc     - gamma contour
       // em     - Makd equal
@@ -83,7 +84,6 @@ namespace SpJs
       // see the kludge comment.
       
       } else if (typeStr == "c2band"               ||
-                 typeStr == "gs"                   ||
                  typeStr == "gb"                   ||
                  typeStr == "gc"                   ||
                  typeStr == "em"                   ||
@@ -130,7 +130,35 @@ namespace SpJs
 
       return std::move(pInfo);
   }
-
+  
+  /**
+   * parseGammaSlice
+   *     Parse a gamma slice gate.  This parses to a GammaSliceGate object.
+   *  @param gate - The JSON gate definition
+   *  @return std::unique_ptr<GateInfo> wrapped pointer to dynamically allocated
+   *                gamma slice object.
+   */
+  std::unique_ptr<GateInfo>
+  GateCmdParser::parseGammaSlice(const Json::Value& gate)
+  {
+    // get the limits and name:
+    
+    double low  = gate["low"].asDouble();
+    double high = gate["high"].asDouble();
+    std::string name = gate["name"].asString();
+    
+    // Build the parameter vector:
+    
+    std::vector<std::string> parameters;
+    for (int i = 0; i < gate["parameters"].size(); i++) {
+      parameters.push_back(gate["parameters"][i].asString());
+    }
+    
+     GammaSlice* pDerived = new GammaSlice(name, parameters, low, high);
+     std::unique_ptr<GateInfo> p(pDerived);
+     return std::move(p);
+  }
+  
   std::unique_ptr<GateInfo> GateCmdParser::parseBand(const Json::Value &gate)
   {
       Band* pDerived;

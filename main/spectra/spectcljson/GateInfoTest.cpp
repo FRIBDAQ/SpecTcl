@@ -44,6 +44,12 @@ class GateInfoTest : public CppUnit::TestFixture {
 
   CPPUNIT_TEST( bandGetPointOutOfRange_0 );
   CPPUNIT_TEST( contourGetPointOutOfRange_0 );
+  
+  // Gamma slices  (added by RF).
+  
+  CPPUNIT_TEST(copyGammaSlice_0);     // copy construction.
+  CPPUNIT_TEST(compareGammaSlice_0);  // operator==, operator!=
+  CPPUNIT_TEST(setGammaSliceParam_0);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -54,10 +60,12 @@ public:
   }
 protected:
   void copySlice_0();
+  void copyGammaSlice_0();
   void copyBand_0();
   void copyContour_0();
 
   void compareSlice_0();
+  void compareGammaSlice_0();
   void compareContour_0();
   void compareBand_0();
   template<class T> void compareGate2D(T& g0, T& g1);
@@ -72,9 +80,23 @@ protected:
 
   void bandGetPointOutOfRange_0();
   void contourGetPointOutOfRange_0();
+  
+  // Gamma slice only tests
+  
+  void setGammaSliceParam_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
+
+ostream& operator<<(ostream& os, std::vector<std::string> strings)
+{
+    os << "[";
+    for (int i =0; i < strings.size(); i++) {
+        os << strings[i] <<  " ";
+    }
+    os << "]";
+    return os;
+}
 
 void GateInfoTest::copySlice_0()
 {
@@ -87,6 +109,19 @@ void GateInfoTest::copySlice_0()
     CPPUNIT_ASSERT_EQUAL(gate0.getLowerLimit(), gate1.getLowerLimit());
     CPPUNIT_ASSERT_EQUAL(gate0.getUpperLimit(), gate1.getUpperLimit());
     CPPUNIT_ASSERT_EQUAL(gate0.getType(), gate1.getType());
+}
+
+void GateInfoTest::copyGammaSlice_0()
+{
+    using SpJs::GammaSlice;
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    
+    GammaSlice s0("gate0", params, 1, 2);
+    GammaSlice s1(s0);
+    
+    CPPUNIT_ASSERT_EQUAL(s0.getParameters(), s1.getParameters());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaSliceGate, s0.getType());
+    CPPUNIT_ASSERT_EQUAL(s0.getType(), s1.getType());
 }
 
 void GateInfoTest::copyBand_0()
@@ -141,6 +176,27 @@ void GateInfoTest::compareSlice_0()
     gate1.setUpperLimit(0);
     CPPUNIT_ASSERT( gate0 != gate1 );
 
+}
+
+void GateInfoTest::compareGammaSlice_0()
+{
+    using SpJs::GammaSlice;
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    
+    GammaSlice g0("slice0", params, 0, 1);
+    GammaSlice g1(g0);
+    CPPUNIT_ASSERT(g0 == g1);          // Don't want to implement << for gates.
+    
+    g1.setName("slice1");
+    CPPUNIT_ASSERT(g0 != g1);
+    g1.setName("slice0");
+    
+    // Lower and upper limit are fine due to common derivation from Cut.
+    
+    g1.appendParameter("p4");
+    CPPUNIT_ASSERT(g0  != g1);          // Different parameters.
+    g1.setAllParameters(params);        // in case we add more assertions.
+    
 }
 
 void GateInfoTest::compareContour_0()
@@ -287,3 +343,28 @@ void GateInfoTest::contourGetPointOutOfRange_0()
     CPPUNIT_ASSERT_THROW( gate0.getPoint(20), std::out_of_range );
 }
 
+void GateInfoTest::setGammaSliceParam_0()
+{
+    using SpJs::GammaSlice;
+    std::vector<std::string> params={"p1", "p1", "p3"};
+    
+    GammaSlice s("slice", params, 0, 1);
+    s.setParameter("p2", 1);
+    params[1] = "p2";
+    CPPUNIT_ASSERT_EQUAL(params, s.getParameters());
+    for (int i = 0; i < params.size(); i++) {
+        CPPUNIT_ASSERT_EQUAL(params[i], s.getParameter(i));
+    }
+    
+    s.appendParameter("p4");
+    CPPUNIT_ASSERT(params != s.getParameters());
+    CPPUNIT_ASSERT_EQUAL(std::string("p4"), s.getParameter(3));
+    
+    s.setAllParameters(params);
+    CPPUNIT_ASSERT_EQUAL(params, s.getParameters());
+    
+    //  These can throw:
+    
+    CPPUNIT_ASSERT_THROW(s.setParameter("junk", 1234), std::out_of_range);
+    CPPUNIT_ASSERT_THROW(s.getParameter(1234), std::out_of_range);
+}

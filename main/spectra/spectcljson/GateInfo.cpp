@@ -154,7 +154,136 @@ unique_ptr<GateInfo> Slice::clone() const
 {
     return unique_ptr<GateInfo>(new Slice(*this));
 }
+//////////////////////////////////////////////////////////////////////////////
+// Implement gamma slice.
 
+/**
+ * Default constructor.
+ */
+
+
+GammaSlice::GammaSlice() :
+    GammaSlice("", {}, 0, 0)
+{}
+
+/**
+ * Fully parameterized constructor:
+ *   @param name - name of the gate.
+ *   @param parameters - vector of parameter names.
+ *   @param low        - low limit of the slice.
+ *   @param high       - high limit of the slice.
+ */
+GammaSlice::GammaSlice(
+    const std::string& name, const std::vector<std::string>& parameters,
+    double low, double high
+) :
+    Cut(name, GammaSliceGate, low, high),
+    m_params(parameters)
+{}
+
+/** Copy constructor
+ */
+GammaSlice::GammaSlice(const GammaSlice& rhs) :
+    Cut(rhs),
+    m_params(rhs.m_params)
+{}
+
+/**
+ *     Destructor is empty for now
+ */
+GammaSlice::~GammaSlice() {}
+
+/**
+ *  clone - this just does a copy construction of this wrapped ina new:
+ *
+ * @param rhs - the object to be cloned.
+ */
+std::unique_ptr<GateInfo>
+GammaSlice::clone() const
+{
+    return std::unique_ptr<GateInfo>(new GammaSlice(*this));
+}
+
+/**
+ * setParameter
+ *    Intended to replace the name of an existing parameter with a new one.
+ * @param newParam - new parameter name.
+ * @param idx      - parameter index.
+ * @throw std::out_of_range if idx is not in the range of defined indices.
+ */
+void
+GammaSlice::setParameter(const std::string& newParam, int idx)
+{
+    m_params.at(idx) = newParam;   // Throws if idx is bad.
+}
+
+/**
+ * appendParameter
+ *    Provided to allow the list of parameters to be incrementally
+ *    constructed.
+ *
+ *  @param newParam - name of a parameter to add to the list.
+ */
+void
+GammaSlice::appendParameter(const std::string& newParam)
+{
+    m_params.push_back(newParam);
+}
+
+/**
+ * setAllParameters
+ *    Replace m_params with a completely new vector of params.
+ *
+ *  @param parameters - new vector of parameters.
+ *
+ */
+void
+GammaSlice::setAllParameters(const std::vector<std::string>& parameters)
+{
+    m_params = parameters;
+}
+
+
+/**
+ * getParameters
+ *   @return const std::vector<std::string>& vector of parameter names.
+ */
+const std::vector<std::string>&
+GammaSlice::getParameters() const
+{
+    return m_params;
+}
+
+/**
+ * getParameter
+ *    Return the name of one parameter
+ *
+ *  @param idx - index
+ *  @return std::string the parameter indexe by idx.
+ *  @throws std::out_of_range - if idx is out of range of the param vector.
+ */
+std::string
+GammaSlice::getParameter(int idx) const
+{
+    return m_params.at(idx);          // Throws on range rror.
+}
+
+/**
+ * comparisons
+ */
+
+bool
+GammaSlice::operator==(const GammaSlice& rhs) const
+{
+    return Cut::operator==(rhs)  &&
+            (m_params == rhs.m_params);
+}
+
+bool
+GammaSlice::operator!=(const GammaSlice& rhs) const
+{
+    return !(*this == rhs);
+}
 //////////////////////////////////////////////////////////////////////////////
 
 Contour::Contour() : Contour( "", "", "", {{}})

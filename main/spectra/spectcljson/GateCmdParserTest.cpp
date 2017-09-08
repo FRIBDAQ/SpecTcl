@@ -28,6 +28,8 @@ class GateCmdParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseList_1 );
   CPPUNIT_TEST( parseList_2 );
   CPPUNIT_TEST( parseList_3 );
+  
+  CPPUNIT_TEST(parseGammaSlice_0);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,6 +43,8 @@ protected:
   void parseList_1();
   void parseList_2();
   void parseList_3();
+  
+  void parseGammaSlice_0(); 
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
@@ -150,4 +154,36 @@ void GateCmdParserTest::parseList_3()
     SpJs::GateInfo exp("test", SpJs::FalseGate);
     CPPUNIT_ASSERT(exp == act);
 
+}
+
+void GateCmdParserTest::parseGammaSlice_0()
+{
+  std::stringstream ss;
+  ss << JSON_TEST_DIR << "/gammaslicegate.json";   // full filep ath.
+  std::ifstream file(ss.str().c_str());
+  
+  Json::Value value;
+  file >> value;                   // Parse Json raw.
+  file.close();
+  
+  vector<unique_ptr<SpJs::GateInfo> > result;
+  CPPUNIT_ASSERT_NO_THROW(result = SpJs::GateCmdParser().parseList(value));
+  CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());           // One gate.
+  
+  
+  SpJs::GateInfo* pGate = result[0].get();
+  CPPUNIT_ASSERT_EQUAL(SpJs::GammaSliceGate, pGate->getType());
+  
+  
+  SpJs::GammaSlice* p = dynamic_cast<SpJs::GammaSlice*>(pGate);;
+  CPPUNIT_ASSERT(p != nullptr);
+  
+  
+  // Build an identical gate:
+  
+  std::vector<std::string> params = {"event.raw.00", "event.raw.01", "event.raw.02", "event.raw.03"};
+  SpJs::GammaSlice gs("test", params, 0, 10);
+  
+  
+  CPPUNIT_ASSERT(gs == *p);
 }

@@ -127,6 +127,35 @@ namespace SpJs
     virtual bool operator!=(const Slice& rhs) const;
   }; // end of class
 
+  
+  /**
+   * @brief gamma slices are like slices but have multiple parameters:
+   */
+  struct GammaSlice : public Cut {
+  private:
+    std::vector<std::string> m_params;
+  public:
+    GammaSlice();
+    GammaSlice(
+        const std::string& name, const std::vector<std::string>& parameters,
+        double low, double high
+    );
+    GammaSlice(const GammaSlice& rhs);
+    virtual ~GammaSlice();
+    
+    std::unique_ptr<GateInfo> clone() const;
+    
+    void setParameter(const std::string& newParam, int idx);
+    void appendParameter(const std::string& newParam);
+    void setAllParameters(const std::vector<std::string>& parameters);
+    
+    const std::vector<std::string>& getParameters() const;
+    std::string getParameter(int idx = 0) const;
+    
+    virtual bool operator==(const GammaSlice& rhs) const;
+    virtual bool operator!=(const GammaSlice& rhs) const;
+};                  // end class GammaSlice.
+    
 
   /**! \brief Bands are 2d gates on two parameter (open)
    *
