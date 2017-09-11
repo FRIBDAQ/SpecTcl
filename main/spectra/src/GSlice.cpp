@@ -28,6 +28,7 @@
 
 #include <GateInfo.h>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -43,11 +44,28 @@ GSlice::GSlice(QObject *parent, const QString &name,
     m_name(name),
     m_pLow(new QTLine(xLow, 0, xLow, 1)),
     m_pHigh(new QTLine(xHigh, 0, xHigh, 1)),
-    m_pCanvas(pCanvas),
-    m_parameter(param)
+    m_pCanvas(pCanvas)
 {
     if (m_name.isEmpty()) {
         m_name = "__slice_in_progress__";
+    }
+    m_parameters.push_back(param);
+}
+
+GSlice::GSlice(const SpJs::GammaSlice& info) :
+    GSlice(nullptr,
+          QString::fromStdString(info.getName()), 
+          QString(""), 
+          info.getLowerLimit(), 
+          info.getUpperLimit(), 
+          nullptr)
+{
+    // Replace the parameters with the onces in  info:
+    
+    m_parameters.clear();
+    const std::vector<std::string>& params(info.getParameters());
+    for (int i = 0; i < params.size(); i++) {
+        m_parameters.push_back(QString::fromStdString(params[i]));
     }
 }
 
@@ -83,7 +101,7 @@ GSlice& GSlice::operator=(const GSlice& rhs)
         m_name = rhs.m_name;
 
         m_pCanvas = rhs.m_pCanvas;
-        m_parameter = rhs.m_parameter;
+        m_parameters = rhs.m_parameters;
 
     }
     return *this;
@@ -93,7 +111,7 @@ bool GSlice::operator ==(const GSlice& rhs)
 {
 
   return ((m_name == rhs.m_name) && (getXLow() == rhs.getXLow())
-          && (getXHigh() == rhs.getXHigh()) && (getParameter() == rhs.getParameter()));
+          && (getXHigh() == rhs.getXHigh()) && (m_parameters == rhs.m_parameters));
 }
 
 void GSlice::draw(QRootCanvas *pCanvas)
@@ -179,6 +197,53 @@ bool GSlice::isEditable() const
   return (m_pLow->isEditable() && m_pHigh->isEditable());
 }
 
+// setParameter
+//    For compatibility - clears the parameter array and pushes a single element.
+
+void
+GSlice::setParameter(const QString& param)
+{
+    m_parameters.clear();
+    m_parameters.push_back(param);
+}
+
+/**
+ * parameterCount
+ *    Get number of parameters.
+ */
+size_t
+GSlice::parameterCount() const
+{
+    return m_parameters.size();
+}
+
+/**
+ * getParameter
+ *    Get a single parameter.. Throw std::out_of_range if bad index
+ *
+ * @parameter n  - which to get (default to zero for compat with 1d slice).
+ * @return QString.
+ */
+QString
+GSlice::getParameter(unsigned n) const
+{
+    if(n < m_parameters.size()) {
+        return m_parameters[n];
+    } else {
+        throw std::out_of_range("GSlice::getParameter index out of range");
+    }
+}
+
+/**
+ * addParameter
+ *    Append a new parameter to the vector.
+ *
+ * @param param - name of the new parameter.
+ */
+void
+GSlice::addParameter(const QString& param) {
+    m_parameters.push_back(param);
+}
 } // end of namespace
 
 ostream& operator<<(ostream& stream, const Viewer::GSlice& slice)

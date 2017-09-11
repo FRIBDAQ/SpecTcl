@@ -34,6 +34,7 @@ class TFrame;
 namespace SpJs 
 {
   class Slice;
+  class GammaSlice;
 }
 
 namespace Viewer
@@ -60,7 +61,7 @@ public:
     /*! Construct from SpJs::Slice
     */
     explicit GSlice(const SpJs::Slice& info);
-
+    explicit GSlice(const SpJs::GammaSlice& info);
     /*! Constructor
      */
     explicit GSlice(QObject *parent = 0,
@@ -96,9 +97,17 @@ public:
     QString getName() const { return m_name; }
     void setName(const QString& name) { m_name = name; }
 
-    QString getParameter() const { return m_parameter; }
-    void setParameter(const QString& param) { m_parameter = param; }
-
+    // For 1-d slices.
+    
+    void setParameter(const QString& param);
+    
+    // For Gamma slices:
+    
+    size_t parameterCount() const;
+    QString getParameter(unsigned n = 0) const;
+    void    addParameter(const QString& param);
+    
+    
 public slots:
     //! Draw 
     void draw(QRootCanvas* canvas);
@@ -122,7 +131,10 @@ private:
     QTLine* m_pLow;
     QTLine* m_pHigh;
     QRootCanvas* m_pCanvas;
-    QString m_parameter;
+    
+    // Gamma slices have several parameters:
+    
+    std::vector<QString> m_parameters;
 };
 
 } // end of namespace

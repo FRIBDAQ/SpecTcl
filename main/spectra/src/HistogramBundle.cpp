@@ -228,6 +228,12 @@ bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
     while ( it1d != it1d_end ) {
       // loop through 1d cuts in GateList
 
+      // There are gamma slices and slices.  Gamma slices have several parameters
+      // that all must be present in the current spectrum.
+      // slices only have one parameter that has to be the parameter of this
+      // spectrum.  Doing it this way I think removes the need to
+      // care about the detailed spectrum type.
+      
       auto& pExtSlice = *it1d;
       QString name = pExtSlice->getName();
       QString param = pExtSlice->getParameter();
@@ -242,8 +248,9 @@ bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
     }
 
     if ( m_cuts1d.size() != tempList.size() ) {
-      somethingChanged = true;
+        somethingChanged = true;
     } else {
+      
       // predicate to compare the object referred to by the ptrs rather
       // rather than the pointers
       auto compareObjects = [](const pair<QString, GSlice*>& lhs,

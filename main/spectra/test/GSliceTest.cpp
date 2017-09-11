@@ -60,6 +60,9 @@ private:
     CPPUNIT_TEST( inequality_1 );
     CPPUNIT_TEST( inequality_2 );
     CPPUNIT_TEST( inequality_3 );
+    CPPUNIT_TEST(constructFromslice);
+    CPPUNIT_TEST(constructFromGammaslice);
+    CPPUNIT_TEST(inequality_4);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -77,6 +80,10 @@ private:
     void inequality_1();
     void inequality_2();
     void inequality_3();
+    
+    void constructFromslice();
+    void constructFromGammaslice();
+    void inequality_4();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GSliceTest);
@@ -128,6 +135,30 @@ void GSliceTest::inequality_3()
 
 }
 
+void GSliceTest::constructFromslice()
+{
+  slice1 = GSlice(SpJs::Slice("slice", "parameter", 0, 1));
+  
+  CPPUNIT_ASSERT_EQUAL(size_t(1), slice1.parameterCount());
+  CPPUNIT_ASSERT_EQUAL(std::string("parameter"), slice1.getParameter().toStdString());
+}
 
+void GSliceTest::constructFromGammaslice()
+{
+  slice1 = GSlice(SpJs::GammaSlice("slice",
+        {std::string("param1"), std::string("param2"), std::string("param3")}, 0, 1));
+  CPPUNIT_ASSERT_EQUAL(size_t(3), slice1.parameterCount());
+  CPPUNIT_ASSERT_EQUAL(std::string("param1"), slice1.getParameter(0).toStdString());
+  CPPUNIT_ASSERT_EQUAL(std::string("param2"), slice1.getParameter(1).toStdString());
+  CPPUNIT_ASSERT_EQUAL(std::string("param3"), slice1.getParameter(2).toStdString());
+}
+
+void GSliceTest::inequality_4()
+{
+  slice1 = GSlice(SpJs::GammaSlice("slice",
+          {std::string("xparam"), std::string("param2"), std::string("param3")}, 0, 1));
+  CPPUNIT_ASSERT_MESSAGE("gamma slice not equal slice - extra params", slice1 != slice0);
+  
+}
 
 } // end of namespace
