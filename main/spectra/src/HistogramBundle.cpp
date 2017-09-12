@@ -232,16 +232,27 @@ bool HistogramBundle::synchronize1DGates(const MasterGateList* pGateList)
       // that all must be present in the current spectrum.
       // slices only have one parameter that has to be the parameter of this
       // spectrum.  Doing it this way I think removes the need to
-      // care about the detailed spectrum type.
+      // care about the detailed spectrum type and gate types:
       
       auto& pExtSlice = *it1d;
       QString name = pExtSlice->getName();
-      QString param = pExtSlice->getParameter();
+      
+      bool matchingGate(true);
+      
+      
+      if (m_hInfo.s_params.size() == pExtSlice->parameterCount()) {
+        for(int i = 0; i < m_hInfo.s_params.size(); i++) {
+            if (m_hInfo.s_params[i] != pExtSlice->getParameter(i).toStdString()) {
+                matchingGate = false;
+                break;
+            }
+        }
+      } else {
+        matchingGate = false;
+      }
 
-      if ( QString::fromStdString(m_hInfo.s_params.at(0)) == param ) {
-        // parameter matches. see if this exists already
+      if (matchingGate) {
         tempList[name] = pExtSlice.get();
-
       }
 
       ++it1d;

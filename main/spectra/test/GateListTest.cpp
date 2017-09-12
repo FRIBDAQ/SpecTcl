@@ -69,6 +69,9 @@ class GateListTest : public CppUnit::TestFixture
     CPPUNIT_TEST( synchronize_2 );
     CPPUNIT_TEST( synchronize_3 );
     CPPUNIT_TEST( synchronize_4 );
+    
+    CPPUNIT_TEST(addCut1D_1);          // Gamma cuts...
+    CPPUNIT_TEST(addCut1D_2);          // Not a recognized 'cut'.
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -80,6 +83,9 @@ class GateListTest : public CppUnit::TestFixture
 
   protected:
     void addCut1D_0();
+    void addCut1D_1();
+    void addCut1D_2();
+    
     void addCut2D_0();
     void removeCut1D_0();
     void removeCut2D_0();
@@ -103,6 +109,22 @@ void GateListTest::addCut1D_0()
   m_pGateList->addCut1D(slice);
 
   CPPUNIT_ASSERT(1 == m_pGateList->size());
+}
+void GateListTest::addCut1D_1()
+{
+  SpJs::GammaSlice slice("test",
+        {std::string("param1"), std::string("param2"), std::string("param3")}, 0, 1);
+  m_pGateList->addCut1D(slice);
+  CPPUNIT_ASSERT(1 == m_pGateList->size());
+}
+void GateListTest::addCut1D_2()
+{
+  // Not a recognized 'cut'.  This is a stand in for a cut of a type
+  // that's not known.
+  
+  SpJs::Band band("test", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}});
+  m_pGateList->addCut1D(band);
+  CPPUNIT_ASSERT(0 == m_pGateList->size());
 }
 
 void GateListTest::addCut2D_0()

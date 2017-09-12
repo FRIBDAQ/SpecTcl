@@ -75,8 +75,12 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
  // make sure that we add all non existing gates to the this
  for (auto pGate : gates) {
     
+    // Note that this business of finding/fixing existing gates:  That's
+    // going to fail if a gate changes from a 1-d to a 2-d gate.
+    // TODO: Fix that.  For now that's a low probability event.
+    
     SpJs::GateType type = pGate->getType();
-    if (type == SpJs::SliceGate) {
+    if ((type == SpJs::GammaSliceGate) || (type == SpJs::SliceGate)) {
 
         auto it = find1D(QString::fromStdString(pGate->getName()));
 
@@ -89,8 +93,18 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
             // the new state
 
             auto& existingSlice = *(*it);
-            GSlice newSlice(dynamic_cast<SpJs::Slice&>(*pGate));
-            if ( existingSlice != newSlice ) {
+            
+            // This is ugly:
+            
+            if (type == SpJs::SliceGate) {
+              GSlice newSlice(dynamic_cast<SpJs::Slice&>(*pGate));
+              if ( existingSlice != newSlice ) {
+                  existingSlice = newSlice;
+                  somethingChanged = true;
+              }
+            } else if (type == SpJs::GammaSliceGate) {
+              GSlice newSlice(dynamic_cast<SpJs::GammaSlice&>(*pGate));
+              if (existingSlice != newSlice);
                 existingSlice = newSlice;
                 somethingChanged = true;
             }
@@ -181,11 +195,25 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 
 void MasterGateList::addCut1D(const SpJs::GateInfo& slice)
 {
-  const SpJs::Slice& jsSlice = dynamic_cast<const SpJs::Slice&>(slice);
-
-  unique_ptr<GSlice> gsl(new GSlice(jsSlice));
   
-  addCut1D( move(gsl) );
+
+  // There  are cuts and gamma cuts. unrecognized gate types are ignored:
+
+  SpJs::GateType type = slice.getType();
+  GSlice* pGate(0);
+  if (type == SpJs::SliceGate) {
+    const SpJs::Slice& jsSlice = dynamic_cast<const SpJs::Slice&>(slice);
+    pGate = (new GSlice(jsSlice));
+    
+  } else if (type == SpJs::GammaSliceGate) {
+    const SpJs::GammaSlice& gslice(dynamic_cast<const SpJs::GammaSlice&>(slice));
+    pGate = (new GSlice(gslice));
+  }
+  if (pGate) {                   // Be sure we actually made a gate to add one
+    unique_ptr<GSlice> gsl(pGate);
+    addCut1D(move(gsl));
+  }  
+
 }
 
 void MasterGateList::addCut1D(unique_ptr<GSlice> slice)
