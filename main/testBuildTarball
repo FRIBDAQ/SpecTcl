@@ -18,7 +18,7 @@ cd `basename ${tarball} .tar.gz`
 ./configure --prefix=${target} $*
 make clean all
 make install
-make check
-make installcheck
+VERBOSE=1 make check
+VERBOSE=1 make installcheck
 
 rm -rf `basename ${tarball} .tar.gz`
