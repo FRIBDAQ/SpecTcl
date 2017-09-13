@@ -1,6 +1,5 @@
 lib_LTLIBRARIES = libSpecTclJson.la
 
-SUBDIRS = json
 
 libSpecTclJson_la_SOURCES = BinInfo.cpp \
 			GateCmdParser.cpp \
@@ -60,3 +59,10 @@ unittests_LDFLAGS = -Wl,-rpath=@ROOT_LIBRARY_DIR@
 
 
 TESTS = unittests
+
+
+# All the JSON files need to be part of the dist.
+
+
+EXTRA_DIST=json
+
