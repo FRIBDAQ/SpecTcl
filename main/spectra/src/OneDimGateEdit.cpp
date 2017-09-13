@@ -102,6 +102,17 @@ OneDimGateEdit::OneDimGateEdit(QRootCanvas& canvas,
         m_editSlice = GSlice(0, "__cut_in_progress__", paramName,
                              xMin + 0.1*xWidth,
                              xMax - 0.1*xWidth, &m_canvas);
+        
+        // If the histogram has more parameters they must all be put in
+        // (that'll make this a gamma gate):
+        
+        int np = m_histPkg.getInfo().s_params.size();
+        if (np > 1) {
+            for (int i =1; i < np; i++) {
+                m_editSlice.addParameter(QString::fromStdString(m_histPkg.getInfo().s_params[i]));
+            }
+        }
+        
         onNameChanged("");
     }
 

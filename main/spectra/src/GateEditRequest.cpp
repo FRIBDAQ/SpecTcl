@@ -58,17 +58,47 @@ GateEditRequest::GateEditRequest(const GGate& cut)
         m_reqStr += QString("&ycoord(%1)=%2").arg(index).arg(y);
     }
 }
-
+/**
+ * Constructor for cuts.
+ *   The gate type depends on the number of  parameters the gate has:
+ *   *  1 parameter means this is a slice (s).
+ *   *  2 parameters means this is a gamma slice (gs).
+ */
 GateEditRequest::GateEditRequest(const GSlice &slice)
     : m_reqStr()
 {
     QString server = GlobalSettings::getServer();
 
+    // This part of the URI is gate type independent:
+    
     m_reqStr = server + "/spectcl/gate/edit";
     m_reqStr += QString("?name=") + slice.getName();
-    m_reqStr += QString("&type=s&low=") + QString::number(slice.getXLow());
     m_reqStr += QString("&high=") + QString::number(slice.getXHigh());
-    m_reqStr += QString("&parameter=") + slice.getParameter();
+    m_reqStr += QString("&low=")  + QString::number(slice.getXLow());
+    
+    // the rest depends on the # of parameters:
+    
+    if (slice.parameterCount() == 1) {
+            // Slice
+            
+        m_reqStr += QString("&type=s");
+        m_reqStr += QString("&parameter=") + slice.getParameter();
+    } else {
+        // Gamma slice:
+        
+        m_reqStr += QString("&type=gs");
+        m_reqStr += QString("&parameter=");     // now a list:
+        int np = slice.parameterCount();
+        for (int i =0; i < np; i++) {
+            m_reqStr += slice.getParameter(i);
+            
+            // All but the last has %20 after it for a space:
+            
+            if ((i+1) < np) {
+                m_reqStr += QString(" ");
+            }
+        }
+    }
 
 }
 

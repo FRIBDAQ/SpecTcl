@@ -48,6 +48,7 @@ class GateEditRequestTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( GateEditRequestTest );
     CPPUNIT_TEST( fromGGate_0 );
     CPPUNIT_TEST( fromGSlice_0 );
+    CPPUNIT_TEST(fromGSlice_1);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -59,6 +60,7 @@ class GateEditRequestTest : public CppUnit::TestFixture
   protected:
     void fromGGate_0();
     void fromGSlice_0();
+    void fromGSlice_1();
 
 };
 
@@ -92,20 +94,46 @@ void GateEditRequestTest::fromGSlice_0()
     GSlice testCut(nullptr , "cut", "param", 1, 20);
 
 
+
     GlobalSettings::setServerHost("localhost");
     GlobalSettings::setServerPort(1);
 
     GateEditRequest req(testCut);
 
     QString exp("http://localhost:1/spectcl/gate/edit?name=cut");
-    exp += "&type=s";
-    exp += "&low=1";
+    
     exp += "&high=20";
+    exp += "&low=1";
+    exp += "&type=s";
     exp += "&parameter=param";
 
-//    cout << "exp : " << exp.toStdString() << endl;
-//    cout << "act : " << req.toUrl().toString().toStdString() << endl;
     CPPUNIT_ASSERT(QUrl(exp) == req.toUrl());
+}
+
+// GSlice that's actually a gamma slice:
+
+
+void GateEditRequestTest::fromGSlice_1()
+{
+  GSlice test(nullptr, "cut", "param1", 1, 20);
+  test.addParameter(QString("param2"));
+  test.addParameter(QString("param3"));
+  
+  GlobalSettings::setServerHost("localhost");
+  GlobalSettings::setServerPort(1);
+  GateEditRequest req(test);
+  
+  
+  QString exp("http://localhost:1/spectcl/gate/edit?name=cut");
+  exp += "&high=20";
+  exp += "&low=1";
+  exp += "&type=gs";
+  exp += "&parameter=param1 param2 param3";
+  
+  
+  CPPUNIT_ASSERT(QUrl(exp) == req.toUrl());
+  
+  
 }
 
 } // end of namespcae
