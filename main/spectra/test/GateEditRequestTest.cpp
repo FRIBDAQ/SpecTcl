@@ -128,7 +128,7 @@ void GateEditRequestTest::fromGSlice_1()
   exp += "&high=20";
   exp += "&low=1";
   exp += "&type=gs";
-  exp += "&parameter=param1 param2 param3";
+  exp += "&parameter=param1&parameter=param2&parameter=param3";
   
   
   CPPUNIT_ASSERT(QUrl(exp) == req.toUrl());

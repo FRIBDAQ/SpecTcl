@@ -84,19 +84,13 @@ GateEditRequest::GateEditRequest(const GSlice &slice)
         m_reqStr += QString("&type=s");
         m_reqStr += QString("&parameter=") + slice.getParameter();
     } else {
-        // Gamma slice:
+        // Gamma slice. Has a parameter query param for each parameter:
         
         m_reqStr += QString("&type=gs");
-        m_reqStr += QString("&parameter=");     // now a list:
         int np = slice.parameterCount();
         for (int i =0; i < np; i++) {
+            m_reqStr += QString("&parameter=");
             m_reqStr += slice.getParameter(i);
-            
-            // All but the last has %20 after it for a space:
-            
-            if ((i+1) < np) {
-                m_reqStr += QString(" ");
-            }
         }
     }
 
