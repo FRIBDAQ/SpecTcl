@@ -21415,25 +21415,2096 @@ public:
         </variablelist>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CRingFormatHelper, CRingFormatHelper10, CRingFormatHelper11</refentrytitle>
+        <manvolnum></manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CRingFormatHelper</refname>
+        <refname>CRingFormatHelper10</refname>
+        <refname>CRingFormatHelper11</refname>
+        <refpurpose>
+            Format helpers for <classname>CRingBufferDecoder</classname>
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CRingFormatHelper&gt;
 
+class CRingFormatHelper
+{
+    // Canonicals - All are defined as public, but subclasses can certainly
+    // turn somoe off themselves.
+    
+public:
+    CRingFormatHelper();
+    virtual bool hasBodyHeader(void* pItem) const   = 0;
+    virtual void* getBodyPointer(void* pItem)       = 0;
+    virtual void* getBodyHeaderPointer(void* pItem) = 0;
+    virtual std::string getTitle(void* pItem) = 0;
+    virtual unsigned    getRunNumber(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+    virtual unsigned getStringCount(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+    virtual unsigned getScalerCount(
+        void*  pItem, BufferTranslator* pTranslator) = 0;
+    virtual uint64_t getTriggerCount(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+    uint16_t itemType(void* pItem);
+};
+        </synopsis>
+        <synopsis>
+#include &lt;RingFormatHelper10.h&gt;
+class CRingFormatHelper10 : public CRingFormatHelper
+{
+public:
+    virtual bool hasBodyHeader(void* pItem) const;
+    virtual void* getBodyPointer(void* pItem);
+    virtual void* getBodyHeaderPointer(void* pItem);
+    virtual std::string getTitle(void* pItem);
+    virtual unsigned    getRunNumber(
+        void* pItem, BufferTranslator* pTranslator);
+    virtual unsigned getStringCount(
+        void* pItem, BufferTranslator* pTranslator);
+    virtual unsigned getScalerCount(
+        void*  pItem, BufferTranslator* pTranslator);
+    virtual uint64_t getTriggerCount(
+        void* pItem, BufferTranslator* pTranslator);
+};
+        </synopsis>
+        <synopsis>
+#include &lt;RingFormatHelper11.h&gt;
+
+class CRingFormatHelper11 : public CRingFormatHelper
+{
+public:
+    virtual bool hasBodyHeader(void* pItem) const;
+    virtual void* getBodyPointer(void* pItem);
+    virtual void* getBodyHeaderPointer(void* pItem);
+    virtual std::string getTitle(void* pItem);
+    virtual unsigned    getRunNumber(
+        void* pItem, BufferTranslator* pTranslator);
+    virtual unsigned getStringCount(
+        void* pItem, BufferTranslator* pTranslator);
+    virtual unsigned getScalerCount(
+        void*  pItem, BufferTranslator* pTranslator);
+    virtual uint64_t getTriggerCount(
+        void* pItem, BufferTranslator* pTranslator);
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This family of classes provides helpers to handle the differences
+            in format of ring items between NSCLDAQ 10.x and later, ring item
+            based NSCLDAQ systems.  <classname>CRingFormatHelper</classname>
+            provides an interface definition which is implemented for each
+            format.  <classname>CRingFormatHelper10</classname> provides
+            support for NSCLDAQ 10.x ring items.  <classname>CRingFormatHelper11</classname>
+            provides support for ring items from NSCLDAQ 11.0 and later (the
+            ring item formats for 11.x and 12.x are the same at the level
+            detail the buffer decoders care about).
+        </para>
+        <para>
+            All of these classes provide the same public methods, however the
+            base class provides and additional method method that pulls
+            the item type from a ring item.  Therefore we're only going to
+            document the methods of the base class as if they were not pure
+            virtual, and describe what a concrete implementation must do.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>bool </type>
+                        <methodname>hasBodyHeader</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>true</literal> if the ring item
+                        <parameter>pItem</parameter> has a body header.
+                        For
+                        <classname>CRingFormatHelper10</classname> the return value
+                        is always <literal>false</literal>.  For
+                        <classname>CRingFormatHelper11</classname>, this
+                        can be <literal>true</literal> or, if the
+                        body header size value is <literal>0</literal>,
+                        <literal>false</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void* </type>
+                        <methodname>getBodyPointer</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the body of <parameter>pItem</parameter>.
+                        If the item has a ring item, has a body header, the
+                        pointer returned by this method will point past that
+                        to the first byte of the payload.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void* </type>
+                        <methodname>getBodyHeaderPointer</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the body header of
+                        <parameter>pItem</parameter>.  If the <parameter>pItem</parameter>
+                        does not have a body header (<methodname>hasBodyHeader</methodname>
+                        would return <literal>false</literal>), a null
+                        pointer will be returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the title <parameter>pItem</parameter>.
+                        <parameter>pItem</parameter> must be a state change item.
+                        If <parameter>pItem</parameter> is not a state change
+                        item, a <classname>std::string</classname> exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>unsigned    </type>
+                        <methodname>getRunNumber</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>BufferTranslator* </type>
+                           <parameter>pTranslator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a ring item <parameter>pItem</parameter>
+                        and the correct byte order translator object;
+                        <parameter>pTranslator</parameter>, returns the run
+                        number most from the item.
+                        <parameter>pItem</parameter> must be a state transition
+                        item or else a <classname>std::string</classname>
+                        exception will be thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type>unsigned</type>
+                        <methodname> getStringCount</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>BufferTranslator* </type>
+                           <parameter>pTranslator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given one of the string array ring items;
+                        <parameter>pItem</parameter> and the
+                        proper buffer translator, 
+                        <parameter>pTranslator</parameter> returns
+                        the number of strings in the item.  If
+                        <parameter>pItem</parameter> is not a text item,
+                        then a <classname>std::string</classname>
+                        exception is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>unsigned </type>
+                        <methodname>getScalerCount</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void*  </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>BufferTranslator* </type>
+                           <parameter>pTranslator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of scalers in the scaler item
+                        <parameter>pItem</parameter>.  <parameter>pTranslator</parameter>
+                        is the buffer translator object that describes how to
+                        perform byte order conversions.
+                    </para>
+                    <para>
+                        If <parameter>pItem</parameter> is not a scaler item,
+                        a <classname>std::string</classname> exception is
+                        thown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>uint64_t</type>
+                        <methodname> getTriggerCount</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pItem</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>BufferTranslator* </type>
+                           <parameter>pTranslator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of triggers from a trigger count
+                        item, <parameter>pItem</parameter>.
+                        <parameter>pTranslator</parameter> is a pointer
+                        to the buffer translator needed to perform
+                        appropriate byte order translations.
+                    </para>
+                    <para>
+                        If <parameter>pItem</parameter> does not point to a
+                        trigger count item, a <classname>std::string</classname>
+                        exception is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>uint16_t </type>
+                        <methodname>itemType</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void*</type>
+                           <parameter> pItem</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the type of the ring item <parameter>pItem</parameter>.
+                        Note that this item type is not mapped into a
+                        SpecTcl item type but is the raw ring item type.
+                        Some fancy footwork is done to obviate the need
+                        to pass in  translator.
+                    </para>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>RingFormatHelper Factories</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CRingFormatelperFactory</refname>
+        <refname>CRingFormatHelperCreator</refname>
+        <refname>CRingFormatHelper10Creator</refname>
+        <refname>CRingFormatHelper11Creator</refname>
+        <refpurpose></refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CRingFormatHelperFactory.h&gt;
+
+class CRingFormatHelperFactory {
+    CRingFormatHelperFactory();
+    CRingFormatHelper* create(uint32_t major, uint32_t minor);
+    CRingFormatHelper* create(void* pFormatItem);
+    
+    void addCreator(
+        uint32_t major, uint32_t minor, const CRingFormatHelperCreator&amp; creator
+    );
+    void removeCreator(uint32_t major, uint32_t minor);
+
+};
+        </synopsis>
+        <synopsis>
+#include &lt;RingFormatHelperCreator.h&gt;
+
+class CRingFormatHelperCreator
+{   
+public:
+    CRingFormatHelperCreator() {}
+    virtual CRingFormatHelperCreator* clone() const = 0;
+    virtual CRingFormatHelper*        create() = 0;
+};
+        </synopsis>
+        <synopsis>
+#include &lt;RingFormatHelper10Creator.h&gt;
+
+class CRingFormatHelper10Creator : public CRingFormatHelperCreator
+{
+public:
+    CRingFormatHelper10Creator() {}
+    virtual CRingFormatHelperCreator* clone() const;
+    virtual CRingFormatHelper*        create();
+};
+        </synopsis>
+        <synopsis>
+#include &lt;RingFormatHelper10Creator.h&gt;
+
+class CRingFormatHelper10Creator : public CRingFormatHelperCreator
+{
+public:
+    CRingFormatHelper10Creator() {}
+    virtual CRingFormatHelperCreator* clone() const;
+    virtual CRingFormatHelper*        create();
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This complex of classes is responsible for selecting the
+            correct Ring format helper.  It follows the pattern of an extensible
+            factory.  <classname>CRingFormatHelperFactory</classname> is the
+            factory class, while the classes that are derived from
+            <classname>CRingFormatHelperCreator</classname> provide
+            creators that match ring item format information with
+            the ability to create the appopriate helper.
+        </para>
+        <para>
+            In this man page, we're only going to document the methods
+            of <classname>CRingFormatHelperFactory</classname> and the
+            creator base class of <classname>CRingFormatHelperCreator</classname>.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title><classname>CRingFormatHelperFactory METHODS</classname></title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CRingFormatHelperFactory</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructor.  Note the constructor creates a factory
+                        that has no creational objects.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CRingFormatHelper* </type>
+                        <methodname>create</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t </type>
+                           <parameter>major</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t </type>
+                           <parameter>minor</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Attempts to create a ring format helper that understands
+                        the format version specified by the
+                        <parameter>major</parameter> and
+                        <parameter>minor</parameter> versions specified.
+                        If there is no creator willing to make a helper for the
+                        specified format version, a null pointer is returned.
+                    </para>
+                    <para>
+                        The return value is a pointer to a dynamically allocated helper
+                        that must eventually be freed by <literal>delete</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CRingFormatHelper* </type>
+                        <methodname>create</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>void* </type>
+                           <parameter>pFormatItem</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a ring format item, extracts the version information
+                        from it and attempts to return a pointer to a format
+                        helper.  If no creators have been registered to create
+                        a helper for the resulting version a null pointer is
+                        returned.
+                    </para>
+                    <para>
+                        The pointer returned is to a dynamically allocated
+                        <classname>CRingFormatHelper</classname> object that
+                        must eventually be destroyed with <literal>delete</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addCreator</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t</type>
+                           <parameter> major </parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t </type>
+                           <parameter>minor</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>CRingFormatHelperCreator&amp; </type>
+                           <parameter>creator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Registers <parameter>creator</parameter> as a creational
+                        object that can create a helper for
+                        the version specified by <parameter>major</parameter>
+                        and <parameter>minor</parameter>.  Note that the
+                        <parameter>creator</parameter> is cloned so its lifetime
+                        is not important.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeCreator</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t </type>
+                           <parameter>major</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>uint32_t</type>
+                           <parameter> minor</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes/deletes the creator associated
+                        with the format level specified by
+                        <parameter>major</parameter> and
+                        <parameter>minor</parameter>.  Attempts to remove
+                        a creator for a format version level that has not been
+                        registered are silently ignored.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>RingFormatHelperCreator METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>CRingFormatHelperCreator* </type>
+                        <methodname>clone</methodname>
+                        <void />
+                        <modifier>const = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to a dynamically allocated
+                        copy of <varname>*this</varname>.  Typically this can be done
+                        by defining a copy constructor and using it as a parameter
+                        of <literal>new</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>CRingFormatHelper*</type>
+                        <methodname>create</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a dynamically allocated helepr.  The factory
+                        will have matched a version specification with the helper
+                        registered for it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            
+        </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CParameter</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CParameter</refname>
+        <refpurpose>Encapsulate SpecTcl parameter definitions</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Parameter.h&gt;
+
+class CParameter : public CNamedItem {
+ public:
+  CParameter(const std::string&amp; rName,
+	     UInt_t nId,
+	     const char* pUnits);
+  CParameter(UInt_t am_nScale,  const std::string&amp; rName, UInt_t nNumber);
+  CParameter(UInt_t am_nScale,
+      const std::string&amp; rName, UInt_t nNumber, Float_t nLow, Float_t nHigh,
+      std::string am_sUnits);
+  CParameter(const CParameter&amp; aCParameter );
+  Bool_t hasScale();
+  UInt_t getScale() const;
+  Float_t getLow() const ;
+  Float_t getHigh() const;
+  std::string getUnits() const;
+
+  Float_t RawToMapped(Float_t Raw);
+  Float_t MappedToRaw(Float_t Mapped);
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CParameter</classname> provides a class that contains
+            and maintains SpecTcl parameter definitions.  In most cases, it will
+            be more convenient to use <classname>CTreeParameter</classname>
+            or <classname>CTreeParameterArray</classname> objects instead of
+            working directly with <classname>CParameter</classname> objects.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CParameter</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>char* </type>
+                           <parameter>pUnits</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor allows units of measure to be
+                        asssociated with the parameter.  Note that
+                        <parameter>nId</parameter> and <parameter>rName</parameter>
+                        must be unique amongst all other parameters if this
+                        object is to be inserted in the parameter dictionary.
+                    </para>
+                    <para>
+                        The range of the parameter is considered arbitrary.  Tree
+                        parameters created this sort of parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CParameter</methodname>
+                        <methodparam>
+                            <modifier></modifier>
+                            <type>UInt_t </type>
+                            <parameter>am_nScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp;</type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                                   <modifier></modifier>
+                                   <type>UInt_t </type>
+                                   <parameter>nNumber</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor allows you to associate a scale with
+                        the parameter.  The scale, <parameter>am_nScale</parameter>
+                        is intended to be the number of bits of resolution
+                        the parameter has.   As with all parameters
+                        that will be inserted into the parameter dictionary,
+                        both <parameter>rName</parameter> and <parameter>nNumber</parameter>
+                        must be unique.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CParameter</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>am_nScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nNumber</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>nLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>nHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>std::string </type>
+                           <parameter>am_sUnits</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides a constructor that allows specification of
+                        a scale and parameter low and high limits as well as
+                        units of measure.  Once more I recommend using tree
+                        parameters to hold these metadata, as the manner in which
+                        these extra values are treated is outmoded and only
+                        provided for backwards compatibility.
+                    </para>
+                    <para>
+                        This constructor was used to provide the capability
+                        of mapping parameters with fixed bit width to some
+                        arbitrary range of actual values.  It was used along
+                        with the Xamine mapped spectrum capability, and the
+                        <methodname>RawToMapped</methodname> as well as
+                        <methodname>MappedToRaw</methodname> methods to
+                        do something a lot less useful than what
+                        arbitrarily ranged parameters and spectra
+                        can accomplish.  As such, use of this constructor
+                        is strongly discouraged.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>hasScale</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                         Returns <literal>true</literal> if the object
+                         was constructed with a scale.  Returns
+                         <literal>false</literal> otherwise.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                   <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getScale</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the scale value of a parameter objecst.
+                        If the object was not given a scale, the result will
+                        be <literal>0</literal>.   Note that in that case
+                        <methodname>hasScale</methodname> returns
+                        <literal>false</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>getLow</methodname>
+                        <void />
+                        <modifier>const </modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the low limit provided to the parameter at
+                        creation time.  If a constructor was used that
+                        did not specify parameter limits, the value
+                        <literal>0</literal> is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>getHigh</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the high limit for the parameter.  If a construtor
+                        was used that does not supply a high limit, this
+                        returns <literal>0</literal>.  Thus no parameter limits
+                        were provided if both <methodname>getLow</methodname>
+                        and <methodname>getHigh</methodname> return
+                        <literal>0</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>getUnits</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the units of measure string associated with
+                        the parameter.  This will be an empty string if
+                        a constructor was used that did not supply
+                        units of measure.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>RawToMapped</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t</type>
+                           <parameter> Raw</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This can only be used with parameters that have
+                        been constructed with a scale and limits.  Those parameters
+                        are considered to be values from [0, 2^scale) which
+                        map to the interval [low, high).  
+                    </para>
+                    <para>
+                        This method translates a raw parameter value into its
+                        mapped value (from [low, high)).  Using this with parameters
+                        that have not been constructed with low/high/scale
+                        values can result in a division by zero fault.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>MappedToRaw</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>Mapped</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a parameter that has been created with a high,
+                        low and scale value; translates a value in the
+                        range of [low, high) to the raw parameter value
+                        in the range [0, 2^scale).  
+                    </para>
+                    <para>
+                        See also <methodname>RawToMapped</methodname>.  Note
+                        as well that a divide by zero fault will occur if you
+                        apply this method to a parameter that was not construted
+                        as a mapped parameter.
+                    </para>
+                </listitem>
+            </varlistentry>          
+        </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CEvent</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CEvent</refname>
+        <refpurpose>Result of event processing pipeline</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Event.h&gt;
+
+typedef DFloat_t ParamType;
+typedef std::vector&lt;DopedValidValue&lt;ParamType&gt; &gt; CParameterVector;
+typedef DopedValidValue&lt;ParamType&gt;               CParameterValue;
+typedef CParameterVector::iterator               CEventIterator;
+
+class CEvent {
+  CEvent();
+  virtual ~CEvent() {} // Destructor
+  CEvent(UInt_t nInitialSize);
+
+  CParameterValue&amp; operator[](UInt_t nParam);
+  CEventIterator begin();
+  CEventIterator end();
+  UInt_t size() const;
+  void clear();
+
+  DopeVector&amp; getDopeVector() 
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CEvent</classname> object is the result of
+            the event processing pipeline.  <classname>CEvent</classname> is
+            an array like object containing valid values.   If an index
+            into the object exceeds the rang of the underlying array the array
+            is extended as needed to accomadate this index.
+        </para>
+        <para>
+            Over the course of SpecTcl's evolution, several optimizations
+            have been made;
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Rather than each valid value having a validity flag,
+                    each value has an event serial number.  The set of values
+                    in the <classname>CEvent</classname> also have an
+                    event serial number.  When a valid value is assigned
+                    a value, it serial  is set as well.  This allows constant time
+                    invalidation of the entire vector of parameters by simply
+                    incrementing the event's serial.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Histogramming is driven by spectra that depend on a parameter
+                    (where possible).  Associated with the event is a
+                    <firstterm>dope vector</firstterm>.  A dope vector is a
+                    vector of integers whose values are indices into the
+                    <classname>CEvent</classname> object of valid value.
+                    When a parameter is first given a value, its index is
+                    appended to the dope vector.
+                </para>
+                <para>
+                    This improves the performance for histogramming spares parameter
+                    spaces by making it, to first order, O(n) where n
+                    is the number of valid parameters where for sparse
+                    parameter sets, n &lt;&lt; m where m is the total number
+                    of defined parameters.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <classname>CEvent</classname> objects are recycled
+                    from event to event; simply invalidated after use.
+                    Invalidation does not shrink the object's slot count
+                    so over time, each <classname>CEvent</classname> equilibrates
+                    in size to accomodate the maximum required index.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            As a result of the optimizations above, the implementation of
+            <classname>CEvent</classname> is not very straightforward.
+            It's use, however is.  Simply assign or fetch values from
+            indexed elements of a <classname>CEvent</classname> object.
+            use <methodname>isValid</methodname> to determine if a value
+            can be fetched.
+        </para>
+        <para>
+            <classname>CTreeParameter</classname> and
+            <classname>CTreeParameterArray</classname> allow aliasing
+            simple variables to single elements, or ranges of elements of the active
+            <classname>CEvent</classname>.  Using them is encouraged as
+            they'll keep track of the indices so you don't have to.  Using
+            <classname>CTreeParameter</classname> and
+            <classname>CTreeParameterArray</classname> objects is therefore
+            much less error prone than direct access to the active3
+            <classname>CEvent</classname> object.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CEvent</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates an event with the an initial size of 0.
+                        Note that since the event will auto resize as its
+                        elements are referenced, creation with a zero
+                        initial size is a perfectly valid use-case.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CEvent</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nInitialSize</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a <classname>CEvent</classname> object with
+                        an initial allocation of <parameter>nInitialSize</parameter>
+                        parameters that don't have a valid value. Since
+                        <classname>CEvent</classname> objects are recycled
+                        from event to event, this constructor is not
+                        actually much of an optimization over time.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CParameterValue&amp; </type>
+                        <methodname>operator[]</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nParam</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a reference to the parameter value that
+                        is at slot number <parameter>nParan</parameter> in
+                        the <classname>CEvent</classname> object.  The resulting
+                        object can always be assigned (making it valid if it
+                        isn't yet).  It can only be fetched as an rvalue
+                        if it is valid or else an exception will be thrown.
+                    </para>
+                    <para>
+                        If the <classname>CEvent</classname> object does not
+                        yet contain an element at index <parameter>nParam</parameter>
+                        (isn't big enough), the object is expanded with
+                        values that are not yet valid until <parameter>nParam</parameter>
+                        can be indexed.
+                    </para>
+                    <para>
+                        Note that this expansion is done in specific granule
+                        sizes so that
+                        it is possible that indices after
+                        <parameter>nParam</parameter> are also generated.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventIterator</type>
+                        <methodname> begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator to the first element in
+                        the <classname>CEvent</classname>.  This is a pointer
+                        like object to index <literal>0</literal>.  It is
+                        possible, for an empty <classname>CEvent</classname>,
+                        this value is the same as that returned by
+                        <methodname>end</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>  
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CEventIterator </type>
+                        <methodname>end</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>                  
+                </term>
+                <listitem>
+                    <para>
+                        Returns an end of iteration iterator.  Note that
+                        this is an end of iteration iterator at the time of
+                        execution and could be invalidated.  Consider the
+                        following code fragments where e is a
+                        <classname>CEvent</classname>.
+                    </para>
+                    <programlisting>
+CEventIterator p = e.begin();
+CEventIterator end = e.end();
+while (p != end) {
+
+...
+    p++;
+}
+                    </programlisting>
+                    <para>
+                        The loop above is potentially  not going to cover the
+                        entire event as the body could do an assignment to
+                        <varname>e</varname> that could extend the event,
+                        in which case the assigned element would not be included
+                        in the iteration.
+                    </para>
+                    <programlisting>
+for (auto p = e.begin(); p != e.end(); p++) {
+...
+}
+                    </programlisting>
+                    <para>
+                        This loop will always cover the array as the end iterator
+                        is re-evaluated after each pass through the loop ensuring
+                        that any additions to the event are accommodated.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of elements currently in the
+                        <classname>CEvent</classname>.  Note that this
+                        can be larger than the highest index stored.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>clear</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Invalidates all parameters in the event (by incrementing
+                        the event's serial number) and clear's the event's
+                        dope vector.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>DopeVector&amp; </type>
+                        <methodname>getDopeVector</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a reference to the event's dope vector.
+                        This is a vector who's elements
+                        are indices into the event
+                        of parameters that have been given values.
+                    </para>
+                </listitem>
+            </varlistentry>    
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            Several data types are defined oustide of the
+            <classname>CEvent</classname> class by its header:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><classname>ParamType</classname></term>
+                <listitem>
+                    <para>
+                        This is actually a double precision value.  It decouples
+                        the type of value parameters hold from the underlying
+                        natural type system allowing the type to change, if
+                        necessary, without undue impact on the rest of the code.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>CParameterVector</term>
+                <listitem>
+                    <para>
+                        This is the underlying data structure used by
+                        <classname>CEvent</classname> to hold the
+                        parameter values.  This is a vector of
+                        <classname>DopedValidValue&lt;ParamType&gt;</classname>.
+                    </para>
+                    <para>
+                        All this means is that each value in the vector is
+                        contains a <classname>ParamType</classname>, knows
+                        when it's been assigned to and, when assigned has an
+                        associated dope vector to which it contributes itself.
+                    </para>
+                </listitem>
+                
+            </varlistentry>
+            <varlistentry>
+                <term><classname>CEventIterator</classname></term>
+                <listitem>
+                    <para>
+                        An iterator into a <classname>CParameterVector</classname>.
+                        This is the type of the value returned by
+                        <methodname>begin</methodname> and
+                        <methodname>end</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>                    
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CSpectrum</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CSpectrum</refname>
+        <refpurpose>Spectrum base class.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Spectrum.h&gt;
+
+class CSpectrum  : public CNamedItem        
+{
+public:
+  typedef std::vector&lt;CAxis&gt;  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct SpectrumDefinition;
+
+
+  CSpectrum (const std::string&amp; rName,  UInt_t nId,
+	     Axes  Maps,
+	     CGateContainer* pGate = pDefaultGate);
+  CSpectrum(const std::string&amp; rName, UInt_t nId,
+	    CGateContainer*  pGate = pDefaultGate); 
+
+  const Address_t getStorage() const;
+  Bool_t getOwnStorage() const;
+  const CGateContainer* getGate() const;
+  Axes getAxisMaps() const;
+  Int_t getAxisMapCount() const;
+  std::string getTextDescription() const;
+  virtual SpectrumType_t getSpectrumType() = 0;
+  
+protected:                   
+  void setStorage (Address_t am_pStorage);
+  void setOwnStorage (Bool_t am_fOwnStorage);
+  void setStorageType(DataType_t dt) ;
+  void AddAxis(UInt_t nChannels, Float_t fLow,
+	       Float_t fHigh, const std::string&amp; Units = std::string(""));
+  bool checkRange(int channel, int nChans, int axis);
+  
+public:
+  void setTextDescription(std::string d);
+  void operator() (const CEvent&amp; rEvent);
+  CGateContainer* ApplyGate(CGateContainer* pNewGate);
+  CGateContainer* Ungate();	
+  Bool_t UsesParameter (const CParameter&amp; rParameter)
+  DataType_t StorageType () const ;
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+    
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector&lt;unsigned&gt; getUnderflows() const;
+  std::vector&lt;unsigned&gt; getOverflows() const;
+
+  virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
+  virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
+  virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
+  virtual   void GetParameterIds(std::vector&lt;UInt_t&gt;&amp; rvIds) = 0;
+  virtual   void GetResolutions(std::vector&lt;UInt_t&gt;&amp;  rvResolutions) = 0;
+  virtual   void Increment(const CEvent&amp; rEvent) = 0;
+
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
+
+  virtual   void Copy(void* pStorage) const;
+  virtual   void Clear ()  ;
+  virtual   Size_t StorageNeeded () const;
+  virtual   void ReplaceStorage (Address_t pNewLoc, 
+				 Bool_t fTransferOwnership=kfTRUE)  ;
+  virtual   Bool_t CheckGate(const CEvent&amp; rEvent);
+  virtual   SpectrumDefinition&amp; GetDefinition() ;
+  virtual   Bool_t needParameter() const;
+
+
+protected:
+  void ReleaseStorage();
+};            
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            SpecTcl defines a very rich set of spectrum types. The
+            <classname>CSpectrum</classname> class is an abstract base
+            class for all of SpecTcl's spectrum types.  This manpage will
+            describe this base class and its methods.  Because of the
+            wide variety of spectra and their semantics, manpages
+            are provided for each spectrum type family. 
+        </para>
+        <para>
+            Note that these classes were not designed to be decoupled
+            from SpecTcl.  While this decreases their generality, it improves
+            their integration and efficiency within the SpecTcl framework.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum</methodname>
+                        <methodparam>
+                           <modifier>const std::</modifier>
+                           <type>string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type> UInt_t </type>
+                           <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Axes  </type>
+                           <parameter>Maps</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGateContainer* </type>
+                           <parameter>pGate </parameter>
+                           <initializer>pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Base class construction provides the
+                        <parameter>rName</parameter> as the
+                        spectrum name and <parmameter>nId</parmameter>
+                        as the spectrum id.  Parameter/axis conversion
+                        specification are provided
+                        via the vector <parameter>Maps</parameter>.
+                        <parameter>pGate</parameter> is the gate conainer
+                        of the spectrum's initial gate.
+                    </para>
+                    <para>
+                        If <parameter>pGate</parameter> is not defined, it
+                        defaults to the <varname>pDefaultGate</varname> which
+                        encapsulates a <literal>true</literal> gate so the
+                        spectrum is always incremented if its parameters
+                        are
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum</methodname>
+                        <methodparam>
+                           <modifier>const</modifier>
+                           <type> std::string&amp; </type>
+                           <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGateContainer* </type>
+                           <parameter> pGate</parameter>
+                           <initializer> pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor does not allow you to pass
+                        axis conversion lists.  Derived classes that use
+                        this construtor are expected to make one or more calls to
+                        <methodname>AddAxis</methodname> (protected method)
+                        to define parameter/axis conversions.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getStorage</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Each spectrum has storage associated with it in which
+                        the bulk data (channel values) are kept.  This method
+                        returns a pointer to that storage.  
+                    </para>
+                    <para>
+                        Note that SpecTcl
+                        may choose to relocate the storage associated with a
+                        spectrum.    For eample, the <command>sbind</command>
+                        command will relocate affected spectrum storage into
+                        a shared memory region whie <command>unbind</command>
+                        may do the opposite.
+                    </para>
+                    <para>
+                        Given the potential that two calls to
+                        <methodname>getStorage</methodname> at different times
+                        my return different pointers, it is recommended that,
+                        at most, this pointer only be block scoped.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>getOwnStorage</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Spectrum storage may have been dynamically allocated
+                        by the spectrum object, or may belong to some other
+                        object.  This method returns
+                        <literal>kfTRUE</literal> if the spectrum storage
+                        has been allocated by this object.
+                    </para>
+                    <para>
+                        One case when this may return <literal>kfFALSE</literal>
+                        is a spectrum that has been bound into displayer shared
+                        memory when the storage is owned by the object that
+                        manages the shared memory region.
+                    </para>
+                    <para>
+                        Storage that is owned by this object may be
+                        <literal>delete</literal>d if appropriate.  Storage
+                        not owned is released to the custody/management of
+                        the owner (e.g. for Display shared memory the space
+                        is released for re-use by other spectra).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>getGate</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Every spectrum has a gate applied to it.
+                        Spectra can only be incremented if their gate is
+                        satisfied by the event.  Initially spectra are
+                        created with a <firstterm>true gate</firstterm> applied.
+                        This type of gate is always satisfied.
+                    </para>
+                    <para>
+                        This method returns the gate container associated with
+                        the named gate that as been applied to the spectrum.
+                        Gate containers are object that hold the name of a gate
+                        but act as a replaceable pointer to the underlying
+                        gate itself.  By passing out gate containers, the
+                        underlying gate can be modified and taht modification
+                        is transparent to the spectrum.
+                    </para>
+                    <para>
+                        The documentation of the gate class hierarchy and
+                        gate container provides more information about the
+                        return value from this method.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Axes </type>
+                        <methodname>getAxisMaps</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector of the axis mapping objects used by
+                        this spectrum.  The number and type of these depends
+                        on the spectrum type, however on the whole for
+                        1-d like spectra element 0 describes how to map
+                        x axis parameter values into channels and back while
+                        for 2-d like spectra an additional element 1 describes
+                        a similar mapping for the y axis and its parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Int_t </type>
+                        <methodname>getAxisMapCount</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the numger of axis maps that e.g.
+                        <methodname>getAxisMaps</methodname> would return
+                        for this spectrum.  For the current set of spectrum
+                        types this will be <literal>1</literal> or
+                        <literal>2</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>getTextDescription</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is an optimization that caters to large
+                        analysis cases.  Perfomance analysis showed that the
+                        <command>spectrum -list</command> command required
+                        a significant amount of time to build spectrum
+                        descriptions for analysis cases with large (1000's)
+                        numbers of spectra.
+                    </para>
+                    <para>
+                        The <classname>CSpectrum</classname> class therefore
+                        has an attribute in to which the
+                        spectrum description string can be written when the
+                        spectrum is created (e.g. by
+                        <command>spectrum -new</command>).  This
+                        method returns the value stored in that attribute.
+                    </para>
+                    <para>
+                        Note that an empty string means that no description
+                        has been stored.  This is possible when the spectrum
+                        is created programmtically in C++.  In that case,
+                        <command>spectrum -list</command> will transparently
+                        generate the description string and store it in the
+                        spectrum so that it's available next time it's needed.
+                    </para>
+                    <para>
+                        See the documentation of the
+                        <classname>CSpectrumPackage</classname> in case your
+                        code needs to do generate a spectrum description.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier> = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the spectrum type.  Spectrum types are defined in
+                        the header <filename>histotypes.h</filename>.
+                        The values should be reasonably self explanatory. If not,
+                        see the manpage on <filename>histotypes.h</filename>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected:</modifier>
+                        <type>void </type>
+                        <methodname>setStorage</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Address_t </type>
+                           <parameter>am_pStorage</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides a new storage location for spectrum storage;
+                        <parameter>am_pStorage</parameter>.
+                          This method
+                        only sets the attribute that points to the
+                        spectrum channel storage.  It does not release any
+                        prior storage, nor does it copy channel data
+                        from the prior spectrum storage to the new
+                        storage.
+                    </para>
+                    <para>
+                        Note that <methodname>ReplaceStorage</methodname>
+                        is a better choice in most cases.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected:</modifier>
+                        <type>void </type>
+                        <methodname>setOwnStorage </methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Bool_t </type>
+                           <parameter>am_fOwnStorage</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the own storage attribute flag.  If this is true,
+                        methods like <methodname>ReplaceStorage</methodname>
+                        will destroy old spectrum storage when new storage
+                        is supplied.  For example one, silly, way to replace
+                        spectrum storage might be:
+                    </para>
+                    <programlisting>
+int BigPotOfStorage[10*1024*1024];          // 10Mega ints.
+...
+{
+    // pSpectrum is a CSpectrum object pointer.
+....
+
+   pSpectrum-&gt;ReplaceStorage(BigPotOfStorage);
+   pSpectrum-&gt;setOwnStorage(kfFalse);    // spectrum won't delete this.
+....
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected:</modifier>
+                        <type>void </type>
+                        <methodname>setStorageType</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>DataType_t </type>
+                           <parameter>dt</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the storage type for the spectrum.  This only needs
+                        to be set if the spectrum object is allowed to destroy
+                        the storage.  The storage type ensures the proper
+                        <literal>delete</literal> invocation is done.
+                        See
+                        <filename>histotypes.h</filename> for the various
+                        storage types.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected:</modifier>
+                        <type>void </type>
+                        <methodname>AddAxis</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>UInt_t </type>
+                           <parameter>nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>Float_t </type>
+                           <parameter>fHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier> const </modifier>
+                           <type>std::string&amp; </type>
+                           <parameter>Units </parameter>
+                           <initializer>std::string("")</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is intended for use by derived class constructors
+                        that incrementally build up the axis transformation list
+                        they need.  A new axis transformation object is
+                        computed and added to the list of axis transformation
+                        objects.
+                    </para>
+                    <para>
+                        <parameter>nChannels</parameter> is the number of channels
+                        that are on the axis.  <parameter>fLow</parameter> and
+                        <parameter>fHigh</parameter> is the range of values
+                        that are to be binned in those channels.
+                        <parameter>Units</parameter>, if provided are units
+                        of measure for that axis.  Note that the units of measure
+                        are made available to the displayer which can use them
+                        to label axes.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>bool </type>
+                        <methodname>checkRange</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>int </type>
+                           <parameter>channel</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>int </type>
+                           <parameter>nChans</parameter>
+                        </methodparam>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>int </type>
+                           <parameter>axis</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <parameter>true</parameter> if the
+                        value of <parameter>channel</parameter> is
+                        in the range <literal>[0, <parameter>nChans</parameter>)</literal>.
+                        If not, <literal>false</literal> is returned and an
+                        overflow or underflow is logged from axis <parameter>a</parameter>.
+                    </para>
+                    <para>
+                        The <command>specstats</command> command returns the
+                        underflow and overflow counters for spectra.
+                        The <command>clear</command> command clears these
+                        counters for the affected spectra.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier></modifier>
+                    <type>void </type>
+                    <methodname>setTextDescription</methodname>
+                    <methodparam>
+                       <modifier></modifier>
+                       <type>std::string </type>
+                       <parameter>d</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Sets the cached spectrum descsription string to
+                        <parameter>d</parameter>.  The
+                        <command>spectrum -list</command> commmand will use
+                        this value for the spectrum description unless it is
+                        empty in which case a value is computed from
+                        the spectrum characteristics and 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>operator() </methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>CEvent&amp; </type>
+                           <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is the top level incrementer.  Checks the gate
+                        applied to the spectrum on thie
+                        <parameter>rEvent</parameter> event and if it is satisfied,
+                        invokes <methodname>Increment</methodname> passing
+                        <parameter>rEvent</parameter>.
+                        This code is common for all histogram types, but the
+                        <methodname>Increment</methodname> method depends on the
+                        sopectrum type and is, therefore virtual.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateContainer*</type>
+                        <methodname> ApplyGate</methodname>
+                        <methodparam>
+                           <modifier></modifier>
+                           <type>CGateContainer* </type>
+                           <parameter>pNewGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Applies the gate specified by <parameter>pNewGate</parameter>
+                        to the spectrum.  The gate container of the previously
+                        applied gate is returned.  The returned value
+                        could be
+                        <literal>pDefaultGate</literal> which points to a
+                        gate container for a true gate and represents the
+                        initial true gate applied to all spectra when they
+                        are created.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>Ungate</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Ungates the spectrum.  This really applies the
+                        default gate (<literal>pDefaultGate</literal>) to the
+                        spectrum.   The return value is a pointer to the
+                        gate container of the previously applied gate
+                        (which may be <literal>pDefaultGate</literal>).
+                    </para>
+                    <para>
+                        <literal>pDefaultGate</literal> points to a gate container
+                        for a container for a true gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>UsesParameter</methodname>
+                        <methodparam>
+                           <modifier>const </modifier>
+                           <type>CParameter&amp; </type>
+                           <parameter>rParameter</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTRUE</literal> if
+                        <parameter>rParameter</parameter> is used by the
+                        spectrum or <literal>kfFALSE</literal> if not.
+                        Note that this simply get the parameter id
+                        from <parameter>rParameter</parameter> and
+                        invokes the virtual method
+                        <methodname>UsesParameter</methodname> that is
+                        implemented by specific spectrum types.
+                    </para>
+                </listitem>
+            </varlistentry>
+  
+  
+  
+  
+  DataType_t StorageType () const ;
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+    
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector&lt;unsigned&gt; getUnderflows() const;
+  std::vector&lt;unsigned&gt; getOverflows() const;
+
+  virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
+  virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
+  virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
+  virtual   void GetParameterIds(std::vector&lt;UInt_t&gt;&amp; rvIds) = 0;
+  virtual   void GetResolutions(std::vector&lt;UInt_t&gt;&amp;  rvResolutions) = 0;
+  virtual   void Increment(const CEvent&amp; rEvent) = 0;
+
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
+
+  virtual   void Copy(void* pStorage) const;
+  virtual   void Clear ()  ;
+  virtual   Size_t StorageNeeded () const;
+  virtual   void ReplaceStorage (Address_t pNewLoc, 
+				 Bool_t fTransferOwnership=kfTRUE)  ;
+  virtual   Bool_t CheckGate(const CEvent&amp; rEvent);
+  virtual   SpectrumDefinition&amp; GetDefinition() ;
+  virtual   Bool_t needParameter() const;
+
+
+protected:
+  void ReleaseStorage();
+
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>
+            DATA TYPES
+        </title>
+        <variablelist>
+  typedef std::vector&lt;CAxis&gt;  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct SpectrumDefinition;
+            
+        </variablelist>
+    </refsect1>
+</refentry>
         <chapter>
             <title>Stuff to do</title>
         
         <itemizedlist>
-            
             <listitem>
                 <para>
-                     CRingFormatHelper, 10, 11.  RingFormatHelperFactory
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                   CParameter, CEvent
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    Spectrum classes.
+                    Spectrum classes. Axes
                 </para>
             </listitem>
             <listitem>
@@ -21449,6 +23520,16 @@ public:
             <listitem>
                 <para>
                     Filter subsystem
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Command packages support methods
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    histotypes.h
                 </para>
             </listitem>
         </itemizedlist>
