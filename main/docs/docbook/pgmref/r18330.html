@@ -1,0 +1,966 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CEventFilter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CEventSink"
+HREF="r18268.html"><LINK
+REL="NEXT"
+TITLE="CGatedEventFilter"
+HREF="r18626.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18268.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18626.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18330"
+></A
+>CEventFilter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18334"
+></A
+><H2
+>Name</H2
+>CEventFilter&nbsp;--&nbsp;Abstract base class for event filters.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18337"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;class CEventFilter : public CEventSink {
+protected:
+   Bool_t m_fEnabled;                           
+   std::string              m_sFileName;        
+   std::vector&#60;std::string&#62; m_vParameterNames; 
+   std::vector&#60;UInt_t&#62;      m_vParameterIds;   
+   CFilterOutputStage*      m_pOutput;         
+ public:
+  CEventFilter(std::string&#38; rFileName);
+  std::vector&#60;std::string&#62; getParameterNames() const;
+  std::vector&#60;UInt_t&#62; getParameterIds() const;
+  Bool_t CheckEnabled() const;
+  std::string getFileName() const;
+  CFilterOutputStage* getOutputStream();
+
+  void setParameterNames(const std::vector&#60;std::string&#62;&#38; names);
+  void setOutputStream(CFilterOutputStage* str);
+  
+  void Enable();
+  void Disable();
+  void setFileName(std::string&#38;);
+  void setOutputFormat(CFilterOutputStage* format);
+  std::string outputFormat() const;
+  virtual void operator()(CEventList&#38; rEvents);
+  virtual void operator()(CEvent&#38; rEvent);      
+
+protected:
+   virtual Bool_t CheckCondition(CEvent&#38; rEvent) = 0;
+   static std::string DefaultFilterFilename();   
+   void NamesToIds();                       
+   std::vector&#60;std::string&#62; IdsToNames() 
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18339"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Filters are objects that, since they are derived from
+            <CODE
+CLASS="classname"
+>CEventSink</CODE
+>, can be added to the
+            event sink pipeline.  Filters are expected to operate on
+            decoded events.  They have:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                    A file to which output data are written
+                </P
+></LI
+><LI
+><P
+>&#13;                    A list of parameters that will be output.
+                </P
+></LI
+><LI
+><P
+>&#13;                    A condition that determines which events are written
+                </P
+></LI
+><LI
+><P
+>&#13;                    A formatting object that determines how the events
+                    are written to the output file.
+                </P
+></LI
+></UL
+><P
+>&#13;            Thus filters create subsets of the raw input data. The output
+            of filters both subset the events (writing only those events that
+            satisfy their condition), and the parameters (writing only the
+            specified parameters).
+        </P
+><P
+>&#13;            Filters can speed up subsequent event processing both by reducing
+            the volume of data produced and by writing data in a format much
+            easier to decode than the original raw event data.  People using
+            filters have reported over an order of magnitude improvement in
+            the processing of e.g. XDR formatted filtered data over raw data,
+            even when no selection has been performed.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18354"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CEventFilter(<span
+class="methodparam"
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rFileName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructor.  <CODE
+CLASS="parameter"
+>rFilename</CODE
+> references
+                        the name of the file that filtered data will be written
+                        into.  The file is not opened by the constructor.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> const </span
+><span
+class="type"
+>std::vector&#60;std::string&#62; </span
+>getParameterNames();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a vector containing the names of the parameters
+                        that will be output by this filter.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+>getParameterIds();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a vector that contains the ids of the parameters
+                        that will be output by the filter.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Bool_t  </span
+>CheckEnabled();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the filter is
+                        currently enabled else <TT
+CLASS="literal"
+>kfFALSE</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string </span
+>getFileName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the name of the output file associated with
+                        this filter.   At construction time, the default
+                        filter filename is associated with the filter:
+                        <TT
+CLASS="filename"
+>$HOME/filter.flt</TT
+>.  Normally
+                        thsi is overridden by a call to 
+                        <CODE
+CLASS="methodname"
+>setFilename</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="type"
+>CFilterOutputStage* getOutputStream() </span
+>getOutputStream();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the output stream object
+                        associated with this filter.  The output stream
+                        is responsible for actually opening, and writing filter
+                        data to the filter file.   If this has not yet been set
+                        then <TT
+CLASS="literal"
+>nullptr</TT
+> is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setParameterNames(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;&#38;  </span
+><span
+class="parameter"
+>names</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the names of the filter parameters.  Note that
+                        this does not populate the parameter id vector
+                        of the filter.  To do that, one must first
+                        invoke <CODE
+CLASS="methodname"
+>IdsToNames</CODE
+>.
+                        This functional separation is done to allow the filter
+                        to account for changes in parameter definitions between
+                        selecting which parameters to output and actually
+                        applying the filter.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setOutputStream(<span
+class="methodparam"
+><span
+class="type"
+>CFilterOutputStage*  </span
+><span
+class="parameter"
+>str</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the output stage for the filter.  The output
+                        stage is what is actually responsible for connecting
+                        to the filter file and outputting data to it.
+                        Note that this is an alias for and delegates to
+                        <CODE
+CLASS="methodname"
+>setOutputFormat</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Enable();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Disable();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Enable or disable the filter respectively.  Only enabled
+                        filters will check and output data.  Disabled filters
+                        do nothing.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setFileName(<span
+class="methodparam"
+><span
+class="type"
+>std::string&#38; </span
+><span
+class="parameter"
+>filename</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets a new filename for the filter.  It's up to the
+                        filter output stage to understand what to do with this
+                        filename.  When the filter is enabled,
+                        the output stage will be asked to open the current
+                        filename and to describe the parameter names and
+                        ids to the filter file.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setOutputFormat(<span
+class="methodparam"
+><span
+class="type"
+>CFilterOutputStage*  </span
+><span
+class="parameter"
+>format</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the new <CODE
+CLASS="classname"
+>CFilterOutpuStage</CODE
+>
+                        object associated with the filter to
+                        <CODE
+CLASS="parameter"
+>format</CODE
+>.  Note that if
+                        the filter is enabled, this method throws a
+                        <CODE
+CLASS="classname"
+>CStateException</CODE
+> because
+                        it's  not legal to switch format types in the middle
+                        of filtering the data.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>outputFormat();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Asks the current output stream to return a description
+                        of itself.  If there is no current output stream
+                        the string <TT
+CLASS="literal"
+>--</TT
+> is returned to indicate
+                        the filter output format has not been selected.
+                        Note that SpecTcl's command interface to filters
+                        will never create a filter that does not have an
+                        output format defined.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEventList&#38;  </span
+><span
+class="parameter"
+>rEvents</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Asks the filter to process the events
+                        <CODE
+CLASS="parameter"
+>rEvents</CODE
+>.  If the filters is
+                        not enabled, this method does nothing.  If it is,
+                        then for each item in <CODE
+CLASS="parameter"
+>rEvents</CODE
+> the
+                        overload for <CODE
+CLASS="methodname"
+>operator()</CODE
+> described
+                        below is invoked for that item.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The filter is processed for the single event
+                        <CODE
+CLASS="parameter"
+>rEvent</CODE
+>. The pure virtual method
+                        <CODE
+CLASS="methodname"
+>CheckCondition</CODE
+> is invoked.
+                        If that returns <TT
+CLASS="literal"
+>kfTRUE</TT
+>, the
+                        output stream is handed the event and directed to
+                        output it in its format to the filter output file.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected virtual </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+> Bool_t  </span
+>CheckCondition(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This pure virtual method must be implemented by
+                        concrete filter classes.  It provides a predicate that
+                        is called for every event passed to an enabled filter to
+                        determine if the event should be output.  For example,
+                        for the <CODE
+CLASS="classname"
+>CGateEventFilter</CODE
+> class,
+                        the implementation of this method evaluates the gate
+                        associated with that filter.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>DefaultFilterFilename();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the full default path of the filter output
+                        file.  It is strongly recommended that this file
+                        not be used as you could imagine the chaos that
+                        would result if multiple instances of the filter
+                        used the default output file.
+                    </P
+><P
+>&#13;                        The method returns <TT
+CLASS="filename"
+>$HOME/filter.flt</TT
+>
+                        where, <TT
+CLASS="literal"
+>$HOME</TT
+> is the translation
+                        of the <TT
+CLASS="literal"
+>HOME</TT
+> environment variable.
+                        At login, this variable is set to the user's home directory
+                        path.  Note that there's no guarantee it points there
+                        at the time this method is called.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>NamesToIds();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Populates the parameter id vector held internally
+                        from the parameter names vector.  Each parameter name
+                        is looked up in the parameter dictionary.  If a name
+                        has a matching parameter definition, it's id is added
+                        to the array.  Any parameters that do not have a
+                        definition are silently omitted from the array.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62; </span
+>IdsToNames();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given the object's vector of parameter ids, returns
+                        a vector containing the names of all parameters
+                        in corresponding positions of that vector.  If
+                        a parameter does not exist in the dictionary any more,
+                        a <CODE
+CLASS="classname"
+>CDictictionaryException</CODE
+>
+                        is thrown.  
+                    </P
+><P
+>&#13;                        Note that a call to <CODE
+CLASS="methodname"
+>NamesToIds</CODE
+>
+                        followed by a call to this method returns the filter
+                        parameter names with nonexistent parameters removed.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18583"
+></A
+><H2
+>Data Available to subclasses</H2
+><P
+>&#13;            Several data members are <TT
+CLASS="literal"
+>protected</TT
+> and hence
+            available to subclasses directly.  Subclasses can also use
+            the getters and setters for these members rather than
+            accessing them directly.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="type"
+>Bool_t </SPAN
+><CODE
+CLASS="varname"
+>m_fEnabled</CODE
+></DT
+><DD
+><P
+>&#13;                        Enable flag for the filter <TT
+CLASS="literal"
+>kfTRUE</TT
+>
+                        if the filter is enabled or <TT
+CLASS="literal"
+>kfFALSE</TT
+>
+                        if not.  This is the value returned by
+                        <CODE
+CLASS="methodname"
+>CheckEnabled</CODE
+>.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>std::string </SPAN
+><CODE
+CLASS="varname"
+>m_sFileName</CODE
+></DT
+><DD
+><P
+>&#13;                        Name of the file associated withthe filter.  This
+                        is the value returned by
+                        <CODE
+CLASS="methodname"
+>getFileName</CODE
+>.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>std::vector&#60;std::string&#62; </SPAN
+><CODE
+CLASS="varname"
+>m_vParameterNames</CODE
+></DT
+><DD
+><P
+>&#13;                        Vector of the names of the parameters to be output
+                        to the filter file for events that should be written.
+                        This is the value returned by
+                        <CODE
+CLASS="methodname"
+>getParameterNames</CODE
+>.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>std::vector&#60;UInt_t&#62;</SPAN
+> <CODE
+CLASS="varname"
+>m_vParameterIds</CODE
+></DT
+><DD
+><P
+>&#13;                        Vector of parameter ids produced by
+                        <CODE
+CLASS="methodname"
+>NamesToIdes</CODE
+>.    This is
+                        the value returned by
+                        <CODE
+CLASS="methodname"
+>getParameterIds</CODE
+>.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>CFilterOutputStage* </SPAN
+><CODE
+CLASS="varname"
+>m_pOutput;</CODE
+></DT
+><DD
+><P
+>&#13;                        Pointer to the output stream used by the filter
+                        to write events.  This is the value returned by
+                        <CODE
+CLASS="methodname"
+>getOutputStream</CODE
+>
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18268.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18626.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CEventSink</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CGatedEventFilter</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

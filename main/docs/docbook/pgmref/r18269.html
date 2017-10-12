@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CEventSink</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFitDictionary"
+HREF="r17996.html"><LINK
+REL="NEXT"
+TITLE="CEventFilter"
+HREF="r18329.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r17996.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18329.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18269"
+></A
+>CEventSink</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18272"
+></A
+><H2
+>Name</H2
+>CEventSink&nbsp;--&nbsp;Base class for event sink pipeline elements</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18275"
+></A
+><H2
+>Synopsis</H2
+>#include &#60;EventSink.h&#62;
+
+class CEventSink {
+ public:
+  CEventSink();
+  virtual ~CEventSink();
+  CEventSink(const CEventSink&#38; aCEventSink);
+  CEventSink&#38; operator=(const CEventSink&#38; aCEventSink);
+  int operator==(const CEventSink&#38; aCEventSink);
+  virtual void OnAttach(CAnalyzer&#38; rAnalyzer);
+  virtual void OnDetach(CAnalyzer&#38; rAnalyzer);
+
+  virtual void operator()(CEventList&#38; rEvents) = 0;
+};
+
+    </DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18276"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            SpecTcl's event sink pipeline is passed events once the event
+            processing pipeline has created and filled in the
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> for the raw event.  It consists
+            of instances of classes derived fromt he abstract base class
+            <CODE
+CLASS="classname"
+>CEventSink</CODE
+>.  
+        </P
+><P
+>&#13;            The most interesting element of the pipeline for most SpecTcl users
+            is the <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> instance.  That
+            object does the heavy lifting of determining which channels of
+            which spectra should be incremented for each
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> instance.  Other event sink pipeline
+            elements can be created and added dynamically.  Of special interest
+            are event filters which write out subsets of decoded events that
+            satisfy some gate in a specific format.
+        </P
+><P
+>&#13;            Similarly the 5.0 root integration classes allow Root trees
+            to be produced by objects derived from <CODE
+CLASS="classname"
+>CEventSink</CODE
+>.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18286"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnAttach(<span
+class="methodparam"
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method has a empty implementation making its
+                        for derived classes.   It is invoked when an instance
+                        is added to the event sink pipeline.  The
+                        <CODE
+CLASS="parameter"
+>rAnalyzer</CODE
+> parameter refers to the
+                        SpecTcl analyzer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnDetach(<span
+class="methodparam"
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method has an empty base class implementation.
+                        Therefore its implementation in derived classes is
+                        optional.  It is invoked whenever an instance
+                        is removed from the event sink pipeline.
+                        <CODE
+CLASS="parameter"
+>rAnalyzer</CODE
+> refers to the
+                        analyzer in operating at the time of the
+                        removal.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEventList&#38;  </span
+><span
+class="parameter"
+>rEvents</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This pure virtual method must be implemented
+                        by concrete event sink classes.  It is invoked whenever
+                        the event processing pipeline delivers a list of
+                        events to the event sink pipeline.  Note that
+                        lists of events are delivered in order to promote
+                        referential locality in SpecTcl (hopefully improving
+                        cache hit rates).
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>rEvents</CODE
+> is the event list
+                        the sink should process.  
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r17996.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18329.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFitDictionary</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CEventFilter</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

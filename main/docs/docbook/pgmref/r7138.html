@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLTimer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLIdleProcess"
+HREF="r7077.html"><LINK
+REL="NEXT"
+TITLE="CTCLLiveEventLoop"
+HREF="r7208.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7208.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLTimer"
+></A
+>CTCLTimer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7142"
+></A
+><H2
+>Name</H2
+>CTCLTimer&nbsp;--&nbsp;
+            Abstract base class for C++ objects attached to timer events.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7145"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLTimer.h&#62;
+...
+class CTCLTimer  : public CTCLInterpreterObject
+{
+public:
+  CTCLTimer ();
+  CTCLTimer(CTCLInterpreter* pInterp, UInt_t nMsec = 0);
+  virtual ~CTCLTimer ( );
+
+
+  Tk_TimerToken getToken() const;
+  UInt_t getMsec() const;
+  Bool_t IsSet() const;
+
+  virtual   void operator() ()   = 0;
+
+  void Set ()  ;
+  void Set(UInt_t nms);
+  void Clear ()  ;
+};
+
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7147"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Tcl/Tk provide a mechanism for scheduling functions to be executed
+            after a time delay specified in milliseconds.   The <CODE
+CLASS="classname"
+>CTCLTimer</CODE
+>
+            class is an abstract base class that provides an interface into the API
+            for that facility.  To use <CODE
+CLASS="classname"
+>CTCLTimer</CODE
+> you must
+            create a class derived from <CODE
+CLASS="classname"
+>CTCLTimer</CODE
+> that
+            overrides and implement the <CODE
+CLASS="function"
+>operator()</CODE
+> function.
+            Create an object from the resulting function class.  Use the object's
+            <CODE
+CLASS="function"
+>Set</CODE
+> and <CODE
+CLASS="function"
+>Clear</CODE
+> members to schedule
+            or cancel a scheduled execution.  The code fragment
+            example below shows how to do this
+            to create a class that periodically emits the text "Tick" to stderr.
+            Many #include directives are missing for brevity.
+            </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7156"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;// Interface to <CODE
+CLASS="classname"
+>Ticker</CODE
+> normally goes in a header.
+class Ticker : public CTCLTimer
+{
+public:
+    Ticker(CTCLInterpreter* pInterp, int seconds);
+    virtual ~Ticker();
+
+    virtual void operator()();
+};
+...
+// Implementation of <CODE
+CLASS="classname"
+>Ticker</CODE
+> normally goes in a .cpp
+
+// Constructor of Ticker:
+
+Ticker::Ticker(int seconds) :
+    CTCLTimer(pInterp, seconds*1000)
+{
+    Set();                   // Schedule first one.
+}
+// Destructor.. chain to base class.
+Ticker::~Ticker() {}
+
+// called when timer goes off:
+void
+Ticker::operator()() {
+    cerr &#60;&#60; "Tick\n";
+    Set();                 // Schedule next one.
+}
+...
+
+
+Ticker Tick(pInterp, 1);  // Tick every second.
+
+            </PRE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7160"
+></A
+><H2
+>METHODS</H2
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7162"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;<CODE
+CLASS="function"
+>CTCLTimer</CODE
+> ();
+<CODE
+CLASS="function"
+>CTCLTimer</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+          <SPAN
+CLASS="type"
+>UInt_t</SPAN
+> <CODE
+CLASS="parameter"
+>nMsec</CODE
+> = <TT
+CLASS="literal"
+>0</TT
+>);
+          </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            Construct timer objects.  The first form of the constructor creates a timer
+            object that must be later bound into an interpreter via a call to
+            <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>::<CODE
+CLASS="function"
+>Bind</CODE
+>.
+            The seconf form of the contructor creates a timer object that is already
+            bound to <CODE
+CLASS="parameter"
+>pInterp</CODE
+> and has an initial schedule delay
+            of <CODE
+CLASS="parameter"
+>nMsec</CODE
+>.
+          </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7176"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;  Tk_TimerToken getToken() const;
+  UInt_t getMsec() const;
+          </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            These two members access internal state of the object.
+            <CODE
+CLASS="function"
+>getToken</CODE
+> returns the <SPAN
+CLASS="type"
+>Tk_TimerToken</SPAN
+>
+            associated with the timer object.  This is the Tcl/Tk token that
+            identifies the timer request to the interpreter.
+            <CODE
+CLASS="function"
+>getMsec</CODE
+> retrieves the current value of the delay parameter
+            in milliseconds.
+          </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7182"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;  virtual   void operator() ()   = 0;
+        </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            This function must be overidden and implemented in concrete timer classes.
+            See the example in DESCRIPTION above.
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7185"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;
+  void Set ()  ;
+  void Set(UInt_t nms);
+  Bool_t IsSet() const;
+        </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            <CODE
+CLASS="function"
+>Set</CODE
+> schedules the object for execution.  If
+            <CODE
+CLASS="parameter"
+>nms</CODE
+> is provided it is saved as the scheduling
+            parameter and determines the delay
+            in milliseconds before <CODE
+CLASS="function"
+>operator()</CODE
+> is
+            next called.  If not provided, the most recently used delay will be
+            used again.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>IsSet</CODE
+> returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the
+            timer is currently pending, or <TT
+CLASS="literal"
+>kfFALSE</TT
+> if no pending
+            timer request is active.
+        </P
+><P
+>&#13;        <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7196"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;  void Clear ()  ;
+        </PRE
+><P
+></P
+></DIV
+>
+        </P
+><P
+>&#13;           If a Timer request is pending, cancels it.  If no timer request is pending,
+            this function does nothing, and does not report an error.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7199"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLInterpreterObject(3)
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7202"
+></A
+><H2
+>REFERENCES</H2
+><P
+>&#13;            <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7205"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;Musser, Derge, Saini: <CODE
+CLASS="parameter"
+>STL Tutorial and Reference Guide</CODE
+>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+See section 2.4 for a description and discussion of function objects.
+            </PRE
+><P
+></P
+></DIV
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7208.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLIdleProcess</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLLiveEventLoop</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

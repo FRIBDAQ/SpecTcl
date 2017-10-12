@@ -1,0 +1,645 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTreeVariableArray</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tree Parameter, Tree Variable API"
+HREF="p2375.html"><LINK
+REL="PREVIOUS"
+TITLE="CTreeVariableProperites"
+HREF="r4061.html"><LINK
+REL="NEXT"
+TITLE="Tcl++ classes"
+HREF="p4402.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4061.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="p4402.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN4238"
+></A
+>CTreeVariableArray</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4242"
+></A
+><H2
+>Name</H2
+>CTreeVariableArray&nbsp;--&nbsp;Container for an array of tree variables.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4245"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;TreeParameter.h&#62;
+
+class <CODE
+CLASS="classname"
+>CTreeVariableArray</CODE
+>
+{
+public:
+  CTreeVariableArray();
+  CTreeVariableArray(std::string baseName, double initialValue, 
+		     std::string units, UInt_t size, int firstIndex = 0);
+  CTreeVariableArray(const CTreeVariableArray&#38; rhs);
+  
+  void Initialize(std::string baseName, double initialValue, 
+		  std::string units, UInt_t size, Int_t firstElement);
+
+  CTreeVariable&#38; operator[](Int_t index);
+  CTreeVariableArray&#38; operator=(const CTreeVariableArray&#38; rhs);
+  
+  UInt_t size();
+  Int_t  firstIndex();
+};
+                    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4248"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    Objects of type <CODE
+CLASS="classname"
+>CTreeVariableName</CODE
+>
+                    are built to act programmatically like arrays of tree
+                    parameters with identical definitions and a common base name.
+                    Tree variables in a tree variable name are given names
+                    of the form <TT
+CLASS="replaceable"
+><I
+>basename.n</I
+></TT
+>
+                    where <TT
+CLASS="replaceable"
+><I
+>n</I
+></TT
+> is a multidigit
+                    fixed length number.  
+                </P
+><P
+>&#13;                    The number of digits is chosen so
+                    that the largest index will fit.  The use of fixed
+                    sized integers makes sorting with alphabetic keys work properly
+                    for these indices. For example, a tree variable with 16
+                    elements starting at element zero and with a base name
+                    of tv, will have names <TT
+CLASS="literal"
+>tv.00</TT
+>,
+                    <TT
+CLASS="literal"
+>tv.01</TT
+>... <TT
+CLASS="literal"
+>tv.15</TT
+>.
+                </P
+><P
+>&#13;                    
+                </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4259"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;                    The first set of methods we're going to document are
+                    associated with construction and initialization.
+                    A tree parameter array can be constructred in either one
+                    or two steps. 
+                </P
+><P
+>&#13;                    One step construction uses one of the parameterized constructors.
+                    Two step construction uses the default constructor and
+                    the special <CODE
+CLASS="methodname"
+>Initialize</CODE
+> method.
+                    <CODE
+CLASS="methodname"
+>Initialize</CODE
+> should be invoked prior
+                    to the completion of initialization so that the variables
+                    are properly bound.  If this is not done, the variables
+                    that make up the object will need to be bound manually
+                    after <CODE
+CLASS="methodname"
+>Initialize</CODE
+> has been
+                    called.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeVariableArray();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Default constructor.  After this is called,
+                                initialization must be completed by invoking
+                                <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeVariableArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>initialValue</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>size</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>firstIndex</span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Full one-step construction.  <CODE
+CLASS="parameter"
+>baseName</CODE
+>
+                                is the base name for the variables this creates.
+                                <CODE
+CLASS="parameter"
+>initialValue</CODE
+> is the value
+                                initially given to all of the created variables.
+                                <CODE
+CLASS="parameter"
+>units</CODE
+> will be the units of measure.
+                                The array will have <CODE
+CLASS="parameter"
+>size</CODE
+>
+                                elements and the first index will be
+                                <CODE
+CLASS="parameter"
+>firstIndex</CODE
+>.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;   CTreeVariableArray(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> CTreeVariableArray&#38; </span
+><span
+class="parameter"
+> rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Copy construction creates a copy of the
+                                array that can be used in pass by value
+                                parmeters in function/method calls.
+                                The <TT
+CLASS="literal"
+>const</TT
+>  The
+                                copy is a copy in name only as the
+                                resulting tree variables will be bound to the
+                                same Tcl variables as the original.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>initialValue</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>size</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>firstIndex</span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Performs the second step in two phase initialization.
+                                The first was performed by invoking the default
+                                constructor.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    The remaining methods are methods associated with the
+                    ability to treat <CODE
+CLASS="classname"
+>CTreeVariableArray</CODE
+>
+                    objects like arrays:
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeVariable&#38;  </span
+>operator[](<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>index</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                The indexing operator returns a reference to the
+                                tree variable at the specified
+                                <CODE
+CLASS="parameter"
+>index</CODE
+>. Note again
+                                that the object's initial index may be
+                                non zero.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeVariableArray&#38;  </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CTreeVariableArray&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Assigns to the object from
+                                <CODE
+CLASS="parameter"
+>rhs</CODE
+>.  Note that
+                                because of how tree variables work, the left
+                                and right hand sides of the assignment will
+                                then refer to the same underlying tree variables
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the number of elements in the array.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t   </span
+>firstIndex();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the lowest legal index value for
+                                the array.  This will be the
+                                value of the
+                                <CODE
+CLASS="parameter"
+>firstIndex</CODE
+> parameter
+                                to the costructor or the call to
+                                <CODE
+CLASS="methodname"
+>Initialize</CODE
+> or,
+                                if the object was assignedvia
+                                <CODE
+CLASS="methodname"
+>operator=</CODE
+> the
+                                number of elements in the right hand
+                                side tree variable
+                            </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4061.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTreeVariableProperites</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p2375.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Tcl++ classes</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

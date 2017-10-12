@@ -1,0 +1,706 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CParameter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CNamedItem"
+HREF="r12571.html"><LINK
+REL="NEXT"
+TITLE="CEvent"
+HREF="r12841.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12571.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12841.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12652"
+></A
+>CParameter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12656"
+></A
+><H2
+>Name</H2
+>CParameter&nbsp;--&nbsp;Parameter definition.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12659"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Parameter.h&#62;
+
+class CParameter : public CNamedItem {
+
+ public:
+  CParameter();
+
+  CParameter(const std::string&#38; rName,
+	     UInt_t nId,
+	     const char* pUnits);
+  CParameter(UInt_t am_nScale, 
+	     const std::string&#38; rName, UInt_t nNumber);
+
+  CParameter(UInt_t am_nScale,
+	     const std::string&#38; rName, UInt_t nNumber,
+	     Float_t nLow, Float_t nHigh, std::string am_sUnits) ;
+         
+ public:
+  Bool_t hasScale() const;
+  UInt_t getScale() const;
+  Float_t getLow() const;
+  Float_t getHigh() const;
+  std::string getUnits() const;
+  Float_t RawToMapped(Float_t Raw);
+  Float_t MappedToRaw(Float_t Mapped);
+
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12661"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CParameter</CODE
+> objects contain parameter definitions.
+            Parameter definitions are named objects where the name is used to
+            refer to the parameter in SpecTcl commands and Tree parameter
+            definitions while the id is an index into the
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> into which that parameter's values
+            for each event should be stored
+        </P
+><P
+>&#13;            Parameter definitions also include metadata that is used to provide
+            hints to users defining spectra about how to define the axes of spectra
+            on those parameters.  An optional units metadata provides the units
+            of measure for a parameter
+        </P
+><P
+>&#13;            Because of SpecTcl's long developmental history,
+            axis rang information comes in several orthogonal forms.  
+        </P
+><P
+>&#13;            Originally, SpecTcl parameters were integer values and scaling
+            to spectrum axes was done via simple shifting.  Metadata on
+            parameter ranges from that epoch is called a scale and represents
+            the number of bits of range of the parameter.  For example
+            a scale of <TT
+CLASS="literal"
+>10</TT
+> means the parameter runs
+            in the range of <TT
+CLASS="literal"
+>[0, 1024)</TT
+>.
+        </P
+><P
+>&#13;            In the second phase of parameter history, SpecTcl parameters were
+            still integers but the spectrum axes were labeled in an arbitrary
+            range.  This sort of a parameter is called a <I
+CLASS="firstterm"
+>mapped parameter</I
+>
+            because while it remains an integer, when looking at a spectrum,
+            the spectrum axis can be mapped to some arbitrary range.
+        </P
+><P
+>&#13;            Finally, SpecTcl parameters are full double precision values.
+            These values are passed through a set of linear functions to map them from
+            raw parameter space to axis space in the spectra in which they are
+            used.
+        </P
+><P
+>&#13;        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12675"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            In addition to the methods described, parameter objects can be
+            copy constructed, assigned and compared for equality.  These
+            canonical methods will not be described further here.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs a parameter with an id of
+                        <TT
+CLASS="literal"
+>UINT_MAX</TT
+> and a name of
+                        <TT
+CLASS="literal"
+>Undefined</TT
+>.  The scale low and high
+                        values are set to <TT
+CLASS="literal"
+>0.0</TT
+> and the
+                        units to an empty string
+                    </P
+><P
+>&#13;                        The metadata initialization of this sort of parameter
+                        makes it quite useless.  This constructor is intended
+                        to produce a parameter definition that will eventually
+                        be on the left hand side of an assignemnt from a
+                        more meaningful parameter definition object.
+                    </P
+><P
+>&#13;                        The id of <TT
+CLASS="literal"
+>UINT_MAX</TT
+> will make adding
+                        this parameter to the parameter dictionary and then actually
+                        attempting to assign it a value via e.g. a tree parameter
+                        cause SpecTcl to fail with a memory allocation as it
+                        tries to expand the active <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                        value to accommodate this parameter.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>pUnits</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs a parameter named <CODE
+CLASS="parameter"
+>rName</CODE
+>.
+                        The parameter Id of the 
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nScale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38; </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nNumber</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs a parameter that is <CODE
+CLASS="parameter"
+>am_nScale</CODE
+>
+                        bits wide.  The name of the parameters is
+                        <CODE
+CLASS="parameter"
+>rName</CODE
+> and the id is
+                        <CODE
+CLASS="parameter"
+>nNumber</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter((<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nScale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nNumber</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>nLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>nHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>am_sUnits</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates a parameter with metadata that indicates the
+                        range of values the parameter may senisbly take.
+                        <CODE
+CLASS="parameter"
+>am_nScale</CODE
+> is obsolete in modern
+                        times.  In the past, when mapped spectra existed,
+                        this parameter was the number of bits of range of the
+                        parameter.  Now, only <CODE
+CLASS="parameter"
+>nLow</CODE
+>
+                        and <CODE
+CLASS="parameter"
+>nHigh</CODE
+> matter.
+                        They are the recommended low and high limits
+                        for an axis on this parameter.
+                    </P
+><P
+>&#13;                        As before, <CODE
+CLASS="parameter"
+>rName</CODE
+> is the
+                        name of the parameter and <CODE
+CLASS="parameter"
+>nNumber</CODE
+>
+                        is the parameter's id.  <CODE
+CLASS="parameter"
+>am_sUnits</CODE
+>
+                        are the units of measure string.  If this makes no sense,
+                        simply provide an empty string.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Bool_t  </span
+>hasScale();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the parameter
+                        was constructed with a non-zero scale value.
+                        Otherwise returns <TT
+CLASS="literal"
+>kfFALSE</TT
+> indicating
+                        that the parameter range should be gotten from the
+                        low and high range values or, may not have been supplied
+                        at all (in which case low == high == 0.0).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getScale();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the scale value.  This is only meaningful
+                        if <CODE
+CLASS="methodname"
+>hasScale</CODE
+> returns
+                        <TT
+CLASS="literal"
+>kfTRUE</TT
+>.   While you an probably
+                        guess what this returns when that's not the case
+                        I'm not going to gaurantee you're correct either now
+                        or in the future, so don't use that value instead of
+                        <CODE
+CLASS="methodname"
+>hasScale</CODE
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Float_t  </span
+>getLow();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the low limit metadata for this parameter.
+                        If limits were not provided,
+                        both this and <CODE
+CLASS="methodname"
+>getHigh</CODE
+> below
+                        will return <TT
+CLASS="literal"
+>0.0</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Float_t  </span
+>getHigh();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the high limit metadata for thsi parameter.
+                        If limits were not provided, this and
+                        <CODE
+CLASS="methodname"
+>getLow</CODE
+> above will return
+                        <TT
+CLASS="literal"
+>0.0</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>getUnits();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the units of measure string metadata for
+                        this parameter.  If no units of measure were provided,
+                        this returns an empty string.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+>RawToMapped(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>Raw</span
+></span
+>);&#13;</code
+>
+                    <code
+class="methodsynopsis"
+>  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+>MappedToRaw(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>Mapped</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods are left over from the days  of
+                        mapped spectra/parameters and should not be used
+                        in new SpecTcl code.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12571.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12841.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CNamedItem</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CEvent</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

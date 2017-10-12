@@ -1,0 +1,401 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLHashTableItem</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLHashTable"
+HREF="r6311.html"><LINK
+REL="NEXT"
+TITLE="CTCLHashTableIterator"
+HREF="r6510.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r6311.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r6510.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLHashTableItem"
+></A
+>CTCLHashTableItem</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN6446"
+></A
+><H2
+>Name</H2
+>CTCLHashTableItem&nbsp;--&nbsp;
+            Encapsulation of an entry in a Tcl Hash table as encapsulated
+            in <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+>
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN6450"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLHashTableItem.h&#62;
+...
+
+template &#60;class T&#62;              // T Must have copy ctor &#38; Assignment defined.
+class CTCLHashTableItem
+{
+  CTCLHashTableItem (T am_Item );
+  CTCLHashTableItem (const CTCLHashTableItem&#38; aCTCLHashTableItem );
+  virtual ~CTCLHashTableItem ( );
+
+  CTCLHashTableItem operator= (const CTCLHashTableItem&#38; aCTCLHashTableItem);
+   int operator== (const CTCLHashTableItem&#38; aCTCLHashTableItem);
+  T getItem() const;
+  T* operator-&#62; ();
+}
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6452"
+></A
+><H2
+></H2
+><P
+>&#13;            Provides an object oriented interface to elements of a hash table.
+            See CTCLHashTable(3), and the first REFERENCE below for more information
+            about hash tables.
+        </P
+><P
+>&#13;            Note that this is a templated class.  The template parameter is
+            the type of the item to be stored in the hash table.  Suppose,
+            for example, we have a bunch of named calibration parameters
+            (floating point) that are stored in a hash table.  A calibration
+            The following code creates the calibration table, and inserts an
+            element named george in it with the initial value of 0.0:
+            <PRE
+CLASS="programlisting"
+>&#13;        CTCLHashTable&#60;float&#62;  calibrationTable;
+        CTCLHashTableItem&#60;float&#62; entry(0.0);
+        calibrationTable.Enter(std::string("george"), entry);
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6457"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<CODE
+CLASS="function"
+>CTCLHashTableItem</CODE
+> (<SPAN
+CLASS="type"
+>T</SPAN
+> <CODE
+CLASS="parameter"
+>Item</CODE
+> );
+<CODE
+CLASS="function"
+>CTCLHashTableItem</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLHashTableItem</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>hashItem</CODE
+> );
+        </PRE
+>
+        </P
+><P
+>&#13;            Constructs a <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+> either from the underlying
+            type (<CODE
+CLASS="parameter"
+>Item</CODE
+>) or from an existing <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+>
+            (<CODE
+CLASS="parameter"
+>hashItem</CODE
+>).
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLHashTableItem</SPAN
+> <CODE
+CLASS="function"
+>operator=</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLHashTableItem</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLHashTableItem</SPAN
+>&#38; <SPAN
+CLASS="type"
+>rhs</SPAN
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator=</CODE
+> allows you to assign the value of one
+            <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+> to another.  The underlying
+            templated type must be capable of assignment.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator==</CODE
+> allows you to compare two
+            <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+>s to each other.  The underlying
+            templated type must be capable of equality comparison.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>T</SPAN
+> <CODE
+CLASS="function"
+>getItem</CODE
+>() const;
+            </PRE
+>
+        </P
+><P
+>&#13;            Returns the value of the item wrapped by the <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+>
+            The underlying type must be capable of copy construction.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>T</SPAN
+>* <CODE
+CLASS="function"
+>operator-&#62;</CODE
+> ();       </PRE
+>
+        </P
+><P
+>&#13;            Returns the address of the contents of the <CODE
+CLASS="classname"
+>CTCLHashTableItem</CODE
+>.
+            This is most useful if <CODE
+CLASS="classname"
+>T</CODE
+> is a structure or class as it can be
+            used to dereference member (data or functions) of the structure or class.
+            For example:
+            <PRE
+CLASS="programlisting"
+>&#13;                struct complex {
+                                 double real;
+                                 double imaginary;
+                                 complex(double r, double i) :
+                                    real(r), imaginary(i) {}
+                                } complex;
+                CTCLHashTableItem&#60;complex&#62; v(1.0, 2.0);
+                double real = v-&#62;real;             // real = 1.0
+                double imag = v-&#62;imaginary;        // imag = 2.0
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6502"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLHashTable(3),
+CTCLHashTableIterator(3)
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6505"
+></A
+><H2
+>REFERENCES</H2
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;Niklaus Wirth <CODE
+CLASS="parameter"
+>Algorithms + Data Structures = Programs</CODE
+>
+Prentice Hall Series in Automatic Computation 1976 See section 4.6
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r6311.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r6510.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLHashTable</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLHashTableIterator</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

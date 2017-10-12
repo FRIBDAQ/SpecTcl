@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CFilterOutputStageFactory</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFilterOutputStageCreator"
+HREF="r18964.html"><LINK
+REL="NEXT"
+TITLE="CXdrFilterOutputStageCreator"
+HREF="r19093.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18964.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r19093.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN19026"
+></A
+>CFilterOutputStageFactory</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN19030"
+></A
+><H2
+>Name</H2
+>CFilterOutputStageFactory&nbsp;--&nbsp;Create filter output stage objects.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN19033"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFilterOutputStageFactory.h&#62;
+
+class CFilterOutputStageFactory {
+public:
+  static CFilterOutputStageFactory&#38; getInstance();
+  
+  CFilterOutputStage* create(std::string type) const;
+  void                Register(CFilterOutputStageCreator&#38; creator);
+  std::string         document() const;
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN19035"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CFilterOutputStageFactory</CODE
+>  singleton
+            is used to create filter filter output stages to associate with
+            filters once their <CODE
+CLASS="option"
+>-format</CODE
+> is known.
+        </P
+><P
+>&#13;            The filter output stage is then responsible for actually writing
+            filtered events to the output file.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN19041"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> CFilterOutputStageFactory&#38;  </span
+>getInstance();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the singleton instance of this
+                        class.   Note that if necessary the object is constructed.
+                        Constructors for this class are <TT
+CLASS="literal"
+>private</TT
+>
+                        to enforce the singleton nature of this object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CFilterOutputStage*  </span
+>create(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>type</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Iterates over the registered filter output stage creators
+                        asking them to create a new output stage for the
+                        format specified by <CODE
+CLASS="parameter"
+>type</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+>Register(<span
+class="methodparam"
+><span
+class="type"
+>CFilterOutputStageCreator&#38;  </span
+><span
+class="parameter"
+>creator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a new output stage creator to the factory.
+                        Output stage creators are the objects that actually
+                        create filter output stages. 
+                    </P
+><P
+>&#13;                        See <CODE
+CLASS="classname"
+>CFilterOutputStagereator</CODE
+>
+                        for information about filter output stage creators
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string  </span
+>document();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Collects all of the documentation strings from
+                        the registered creators separated by newlines.
+                        This is used by the <B
+CLASS="command"
+>filter</B
+> command
+                        to generate help text that describes the available
+                        output formats.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18964.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r19093.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFilterOutputStageCreator</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CXdrFilterOutputStageCreator</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

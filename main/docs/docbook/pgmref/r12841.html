@@ -1,0 +1,530 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CEvent</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CParameter"
+HREF="r12652.html"><LINK
+REL="NEXT"
+TITLE="CSpectrum"
+HREF="r12971.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12652.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12971.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12841"
+></A
+>CEvent</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12845"
+></A
+><H2
+>Name</H2
+>CEvent&nbsp;--&nbsp;Destination for decoded event data.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12848"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Event.h&#62;
+
+typedef DFloat_t ParamType;
+typedef std::vector&#60;DopedValidValue&#60;ParamType&#62; &#62; CParameterVector;
+typedef DopedValidValue&#60;ParamType&#62;                     CParameterValue;
+typedef CParameterVector::iterator                           CEventIterator;
+
+class CEvent {
+ public:
+  CEvent();
+  virtual ~CEvent() ;
+  CEvent(UInt_t nInitialSize);
+  CEvent(const CEvent&#38; aEvent);
+
+  CEvent&#38; operator=(const CEvent&#38; aEvent);
+  int operator==(const CEvent&#38; aEvent);
+  int operator!=(const CEvent&#38; anEvent);
+  
+  CParameterValue&#38; operator[](UInt_t nParam);
+
+  CEventIterator begin();
+  CEventIterator end();
+  UInt_t size() const;
+  void clear();
+
+  DopeVector&#38; getDopeVector();
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12850"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects are the base level object
+            produced by the application of the event processing pipeline to
+            a raw event.  The object looks very  much like a vector except
+            that it expands as needed to allow the largest index to fit.
+        </P
+><P
+>&#13;            The elements of a <CODE
+CLASS="classname"
+>CEvent</CODE
+> object are valid
+            values.  Valid values know when they've been assigned to.  Event
+            serial numbers are used to allow clearing the assignment status
+            of the event in O(1) time.
+        </P
+><P
+>&#13;            The first time a parameter has been assigned, its index is
+            added to a <CODE
+CLASS="parameter"
+>Dope Vector</CODE
+>.  The purpose of the
+            dope vector is to improve histogramming efficiency.
+            Where the spectrum type allowed, the histogrammer organizes
+            histogrammers in lists of histograms that require a specific parameter
+            id.  All such histograms for which this is not possible (e.g. summary
+            spectra) make up a separate list.
+        </P
+><P
+>&#13;            This organization means that rather than iterating over all
+            defined histograms, the histogrammer can use the dope vector
+            contents to restrict iteration to the set of histograms that
+            require parameters that have been given values, and those
+            histograms for which a required parameter does not exist.
+            When events are sparse (typically) and many histograms have
+            been defined, this provides a significant performance
+            improvement.
+        </P
+><P
+>&#13;            SpecTcl further recycles events after clearing them.  Over the long run,
+            this means that events will no longer require costly expansion but
+            will reach equilbrium lengths long enough to hold the highest parameter
+            id.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12860"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            This class suppports assignment, copy  construction, and
+            comparison for both equality and inequality.  Those
+            methods are not documented in this section
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CEvent();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs an event with an initial sizeof
+                        <TT
+CLASS="literal"
+>0</TT
+> elements.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CEvent(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+>nInitialSize</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs an event with an initial size
+                        specified by <CODE
+CLASS="parameter"
+>nInitialSize</CODE
+>.
+                        Given that SpecTcl recycles events it uses in the
+                        event processing and event sink pipelines; any
+                        non zero value has no amortized performance impact
+                        on SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameterValue&#38;  </span
+>operator[](<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nParam</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the element at index
+                        <CODE
+CLASS="parameter"
+>nParam</CODE
+> in the event.  If
+                        the event is not yet big enough to provide that element,
+                        it is expanded with unset (not valid) elements until
+                        it is.
+                    </P
+><P
+>&#13;                        The fact that a reference is returned allows this
+                        to occur as an lvalue or rvalue.  If used as an
+                        rvalue, an exception is thrown if the value has not
+                        yet been assigned a value.  The exception is of
+                        type <SPAN
+CLASS="type"
+>std::string</SPAN
+> and is the value
+                        "Attempted getValue of unset ValidValue object".
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventIterator  </span
+>begin();&#13;</code
+>
+                    <code
+class="methodsynopsis"
+>  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventIterator </span
+>end();&#13;</code
+>
+                    <code
+class="methodsynopsis"
+>  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The <CODE
+CLASS="methodname"
+>begin</CODE
+> and
+                        <CODE
+CLASS="methodname"
+>end</CODE
+> methods provide iteration
+                        over the full event vector at its current size.
+                        Iteration is supported in the same sense as it is
+                        for C++ standard library iterators.
+                        <CODE
+CLASS="methodname"
+>size</CODE
+> returns the number
+                        of elements currently in the vector.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>clear();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets all values in the event to invalid (not assigned).
+                        This is done by SpecTcl after an event filled in by the
+                        event processing pipeline has been passed though the
+                        elements of the event sink pipeline.
+                    </P
+><P
+>&#13;                        This also clears the dope vector of the event.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DopeVector&#38;  </span
+>getDopeVector();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the current dope vector for
+                        this event.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12943"
+></A
+><H2
+>DATA TYPES</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="type"
+>ParamType</SPAN
+></DT
+><DD
+><P
+>&#13;                        Defines the data type that is used for parameters
+                        in the event object.  At this time ths is a double
+                        precision real value.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>CParameterVector</SPAN
+></DT
+><DD
+><P
+>&#13;                        At any time, this is the data type that holds
+                        the parameter values.  Currently this is a
+                        <CODE
+CLASS="classname"
+>std::Vector&#60;DopedValidValue&#60;Paramtype&#62; &#62;</CODE
+>.
+                    </P
+><P
+>&#13;                        That is a valid value vector that has an associated dope vector.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>CParameterValue</SPAN
+></DT
+><DD
+><P
+>&#13;                        This is a doped valid value of type <SPAN
+CLASS="type"
+>ParamType</SPAN
+>.
+                        Doped value values have an associated dope vector and
+                        an id.  When first assigned after being constructed or
+                        reset they append their id to the dope vector.
+                    </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>CEventIterator </SPAN
+></DT
+><DD
+><P
+>&#13;                        Iterator through the <CODE
+CLASS="classname"
+>CParameterVector</CODE
+>
+                        in a <CODE
+CLASS="classname"
+>CEvent</CODE
+> object.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12652.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12971.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CParameter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CSpectrum</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

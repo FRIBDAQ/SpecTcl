@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>FilterEventProcessor</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CXdrFilterOutputStageCreator"
+HREF="r19093.html"><LINK
+REL="NEXT"
+TITLE="Stuff to do"
+HREF="c19180.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r19093.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c19180.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN19107"
+></A
+>FilterEventProcessor</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN19111"
+></A
+><H2
+>Name</H2
+>FilterEventProcessor&nbsp;--&nbsp;
+            Decodes events from a filter file into parameters.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN19114"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;FilterEventProcessor.h&#62;
+
+class CFilterEventProcessor : public CEventProcessor
+{
+
+public:
+  virtual Bool_t OnOther(UInt_t nType,
+                         CAnalyzer&#38; rAnalyzer,
+                         CBufferDecoder&#38; rDecoder);
+
+  virtual Bool_t operator()(const Address_t pEvent,
+                            CEvent&#38; rEvent,
+                            CAnalyzer&#38; rAnalyzer,
+                            CBufferDecoder&#38; rDecoder);
+
+  virtual Bool_t OnEventSourceOpen(std::string name);
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN19116"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            XDR Filter files are read in through the normal SpecTcl input system.
+            The Filter buffer decoder (<CODE
+CLASS="classname"
+>CFilterBufferDecoder</CODE
+>)
+            dispatches each item to the event processing pipeline.
+            <CODE
+CLASS="classname"
+>CFilterEventProcessor</CODE
+> knows how to
+            take data from the decoded XDR blocks and store them into
+            SpecTcl parameters.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN19121"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>OnOther(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> nType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>&#13;                         CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is called by the filter buffer decoder for a header
+                        record.  Header records contain information about the
+                        paramters that are present in the events in the filter
+                        file.
+                    </P
+><P
+>&#13;                        The parameter names are pulled from the header record.
+                        If SpecTcl currently has a parameter defined with a
+                        matching name, a correspondence is made between that name
+                        and the id of the SpecTcl parameter.  If there is no
+                        such correspondence, that is noted as well.
+                    </P
+><P
+>&#13;                        The end result of processing the header records in an
+                        XDR filter file is a mapping between parameter numbers
+                        in the filter file and parameter numbers ids in SpecTcl.
+                        This map is used to drive placement of parameters in
+                        events into SpecTcl parameters.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>operator()(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> Address_t  </span
+><span
+class="parameter"
+>pEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CAnalyzer&#38; </span
+><span
+class="parameter"
+> rAnalyzer</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CBufferDecoder&#38; rDecoder </span
+><span
+class="parameter"
+></span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called by the filter buffer decoder for each
+                        <TT
+CLASS="literal"
+>event</TT
+> item.  The bitmap is analyzed and
+                        using that the set of parameters provided by the event
+                        are placed in corresponding SpecTcl parameters where
+                        there are correspondences and ignored where ther aren't
+                        correspondences.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>OnEventSourceOpen(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a filter file is attached.  The
+                        parameter correspondence mapping is cleared in
+                        anticipation of a new set of <TT
+CLASS="literal"
+>header</TT
+>
+                        items from the newly opened filter file.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r19093.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c19180.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CXdrFilterOutputStageCreator</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Stuff to do</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

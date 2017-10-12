@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLObjectPackage</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CConfigurableObject"
+HREF="r8092.html"><LINK
+REL="NEXT"
+TITLE="CTCLPackagedObjectProcessor"
+HREF="r8374.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r8092.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r8374.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLObjectPackage"
+></A
+>CTCLObjectPackage</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN8316"
+></A
+><H2
+>Name</H2
+>CTCLObjectPackage&nbsp;--&nbsp;Provide common functionality for a set of
+                related commands.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN8319"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLObjectPackage.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLObjectPackage </span
+></SPAN
+>{
+<code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>void </span
+>addCommand(<span
+class="methodparam"
+><span
+class="type"
+>CTCLPackagedObjectProcessor* </span
+><span
+class="parameter"
+>processor</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CTCLObjectPackage::CommandIterator </span
+>begin();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CTCLObjectPackage::CommandIterator </span
+>end();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8338"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            This class is a base class for a set of common services that
+            can be offered to a set of related commands.  The commands themselves
+            must be derived from CTCLPackagedObjectProcessor.  
+         </P
+><P
+>&#13;            The base class provides the infrastructor for maintaining the list
+            of command objects that participate in the package, for associating
+            a command with the package, and for iterating through associated
+            command objects.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8342"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>void </span
+>addCommand(<span
+class="methodparam"
+><span
+class="type"
+>CTCLPackagedObjectProcessor* </span
+><span
+class="parameter"
+>processor</span
+></span
+>);&#13;</code
+><P
+>&#13;                Adds a new command object to the package.  The command object
+                will have its <CODE
+CLASS="methodname"
+>onAttache</CODE
+> method
+                invoked, which allows it to save the command package (passed in
+                as a parameter), and to do any initialization that requires
+                the command package services.
+           </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CTCLObjectPackage::CommandIterator </span
+>begin();&#13;</code
+><P
+>&#13;                Returns an iterator for the first command object associated
+                with the object.  The iterator is a pointer like object in the
+                sense that dereferencing it will yield a pointer to ta
+                command object.  The iterator can be stepped through the
+                collection via the incremenet operator (<TT
+CLASS="literal"
+>++</TT
+>).
+                Iteration is complete when the iterator is equal to
+                <CODE
+CLASS="methodname"
+>end()</CODE
+> see below.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CTCLObjectPackage::CommandIterator </span
+>end();&#13;</code
+><P
+>&#13;                Provides an end iterator against which to compare an iterator
+                over the commands to determine if all of them have been
+                visited.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8364"
+></A
+><H2
+>Types and public data</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLObjectPackage::CommandIterator</CODE
+> is a
+            pointer like object returned by the
+            <CODE
+CLASS="methodname"
+>begin</CODE
+> and <CODE
+CLASS="methodname"
+>end</CODE
+>
+            methods to allow iteration through the set of command objects
+            associated with this package.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8370"
+></A
+><H2
+>&#13;            SEE ALSO
+         </H2
+><P
+>&#13;            <A
+HREF="r8374.html"
+>&#13;                CTCLPackagedObjectProcessor(3daq)</A
+>
+	 </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r8092.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r8374.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CConfigurableObject</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLPackagedObjectProcessor</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

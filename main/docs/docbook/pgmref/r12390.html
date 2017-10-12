@@ -1,0 +1,722 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CRingFormatHelper</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CRingBufferDecoder"
+HREF="r12027.html"><LINK
+REL="NEXT"
+TITLE="CNamedItem"
+HREF="r12571.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12027.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12571.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12390"
+></A
+>CRingFormatHelper</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12394"
+></A
+><H2
+>Name</H2
+>CRingFormatHelper&nbsp;--&nbsp;ABC for4 ring buffer format helpers</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12397"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;RingFormatHelper.h&#62;
+
+class CRingFormatHelper
+{
+public:
+    CRingFormatHelper();
+    virtual ~CRingFormatHelper();
+    CRingFormatHelper(const CRingFormatHelper&#38;);
+    CRingFormatHelper&#38; operator=(const CRingFormatHelper&#38;);
+    int operator==(const CRingFormatHelper&#38;) const;
+    int operator!=(const CRingFormatHelper&#38;) const;
+    
+public:
+    virtual bool hasBodyHeader(void* pItem) const   = 0;
+    virtual void* getBodyPointer(void* pItem)       = 0;
+    virtual void* getBodyHeaderPointer(void* pItem) = 0;
+    
+    virtual std::string getTitle(void* pItem) = 0;
+    virtual unsigned    getRunNumber(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+    
+    virtual unsigned getStringCount(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+    
+    virtual unsigned getScalerCount(
+        void*  pItem, BufferTranslator* pTranslator) = 0;
+    
+    virtual uint64_t getTriggerCount(
+        void* pItem, BufferTranslator* pTranslator) = 0;
+
+    uint16_t itemType(void* pItem);
+
+};
+
+#include &#60;RingFormatHelper10.h&#62;
+
+class CRingFormatHelper10;
+
+#include &#60;RingFormatHelper11.h&#62;
+class CRingFormatHelper11;
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12399"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Ring buffer data comes in more than one format, depending on the
+            actual version of NSCLDAQ that emitted it.  Ring format helpers
+            are classes that know how to untangle data from specific versions
+            of NSCL Ring buffer data acquisition systems.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CRingFormatHelper</CODE
+> is an abstract base class
+            that provides the interface that the
+            <CODE
+CLASS="classname"
+>CRingBufferDecoder</CODE
+> class expects these helpers
+            to implement.
+        </P
+><P
+>&#13;            SpecTcl provides two concrete implementations of this class:
+            <P
+></P
+><UL
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CRingFormatHelper10</CODE
+> which
+                        helps the Ring buffer decoder handle NSCLDAQ10 data (data)
+                        that has no provision for body headers. 
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CRingFormatHelper11</CODE
+> which
+                        helps with data from NSCLDAQ11, which does have a provision
+                        for body headers that can assist the event builder.
+                    </P
+></LI
+></UL
+>
+        </P
+><P
+>&#13;            These helper classes offer no additional public methods beyond those
+            specified by <CODE
+CLASS="classname"
+>CRingFormatHelper</CODE
+>.  Therefore
+            we will not document them further.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12415"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            For brevity, only the non-canonicals are described here.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const   = 0 </span
+><span
+class="type"
+>bool  </span
+>hasBodyHeader(<span
+class="methodparam"
+><span
+class="type"
+>void* </span
+><span
+class="parameter"
+>pItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Determines if the ring item pointed to by
+                        <CODE
+CLASS="parameter"
+>pItem</CODE
+> contains a body header.
+                        Body headers contain additional fixed format data prior
+                        to the body of the ring item but after the ring item header
+                        itself.  
+                    </P
+><P
+>&#13;                        For example in NSCLDAQ 11.x, body headers, if present,
+                        contain a timestamp for the item, the source id of the
+                        item and a barrier type.  NSCLDAQ 11.x may also emit
+                        ring items without body headers.
+                    </P
+><P
+>&#13;                        Note that if the version of NSCLDAQ emitting this
+                        item does not support body headers, this always returns
+                        <TT
+CLASS="literal"
+>false</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void*  </span
+>getBodyPointer(<span
+class="methodparam"
+><span
+class="type"
+>void* </span
+><span
+class="parameter"
+>pItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the ring item body for the
+                        item pointed to by <CODE
+CLASS="parameter"
+>pItem</CODE
+>.
+                        Note that
+                        in the presence of body headers, this pointer will
+                        point past the body header to the actual body data itself.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0; </span
+><span
+class="type"
+>void*  </span
+>getBodyHeaderPointer(<span
+class="methodparam"
+><span
+class="type"
+>void* </span
+><span
+class="parameter"
+> pItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the body header of the
+                        ring item:
+                        <CODE
+CLASS="parameter"
+>pItem</CODE
+>.
+                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> does not have a body
+                        header (<CODE
+CLASS="methodname"
+>hasBodyHeader</CODE
+> returns
+                        <TT
+CLASS="literal"
+>false</TT
+>), this will return a
+                        <TT
+CLASS="literal"
+>nullptr</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>std::string  </span
+>getTitle(<span
+class="methodparam"
+><span
+class="type"
+>void*  </span
+><span
+class="parameter"
+>pItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> points to a state
+                        transition item, the title is returned from that item.
+                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> does not point to
+                        a state transition item, a
+                        <SPAN
+CLASS="type"
+>std::string</SPAN
+> exception is thrown containing
+                        an appropriate error message.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual     </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>unsigned  </span
+>getRunNumber(<span
+class="methodparam"
+><span
+class="type"
+>void*  </span
+><span
+class="parameter"
+>pItem</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>BufferTranslator*  </span
+><span
+class="parameter"
+>pTranslator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> points to a
+                        state transition ring item, this method returns
+                        the run number from that item.  If not a
+                        <SPAN
+CLASS="type"
+>std::string</SPAN
+> exception
+                        is thrown.  The contents of that string are
+                        a human readable error message.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>pTranslator</CODE
+> points to the
+                        appropriate buffer translator and is used to transform
+                        the run number in the byte ordering of the producing
+                        system to that of the system running SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>unsigned  </span
+>getStringCount(<span
+class="methodparam"
+><span
+class="type"
+>void*   </span
+><span
+class="parameter"
+>pItem</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> BufferTranslator*  </span
+><span
+class="parameter"
+>pTranslator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the ring item pointed to by
+                        <CODE
+CLASS="parameter"
+>pItem</CODE
+> is a Text item
+                        ring item, method returns the number of strings
+                        this item has.
+                        If the item is not a text ring item, a
+                        <SPAN
+CLASS="type"
+>std::string</SPAN
+> exception is thrown
+                        containing a human readable error message.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>pTranslator</CODE
+> is used to translate
+                        any string count from the byte ordering of the
+                        producing system to the byte order of the system
+                        running SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>unsigned  </span
+>getScalerCount(<span
+class="methodparam"
+><span
+class="type"
+>void*   </span
+><span
+class="parameter"
+>pItem</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>BufferTranslator* </span
+><span
+class="parameter"
+>pTranslator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> points to a scaler item,
+                        this method returns the number of counters in that
+                        item.  If
+                        <CODE
+CLASS="parameter"
+>pItem</CODE
+> does not point to a
+                        scaler item, a <SPAN
+CLASS="type"
+>std::string</SPAN
+> exception is
+                        thrown.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>pTranslator</CODE
+> is used to transform
+                        the count from the byte order of the producing system
+                        to they byte order of the system that is running SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>uint64_t  </span
+>getTriggerCount(<span
+class="methodparam"
+><span
+class="type"
+>void*  </span
+><span
+class="parameter"
+>pItem</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>BufferTranslator*  </span
+><span
+class="parameter"
+>pTranslator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>pItem</CODE
+> points to a physics
+                        event count item, this method returns the number
+                        of triggers accepted by the run so far. If
+                        <CODE
+CLASS="parameter"
+>pItem</CODE
+> is not a physics event
+                        count item, a <SPAN
+CLASS="type"
+>std::string</SPAN
+> exception is
+                        thrown.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>pItem</CODE
+> is used to convert
+                        the trigger count from the byte order of the
+                        producing system to the byte order of the system
+                        running SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>uint16_t  </span
+>itemType(<span
+class="methodparam"
+><span
+class="type"
+>void*  </span
+><span
+class="parameter"
+>pItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the ring item type for the ring item pointed
+                        to by <CODE
+CLASS="parameter"
+>pItem</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12027.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12571.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CRingBufferDecoder</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CNamedItem</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

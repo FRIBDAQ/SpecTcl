@@ -1,0 +1,7323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SpecTcl</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SpecTclAPI class"
+HREF="p31.html"><LINK
+REL="PREVIOUS"
+TITLE="SpecTcl"
+HREF="c33.html"><LINK
+REL="NEXT"
+TITLE="Tree Parameter, Tree Variable API"
+HREF="p2375.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c33.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="p2375.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN37"
+></A
+>SpecTcl</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN41"
+></A
+><H2
+>Name</H2
+>SpecTcl&nbsp;--&nbsp;API Singleton class.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN44"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include <TT
+CLASS="filename"
+>&#60;SpecTcl.h&#62;</TT
+>
+<CODE
+CLASS="classname"
+>SpecTcl</CODE
+>
+{
+public:
+  static SpecTcl* getInstance();
+  void addBufferDecoder(std::string                      type,
+                        CAttachCommand::CDecoderCreator* creator);
+  UInt_t AssignParameterId();
+  CParameter* AddParameter(std::string name,
+                           UInt_t Id,
+                           std::string Units);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale);
+  CParameter* AddParameter(std::string name,
+                           UInt_t id,
+                           UInt_t scale,
+                           Float_t low, Float_t high,
+                           std::string units);
+  CParameter* RemoveParameter(std::string name);
+  CParameter* FindParameter(std::string name);
+  CParameter* FindParameter(UInt_t Id);
+  ParameterDictionaryIterator BeginParameters();
+  ParameterDictionaryIterator EndParameters();
+  UInt_t ParameterCount();
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t dataType,
+                            std::vector&#60;std::string&#62; parameters,
+                            std::vector&#60;UInt_t&#62; channels,
+                            std::vector&#60;Float_t&#62;* pLows,
+                            std::vector&#60;Float_t&#62;* pHighs);
+  CSpectrum* CreateSpectrum(std::string Name,
+                            SpectrumType_t type,
+                            DataType_t     dataType,
+                            std::vector&#60;std::string&#62; xParameters,
+                            std::vector&#60;std::string&#62; yParameters,
+                            std::vector&#60;UInt_t&#62;      channels,
+                            std::vector&#60;Float_t&#62;*    pLows,
+                            std::vector&#60;Float_t&#62;*    pHighs);
+
+  CSpectrum* CreateSpectrum(std::string           Name,
+                            SpectrumType_t        type,
+                            DataType_t            dataType,
+                            std::vector&#60;std::vector&#60;std::string&#62; &#62; parameters,
+                            std::vector&#60;UInt_t&#62;   channels,
+                            std::vector&#60;Float_t&#62;* lows,
+                            std::vector&#60;Float_t&#62;* highs);
+
+  CSpectrum* CreateGammaSummary(std::string                      Name,
+                                DataType_t                       dataType,
+                                std::vector&#60;std::vector&#60;std::string&#62; &#62; parameters,
+                                UInt_t                           nChannels,
+                                std::vector&#60;Float_t&#62;*            low,
+                                std::vector&#60;Float_t&#62;*            high);
+
+  CSpectrum* CreateG2DDeluxe(std::string Name,
+                        DataType_t     dataType,
+                        std::vector&#60;std::string&#62; xParameters,
+                        std::vector&#60;std::string&#62; yParameters,
+                        std::vector&#60;UInt_t&#62;      channels,
+                        std::vector&#60;Float_t&#62;*    pLows,
+                        std::vector&#60;Float_t&#62;*    pHighs);
+
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&#38; parameter,
+                      UInt_t channels);
+  CSpectrum* Create1D(std::string name,
+                      DataType_t dataType,
+                      CParameter&#38; parameter,
+                      UInt_t channels,
+                      Float_t lowLimit, Float_t hiLimit);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&#38; xParameter,
+                      CParameter&#38; yParmaeter,
+                      UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* Create2D(std::string name,
+                      DataType_t dataType,
+                      CParameter&#38; xParameter, CParameter&#38; yParameter,
+                      UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                      UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&#60;CParameter&#62; parameters,
+                       UInt_t channels);
+  CSpectrum* CreateG1D(std::string name,
+                       DataType_t dataType,
+                       std::vector&#60;CParameter&#62; parameters,
+                       UInt_t channels,
+                       Float_t lowLimit,
+                       Float_t hiLimit);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&#60;CParameter&#62; parameters,
+                       UInt_t xChannels, UInt_t yChannels);
+  CSpectrum* CreateG2D(std::string name,
+                       DataType_t dataType,
+                       std::vector&#60;CParameter&#62; parameters,
+                       UInt_t xChannesl, Float_t xLow, Float_t xHigh,
+                       UInt_t yChannesl, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&#38; parameter,
+                       UInt_t channels);
+  CSpectrum* CreateBit(std::string name,
+                       DataType_t dataType,
+                       CParameter&#38; parameter,
+                       UInt_t channels, UInt_t lowBit);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&#60;CParameter&#62; parameters,
+                           UInt_t channels);
+  CSpectrum* CreateSummary(std::string name,
+                           DataType_t dataType,
+                           std::vector&#60;CParameter&#62; parameters,
+                           UInt_t nChannels, Float_t low, Float_t high);
+
+
+  CSpectrum* CreateGamma2DD(std::string name,
+                            DataType_t dataType,
+                            std::vector&#60;CParameter&#62; xParameters,
+                            std::vector&#60;CParameter&#62; yParameters,
+                            UInt_t xChannels, Float_t xLow, Float_t xHigh,
+                            UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* Create2DSum(std::string name,
+                         DataType_t  dataType,
+                         std::vector&#60;CParameter&#62; xParameters,
+                         std::vector&#60;CParameter&#62; yParameters,
+                         UInt_t xChans, Float_t xLow, Float_t xHigh,
+                         UInt_t yChans, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateStripChart(std::string name,
+                              DataType_t  dataType,
+                              CParameter  counts,
+                              CParameter  time,
+                              UInt_t      channels, Float_t xLow, Float_t xHigh);
+
+
+  // Manipulate the spectrum dictionary:
+
+  void AddSpectrum(CSpectrum&#38; spectrum);
+  CSpectrum* RemoveSpectrum(std::string name);
+  CSpectrum* FindSpectrum(std::string name);
+  CSpectrum* FindSpectrum(UInt_t id);
+  SpectrumDictionaryIterator SpectrumBegin();
+  SpectrumDictionaryIterator SpectrumEnd();
+  UInt_t SpectrumCount();
+
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
+  // Misc spectrum utilities:
+
+  void ClearSpectrum(std::string name);
+  void ClearAllSpectra();
+
+  // Create gates of various types:
+
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&#60;std::string&#62; names);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&#60;std::string&#62; parameters,
+                    std::vector&#60;FPoint&#62; points);
+  CGate* CreateGate(CGateFactory::GateType   gateType,
+                    std::vector&#60;FPoint&#62;      points,
+                    std::vector&#60;UInt_t&#62; parameters);
+  CGate* CreateGate(CGateFactory::GateType gateType,
+                    std::vector&#60;std::string&#62; rparameters,
+                    long comparison);
+  CGate* CreateTrueGate();
+  CGate* CreateFalseGate();
+  CGate* CreateBand(std::string xparameter, std::string yparameter,
+                    std::vector&#60;FPoint&#62; points);
+  CGate* CreateContour(std::string xParameter, std::string yParameter,
+                       std::vector&#60;FPoint&#62; points);
+  CGate* CreateBandContour(std::string firstBand, std::string secondBand);
+  CGate* CreateNotGate(std::string name);
+  CGate* CreateAndGate(std::vector&#60;std::string&#62; gateNames);
+  CGate* CreateOrGate(std::vector&#60;std::string&#62; gateNames);
+  CGate* CreateCut(std::string parameter, Float_t low, Float_t high);
+  CGate* CreateGammaCut(Float_t low, Float_t high, std::vector&#60;std::string&#62; constituents);
+  CGate* CreateGammaBand(std::vector&#60;FPoint&#62; points,
+                         std::vector&#60;std::string&#62; constituents);
+  CGate* CreateGammaContour(std::vector&#60;FPoint&#62; points,
+                            std::vector&#60;std::string&#62; constituents);
+  CGate* CreateMaskEqualGate(std::vector&#60;std::string&#62; rParameterName,
+                             long Compare);
+  CGate* CreateMaskAndGate(std::vector&#60;std::string&#62; rParameterName,
+                             long Compare);
+  CGate* CreateMaskNotGate(std::vector&#60;std::string&#62; rParameterName,
+                             long Compare);
+
+
+  // Gate dictionary manipulation:
+
+  void AddGate(std::string name, CGate* gate);
+  void DeleteGate(std::string gateName);
+  void ReplaceGate(std::string gateName, CGate&#38; newGate);
+  CGateContainer* FindGate(std::string gateName);
+  CGateDictionaryIterator GateBegin();
+  CGateDictionaryIterator GateEnd();
+  UInt_t GateCount();
+
+  void addGateDictionaryObserver(CGateObserver* observer);
+  void removeGateDictionaryObserver(CGateObserver* observer);
+
+
+
+  void ApplyGate(std::string gateName, std::string spectrumName);
+
+  // Manipulating the event processor pipeline.
+
+  void AddEventProcessor(CEventProcessor&#38; eventProcessor,
+                         const char* name = 0);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor&#38; processor);
+  void InsertEventProcessor(CEventProcessor&#38; processor,
+                            CTclAnalyzer::EventProcessorIterator where,
+                            const char*  name = 0);
+  void RemoveEventProcessor(std::string name);
+  void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
+  UInt_t ProcessingPipelineSize();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+
+  void AddSpectrumFormatter(std::string name, CSpectrumFormatter&#38; formatter);
+
+  void AddEventSink(CEventSink&#38; sink, const char* name = 0);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(std::string sinkName);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink&#38; sink);
+  void InsertEventSink(CEventSink&#38; sink, CEventSinkPipeline::EventSinkIterator here,
+                       const char* name = 0);
+  CEventSink* RemoveEventSink(std::string name);
+  CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
+  UInt_t EventSinkPipelineSize();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineEnd();
+
+  void               createFilter(std::string name, CGatedEventFilter* pFilter);
+  CGatedEventFilter* findFilter(std::string name);
+  bool               filterExists(CGatedEventFilter* pFilter);
+  void               deleteFilter(CGatedEventFilter* pFilter);
+  void               deleteFilter(std::string filterName);
+  void               addFilterOutputFormat(CFilterOutputStageCreator&#38; creator);
+
+
+  // Expose the guts for the really curious and those who need more
+  // than we can offer.
+
+  CTCLInterpreter*    getInterpreter();
+  CHistogrammer*      GetHistogrammer();
+  CTclAnalyzer*       GetAnalyzer();
+  CEventSinkPipeline* GetEventSinkPipeline();
+  CDisplayInterface *GetDisplayInterface();
+  void SetDisplayInterface(CDisplayInterface&#38; rInterface);
+  std::vector&#60;UInt_t&#62;      parameterIds(std::vector&#60;std::string&#62; names);
+
+
+};
+
+                </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN48"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> is a singleton class that
+                    provides an application programming interface to the
+                    functions SpecTcl considers public.  While every method in
+                    this class is available in some way as a public method
+                    in some other SpecTcl class, this set of interfaces is
+                    gauranteed to remain avaiable through modifications to
+                    SpecTcl's internal structures and algorithms.
+                </P
+><P
+>&#13;                    As a singleton, the constructor and destructor of this
+                    class are declared as <TT
+CLASS="literal"
+>private</TT
+>.  Use
+                    the <CODE
+CLASS="methodname"
+>getInstance</CODE
+> method to
+                    obtain a pointer to the single instance of this class.
+                </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN55"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpecTcl*  </span
+>getInstance();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a pointer to the singleton instance
+                                of this class.   This is the only supported
+                                way to get an instance of this class.
+                                Any two calls to <CODE
+CLASS="methodname"
+>getInstance</CODE
+>
+                                will return the same value.
+                            </P
+><P
+>&#13;                                There is no gaurantee that an instance of this
+                                class will exist until the first call to this
+                                method.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addBufferDecoder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>type</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CAttachCommand::CDecoderCreator*  </span
+><span
+class="parameter"
+>creator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Adds a new buffer decoder to SpecTcl.
+                                <CODE
+CLASS="parameter"
+>type</CODE
+> is a format type
+                                value that can be given to
+                                <B
+CLASS="command"
+>attach</B
+> <CODE
+CLASS="option"
+>-format</CODE
+>.
+                                <CODE
+CLASS="parameter"
+>creator</CODE
+> is an instance
+                                of a class that knows how to create a
+                                buffer decoder that can unravel the data in
+                                event files of the form specified by
+                                <CODE
+CLASS="parameter"
+>type</CODE
+>
+                            </P
+><P
+>&#13;                                The programming guide contains a chapter
+                                that describes buffer decoders, what they are
+                                for, how to write one and add it to the
+                                SpecTcl <B
+CLASS="command"
+>attach</B
+> command.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>AssignParameterId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Each SpecTcl parameter must have a unique id.
+                                This id is an integer index into the
+                                flat parameter array that SpecTcl uses
+                                to drive its gate checking and histogramming.
+                                This method allocates a new, unique parameter
+                                id.
+                            </P
+><P
+>&#13;                                This method should never return the same
+                                integer twice. You can not gaurantee that
+                                values from this method will be sequential
+                                although they mostly will be.  Specifically,
+                                <CODE
+CLASS="methodname"
+>AssignParameterId</CODE
+>
+                                will not assign a parameter Id that's already
+                                been assigned. 
+                            </P
+><P
+>&#13;                                Imagine, for example, that this method just
+                                returned <TT
+CLASS="literal"
+>1234</TT
+>.  Suppose
+                                further a SpecTcl command or script line looked like:
+                                <B
+CLASS="command"
+>parameter somename 1235</B
+>.
+                                The next call to <CODE
+CLASS="methodname"
+>AssignParameterId</CODE
+>
+                                will not return <TT
+CLASS="literal"
+>1235</TT
+> but an
+                                integer that has not already been associated with
+                                a parameter.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>Id</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>Units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Adds a new parameter definition to SpecTcl.
+                                This method is the simplest way to add a parameter.
+                                <CODE
+CLASS="parameter"
+>name</CODE
+> is the name to be
+                                givent to the new parameter.  It is an
+                                error to assign the same name to two parameters.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>Id</CODE
+> is the new parameter's
+                                id.  This usually should be a value  gotten
+                                from a call to <CODE
+CLASS="methodname"
+>AssignParameterId</CODE
+>.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>Units</CODE
+> are the units of
+                                measure to assign to assign to the parameter.
+                                This can be an empty string if the parameter
+                                does not have an appropriate unit of measure
+                                (e.g. a raw ADC value).
+                            </P
+><P
+>&#13;                                The method's return value is a pointer to the
+                                new <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                                object created and entered in the SpecTcl
+                                parameter dictionary.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>id</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>scale</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Adds a new parameter definition.  All of the
+                                parameters are the same as the previous overload
+                                for this method except that <CODE
+CLASS="parameter"
+>scale</CODE
+>
+                                is the number of bits used by the parameter.  This
+                                is suitable for use with e.g. raw ADC values.
+                            </P
+><P
+>&#13;                                As with all <CODE
+CLASS="methodname"
+>AddParameter</CODE
+>
+                                overloads, the return value is a pointer
+                                to the new <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                                object that was created and entered in the
+                                parameter dictionary.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>id</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>scale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>high</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Another overload that adds a new parameter
+                                to SpecTcl.  <CODE
+CLASS="parameter"
+>low</CODE
+> and
+                                <CODE
+CLASS="parameter"
+>high</CODE
+> define range
+                                limits for the parameter.    These
+                                define a mapping from raw parameter space to some
+                                world coordinate space.  The value <TT
+CLASS="literal"
+>0</TT
+>
+                                maps to <CODE
+CLASS="parameter"
+>low</CODE
+> and the
+                                value <TT
+CLASS="literal"
+>2**scale - 1</TT
+> maps
+                                to <CODE
+CLASS="parameter"
+>high</CODE
+>.
+                            </P
+><P
+>&#13;                                In general, it is better to use tree parameters
+                                and compute the actual value of the parameter
+                                than to use this confusing mapped parameter
+                                scheme.  This scheme came into being for
+                                SpecTcl-2.0 and is only retained for
+                                compatibility with existing SpecTcl code.
+                                It is normally used in conjunction with
+                                <I
+CLASS="firstterm"
+>Mapped spectra</I
+>.
+                            </P
+><P
+>&#13;                                As with all overloads of
+                                <CODE
+CLASS="methodname"
+>AddParameter</CODE
+>, the
+                                return value is a pointer to the
+                                <CODE
+CLASS="classname"
+>CParameter</CODE
+> object
+                                this call created.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>RemoveParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                If a parameter named <CODE
+CLASS="parameter"
+>name</CODE
+>
+                                has been defined it is removed from SpecTcl's
+                                parameter dictionary and a pointer to a dynamically
+                                allocated copy of that <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                                object is returned.   The caller must
+                                <TT
+CLASS="literal"
+>delete</TT
+> that object to
+                                prevent memory leaks.
+                            </P
+><P
+>&#13;                                If there is no parameter named <CODE
+CLASS="parameter"
+>name</CODE
+>
+                                in the parameter dictionary, a null pointer is
+                                returned from this method.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>FindParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Locates and returns a pointer to the parameter
+                                object named <CODE
+CLASS="parameter"
+>name</CODE
+>.  If there
+                                is no matching parameter, a null pointer is returned.
+                                Note that this is a pointer to the actual parameter
+                                in the SpecTcl parameter dictionary and any
+                                changes to it are reflected in the analysis
+                                SpecTcl performs.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>FindParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> Id</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a pointer to a parameter given its
+                                <CODE
+CLASS="parameter"
+>Id</CODE
+>.  If no parameter
+                                has that id, the method returns a null pointer.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ParameterDictionaryIterator  </span
+>BeginParameters();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ParameterDictionaryIterator  </span
+>EndParameters();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                These two methods support iteration of the
+                                SpecTcl parameter dictionary.
+                                <CODE
+CLASS="methodname"
+>BeginParameters</CODE
+>
+                                returns an iterator that acts like a pointer
+                                to the first element of the parameter
+                                dictionary. <SPAN
+CLASS="type"
+>ParameterDictionaryIterator</SPAN
+>
+                                objects support being incremented.  When incremented,
+                                the "point" to the next dictionary element.
+                                When the last element in the dict has been
+                                pointed to, incrementing an iterator
+                                gives it the value returned by
+                                <CODE
+CLASS="methodname"
+>EndParameters</CODE
+>.
+                            </P
+><P
+>&#13;                                The <SPAN
+CLASS="type"
+>ParameterDictionaryIterator</SPAN
+>
+                                is an STL <SPAN
+CLASS="type"
+>std::pair&#60;std::string, CParameter&#62;</SPAN
+>
+                                where the first element of the pair is the name of the
+                                parameter and the second is a copy of the
+                                <CODE
+CLASS="classname"
+>CParameter</CODE
+> with that
+                                name.
+                            </P
+><P
+>&#13;                                Iteration is only good for read-only access to the
+                                parameters as iterators 'point' to copies rather
+                                than references or pointers to the actual
+                                items in the dictionary.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>ParameterCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>Name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumType_t  </span
+><span
+class="parameter"
+>type</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>pLows</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;* </span
+><span
+class="parameter"
+> pHighs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Creats a new histogram and returns a pointer to it.
+                                The new spectrum has been dynamically created and
+                                must, eventually, be destroyed with
+                                <TT
+CLASS="literal"
+>delete</TT
+>.  
+                            </P
+><P
+>&#13;                                For SpecTcl's histogramming core and
+                                command set to know about the new spectrum
+                                it must be passed to
+                                <CODE
+CLASS="methodname"
+>AddSpectrum</CODE
+> (see below).
+                                If this is not done, the caller has created
+                                a spectrum that can be used by them but is
+                                invisible to SpecTcl.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>Name</CODE
+> specifies a new name
+                                to give to the spectrum.  If the spectrum will
+                                be entered in the spectrum dictionary, this name
+                                must not have been given to any other spectrum
+                                in the spectrum dictionary.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>type</CODE
+> is the type  of
+                                the spectrum.  This can be any value that
+                                the enumerated type <SPAN
+CLASS="type"
+>SpectrumType_t</SPAN
+>
+                                can take and determines the type of the spectrum.
+                                Note that we recommend that rather than using
+                                this method to create a spectrum you use one of
+                                the more specific creators documented below.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>type</CODE
+>, is the data type
+                                for each channel of the spectrum.  This
+                                can be one of <TT
+CLASS="literal"
+>keLong</TT
+> (recommended),
+                                <TT
+CLASS="literal"
+>keWord</TT
+> or <TT
+CLASS="literal"
+>keByte</TT
+>,
+                                and determines how many counts a spectrum channel
+                                can have before the channel rolls over.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>parameters</CODE
+> is a vector
+                                of the names of parameters that will be used
+                                by the spectrum.  Note that some spectrum
+                                types may need to specify x and y parameter lists,
+                                see below.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>parameters</CODE
+> specifies the
+                                parameters used by the spectrum.  The use of only
+                                a single parameter list means this can only be used
+                                to create spectra that don't need to differentiate
+                                between X and Y parameters, such as 1D, gamma-1,
+                                gamma-2, summary spectra etc.                                
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>channels</CODE
+> is a vector
+                                of one or two channel counts for the x and optional
+                                y axis.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>pLows</CODE
+> and
+                                <CODE
+CLASS="parameter"
+>pHighs</CODE
+> are pointers to
+                                vectors of the low and high limits for each
+                                axis respectively.  There must be the same
+                                number of <CODE
+CLASS="parameter"
+>pHighs</CODE
+>
+                                as <CODE
+CLASS="parameter"
+>pLows</CODE
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>Name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumType_t  </span
+><span
+class="parameter"
+>type</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t      </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>xParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>yParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+> pLows</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;* </span
+><span
+class="parameter"
+> pHighs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Anothr method to create a generic spectrum.  The
+                                difference between this and the previous overload
+                                is that <CODE
+CLASS="parameter"
+>xParameters</CODE
+> and
+                                <CODE
+CLASS="parameter"
+>yParameters</CODE
+> allow specification
+                                of a set of parameters for the X and Y axes as are
+                                needed for e.g. 2-d Spectra, 2-d Sum spectra or
+                                Gamma Deluxe (particle-gamma) spectra.
+                            </P
+><P
+>&#13;                                Similarly, <CODE
+CLASS="parameter"
+>pLows</CODE
+> and
+                                <CODE
+CLASS="parameter"
+>pHighs</CODE
+> provides a
+                                set of limits for all axes.  The <CODE
+CLASS="parameter"
+>channels</CODE
+>
+                                vector can have channel counts for both axes.  These
+                                are vectors to allow for future expansion in the
+                                SpecTcl spectrum types
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string            </span
+><span
+class="parameter"
+>Name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumType_t         </span
+><span
+class="parameter"
+>type</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t    </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::vector&#60;std::string&#62; &#62; </span
+><span
+class="parameter"
+> parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>lows</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>highs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Provides a spectrum creator for when parameters
+                                must come as a vector of vectors.  For example
+                                for a gamma summary spectrumw where each X
+                                channel of the spectrum may require more than
+                                one parameter.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    The next several methods create specific types of spectra.
+                    They are the recommended way to create spectra.  Usually
+                    the generic methods above are a bit harder to use.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateGammaSummary(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>Name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::vector&#60;std::string&#62; &#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+> nChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*   </span
+><span
+class="parameter"
+>high</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma summary spectrum.  A gamma summary
+                            spectrum, is a two dimensional spectrum whose
+                            vertical channel strips are each a gamma spectrum.
+                            <CODE
+CLASS="parameter"
+>parameters</CODE
+> are a vector of
+                            parameters for each X channel (vertical strip).
+                            The outer vector index is a channel number and
+                            the inner vector the set of parameters on that
+                            strip.
+                        </P
+><P
+>&#13;                            The <CODE
+CLASS="parameter"
+>nChannels</CODE
+> parameter is
+                            the number of parameters in the Y direction
+                            as the number of X channels is determined by the
+                            size of the outer vector of
+                            <CODE
+CLASS="parameter"
+>parameters</CODE
+>.  The
+                            <CODE
+CLASS="parameter"
+>low</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>high</CODE
+> vectors are the low and
+                            high limits of each vertical strip in the parameter
+                            space of the parameters that are histogrammed
+                            on it.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateG2DDeluxe(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>Name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>xParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>yParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62; </span
+><span
+class="parameter"
+>channels,</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>pLows</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;Float_t&#62;*  </span
+><span
+class="parameter"
+>pHighs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma deluxe spectrum.  This is a spectrum
+                            multiply incremented spectrum with separate x and
+                            y parameters sets.  The spectrum is incremented
+                            for each pair of parameters present in the spectrum.
+                            <CODE
+CLASS="parameter"
+>channels</CODE
+> is a two element
+                            vector containing, in order, the number
+                            of channels on the X and Y axis.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="parameter"
+>pLows</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>pHighs</CODE
+> are both two
+                            element vectors that specify, in order, the low
+                            and high parameter space limits of the X and Y axis.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>Create1D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>parameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 1-d spectrum.  <CODE
+CLASS="parameter"
+>parameter</CODE
+>
+                            is the parmeter histogrammed and the
+                            X axis will have <CODE
+CLASS="parameter"
+>channels</CODE
+>
+                            channels.  In this overload, the range of
+                            the parameter histogrammed will be
+                            <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>channels)</CODE
+></TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>Create1D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>parameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>hiLimit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 1-D spectrum where <CODE
+CLASS="parameter"
+>lowLimit</CODE
+>
+                            <CODE
+CLASS="parameter"
+>hiLimit</CODE
+> and <CODE
+CLASS="parameter"
+>channels</CODE
+>
+                            define a transformation between parameter and spectrum
+                            channel space.
+                            This transformation is:
+                            <TT
+CLASS="literal"
+>channel = ((parameter- lowLimit)*channels(hiLimit-lowLimit))</TT
+>.
+                            This provides a uniform mapping of the interval
+                            <TT
+CLASS="literal"
+>[lowLimit, hiLimit)</TT
+> to 
+                            <TT
+CLASS="literal"
+>[0, channels)</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>Create2D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>xParameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>yParmaeter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChannels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 2-d spectrum with 1:1 parameter:channel
+                            space mapping.  <CODE
+CLASS="parameter"
+>xParameter</CODE
+>
+                            is on the X axis and <CODE
+CLASS="parameter"
+>yParameter</CODE
+>
+                            on the Y.  There are <CODE
+CLASS="parameter"
+>xChannels</CODE
+>
+                            on the X axis that map to the <CODE
+CLASS="parameter"
+>xParameter</CODE
+>
+                            value range <TT
+CLASS="literal"
+>[0, xChannels)</TT
+>.
+                            There are <CODE
+CLASS="parameter"
+>yChannels</CODE
+> on the
+                            Y axis that map the <CODE
+CLASS="parameter"
+>yParameter</CODE
+>
+                            value range <TT
+CLASS="literal"
+>[0, yChannels)</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>Create2D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>xParameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>yParameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>yLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>yHigh</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 2-d spectrum with parameter to channel
+                            mappings that are not identities.
+                            <CODE
+CLASS="parameter"
+>xChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>xLow</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>xHigh</CODE
+> determine the
+                            mapping of the X parameter to channels on the
+                            X axis.
+                            <CODE
+CLASS="parameter"
+>yChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>yLow</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>yHigh</CODE
+> determine the
+                            mapping of the Y parameter to channels on the
+                            Y axis.
+                        </P
+><P
+>&#13;                            The mapping is linear for both parameters.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateG1D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma-1d spectrum.  The spectrum
+                            increments for all <CODE
+CLASS="parameter"
+>parameters</CODE
+>
+                            present in the event.  This method creates a
+                            spectrum with a unit mapping between parameter
+                            and X axis channel space.  Thus values from
+                            <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>channels</CODE
+>)</TT
+>
+                            are histogrammed.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateG1D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>hiLimit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma-1D spectrum with potentially non
+                            unit mappings between the parameter coorinates
+                            and spectrum channels.
+                            <CODE
+CLASS="parameter"
+>lowLimit</CODE
+>, <CODE
+CLASS="parameter"
+>hiLimit</CODE
+>
+                            and <CODE
+CLASS="parameter"
+>channels</CODE
+> define a uniform
+                            mapping between parameter coordinates in the
+                            range <TT
+CLASS="literal"
+>[lowLimit, hiLimit)</TT
+>
+                            and the channel coordinates
+                            <TT
+CLASS="literal"
+>[0, channels)</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateG2D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChannels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 2-d gamma spectrum with unit mapping
+                            between the parameters for both the X and Y
+                            axis.
+                            <CODE
+CLASS="parameter"
+>xChannels</CODE
+> is the n umber
+                            of axes on the X axis and
+                            <CODE
+CLASS="parameter"
+>yChannels</CODE
+> the number of
+                            channels
+                            on the Y axis. 
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateG2D(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> yLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+> Float_t  </span
+><span
+class="parameter"
+>yHigh</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma 2d spectrum with potentially non
+                            unit mappings between parameter and spectrum
+                            axis space.  The mapping on the X axis is
+                            determined by
+                            <CODE
+CLASS="parameter"
+>xChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>xLow</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>xHigh</CODE
+> such that the
+                            parameter space
+                            <TT
+CLASS="literal"
+>[xLow, xHigh)</TT
+> is mapped linearly
+                            to <TT
+CLASS="literal"
+>[0, xChannels)</TT
+>.
+                            The mapping on the Y axis is similarly determined by
+                            <CODE
+CLASS="parameter"
+>yChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>yLow</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>yHigh</CODE
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateBit(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>parameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a bit map spectrum.  Bit map spectra are
+                            incremented once for every bit set in the
+                            <CODE
+CLASS="parameter"
+>parameter</CODE
+>.   There
+                            are <CODE
+CLASS="parameter"
+>channels</CODE
+> channels in the
+                            spectrum, one for each bit that you want monitored.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateBit(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>parameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>lowBit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a bit map spectrum that covers
+                            <CODE
+CLASS="parameter"
+>channels</CODE
+> bits of the
+                            parameters beginning with the low bit
+                            designated by <CODE
+CLASS="parameter"
+>lowBit</CODE
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateSummary(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a summary spectrum. A summary spectrum is
+                            a 2-d spectrum whose vertical strips (defined by
+                            a single x channel) are 1-d spectra.  Summary
+                            spectra make monitoring a set of similar detectors
+                            easy.  <CODE
+CLASS="parameter"
+>parameters</CODE
+> are
+                            the set of parameters to histogram and define the
+                            number of x channels (one for each parameter).
+                            <CODE
+CLASS="parameter"
+>channels</CODE
+> defines the
+                            number of y channels.  This method defines
+                            a unit mapping between parameter values and
+                            Y channels.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateSummary(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>high</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a summary spectrum on the <CODE
+CLASS="parameter"
+>parameters</CODE
+>.
+                            This spectrum will have a mapping from parameter to
+                            spectrum y channel coordinates that is a linear map
+                            from parameter coordinates in the range
+                            <TT
+CLASS="literal"
+>[<CODE
+CLASS="parameter"
+>low</CODE
+>, <CODE
+CLASS="parameter"
+>high</CODE
+>)</TT
+>
+                            to channel coordinates
+                            <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>nChannels</CODE
+>)</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateGamma2DD(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>xParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>yParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>yLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>yHigh</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma 2d deluxe spectrum.  This type of
+                            spectrum increments for all combinations of pairs of
+                            <CODE
+CLASS="parameter"
+>xParameters</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>yParameters</CODE
+> that are
+                            defined in the event.
+                            The mapping between parameter and channel coordinates
+                            is lineary but not necessarily unity.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="parameter"
+>xChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>xLow</CODE
+>, and
+                            <CODE
+CLASS="parameter"
+>xHigh</CODE
+> define a linear
+                            mapping between parameter
+                            X parameter values in the range
+                            <TT
+CLASS="literal"
+>[<CODE
+CLASS="parameter"
+>xLow</CODE
+>, <CODE
+CLASS="parameter"
+>xHigh)</CODE
+></TT
+>
+                            and <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>xChannels</CODE
+>)</TT
+>
+                            on the X axis.
+                            On the Y axis a similar mapping is defined by:
+                            <CODE
+CLASS="parameter"
+>yChannels</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>yLow</CODE
+>, and
+                            <CODE
+CLASS="parameter"
+>yHigh</CODE
+>
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>Create2DSum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t   </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>xParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CParameter&#62;  </span
+><span
+class="parameter"
+>yParameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>xChans</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>yChans</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>yLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> yHigh</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a 2-d sum spectrum.  This spectrum is
+                            essentially the spectrum that would result from
+                            summing 2-d spectra on
+                            <CODE
+CLASS="parameter"
+>xParameters[0]</CODE
+>,
+                            <CODE
+CLASS="parameter"
+>yParameters[0]</CODE
+>, ...
+                            The mapping from parameter to channel space
+                            in both X and Y is
+                            defined in the usual way using the low, high and
+                            channel count parameters.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>CreateStripChart(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t   </span
+><span
+class="parameter"
+>dataType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter </span
+><span
+class="parameter"
+>counts</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter </span
+><span
+class="parameter"
+>time</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>xHigh</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a strip chart spectrum.  Strip chart spectra
+                            plot the <CODE
+CLASS="parameter"
+>time</CODE
+> parameter value
+                            against the accumulated <CODE
+CLASS="parameter"
+>counts</CODE
+>
+                            parameter.  <CODE
+CLASS="parameter"
+>xLow</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>xHigh</CODE
+> are an initial range
+                            the X axis covers in the <CODE
+CLASS="parameter"
+>time</CODE
+>
+                            parameter.  
+                        </P
+><P
+>&#13;                            If the <CODE
+CLASS="parameter"
+>time</CODE
+>
+                            parameter value is outside the range of the
+                            current X axis limits, the X axis will be shifted
+                            to cover that new value.    The range covered will
+                            be the same as before, however.
+                            This shift provides the strip chart functionality
+                            that gives this spectrum its name.  Note that
+                            currently, there's no command or user interface
+                            method to shift the spectrum back to its original
+                            range, however the axis can shift backwards
+                            if the time value is before the
+                            current left limit of the spectrum, which effectively
+                            provides this functionality automatically.
+                        </P
+><P
+>&#13;                            Note that data shifted off the edge of the spectrum
+                            is  lost. Note as well that data are cumulative, thus
+                            if the binning is such that two time values fall
+                            in the same channel, the resulting channel value
+                            will be the sum of the two <CODE
+CLASS="parameter"
+>counts</CODE
+>
+                            parameters for those two events (summed with any prior
+                            value that channel might have).
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum&#38;  </span
+><span
+class="parameter"
+>spectrum</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Adds a spectrum to SpecTcl's spectrum dictionary.
+                            There cannot be a spectrum with this name
+                            in the dictionary else an exception will be thrown.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>RemoveSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Remove the spectrum named <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            from the SpecTcl spectrum dictionary.  The spectrum
+                            no longer exists from SpecTcl's point of view.
+                            If the spectrum was produced by one of the methods
+                            above, you need to <TT
+CLASS="literal"
+>delete</TT
+> to free
+                            it to avoid memory leaks.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>FindSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>FindSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> id</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Attemts to locate the spectrum named <CODE
+CLASS="parameter"
+>name</CODE
+>,
+                            or has the id <CODE
+CLASS="parameter"
+>id</CODE
+>,
+                            in SpecTcl's spectrum dictionary.   A pointer to the
+                            spectrum object is returned if found or a null
+                            pointer is returned if there no spectrum
+                            matching the name.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryIterator  </span
+>SpectrumBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryIterator  </span
+>SpectrumEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            These methods support iteration through the
+                            SpecTcl spectrum dictionary.
+                            <CODE
+CLASS="classname"
+>SpectrumDictionaryIterator</CODE
+>
+                            objects are pointer like objecs.  They
+                            'point' to a
+                            <CODE
+CLASS="classname"
+>std::pair&#60;td::string, CSpectrum*&#62;</CODE
+>.
+                        </P
+><P
+>&#13;                            The first item of each pair is the name of the spectrum.
+                            The second itesm is a pointer to the
+                            spectrum with that name.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="classname"
+>SpectrumDictionaryIterator</CODE
+>
+                            objects can be incremented (<CODE
+CLASS="methodname"
+>operator++</CODE
+>).
+                            Incrementing an iterator 'points' it to the next
+                            object in the container.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="function"
+>SpectrumBegin</CODE
+> points  to the first
+                            object in the dictionary.  Iterating through the dictionary
+                            has finishe when incrementing produces the value
+                            returned by
+                            <CODE
+CLASS="methodname"
+>SpectrumEnd</CODE
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>SpectrumCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the numbr of entries in the SpecTcl
+                            spectrum dictionary.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addSpectrumDictionaryObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Adds a new observer to the spectrum dictionary.
+                            See e.g. <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>
+                            for information about the observer pattern and observers.
+                        </P
+><P
+>&#13;                            Spectrum dictionary observers derived from the
+                            <CODE
+CLASS="classname"
+>CDictionaryObserver</CODE
+> templated
+                            class (defined in <TT
+CLASS="filename"
+>Dictionary.h</TT
+>).
+                            They have a <CODE
+CLASS="methodname"
+>onAdd</CODE
+>, called
+                            when a new entry is added to the dictionary, and
+                            a method called <CODE
+CLASS="methodname"
+>onRemove</CODE
+>
+                            called when an entry is removed from the
+                            dictionary.
+                        </P
+><P
+>&#13;                            Both obserer entries are passed two parameters.
+                            The first is an <CODE
+CLASS="classname"
+>std::string</CODE
+>
+                            that holds the name of the spectrum being
+                            added or removed/  The secod i a a
+                            <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> reference which is
+                            a reference to the spectrum being added or removed.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeSpectrumDictionaryObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Removes a spectrum dictinoary observer from the list
+                            of observer methods.  The <CODE
+CLASS="methodname"
+>observer</CODE
+>
+                            object is no longer called.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ClearSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Clears the spectrum named <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                            If there is no spectrum named <CODE
+CLASS="parameter"
+>name</CODE
+>,
+                            an exception (<CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>).
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+>ClearAllSpectra();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Iterates through the spectrum dictionary
+                            zeroing the spectra.
+                        </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                The next set of methods manipulate gates and the gate dictionary.
+                Note that as with Spectra, the act of creating a gate is
+                separate from the act of making it known to SpecTcl's
+                commands and histogramming core by entering it into a gate
+                dictionary.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateFactory::GateType  </span
+><span
+class="parameter"
+>gateType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>names</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a new compound gate whose dependent
+                            gates are <CODE
+CLASS="parameter"
+>names</CODE
+>.   Legal gate
+                            types for this method are
+                            <TT
+CLASS="literal"
+>And</TT
+>, <TT
+CLASS="literal"
+>bandcontour</TT
+>,
+                            <TT
+CLASS="literal"
+>Not</TT
+>, <TT
+CLASS="literal"
+>Or</TT
+>,
+                            <TT
+CLASS="literal"
+>trueg</TT
+>, <TT
+CLASS="literal"
+>falseg</TT
+>
+                            or <TT
+CLASS="literal"
+>deleted</TT
+>.
+                        </P
+><P
+>&#13;                            Note that for
+                            <TT
+CLASS="literal"
+>trueg</TT
+>, <TT
+CLASS="literal"
+>falseg</TT
+>
+                            or <TT
+CLASS="literal"
+>deleted</TT
+>,
+                            the <CODE
+CLASS="parameter"
+>names</CODE
+> vector must be empty.
+                        </P
+><P
+>&#13;                            Note that the gate has no name.  It is given its name
+                            when <CODE
+CLASS="methodname"
+>AddGate</CODE
+>.
+                        </P
+><P
+>&#13;                            The method returns a pointer to the new,
+                            dynamically create gate object.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateFactory::GateType  </span
+><span
+class="parameter"
+>gateType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateFactory::GateType </span
+><span
+class="parameter"
+>gateType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+> std::vector&#60;UInt_t&#62; </span
+><span
+class="parameter"
+> parameters</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a primitive gate.  <CODE
+CLASS="parameter"
+>parameters</CODE
+>
+                            are the names of the parameters the gate is defined on.
+                            <CODE
+CLASS="parameter"
+>points</CODE
+> are x/y points that define
+                            the gate.  <CODE
+CLASS="parameter"
+>gateType</CODE
+> can be any
+                            gate that requires a set of points.
+                        </P
+><P
+>&#13;                            The second form of this method provides the
+                            <CODE
+CLASS="parameter"
+>parameters</CODE
+> vector as a vector
+                            of parameter ids rather than names.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateFactory::GateType  </span
+><span
+class="parameter"
+>gateType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>rparameters</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>long </span
+><span
+class="parameter"
+> comparison</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a bit mask gate of the type
+                            specified by <CODE
+CLASS="parameter"
+>gateType</CODE
+>.
+                            <CODE
+CLASS="parameter"
+>rparameters</CODE
+> specifies the
+                            parameters required for the gate.
+                            <CODE
+CLASS="parameter"
+>comparison</CODE
+> is the type
+                            of comparison to perform.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateTrueGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a true gate. A true gate is true for
+                            every event regardless of the set of parameters
+                            defined by that event or their values.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateFalseGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a false gate.  False gates are false
+                            for all events regardless of the parameters
+                            defined by an event and its values.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate* CreateBand </span
+>(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>xparameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>yparameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Defines a band gate.  A band gate is defined on
+                            a pair of parameters.  <CODE
+CLASS="parameter"
+>xparameter</CODE
+>
+                            defines the x coordinate of a point in two dimensional
+                            space while <CODE
+CLASS="parameter"
+>yparameter</CODE
+> defines
+                            the y coordinate.  Both parameters must be present and
+                            the point defined by them must be below the polyline
+                            defined by the array of <CODE
+CLASS="parameter"
+>points</CODE
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateContour(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>xparameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>yparameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Defines a contour gate.  The parameters have the
+                            same meaning as for <CODE
+CLASS="parameter"
+>CreateBand</CODE
+>,
+                            however the gate is true for events only if both
+                            <CODE
+CLASS="parameter"
+>xparameter</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>yparameter</CODE
+> are present and
+                            the resulting point falls inside the closed shape
+                            defined by <CODE
+CLASS="parameter"
+>pointts</CODE
+>
+                        </P
+><P
+>&#13;                            For pathalogical closed shapes, note that
+                            inside-ness is defined by the
+                            <I
+CLASS="firstterm"
+>odd crossing rule</I
+>.
+                            This means that if you draw a  ray from the point
+                            defined by the event in any direction, the point is
+                            inside if an odd number of edges of the shape are
+                            crossed and outside if an even number are crossed.
+                            This provides a consistent definition of inside-ness
+                            reagardless of how pathalogically shaped the
+                            contour is.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateBandContour(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>firstBand</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>secondBand</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a contour by joining together the endpoints
+                            of the two band <CODE
+CLASS="parameter"
+>firstBand</CODE
+>
+                            and <CODE
+CLASS="parameter"
+>secondBand</CODE
+>.  An exception
+                            is thrown if these two gates are not bands.
+                            The resulting gate is really a contour and not
+                            a compound gate.
+                        </P
+><P
+>&#13;                            This gate is useful for detectors that produce a
+                            particle id spectrum that looks like a set of
+                            hyperbolae.  One can draw bands between each of the
+                            particle groups an then form particle ID groups
+                            by creating contours from adjacent gates.
+                        </P
+><P
+>&#13;                            The intent is that if <CODE
+CLASS="parameter"
+>firstBand</CODE
+>
+                            is upper and <CODE
+CLASS="parameter"
+>secondBand</CODE
+> lower,
+                            the resulting gate is essentially
+                            <TT
+CLASS="literal"
+>firstBand and not secondBand</TT
+>, however
+                            the joining of the end points together may slightly
+                            violate that expression near the gate edges.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateNotGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a not gate using <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            as the dependent gate.  The resulting gate is true
+                            only for events for which the gate <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            is false.  For all other events it is false.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateAndGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>gateNames </span
+><span
+class="parameter"
+>gateNames</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates an And gate using <CODE
+CLASS="parameter"
+>gateNames</CODE
+>
+                            as the gate's dependent gates.  This gate is only true
+                            if <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>all</I
+></SPAN
+> of the gates in
+                            <CODE
+CLASS="parameter"
+>gateNames</CODE
+> are true.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateOrGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>gateNames</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates an or gate whose dependent gates are
+                            <CODE
+CLASS="parameter"
+>gateNames</CODE
+>.  This gate
+                            is only true for events in which
+                            <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>at least</I
+></SPAN
+> of the
+                            gates in <CODE
+CLASS="parameter"
+>gateNames</CODE
+> is also
+                            true.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>  CGate*  </span
+>CreateCut(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>parameter</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>high</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gate that is a cut on 
+                            <CODE
+CLASS="parameter"
+>parameter</CODE
+>.   The cut is
+                            defined by the x coorinates of
+                            <CODE
+CLASS="parameter"
+>low</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>high</CODE
+>.  The gate is true
+                            only if it defines <CODE
+CLASS="parameter"
+>parameter</CODE
+>
+                            and the value is between <CODE
+CLASS="parameter"
+>low</CODE
+>
+                            and <CODE
+CLASS="parameter"
+>high</CODE
+>
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGammaCut(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>high</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma cut.  The cut is defined by
+                            <CODE
+CLASS="parameter"
+>low</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>high</CODE
+>.   The parameters
+                            involved in the gate are
+                            <CODE
+CLASS="parameter"
+>parameters</CODE
+>.
+                        </P
+><P
+>&#13;                            The gamma cut is intended to be applied to a gamma
+                            spectrum as a fold.  Folds are a mechanism to untangle
+                            sequential decay cascades.  If this gate is applied
+                            as a fold to a gamma spectrum, the spectrum is incremented
+                            if at least one parameter satisfies the gate and
+                            is incremented for all parameters that are not
+                            in the gate.  The resulting histogram's peaks
+                            are those gamma rays that are emitted in coincidence
+                            with the gamma ray energy in the peak the gate is
+                            set on.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGammaBand(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma band.  This is also intended to be
+                            used as a fold in which case the spectrum
+                            is incremented only for pairs of parameters
+                            that do not satisfy the gate.   Gamma bands
+                            are probably not as useful as gamma contours since
+                            2-d Gamma spectra tend to make lumps out of
+                            pairs of gamma rays that are emitted in coincidence.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateGammaContour(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+><span
+class="parameter"
+>points</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameters</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a gamma contour from the
+                            <CODE
+CLASS="parameter"
+>points</CODE
+> defined on the
+                            <CODE
+CLASS="parameter"
+>parameters</CODE
+> parameters.
+                            This is intended to be used as a fold.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateMaskEqualGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>rParameterName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>long  </span
+><span
+class="parameter"
+>Compare</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a mask-equality gate.  The gate will
+                            be true for events that define
+                            <CODE
+CLASS="parameter"
+>rParameterName</CODE
+> and for which
+                            the value of that parameter will be equal to
+                            <CODE
+CLASS="parameter"
+>Compare</CODE
+>
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateMaskAndGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>rParameterName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>long  </span
+><span
+class="parameter"
+>Compare</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a mask and gate.  The gate will be true
+                            for events that define <CODE
+CLASS="parameter"
+>rParameterName</CODE
+>
+                            and for which the value of that parameter, when bitwise anded
+                            with <CODE
+CLASS="parameter"
+>Compare</CODE
+> is the same as
+                            <CODE
+CLASS="parameter"
+>Compare</CODE
+>.  That is, the parameter
+                            has (among others) all bits set that <CODE
+CLASS="parameter"
+>Compare</CODE
+>
+                            has set.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+>CreateMaskNotGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>rParameterName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>long  </span
+><span
+class="parameter"
+>Compare</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Creates a Mask not gate.  This gate is defined
+                            for all events that define
+                            <CODE
+CLASS="parameter"
+>rParameterName</CODE
+> but for
+                            which the value of that parameter has all bits
+                            set which are not set in <CODE
+CLASS="parameter"
+>Compare</CODE
+>.
+                        </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                The next set of methods manipulate the gate dictionary.
+                Note that the gate creation methods above create the gate but
+                don't enter it into the gate dictionary.  To  make the gate
+                known to SpecTcl, you must do this by invoking
+                <CODE
+CLASS="methodname"
+>AddGate</CODE
+> below.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate*  </span
+><span
+class="parameter"
+>gate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Associates the gate name <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            with the gate <CODE
+CLASS="parameter"
+>gate</CODE
+> and tries
+                            to add it to the gate dictionary.  If a gate
+                            by this name already exists; the method throws
+                            a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>
+                            exception.
+                        </P
+><P
+>&#13;                            Note that once a gate is known to exist, its
+                            definition can be modified by
+                            <CODE
+CLASS="methodname"
+>ReplaceGate</CODE
+> below.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void DeleteGate </span
+>(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>gateName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Deletes the gate named <CODE
+CLASS="parameter"
+>gateName</CODE
+>
+                            from the gate dictionary.    Note that in order
+                            for objects that depend on the gate to behave
+                            in a well determined manner, the gate is not
+                            actually deleted, but replaced with a
+                            false gate.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ReplaceGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>gateName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate&#38;  </span
+><span
+class="parameter"
+>newGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Replaces the gate <CODE
+CLASS="parameter"
+>gateName</CODE
+> with
+                            a new gate definition <CODE
+CLASS="parameter"
+>newGate</CODE
+>.
+                            The use of <CODE
+CLASS="classname"
+>CGateContainer</CODE
+> objects
+                            allows this replacement to happen transparently with
+                            respect to dependent gates, spectra to which the
+                            gate is applied and spectra folded on the gate.
+                        </P
+><P
+>&#13;                            If <CODE
+CLASS="parameter"
+>gateName</CODE
+> does not
+                            exist a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>
+                            is thrown.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer* </span
+> FindGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>gateName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Finds the gate <CODE
+CLASS="parameter"
+>gateName</CODE
+>
+                            in the gate dictionary.  If found, a pointer
+                            to its gate container is returned.   If not found,
+                            a null pointer is returned.
+                        </P
+><P
+>&#13;                            A <CODE
+CLASS="classname"
+>CGateContainer</CODE
+> is a pointer
+                            like object that acts like a pointer to an underlying
+                            gate.  Gate containers are an additional level of
+                            indirection that allow spectra and other gates that
+                            depend on a gate to be blissfully unaware of when
+                            their gate definitions change.
+                        </P
+><P
+>&#13;                            You can think of the gate container as encapsulating
+                            the real gate.  What methods like
+                            <CODE
+CLASS="methodname"
+>DeleteGate</CODE
+> and
+                            <CODE
+CLASS="methodname"
+>ReplaceGate</CODE
+> do is replace
+                            the gate that is encapsulated by the gate container.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateDictionaryIterator  </span
+>GateBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>GateDictionaryIterator </span
+>GateEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Supports iteration in the gate dictionary. The
+                            <CODE
+CLASS="classname"
+>CGateDictionaryIterator</CODE
+>
+                            is a pointer like object that points to an
+                            <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CGateContainer&#62;</CODE
+>
+                            object.
+                        </P
+><P
+>&#13;                            The first element of the pair is the name of the gate
+                            while the second element is the gate container for
+                            the gate.  Iteration is accomplished by getting
+                            an iterator to the first dictionary element
+                            via a call to <CODE
+CLASS="methodname"
+>GateBegin</CODE
+>.
+                            Successive elements of the dictionary are visited
+                            by incrementing the iterator.  When the last
+                            element is visited, incrementing the iterator
+                            returns the value returned by
+                            <CODE
+CLASS="methodname"
+>GateEnd</CODE
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>GateCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns a count of the number of elements in the
+                            gate dictionary.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addGateDictionaryObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void removeGateDictionaryObserver </span
+>(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            These two methods provide an observer interface
+                            to the Gate dictionary.
+                            See e.g. <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>
+                            for information about the observer pattern and observers.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="methodname"
+>addGateDictionaryObserver</CODE
+>
+                            adds the specfied <CODE
+CLASS="parameter"
+>observer</CODE
+>
+                            to the list of gate observers called by the
+                            gate dictionary while
+                            <CODE
+CLASS="methodname"
+>removeGateDictionaryObserver</CODE
+>
+                            removes <CODE
+CLASS="parameter"
+>observer</CODE
+> from that list.
+                        </P
+><P
+>&#13;                            A <CODE
+CLASS="classname"
+>CGateObserver</CODE
+> object has
+                            the following methods:
+                        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onAdd(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                        Called when an entry is added to the dictionary.
+                                        <CODE
+CLASS="parameter"
+>name</CODE
+> is the name
+                                        of the new gate and
+                                        <CODE
+CLASS="parameter"
+>item</CODE
+>
+                                        is the gate container for the new item
+                                        being added.
+                                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onRemove(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                        Called if an entry is removed from the
+                                        dictionary.  In normal use this is never
+                                        invoked as gates are never deleted,
+                                        only modified.
+                                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void </span
+> onChange(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>gateContainer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                        Called when a gate has been changed.
+                                        <CODE
+CLASS="parameter"
+>gateContainer</CODE
+>
+                                        is the new gate container.
+                                    </P
+></DD
+></DL
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ApplyGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>gateName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>spectrumName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                The next set of methods are responsible for managing the event
+                processor pipeline.  The event processing pipeline is a sequence
+                of objects that are responsible for taking a raw event
+                and transforming it into a set of parameteres that can be
+                analyzed by the event sink pipeline.  Each stage of the pipeline
+                has access to the raw event as well as the set of parameters
+                previous stages have unpacked.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void AddEventProcessor </span
+>(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38;  </span
+><span
+class="parameter"
+>eventProcessor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>name</span
+><span
+class="initializer"
+> =  0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Adds an event processor
+                            <CODE
+CLASS="parameter"
+>eventProcessor</CODE
+>to the end of the
+                            event processing pipeline.  If <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            is not a null pointer, it is used as the name of
+                            the event processor.  If it is null (not recommended but
+                            supported for backwards compatibility), a unique
+                            event processor name will be assigned.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+>FindEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Given the <CODE
+CLASS="parameter"
+>name</CODE
+> of an event
+                            processor, returns an iterator to it.  If the
+                            <CODE
+CLASS="parameter"
+>name</CODE
+> is not found,
+                            the value that is normally returned
+                            from <CODE
+CLASS="methodname"
+>ProcessingPipelineEnd</CODE
+>
+                            is returned (see below).
+                        </P
+><P
+>&#13;                            A <CODE
+CLASS="classname"
+>CTclAnalyzer::EventprocessorIterator</CODE
+>
+                            is a pointer like object.  We'll say more about it
+                            when we look at support for iteration.  At this
+                            point in time it suffices to know that it can be
+                            treated as if it were a pointer to
+                            a <CODE
+CLASS="classname"
+>std::pair&#60;std::atring, CEventProcessor*&#62;</CODE
+>
+                            where the first element of the pair is the name of the event
+                            processor pointed to by the second element
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+>FindEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38;  </span
+><span
+class="parameter"
+>processor</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Finds an event processor in the event processing
+                            pipeline given a reference to the event
+                            processor object itself.  
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>InsertEventProcessor((<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38;  </span
+><span
+class="parameter"
+>processor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+><span
+class="parameter"
+>where</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*   </span
+><span
+class="parameter"
+>name </span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Inserts an event processor
+                            (<CODE
+CLASS="parameter"
+>processor</CODE
+>) in the event
+                            processing pipeline at the position prior to that
+                            indicated by <CODE
+CLASS="parameter"
+>where</CODE
+>.  The
+                            event processor will be called <CODE
+CLASS="parameter"
+>name</CODE
+>
+                            unless that parameter is a null pointer in which
+                            case a unique name will be assigned to it.
+                        </P
+><P
+>&#13;                            Note that <CODE
+CLASS="parameter"
+>where</CODE
+> is
+                            a <CODE
+CLASS="classname"
+>CTclAnalyzer::EventProcessorIterator</CODE
+>,
+                            an iterator in the STL sense of the term.  For more
+                            information about it, see
+                            <CODE
+CLASS="methodname"
+>ProcessingPipelineBegin</CODE
+>
+                            and <CODE
+CLASS="methodname"
+>ProcessingPipelineEnd</CODE
+>
+                            below.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>RemoveEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Removes the event processor named <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                            IF there's no event processor named
+                            <CODE
+CLASS="parameter"
+>name</CODE
+>, this is a silent
+                            no-op.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>RemoveEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+><span
+class="parameter"
+>here</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Removes the event processor 'pointed to'
+                            by <CODE
+CLASS="parameter"
+>here</CODE
+>.  The iterator
+                            could have been returned from a call to
+                            <CODE
+CLASS="methodname"
+>FindEventProcessor</CODE
+> or
+                            have been the result of iteration (see below).
+                        </P
+><P
+>&#13;                            This operation invalidates the iterator.
+                            The results of dereferencing
+                            it in the future are undefined.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>ProcessingPipelineSize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the number of elements in the event
+                            processing pipeline.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+>ProcessingPipelineBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer::EventProcessorIterator  </span
+>ProcessingPipelineEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Supports the iteration protocol.
+                            <CODE
+CLASS="methodname"
+>ProcessingPipelineBegin</CODE
+>
+                            returns an iterator that 'points' to the
+                            first element of the event processing pipeline.
+                            The
+                            <CODE
+CLASS="methodname"
+>FindEventProcessor</CODE
+>
+                            documentation describes exactly what this
+                            'points' to.
+                        </P
+><P
+>&#13;                            Iterators can be incremented in which case they
+                            point to the next element of the pipeline (in
+                            processing order).  Once the last element of the
+                            pipeline has been reached by the iterator,
+                            an additional increment returns a value
+                            identical to the value that is returned by
+                            <CODE
+CLASS="methodname"
+>ProcessingPipelineEnd</CODE
+>.
+                        </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                The next set of methods manipulate the event sink pipeline.
+                The event sink pipeline gains control after the the event
+                processing pipeline has processed one or more events.
+                it the event sink pipeline initially comes stocked with the
+                histogrammer (<CODE
+CLASS="classname"
+>CHistogrammer</CODE
+>).
+                Filters are also added at the end of the event processing
+                pipeline.
+            </P
+><P
+>&#13;                This  portion of the API supports additional event
+                sink pipeline element types.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddEventSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink&#38;  </span
+><span
+class="parameter"
+>sink</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>name </span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new event <CODE
+CLASS="parameter"
+>sink</CODE
+> to the
+                        end of the event sink pipeline.  If
+                        <CODE
+CLASS="parameter"
+>name</CODE
+> is not a null pointer,
+                        it will be the name of the processing element.
+                        If it is a null pointer, a unique name
+                        will be supplied by SpecTcl.
+                    </P
+><P
+>&#13;                        The histogrammer registers itself as
+                        <TT
+CLASS="literal"
+>::Histogrammer</TT
+>.  Event filters
+                        register themselves with their filter name.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+>FindEventSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sinkName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the event sink
+                        <CODE
+CLASS="parameter"
+>sinkName</CODE
+>.  If no such event sink
+                        pipeline element exists, the return value will be
+                        the same as that returned by
+                        <CODE
+CLASS="methodname"
+>EventSinkPipelineEnd</CODE
+>.
+                    </P
+><P
+>&#13;                        The iterator returned is a pointer like object.
+                        The objects it points to are
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CEventSink*&#62;</CODE
+>
+                        where the first element of the pair is the name of the event
+                        sink pointed to by the second element of the pair.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+>FindEventSink(<span
+class="methodparam"
+><span
+class="type"
+>CEventSink&#38;  </span
+><span
+class="parameter"
+>sink</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator 'pointing' to the event sink
+                        pipeline element whose reference is p[assed in
+                        to to the method as <CODE
+CLASS="parameter"
+>sink</CODE
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>InsertEventSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink&#38;  </span
+><span
+class="parameter"
+>sink</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+><span
+class="parameter"
+>here</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>name</span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds the event sink <CODE
+CLASS="parameter"
+>sink</CODE
+> to the
+                        event sink pipeline prior to the position indicated
+                        by <CODE
+CLASS="parameter"
+>here</CODE
+>, an iterator.
+                        If not a null pointer, the parameter <CODE
+CLASS="parameter"
+>name</CODE
+>
+                        is used to name the pipeline element.  Otherwise
+                        a unique name is assigned to the element.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*  </span
+>RemoveEventSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes an event sink named <CODE
+CLASS="parameter"
+>name</CODE
+>
+                        from the event sink pipeline.  A pointer to the
+                        removed sink is returned on success.  If no
+                        event sink with <CODE
+CLASS="parameter"
+>name</CODE
+> exists,
+                        a null pointer is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*  </span
+>RemoveEventSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+><span
+class="parameter"
+>here</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes an event sink from the pipeline given an
+                        iterator that points to the std::pair containing the
+                        specific sink.  Returns a pointer to the event sink
+                        that was removed.   
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+>EventSinkPipelineSize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements in the event sink pipeline.
+                        Just after SpecTcl starts, this will return
+                        at least <TT
+CLASS="literal"
+>1</TT
+>
+                        as the event sink pipeline is initialized with a
+                        <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> as an event
+                        sink.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+>EventSinkPipelineBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline::EventSinkIterator  </span
+>EventSinkPipelineEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods support iteration over the event sink
+                        pipeline.  <CODE
+CLASS="methodname"
+>EventSinkPipelineBegin</CODE
+>
+                        returns an iterator that 'points' to the first item
+                        in the pipeline (usually the histogrammer).  
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CEventSinkPipeline::EventSinkIterator</CODE
+>
+                        objects can be thought of as pointers.  They point to
+                        a
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CEvetnSink*&#62;</CODE
+>.
+                        The first element of that pair is the name assigned to the
+                        event sink.  The second element is a pointer to an
+                        event sink that was assigned that name.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CEventSinkPipeline::EventSinkIterator</CODE
+>
+                        objects can be incremented.  Each increment points
+                        the iterator to the next object in the pipeline.
+                        Incrementing an iterator that points to the last item
+                        in the pipeline makes it equal to the object
+                        returned by
+                        <CODE
+CLASS="methodname"
+>EventSinkPipelineEnd</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            Filters are the most common type of non histogrammer elements
+            in the event processing pipeline.  SpecTcl has command line
+            mechanisms for creating, configuring and enabling filters.
+            The next several methods provide the same functionality for
+            C++ extensions to SpecTcl as well as providing a method for
+            extending the set of output formats supported by standard filters.
+        </P
+><P
+>&#13;            Naturally, for special needs, programmers can extend the
+            <CODE
+CLASS="classname"
+>CGatedEventFilter</CODE
+> class and use
+            the resulting filters in these API elements.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>createFilter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatedEventFilter*  </span
+><span
+class="parameter"
+>pFilter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new filter, <CODE
+CLASS="parameter"
+>pFilter</CODE
+> to the
+                        event sink pipeline.  The filter will be given the name
+                        <CODE
+CLASS="parameter"
+>name</CODE
+>.  The filter is also
+                        entered into the filter dictionary so that it is
+                        visible to and can be manipulated with SpecTcl
+                        commands.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatedEventFilter*  </span
+>findFilter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Locates returns a pointer to the event filter
+                        <CODE
+CLASS="parameter"
+>name</CODE
+>.  If no filter with that
+                        name has been created a null pointer is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool   </span
+>filterExists(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatedEventFilter*  </span
+><span
+class="parameter"
+>pFilter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given a pointer to an event filter <CODE
+CLASS="parameter"
+>pFilter</CODE
+>,
+                        determines if a filter with the same address exists in
+                        the filter dictionary.  Returns <TT
+CLASS="literal"
+>true</TT
+>
+                        if so and <TT
+CLASS="literal"
+>false</TT
+> if not.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>deleteFilter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatedEventFilter*  </span
+><span
+class="parameter"
+>pFilter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the filter pointed to by <CODE
+CLASS="parameter"
+>pFilter</CODE
+>
+                        from the filter dictionary.  If <CODE
+CLASS="parameter"
+>pFilter</CODE
+>
+                        is not in the filter dictionary, no action is taken.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>deleteFilter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>filterName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes a filter from the filter dictionary.    If the
+                        filter is not in the dictionary, this is a silent No-op.
+                    </P
+><P
+>&#13;                        Neither this method, nor the previous one actually delete
+                        the storage associated with a filter, they only
+                        remove it from the filter dictionary.  To perform
+                        a full deletion would require something like:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN2247"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;                            
+// Delete by pointer.
+                            
+CGatedFilter* pFilter=makeSomeFilter();
+...
+SpecTcl* pApi = SpecTcl::getInstance();
+pApi-&#62;deleteFilter(pFilter);
+delete pFilter;
+
+// Delete by name with full deletion.
+
+CGatedFilter *pSomeFilter = pApi-&#62;findFilter("someName");
+if (pSomeFilter) {
+    pApi-&#62;deleteFilter("someName");
+    delete pSomeFilter;
+}
+                        </PRE
+><P
+></P
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>addFilterOutputFormat(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFilterOutputStageCreator&#38;  </span
+><span
+class="parameter"
+>creator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new filter output format to the filter subsystem.
+                        <CODE
+CLASS="parameter"
+>creator</CODE
+>, when given its output
+                        format name, recognizes it and returns the appropriate
+                        output formatter.  The programming guide provides
+                        a worked example that shows how to add filter
+                        formats to the system.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The remainder of the API are miscellaneous methods that don't really
+            fit well into any of the method categories above.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddSpectrumFormatter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFormatter&#38;  </span
+><span
+class="parameter"
+>formatter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Associates the <CODE
+CLASS="parameter"
+>formatter</CODE
+> with
+                        outputting spectra (via the <B
+CLASS="command"
+>swrite</B
+> command)
+                        for the format type <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                        The actual <CODE
+CLASS="parameter"
+>formatter</CODE
+> must be in scope
+                        for the lifetime of SpecTcl.   Therefore it's recommended
+                        that it either be statically allocated at a file scope
+                        or alternatively dynamically allocated via <TT
+CLASS="literal"
+>new</TT
+>
+                        and never destroyed with <TT
+CLASS="literal"
+>delete</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter*  </span
+>getInterpreter();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the object encapsulated
+                        Tcl interpreter that SpecTcl is using to execute its
+                        commands.  This can be used to add commands to SpecTcl,
+                        or anything else that may require a Tcl interpreter.
+                        See the Tcl++ section of this manual for more information
+                        about how to use this and other classes in the
+                        Tcl++ C++ encapsulation of libTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CHistogrammer* </span
+>GetHistogrammer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to SpecTcl's histogrammer object.
+                        Note that most of the things you'd want to do with the
+                        <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> are possible
+                        directly from the API methods above.  Those are
+                        considered 'sacred with respect to modification' while
+                        the methods of the histogrammer can be modified in
+                        function and signature.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTclAnalyzer*  </span
+>GetAnalyzer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the current SpecTcl analyzer.
+                        The <CODE
+CLASS="classname"
+>CAnalyzer</CODE
+> is the method
+                        that directs the flow of control within SpecTcl's analysis
+                        of data.  Normally, the SpecTcl analyzer is actually a
+                        <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+> object
+                        (see <TT
+CLASS="filename"
+>TCLAnalyzer.h</TT
+> for the class
+                        definition).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSinkPipeline*  </span
+>GetEventSinkPipeline();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the event sink pipeline object.
+                        Note that other methods in this API provide essentially
+                        all of the operations you'll need to perform on this object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CDisplayInterface*  </span
+>GetDisplayInterface();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        SpecTcl 5.0 decouples SpecTcl from its traditional
+                        displayer (Xamine), and provides an new Root based
+                        displayer (Display).  The interaction between the
+                        displayer and SpecTcl is mediate by a
+                        <CODE
+CLASS="classname"
+>CDisplayerInterface</CODE
+> object
+                        that is specific to the displayer type.  This
+                        method obtains a pointer to the specific
+                        displayer interface object in use.
+                    </P
+><P
+>&#13;                        I anticipate that later in the development of SpecTcl 5,
+                        we'll see the <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> class
+                        augmented to provide a stable API to the displayer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void SetDisplayInterface </span
+>CDisplayInterface&#38; rInterface();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a new display interface to SpecTcl;
+                        <CODE
+CLASS="parameter"
+>rInterface</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;   </span
+>parameterIds(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>names</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given a list of parameter <CODE
+CLASS="parameter"
+>names</CODE
+>,
+                        Returns a vector of the parameter ids associated with those
+                        names.  The 0'th element of the result is the
+                        id of the 0'th element of <CODE
+CLASS="parameter"
+>names</CODE
+>
+                        and so on.
+                    </P
+><P
+>&#13;                        If any of the parameters in <CODE
+CLASS="parameter"
+>names</CODE
+>
+                        does not exist a <CODE
+CLASS="classname"
+>std::vector&#60;std::string&#62;::iterator</CODE
+>
+                        exception is thrown which 'points' to the element of
+                        <CODE
+CLASS="parameter"
+>names</CODE
+> that failed its lookup.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c33.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="p2375.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SpecTcl</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p31.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Tree Parameter, Tree Variable API</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

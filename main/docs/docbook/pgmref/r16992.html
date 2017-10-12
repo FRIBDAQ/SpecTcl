@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CGateObserver</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CGateContainer"
+HREF="r16884.html"><LINK
+REL="NEXT"
+TITLE="CFit"
+HREF="r17077.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r16884.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r17077.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN16992"
+></A
+>CGateObserver</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN16996"
+></A
+><H2
+>Name</H2
+>CGateObserver&nbsp;--&nbsp;Observe changes in the gate dictionary.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN16999"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Histogrammer.h&#62;
+
+template &#60;class T&#62;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&#38; item) {}
+  virtual void onRemove( std::string name,    T&#38; item) {}
+
+};
+typedef CDictionary&#60;CGateContainer&#62;             CGateDictionary;
+typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
+typedef DictionaryObserver&#60;CGateContainer&#62;      GateDictionaryObserver;
+
+class CGateObserver : public GateDictionaryObserver {
+public:
+  virtual void onChange(std::string name, CGateContainer&#38; gateContainer) = 0;
+};
+
+#include &#60;SpecTcl.h&#62;
+class SpecTcl
+{
+public:
+...
+    void addGateDictionaryObserver(GateObserver* observer);
+    void remove GateDictionaryObserver(Gateobservr* observer);
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17001"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Before looking at the documentation for the gate observer;
+            if you are not familiar with the <I
+CLASS="firstterm"
+>Observer</I
+>
+            software pattern, it's worth taking some time to udnerstand it.
+            On introduction is available at the wikipedia at:
+            <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>.
+        </P
+><P
+>&#13;            Gate dictionary observers allow you to become aware of changes made
+            to the gate dictionary. The changes you can observer are:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                    Insertions of gate containers into the dictionary.
+                </P
+></LI
+><LI
+><P
+>&#13;                    Changes to existing gate containers already in the
+                    dictionary (usually this means the gate contained by
+                    that observer is being changed for a new one).
+                </P
+></LI
+><LI
+><P
+>&#13;                    Removals of gate containers from the dictionary
+                    (this is never done at this time).
+                </P
+></LI
+></UL
+><P
+>&#13;            As the synopsis shows, gate containers are added and removed
+            fromt he gate dictionary via the SpecTcl API class
+            <CODE
+CLASS="classname"
+>SpecTcl</CODE
+>.  Observers consitute an ordered list
+            of objects attached to the gate dictionary.  When an observable
+            change occurs, each of these observers is invoked in the order
+            in which they were added
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17016"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CGateObserver</CODE
+> is derived from
+            the more general templated base class
+            <CODE
+CLASS="classname"
+>DictionaryObserver</CODE
+>.  This section documents, not only the methods
+            defined in <CODE
+CLASS="classname"
+>CGateObserver</CODE
+> but the
+             methods of <CODE
+CLASS="classname"
+>CDictionaryObserver</CODE
+>
+            a concrete class can override.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onAdd(<span
+class="methodparam"
+><span
+class="type"
+>std::string    </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a new gate container is added to the
+                        dictionary.  <CODE
+CLASS="parameter"
+>name</CODE
+> is the name
+                        of the item in the dictionary (this need not be
+                        but currently always is the same as the name of the
+                        gate container).
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>item</CODE
+> is a reference to the gate container
+                        being added to the dictionary.  The base class
+                        implements this as an empty method.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onRemove(<span
+class="methodparam"
+><span
+class="type"
+> std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> CGateContainer&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when an item is removed from the dictionary.
+                        At present this does not happen as gate deletion
+                        simply replaces the gate with a False gate.
+                        The <CODE
+CLASS="parameter"
+>name</CODE
+> of the
+                        gate and the gate container <CODE
+CLASS="parameter"
+>item</CODE
+>
+                        are passed in as parameters.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>onChange(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGateContainer&#38; </span
+><span
+class="parameter"
+> gateContainer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when an item in the dictionary is changed.
+                        For the gate dictionary.  This means a gate container
+                        is encapsulating a new gate object because the
+                        gate has been modified.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17074"
+></A
+><H2
+>EXAMPLE</H2
+><P
+>&#13;            This toy example just prints out some text when for each
+            gate observation.  The example includes the class definition
+            for the gate dictionary observer as well as a snippet of code
+            that registers an instance of that observer with the SpecTcl
+            gate dictionary.
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r16884.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r17077.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CGateContainer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CFit</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CFold</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CSpectrum"
+HREF="r12971.html"><LINK
+REL="NEXT"
+TITLE="CAxis"
+HREF="r15188.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12971.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r15188.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN15072"
+></A
+>CFold</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN15076"
+></A
+><H2
+>Name</H2
+>CFold&nbsp;--&nbsp;Process gamma ray spectrum folds</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN15079"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFold.h&#62;
+
+class CFold
+{
+public:
+  CFold(CGateContainer* m_pGate);
+  std::string getFoldName();
+  void        setGate(CGateContainer* pGate);
+  void        operator()(std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; rEvent, 
+                         CGammaSpectrum* pSpectrum);
+  void        operator()(std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; xParams,
+			 std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; yParams,
+			 CGammaSpectrum* pSpectrum);
+protected:
+  void        CutDownParameters(std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; rNew, 
+                                std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; rOld, 
+                                UInt_t removeMe);
+  void        CutDownParameters(std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; rNew, 
+                               std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; rOld, 
+                               UInt_t remove1, UInt_t remove2);
+  
+};
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15081"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Fold mediate the processing of an event in Gamma spectra derived
+            from <CODE
+CLASS="classname"
+>CGammaSpectrum</CODE
+>.  They help determine which
+            peaks are part of a sequential decay process.   They do this by only
+            incrementing parameters that are <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>not</I
+></SPAN
+> in the fold's
+            gate 
+        </P
+><P
+>&#13;            This <I
+CLASS="firstterm"
+>cutting down</I
+> of the parameters allows
+            the spectrum to only increment for gamma rays that are coincident
+            with the one in the fold.  In this case, coincident means they
+            gammas are in the same event.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15088"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CFold(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+>pGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The constructor requires a <CODE
+CLASS="parameter"
+>pGate</CODE
+>
+                        which will be used as the fold.  The gate should be
+                        a valid gamma gate, however it is not an error to use
+                        a non-gamma gate.  Using a  non-gamma gate, however
+                        will not affect how the spectrum is incremented.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getFoldName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the name of the fold. The name of the fold
+                        is the same asw the name of the gate it evaluates.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setGate(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+>pGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the fold gate to <CODE
+CLASS="parameter"
+>pGate</CODE
+>.
+                        Note that a side-effect of this is that the fold's name
+                        is changed since it derived from the
+                        name of the underlying gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38;  </span
+><span
+class="parameter"
+>xParams</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38;  </span
+><span
+class="parameter"
+>yParams</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGammaSpectrum*  </span
+><span
+class="parameter"
+>pSpectrum</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Processes the cut for a gamma deluxe spectrum.
+                        For each pair of parameters that satisfies the
+                        gamma gate, all other parameter pairs increment
+                        the spectrum.   
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>CutDownParameters(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38; </span
+><span
+class="parameter"
+>rNew</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38;  </span
+><span
+class="parameter"
+>rOld</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+>removeMe</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates a new list of parameters, <CODE
+CLASS="parameter"
+>rNew</CODE
+>
+                        that consists of the previous list, <CODE
+CLASS="parameter"
+>rOld</CODE
+>
+                        without any instance of parameter id <CODE
+CLASS="parameter"
+>removeMe</CODE
+>
+                        in it.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+> CutDownParameters(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38;  </span
+><span
+class="parameter"
+>rNew</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;std::pair&#60;UInt_t, Float_t&#62; &#62;&#38;   </span
+><span
+class="parameter"
+>rOld</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> remove1</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+>remove2</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates a new vector, <CODE
+CLASS="parameter"
+>rNew</CODE
+> consisting
+                        of the elements of <CODE
+CLASS="parameter"
+>rOld</CODE
+> that cointains
+                        neither <CODE
+CLASS="parameter"
+>remove1</CODE
+> nor
+                        <CODE
+CLASS="parameter"
+>remove2</CODE
+>.  This is somewhat faster
+                        than using the previous method twice and is a natural
+                        method for use with 2d gates that are wrapped by
+                        a fold.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12971.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r15188.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CSpectrum</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CAxis</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

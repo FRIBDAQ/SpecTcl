@@ -1,0 +1,562 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CNSCLBufferDecoder</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CBufferDecoder"
+HREF="r11419.html"><LINK
+REL="NEXT"
+TITLE="CNSCLJumboBufferDecoder"
+HREF="r11863.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r11419.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r11863.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN11703"
+></A
+>CNSCLBufferDecoder</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN11707"
+></A
+><H2
+>Name</H2
+>CNSCLBufferDecoder&nbsp;--&nbsp;Decode fixed sized event buffers from NSCLDAQ-7.x/8.x</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN11710"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;NSCLBufferDecoder.h&#62;
+
+class CNSCLBufferDecoder : public CBufferDecoder {
+public:
+  CNSCLBufferDecoder();
+  virtual ~CNSCLBufferDecoder();
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize();
+  virtual UInt_t getRun();
+  virtual UInt_t getEntityCount();
+  virtual UInt_t getSequenceNo();
+  virtual UInt_t getLamCount();
+  virtual UInt_t getPatternCount();
+  virtual UInt_t getBufferType();
+  virtual void getByteOrder(Short_t&#38; Signature16, Int_t&#38; Signature32);
+  virtual std::string getTitle();
+  virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer&#38; rAnalyzer);
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11712"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This buffer decoder decodes fixed length event bufers from
+            NSCLDAQ-7.x/8.x.  These buffers are typically 8Kbytes long, however
+            they may be longer or shorter as long as the total number of bytes
+            per buffer is no larger than 128K-2 bytes.
+        </P
+><P
+>&#13;            See CNSCLJumboBufferDecoder for larger bufer sizess.
+        </P
+><P
+>&#13;            This data format uses homogeneous buffers.  Typically, non event buffers
+            have a single item.  Event buffers, however are packed with as
+            many items as will fit.  This means that buffers that contain non
+            event data are typically very space wasteful.  Fortunately in most
+            cases they are also not frequently emitted compared with event
+            data buffers.
+        </P
+><P
+>&#13;            This class is concrete.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11718"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CNSCLBufferDecoder();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructor. 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual const  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+>getBody();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        NSCLDAQ 7.x/8.x buffers have a header of 32 bytes
+                        (16 uin16_t).  This method returns a pointer to the
+                        first byte after this header.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getBodySize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of words used in the body of the
+                        buffer.  Note that not all words of the buffer
+                        may be used.  THe first 16 bits of the buffer contain
+                        the number of used 16 bit words  in the buffer;
+                        <CODE
+CLASS="varname"
+>nwds</CODE
+>.  This method,
+                        therefore returns
+                        <TT
+CLASS="literal"
+>(nwds - 16) * sizeof(uint16_t)</TT
+> 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getRun();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The header of NSCLDAQ 7.x/8.x buffers contains
+                        the run number.  This method returns the run number
+                        from the most recently received buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getEntityCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of entities in the buffer.
+                        For physics buffers, this is the number of events in the
+                        buffer.  For scaler events, this is the number of
+                        scaler channels present in the buffer.  For all other
+                        item typesm, this is <TT
+CLASS="literal"
+>1</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getSequenceNo();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        NSCLDAQ 7.x/8.x buffers have sequence numbers.  These,
+                        together with a count of the number of buffers seen
+                        can be used to approximate the sampling fraction for
+                        online analysis (when SpecTcl may not be able to
+                        keep up with the data rate).
+                    </P
+><P
+>&#13;                        This method returns the sequence number from the last
+                        buffer received.  Note that sequence numbers start from
+                        zero at the beginning of each run.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getLamCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The header of NSCLDAQ 7.x/8.x buffers includes a
+                        word that contains the number of lam masks in an event.
+                        This actually is vestigial dating back to K500 days
+                        when events has a much more fixed format that include
+                        a set of pattern registers and a set of LAM registers.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getPatternCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Same as for <CODE
+CLASS="methodname"
+>getLamCount</CODE
+> but the
+                        method returns the header field containing the pattern
+                        register count.  This too is vestigial.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getBufferType();&#13;</code
+></DT
+><DD
+><P
+>&#13;                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>getByteOrder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Short_t&#38;  </span
+><span
+class="parameter"
+>Signature16</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t&#38;  </span
+><span
+class="parameter"
+>Signature32</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the byte order signatures that describe the
+                        byte ordering of the system that generated the
+                        most recent data buffer.  Note that these values
+                        are header members for buffers from
+                        NSCLDAQ 7.x/8.x
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getTitle();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the title of the current run.  In
+                        NSCLDAQ 7.x/8.x run titles are stored in state
+                        transition buffers.  The value returnes is the
+                        value from the most recently received state transition
+                        buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nBytes</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>pBuffer</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+> CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Processes a new buffer of data.
+                        <CODE
+CLASS="parameter"
+>nBytes</CODE
+> is the physical size
+                        of the buffer.  The header of the buffer determines how
+                        much of the physical buffer contains useful data.
+                        <CODE
+CLASS="parameter"
+>pBuffer</CODE
+> points to the data and
+                        <CODE
+CLASS="parameter"
+>rAnalyzer</CODE
+> is a reference
+                        to the analyzer we must call back for item processing.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r11419.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r11863.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CBufferDecoder</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CNSCLJumboBufferDecoder</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

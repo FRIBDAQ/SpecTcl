@@ -1,0 +1,612 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CSpectrumFit</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="Predefined CFit classes"
+HREF="r17340.html"><LINK
+REL="NEXT"
+TITLE="CFitFactory"
+HREF="r17691.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r17340.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r17691.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN17508"
+></A
+>CSpectrumFit</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN17512"
+></A
+><H2
+>Name</H2
+>CSpectrumFit&nbsp;--&nbsp;Fit of spectrum channels.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN17515"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CSpectrumFit.h&#62;
+
+class CSpectrumFit : public CNamedItem
+{
+public:
+  CSpectrumFit(std::string spectrumName, int myId,
+	       int low, int high, 
+	       CFit&#38;    fit);
+
+  CFit::PointIterator begin();
+  CFit::PointIterator end();
+  size_t              size();
+  CFit::FitState      GetState(); 
+  double              operator()(double x);
+  CFit::FitParameterList getParameters();
+  std::string         fitType();
+  std::string         makeTclFitScript();
+  std::string         fitName();
+  CSpectrumFit*       clone();	// Clone self.
+  void                update();
+  int                 low() const;
+  int                 high() const;
+  
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17517"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Joins together a spectrum and a fit performed over some region of
+            interest.  The fit is performed when an object is constructed
+            and when requested via its <CODE
+CLASS="methodname"
+>update</CODE
+> method.
+            This fit should always be in the <TT
+CLASS="literal"
+>CFit::Performed</TT
+>
+            state.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17522"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            Note that several of these methods delegate to the underlying
+            fit object.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CSpectrumFit((<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>spectrumName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int  </span
+><span
+class="parameter"
+>myId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int  </span
+><span
+class="parameter"
+>high</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CFit&#38;     </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>spectrumName</CODE
+> is the name of
+                        a spectrum in the SpecTcl spectrum dictionary.
+                        An exception is thrown if the name is not valid.
+                        The name is also used to provide a name for the Spectrum
+                        Fit object (see, however <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+>).
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>myId</CODE
+> is the id used to construct
+                        the base class named item.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>low</CODE
+> and <CODE
+CLASS="parameter"
+>high</CODE
+>
+                        specify a region of interest (ROI), in channels, in the spectrum.  If either
+                        limit is outside of the spectrum channel limits an exception
+                        is thrown.  If there are not sufficient channels in the ROI,
+                        an exception will be thrown.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>fit</CODE
+> is a fit object in the
+                        <TT
+CLASS="literal"
+>CFit::Accepting</TT
+> state.  On
+                        construction, among other things, the spectrum channels
+                        in the ROI are entered as points into this fit and the
+                        and the fit is performed.  The fit must stay in scope
+                        for the duration of the lifetime of this object.
+                        The fit's destruction is, however the responsibility
+                        of client code.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::PointIterator  </span
+>begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::PointIterator  </span
+>end();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>size_t   </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods delegate to the underlying fit object's
+                        methods of the same name.  They support iteration through
+                        the fit points.  The X coordinate of each point is a
+                        channel number.  The Y coordinate is the counts in that
+                        channel as of the last time a fit was performed.
+                    </P
+><P
+>&#13;                        Fits are performed at construction time and when the
+                        <CODE
+CLASS="methodname"
+>update</CODE
+> method is invoked.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>  CFit::FitState       </span
+>GetState();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the underlying fit's state. This should
+                        always be <TT
+CLASS="literal"
+>CFit::Performed</TT
+>.  If it is
+                        not, some external actor must be playing with the
+                        encapsulated fit.  Something that should not be done.
+                    </P
+><P
+>&#13;                        This method delegates to the underlying fit.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double               </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>x</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Delegates to the underlying fit's <CODE
+CLASS="methodname"
+>operator()</CODE
+>
+                        which evaluates the fitted function at <CODE
+CLASS="parameter"
+>x</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::FitParameterListx </span
+>CFit::FitParameterList();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Delegates to <CODE
+CLASS="classname"
+>CFit::</CODE
+><CODE
+CLASS="methodname"
+>FitParameterList</CODE
+>.
+                        Returns the fit parameters from the current fit.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string          </span
+>fitType();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        in the underlying fit.
+                        Delegates to <CODE
+CLASS="classname"
+>CFit::</CODE
+><CODE
+CLASS="methodname"
+>Type</CODE
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+>makeTclFitScript();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Delegates to the underlying fit's
+                        <CODE
+CLASS="methodname"
+>makeTclFitScript</CODE
+> method
+                        to get a proc that can be used by scripts to operate on
+                        the fit.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string          </span
+>fitName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Name of the underlying fit.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit* </span
+>clone();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a dynamically allocated clone of this object.
+                        Note that the fit is cloned as well.  Objects with cloned
+                        fits will destroy the fit when they themselves are
+                        destroyed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void                 </span
+>update();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Fetches the new points from the fit's ROI and performs
+                        the fit using them.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>int                  </span
+>low();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>int                  </span
+>high();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Return the limits of the ROI over hich the fit
+                        is computed.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r17340.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r17691.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Predefined CFit classes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CFitFactory</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

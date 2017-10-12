@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLFileHandler</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLChannel"
+HREF="r6821.html"><LINK
+REL="NEXT"
+TITLE="CTCLIdleProcess"
+HREF="r7077.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r6821.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7077.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLFileHandler"
+></A
+>CTCLFileHandler</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN6995"
+></A
+><H2
+>Name</H2
+>CTCLFileHandler&nbsp;--&nbsp;
+            Base class for building object oriented Tcl File event handlers.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN6998"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLFileHandler.h&#62;
+...
+
+class CTCLFileHandler  : public CTCLInterpreterObject
+{
+  CTCLFileHandler(CTCLInterpreter* pInterp,
+                   UInt_t am_nFid = STDIN_FILENO);
+  CTCLFileHandler(CTCLInterpreter* pInterp,
+                  FILE* pFile);
+  CTCLFileHandler (const CTCLFileHandler&#38; aCTCLFileHandler );
+  ~CTCLFileHandler ( );
+  CTCLFileHandler&#38; operator= (const CTCLFileHandler&#38; aCTCLFileHandler);
+  int operator== (const CTCLFileHandler&#38; aCTCLFileHandler) const;
+
+  UInt_t getFid() const;
+
+  virtual   void operator() (int mask)   = 0;
+
+  void Set (int mask)  ;
+  void Clear ()  ;
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7000"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Tcl supplies an event loop.  It is possible to add events specifications
+            to this loop.  One very useful event type is based on readability or writability
+            of a file descriptor.   The <CODE
+CLASS="classname"
+>CTCLFileHandler</CODE
+> allows you
+            to create an object oriented file handler, and register it with the event
+            loop so that you can gain control when, for example, a file becomes readable.
+        </P
+><P
+>&#13;            As <CODE
+CLASS="classname"
+>CTCLFileHandler</CODE
+> is an abstract base class,
+            it is necessary to create a derived class.  The derived class should
+            implement the <CODE
+CLASS="function"
+>operator()</CODE
+> which will be called
+            when the specific event is fired.  An instance of this derived class should
+            be created, and then the <CODE
+CLASS="function"
+>Set</CODE
+> and <CODE
+CLASS="function"
+>Clear</CODE
+>
+            members used to establish and remove the event handler.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7009"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLFileHandler</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+                   <SPAN
+CLASS="type"
+>UInt_t</SPAN
+> <CODE
+CLASS="parameter"
+>nFid</CODE
+> = <TT
+CLASS="literal"
+>STDIN_FILENO</TT
+>);
+  <CODE
+CLASS="function"
+>CTCLFileHandler</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+                  <SPAN
+CLASS="type"
+>FILE</SPAN
+>* <CODE
+CLASS="parameter"
+>pFile</CODE
+>);
+  <CODE
+CLASS="function"
+>CTCLFileHandler</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLFileHandler</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLFileHandler</CODE
+> );
+        </PRE
+>
+        </P
+><P
+>&#13;            Constructs a file handler object.  <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is a
+            pointer to the interpreter on which the file handler will be registered.
+            The file can be specified either by <CODE
+CLASS="parameter"
+>nFid</CODE
+>, a file
+            descriptor, or <CODE
+CLASS="parameter"
+>pFile</CODE
+> an stdio File stream pointer.
+        </P
+><P
+>&#13;            A copy constructor allows the creation of a copy of the file handler object
+            given <CODE
+CLASS="parameter"
+>aCTCLFileHandler</CODE
+> an existing one.  This is normally
+            not useful.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLFileHandler</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLFileHandler</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLFileHandler</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLFileHandler</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLFileHandler</CODE
+>) const;
+            </PRE
+>
+        </P
+><P
+>&#13;            These functions support assignment and equality comparison.  Note that these functions
+            are usually not very useful for file handlers.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>UInt_t</SPAN
+> <CODE
+CLASS="function"
+>getFid()</CODE
+> const;
+        </PRE
+>
+        </P
+><P
+>&#13;            Returns the file id that is associated with the event.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  virtual   <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>operator</CODE
+>() (<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>mask</CODE
+>)   = 0;
+            </PRE
+>
+        </P
+><P
+>&#13;            The user's derived class must override this to provide the desired
+            funtionality when event fires.  <CODE
+CLASS="parameter"
+>mask</CODE
+>
+            indicates which event fired the function and can be an or of the following:
+            <TT
+CLASS="literal"
+>TCL_READABLE</TT
+> if the file can be read without blocking,
+            <TT
+CLASS="literal"
+>TCL_WRITABLE</TT
+> if the file can be written without blocking,
+            or <TT
+CLASS="literal"
+>TCL_EXCEPTION</TT
+> if some exceptional condition occured on the
+            file.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Set</CODE
+> (<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>mask</CODE
+>)  ;
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Clear</CODE
+> ()  ;
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>Set</CODE
+> establishes the event handler for the set of conditions
+            described in <CODE
+CLASS="parameter"
+>mask</CODE
+>.  The valid bits for <CODE
+CLASS="parameter"
+>mask</CODE
+>,
+            are described in the documentation for the <CODE
+CLASS="parameter"
+>mask</CODE
+>
+            parameter to <CODE
+CLASS="function"
+>operator()</CODE
+>.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7074"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLObject(3),
+CTCLInterpreter(3)
+Tcl_CreateFileHandler(3tcl),
+Tcl_DeleteFileHandler(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r6821.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7077.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLChannel</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLIdleProcess</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

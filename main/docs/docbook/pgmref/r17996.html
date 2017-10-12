@@ -1,0 +1,1026 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CFitDictionary</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFitFactory"
+HREF="r17691.html"><LINK
+REL="NEXT"
+TITLE="CEventSink"
+HREF="r18268.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r17691.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18268.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN17996"
+></A
+>CFitDictionary</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18000"
+></A
+><H2
+>Name</H2
+>CFitDictionary&nbsp;--&nbsp;Fitting subsystem dictionary.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18003"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFitDictionary.h&#62;
+
+class CFitDictionary {
+
+public:
+  typedef std::map&#60;std::string, CSpectrumFit*&#62; FitMap;
+  typedef FitMap::iterator      iterator;
+
+  class CObserver {
+  public:
+    virtual void Add(CSpectrumFit&#38; fit) =0;
+    virtual void Delete(CSpectrumFit&#38; fit) = 0;
+    virtual void Update(CSpectrumFit&#38; fit) = 0;
+
+  };
+
+public:
+  static CFitDictionary&#38; getInstance();
+  void add(CSpectrumFit&#38; fit);
+  void addOrReplace(CSpectrumFit&#38; fit);
+  void Delete(std::string name);
+
+  iterator begin();
+  iterator end();
+  size_t   size();
+  iterator find(std::string name);
+  void     erase(iterator here);
+  void     erase(iterator first, iterator last);
+
+  void updateFits(std::string name=std::string("*")); 
+
+  void addObserver(CObserver&#38; obs);
+  void removeObserver(CObserver&#38; obs);
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18005"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> defines a singleton
+            class.  The provides a dictionary of fits derived from
+            <CODE
+CLASS="classname"
+>CSpectrumFit</CODE
+> and is the dictionary SpecTcl
+            uses to store its fits.  In addition to supporting addition
+            and removal operations, the iterator, oberver and search operations
+            are supported.  It is also possible to request the dictionary
+            update fits that match some pattern.
+        </P
+><P
+>&#13;            Note that the SpecTcl <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> class
+            establishes an observer so that it can ensure that Xamine
+            can display any fits that have been defined on displayed spectra.
+            Note that the Spectra displayer does not yet support the display
+            of fit lines.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18012"
+></A
+><H2
+>&#13;            METHODS
+        </H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFitDictionary&#38;  </span
+>getInstance();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Gets a  pointer to the singleton instance of the
+                        fit dictionary.  This singleton uses lazy creation in
+                        that the first invocation of <CODE
+CLASS="methodname"
+>getInstance</CODE
+>
+                        is what actually creates the fit dictionary singleton
+                        instance.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>add(<span
+class="methodparam"
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new fit to the dictionary.  The fit must live for
+                        the life of its existence in the dictionary as it's not
+                        cloned.  The name of the fit is taken from the fit itself.
+                    </P
+><P
+>&#13;                        If a fit by this name already exists, an exception is
+                        thrown.  If the fit is successfully added, all observers
+                        are informed of this via their <CODE
+CLASS="methodname"
+>Add</CODE
+>
+                        method.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addOrReplace(<span
+class="methodparam"
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds the fit <CODE
+CLASS="parameter"
+>fit</CODE
+> to the fit dictionary.
+                        The name assigned to the fit comes from the fit itself.
+                        If the fit already exists, the previous fit is replaced
+                        in the dictionary wih <CODE
+CLASS="parameter"
+>fit</CODE
+>.
+                    </P
+><P
+>&#13;                        This is treated as an addition and therefore the
+                        observers are notified via their <CODE
+CLASS="methodname"
+>Add</CODE
+>
+                        methods.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Delete(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the fit named <CODE
+CLASS="parameter"
+>name</CODE
+> from
+                        the dictinoary  It's still up to the clients of the
+                        dictionary to manage the storage for this fit.
+                        If fits are dynamically allocated, removal/deletion should
+                        take the form of using <CODE
+CLASS="methodname"
+>find</CODE
+>
+                        to get a pointer to the fit, deleting the fit from
+                        the dictionary (either with <CODE
+CLASS="methodname"
+>erase</CODE
+>
+                        or <CODE
+CLASS="methodname"
+>Delete</CODE
+>), and then
+                        using <FONT
+COLOR="RED"
+>delete</FONT
+> to delete the actual fit
+                        object.
+                    </P
+><P
+>&#13;                        If there is no fit named <CODE
+CLASS="parameter"
+>name</CODE
+> in
+                        the dictionary, 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+>begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+>end();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>size_t </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods implement an interation interface
+                        for the fits.  The iterators return pointer like
+                        objects to objects of the type:
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std:;string, CSpectrumFit&#62;</CODE
+>
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>begin</CODE
+> returns an interator that
+                        points to the first item in the fit dictionary container.
+                        Incrementing this object steps sequentially through the
+                        container until the object is equal to the value
+                        returned by <CODE
+CLASS="methodname"
+>end</CODE
+>.  At that point
+                        the iteration over the container is complete.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>size</CODE
+> returns the number of
+                        objects in the container.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+>find(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the item in the gate dictionary
+                        container that has a name; <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                        If there is no matching item in the gate dictionary
+                        container, an iterator that is equal to the one
+                        returned by <CODE
+CLASS="methodname"
+>end</CODE
+> is returned.
+                        See <CODE
+CLASS="methodname"
+>begin</CODE
+> above for a description
+                        of the iterator object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void      </span
+>erase(<span
+class="methodparam"
+><span
+class="type"
+>iterator  </span
+><span
+class="parameter"
+>here</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given an iterator into the gate container dictionary,
+                        removes that entry from the dictionary.  Note that the
+                        gate is not deleted.  If the gate was dynamically created
+                        the client must delete it.   Suppose we want to delete
+                        the gate named <TT
+CLASS="literal"
+>deleteme</TT
+> and free
+                        its storage.  This can be done as follows:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN18133"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;CFitDictionary* pDict = CFitDictionary::getInstance();
+CFitDictionary::iterator p = pDict-&#62;find("deleteme");
+if (p != pDict-&#62;end()) {
+    CSpectrumFit* pFit = p-&#62;second;
+    pDict-&#62;erase(p);
+    delete pFit;
+} else {
+   // Action to take when the fit does not exist.
+}
+                        </PRE
+><P
+></P
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>updateFits(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+><span
+class="initializer"
+> = std::string("*")</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Updates the fits that have names matching the
+                        glob pattern <CODE
+CLASS="parameter"
+>name</CODE
+>.  Note that this
+                        defaults to <TT
+CLASS="literal"
+>*</TT
+> which matches all fits.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addObserver(<span
+class="methodparam"
+><span
+class="type"
+>CObserver&#38;  </span
+><span
+class="parameter"
+>obs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds an observer to the dictionary.  The observer object
+                        methods will be invoked as a result of specific actions
+                        performed by the dictionary.  See
+                        <TT
+CLASS="literal"
+>Nested Types and Classes</TT
+> for
+                        a description of observers and their  methods.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeObserver(<span
+class="methodparam"
+><span
+class="type"
+>CObserver&#38;  </span
+><span
+class="parameter"
+>obs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the observer <CODE
+CLASS="parameter"
+>obs</CODE
+> from the
+                        dictionary.  Once done, <CODE
+CLASS="parameter"
+>obs</CODE
+> will
+                        no longer receive method calls from the dictionary.
+                        Removing the observer does not destroy it.  That is the
+                        responsibility of the dictionary client software.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18177"
+></A
+><H2
+>Nested Types and Classes</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> defines two types and a
+            an abstract base class. The types are used to support dictionary
+            iterastion and the class to support the observer pattern.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CSpectrumDictionary::FitMap</CODE
+> is the type of
+            the container used to store the fit dictionary. While this is
+            currently an <CODE
+CLASS="classname"
+>std::map</CODE
+>, the only thing you should
+            assume is that this object is an associative container of
+            <CODE
+CLASS="classname"
+>CSpectrumFit*</CODE
+> with keys that are
+            <CODE
+CLASS="classname"
+>std::string</CODE
+> objects.   The keys are the
+            name of the fit.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CSpectrumDictionary::iterator</CODE
+> is an interator
+            into the fit container.  As with all iterators for STL associative
+            containers it is a pointer-like object.  Dereferencing a
+            <CODE
+CLASS="classname"
+>::CSpectrumDictionary::iterator</CODE
+> provides
+            a reference to a <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CSpectrumFit*&#62;</CODE
+>.
+            This is also consistent with STL iterators into associative containers.
+        </P
+><P
+>&#13;            Incrementing an instance of <CODE
+CLASS="classname"
+>CSpectrumDictionary::iterator</CODE
+>
+            produces a pointer-like object that points to the "next" item in the
+            dictionary.  The special iterator value returned by
+            <CODE
+CLASS="methodname"
+>end</CODE
+> can be thought of as pointing just
+            off the end of the container.  <CODE
+CLASS="methodname"
+>begin</CODE
+>
+            can be thought of pointing at the first item in the container.
+        </P
+><P
+>&#13;            Therefore typical dictionary iteration follows the pattern below:
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN18195"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;CFitDictionary* pDict = CFitDictionary::getInstance();
+for (auto p = pDict-&#62;begin(); p != pDict-&#62;end(); p++) {
+    std::string fitname = p-&#62;first;
+    CSpectrumfit* pFit  = p-&#62;second;
+    
+    doSomethingWithTheFitAndOrName(fitname, pFit);
+}
+            </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            Note that this sort of iteration is also perfectly compatible
+            with standard library generic algorithms like
+            <CODE
+CLASS="function"
+>std::for_each</CODE
+>.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> supports the observer pattern.
+            The observer pattern (see <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>)
+            provides a mechanism that allows other objects to be informed
+            when important state changes occur in <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+>.
+            Observers are objects in an ordered list that are derived from the
+            abstract base class <CODE
+CLASS="classname"
+>CFitDictionary::CObserver</CODE
+>.
+            This abstract base class provides a set of method definitions that
+            define the set of events that will be observed.
+        </P
+><P
+>&#13;            The definition of the class is shown below (note this is defined
+            within the definition of <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+>):
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN18206"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;class CObserver {
+public:
+  virtual void Add(CSpectrumFit&#38; fit) =0;
+  virtual void Delete(CSpectrumFit&#38; fit) = 0;
+  virtual void Update(CSpectrumFit&#38; fit) = 0;
+
+};            
+                
+            </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            You can observe the <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> by
+        </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>&#13;                    Deriving a class from <CODE
+CLASS="classname"
+>CFitDictionary::CObserver</CODE
+>
+                </P
+></LI
+><LI
+><P
+>&#13;                    Creating an instance of that class that lives for as long
+                    as you want the observation to continue.
+                </P
+></LI
+><LI
+><P
+>&#13;                    Using <CODE
+CLASS="methodname"
+>addObserver</CODE
+> to add that object
+                    to the ordered list of observers.
+                </P
+></LI
+><LI
+><P
+>&#13;                    If the observer is ever no longer needed, use
+                    <CODE
+CLASS="methodname"
+>removeObserver</CODE
+> to remove it
+                    after which, if appropriate you should ensure
+                    the observer's destruction.
+                </P
+></LI
+></OL
+><P
+>&#13;            The methods you must implement in your observer are:
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void </span
+> Add(<span
+class="methodparam"
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is invoked when a fit as been successfully added
+                        to the dictionary.  <CODE
+CLASS="parameter"
+>fit</CODE
+> is a
+                        referenceto the fit just added.  Note that since
+                        <CODE
+CLASS="parameter"
+>fit</CODE
+> is a <CODE
+CLASS="classname"
+>NamedObject</CODE
+>;
+                        <CODE
+CLASS="methodname"
+>getName</CODE
+> can be used to get
+                        the fit's name if needed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>Delete(<span
+class="methodparam"
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is called when
+                        <CODE
+CLASS="parameter"
+>fit</CODE
+> is about to be erased
+                        from the fit dictionary.  When called, the fit is still
+                        in the dictionary.   Once all observers are run,
+                        the fit is erased from the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>Update(<span
+class="methodparam"
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is invoked when <CODE
+CLASS="parameter"
+>fit</CODE
+>
+                        has been updated.  By update we mean that
+                        <CODE
+CLASS="parameter"
+>fit</CODE
+> has been recomputed in light
+                        of the current spectrum data.  The observer is invoked
+                        <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>after</I
+></SPAN
+> the update.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r17691.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18268.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFitFactory</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CEventSink</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

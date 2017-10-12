@@ -1,0 +1,538 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLCommandPackage</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLCompatibiltyProcessor"
+HREF="r5835.html"><LINK
+REL="NEXT"
+TITLE="CTCLPackagedCommand"
+HREF="r6007.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r5835.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r6007.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLCommandPacakge"
+></A
+>CTCLCommandPackage</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5906"
+></A
+><H2
+>Name</H2
+>CTCLCommandPackage&nbsp;--&nbsp;
+            Group several related Tcl command extensions and common services they
+            may require together.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5909"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLCommandPackage.h&#62;
+...
+typedef std::list &#60;CTCLProcessor*&#62;   CommandList;
+typedef CommandList::iterator  CommandListIterator;
+
+class CTCLCommandPackage  : public CTCLInterpreterObject
+{
+
+public:
+  CTCLCommandPackage (CTCLInterpreter* pInterp,
+                      const std::string&#38; rSignon=std::string("Unnamed pkg"));
+  CTCLCommandPackage(CTCLInterpreter* pInterp,
+                     const char* pSignon = "Unnamed pkg");
+  virtual ~ CTCLCommandPackage ( );
+  CTCLCommandPackage (const CTCLCommandPackage&#38; aCTCLCommandPackage );
+  CTCLCommandPackage&#38; operator= (const CTCLCommandPackage&#38; aCTCLCommandPackage);
+  int operator== (const CTCLCommandPackage&#38; aCTCLCommandPackage);
+
+  std::string getSignon() const;
+  CommandList getCommandList() const;
+protected:
+  void setSignon (std::string am_sSignon);
+
+public:
+  void Register ()  ;
+  void Unregister ()  ;
+  void AddProcessor (CTCLProcessor* pProcessor);
+  void AddProcessors(CommandList&#38; rList);
+  CommandListIterator begin ();
+  CommandListIterator end ();
+};
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5911"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Extensions to Tcl often come in a set of related commands.  These commands
+            may require access to a common set of services.  The <CODE
+CLASS="classname"
+>CTCLCommandPackage</CODE
+>
+            along with the <CODE
+CLASS="classname"
+>CTCLPackagedCommand</CODE
+> provide a pair of base
+            classes that facilitate the construction of such commands.
+        </P
+><P
+>&#13;            The pattern to follow to derive class from <CODE
+CLASS="classname"
+>CTCLCommandPackage</CODE
+>
+            This class defines and implements common services for the related commands.
+            The constructor of the derived class will also create instances of
+            classes derived from <CODE
+CLASS="classname"
+>CTCLPackagedCommand</CODE
+>.  These objects
+            define and implement the related commands.  These command processors will be
+            added to the package via <CODE
+CLASS="function"
+>AddProcessor</CODE
+>, and
+            <CODE
+CLASS="function"
+>AddProcessors</CODE
+>.
+        </P
+><P
+>&#13;            When the <CODE
+CLASS="classname"
+>CTCLCommandPackage</CODE
+>::<CODE
+CLASS="function"
+>Register</CODE
+>
+            function is called, all of the commands added to the package will be
+            registered as well.  When a command processor is invoked, it can call its
+            <CODE
+CLASS="function"
+>getMyPackage</CODE
+> member function to obtain a pointer to the
+            owning package and therefore access to the services this package provides.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5925"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLCommandPackage</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+                      <SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rSignon</CODE
+>=<SPAN
+CLASS="type"
+>std::string</SPAN
+>(<TT
+CLASS="literal"
+>"Unnamed pkg"</TT
+>));
+  <CODE
+CLASS="function"
+>CTCLCommandPackage</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+                     <SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pSignon</CODE
+> = <TT
+CLASS="literal"
+>"Unnamed pkg"</TT
+>);
+  <CODE
+CLASS="function"
+>CTCLCommandPackage</CODE
+> (<SPAN
+CLASS="type"
+>const CTCLCommandPackage</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLCommandPackage</CODE
+> );
+        </PRE
+>
+        </P
+><P
+>&#13;            Constructs instances of the package.  <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is a pointer
+            to the interpreter object on which these commands will be registered.
+            <CODE
+CLASS="parameter"
+>signon</CODE
+> is a text string that will be emitted to
+            <TT
+CLASS="literal"
+>stderr</TT
+> when the package is asked to register its commands.
+            This string is typically a credit or copyright notice for the package.  It can
+            be empty if the user desires.
+        </P
+><P
+>&#13;            The first and second form of the constructor only differ in how the signon message
+            is passed.  The final form of the constructor is a copy constructor.  While
+            copy construction is legal it is anticipated that this will not normally be used
+            as command packages are usually <I
+CLASS="firstterm"
+>singleton</I
+> objects.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>getSignon</CODE
+>() const;
+        </PRE
+>
+        </P
+><P
+>&#13;            Retrieves the signon string from the current object.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CommandList</SPAN
+> <CODE
+CLASS="function"
+>getCommandList</CODE
+>() const;
+            </PRE
+>
+        </P
+><P
+>&#13;            Retrieves the list of commands that are managed by this package.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>setSignon</CODE
+> (<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="parameter"
+>am_sSignon</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Allows derived classes to set the signon string after construction is complete.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Register</CODE
+> ()  ;
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Unregister</CODE
+> ()  ;
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>Regsiter</CODE
+> registers all of the commands in the package
+            with the package's interpreter.  <CODE
+CLASS="function"
+>Unregister</CODE
+> unregisters
+            these commands.  It is therefore not advisable to change the set of commands in
+            the package between registration and unregistration.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AddProcessor</CODE
+>(<SPAN
+CLASS="type"
+>CTCLProcessor</SPAN
+>* <CODE
+CLASS="parameter"
+>pProcessor</CODE
+>);
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AddProcessors</CODE
+>(<SPAN
+CLASS="type"
+>CommandList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rList</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            These functions add command processors to the package.  Any type of processor
+            can be added to the package, however usually <CODE
+CLASS="classname"
+>CTCLPackagedCommand</CODE
+>
+            derived objects are in order to provide a mechanism to access the package services.
+            <CODE
+CLASS="parameter"
+>pProcessor</CODE
+> is a pointer to a single processor while
+            <CODE
+CLASS="parameter"
+>rList</CODE
+> is a reference to a list of such processors.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CommandListIterator</SPAN
+> <CODE
+CLASS="function"
+>begin</CODE
+> ();
+  <SPAN
+CLASS="type"
+>CommandListIterator</SPAN
+> <CODE
+CLASS="function"
+>end</CODE
+> ();
+        </PRE
+>
+        </P
+><P
+>&#13;            Returns STL list iterators to the beginning and off the end of the
+            set of command packages.
+            List iterators behave roughly like pointers.  In this case, pointers
+            to <CODE
+CLASS="classname"
+>CTCLProcessor*</CODE
+>.   Incrementing an interator
+            'points' it to the next item in the list.  A full discussion of STL iterators
+            is well beyond the scope of this man page.  See references below.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5999"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLProcessor(3), CTCLPackagedCommand(3)
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6002"
+></A
+><H2
+>References</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;Musser, Derge, Saini: <CODE
+CLASS="parameter"
+>STL Tutorial and Reference Guide</CODE
+>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+        </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r5835.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r6007.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLCompatibiltyProcessor</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLPackagedCommand</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

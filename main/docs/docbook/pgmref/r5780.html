@@ -1,0 +1,642 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLHashTable</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLApplication 3"
+HREF="r5733.html"><LINK
+REL="NEXT"
+TITLE="CTCLHashTableItem"
+HREF="r5911.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r5733.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r5911.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLHashTable"
+></A
+>CTCLHashTable</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5784"
+></A
+><H2
+>Name</H2
+>CTCLHashTable&nbsp;--&nbsp;
+            Object oriented interface to Tcl's hash table functions.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5787"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLHashTable.h&#62;
+
+template &#60;class T&#62;
+class CTCLHashTable
+{
+public:
+  CTCLHashTable () ;
+  CTCLHashTable (  Tcl_HashTable am_HashTable  );
+  CTCLHashTable (const CTCLHashTable&#38; aCTCLHashTable );
+  virtual ~CTCLHashTable ( );
+
+  CTCLHashTable operator= (const CTCLHashTable&#38; aCTCLHashTable);
+
+  int operator== (const CTCLHashTable&#38; aCTCLHashTable);
+
+  Tcl_HashTable* getHashTable() const;
+
+  void Enter (const std::string&#38; rKey, rCTCLTHashTableItem rValue);
+  const CTCLTHashTableItem* Find (const std::string&#38; rsKeyword) const;
+  CTCLTHashTableItem* Delete (const std::string&#38; rsKeyword);
+  CTCLTHashTableIterator begin ();
+  CTCLTHashTableIterator end ();
+  std::string Statistics ();
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5789"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Hash tables are tables of keyword value pairs that are organized
+            such that the lookup time for any key in the table is <I
+CLASS="firstterm"
+>amortized
+            constant</I
+>.  Hash tables operate by running the key through a
+            function called the <I
+CLASS="firstterm"
+>hash function</I
+>, and storing the
+            key/value pair as an element of an array indexed by the result of that hash
+            function (<I
+CLASS="firstterm"
+>hash index</I
+>).  Depending on the implementation of the hash table, different
+            methods are used to resolve cases where two keys result in the same
+            hash index.
+        </P
+><P
+>&#13;            Tcl includes support libraries for hash tables with string keys and
+            arbitrary value types (e.g. structures, pointers etc. etc.).  One example
+            of the use of this sort of data structure is Tcl's storage of array variables.
+            Each array is a hash table indexed by the hash index of the array subscripts.
+            In this way Tcl supports subscripts that are arbitrary strings without
+            any search overhead when referencing an element of the array.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> and related classes provide an object oriented
+            interface to the Tcl API for hash tables.  This class is a <I
+CLASS="firstterm"
+>template class</I
+>.
+            The template parameter is the type of data that will be associated with each
+            hash key.  For example, to create a has key of <CODE
+CLASS="classname"
+>CSpectrum*</CODE
+>
+            (pointers to SpecTcl Spectra):
+            <PRE
+CLASS="programlisting"
+>&#13;        CTCLHashTable&#60;CSpectrum*&#62; spectrumHashTable;
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5801"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLHashTable</CODE
+> () ;
+  <CODE
+CLASS="function"
+>CTCLHashTable</CODE
+> (  <SPAN
+CLASS="type"
+>Tcl_HashTable</SPAN
+> <CODE
+CLASS="parameter"
+>aHashTable</CODE
+>  );
+  <CODE
+CLASS="function"
+>CTCLHashTable</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLHashTable</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLHashTable</CODE
+> );
+        </PRE
+>
+        </P
+><P
+>&#13;            Three methods for creating <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> objects
+            are defined.   The first of these creates a new, empty hash table.
+            The second, takes the handle to an existing hash table;
+            <SPAN
+CLASS="type"
+>Tcl_HashTable</SPAN
+> <CODE
+CLASS="parameter"
+>aHashTable</CODE
+> and wraps
+            a <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> around this existing hash table
+            providing an object oriented interface to that hash table.
+            The final constructor, a copy constructor, creates a
+            <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> that refers to the same underlying
+            <SPAN
+CLASS="type"
+>Tcl_HashTable</SPAN
+> as the <CODE
+CLASS="parameter"
+>aCTCLHashTable</CODE
+> parameter.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLHashTable</SPAN
+> <CODE
+CLASS="function"
+>operator</CODE
+>= (const <SPAN
+CLASS="type"
+>CTCLHashTable</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLHashTable</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator=</CODE
+>  assigns <CODE
+CLASS="parameter"
+>rhs</CODE
+> to an existing
+            object.  The semantics of assignment are that
+            followingt assignment, <CODE
+CLASS="varname"
+>*this</CODE
+> and <CODE
+CLASS="parameter"
+>rhs</CODE
+>
+            will refer to the same underlying hash table.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator==</CODE
+> compares two hash tables, <CODE
+CLASS="varname"
+>*this</CODE
+>
+            and <CODE
+CLASS="parameter"
+>rhs</CODE
+> for equality.  The semantics of equality are
+            that the two <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> objects refer to the same
+            underlying Tcl hash tables.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>Tcl_HashTable</SPAN
+>* <CODE
+CLASS="function"
+>getHashTable</CODE
+>() const;
+        </PRE
+>
+        </P
+><P
+>&#13;            Gets the underlying <SPAN
+CLASS="type"
+>Tcl_HashTable</SPAN
+> that is wrapped by
+            a <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+> object.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Enter</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rKey</CODE
+>,
+            <SPAN
+CLASS="type"
+>CTCLTHashTableItem&#60;T&#62;</SPAN
+> <CODE
+CLASS="parameter"
+>rValue</CODE
+>);
+            </PRE
+>
+            </P
+><P
+>&#13;            Adds an entry to a hash table.  <CODE
+CLASS="parameter"
+>rKey</CODE
+> is the
+            lookup key that will be associated with the entry.  <CODE
+CLASS="parameter"
+>rValue</CODE
+>
+            is the data that is associated with that key.  Note that <SPAN
+CLASS="type"
+>T</SPAN
+>
+            is the template type that was used to create the hashtable.  E.g. if the
+            hash table is a <CODE
+CLASS="classname"
+>CTCLHashTable&#60;float&#62;</CODE
+>,
+            <CODE
+CLASS="parameter"
+>rValue</CODE
+> must be a <CODE
+CLASS="classname"
+>CTCLHashTableItem&#60;float&#62;</CODE
+>.
+            Note that Tcl hash tables do not support duplicate keys.  If a hash table
+            entry with the key <CODE
+CLASS="parameter"
+>rKey</CODE
+> already is in the table it is
+            replaced.
+            </P
+><P
+>&#13;                <PRE
+CLASS="programlisting"
+>&#13;  const <SPAN
+CLASS="type"
+>CTCLTHashTableItem</SPAN
+>* <CODE
+CLASS="function"
+>Find</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rsKeyword</CODE
+>) const;
+                </PRE
+>
+            </P
+><P
+>&#13;                Looks up a hash table item by key.  If a hash table item with
+                the key <CODE
+CLASS="parameter"
+>rsKeyword</CODE
+> exists, a pointer to its
+                entry is returned.   If <CODE
+CLASS="parameter"
+>rsKeyword</CODE
+> has not
+                yet been <CODE
+CLASS="function"
+>Enter</CODE
+>ed in the hash table, a
+                <TT
+CLASS="literal"
+>NULL</TT
+> pointer is returned.
+            </P
+><P
+>&#13;                <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLTHashTableItem</SPAN
+>* <CODE
+CLASS="function"
+>Delete</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rsKeyword</CODE
+>);
+                </PRE
+>
+            </P
+><P
+>&#13;                Removes the hash table entry with the key <CODE
+CLASS="parameter"
+>rsKeyword</CODE
+>.
+                If the item existed, a pointer to it is returned.  If the item does not
+                exist in the hash table a <TT
+CLASS="literal"
+>NULL</TT
+> pointer is returned.
+            </P
+><P
+>&#13;                <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLTHashTableIterator</SPAN
+> <CODE
+CLASS="function"
+>begin</CODE
+> ();
+  <SPAN
+CLASS="type"
+>CTCLTHashTableIterator</SPAN
+> <CODE
+CLASS="function"
+>end</CODE
+> ();
+                </PRE
+>
+            </P
+><P
+>&#13;                <CODE
+CLASS="function"
+>begin</CODE
+> returns an <I
+CLASS="firstterm"
+>iterator</I
+> that
+                "points" to the first entry in the hash table.  dereferencing the
+                iterator yields the pointer to a HashTableItem.  The iterator can be
+                incremented via ++ so that it advances to the next item in the table.
+            </P
+><P
+>&#13;                <CODE
+CLASS="function"
+>end</CODE
+>returns an iterator that points past the end of the
+                table and can be used to determine when iteration is complete.
+            </P
+><P
+>&#13;                Iterators are pointer like objects.  See the STL reference below for more
+                information about them.  The following example Takes a Hash table and
+                counts up the number of elements it contains.
+                <PRE
+CLASS="programlisting"
+>&#13;        CTCLHashTableIterator i = table.begin();    // Table a CTCLHashTable
+        int                   n = 0;
+        while (i != table.end()) {
+            n++;
+        }
+        // N is a count of elements in the table.
+
+            </PRE
+>
+            </P
+><P
+>&#13;                <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>Statistics</CODE
+> ();
+                </PRE
+>
+        </P
+><P
+>&#13;            Returns a string that contains statistics about the hash table.
+            This is a wrapper for <CODE
+CLASS="function"
+>Tcl_HashStats</CODE
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5902"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLHashTableItem(3),
+CTCLHashTableIterator(3),
+Tcl_HashStats(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5905"
+></A
+><H2
+>REFERENCES</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;Niklaus Wirth <CODE
+CLASS="parameter"
+>Algorithms + Data Structures = Programs</CODE
+>
+Prentice Hall Series in Automatic Computation 1976 See section 4.6
+
+Musser, Derge, Saini: <CODE
+CLASS="parameter"
+>STL Tutorial and Reference Guide</CODE
+>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+        </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r5733.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r5911.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLApplication 3</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLHashTableItem</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

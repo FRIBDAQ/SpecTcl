@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLApplication 3</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLVariable"
+HREF="r5537.html"><LINK
+REL="NEXT"
+TITLE="CTCLHashTable"
+HREF="r5780.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r5537.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r5780.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLApplication"
+></A
+>CTCLApplication 3</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5737"
+></A
+><H2
+>Name</H2
+>CTCLApplication&nbsp;--&nbsp;
+            Base class for TCL/Tk applications.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5740"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;tcl.h&#62;
+#include &#60;TCLApplication.h&#62;
+...
+class CTCLApplication  : public CTCLInterpreterObject
+{
+public:
+  CTCLApplication ();
+  ~CTCLApplication ( );
+  virtual   int operator() ()  =0;
+  void      getProgramArguments(int&#38;, char**&#38; argv);
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5742"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLApplication</CODE
+> is an abstract base class
+            that facilitates the creation of applications that extend the
+            Tcl interpreter.  The `main program' of SpecTcl is derived from
+            this class, for example.
+        </P
+><P
+>&#13;            Initializing a Tcl application generallly consists of a bunch
+            of boilerplate that initializes the interpreter, and then a bunch
+            of application specific code to register extensions to the interpreter.
+            <CODE
+CLASS="classname"
+>CTCLApplication</CODE
+>
+            provides the main boilerplate.  It is expected that you
+            derive a class from
+            <CODE
+CLASS="classname"
+>CTCLApplication</CODE
+>
+            Implement <CODE
+CLASS="function"
+>operator()</CODE
+> to register
+            application specific commands, and then create exactly one
+            instance of your application class named, and a global pointer
+            to that object named gpTCLApplication.
+        </P
+><P
+>&#13;            For example, suppose you have created a class named MyTclApp:
+            <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN5751"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;// This code is at the global level:
+...
+MyTclApp app;                              // Makes an instance of this
+CTCLApplication* gpTCLApplication = &#38;app;  // Pointer expected by framework.
+...
+            </PRE
+><P
+></P
+></DIV
+>
+            Will ensure that the <CODE
+CLASS="function"
+>operator()</CODE
+> of your
+            application object will be called with the interpreter already
+            initialized.
+        </P
+><P
+>&#13;            Note that if you use this class as shown above, to create an application,
+            you must not define <CODE
+CLASS="function"
+>main</CODE
+>.  A
+            <CODE
+CLASS="function"
+>main</CODE
+> is defined in the tcl++ library and
+            it must be used to initialize the interpreter and, eventually
+            hand off control to your application's
+            <CODE
+CLASS="methodname"
+>operator()</CODE
+>.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5758"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator()</CODE
+>()
+        </P
+><P
+>&#13;            This function is pure virtual and must be overridden by your
+            derived class.  <CODE
+CLASS="function"
+>operator()</CODE
+> is expected to
+            install all required extensions to the interprter and return to it
+            to start the main event loop.  The return value from this should be
+            <TT
+CLASS="literal"
+>TCL_OK</TT
+> if the application was successfully initialized
+            or <TT
+CLASS="literal"
+>TCL_ERROR</TT
+> if the program encountered an error that
+            should prevent the interpreter main loop from starting
+        </P
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>void </span
+>getProgramArgs(<span
+class="methodparam"
+><span
+class="type"
+>int&#38; </span
+><span
+class="parameter"
+>argc</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>char**&#38; </span
+><span
+class="parameter"
+>argv</span
+></span
+>);&#13;</code
+><P
+>&#13;            Provides a mechanism for the concrete class to get the program
+            arguments. This allows the program arguments to be parsed for
+            application specific switches and arguments.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5777"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;        CTCLInterpreter, CTCLInterpreterObject, CTCLObjectProcessor, CTCLVariable
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r5537.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r5780.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLVariable</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLHashTable</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

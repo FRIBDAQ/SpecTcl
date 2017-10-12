@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CGatedEventFilter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CEventFilter"
+HREF="r18330.html"><LINK
+REL="NEXT"
+TITLE="CFilterOutputStage"
+HREF="r18732.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18330.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18732.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18626"
+></A
+>CGatedEventFilter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18630"
+></A
+><H2
+>Name</H2
+>CGatedEventFilter&nbsp;--&nbsp;Filter with output conditionalized on a gate check.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18633"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;GatedEventFilter.h&#62;
+
+class CGatedEventFilter : public CEventFilter {
+ public:
+   CGatedEventFilter(CGateContainer*  pGate=(CGateContainer*)kpNULL);
+   CGatedEventFilter(std::string&#38;,
+       CGateContainer*  pGate=(CGateContainer*)kpNULL);
+       
+   CGateContainer* getGateContainer();
+
+   void setGateContainer(CGateContainer&#38; container);
+   std::string getGateName();
+   Int_t getGateID();
+protected:
+   Bool_t CheckCondition(CEvent&#38; event);
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18635"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The concrete filter class provided by SpecTcl is
+            <CODE
+CLASS="classname"
+>CGatedEventFilter</CODE
+>.   This class contains
+            a gate container and an implementation of
+            <CODE
+CLASS="methodname"
+>CheckCondition</CODE
+> that returns the
+            evaluation of the gate represented by that container on the
+            event.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18640"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGatedEventFilter(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+> pGate</span
+><span
+class="initializer"
+> = (CGateContainer*)kpNULL</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs a filter given the gate container
+                        <CODE
+CLASS="parameter"
+>pGate</CODE
+>.  The filter is
+                        constructed without an output file spefication or, for
+                        that matter, an output streamer.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>pGate</CODE
+> can be omitted in which case,
+                        the filter will not output any events, if enabled.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGatedEventFilter(<span
+class="methodparam"
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>outputFile</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGateContainer*   </span
+><span
+class="parameter"
+>pGate</span
+><span
+class="initializer"
+> = =(CGateContainer*)kpNULL</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This constructor supplies <CODE
+CLASS="parameter"
+>outputFile</CODE
+>
+                        as the file associated with the filter.  Note, however,
+                        no output streamer has been defined.  The <CODE
+CLASS="parameter"
+>pGate</CODE
+>
+                        parameter, as before, is the pointer to the gate container
+                        whose gate must be satisfied for events to be written
+                        to the output.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+>getGateContainer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the gate container pointer.  Note that this
+                        can be <TT
+CLASS="literal"
+>nullptr</TT
+> if, for example,
+                        the constructor defaulted the gate container parameter
+                        and <CODE
+CLASS="methodname"
+>setGateContainer</CODE
+> was
+                        never called.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setGateContainer(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>container</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets a new gate for the filter to be the one
+                        encapsulated by <CODE
+CLASS="parameter"
+>container.</CODE
+>.
+                        The old gate is unmodified.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getGateName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the name of the current gate container.
+                        If no gate container has been set, the method returns:
+                        <TT
+CLASS="literal"
+>&#13;                            -not yet defined-
+                        </TT
+>
+                        .
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+>getGateID();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the id of the current gate container.  If
+                        none have been established, returns
+                        <TT
+CLASS="literal"
+>-1</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>proteced virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>CheckCondition(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>event</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the value of the gate container evaluated on the
+                        event <CODE
+CLASS="parameter"
+>event</CODE
+>.  If no gate container
+                        is associated with the filter; <TT
+CLASS="literal"
+>false</TT
+>
+                        is returned.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18330.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18732.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CEventFilter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CFilterOutputStage</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

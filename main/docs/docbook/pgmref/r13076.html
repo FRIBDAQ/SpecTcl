@@ -1,0 +1,1325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CSpectrum</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CEvent"
+HREF="r12906.html"><LINK
+REL="NEXT"
+TITLE="Stuff to do"
+HREF="c13437.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12906.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c13437.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN13076"
+></A
+>CSpectrum</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN13080"
+></A
+><H2
+>Name</H2
+>CSpectrum&nbsp;--&nbsp;Spectrum base class.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN13083"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Spectrum.h&#62;
+
+class CSpectrum  : public CNamedItem        
+{
+public:
+  typedef std::vector&#60;CAxis&#62;  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct SpectrumDefinition;
+
+
+  CSpectrum (const std::string&#38; rName,  UInt_t nId,
+	     Axes  Maps,
+	     CGateContainer* pGate = pDefaultGate);
+  CSpectrum(const std::string&#38; rName, UInt_t nId,
+	    CGateContainer*  pGate = pDefaultGate); 
+
+  const Address_t getStorage() const;
+  Bool_t getOwnStorage() const;
+  const CGateContainer* getGate() const;
+  Axes getAxisMaps() const;
+  Int_t getAxisMapCount() const;
+  std::string getTextDescription() const;
+  virtual SpectrumType_t getSpectrumType() = 0;
+  
+protected:                   
+  void setStorage (Address_t am_pStorage);
+  void setOwnStorage (Bool_t am_fOwnStorage);
+  void setStorageType(DataType_t dt) ;
+  void AddAxis(UInt_t nChannels, Float_t fLow,
+	       Float_t fHigh, const std::string&#38; Units = std::string(""));
+  bool checkRange(int channel, int nChans, int axis);
+  
+public:
+  void setTextDescription(std::string d);
+  void operator() (const CEvent&#38; rEvent);
+  CGateContainer* ApplyGate(CGateContainer* pNewGate);
+  CGateContainer* Ungate();	
+  Bool_t UsesParameter (const CParameter&#38; rParameter)
+  DataType_t StorageType () const ;
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+    
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector&#60;unsigned&#62; getUnderflows() const;
+  std::vector&#60;unsigned&#62; getOverflows() const;
+
+  virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
+  virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
+  virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
+  virtual   void GetParameterIds(std::vector&#60;UInt_t&#62;&#38; rvIds) = 0;
+  virtual   void GetResolutions(std::vector&#60;UInt_t&#62;&#38;  rvResolutions) = 0;
+  virtual   void Increment(const CEvent&#38; rEvent) = 0;
+
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
+
+  virtual   void Copy(void* pStorage) const;
+  virtual   void Clear ()  ;
+  virtual   Size_t StorageNeeded () const;
+  virtual   void ReplaceStorage (Address_t pNewLoc, 
+				 Bool_t fTransferOwnership=kfTRUE)  ;
+  virtual   Bool_t CheckGate(const CEvent&#38; rEvent);
+  virtual   SpectrumDefinition&#38; GetDefinition() ;
+  virtual   Bool_t needParameter() const;
+
+
+protected:
+  void ReleaseStorage();
+};            
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN13085"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            SpecTcl defines a very rich set of spectrum types. The
+            <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> class is an abstract base
+            class for all of SpecTcl's spectrum types.  This manpage will
+            describe this base class and its methods.  Because of the
+            wide variety of spectra and their semantics, manpages
+            are provided for each spectrum type family. 
+        </P
+><P
+>&#13;            Note that these classes were not designed to be decoupled
+            from SpecTcl.  While this decreases their generality, it improves
+            their integration and efficiency within the SpecTcl framework.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN13090"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+>const std:: </span
+><span
+class="type"
+>string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+> UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Axes   </span
+><span
+class="parameter"
+>Maps</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+>pGate </span
+><span
+class="initializer"
+> = pDefaultGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Base class construction provides the
+                        <CODE
+CLASS="parameter"
+>rName</CODE
+> as the
+                        spectrum name and <CODE
+CLASS="parameter"
+>nId</CODE
+>
+                        as the spectrum id.  Parameter/axis conversion
+                        specification are provided
+                        via the vector <CODE
+CLASS="parameter"
+>Maps</CODE
+>.
+                        <CODE
+CLASS="parameter"
+>pGate</CODE
+> is the gate conainer
+                        of the spectrum's initial gate.
+                    </P
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>pGate</CODE
+> is not defined, it
+                        defaults to the <CODE
+CLASS="varname"
+>pDefaultGate</CODE
+> which
+                        encapsulates a <TT
+CLASS="literal"
+>true</TT
+> gate so the
+                        spectrum is always incremented if its parameters
+                        are
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+> pGate</span
+><span
+class="initializer"
+> =  pDefaultGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This constructor does not allow you to pass
+                        axis conversion lists.  Derived classes that use
+                        this construtor are expected to make one or more calls to
+                        <CODE
+CLASS="methodname"
+>AddAxis</CODE
+> (protected method)
+                        to define parameter/axis conversions.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Address_t  </span
+>getStorage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Each spectrum has storage associated with it in which
+                        the bulk data (channel values) are kept.  This method
+                        returns a pointer to that storage.  
+                    </P
+><P
+>&#13;                        Note that SpecTcl
+                        may choose to relocate the storage associated with a
+                        spectrum.    For eample, the <B
+CLASS="command"
+>sbind</B
+>
+                        command will relocate affected spectrum storage into
+                        a shared memory region whie <B
+CLASS="command"
+>unbind</B
+>
+                        may do the opposite.
+                    </P
+><P
+>&#13;                        Given the potential that two calls to
+                        <CODE
+CLASS="methodname"
+>getStorage</CODE
+> at different times
+                        my return different pointers, it is recommended that,
+                        at most, this pointer only be block scoped.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Bool_t  </span
+>getOwnStorage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Spectrum storage may have been dynamically allocated
+                        by the spectrum object, or may belong to some other
+                        object.  This method returns
+                        <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the spectrum storage
+                        has been allocated by this object.
+                    </P
+><P
+>&#13;                        One case when this may return <TT
+CLASS="literal"
+>kfFALSE</TT
+>
+                        is a spectrum that has been bound into displayer shared
+                        memory when the storage is owned by the object that
+                        manages the shared memory region.
+                    </P
+><P
+>&#13;                        Storage that is owned by this object may be
+                        <TT
+CLASS="literal"
+>delete</TT
+>d if appropriate.  Storage
+                        not owned is released to the custody/management of
+                        the owner (e.g. for Display shared memory the space
+                        is released for re-use by other spectra).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CGateContainer*  </span
+>getGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Every spectrum has a gate applied to it.
+                        Spectra can only be incremented if their gate is
+                        satisfied by the event.  Initially spectra are
+                        created with a <I
+CLASS="firstterm"
+>true gate</I
+> applied.
+                        This type of gate is always satisfied.
+                    </P
+><P
+>&#13;                        This method returns the gate container associated with
+                        the named gate that as been applied to the spectrum.
+                        Gate containers are object that hold the name of a gate
+                        but act as a replaceable pointer to the underlying
+                        gate itself.  By passing out gate containers, the
+                        underlying gate can be modified and taht modification
+                        is transparent to the spectrum.
+                    </P
+><P
+>&#13;                        The documentation of the gate class hierarchy and
+                        gate container provides more information about the
+                        return value from this method.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Axes  </span
+>getAxisMaps();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a vector of the axis mapping objects used by
+                        this spectrum.  The number and type of these depends
+                        on the spectrum type, however on the whole for
+                        1-d like spectra element 0 describes how to map
+                        x axis parameter values into channels and back while
+                        for 2-d like spectra an additional element 1 describes
+                        a similar mapping for the y axis and its parameters.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Int_t  </span
+>getAxisMapCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the numger of axis maps that e.g.
+                        <CODE
+CLASS="methodname"
+>getAxisMaps</CODE
+> would return
+                        for this spectrum.  For the current set of spectrum
+                        types this will be <TT
+CLASS="literal"
+>1</TT
+> or
+                        <TT
+CLASS="literal"
+>2</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>getTextDescription();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is an optimization that caters to large
+                        analysis cases.  Perfomance analysis showed that the
+                        <B
+CLASS="command"
+>spectrum -list</B
+> command required
+                        a significant amount of time to build spectrum
+                        descriptions for analysis cases with large (1000's)
+                        numbers of spectra.
+                    </P
+><P
+>&#13;                        The <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> class therefore
+                        has an attribute in to which the
+                        spectrum description string can be written when the
+                        spectrum is created (e.g. by
+                        <B
+CLASS="command"
+>spectrum -new</B
+>).  This
+                        method returns the value stored in that attribute.
+                    </P
+><P
+>&#13;                        Note that an empty string means that no description
+                        has been stored.  This is possible when the spectrum
+                        is created programmtically in C++.  In that case,
+                        <B
+CLASS="command"
+>spectrum -list</B
+> will transparently
+                        generate the description string and store it in the
+                        spectrum so that it's available next time it's needed.
+                    </P
+><P
+>&#13;                        See the documentation of the
+                        <CODE
+CLASS="classname"
+>CSpectrumPackage</CODE
+> in case your
+                        code needs to do generate a spectrum description.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>SpectrumType_t  </span
+>getSpectrumType();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the spectrum type.  Spectrum types are defined in
+                        the header <TT
+CLASS="filename"
+>histotypes.h</TT
+>.
+                        The values should be reasonably self explanatory. If not,
+                        see the manpage on <TT
+CLASS="filename"
+>histotypes.h</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected: </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setStorage(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>am_pStorage</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a new storage location for spectrum storage;
+                        <CODE
+CLASS="parameter"
+>am_pStorage</CODE
+>.
+                          This method
+                        only sets the attribute that points to the
+                        spectrum channel storage.  It does not release any
+                        prior storage, nor does it copy channel data
+                        from the prior spectrum storage to the new
+                        storage.
+                    </P
+><P
+>&#13;                        Note that <CODE
+CLASS="methodname"
+>ReplaceStorage</CODE
+>
+                        is a better choice in most cases.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected: </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setOwnStorage (<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+><span
+class="parameter"
+>am_fOwnStorage</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the own storage attribute flag.  If this is true,
+                        methods like <CODE
+CLASS="methodname"
+>ReplaceStorage</CODE
+>
+                        will destroy old spectrum storage when new storage
+                        is supplied.  For example one, silly, way to replace
+                        spectrum storage might be:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;int BigPotOfStorage[10*1024*1024];          // 10Mega ints.
+...
+{
+    // pSpectrum is a CSpectrum object pointer.
+....
+
+   pSpectrum-&#62;ReplaceStorage(BigPotOfStorage);
+   pSpectrum-&#62;setOwnStorage(kfFalse);    // spectrum won't delete this.
+....
+}
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected: </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setStorageType(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DataType_t  </span
+><span
+class="parameter"
+>dt</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the storage type for the spectrum.  This only needs
+                        to be set if the spectrum object is allowed to destroy
+                        the storage.  The storage type ensures the proper
+                        <TT
+CLASS="literal"
+>delete</TT
+> invocation is done.
+                        See
+                        <TT
+CLASS="filename"
+>histotypes.h</TT
+> for the various
+                        storage types.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected: </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddAxis(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>fLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>fHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>Units </span
+><span
+class="initializer"
+> = std::string("")</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is intended for use by derived class constructors
+                        that incrementally build up the axis transformation list
+                        they need.  A new axis transformation object is
+                        computed and added to the list of axis transformation
+                        objects.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nChannels</CODE
+> is the number of channels
+                        that are on the axis.  <CODE
+CLASS="parameter"
+>fLow</CODE
+> and
+                        <CODE
+CLASS="parameter"
+>fHigh</CODE
+> is the range of values
+                        that are to be binned in those channels.
+                        <CODE
+CLASS="parameter"
+>Units</CODE
+>, if provided are units
+                        of measure for that axis.  Note that the units of measure
+                        are made available to the displayer which can use them
+                        to label axes.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+>checkRange(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>channel</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>nChans</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>axis</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <CODE
+CLASS="parameter"
+>true</CODE
+> if the
+                        value of <CODE
+CLASS="parameter"
+>channel</CODE
+> is
+                        in the range <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>nChans</CODE
+>)</TT
+>.
+                        If not, <TT
+CLASS="literal"
+>false</TT
+> is returned and an
+                        overflow or underflow is logged from axis <CODE
+CLASS="parameter"
+>a</CODE
+>.
+                    </P
+><P
+>&#13;                        The <B
+CLASS="command"
+>specstats</B
+> command returns the
+                        underflow and overflow counters for spectra.
+                        The <B
+CLASS="command"
+>clear</B
+> command clears these
+                        counters for the affected spectra.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setTextDescription(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>d</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the cached spectrum descsription string to
+                        <CODE
+CLASS="parameter"
+>d</CODE
+>.  The
+                        <B
+CLASS="command"
+>spectrum -list</B
+> commmand will use
+                        this value for the spectrum description unless it is
+                        empty in which case a value is computed from
+                        the spectrum characteristics and 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator() (<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is the top level incrementer.  Checks the gate
+                        applied to the spectrum on thie
+                        <CODE
+CLASS="parameter"
+>rEvent</CODE
+> event and if it is satisfied,
+                        invokes <CODE
+CLASS="methodname"
+>Increment</CODE
+> passing
+                        <CODE
+CLASS="parameter"
+>rEvent</CODE
+>.
+                        This code is common for all histogram types, but the
+                        <CODE
+CLASS="methodname"
+>Increment</CODE
+> method depends on the
+                        sopectrum type and is, therefore virtual.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer* </span
+> ApplyGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+><span
+class="parameter"
+>pNewGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Applies the gate specified by <CODE
+CLASS="parameter"
+>pNewGate</CODE
+>
+                        to the spectrum.  The gate container of the previously
+                        applied gate is returned.  The returned value
+                        could be
+                        <TT
+CLASS="literal"
+>pDefaultGate</TT
+> which points to a
+                        gate container for a true gate and represents the
+                        initial true gate applied to all spectra when they
+                        are created.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+>Ungate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Ungates the spectrum.  This really applies the
+                        default gate (<TT
+CLASS="literal"
+>pDefaultGate</TT
+>) to the
+                        spectrum.   The return value is a pointer to the
+                        gate container of the previously applied gate
+                        (which may be <TT
+CLASS="literal"
+>pDefaultGate</TT
+>).
+                    </P
+><P
+>&#13;                        <TT
+CLASS="literal"
+>pDefaultGate</TT
+> points to a gate container
+                        for a container for a true gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>UsesParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CParameter&#38;  </span
+><span
+class="parameter"
+>rParameter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if
+                        <CODE
+CLASS="parameter"
+>rParameter</CODE
+> is used by the
+                        spectrum or <TT
+CLASS="literal"
+>kfFALSE</TT
+> if not.
+                        Note that this simply get the parameter id
+                        from <CODE
+CLASS="parameter"
+>rParameter</CODE
+> and
+                        invokes the virtual method
+                        <CODE
+CLASS="methodname"
+>UsesParameter</CODE
+> that is
+                        implemented by specific spectrum types.
+                    </P
+></DD
+><DT
+></DT
+><DD
+><P
+>&#13;  
+  
+  
+  DataType_t StorageType () const ;
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+    
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector&#60;unsigned&#62; getUnderflows() const;
+  std::vector&#60;unsigned&#62; getOverflows() const;
+
+  virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
+  virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
+  virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
+  virtual   void GetParameterIds(std::vector&#60;UInt_t&#62;&#38; rvIds) = 0;
+  virtual   void GetResolutions(std::vector&#60;UInt_t&#62;&#38;  rvResolutions) = 0;
+  virtual   void Increment(const CEvent&#38; rEvent) = 0;
+
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
+
+  virtual   void Copy(void* pStorage) const;
+  virtual   void Clear ()  ;
+  virtual   Size_t StorageNeeded () const;
+  virtual   void ReplaceStorage (Address_t pNewLoc, 
+				 Bool_t fTransferOwnership=kfTRUE)  ;
+  virtual   Bool_t CheckGate(const CEvent&#38; rEvent);
+  virtual   SpectrumDefinition&#38; GetDefinition() ;
+  virtual   Bool_t needParameter() const;
+
+
+protected:
+  void ReleaseStorage();
+</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN13430"
+></A
+><H2
+>&#13;            DATA TYPES
+        </H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+></DT
+><DD
+><P
+>&#13;  typedef std::vector&#60;CAxis&#62;  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct SpectrumDefinition;
+</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12906.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c13437.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CEvent</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Stuff to do</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

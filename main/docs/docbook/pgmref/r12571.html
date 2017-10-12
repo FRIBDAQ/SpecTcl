@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CNamedItem</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CRingFormatHelper"
+HREF="r12390.html"><LINK
+REL="NEXT"
+TITLE="CParameter"
+HREF="r12652.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12390.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12652.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12571"
+></A
+>CNamedItem</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12575"
+></A
+><H2
+>Name</H2
+>CNamedItem&nbsp;--&nbsp;Base class for items with names and ids.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12578"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;NamedItem.h&#62;
+
+class CNamedItem      
+{
+ public:
+  CNamedItem();
+  CNamedItem (  std::string am_sName,  UInt_t am_nNumber  );
+
+ public:
+  std::string getName() const;
+  UInt_t getNumber() const;
+  void ChangeName(const std::string&#38; rNewName);
+};
+
+class CMatchNamedItemId {
+ public:
+  CMatchNamedItemId(UInt_t id);
+  Bool_t operator()(CNamedItem&#38; item);
+};
+
+class CMatchNamedItem {
+ public:
+  CMatchNamedItem(const std::string&#38; rName);
+  Bool_t operator()(CNamedItem&#38; item)
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12580"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Several SpecTcl objects have names and identifying numbers.  The
+            <CODE
+CLASS="classname"
+>CNamedItem</CODE
+> class provides a convenient base
+            class for those classes.  In addition to the methods shown, named items
+            can be copy constructed, assigned and compared for equality.  Those
+            methods have standard signatures and, therefore, are not described.
+        </P
+><P
+>&#13;            Often bits of SpecTcl have to search for named items, either by id
+            or by name in C++ standard library container objects (typically
+            but not exclusively maps organized by object name).  The
+            <CODE
+CLASS="classname"
+>CMatchNamedItemId</CODE
+> and
+            <CODE
+CLASS="classname"
+>CMatchNamedItem</CODE
+> provide predicates for
+            C++ algorithms that require matching predicates. 
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CMatchNamedItemId</CODE
+> matches item(s) that
+            have the same id as the one it is constructed with, while
+            <CODE
+CLASS="classname"
+>CMatchNamedItem</CODE
+> matches those named
+            the same as the string it is constructed with.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12590"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            We're only going to document the <CODE
+CLASS="classname"
+>CNamedItem</CODE
+>
+            classes as the predicates are straightforward to use if you understand
+            how predicates are used in the C++ standard library algorithms.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CNamedItem();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Parameter-less constructor.   This creaets an object
+                        with a name that is an empty string and an id of
+                        <TT
+CLASS="literal"
+>0</TT
+>.  Typically this is used to create
+                        an object that will be used as the target of an assignment.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CNamedItem (<span
+class="methodparam"
+><span
+class="type"
+>std::string   </span
+><span
+class="parameter"
+>am_sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> UInt_t  </span
+><span
+class="parameter"
+>am_nNumber</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Fully parameterized constructor.  The object will have
+                        the name provided by <CODE
+CLASS="parameter"
+>am_sName</CODE
+> and
+                        the id provided by <CODE
+CLASS="parameter"
+>am_nNumber</CODE
+>.
+                    </P
+><P
+>&#13;                        Note that any attempt to maintain unique naming or id
+                        assignement is the responsibility of either the
+                        derived class (e.g. through a registry it maintain) or
+                        the code that manages the containers used to organize
+                        the derived objects.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>getName() ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the name associated with this object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> const </span
+><span
+class="type"
+>UInt_t  </span
+>getNumber();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the id (integer) associated with this object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ChangeName(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rNewName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        In some cases it's useful to change the name of a named item.
+                        This method provides that capability.
+                        The object's name is changed to <CODE
+CLASS="parameter"
+>rNewName</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12390.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12652.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CRingFormatHelper</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CParameter</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

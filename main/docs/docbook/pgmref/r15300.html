@@ -1,0 +1,4667 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CGate</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CAxis"
+HREF="r15188.html"><LINK
+REL="NEXT"
+TITLE="CGateContainer"
+HREF="r16884.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r15188.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r16884.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN15300"
+></A
+>CGate</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN15304"
+></A
+><H2
+>Name</H2
+>CGate&nbsp;--&nbsp;SpecTcl gate classes</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN15307"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Gate.h&#62;
+
+class CGate      
+{
+public:
+  CGate ();
+  Bool_t getChecked();
+  Bool_t getCachedValue();
+  void Set (Bool_t fValue);
+  void Reset ();
+  virtual void RecursiveReset(); 
+  Bool_t wasChecked ();
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CConstituentIterator Begin ()   = 0;
+  virtual   CConstituentIterator End ()   = 0;
+  virtual   UInt_t Size ()   = 0;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)   = 0;
+  virtual   CGate* clone ()   = 0;
+  virtual   std::string Type () const   = 0;
+  virtual   Bool_t inGate (CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params) = 0;
+  virtual   Bool_t inGate (CEvent&#38; rEvent) = 0;
+  virtual   Bool_t caches();
+};
+
+#include &#60;Cut.h&#62;
+
+class CCut  : public CGate        
+{
+  
+public:
+  CCut (  Float_t am_nLow,  Float_t am_nHigh,  UInt_t am_nId  ) ;
+  Float_t getLow() const;
+  Float_t getHigh() const;
+  UInt_t getId() const;
+  virtual std::vector&#60;std::string&#62; getSpecs() const;
+  virtual   Bool_t operator()(CEvent&#38; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate (CEvent&#38; rEvent);
+  virtual   Bool_t inGate (Float_t x);
+};
+
+
+#include &#60;FalseGate.h&#62;
+
+class CFalseGate {
+  CFalseGate ();
+                       
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type () const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+  virtual   Bool_t caches();
+};
+
+
+#include &#60;TrueGate.h&#62;
+class CTrueGate  : public CGate        
+{
+
+  CTrueGate () : CGate();
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+  virtual   Bool_t caches();
+};
+
+
+class CMaskGate  : public CGate        
+{  
+public:
+  CMaskGate (UInt_t mask);
+  long getCompare() const;
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   UInt_t Size ()  ;
+};
+
+class CMaskAndGate : public CMaskGate  
+{  
+public:
+
+  CMaskAndGate ( UInt_t am_nId, UInt_t  am_lCompare );
+  long getCompare() const;     
+  UInt_t getId() const;
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+};
+
+#include &#60;MaskEqualGate.h&#62;
+class CMaskEqualGate : public CMaskGate  
+{  
+public:
+  CMaskEqualGate ( UInt_t am_nId, UInt_t  am_lCompare ) ;
+ 
+ long getCompare() const;
+ UInt_t getId() const;
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+};
+
+#include &#60;MaskEqualGate.h&#62;
+
+class CMaskNotGate : public CMaskGate  
+{  
+public:
+
+  CMaskNotGate ( UInt_t am_nId, UInt_t  am_lCompare );
+  long getCompare() const;      
+  UInt_t getId() const;
+
+public:            
+  virtual   Bool_t operator() (CEvent&#38; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+
+};
+
+
+#include &#60;Point.h&#62;               // Defines FPoint used below.
+#include &#60;PointlistGate.h&#62;
+
+class CPointListGate  : public CGate        
+{ 
+public:
+ CPointListGate (UInt_t nXId, UInt_t nYId,
+		  const std::vector&#60;FPoint&#62;&#38; Points);
+  CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
+		 Float_t *xCoords, Float_t *yCoords);
+  CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
+		 FPoint* pPoints);
+
+  UInt_t getxId() const;
+  UInt_t getyId() const;
+  std::vector&#60;FPoint&#62; getPoints() const;
+
+  std::vector&#60;FPoint&#62;::iterator getBegin();
+  std::vector&#60;FPoint&#62;::iterator getEnd() ;
+
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)  ;
+  virtual  Bool_t inGate(CEvent&#38; rEvent);
+  virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
+
+};
+
+#include &#60;Band.h&#62;
+
+class CBand  : public CPointListGate        
+{
+public:
+			//Default constructor
+
+  CBand (UInt_t nXid, UInt_t nYid,
+	 const std::vector&#60;FPoint&#62;&#38; points);
+  CBand (UInt_t nXid, UInt_t nYid,
+	 UInt_t nPts, FPoint* pPoints);
+  CBand (UInt_t nXid, UInt_t nYid,
+	 UInt_t nPts, Float_t* pX, Float_t* pY);
+  virtual   Bool_t operator()(CEvent&#38; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+
+  virtual   Bool_t Inside(Float_t x, Float_t y) ;
+protected:
+  Bool_t Interior(Float_t x, Float_t y);
+
+};
+
+#include &#60;Contour.h&#62;
+
+
+class CContour  : public CPointListGate        
+{
+public:
+			//Default constructor
+
+  CContour (UInt_t nXId, UInt_t nYId, 
+	    const std::vector&#60;FPoint&#62;&#38; Points);
+  CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
+	    Float_t *xCoords, Float_t *yCoords);
+  CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
+	    FPoint* pPonts);
+
+	
+  FPoint getLowerLeft() const;
+  FPoint getUpperRight() const;
+  virtual   Bool_t operator()(CEvent&#38; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t Inside(Float_t x, Float_t y);
+
+
+};
+
+#include &#60;C2Bands&#62;
+
+class C2Bands  : public CContour        
+{                       
+public:
+
+
+  C2Bands (UInt_t nXId, UInt_t nYId,
+	   std::vector&#60;FPoint&#62;&#38; rLowBand, 
+	   std::vector&#60;FPoint&#62;&#38; rHiBand); 
+ virtual   std::string Type ()    ;
+
+};
+
+
+
+#include &#60;CompoundGate.h&#62;
+
+class CCompoundGate  : public CGate        
+{
+public:
+  CCompoundGate () {}
+  CCompoundGate(std::list&#60;CGateContainer*&#62; pGates);
+  CCompoundGate(std::vector&#60;CGateContainer*&#62; pGates);
+  CCompoundGate(UInt_t nGates, CGateContainer** ppGates);
+  std::list&#60;CGateContainer*&#62;&#38; GetConstituents();
+  virtual void RecursiveReset(); 
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rIterator)  ;
+  void      AddGateFront(CGateContainer&#38; rGate);
+  void      AddGateBack(CGateContainer&#38; rGate);
+  void      AddGate(CConstituentIterator&#38; rSpot, CGateContainer&#38; rGate);
+
+};
+
+#include &#60;AndGate.h&#62;
+
+class CAndGate  : public CCompoundGate        
+{  
+public
+  CAndGate () : CCompoundGate() ;
+  CAndGate(std::list&#60;CGateContainer*&#62;amp; rGates); 
+  CAndGate(std::vector&#60;CGateContainer*&#62;amp; rGates);
+  
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params );
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+
+};
+
+#include &#60;OrGate&#62;
+
+class COrGate  : public CCompoundGate        
+{
+  COrGate ();
+  COrGate(std::list&#60;CGateContainer*&#62;&#38; rGates);
+  COrGate(std::vector&#60;CGateContainer*&#62;&#38; rGates);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const; 
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+};
+
+
+#include &#60;Not.h&#62;
+
+class CNot : public CGate
+{
+  CNot (CGateContainer&#38; rGate);
+  const CGateContainer* getGate();
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&#38; rp)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&#38; rEvent, const std::vector&#60;UInt_t&#62;&#38; Params);
+  virtual   Bool_t inGate(CEvent&#38; rEvent);
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15316"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CGate</CODE
+> class provides base class services
+            and an API definition for SpecTcl's gate classes.  SpecTcl has
+            a rich set of gate types ranging from primitive gates to compound
+            gates.  A primitive gate is one that does not depend on other gates.
+            A compound gate is one that depends on one or more other gates.
+        </P
+><P
+>&#13;            As the same gate may be checked more than once per event, gates can
+            rememer if they've been checkedand, if they have been, the result of
+            the most recent check.
+            For most gates, therefore, the actual computation of the gate is
+            only done once per event with the cached value of that
+            check being used in subsequent attempts to evaluate the gate.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15321"
+></A
+><H2
+>CGate METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs the base class.  The gate is set with the
+                        cache invalid.  The state of the cached value is therefore
+                        meaningless.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Bool_t  </span
+>getChecked();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>wasChecked();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the gate has a valid cached value returns
+                        <TT
+CLASS="literal"
+>kfTRUE</TT
+>.  Otherwise returns
+                        <TT
+CLASS="literal"
+>kfFALSE</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Bool_t  </span
+>getCachedValue();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the gate has a cached value (<CODE
+CLASS="methodname"
+>getChecked</CODE
+>
+                        returns <TT
+CLASS="literal"
+>kfTRUE</TT
+>) returns the cached value
+                        for that gate.  <TT
+CLASS="literal"
+>kfTRUE</TT
+> means the
+                        gate was satisifed by its last check.
+                        <TT
+CLASS="literal"
+>kfFALSE</TT
+> means the gate was not
+                        satisfied.  If
+                        <CODE
+CLASS="methodname"
+>getChecked</CODE
+> returns
+                        <TT
+CLASS="literal"
+>kfFalse</TT
+>, the return value
+                        from this method has no meaning.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Set (<span
+class="methodparam"
+><span
+class="type"
+>Bool_t  </span
+><span
+class="parameter"
+>fValue</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the new value for the gate.   If called after
+                        this method call, <CODE
+CLASS="methodname"
+>getChecked</CODE
+>
+                        will return <TT
+CLASS="literal"
+>kfTRUE</TT
+> until the
+                        cache is reset via a call to <CODE
+CLASS="methodname"
+>Reset</CODE
+>
+                        is called on this gate or <CODE
+CLASS="methodname"
+>RecursiveReste</CODE
+>
+                        is called on this gate  or a gate that contains this gate
+                        either directly or indirectly.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Reset();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Resets the cache on this gate.  Any constituent gates
+                        will not be reset.  Therefore, it is preferable
+                        to call <CODE
+CLASS="methodname"
+>RecursiveReset</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>RecursiveReset();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Resets the cached status of this break.  For every
+                        constituent gate this method also does a recursive
+                        reset on it.  Thus this method is expected to
+                        Reset all the gates that contribute to this gate
+                        as well as this gate itself.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38; </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the gate has a valid cached value, that value is returned.
+                        If not, the gate is checked (normally using <CODE
+CLASS="methodname"
+>inGate</CODE
+>).
+                        The result is then cached and returned.
+                    </P
+><P
+>&#13;                        This might be implemented as:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;if (!wasChecked()) {
+    Set(inGate(rEvent));   // Sets the gate status and cachce.
+}
+return getCachedValue();
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>CConstituentIterator </span
+> Begin ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Compound gates are gates that depend on other
+                        gates.  You can think of them as a container for
+                        other gates (some may be compound as wel) and a
+                        logical relationship required among those gates.  For
+                        example, an <TT
+CLASS="literal"
+>And</TT
+> gate requires all
+                        constituent gates to be satisfied if it is to be
+                        satisifed for an event.
+                        The gates a compound gate depends on are called
+                        <I
+CLASS="firstterm"
+>constituents</I
+>.
+                    </P
+><P
+>&#13;                        If the gate has constituents, this method should return
+                        an iterator to the first item of the container of
+                        constituents  If the gate has no constitutents, the value
+                        returned by <CODE
+CLASS="methodname"
+>End</CODE
+> is returned.
+                    </P
+><P
+>&#13;                        This method is pure virtual to allow each
+                        gate type to use the container of constituents appropriate
+                        to it.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>CConstituentIterator  </span
+>End();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the end of iteration iterator for the
+                        consitutents of this gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent(<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38; </span
+><span
+class="parameter"
+> rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a stringified version of the gate 'pointed to'
+                        by the constituent iterator.  The form of this string
+                        may vary from gate type to gate type.  Therefore,
+                        this method will be documented completely for each
+                        concrete gate class so you know what to expect.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>CGate*  </span
+>clone();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a dynamically created gate that is
+                        identical in state to this gate.  Note that dynamically
+                        created means that when the client is done with this
+                        gate they must <TT
+CLASS="literal"
+>delete</TT
+> it.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> virtual    </span
+><span
+class="modifier"
+>const   = 0 </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a text string that identifies the gate type.
+                        This method will be documented for each concrete
+                        gate type.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+> Bool_t  </span
+>inGate (<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is used mostly by non gamma gates.  That
+                        is gates with only one set of possible parameters.
+                        It returns <TT
+CLASS="literal"
+>kfTrue</TT
+> if the event
+                        satisfies the gate and <TT
+CLASS="literal"
+>kfFalse</TT
+>
+                        if not. 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>Params</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is normally used by gamma gates.  If the parameter
+                        ids in <CODE
+CLASS="parameter"
+>Params</CODE
+> select a set of
+                        parameters in <CODE
+CLASS="parameter"
+>rEvent</CODE
+> that make
+                        this gate true, the method returns <TT
+CLASS="literal"
+>kfTrue</TT
+>
+                        otherwise <TT
+CLASS="literal"
+>kfFalse</TT
+>.
+                    </P
+><P
+>&#13;                        Gamma gates can be used as cuts by trying all legal
+                        combinations of parmeter ids in the
+                        <CODE
+CLASS="parameter"
+>Params</CODE
+> vector.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>caches();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfTrue</TT
+> if the gate caches.
+                        This can be used to restrict the set of gates that
+                        are reset to only those that have a cache.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15523"
+></A
+><H2
+>CCut Methods</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CCut</CODE
+> gates represent an interval in parameter
+            space for some parameter.  If an event has that parameter and that
+            parameter lies in that interval, the gate is satisfied.  As with
+            other intervals in SpecTcl, the interval is inclusive of the low
+            limit but exclusive of the high limit.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CCut (<span
+class="methodparam"
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> am_nLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>am_nHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nId </span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs a gate that is satisfied when the
+                        parameter with id <CODE
+CLASS="parameter"
+>am_nId</CODE
+> is in
+                        the interval
+                        <TT
+CLASS="literal"
+>[<CODE
+CLASS="parameter"
+>am_nLow</CODE
+>, <CODE
+CLASS="parameter"
+>am_nHigh</CODE
+>)</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Float_t  </span
+>getLow();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the value of the low end of the interval
+                        that defines the cut.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Float_t  </span
+>getHigh();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the value of the high end of the
+                        interval that defines the cut.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the id of the parameter this gate will test.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+>getSpecs();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a vector of spectrum names involved with the
+                        gate.  For a cut, no spectra are involved so an
+                        empty vector is returned.  This is used mainly by
+                        gamma gates.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>Begin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        A cut is a gate with a single constituent - itself.
+                        This method returns an iterator that, once incremented
+                        is at the end of iteration.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator </span
+> End ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator that points to nothing, and is
+                        off the end of constiuents.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>1</TT
+> indicating there is only
+                        one constituent, the gate itself.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> std::string  </span
+>GetConstituent (<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38; </span
+><span
+class="parameter"
+> rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the iterator is not at end returns a string consisting
+                        of three space separated values.  The first value is
+                        the parameter id.  The second and third are the low and
+                        high limits of the cut's interval.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>s</TT
+> for slice.
+                        This is the type of gate.  Note that
+                        <TT
+CLASS="literal"
+>c</TT
+> is used for the type of
+                        contour gates.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>   Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if
+                        <CODE
+CLASS="parameter"
+>x</CODE
+> is in the cut's interval.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If the event does not have the parameter whose id was
+                        used to construct the cut, returns <TT
+CLASS="literal"
+>kfFalse</TT
+>.
+                        If it does, the value of that parameter is passed to
+                        the previous method and the result of that method
+                        is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38; </span
+><span
+class="parameter"
+> rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>Params</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Same as the previous method, howver instead of using
+                        the id of the parameter used to construct this
+                        object, the parameter id <CODE
+CLASS="parameter"
+>Params[0]</CODE
+>
+                        is used.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15686"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CFalseGate methods</CODE
+></H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CFalseGate</CODE
+> is a gate that is never satisfied.
+            When gates are deleted, they are actually replaced by false gates,
+            gates are never actually deleted.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As the gate name implies, regardless of the content
+                        of <CODE
+CLASS="parameter"
+>rEvent</CODE
+>, this always
+                        returns <TT
+CLASS="literal"
+>kfFALSE</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>Begin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator at end (same value as
+                        <CODE
+CLASS="methodname"
+>End</CODE
+>).  False gates have no
+                        components.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator </span
+> End();&#13;</code
+></DT
+><DD
+><P
+>&#13;                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>0</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent (<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Regardless of the value of
+                        <CODE
+CLASS="parameter"
+>rIterator</CODE
+>; returns an empty string.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>  virtual    </span
+><span
+class="modifier"
+>const; </span
+><span
+class="type"
+>std::string  </span
+>Type ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>F</TT
+> which represents
+                        a False gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>ids</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Both of these return <TT
+CLASS="literal"
+>kfFalse</TT
+>
+                        regardless of the parameters passed in.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>caches();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfFalse</TT
+> as there's no need
+                        for a hard coded gate like <CODE
+CLASS="classname"
+>CFalseGate</CODE
+>
+                        to cache its answers.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15800"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CTrueGate methods</CODE
+></H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTrueGate</CODE
+> is a gate that is never satisfied.
+            When a spectrum is created it is initially gated on a true gate.
+            True gates can also be used as place holders for gate to be defined
+            later.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As the gate name implies, regardless of the content
+                        of <CODE
+CLASS="parameter"
+>rEvent</CODE
+>, this always
+                        returns <TT
+CLASS="literal"
+>kfTRUE</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>Begin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator at end (same value as
+                        <CODE
+CLASS="methodname"
+>End</CODE
+>).  False gates have no
+                        components.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator </span
+> End();&#13;</code
+></DT
+><DD
+><P
+>&#13;                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>0</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent (<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Regardless of the value of
+                        <CODE
+CLASS="parameter"
+>rIterator</CODE
+>; returns an empty string.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>  virtual    </span
+><span
+class="modifier"
+>const; </span
+><span
+class="type"
+>std::string  </span
+>Type ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>T</TT
+> which represents
+                        a True gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>ids</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Both of these return <TT
+CLASS="literal"
+>kfTrue</TT
+>
+                        regardless of the parameters passed in.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>caches();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns <TT
+CLASS="literal"
+>kfFalse</TT
+> as there's no need
+                        for a hard coded gate like <CODE
+CLASS="classname"
+>CFalseGate</CODE
+>
+                        to cache its answers.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15914"
+></A
+><H2
+>Mask gate methods</H2
+><P
+>&#13;            Bit mask gates treat a parameter like a bitmask (integer) and
+            perform various bit logic mask and compare operations.
+            An abstract base class; <CODE
+CLASS="classname"
+>CMaskGate</CODE
+>
+            Provides storage for the constant bit mask  and the following
+            meaningful methods:
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CMaskGate(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> mask</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This base class constructor stores the
+                        <CODE
+CLASS="parameter"
+>mask</CODE
+> as an object attribute.
+                        Derived classes can use <CODE
+CLASS="methodname"
+>getCompare</CODE
+>
+                        to retrieve this value.  Gates derived from this
+                        method normally perform some bitwise operation between
+                        the parameter and the mask and then a comparison.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>long  </span
+>getCompare();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the mask that used to instantiate this base class.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>operator() (<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This just determine is the actual class's
+                        <CODE
+CLASS="methodname"
+>inGate</CODE
+> method has to be invoked.
+                        If not the cached value for the gate is returned.
+                        Psuedo code for this is:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;
+if cache is not valid
+   Set cached value from Actual Class's inGate(rEvent)
+endif
+return cached value
+
+                    </PRE
+></DD
+></DL
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN15954"
+></A
+><H3
+>MaskAnd gates</H3
+><P
+>&#13;                These gates check to see if all bits in a mask are present
+                in the parameter.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CMaskAndGate (<span
+class="methodparam"
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> am_nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t   </span
+><span
+class="parameter"
+>am_lCompare</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            <CODE
+CLASS="parameter"
+>am_nId</CODE
+> is the parameter id
+                            of the parameter to test.
+                        </P
+><P
+>&#13;                            <CODE
+CLASS="parameter"
+>am_lCompare</CODE
+> is the bit
+                            mask used inthe compare.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>long  </span
+>getCompare();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the bit mask used in the test.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t </span
+>getId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the id of the parameter that is checked
+                            by this gate.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns <TT
+CLASS="literal"
+>am</TT
+> for
+                            <I
+CLASS="firstterm"
+>And Mask</I
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>Params</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Check for the parameter to satisfy the gate.
+                            Unfortunately the implementation of both of these
+                            methods are the same (<CODE
+CLASS="parameter"
+>Params</CODE
+> is
+                            totally ignored and the first method just calls
+                            the second.
+                        </P
+><P
+>&#13;                            The Mask used to construct the gate is bitwise
+                            anded with the parameter.  If the result is
+                            equal to the mask, the gate is satisfied, otherwise
+                            not.
+                        </P
+><P
+>&#13;                            If the gate is satisfied, the method returns
+                            <TT
+CLASS="literal"
+>kfTRUE</TT
+> otherwise
+                            <TT
+CLASS="literal"
+>kfFALSE</TT
+>.
+                        </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16035"
+></A
+><H3
+>Mask Equal gates</H3
+><P
+>&#13;                These just test for bitwise equality of the integerized parameter
+                with the specified comparison bitmask.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CMaskEqualGate (<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t   </span
+><span
+class="parameter"
+>am_lCompare </span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Provides a parameter id and a comparison mask on which
+                            the object (gate) is constructed.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>long  </span
+>getCompare();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the comparison value for the gate.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the Id of the parameter on which the
+                            gate was constructed.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38; </span
+><span
+class="parameter"
+> rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Compares the specified parameter to the mask.
+                            If bitwise equal the gate is satisfied.
+                        </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16083"
+></A
+><H3
+><CODE
+CLASS="classname"
+>CMaskNotGate</CODE
+> METHODS</H3
+><P
+>&#13;                This gate tests for bits that are not in a mask.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CMaskNotGate (<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t   </span
+><span
+class="parameter"
+>am_lCompare</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            As with all of these mask gate classes,
+                            a parameter id (<CODE
+CLASS="parameter"
+>am_nId</CODE
+>) and
+                            a mask (<CODE
+CLASS="parameter"
+>am_lCompare</CODE
+>) are required
+                            by the constructor.  The actual gate pseudo code
+                            will be shown in the <CODE
+CLASS="methodname"
+>inGate</CODE
+>
+                            method.  However, this gate will be satisfied if
+                            the parameter contains all of the bits that are not
+                            set in the mask.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>long  </span
+>getCompare();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the value of the mask used in the
+                            <CODE
+CLASS="methodname"
+>inGate</CODE
+> operation.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the id of the parameter checked in the
+                            <CODE
+CLASS="methodname"
+>inGate</CODE
+> method.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Determines if the parameter associated with the
+                            gate satisfies it for the event <CODE
+CLASS="parameter"
+>rEvent</CODE
+>.
+                            The psuedo code for this is:
+                        </P
+><PRE
+CLASS="programlisting"
+>&#13;id = getId()
+if rEvent[id].isValid() then
+   mask = ~getCompare()                   // Note bitwise complement.
+   return (mask &#38; rEvent[id])  == mask
+endif
+return kfFALSE
+                        </PRE
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN16139"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CPointListGate</CODE
+> methods</H2
+><P
+>&#13;                2-d gates are normally figures draw in a 2-d space defined by
+                a pair of parameters.  These figures are defined by an array
+                of points in parameter space.
+                <CODE
+CLASS="classname"
+>CPointListGate</CODE
+> is an abstract
+                base class for simple
+                2-d gates which stores the ids of both X and Y parameters and
+                the list of points that define the figure.
+            </P
+><P
+>&#13;                While the figure points can be abstracted, the concept of
+                inside-ness of a point in parameter space must be defined
+                by a concrete derived class.  It's easy to see that this is
+                the case by considering the difference in the definition
+                of inside-ness for a contour (closed figure) and a band (polyline).
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CPointListGate(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nXId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> UInt_t  </span
+><span
+class="parameter"
+>nYId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>const std::vector&#60;FPoint&#62;&#38;  </span
+><span
+class="parameter"
+>Points</span
+></span
+>);&#13;</code
+>, <code
+class="constructorsynopsis"
+>&#13;  CPointListGate(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nXId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nYId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nPts</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>*xCoords</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>*yCoords</span
+></span
+>);&#13;</code
+>, <code
+class="constructorsynopsis"
+>&#13;  CPointListGate(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nXId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> UInt_t  </span
+><span
+class="parameter"
+>nYId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nPts</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>FPoint*  </span
+><span
+class="parameter"
+>pPoints</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            All constrcutors provide <CODE
+CLASS="parameter"
+>nXId</CODE
+>,
+                            the id of the X parameter for the gate and
+                            <CODE
+CLASS="parameter"
+>nYId</CODE
+>, the
+                            id of the Y parameter for the gate.  Constructors
+                            only differ in how the points that define the gate
+                            shape are passed.
+                        </P
+><P
+>&#13;                            In the first constructor, points are passsed in as
+                            <CODE
+CLASS="parameter"
+>Points</CODE
+>, a vector of type
+                            <CODE
+CLASS="classname"
+>FPoint</CODE
+>.  This type is
+                            defined in the <TT
+CLASS="filename"
+>Point.h</TT
+> header.
+                            It is an object that encapsulates an X,Y coordinate
+                            pair that represents one point fo the gate shape.
+                        </P
+><P
+>&#13;                            The last two constructors require that the
+                            number of points in the gate shape,
+                            <CODE
+CLASS="parameter"
+>nPts</CODE
+>, be passed to the
+                            constructor.
+                        </P
+><P
+>&#13;                            In the first of those two, the parameters
+                            <CODE
+CLASS="parameter"
+>xCoords</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>yCoords</CODE
+> point to
+                            simple C arrays containing the X aqnd Y coordinates
+                            of each point
+                            respectively.  Clearly <CODE
+CLASS="parameter"
+>xCoords</CODE
+>
+                            and <CODE
+CLASS="parameter"
+>yCoords</CODE
+> must both have
+                            <CODE
+CLASS="parameter"
+>nPts</CODE
+> elements.
+                        </P
+><P
+>&#13;                            In the final constructor, the parameter
+                            <CODE
+CLASS="parameter"
+>pPoints</CODE
+> points to a C array
+                            of <CODE
+CLASS="classname"
+>FPoint</CODE
+> objects.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getxId();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getyId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            These two methods get the ids of the parameters
+                            on the X and Y axes of the gate shape.  An event
+                            that has both of these ids defines a point in
+                            parameter space where the parameter whose id is
+                            returned by <CODE
+CLASS="methodname"
+>getxId</CODE
+> is
+                            on the X axis and that returned by
+                            <CODE
+CLASS="methodname"
+>getyId</CODE
+> is on the Y
+                            axis.  Gate points define a figure in this
+                            space whose meaning depends on the actual,
+                            concrete gate type.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> const </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;  </span
+>getPoints();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns a copy of the points vector.  This may result
+                            in copying a significatn number of
+                            <CODE
+CLASS="classname"
+>FPoint</CODE
+> objects and should
+                            not be userd to obtain gate points in order to
+                            check gates.  Better to iterate or, if appropriate,
+                            use the <CODE
+CLASS="methodname"
+>Crosses</CODE
+>
+                            utility method.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;::iterator  </span
+>getBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;FPoint&#62;::iterator  </span
+>getEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            These methods provide support for iteration over
+                            the set of points that define the gate.  The
+                            <CODE
+CLASS="methodname"
+>getBegin</CODE
+> returns an iterator
+                            to the beginning of the container of
+                            <CODE
+CLASS="classname"
+>FPoint</CODE
+> objects defining the
+                            gate points while
+                            <CODE
+CLASS="methodname"
+>getEnd</CODE
+> returns an
+                            end of iteration iterator.
+                        </P
+><P
+>&#13;                            If you are not sure what all this means; look up
+                            how iterators work in the C++ Standard Template
+                            library.  These iterators work the same way.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>   CConstituentIterator  </span
+>Begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>End ();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            The constituents of point list gates are the points
+                            of the gate.  <CODE
+CLASS="methodname"
+>Begin</CODE
+>
+                            and <CODE
+CLASS="methodname"
+>End</CODE
+> provide for
+                            iteration over the constituents (see
+                            <CODE
+CLASS="methodname"
+>GetConstituent</CODE
+> below).
+                            <CODE
+CLASS="methodname"
+>Size</CODE
+> returns the number
+                             of constituents, in this case, the number of
+                             points in the gate figure.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent(<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Return the text string corresponsding to the
+                            constituent iterator <CODE
+CLASS="parameter"
+>rIterator</CODE
+>.
+                            This will be a string consisting of two space
+                            separated floating point number strings
+                            (<TT
+CLASS="literal"
+>%f</TT
+> conversion).  The first number
+                            is the X coordinate value of the point corresponding
+                            to the iterator while the second the Y coordinate
+                            of the same point.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Performs common code required to check if a gate
+                            is satisfied by an event. The geometry sensitive
+                            part of the check is done by the pure virtual
+                            method <CODE
+CLASS="methodname"
+>Inside</CODE
+> defined
+                            below.  Thwe psuedo code for this
+                            method is:
+                        </P
+><PRE
+CLASS="programlisting"
+>&#13;xid = getxId()
+yid = getyid()
+if (rEvent[xid].isValid() and rEvent[yid].isValid()) then
+    return Inside(rEvent[xid], rEvent[yid])
+endif
+
+return kfFalse
+                        </PRE
+><P
+>&#13;                            Thus this method only checks that both parameters
+                            are defined.  If so <CODE
+CLASS="methodname"
+>Inside</CODE
+>
+                            is invoked to see if the point defined by the
+                            event satisfies the gate and otherwise,
+                            <TT
+CLASS="literal"
+>kfFalse</TT
+> is returned.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> virtual   </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>Bool_t  </span
+>Inside(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>y</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Pure virtual method that has to be implemented by
+                            concrete sub-classes.  <CODE
+CLASS="parameter"
+>x</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>y</CODE
+> are a point in the parameter
+                            coordinate space in which the gate is drawn.  The
+                            method should return <TT
+CLASS="literal"
+>kfTRUE</TT
+> if this
+                            point is 'inside' that gate or
+                            <TT
+CLASS="literal"
+>kfFALSE</TT
+> if not.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int </span
+>Crosses(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>y</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;FPoint&#62;::iterator </span
+><span
+class="parameter"
+> f</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;FPoint&#62;::iterator  </span
+><span
+class="parameter"
+>s</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            This utility method  is useful for determining
+                            inside-edness.  The parameters
+                            <CODE
+CLASS="parameter"
+>x</CODE
+> and <CODE
+CLASS="parameter"
+>y</CODE
+>
+                            define a point in the parameter space of a gate.
+                            <CODE
+CLASS="parameter"
+>f</CODE
+> and <CODE
+CLASS="parameter"
+>s</CODE
+>
+                            are two iterators that indicate two consecutive points
+                            in the figure that defines the gate.
+                            
+                        </P
+><P
+>&#13;                            Those two points define a line segment in the gate
+                            parameter space.  The method 'draws' a horizontal
+                            ray that extends left from (<CODE
+CLASS="parameter"
+>x</CODE
+>, <CODE
+CLASS="parameter"
+>y</CODE
+>).
+                            The method returns <TT
+CLASS="literal"
+>1</TT
+> if this
+                            line would intersect (cross) the line segment
+                            defined by <CODE
+CLASS="parameter"
+>f</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>s</CODE
+>.  If not,
+                            <TT
+CLASS="literal"
+>0</TT
+> is returned.
+                        </P
+><P
+>&#13;                            Special cases that can speed up the determination
+                            are mercilessly  exploited.
+                        </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16374"
+></A
+><H3
+><CODE
+CLASS="classname"
+>CBand</CODE
+> methods</H3
+><P
+>&#13;                A Band is a polyline drawn in a two dimensional space defined
+                by two SpecTcl parameters.  Inside-ness is defined as being
+                inside a region of the plane defined by the polyline and
+                vertical lines from the left and right points extending infinitely
+                down.
+                A point is inside this region if a horizontal ray drawn
+                leftward from the point crosses an odd number of line segments
+                that make up the boundaries of the region.   The vertical
+                lines described above are included in that count.
+            </P
+><P
+>&#13;                This definition provides well defined behavior for bands that
+                are multivalued in y (polylines for which the x coordinate
+                of points is not monotonic).  This definition is also
+                consistent withe the definition of inside-ness used by
+                contour gates.
+            </P
+><P
+>&#13;                The constructors are not documented below as there are three
+                of them that have all the same parameterizations as the
+                three constructors of the <CODE
+CLASS="methodname"
+>PointListGate</CODE
+>
+                base class from which <CODE
+CLASS="classname"
+>CBand</CODE
+> is defined.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the gate type which is
+                            <TT
+CLASS="literal"
+>b</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>Inside(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>y</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Just invokes <CODE
+CLASS="methodname"
+>Interior</CODE
+>,
+                            see below.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t </span
+> Interior(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>y</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Determines if a point is inside the band region.
+                            A boundary crossing algorithm similar to what is used
+                            in flood fill operations is used to define
+                            interior points consistently and predictably regardless
+                            of any pathologies of the boundary.
+                        </P
+><P
+>&#13;                            The software counts boundary crossings, including
+                            the crossings of rays extending from the left and
+                            right most points to negative infinity.  An odd
+                            number of crossings means the point is inside the
+                            figure. An even number (zero is even) means the
+                            point is outside.
+                        </P
+><P
+>&#13;                            Here is pseudo code:
+                        </P
+><PRE
+CLASS="programlisting"
+>&#13;crossings = 0
+if point is to the right and below the left most point crossings = crossings + 1
+if point is to the right and below the righ tmost point crossings = crossings + 1
+
+for each line segment in the polyline:
+    if Crosses(point, segment) then     // Crosses from base class
+        crossings = crossings + 1
+    endif
+end for
+return (crosses &#38; 1) == 1
+                        </PRE
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16428"
+></A
+><H3
+><CODE
+CLASS="classname"
+>CContour</CODE
+> methods</H3
+><P
+>&#13;                Contour gates are closed figures that are drawn on a 2-d parameter
+                space. A contour is satisified if the parameters are both defined
+                and lie within the figure.  <CODE
+CLASS="classname"
+>CContour</CODE
+>
+                implements contour gates and is derived from
+                <CODE
+CLASS="classname"
+>CPointListGate</CODE
+>.
+            </P
+><P
+>&#13;                As with bands, pathalogical figures are possible.  Contours
+                use a definition of inside-ness that is similar to that of
+                bands, with the exception that there's no need to draw
+                rays from a left and right point to negative infinity to
+                complete a semi-infinite closed figure.  For a contour a
+                final line segment is drawn from the last point to the first
+                point.
+            </P
+><P
+>&#13;                An optimization is performed when the gate is constructed.
+                A bounding rectangle is computed from the points of the figure.
+                When checking the gate; the point is first tested against this
+                rectangle and the gate is not satisifed if the point is outside
+                the rectangle.  If the point is inside the rectangle, then
+                a horizontal ray is 'drawn' from the point towards the left.
+                The number of times this ray crosses a segment of the
+                figure is computed and the point is considered inside the
+                figure if this number is odd.
+            </P
+><P
+>&#13;                Psuedo code for this will be presented in the description
+                of the methods below.  Note that the constructors for
+                <CODE
+CLASS="classname"
+>CContour</CODE
+> are identical
+                to those for <CODE
+CLASS="classname"
+>CPointListGate</CODE
+>.  They
+                will not be documented below.  Refer to
+                <CODE
+CLASS="classname"
+>CPointListGate</CODE
+> for a description of
+                the constructor signatures.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>FPoint  </span
+>getLowerLeft();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            This method returns the point at the lower left
+                            of the rectangle that bounds the contour.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>FPoint  </span
+>getUpperRight();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            This method returns the point at the upper
+                            right of the rectangle that bounds the contour.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the string <TT
+CLASS="literal"
+>c</TT
+> indicating
+                            this is a contour gate.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>Inside(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>x</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>y</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns <TT
+CLASS="literal"
+>kfTrue</TT
+> if
+                            <CODE
+CLASS="parameter"
+>x</CODE
+>, <CODE
+CLASS="parameter"
+>y</CODE
+>
+                            define a point inside the contour figure.
+                            For a conceptual description of the definition
+                            of inside (in the presence of pathalogical shapes),
+                            see the description at the top of this section.
+                        </P
+><P
+>&#13;                            Psuedo code for the check is shown below:
+                        </P
+><PRE
+CLASS="programlisting"
+>&#13;If (x,y) is inside the bounding rectangle then
+   crossings = 0
+   for each segment in the figure        // Note the last point is connected to first.
+        if Crosses(x,y, segment)  then   // From <CODE
+CLASS="classname"
+>CPointListGate</CODE
+>
+            crossings = crossings + 1
+        endif
+    end for
+    return (crossings &#38; 1) == 1      //  true if odd.
+endif
+return kfFALSE                           // Outside bounding rectangle.
+        
+                        </PRE
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16493"
+></A
+><H3
+><CODE
+CLASS="classname"
+>C2Bands</CODE
+> Methods.</H3
+><P
+>&#13;                This gate is essentially two bands that are made into
+                a countour by joining their left and rightmost points
+                to close the figure defined by the two bands.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  C2Bands(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nXId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nYId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;FPoint&#62;&#38; </span
+><span
+class="parameter"
+> rLowBand</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;FPoint&#62;&#38;  </span
+><span
+class="parameter"
+>rHiBand</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a contour from two bands whose
+                            parameters are specified by
+                            <CODE
+CLASS="parameter"
+>nXId</CODE
+> and
+                            <CODE
+CLASS="parameter"
+>nYId</CODE
+>.  The points that define
+                            the first band are <CODE
+CLASS="parameter"
+>rLowBand</CODE
+>
+                            and those of the second,
+                            <CODE
+CLASS="parameter"
+>rHiBand</CODE
+>.
+                        </P
+><P
+>&#13;                            The constructor simply marshalls these points
+                            for the <CODE
+CLASS="classname"
+>CContour</CODE
+>
+                            constructor.  Once that's done, the methods of
+                            <CODE
+CLASS="classname"
+>CContour</CODE
+> class
+                            provides all of the functionality.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+> Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the string
+                            <TT
+CLASS="literal"
+>cb2</TT
+>.
+                        </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN16534"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CCompoundGate</CODE
+> Methods</H2
+><P
+>&#13;            Compound gates are gates that are composed of one or more
+            other <I
+CLASS="firstterm"
+>constituent</I
+>
+            gates.  The compound gate is satisfied if a logical
+            function of its constituent gates is satisfied.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CCompoundGate</CODE
+> is an abstract base
+            class for compound gates.  This section will describe that
+            gate and the gates that are derived from this class.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CCompoundGate</CODE
+> provides storage of and
+            access to the constituent gates.  The constituents can either
+            be provided at construction time or built up incrementally..
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;   CCompoundGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This constructor creates the base class without
+                        any contituent gates.   Method such as
+                        <CODE
+CLASS="methodname"
+>AddGateBack</CODE
+> must be used
+                        to add constituents to the gate.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CCompoundGate(<span
+class="methodparam"
+><span
+class="type"
+>std::list&#60;CGateContainer*&#62;  </span
+><span
+class="parameter"
+>pGates</span
+></span
+>);&#13;</code
+>, <code
+class="constructorsynopsis"
+>&#13;  CCompoundGate(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;CGateContainer*&#62;  </span
+><span
+class="parameter"
+>pGates</span
+></span
+>);&#13;</code
+>, <code
+class="constructorsynopsis"
+>&#13;  CCompoundGate(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nGates</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGateContainer**  </span
+><span
+class="parameter"
+>ppGates</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These constructors create the object with an initial
+                        set of gates.  Gates are stored as pointers to a
+                        gate container.  This allows SpecTcl ot modify
+                        what the gate container "points to" without having
+                        to locate and fix up all references to an underlying
+                        gate.  
+                    </P
+><P
+>&#13;                        The constructors only differ in the wa in which the
+                        constituent gates are passed to the constuctor.
+                        The first two use the
+                        <CODE
+CLASS="classname"
+>std::vector</CODE
+> and
+                        <CODE
+CLASS="classname"
+>std::list</CODE
+> container for the
+                        constituent gates while the last uses a counted
+                        C array of pointers to <CODE
+CLASS="classname"
+>GateContainer</CODE
+>
+                        pointers.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::list&#60;CGateContainer*&#62;&#38;  </span
+>GetConstituents();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the list of pointers to the gate containers that
+                        make up this gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>RecursiveReset();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Resets the cache of this gate and all
+                        constituent gates.  The next time this, or any
+                        constituent gate is asked for its value vai
+                        <CODE
+CLASS="methodname"
+>operator()</CODE
+> it must
+                        re-evaluate the gate with respect to the event.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> CConstituentIterator </span
+> Begin ();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>End();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides the usual constituent iterator interface
+                       for the compound gate.  <CODE
+CLASS="methodname"
+>Begin</CODE
+>
+                       produces an iterator at the start of the container
+                       and <CODE
+CLASS="methodname"
+>End</CODE
+> one that is off
+                       the end of the container.  Finally
+                       <CODE
+CLASS="methodname"
+>Size</CODE
+> returns the number
+                       of times the iterator returned by
+                       <CODE
+CLASS="methodname"
+>Begin</CODE
+> can be incremented
+                       before it becomes equal to the iterator returned
+                       by <CODE
+CLASS="methodname"
+>End</CODE
+>.   
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent(<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rIterator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the name of a constituent gate.
+                        For compound gates, the
+                        <CODE
+CLASS="classname"
+>ConstituentIterator</CODE
+> can be
+                        thought of as an object that retrieves
+                        constituent gate names.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void       </span
+>AddGateFront(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new constituent gate at the beginning of
+                        the constituents for the gate. Normally it's too hard
+                        to predicts the effect of constituent order on gates.
+                        If these can be predicted, however for
+                        And gates, the gates are most efficiently ordered in
+                        order of decreasing probability they'll fail, while
+                        for OR gates, gates are most efficiently ordered
+                        in decreasing probability they willl be satisfied.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void       </span
+>AddGateBack(<span
+class="methodparam"
+><span
+class="type"
+>CGateContainer&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds the gate container <CODE
+CLASS="parameter"
+>rGate</CODE
+>
+                        at the end of all of the existing constituents.
+                        See above for notes on ordering gates.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void      </span
+> AddGate(<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rSpot</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+> CGateContainer&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds the gate container <CODE
+CLASS="parameter"
+>rGate</CODE
+>
+                        in the constituent list just prior to <CODE
+CLASS="parameter"
+>rSpot</CODE
+>.
+                        Thus <FONT
+COLOR="RED"
+>AddGateFront(rGate)</FONT
+> is
+                        identical to <FONT
+COLOR="RED"
+>AddGate(Begin(), rGate)</FONT
+>.
+                        Similarly, <FONT
+COLOR="RED"
+>AddGateBack(rGate)</FONT
+> is
+                        identical to <FONT
+COLOR="RED"
+>AddGate(End(), rGate)</FONT
+>.
+                    </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16689"
+></A
+><H3
+><CODE
+CLASS="classname"
+>CAndGate</CODE
+> methods</H3
+><P
+>&#13;                An And gate is a compound gate that is satisfied only if all of
+                its constituent gates are satisfied.  Short ciruit evaluation
+                improves the efficiency of evaluating this gate.  Gates in
+                the constituent list only get evaluated until the first
+                gate fails at  which time the gate is determined not to have
+                been satisifed.   If all gates are satisified, the and
+                gate is satisfied.
+            </P
+><P
+>&#13;                The constructors for this class mirror those of
+                <CODE
+CLASS="classname"
+>CCompoundGate</CODE
+> and therefore will not be
+                documented below.  Refer to the documentation of the
+                constructors for <CODE
+CLASS="classname"
+>CCompoundGate</CODE
+> for more
+                information about the constructors for this class.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+> Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the string <TT
+CLASS="literal"
+>*</TT
+>.  This is the
+                            symbol for an and gate because the logical and
+                            operation is normally called the logical product.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>Params </span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Determines if the gate is satisfied.  Since this is
+                            not a gamma gate, the first of these methods
+                            simply calls the second.  The second method
+                            evaluates the gate by recursively evaluating
+                            the minimum set of constituents needed to determine if the
+                            gate is satisfied.
+                        </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN16733"
+></A
+><H3
+><CODE
+CLASS="classname"
+>COrGate</CODE
+> methods</H3
+><P
+>&#13;                The Or gate is satisfied if any of its consituents is satisfied.
+                As with <CODE
+CLASS="classname"
+>CAndGate</CODE
+>, short circuit evaluation
+                is used to minimize the computation required to evaluate this
+                gate.  Constituent gates are evaluated until the first satisfied
+                gate at which point, the gate is deemed satisified.  If no
+                gates in the list of consitutents are satisfied, the gate is
+                deemed to have not been satisfied.
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the string <TT
+CLASS="literal"
+>+</TT
+>.  This is the
+                            type for a an or gate because the logical OR operation
+                            is often called the logical sum of its product
+                            terms.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t </span
+> inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38; </span
+><span
+class="parameter"
+> rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38; </span
+><span
+class="parameter"
+> Params</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>  Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Recursively evaluates the constituent gates.  As soon
+                            as a constituent gate is determined to  be satisfied,
+                            this method returns <TT
+CLASS="literal"
+>kfTRUE</TT
+>,
+                            if no constituent gates are satisfied, the method
+                            return <TT
+CLASS="literal"
+>kfFALSE</TT
+>
+                        </P
+><P
+>&#13;                            As the gate does not have fold/gamma gate
+                            semantics, the first of these methods simply
+                            calls the second.
+                        </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN16778"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CNot</CODE
+> Methods</H2
+><P
+>&#13;            A Not gate is a gate that is true if its single constituent
+            gate is false.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CNot(<span
+class="methodparam"
+><span
+class="type"
+>CGatContainer&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The <CODE
+CLASS="parameter"
+>rGate</CODE
+> is the single constituent
+                        gate.  This gate will
+                        only be true for events that satisfy
+                        this constituent.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+>getGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the gate container of the
+                        gate whose logical sense is  inverted by this gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>Begin ();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CConstituentIterator  </span
+>End();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>Size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Supplies the constituent iteration interface for
+                        this gate type.  <CODE
+CLASS="methodname"
+>Begin</CODE
+> and
+                        <CODE
+CLASS="methodname"
+>End</CODE
+> provide iterators for
+                        the start of iteration and the end respectively.
+                        <CODE
+CLASS="methodname"
+>Size</CODE
+> returns the number
+                        of constituents (<TT
+CLASS="literal"
+>1</TT
+>).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>GetConstituent(<span
+class="methodparam"
+><span
+class="type"
+>CConstituentIterator&#38;  </span
+><span
+class="parameter"
+>rp</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the constituent pointed at the iterator
+                        <CODE
+CLASS="parameter"
+>rp</CODE
+>.  For the iterator
+                        returned by <CODE
+CLASS="methodname"
+>Begin</CODE
+>, this returns
+                        the name of the constituent gate. Otherwise an empty string
+                        is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>-</TT
+> which is the
+                        type strig for a not gate. The string indicates negation
+                        of the constituent gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::vector&#60;UInt_t&#62;&#38;  </span
+><span
+class="parameter"
+>Params</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Bool_t  </span
+>inGate(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Rturns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if
+                        <CODE
+CLASS="parameter"
+>rEvent</CODE
+> satisfies the gate
+                        (does not satisfy the constituent gate).
+                        Otherwise returns <TT
+CLASS="literal"
+>kfFALSE</TT
+>.
+                        The gate is not a gamma gate so the first overload of
+                        this method just invokes the second.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r15188.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r16884.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CAxis</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CGateContainer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

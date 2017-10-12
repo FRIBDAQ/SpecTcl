@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLStdioCommander</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLChannelCommander"
+HREF="r7312.html"><LINK
+REL="NEXT"
+TITLE="CTCLServer"
+HREF="r7588.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7312.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7588.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLStdioCommander"
+></A
+>CTCLStdioCommander</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7528"
+></A
+><H2
+>Name</H2
+>CTCLStdioCommander&nbsp;--&nbsp;Event driven command input on stdin/stdout</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7531"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLStdioCommander.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLStdioCommander </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CTCLStdioCommander(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CTCLStdioCommander();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>sendPrompt(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>prompt</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7557"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            Provides a commander that can be hooked to the event loop to allow
+            event loop driven applications to continue to process commands on
+            stdin/stdout as interactive shells do.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7560"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CTCLStdioCommander(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+>);&#13;</code
+><P
+>&#13;                Constructs a commander.  <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the
+                interpreter to which the complete commands will be submitted.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>sendPrompt(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>prompt</span
+></span
+>);&#13;</code
+><P
+>&#13;                Overrides the base class <CODE
+CLASS="methodname"
+>sendPrompt</CODE
+>
+                method by sending the requested <CODE
+CLASS="parameter"
+>prompt</CODE
+>
+                string to the <SPAN
+CLASS="type"
+>Tcl_Channel</SPAN
+> Tcl has open on
+                <TT
+CLASS="literal"
+>stdout</TT
+>. The channel is also flushed to
+                ensure that the prompt is made immediately visible.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+><P
+>&#13;                Overrides the base class member.
+                Retrieves the result from the interpreter, appends a newline
+                character and passes the resulting string to
+                <CODE
+CLASS="methodname"
+>sendPrompt</CODE
+> which makes the result
+                visible on stdout.
+            </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7312.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7588.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLChannelCommander</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLServer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

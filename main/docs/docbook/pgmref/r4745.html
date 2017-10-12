@@ -1,0 +1,541 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLResult</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLInterpreterObject "
+HREF="r4666.html"><LINK
+REL="NEXT"
+TITLE="CTCLException"
+HREF="r4856.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4666.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4856.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLResult"
+></A
+>CTCLResult</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4749"
+></A
+><H2
+>Name</H2
+>CTCLResult&nbsp;--&nbsp;
+            Provide an object oriented interace to the Tcl interpreter result.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4752"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLResult.h&#62;
+...
+class CTCLResult  : public CTCLObject
+{
+  CTCLResult (CTCLInterpreter* pInterp, bool reset=true );
+  CTCLResult (const CTCLResult&#38; aCTCLResult );
+  virtual ~CTCLResult ( );
+
+  CTCLResult&#38; operator= (const CTCLResult&#38; aCTCLResult);
+  CTCLResult&#38; operator= (const char* rhs);
+  CTCLResult&#38; operator=(std::string    rhs);
+
+  int operator== (const CTCLResult&#38; aCTCLResult) ;
+  int operator!= (const CTCLResult&#38; rhs);
+
+  CTCLResult&#38; operator+= (const char* pString);
+  CTCLResult&#38; operator+= (const std::string&#38; rString);
+
+  void Clear ()  ;
+  void AppendElement (const char* pString)  ;
+  void AppendElement (const std::string&#38; rString);
+  void commit() const;
+  std::string getString();
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4754"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Each Tcl command can return <I
+CLASS="firstterm"
+>result string</I
+>
+            the result string can be used by subsequent commands in the event
+            the command operated successfully, or by <B
+CLASS="command"
+>catch</B
+>
+            commands if the command failed.  <CODE
+CLASS="classname"
+>CTCLResult</CODE
+>
+            provides an extension of the <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            class that builds up a string which can then be comitted to the
+            result.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4761"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<CODE
+CLASS="function"
+>CTCLResult</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+           <SPAN
+CLASS="type"
+>bool</SPAN
+> <CODE
+CLASS="parameter"
+>reset</CODE
+>=<TT
+CLASS="literal"
+>true</TT
+> );
+<CODE
+CLASS="function"
+>CTCLResult</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLResult</CODE
+>);
+          </PRE
+>
+          </P
+><P
+>&#13;            Constructs a Tcl interpreter result string.  <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the interpeter
+            that will be associated with this result. <CODE
+CLASS="parameter"
+>reset</CODE
+> controls
+            whether or not the result string is reset when constructed, or if it is loaded
+            with the current value of the result string.  In the case of copy construction,
+            the interpreter associated with <CODE
+CLASS="parameter"
+>aCTCLResult</CODE
+> is used.
+            <CODE
+CLASS="parameter"
+>aCTCLResult</CODE
+> is committed to the interpreter result, and
+            the object under construction is then loaded from that interpreter's result.
+          </P
+><P
+>&#13;          <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+>(<SPAN
+CLASS="type"
+>std::string</SPAN
+>    <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Assigns a value to the result from <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+            If the <CODE
+CLASS="parameter"
+>rhs</CODE
+> is a <CODE
+CLASS="classname"
+>CTCLResult</CODE
+>, then the
+            <CODE
+CLASS="parameter"
+>rhs</CODE
+> is first committed to its interpreter result,
+            the left hand object is then bound to the same interpreter as <CODE
+CLASS="parameter"
+>rhs</CODE
+>
+            and loaded with the result string of that interpreter.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>) ;
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator!=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            These functions suport comparison. Equality comparison is true
+            (<CODE
+CLASS="function"
+>operator==</CODE
+>) if the interpreters match as the assumption
+            is that the user is working to maintain coherency if several <CODE
+CLASS="classname"
+>CTCLResult</CODE
+>
+            objects are simultaneously live on a single interpreter.
+            Inequality (<CODE
+CLASS="function"
+>operator!=</CODE
+>) is defined as true when
+            <CODE
+CLASS="function"
+>operator==</CODE
+> is false.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>rhs</CODE
+> is textually appended to the result string being built
+            up.   Note that the semantics of this are different than for the base class
+            where <CODE
+CLASS="function"
+>operator+=</CODE
+> is a list append.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Clear</CODE
+>()  ;
+          </PRE
+>
+          </P
+><P
+>&#13;            Clears the result string being built up as well as clearing the
+            underlying interpreter's result.
+          </P
+><P
+>&#13;          <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AppendElement</CODE
+>(const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>item</CODE
+>)  ;
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AppendElement</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>item</CODE
+>);
+          </PRE
+>
+          </P
+><P
+>&#13;            Appends <CODE
+CLASS="parameter"
+>item</CODE
+> to the result string being built up as a
+            list element.  This means that under some circumstances extra quoting may be
+            done to ensure that the result will be maintained as a valid list.
+          </P
+><P
+>&#13;          <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>commit</CODE
+>() const;
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>getString</CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>commit</CODE
+> sets the interpreter result string equal
+            to the string being built up in the object.  <CODE
+CLASS="function"
+>getString</CODE
+>
+            does a commit and then returns the string.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4853"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLObject(3)
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4666.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4856.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLInterpreterObject</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLException</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

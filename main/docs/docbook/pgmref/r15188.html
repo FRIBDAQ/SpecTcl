@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CAxis</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFold"
+HREF="r15072.html"><LINK
+REL="NEXT"
+TITLE="CGate"
+HREF="r15300.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r15072.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r15300.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN15188"
+></A
+>CAxis</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN15192"
+></A
+><H2
+>Name</H2
+>CAxis&nbsp;--&nbsp;Spectrum axis coordinate transforms.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN15195"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CAxis.h&#62;
+
+class CAxis      
+{
+public:
+
+  CAxis (UInt_t nChannels,
+	 std::string sUnits = std::string(""));
+  CAxis (Float_t fLow,
+	 Float_t fHigh,
+	 UInt_t  nChannels,
+	 std::string sUnits = std::string(""));	
+
+public:
+  // Selectors for member data.
+  
+  float getLow() const;
+  float getHigh() const;
+  int getChannels() const;
+
+  Float_t ParameterToAxis (Float_t fParameter);
+  Float_t AxisToParameter (UInt_t nAxisValue)   ;
+  
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15197"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CAxis</CODE
+> incorporates an axis description
+            as well as a set of methods to do transforms from parameter
+            space to bin space on an axis and back.  A parameter is defined
+            as an interval in parameter coordinates that is divided up into
+            a number of equal-sized bins.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN15201"
+></A
+><H2
+>&#13;            METHODS
+        </H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CAxis(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sUnits </span
+><span
+class="initializer"
+> = std::string("")</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Initializes an axis for a simple integer parameter.
+                        The axis is a 1:1 mapping over the range:
+                        <TT
+CLASS="literal"
+>[0, <CODE
+CLASS="parameter"
+>nChannels</CODE
+>)</TT
+>
+                    </P
+><P
+>&#13;                        The optional <CODE
+CLASS="parameter"
+>sUnits</CODE
+> parameter
+                        provides the axis units of measure and defaults to an
+                        empty string.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CAxis(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>fLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>fHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+> nChannels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sUnits </span
+><span
+class="initializer"
+> = std::string("")</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates an axis for a floating point parameter.
+                        The axis covers the range
+                        <TT
+CLASS="literal"
+>[<CODE
+CLASS="parameter"
+>fLow</CODE
+>, <CODE
+CLASS="parameter"
+>fHigh</CODE
+>)</TT
+>
+                        and has <CODE
+CLASS="parameter"
+>nChannels</CODE
+> bins.
+                    </P
+><P
+>&#13;                        The optional parameter <CODE
+CLASS="parameter"
+>sUnits</CODE
+>
+                        is the axis units of measure and defaults to an
+                        empty string if not supplied
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> const </span
+><span
+class="type"
+>float  </span
+>getLow();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Return the axis low limit.   The axis range is
+                        inclusive of this value.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>float  </span
+>getHigh();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the axis high limit.  The axis range
+                        is exclusive of this value.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>int  </span
+>getChannels();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of bins on the axis. In SpecTcl,
+                        all bins are equal sized.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+>ParameterToAxis(<span
+class="methodparam"
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>fParameter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given a parameter value, converts it to an axis value
+                        (bins).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> Float_t  </span
+>AxisToParameter(<span
+class="methodparam"
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nAxisValue</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given an axis bin number converts the value to
+                        a parameter value.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r15072.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r15300.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFold</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CGate</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

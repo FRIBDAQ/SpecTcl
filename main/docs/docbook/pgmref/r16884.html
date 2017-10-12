@@ -1,0 +1,477 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CGateContainer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CGate"
+HREF="r15300.html"><LINK
+REL="NEXT"
+TITLE="CGateObserver"
+HREF="r16992.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r15300.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r16992.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN16884"
+></A
+>CGateContainer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN16888"
+></A
+><H2
+>Name</H2
+>CGateContainer&nbsp;--&nbsp;Pointer like class for Gates.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN16891"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;GateContainer.h&#62;
+class CGateContainer : public CNamedItem {
+ public:
+
+  CGateContainer() ;
+  CGateContainer (const std::string&#38; sName, UInt_t nNumber, 
+		  CGate&#38; rGate);  
+  CGate* getGate() const;   
+  void setGate (CGate* am_pGate);
+  CGate&#38; operator* () ;
+
+  CGate* operator-&#62; () ;
+  Bool_t operator() (CEvent&#38; rEvent);
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN16893"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            SpecTcl gates are mutable.  Not only can the constituents be modified,
+            but the gate type can also be changed.  If objects depending on
+            gates held a pointer or reference to that gate, SpecTcl would need
+            to update all references to a gate whenever the gate was modified,
+            a potentially costly and error prone process.
+        </P
+><P
+>&#13;            It would be possible for gate clients to have a pointer to a pointer.
+            That would work.  Changing a gate would change the underlying pointer
+            and the pointer to that pointer could remain valid.  That would lead
+            to notational abominations like <FONT
+COLOR="RED"
+>(*pGate)-&#62;operator()</FONT
+>.
+        </P
+><P
+>&#13;            Instead of this, SpecTcl employes a pointer like object called a
+            gate container.  The gate container contains a gate and wraps it
+            with pointer like semantics.   Gate containers are derived from
+            <CODE
+CLASS="classname"
+>CNamedItem</CODE
+> so it is the container that
+            holds the name of a gate, not the gate itself.  Clients of the
+            gate can hold either a reference to the gate container (if the
+            gate they are clients of won't change names) or a pointer to the
+            gate container if, like spectra, they can.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN16900"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGateContainer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Default constructors must be defined for objects that
+                        will be inserted into STL container classes (such
+                        as <CODE
+CLASS="classname"
+>std::Map</CODE
+>).  The default
+                        constructor constructs a gate container that will
+                        segfault when attempts are made to access the underlying
+                        gate.
+                    </P
+><P
+>&#13;                        Once constructed, assignment can be used to give the
+                        container and id, name and gate.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGateContainer (<span
+class="methodparam"
+><span
+class="type"
+>const std::string&#38;  </span
+><span
+class="parameter"
+>sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nNumber</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CGate&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs with a gate; <CODE
+CLASS="parameter"
+>rGate</CODE
+>,
+                        an id;
+                        <CODE
+CLASS="parameter"
+>nNumber</CODE
+> and a gate instance
+                        <CODE
+CLASS="parameter"
+>rGate</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CGate*  </span
+>getGate();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the gate that is encapsulated
+                        by the gate container.  Normally you won't need to
+                        call this as you can manipulate the gate via the
+                        methods supplied by the container.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setGate(<span
+class="methodparam"
+><span
+class="type"
+>CGate*  </span
+><span
+class="parameter"
+>am_pGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Used by SpecTcl to replace the gate in the container.
+                        Note that when a gate is constructed into a gate
+                        container, containers are assigned or this method is
+                        called, the pointer passed in is not stored.  Instead a
+                        clone of the gate is made and <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>that</I
+></SPAN
+>
+                        is what's stored in the container.
+                    </P
+><P
+>&#13;                        Note that destroying the container also implicitly
+                        destroys the cloned gate.    All of this means
+                        it's perfectly safe to have code like:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;{
+    Float_t xcoords[4] = {0.0, 100.0, 100.0, 0.0};
+    Float_t ycoords[4] = {0.0, 0.0, 100.100, 100.100};
+    CContour square(1, 2, 4, xcoords, ycoords);
+    CGateContainer gc = new CGateContainer("rectangle", 100, square);
+    
+    return gc;
+}                     // square object was destroyed here but gc's clone lives.
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate&#38; </span
+> operator*();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Implements the first part of pointer semantics;
+                        plain dereference.
+                        This returns a reference to the encapsulated gate.
+                        This allows code like:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CGateContainer gc;
+...                       // Gate/name etc. set here.
+CGate&#38; gate(*gc);
+std::string t = gate.Type();
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate* </span
+>operator-&#62;();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the gate.  This implements
+                        the second part of pointer semantics, member dereference.
+                        The method allows operations like:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CGateContainer gc;
+...                      // Gate name etc. set here.
+
+std::string t = gc-&#62;Type();       // Fetch gate type.
+
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t </span
+> operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is a convenience method that evaluates the underlying
+                        gate for the event <CODE
+CLASS="parameter"
+>rEvent</CODE
+>.
+                        Since the gate is encapsulated as a pointer, the
+                        actual gate's <CODE
+CLASS="methodname"
+>operator()</CODE
+> is
+                        invoked.  This allows code like:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;// Assume spec is a CSpectrum reference and rEvent a CEvent reference.
+
+Bool_t gateMade = (*spec.getGate())(rEvent);          // Evaluate the gate
+
+                    </PRE
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r15300.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r16992.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CGate</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CGateObserver</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

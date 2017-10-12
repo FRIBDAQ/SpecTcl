@@ -1,0 +1,529 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLServer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLStdioCommander"
+HREF="r7524.html"><LINK
+REL="NEXT"
+TITLE="CTCLTcpServerInstance"
+HREF="r7716.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7524.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7716.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLServer"
+></A
+>CTCLServer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7592"
+></A
+><H2
+>Name</H2
+>CTCLServer&nbsp;--&nbsp;Listener for a Tcl server.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7595"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLServer.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLServer </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CTCLServer(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int </span
+><span
+class="parameter"
+>port</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CTCLServer();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>void </span
+>instanceExit(<span
+class="methodparam"
+><span
+class="type"
+>CTCLTcpServerInstance* </span
+><span
+class="parameter"
+>pInstance</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>shutdown();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>bool </span
+>allowConnection(<span
+class="methodparam"
+><span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>hostname</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>CTCLTcpServerInstance* </span
+>createInstance(<span
+class="methodparam"
+><span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>hostname</span
+></span
+>);&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7642"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            Tcl servers allow a Tcp/Ip client to connect to a tcl application
+            and poke commands at it.  While this is a very powerful communications
+            mechanism, it should be used very cautiously as it can also be quite
+            dangerous (imagine a client pushing a command like
+            <B
+CLASS="command"
+>exec /bin/bash -c rm -rf ~</B
+> for example).
+         </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLServer</CODE
+> is a class that provides the listener
+            portion of the server.  The application that uses this must execute
+            a Tcl event loop in a timely fashion.
+            <CODE
+CLASS="classname"
+>CTCLServer</CODE
+> processes connections and creates,
+            where appropriate <CODE
+CLASS="classname"
+>CTCLTcpServerInstance</CODE
+> objects
+            that handle communication with clients.
+            The server object maintains a directory of server instances so that when
+            asked to shutdown it can shutdown all server instances as well.
+         </P
+><P
+>&#13;            The class provides strategy pattern hooks to support arbitrary
+            authorization models, as well as the production of any subclass
+            of <CODE
+CLASS="classname"
+>CTCLTcpServerInstance</CODE
+> to process
+            the commands.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7652"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CTCLServer(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int </span
+><span
+class="parameter"
+>port</span
+></span
+>);&#13;</code
+><P
+>&#13;                Constructs and activates a server object. Activation means that
+                the Tcl event loop can dispatch events for client connections
+                to the object for processing.
+                <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the interpreter this server
+                is supposed to be servicing.  In the standard scheme, this is
+                the interpreter to which commands will be dispatched.
+                <CODE
+CLASS="parameter"
+>port</CODE
+> is the Tcp/IP port on which the
+                server will listen for connections.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>instanceExit(<span
+class="methodparam"
+><span
+class="type"
+>CTCLTcpServerInstance* </span
+><span
+class="parameter"
+>pInstance</span
+></span
+>);&#13;</code
+><P
+>&#13;                The server maintains a directory of server instances.  When server
+                instances exit they must call this function in the server listener
+                passing a pointer to themselves (<CODE
+CLASS="varname"
+>this</CODE
+>) as a
+                parameter.  This function locates the instance in the
+                directory, removes it from the directory and
+                <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>deletes that object</I
+></SPAN
+>.
+            </P
+><P
+>&#13;                Having called this, the server instance should return
+                immediately as its object context has become invalid.
+                If the server listener object is asked to shutdown, it will
+                also call <CODE
+CLASS="methodname"
+>instanceExit</CODE
+> on all
+                instances to shut them down as well.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>shutdown();&#13;</code
+><P
+>&#13;                Stops listening for connections on the server port and
+                shuts down all instances by invoking
+                <CODE
+CLASS="methodname"
+>instanceExit</CODE
+> on them.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>bool </span
+>allowConnection(<span
+class="methodparam"
+><span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>hostname</span
+></span
+>);&#13;</code
+><P
+>&#13;                Called at connection time to determine if the connection should
+                be allowed.  <CODE
+CLASS="parameter"
+>connection</CODE
+> is the
+                <SPAN
+CLASS="type"
+>Tcl_Channel</SPAN
+> that is open on the client.
+                overrides of this are perfectly free to do any sort of
+                communication back and fort with the client to determine
+                its elligibility to connect. 
+            </P
+><P
+>&#13;                <CODE
+CLASS="parameter"
+>hostname</CODE
+> is the name of the host
+                that is connecting.  This allows a host based authentication
+                scheme to be developed.
+            </P
+><P
+>&#13;                The function must return <TT
+CLASS="literal"
+>true</TT
+> to accept the
+                connection and <TT
+CLASS="literal"
+>false</TT
+> to deny it.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>CTCLTcpServerInstance* </span
+>createInstance(<span
+class="methodparam"
+><span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>hostname</span
+></span
+>);&#13;</code
+><P
+>&#13;                Called to create a client instance.  The client instance is responsible
+                for interacting with the client to do whatever communication is needed.
+                By making this virtual, any type descended from
+                <CODE
+CLASS="classname"
+>CTCLTcpServerInstance</CODE
+> can be created.
+            </P
+><P
+>&#13;                <CODE
+CLASS="parameter"
+>connection</CODE
+> is the <SPAN
+CLASS="type"
+>Tcl_Channel</SPAN
+>
+                open on the client.
+                <CODE
+CLASS="parameter"
+>hostname</CODE
+> is the host that is connecting.
+            </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7524.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7716.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLStdioCommander</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLTcpServerInstance</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

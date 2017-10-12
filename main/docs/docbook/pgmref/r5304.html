@@ -1,0 +1,396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLCompatibiltyProcessor</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLProcessor"
+HREF="r5114.html"><LINK
+REL="NEXT"
+TITLE="CTCLCommandPackage"
+HREF="r5371.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r5114.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r5371.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLCompatibilityProcessor"
+></A
+>CTCLCompatibiltyProcessor</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5308"
+></A
+><H2
+>Name</H2
+>CTCLCompatibilityProcessor&nbsp;--&nbsp;
+            Adaptor between <CODE
+CLASS="classname"
+>CTCLOjbectProcessor</CODE
+>
+            and <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+>.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5313"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLCompatibilityProcessor.h&#62;
+...
+class CTCLCompatibilityProcessor : public CTCLObjectProcessor
+{
+
+public:
+
+  CTCLCompatibilityProcessor(CTCLProcessor&#38; actualCommand);
+  virtual ~CTCLCompatibilityProcessor();
+
+  virtual int operator()(CTCLInterpreter&#38; interp,
+                         std::vector&#60;CTCLObject&#62;&#38; objv);
+  virtual void onUnregister();
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5315"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Note that the information on this page is only to be used to
+            "grandfather" old <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> objects
+            into Tcl.  New command processors should be based on the
+            CTCLObjectProcessor.
+        </P
+><P
+>&#13;            A rewrite of the TCL++ library in March 2006 eliminated the use of
+            Tcl functions that are scheduled to be deprecated in the known future
+            of Tcl.    One set of functions scheduled for deprecation are those
+            that revolve around direct access to the Tcl interpreter result, and
+            command processors that use the <CODE
+CLASS="parameter"
+>argc</CODE
+>,
+            <CODE
+CLASS="parameter"
+>argv</CODE
+> interfaces.
+        </P
+><P
+>&#13;            Since a number of existing command extensions are, no doubt built on
+            top of the <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> <CODE
+CLASS="parameter"
+>argc</CODE
+>
+                                                            <CODE
+CLASS="parameter"
+>argv</CODE
+>
+            interface, a mechanism that allows the use of existing commands was built
+            as well.
+        </P
+><P
+>&#13;            The current implementation of a <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> includes
+            as member data a <CODE
+CLASS="classname"
+>CTCLCompatibilityProcessor</CODE
+> object.
+            This object registers itself as a <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+>
+            for the command intended by the <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> and
+            serves as an adaptor between these two command types, marshalling command
+            objects into an <CODE
+CLASS="parameter"
+>argc</CODE
+>, <CODE
+CLASS="parameter"
+>argv</CODE
+> pair,
+            creating and committing a <CODE
+CLASS="classname"
+>CTCLResult</CODE
+> object.
+        </P
+><P
+>&#13;            For most users of this library, this is completely transparent, this documentation
+            is provided for completeness, however.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5335"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<CODE
+CLASS="function"
+>CTCLCompatibilityProcessor</CODE
+>(<SPAN
+CLASS="type"
+>CTCLProcessor</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>actualCommand</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Constructs a  compatibility processor that adapts the object based command
+            interface for <CODE
+CLASS="parameter"
+>actualCommand</CODE
+>.  <CODE
+CLASS="parameter"
+>actualCommand</CODE
+>
+            must already be bound to an interpreter.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;virtual <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator()</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>interp</CODE
+>,
+                       <SPAN
+CLASS="type"
+>std::vector&#60;CTCLObject&#62;</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>objv</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Called when the command is executed.  <CODE
+CLASS="parameter"
+>objv</CODE
+> is marshalled
+            into an argc, argv pair.  A <CODE
+CLASS="classname"
+>CTCLResult</CODE
+> is created and the
+            actual command's <CODE
+CLASS="function"
+>operator()</CODE
+> is called to execute the command.
+            On return, the result is committed, and all dynamic storage released prior to
+            returning the status from the command processor.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;virtual <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>onUnregister</CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            Called when the command is unregistered.  The actual command's <CODE
+CLASS="function"
+>OnDelete</CODE
+>
+            member is called.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5363"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLObject(3),
+CTCLObjectProcessor(3),
+CTCLProcessor(3),
+CTCLResult(3),
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5366"
+></A
+><H2
+>REFERENCES</H2
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;Gamma, Helm, Johnson, Vlissides <CODE
+CLASS="parameter"
+>Design Patterns Elements of Reusable
+Object-Oriented Software</CODE
+>
+Addison-Wesley Professional Computing Series 1995 ISBN 0-0201-63361-2
+See Chapter 4 the Adapter pattern.
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r5114.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r5371.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLProcessor</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLCommandPackage</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

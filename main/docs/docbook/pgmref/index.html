@@ -1,0 +1,613 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SpecTcl Programming Reference.</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="NEXT"
+TITLE="Introduction"
+HREF="c13.html"></HEAD
+><BODY
+CLASS="book"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="AEN1"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+><A
+NAME="AEN2"
+>SpecTcl Programming Reference.</A
+></H1
+><H3
+CLASS="author"
+><A
+NAME="AEN4"
+></A
+>Ron Fox</H3
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="c13.html"
+>Introduction</A
+></DT
+><DT
+>I. <A
+HREF="p31.html"
+>SpecTclAPI class</A
+></DT
+><DD
+><DL
+><DT
+>2. <A
+HREF="c33.html"
+>SpecTcl</A
+></DT
+><DT
+><A
+HREF="r37.html"
+>SpecTcl</A
+>&nbsp;--&nbsp;API Singleton class.</DT
+></DL
+></DD
+><DT
+>II. <A
+HREF="p2375.html"
+>Tree Parameter, Tree Variable API</A
+></DT
+><DD
+><DL
+><DT
+>3. <A
+HREF="c2377.html"
+>Tree parametr, tree variable API</A
+></DT
+><DT
+><A
+HREF="r2386.html"
+>CTreeParameter</A
+>&nbsp;--&nbsp;Parameter object 'independent' of rEvent</DT
+><DT
+><A
+HREF="r3194.html"
+>CTreeParameterArray</A
+>&nbsp;--&nbsp;Arrays of tree parameters</DT
+><DT
+><A
+HREF="r3671.html"
+>CTreeVariable</A
+>&nbsp;--&nbsp;Access to Tcl variables with metadata</DT
+><DT
+><A
+HREF="r4061.html"
+>CTreeVariableProperites</A
+>&nbsp;--&nbsp;Shared properties of CTreeVariable</DT
+><DT
+><A
+HREF="r4238.html"
+>CTreeVariableArray</A
+>&nbsp;--&nbsp;Container for an array of tree variables.</DT
+></DL
+></DD
+><DT
+>III. <A
+HREF="p4402.html"
+>Tcl++ classes</A
+></DT
+><DD
+><DL
+><DT
+>4. <A
+HREF="c4404.html"
+>Tcl++ classes</A
+></DT
+><DT
+><A
+HREF="r4430.html"
+>CTCLInterpreter</A
+>&nbsp;--&nbsp;
+            Encapsulate a Tcl interpreter.
+        </DT
+><DT
+><A
+HREF="r4666.html"
+>CTCLInterpreterObject</A
+>&nbsp;--&nbsp;
+            Base class for objects that are associated with a Tcl Interpreter.
+        </DT
+><DT
+><A
+HREF="r4745.html"
+>CTCLResult</A
+>&nbsp;--&nbsp;
+            Provide an object oriented interace to the Tcl interpreter result.
+        </DT
+><DT
+><A
+HREF="r4856.html"
+>CTCLException</A
+>&nbsp;--&nbsp;
+            Class for reporting exceptional conditions in Tcl applications
+            via the C++ try/catch mechanism.
+        </DT
+><DT
+><A
+HREF="r4999.html"
+>CTCLObjectProcessor</A
+>&nbsp;--&nbsp;
+            Abstract base class to encapsulate the Tcl object command interface exposed by
+            <CODE
+CLASS="function"
+>Tcl_CreateObjCommand</CODE
+>.
+        </DT
+><DT
+><A
+HREF="r5114.html"
+>CTCLProcessor</A
+>&nbsp;--&nbsp;
+            Provide <CODE
+CLASS="parameter"
+>argc</CODE
+>, <CODE
+CLASS="parameter"
+>argv</CODE
+>
+            extension commands to Tcl.
+        </DT
+><DT
+><A
+HREF="r5304.html"
+>CTCLCompatibiltyProcessor</A
+>&nbsp;--&nbsp;
+            Adaptor between <CODE
+CLASS="classname"
+>CTCLOjbectProcessor</CODE
+>
+            and <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+>.
+        </DT
+><DT
+><A
+HREF="r5371.html"
+>CTCLCommandPackage</A
+>&nbsp;--&nbsp;
+            Group several related Tcl command extensions and common services they
+            may require together.
+        </DT
+><DT
+><A
+HREF="r5476.html"
+>CTCLPackagedCommand</A
+>&nbsp;--&nbsp;
+            Base class for a command that lives in a <CODE
+CLASS="classname"
+>CTCLCommandPackage</CODE
+>
+        </DT
+><DT
+><A
+HREF="r5537.html"
+>CTCLVariable</A
+>&nbsp;--&nbsp;
+            Encapsulate Tcl interpreter variables.
+        </DT
+><DT
+><A
+HREF="r5733.html"
+>CTCLApplication 3</A
+>&nbsp;--&nbsp;
+            Base class for TCL/Tk applications.
+        </DT
+><DT
+><A
+HREF="r5780.html"
+>CTCLHashTable</A
+>&nbsp;--&nbsp;
+            Object oriented interface to Tcl's hash table functions.
+        </DT
+><DT
+><A
+HREF="r5911.html"
+>CTCLHashTableItem</A
+>&nbsp;--&nbsp;
+            Encapsulation of an entry in a Tcl Hash table as encapsulated
+            in <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+>
+        </DT
+><DT
+><A
+HREF="r5979.html"
+>CTCLHashTableIterator</A
+>&nbsp;--&nbsp;
+            Iterator for visiting all elements of a <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+>
+        </DT
+><DT
+><A
+HREF="r6075.html"
+>CTCLString</A
+>&nbsp;--&nbsp;
+            Provide a wrapper for the <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> data type
+            and its API
+        </DT
+><DT
+><A
+HREF="r6292.html"
+>CTCLList</A
+>&nbsp;--&nbsp;
+            Provide access to Tcl List parsing.
+        </DT
+><DT
+><A
+HREF="r6401.html"
+>CTCLChannel</A
+>&nbsp;--&nbsp;
+            Provide a C++ abstraction wrapper for Tcl Channels.
+        </DT
+><DT
+><A
+HREF="r6571.html"
+>CTCLFileHandler</A
+>&nbsp;--&nbsp;
+            Base class for building object oriented Tcl File event handlers.
+        </DT
+><DT
+><A
+HREF="r6657.html"
+>CTCLIdleProcess</A
+>&nbsp;--&nbsp;
+            Allows the establishment of an executable object that
+            can be scheduled to be invoked when the Tcl/Tk intperpreter
+            has no events that require processing.
+        </DT
+><DT
+><A
+HREF="r6718.html"
+>CTCLTimer</A
+>&nbsp;--&nbsp;
+            Abstract base class for C++ objects attached to timer events.
+        </DT
+><DT
+><A
+HREF="r6788.html"
+>CTCLLiveEventLoop</A
+>&nbsp;--&nbsp;Run Tcl with event loop.</DT
+><DT
+><A
+HREF="r6892.html"
+>CTCLChannelCommander</A
+>&nbsp;--&nbsp;Accept commands on a Tcl channel from the event loop.</DT
+><DT
+><A
+HREF="r7104.html"
+>CTCLStdioCommander</A
+>&nbsp;--&nbsp;Event driven command input on stdin/stdout</DT
+><DT
+><A
+HREF="r7168.html"
+>CTCLServer</A
+>&nbsp;--&nbsp;Listener for a Tcl server.</DT
+><DT
+><A
+HREF="r7296.html"
+>CTCLTcpServerInstance</A
+>&nbsp;--&nbsp;Channel commander that is a server instance for <CODE
+CLASS="classname"
+>CTCLServer</CODE
+></DT
+><DT
+><A
+HREF="r7369.html"
+>CItemConfiguration</A
+>&nbsp;--&nbsp;Hold a configuration</DT
+><DT
+><A
+HREF="r8092.html"
+>CConfigurableObject</A
+>&nbsp;--&nbsp;Base class for objects tht have a configuration.</DT
+><DT
+><A
+HREF="r8312.html"
+>CTCLObjectPackage</A
+>&nbsp;--&nbsp;Provide common functionality for a set of
+                related commands.</DT
+><DT
+><A
+HREF="r8374.html"
+>CTCLPackagedObjectProcessor</A
+>&nbsp;--&nbsp;Base class for commands living in a
+                    <CODE
+CLASS="classname"
+>CTCLObjectPackage</CODE
+>
+         </DT
+></DL
+></DD
+><DT
+>IV. <A
+HREF="p8474.html"
+>Core SpecTcl classes</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="r8479.html"
+>CTclGrammerApp</A
+>&nbsp;--&nbsp;Base Application class</DT
+><DT
+><A
+HREF="r9101.html"
+>CHistogrammer</A
+>&nbsp;--&nbsp;SpecTcl histogramming core</DT
+><DT
+><A
+HREF="r9852.html"
+>Dictionaries</A
+>&nbsp;--&nbsp;Describe dictionaries used by SpecTcl</DT
+><DT
+><A
+HREF="r10463.html"
+>CAnalyzer</A
+>&nbsp;--&nbsp;Analyzer base class and classic analyzer</DT
+><DT
+><A
+HREF="r10865.html"
+>CTclAnalyzer</A
+>&nbsp;--&nbsp;Analyzer integrated with Tcl supporting pipeline</DT
+><DT
+><A
+HREF="r11419.html"
+>CBufferDecoder</A
+>&nbsp;--&nbsp;Base class for SpecTcl buffer decoders</DT
+><DT
+><A
+HREF="r11703.html"
+>CNSCLBufferDecoder</A
+>&nbsp;--&nbsp;Decode fixed sized event buffers from NSCLDAQ-7.x/8.x</DT
+><DT
+><A
+HREF="r11863.html"
+>CNSCLJumboBufferDecoder</A
+>&nbsp;--&nbsp;Decode NSCLDAQ 7.x/8.x buffers bigger than 128Kbytes.</DT
+><DT
+><A
+HREF="r12027.html"
+>CRingBufferDecoder</A
+>&nbsp;--&nbsp;Decode data from ring buffers</DT
+><DT
+><A
+HREF="r12390.html"
+>CRingFormatHelper</A
+>&nbsp;--&nbsp;ABC for4 ring buffer format helpers</DT
+><DT
+><A
+HREF="r12571.html"
+>CNamedItem</A
+>&nbsp;--&nbsp;Base class for items with names and ids.</DT
+><DT
+><A
+HREF="r12652.html"
+>CParameter</A
+>&nbsp;--&nbsp;Parameter definition.</DT
+><DT
+><A
+HREF="r12841.html"
+>CEvent</A
+>&nbsp;--&nbsp;Destination for decoded event data.</DT
+><DT
+><A
+HREF="r12971.html"
+>CSpectrum</A
+>&nbsp;--&nbsp;Classes implementing SpecTcl spectra</DT
+><DT
+><A
+HREF="r15072.html"
+>CFold</A
+>&nbsp;--&nbsp;Process gamma ray spectrum folds</DT
+><DT
+><A
+HREF="r15188.html"
+>CAxis</A
+>&nbsp;--&nbsp;Spectrum axis coordinate transforms.</DT
+><DT
+><A
+HREF="r15300.html"
+>CGate</A
+>&nbsp;--&nbsp;SpecTcl gate classes</DT
+><DT
+><A
+HREF="r16884.html"
+>CGateContainer</A
+>&nbsp;--&nbsp;Pointer like class for Gates.</DT
+><DT
+><A
+HREF="r16992.html"
+>CGateObserver</A
+>&nbsp;--&nbsp;Observe changes in the gate dictionary.</DT
+><DT
+><A
+HREF="r17077.html"
+>CFit</A
+>&nbsp;--&nbsp;Base class for spectrum fitting subsystem.</DT
+><DT
+><A
+HREF="r17340.html"
+>Predefined CFit classes</A
+>&nbsp;--&nbsp;3SpecTcl</DT
+><DT
+><A
+HREF="r17508.html"
+>CSpectrumFit</A
+>&nbsp;--&nbsp;Fit of spectrum channels.</DT
+><DT
+><A
+HREF="r17691.html"
+>CFitFactory</A
+>&nbsp;--&nbsp;Creating fit objects by name</DT
+><DT
+><A
+HREF="r17996.html"
+>CFitDictionary</A
+>&nbsp;--&nbsp;Fitting subsystem dictionary.</DT
+><DT
+><A
+HREF="r18268.html"
+>CEventSink</A
+>&nbsp;--&nbsp;Base class for event sink pipeline elements</DT
+><DT
+><A
+HREF="r18330.html"
+>CEventFilter</A
+>&nbsp;--&nbsp;Abstract base class for event filters.</DT
+><DT
+><A
+HREF="r18626.html"
+>CGatedEventFilter</A
+>&nbsp;--&nbsp;Filter with output conditionalized on a gate check.</DT
+><DT
+><A
+HREF="r18732.html"
+>CFilterOutputStage</A
+>&nbsp;--&nbsp;Abstract base class for filter output streamers.</DT
+><DT
+><A
+HREF="r18840.html"
+>CXdrFilterOutputStage</A
+>&nbsp;--&nbsp;Filter output stage for writing Xdr filters.</DT
+><DT
+><A
+HREF="r18964.html"
+>CFilterOutputStageCreator</A
+>&nbsp;--&nbsp;Create filter output stages for
+            <CODE
+CLASS="classname"
+>CFilterOutputStageFactory</CODE
+></DT
+><DT
+><A
+HREF="r19026.html"
+>CFilterOutputStageFactory</A
+>&nbsp;--&nbsp;Create filter output stage objects.</DT
+><DT
+><A
+HREF="r19093.html"
+>CXdrFilterOutputStageCreator</A
+>&nbsp;--&nbsp;
+            Create <CODE
+CLASS="classname"
+>CXrFilterOutputStage</CODE
+> objects
+        </DT
+><DT
+><A
+HREF="r19107.html"
+>FilterEventProcessor</A
+>&nbsp;--&nbsp;
+            Decodes events from a filter file into parameters.
+        </DT
+><DT
+>5. <A
+HREF="c19180.html"
+>Stuff to do</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Examples</B
+></DT
+><DT
+>1. <A
+HREF="r6788.html#AEN6889"
+>evttclsh</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c13.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Introduction</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

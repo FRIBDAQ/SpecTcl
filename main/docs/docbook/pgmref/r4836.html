@@ -1,0 +1,1028 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLObject</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLList"
+HREF="r4727.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4727.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLObject"
+></A
+>CTCLObject</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4840"
+></A
+><H2
+>Name</H2
+>CTCLObject&nbsp;--&nbsp;
+            Encapsulate Tcl Dual ported objects.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4843"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLObject.h&#62;
+...
+class CTCLObject : public CTCLInterpreterObject
+{
+
+public:
+  CTCLObject ();
+  CTCLObject (Tcl_Obj* am_pObject);
+  CTCLObject (const CTCLObject&#38; aCTCLObject );
+  virtual  ~CTCLObject ( );
+
+  CTCLObject&#38; operator= (const CTCLObject&#38; aCTCLObject);
+  int operator== (const CTCLObject&#38; aCTCLObject) const;
+
+  Tcl_Obj* getObject();
+  const Tcl_Obj* getObject() const;
+
+   CTCLObject&#38; operator= (const std::string&#38; rSource)    ;
+   CTCLObject&#38; operator= (const char* pSource)    ;
+   CTCLObject&#38; operator= (int nSource)    ;
+   CTCLObject&#38; operator= (const CTCLList&#38; rList)    ;
+   CTCLObject&#38; operator= (double dSource)     ;
+   CTCLObject&#38;  operator=(Tcl_Obj* rhs);
+
+  operator std::string ()    ;
+  operator int ()    ;
+  operator CTCLList ()    ;
+  operator double ()    ;
+
+  CTCLObject&#38; operator+= (const CTCLObject&#38; rObject)    ;
+  CTCLObject&#38; operator+= (int nItem)    ;
+  CTCLObject&#38; operator+= (const std::string&#38; rItem)    ;
+  CTCLObject&#38; operator+= (const char* pItem)    ;
+  CTCLObject&#38; operator+= (double  Item)    ;
+
+  CTCLObject clone ()    ;
+
+  CTCLObject operator() ()    ;
+
+  CTCLObject   getRange(int first, int last);
+
+  CTCLObject&#38;  concat(CTCLObject&#38; rhs); // Concat lists.
+  std::vector&#60;CTCLObject&#62;  getListElements();
+  CTCLObject&#38;  setList(std::vector&#60;CTCLObject&#62; elements);
+  int          llength();
+  CTCLObject   lindex(int index);
+  CTCLObject&#38;  lreplace(int first, int count, std::vector&#60;CTCLObject&#62; newElements);
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4845"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Tcl as a scripting language carries a deeply embedded philosophy that
+            everything can be treated as a string.  Nonetheless, in many cases,
+            entities manipulated by the interpreter are more efficiently manipulated
+            when they have other types of internal representations.  For example strings
+            which represent floating point numbers in extended computations are more
+            efficiently represented directly as <SPAN
+CLASS="type"
+>float</SPAN
+> or <SPAN
+CLASS="type"
+>double</SPAN
+>
+            variables.
+        </P
+><P
+>&#13;            Tcl uses <I
+CLASS="firstterm"
+>dual ported</I
+> objects to capture this efficiently.
+            A Tcl object is a thing that has a string representation and at most one
+            other typed representation (e.g. list, integer, floating point).  Conversions
+            from string to this representation are done once and cached as long as possible,
+            so that when an object has been used as a particular type there is essentially
+            no additional conversion cost to use it as that type again.
+        </P
+><P
+>&#13;            While a <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+> and therefore a <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            can exist independent of an interpreter, many member functions require the
+            object be bound to an interpreter, or they will fail with an assertion failure
+            causing the program to abort.  Use the base class <CODE
+CLASS="function"
+>Bind</CODE
+>
+            (<CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>::<CODE
+CLASS="function"
+>Bind</CODE
+>)
+            member to bind the object to an existing interpreter, usually as soon as
+            possible.
+        </P
+><P
+>&#13;            Tcl objects also can be shared with a lazy copy on write scheme so that
+            overhead associated with duplicating objects (e.g. when using them as
+            parameters to Tcl commands) is minimized.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLObject</CODE
+> exposes an object oriented interface to the
+            Tcl dual ported object.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4861"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLObject</CODE
+> ();
+  <CODE
+CLASS="function"
+>CTCLObject</CODE
+> (<SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>* <CODE
+CLASS="parameter"
+>pObject</CODE
+>);
+  <CODE
+CLASS="function"
+>CTCLObject</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+> );
+            </PRE
+>
+        </P
+><P
+>&#13;            Constructs a Tcl object wrapped in a <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>.
+            <CODE
+CLASS="parameter"
+>pObject</CODE
+> is an existing <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+> pointer that will be wrapped.
+            <CODE
+CLASS="parameter"
+>rhs</CODE
+> is an existing <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            that will be used to create another reference to the same underlying
+            object.  Note that in the last two of these forms, a new <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>
+            is not created.  Instead, <CODE
+CLASS="function"
+>Tcl_IncrRefCount</CODE
+> is used
+            on the previously existing object to mark it as shared.
+            All member functions which  modify the underlying object will create a new
+            object (copy on write semantics), and decrement the reference count of the
+            original object.  Destroying a <CODE
+CLASS="classname"
+>CTCLObject</CODE
+> invokes
+            <CODE
+CLASS="function"
+>Tcl_DecrRefCount</CODE
+> on the underlying <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>
+            object.  This may or may not result in destruction of that underlying object
+            depending on the resulting reference count.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+  <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator</CODE
+>= (const <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>) const;
+            </PRE
+>
+        </P
+><P
+>&#13;            These two members provide assignment and equality comparison for <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            instances with another object <CODE
+CLASS="parameter"
+>rhs</CODE
+>.  Assignment operates
+            efficiently by decrementing the reference count on the prior object,
+            incrementing the reference count for <CODE
+CLASS="parameter"
+>rhs</CODE
+>, and
+            copying its <SPAN
+CLASS="type"
+>Tcl_Obj*</SPAN
+> only.
+            Equality comparision is true if the underlying objects have the same string
+            representation.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>* <CODE
+CLASS="function"
+>getObject</CODE
+>();
+  const <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>* <CODE
+CLASS="function"
+>getObject</CODE
+>() const;
+            </PRE
+>
+        </P
+><P
+>&#13;            Retrieves a mutable or immutable pointer to the underlying object.
+            If you intend to retain this pointer for longer than the lifetime of the
+            <CODE
+CLASS="classname"
+>CTCLObject</CODE
+> object from which it comes or longer
+            than the lifetime of the execution of the calling function you should
+            invoke <CODE
+CLASS="function"
+>Tcl_IncrRefCount</CODE
+> to mark the object shared
+            and prevent its destruction until you no longer need it, at which point
+            you should invoke <CODE
+CLASS="function"
+>Tcl_DecrRefCount</CODE
+>.
+        </P
+><P
+>&#13;            You should not modify the underlying object as that violates the
+            copy on write semantics expected of <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+> objects.
+            Instead, use <CODE
+CLASS="function"
+>Tcl_DuplicateObj</CODE
+> to create a new
+            object (decrementing the reference count of the previous object), and
+            modify that one instead.  The following code snippet shows this:
+            <PRE
+CLASS="programlisting"
+>&#13;        int      len;
+        Tcl_Obj* pObject = someObject.getObject();
+        string   value   = string(Tcl_GetStringFromObj(pObject, &#38;len));
+        value           += "new text";
+        pObject          = Tcl_DuplicateObj(pObject); // Split off a new object.
+        Tcl_SetStringObj(pObject, (char*)value.c_str(), -1);
+            </PRE
+>
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rSource</CODE
+>)    ;
+   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pSource</CODE
+>)    ;
+   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>nSource</CODE
+>)    ;
+   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rList</CODE
+>)    ;
+   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (<SPAN
+CLASS="type"
+>double</SPAN
+> <CODE
+CLASS="parameter"
+>dSource</CODE
+>)     ;
+   <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+>(<SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+>* <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Assigns a new value to the object.  The reference count of the previously
+            encapsulated object is decremented and a new object is created into
+            which the right hand side value is loaded.  This preserves copy on write
+            semantics.  <CODE
+CLASS="parameter"
+>rSource</CODE
+> and <CODE
+CLASS="parameter"
+>pSource</CODE
+> load
+            the new object with a string valued entity.  No attempt is made to create another
+            representation for the object (yet).
+            <CODE
+CLASS="parameter"
+>nSource</CODE
+> loads the object with an integer value and its
+            string representation.
+            <CODE
+CLASS="parameter"
+>rList</CODE
+> loads the object with a list representation and
+            its string representation.
+            <CODE
+CLASS="parameter"
+>dSource</CODE
+> loads the object with a double precision floating
+            point value and its string representation.  <CODE
+CLASS="parameter"
+>rhs</CODE
+> simply
+            copies in the new object pointer and increments its reference count.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+  <CODE
+CLASS="function"
+>operator std::string</CODE
+> ()    ;
+  <CODE
+CLASS="function"
+>operator int</CODE
+> ()    ;
+  <CODE
+CLASS="function"
+>operator CTCLList</CODE
+> ()    ;
+  <CODE
+CLASS="function"
+>operator double</CODE
+> ()    ;
+            </PRE
+>
+        </P
+><P
+>&#13;            These function provide implicit and explicit type conversions between
+            a <CODE
+CLASS="classname"
+>CTCLObject</CODE
+> instance and other types.
+            The type conversions attempt to extract the appropriately typed value
+            from the underlying object.  If successful, the value is returned.
+            On failure, a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.
+            For example:
+            <PRE
+CLASS="programlisting"
+>&#13;        CTCLObject object = "3.14159";  // String rep.
+        object.Bind(pInterp);           // Some of these need an interp.
+        double     pi     = object      // (operator double()).
+        object            = "george";   // string rep.
+        try {
+           int trash = object;          // fails.
+        }
+        catch (CTCLException&#38; e) {
+            // this catch block will execute.
+        }
+            </PRE
+>
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rObject</CODE
+>)    ;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>nItem</CODE
+>)    ;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rItem</CODE
+>)    ;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pItem</CODE
+>)    ;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator+=</CODE
+> (<SPAN
+CLASS="type"
+>double</SPAN
+>  <CODE
+CLASS="parameter"
+>Item</CODE
+>)    ;
+            </PRE
+>
+        </P
+><P
+>&#13;            Creates the list representation of the underlying object, converts either
+            <CODE
+CLASS="parameter"
+>rObject</CODE
+>,
+            <CODE
+CLASS="parameter"
+>nItem</CODE
+>,
+            <CODE
+CLASS="parameter"
+>rItem</CODE
+>,
+            <CODE
+CLASS="parameter"
+>pItem</CODE
+>,
+            <CODE
+CLASS="parameter"
+>Item</CODE
+> to its string representation and appends
+            it as a list entry to the object.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+  <SPAN
+CLASS="type"
+>CTCLObject</SPAN
+> <CODE
+CLASS="function"
+>clone</CODE
+> ()    ;
+            </PRE
+>
+        </P
+><P
+>&#13;            A wrapper for <CODE
+CLASS="function"
+>Tcl_DuplicateObj</CODE
+>.  The object is
+            duplicated and its duplicate is returned wrapped by a
+            <CODE
+CLASS="classname"
+>CTCLOjbect</CODE
+>.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+> <CODE
+CLASS="function"
+>operator()</CODE
+> ()    ;
+            </PRE
+>
+        </P
+><P
+>&#13;            The object's string representation is compiled by its bound
+            interpreter to Tcl byte code and executed as a script by that
+            bound interpreter.  Note that the byte code compilation is cached
+            so that subsequent invocations of the script will not require
+            recompilation unless other references force a different second
+            representation on the object (e.g. fetching it as a list).
+            The result of the script execution is returned as a new <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            If script compilation failed, or script execution resulted in an error,
+            a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> will be thrown describing this.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+> <CODE
+CLASS="function"
+>getRange</CODE
+>(<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>first</CODE
+>,
+                   <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>last</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Returns a new object that consists of a subrange of the string representation of
+            the original object. <CODE
+CLASS="parameter"
+>first</CODE
+> is the index of the first
+            character of the substring returned. <CODE
+CLASS="parameter"
+>last</CODE
+> is the
+            index of the last character of the substring. See <CODE
+CLASS="function"
+>Tcl_GetRange</CODE
+>
+            for more information, note however that some values of <CODE
+CLASS="parameter"
+>first</CODE
+>
+            or <CODE
+CLASS="parameter"
+>last</CODE
+> will be treated specially, and that the
+            underlying string representation operated on is a <I
+CLASS="firstterm"
+>Unicode</I
+> string
+            for which some characters in some languages may require more than one byte.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38;  <CODE
+CLASS="function"
+>concat</CODE
+>(<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>); // Concat lists.
+            </PRE
+>
+        </P
+><P
+>&#13;            Concatenates the <CODE
+CLASS="parameter"
+>rhs</CODE
+> as a list element to the object.
+            A refrence to the new object is returned.  Copy on write semantics are maintained.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>std::vector&#60;CTCLObject&#62;</SPAN
+>  <CODE
+CLASS="function"
+>getListElements</CODE
+>();
+            </PRE
+>
+        </P
+><P
+>&#13;            Converts the object into its underlying list representation.  The
+            elements of the list are loaded into a vector of <CODE
+CLASS="classname"
+>CTCLObject</CODE
+>
+            objects and returned.  If the underlying string representation does not have
+            a valid list representation, (e.g. "{this cannot be converted") a
+            <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;CTCLObject&#38;  setList(std::vector&#60;CTCLObject&#62; elements);
+            </PRE
+>
+        </P
+><P
+>&#13;            Loads the object with a string and list representation whose words are
+            the appropriately quoted string representation of <CODE
+CLASS="parameter"
+>elements</CODE
+>.
+            A reference to the new object is returned.  Copy on write semantics are
+            maintained.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>llength()</CODE
+>;
+            </PRE
+>
+        </P
+><P
+>&#13;            If necessary, converts the object to its list representation and returns the
+            number of elements in that list.  If it is not possible to convert the
+            string represenation of the object into a valid list, a <CODE
+CLASS="classname"
+>CTCLException</CODE
+>
+            is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+> <CODE
+CLASS="function"
+>lindex</CODE
+>(<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>index</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            If necessary, creates the list representation of the object and returns a
+            new object that is element number <CODE
+CLASS="parameter"
+>index</CODE
+> of that list.
+            If the object cannot be converted into a list, a <CODE
+CLASS="classname"
+>CTCLException</CODE
+>
+            is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLObject</SPAN
+>&#38; <CODE
+CLASS="function"
+>lreplace</CODE
+>(<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>first</CODE
+>,
+                    <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>count</CODE
+>,
+                    <SPAN
+CLASS="type"
+>std::vector&#60;CTCLObject&#62;</SPAN
+> <CODE
+CLASS="parameter"
+>newElements</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            If necessary, converts the object to its list representation.  If that conversion
+            fails a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.  The set of elements
+            specified by <CODE
+CLASS="parameter"
+>first</CODE
+> and <CODE
+CLASS="parameter"
+>count</CODE
+>,
+            are replaced by the words held in the vector <CODE
+CLASS="parameter"
+>newElements</CODE
+>.
+            <CODE
+CLASS="parameter"
+>newElements</CODE
+> can, of course, be an empty vector in order
+            to remove <CODE
+CLASS="parameter"
+>count</CODE
+> elements starting at <CODE
+CLASS="parameter"
+>first</CODE
+>
+            from the list.  A reference to the resulting object is returned.
+            Copy on write semantics are enforced.
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4727.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLList</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,338 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLTcpServerInstance</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLServer"
+HREF="r7168.html"><LINK
+REL="NEXT"
+TITLE="CItemConfiguration"
+HREF="r7369.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7168.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7369.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLTcpServerInstance"
+></A
+>CTCLTcpServerInstance</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7300"
+></A
+><H2
+>Name</H2
+>CTCLTcpServerInstance&nbsp;--&nbsp;Channel commander that is a server instance for <CODE
+CLASS="classname"
+>CTCLServer</CODE
+></DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7304"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLTcpServerInstance.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLTcpServerInstance : public CTCLChannelCommander </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CTCLTcpServerInstance(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CTCLServer* </span
+><span
+class="parameter"
+>pServer</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CTCLTcpServerInstance();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onEndFile();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7334"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            Server instance that takes client commands and submits them to
+            an interpreter.  The results of each command are sent back to the
+            client. At this point the client can only look at the
+            result value to determine if there was an error as no error indication
+            is passed back.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7337"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="constructorsynopsis"
+>&#13;  CTCLTcpServerInstance(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>connection</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>CTCLServer* </span
+><span
+class="parameter"
+>pServer</span
+></span
+>);&#13;</code
+><P
+>&#13;                Constructs a new server instance.
+                <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the interpreter to which
+                commands should be directed.
+                <CODE
+CLASS="parameter"
+>connection</CODE
+> is the <SPAN
+CLASS="type"
+>Tcl_Channel</SPAN
+>
+                that represents the Tcp/IP connection to the client.
+                <CODE
+CLASS="parameter"
+>pServer</CODE
+> is the TCL server object
+                that starts us.  That server's
+                <CODE
+CLASS="methodname"
+>instanceExit</CODE
+> member should be called
+                to shut down and clean up this object.
+            </P
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onEndFile();&#13;</code
+><P
+>&#13;                Override to end of file handling.  Closes the
+                channel and invokes the
+                server listener's <CODE
+CLASS="methodname"
+>instanceExit</CODE
+>
+                method to get ourselves deleted.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+><P
+>&#13;                Returns a command result by fetching it from the interpreter
+                and sending it back to the client on the socket.
+            </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7168.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7369.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLServer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CItemConfiguration</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

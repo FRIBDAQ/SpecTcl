@@ -1,0 +1,429 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLPackagedObjectProcessor</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLObjectPackage"
+HREF="r8732.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r8732.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLPackagedObjectProcessor"
+></A
+>CTCLPackagedObjectProcessor</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN8798"
+></A
+><H2
+>Name</H2
+>CTCLPackagedObjectProcessor&nbsp;--&nbsp;Base class for commands living in a
+                    <CODE
+CLASS="classname"
+>CTCLObjectPackage</CODE
+>
+         </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN8802"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLPackagedObjectProcessor.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLPackagedObjectProcessor </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CTCLPackagedObjectProcessor(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter&#38; </span
+><span
+class="parameter"
+>interp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>command</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>bool </span
+><span
+class="parameter"
+>registerMe</span
+><span
+class="initializer"
+> = true</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>void </span
+>onAttach(<span
+class="methodparam"
+><span
+class="type"
+>CTCLObjectPackage* </span
+><span
+class="parameter"
+>package</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected </span
+><span
+class="type"
+>CTCLObjectPackage* </span
+>getPackage();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>void </span
+>Initialize();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8835"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            A packaged object command is a <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+>
+            that can draw on a set of services shared between it and a
+            set of related commands.  The set of commands and the common set
+            of services is called a <I
+CLASS="firstterm"
+>package</I
+>.
+         </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CTCLPackagedObjectProcessor</CODE
+> class
+            described here provides a base class for such commands.  The base
+            class provides mechanisms for the package to associate the object
+            that contains the shared services with the command, and a mechanism
+            for the subclass that actually implements real commands to access this
+            associated object.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8842"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CTCLPackagedObjectProcessor(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter&#38; </span
+><span
+class="parameter"
+>interp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>command</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>bool </span
+><span
+class="parameter"
+>registerMe</span
+><span
+class="initializer"
+> = true</span
+></span
+>);&#13;</code
+><P
+>&#13;                Construct the object.  The parameters are the same as for
+                a <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+>;
+                <CODE
+CLASS="parameter"
+>interp</CODE
+> is a reference to the TCL interpreter
+                to which the command will be added.  <CODE
+CLASS="parameter"
+>command</CODE
+>
+                is the command keyword that will invoke the object's
+                <CODE
+CLASS="methodname"
+>operator()</CODE
+>.
+                <CODE
+CLASS="parameter"
+>regsiterMe</CODE
+> is
+                <TT
+CLASS="literal"
+>true</TT
+> if the
+                command should be registered on the interpreter immediately
+                (this is usually the case and hence the parameter is optional,
+                defaulting to <TT
+CLASS="literal"
+>true</TT
+>
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>onAttach(<span
+class="methodparam"
+><span
+class="type"
+>CTCLObjectPackage* </span
+><span
+class="parameter"
+>package</span
+></span
+>);&#13;</code
+><P
+>&#13;                This method is called by the package when the command object is
+                added to the package.  <CODE
+CLASS="parameter"
+>package</CODE
+> is a pointer
+                to the package object, which contains its shared services.
+                This is saved and can be retrieved by subclass objects via
+                <CODE
+CLASS="methodname"
+>getPackage</CODE
+>.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected </span
+><span
+class="type"
+>CTCLObjectPackage* </span
+>getPackage();&#13;</code
+><P
+>&#13;                Returns the package object pointer supplied to
+                <CODE
+CLASS="methodname"
+>onAttach</CODE
+>
+                by the package.  Normally this will need to be cast to a
+                specific concrete package type by the caller so that its methods
+                can be accessed.
+            </P
+><P
+>&#13;                If called prior to the
+                <CODE
+CLASS="methodname"
+>onAttach</CODE
+> call, this returns
+                a null pointer.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>protected virtual </span
+><span
+class="type"
+>void </span
+>Initialize();&#13;</code
+><P
+>&#13;                Called by <CODE
+CLASS="methodname"
+>onAttach</CODE
+> after the
+                package has been saved (and is therefore accessible by
+                <CODE
+CLASS="methodname"
+>getPackage</CODE
+>.  This does nothing in the
+                base class but can be overidden in subclasses to allow
+                for initialization that requires access to the package services.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8890"
+></A
+><H2
+>&#13;            SEE ALSO
+         </H2
+><P
+>&#13;            <A
+HREF="r8732.html"
+>CTCLObjectPackage(3daq)</A
+>
+	 </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r8732.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLObjectPackage</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

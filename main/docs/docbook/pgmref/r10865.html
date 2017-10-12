@@ -1,0 +1,1779 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTclAnalyzer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CAnalyzer"
+HREF="r10463.html"><LINK
+REL="NEXT"
+TITLE="CBufferDecoder"
+HREF="r11419.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r10463.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r11419.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN10865"
+></A
+>CTclAnalyzer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN10869"
+></A
+><H2
+>Name</H2
+>CTclAnalyzer&nbsp;--&nbsp;Analyzer integrated with Tcl supporting pipeline</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN10872"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;TCLAnalyzer.h&#62;
+
+class CTclAnalyzer {
+public:
+  typedef std::pair&#60;std::string, CEventProcessor*&#62; PipelineElement;
+  typedef std::list&#60;PipelineElement&#62; EventProcessingPipeline;
+  typedef EventProcessingPipeline::iterator EventProcessorIterator;
+  typedef std::vector&#60;CTCLVariable*&#62;  VariableArray;
+  
+public:
+  CTclAnalyzer(CTCLInterpreter&#38; rInterp, UInt_t nP, UInt_t nBunch);
+  CTCLInterpreter* getInterpreter();
+  
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder&#38; rDecoder);
+  virtual void OnPhysics(CBufferDecoder&#38; rDecoder);
+  virtual void OnOther(UInt_t nType, CBufferDecoder&#38; rDecoder);
+  virtual void OnScaler(CBufferDecoder&#38; rDecoder);
+  virtual void OnEndFile();
+  
+  virtual void OnBegin(CBufferDecoder* rDecoder);
+  virtual void OnEnd(CBufferDecoder*   rDecoder);
+  virtual void OnPause(CBufferDecoder* rDecoder);
+  virtual void OnResume(CBufferDecoder* rDecoder);
+  virtual void OnInitialize();
+
+  void AddEventProcessor(CEventProcessor&#38; rProcessor,
+			 const char* pName = 0); // Append to pipe.
+  EventProcessorIterator FindEventProcessor(std::string name);
+  EventProcessorIterator FindEventProcessor(CEventProcessor&#38; processor);
+  void InsertEventProcessor(CEventProcessor&#38; processor, 
+			    EventProcessorIterator here, 
+			    const char* name = 0);
+  CEventProcessor* RemoveEventProcessor(std::string name);
+  CEventProcessor* RemoveEventProcessor(EventProcessorIterator here);
+  UInt_t size();
+  EventProcessorIterator begin();
+  EventProcessorIterator end();
+
+  void IncrementCounter(Counter eSelect, UInt_t incr = 1);
+  void ClearCounter(Counter eSelect);
+
+  void SetEventSize(UInt_t nSize);
+  void IncrementEventSize(UInt_t nIncr=2) ;
+  UInt_t GetEventSize() ;
+  
+};
+enum Counter {
+  RunsAnalyzed          = 0,
+  EventsAnalyzed        = 1,
+  EventsAnalyzedThisRun = 2,
+  EventsAccepted        = 3,
+  EventsAcceptedThisRun = 4,
+  EventsRejected        = 5,
+  EventsRejectedThisRun = 6
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10874"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;             The <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+> class is a SpecTcl analyzer
+             that extends the base class by:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                    Maintaining statistical counters that can be retrieved from
+                    Tcl
+                </P
+></LI
+><LI
+><P
+>&#13;                    Supporting a list of event processors, rather than a single
+                    one.  The list is called the
+                    <I
+CLASS="firstterm"
+>Event processing pipeline</I
+>. 
+                </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10884"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTclAnalyzer(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nP</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nBunch</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The constructor sets up several variables that
+                        are defined in 
+                        <CODE
+CLASS="parameter"
+>rInterp</CODE
+>.  This interpreter
+                        should be the SpecTcl command interpreter so that these
+                        variables will be visible to commands executed by SpecTcl.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nP</CODE
+> is the initial number of parameters
+                        for each <CODE
+CLASS="classname"
+>CEvent</CODE
+> object
+                        constructed by the base class.  Since these objects are
+                        recycled from event to event, the value of this
+                        has no effect on performance.
+                        <CODE
+CLASS="parameter"
+>nBunch</CODE
+> is the size of the bunch
+                        of events that will be accumulated before invoking the
+                        event sink pipeline.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter*  </span
+>getInterpreter();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the interpreter in which this analyzer
+                        maintains its statistics variables.  Normally, this is
+                        the SpecTcl command processing interpreter.  
+                    </P
+><P
+>&#13;                        Note that the return value is a pointer to a
+                        <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+> object.  The
+                        reference documentation on the Tcl++ library describes
+                        this and related classes.  The
+                        <A
+HREF="r4430.html"
+><I
+>CTCLInterpreter</I
+></A
+> manpage
+                              provides details about this specific claass.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnStateChange(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Overrides the base class's method that processes
+                        state change operations.  After calling the base
+                        class's <CODE
+CLASS="methodname"
+>OnStateChange</CODE
+> method,
+                        this method fans out
+                        the state change processing for the following
+                        item types:
+                    </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="literal"
+>BEGRUNBF</TT
+></DT
+><DD
+><P
+>&#13;                                    Invokes <CODE
+CLASS="methodname"
+>OnBegin</CODE
+>
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>ENDRUNBF</TT
+></DT
+><DD
+><P
+>&#13;                                    Invokes
+                                    <CODE
+CLASS="methodname"
+>OnEnd</CODE
+>.
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>PAUSEBF</TT
+></DT
+><DD
+><P
+>&#13;                                    Invokes <CODE
+CLASS="methodname"
+>OnPause</CODE
+>
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>RESUMEBF</TT
+></DT
+><DD
+><P
+>&#13;                                    Invokes <CODE
+CLASS="methodname"
+>OnResume</CODE
+>
+                                </P
+></DD
+></DL
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>&#13;
+                         </span
+><span
+class="type"
+>void  </span
+>OnPhysics(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        After invoking the base class <CODE
+CLASS="methodname"
+>OnPhysics</CODE
+>
+                        method, increments statistics variables that
+                        indicate the number of items analyzed and the
+                        sequence number of the last item analyzed. For
+                        NSCLDAQ-8.x and earlier, the decoder gets the
+                        sequence number from the buffer header.  For
+                        NSCLDAQ-10.0 and later, this sequence number is
+                        number of triggers from the most recently seen
+                        <TT
+CLASS="literal"
+>PHYSICS_EVENT_COUNT</TT
+> item.
+                    </P
+><P
+>&#13;                        Note that no effort is made to actually analyze the
+                        data in this method.  The Tcl analyzer establishes
+                        an event processor for the base class that contains
+                        an ordered list of event processors.   When the
+                        base class <CODE
+CLASS="methodname"
+>OnPhysics</CODE
+>
+                        method
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnOther(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+> CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Iterates over the event processors in the
+                        event processing pipeline invoking their
+                        <CODE
+CLASS="methodname"
+>OnOther</CODE
+> methods.
+                        If an event processor returns a false value
+                        (<TT
+CLASS="literal"
+>kfFALSE</TT
+>), iteration is aborted
+                        after that stage of the pipeline.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnScaler(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a scaler item is received.  This
+                        invokes <CODE
+CLASS="methodname"
+>OnOther</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnEndFile();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when an end file is encountered on a data source.
+                        For file data sources this happens when there's no
+                        more data in the file.  For pipe data sources this
+                        happens when the program feeding the pipeline
+                        exits.
+                    </P
+><P
+>&#13;                        The event processors in the pipeline are iterated
+                        calling <CODE
+CLASS="methodname"
+>OnEventSourcEOF</CODE
+>.
+                        If one of the event processors returns
+                        false, event processor pipeline processing is terminated.
+                    </P
+><P
+>&#13;                        Regardless, the <CODE
+CLASS="varname"
+>RunState</CODE
+> Tcl variable
+                        is set to <TT
+CLASS="literal"
+>Halted</TT
+> indicating that
+                        SpecTcl is no longer processing event data. 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnEnd(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*    </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when an end run item is encounterd.  Sets the
+                        <CODE
+CLASS="varname"
+>RunState</CODE
+> variable to
+                        <TT
+CLASS="literal"
+>Halted</TT
+> indicating analysis is no longer
+                        active and then calls the <CODE
+CLASS="methodname"
+>OnEnd</CODE
+>
+                        method of each event processor in the event processing
+                        pipeline.
+                    </P
+><P
+>&#13;                        If an event processor returns false, no more event
+                        processors will be called.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnPause(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a pause run item is received. The
+                        <CODE
+CLASS="varname"
+>RunState</CODE
+> variable is set to
+                        <TT
+CLASS="literal"
+>Paused</TT
+> and the
+                        <CODE
+CLASS="methodname"
+>OnPause</CODE
+> method is
+                        called for each element of the event processing pipeline.
+                    </P
+><P
+>&#13;                        If an event processing pipeline element returns
+                        false, no futher event processors are called.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnResume(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a resume item is received.  The
+                        <CODE
+CLASS="varname"
+>RunState</CODE
+> variable is set to
+                        <TT
+CLASS="literal"
+>Active</TT
+> indicating data is being
+                        analyzed.  The 
+                        <CODE
+CLASS="methodname"
+>OnResume</CODE
+> method is invoked
+                        for each element of the event processing pipeline.
+                        If an element  of the pipeline returns false,
+                        no more event processors are invoked.
+                    </P
+><P
+>&#13;                        Note that when analyzing a file data source, the
+                        <CODE
+CLASS="varname"
+>RunState</CODE
+> variable will flip quickly
+                        between <TT
+CLASS="literal"
+>Paused</TT
+> and
+                        <TT
+CLASS="literal"
+>Active</TT
+> for a run that is paused and
+                        resumed.  For a pipe data source connected to live data,
+                        however, this variable will remain in the
+                        <TT
+CLASS="literal"
+>Paused</TT
+> state until the user
+                        resumes the run.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnInitialize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called after SpecTcl's initialization is complete.
+                        The <CODE
+CLASS="methodname"
+>OnInitialize</CODE
+> method
+                        of each element of the event processign pipeline is
+                        called.  If any element returns false, no more elements
+                        are called.
+                    </P
+><P
+>&#13;                        This is intended for use when initialization requires
+                        knowing that all of SpeTcl's services are available.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+> AddEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38;  </span
+><span
+class="parameter"
+>rProcessor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>pName</span
+><span
+class="initializer"
+> =  0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds <CODE
+CLASS="parameter"
+>rProcessor</CODE
+> as to the
+                        end of the event processing pipeline.  The object
+                        must be live as long as it is in the event processing
+                        pipeline.
+                    </P
+><P
+>&#13;                        If provided, <CODE
+CLASS="parameter"
+>pName</CODE
+> is used to name
+                        the event processor.  If this is not provided, a unique
+                        name of the form <TT
+CLASS="literal"
+>Anonymous::</TT
+><TT
+CLASS="replaceable"
+><I
+>number</I
+></TT
+>
+                        is assigned where <TT
+CLASS="replaceable"
+><I
+>number</I
+></TT
+>
+                        is a sequentially assigned integer number.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator  </span
+>FindEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the element of the event processing
+                        pipeline that has the name <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                        If no such element exists, the value returned is the
+                        same as that returned from
+                        <CODE
+CLASS="methodname"
+>end</CODE
+>.
+                    </P
+><P
+>&#13;                        Event processor iterators can be treated as if they
+                        were pointers to an
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CEventProcessor*&#62;</CODE
+>.
+                        The first element of the pair is the name of an event processor.
+                        The second, a pointer to the event processor itself.
+                    </P
+><P
+>&#13;                        Incrementing an iterator points it to the next pipeline
+                        element.  Incrementing the iterator when it points to the
+                        last element of the pipeline returns
+                        the same value as that returned from
+                        <CODE
+CLASS="methodname"
+>end</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator  </span
+>FindEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38;  </span
+><span
+class="parameter"
+>processor</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Locates an event processor given a reference to it.
+                        The use case for this is to delete an anonymous event
+                        processor from the eventprocessing pipeline.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>InsertEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38; </span
+><span
+class="parameter"
+> processor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator  </span
+><span
+class="parameter"
+>here</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+> char*  </span
+><span
+class="parameter"
+>name</span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides the ability to insert an event processor anywhere
+                        in the event processing pipeline.  The event processor
+                        is inserted just prior  to the item pointed to by
+                        <CODE
+CLASS="parameter"
+>here</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor*  </span
+>RemoveEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the named event processor
+                        <CODE
+CLASS="parameter"
+>name</CODE
+>.    The return value
+                        is a pointer to the event processor removed from
+                        the list.  No steps are taken to destroy that processor so
+                        if it has been dynamically created with <TT
+CLASS="literal"
+>new</TT
+>
+                        it must be destroyed with <TT
+CLASS="literal"
+>delete</TT
+>
+                    </P
+><P
+>&#13;                        If there is no event processor in the event processing
+                        pipeline, the return value is a null pointer. It is up
+                        to the caller to decide if this represents an error.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor*  </span
+>RemoveEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator </span
+><span
+class="parameter"
+> here</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the event processor pointed to by the iterator
+                        <CODE
+CLASS="parameter"
+>here</CODE
+>.  The return value is
+                        a pointer to the event processor that was removed.
+                        It is up to the caller to destroy that event processor,
+                        if desired.
+                    </P
+><P
+>&#13;                        Note this method invalidates the iterator <CODE
+CLASS="parameter"
+>here</CODE
+>.
+                        Destruction and assignment become the only operatiosn with
+                        defined meaning.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements in the event procesing
+                        pipeline.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator  </span
+>begin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator that points to the first element of
+                        the event processing pipeline. See
+                        <CODE
+CLASS="methodname"
+>find</CODE
+> above for a description of
+                        <CODE
+CLASS="classname"
+>EventProcessorIterator</CODE
+> objects.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>EventProcessorIterator  </span
+>end();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an end of iteration iterator.  This is the value of
+                        the iterator that results from incrementing an iterator
+                        that points to the last <CODE
+CLASS="classname"
+>PipelineElement</CODE
+>
+                    </P
+><P
+>&#13;                        Here is sample code that might list the names of all
+                        event processors:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CAnalyzer* pA;
+...                       // Assume pA got set to point at the analyzer:
+
+for (auto p = pA-&#62;begin(), p != pA-&#62;end(); p++) {
+    std::cout &#60;&#60; p-&#62;first &#60;&#60; std::endl;
+}
+                    </PRE
+><P
+>&#13;                        The code above is intended just to show a typical use of
+                        <CODE
+CLASS="methodname"
+>begin</CODE
+> and
+                        <CODE
+CLASS="methodname"
+>end</CODE
+> to iterate over the entire
+                        event processing pipeline.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>IncrementCounter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Counter  </span
+><span
+class="parameter"
+>eSelect</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>incr </span
+><span
+class="initializer"
+> = 1</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Increments one of the Tcl statistics counters
+                        maintained by this object.  <CODE
+CLASS="parameter"
+>eSelect</CODE
+>
+                        selects which counter to increment.  It is described
+                        in <TT
+CLASS="literal"
+>DATA TYPES</TT
+> below.  
+                    </P
+><P
+>&#13;                        Unless <CODE
+CLASS="parameter"
+>incr</CODE
+> is supplied, the
+                        counter is incremented by <TT
+CLASS="literal"
+>1</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ClearCounter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Counter  </span
+><span
+class="parameter"
+>eSelect</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Clears the counter selected by
+                        <CODE
+CLASS="parameter"
+>eSelect</CODE
+>.  This values this
+                        enumerated parameter can have are described
+                        in <TT
+CLASS="literal"
+>DATA TYPES</TT
+> below.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SetEventSize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nSize</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        At least one event processor must invoke this.
+                        The event size in bytes is set to be <CODE
+CLASS="parameter"
+>nSize</CODE
+>.
+                        This is used to determine where the next event in a run of
+                        events is.  
+                    </P
+><P
+>&#13;                        Note that if a supervent has been declared this will
+                        be used to point to the next event in the superevent.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>IncrementEventSize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nIncr</span
+><span
+class="initializer"
+> = 2</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds <CODE
+CLASS="parameter"
+>nIncr</CODE
+> to the size of the
+                        event. 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+> GetEventSize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the current understanding of the size
+                        of this event.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11326"
+></A
+><H2
+>DATA TYPES</H2
+><P
+>&#13;            The header <TT
+CLASS="filename"
+>TCLAnalyzer.h</TT
+> defines both nested
+            and global level data types.  This section will first describe the
+            globally defined data types and then the nested type.
+        </P
+><P
+>&#13;            One globally defined data type <CODE
+CLASS="classname"
+>Counter</CODE
+>
+            is defined.  This is an enumerated type whose values select the
+            Tcl counter operated on by e.g. <CODE
+CLASS="methodname"
+>IncrementCounter</CODE
+>.
+            These statistics are maintained in the Tcl array
+            <CODE
+CLASS="varname"
+>Statistics</CODE
+>.
+            The type can have any of the following values.  
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="literal"
+>RunsAnalyzed</TT
+></DT
+><DD
+><P
+>&#13;                        Increments the <TT
+CLASS="literal"
+>RunsAnalyzed</TT
+> element
+                        of <CODE
+CLASS="varname"
+>Statistics</CODE
+>.  This counter
+                        is incremented by the analyzer whenever it
+                        executes its
+                        <CODE
+CLASS="methodname"
+>OnBegin</CODE
+> method.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsAnalyzed </TT
+></DT
+><DD
+><P
+>&#13;                        Selects the element
+                        <TT
+CLASS="literal"
+>EventsAnalyzed</TT
+> from the
+                        <CODE
+CLASS="varname"
+>Statistics</CODE
+> array.  This counter
+                        is incremented every time
+                        <CODE
+CLASS="methodname"
+>OnEvent</CODE
+> is executed.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsAnalyzedThisRun </TT
+></DT
+><DD
+><P
+>&#13;                        Selects <TT
+CLASS="literal"
+>EventsAnalyzedThisRun</TT
+>.
+                        Same as <TT
+CLASS="literal"
+>EventsAnalyzed</TT
+> but
+                        additionally, this counter is also cleared by
+                        <CODE
+CLASS="methodname"
+>OnBegin</CODE
+>
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsAccepted</TT
+></DT
+><DD
+><P
+>&#13;                        Selects <TT
+CLASS="literal"
+>EventsSelected</TT
+>.  This
+                        counts the number of events that made it through
+                        the entire event processing pipeline without
+                        any element returning false.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsAcceptedThisRun</TT
+></DT
+><DD
+><P
+>&#13;                        Selects <TT
+CLASS="literal"
+>EventsAcceptedThisRun</TT
+>.
+                        Same as <TT
+CLASS="literal"
+>EventsAccepted</TT
+> but is also
+                        cleared by <CODE
+CLASS="methodname"
+>OnBegin</CODE
+>
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsRejected</TT
+></DT
+><DD
+><P
+>&#13;                        Selects <TT
+CLASS="literal"
+>EventsRejected</TT
+>.  Incremented
+                        for each event for which the event processing  pipeline was aborted
+                        because an event processor returned false.  Note that
+                        exceptions thrown by an event processor caught by the
+                        <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+> object are
+                        treated as pipeline aborts for the purpose
+                        of this counter.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>EventsRejectedThisRun</TT
+></DT
+><DD
+><P
+>&#13;                        Selects <TT
+CLASS="literal"
+>EventsRejectedThisRun</TT
+>. This
+                        is the same as <TT
+CLASS="literal"
+>EventsRejected</TT
+> but
+                        is also cleared by
+                        <CODE
+CLASS="methodname"
+>OnBegin</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            Several data types are defined within the <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+>
+            class.  These are mostly related to the event processing pipeline.
+            These types are defined via <TT
+CLASS="literal"
+>typedef</TT
+>.  To specify
+            these types in your code you'll need to use the scope resolution
+            operator.  For example, <CODE
+CLASS="classname"
+>PipelineElement</CODE
+>
+            must be referred to as a <CODE
+CLASS="classname"
+>CTclAnalyzer::PipelineElement</CODE
+>.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="classname"
+>PipelineElement</CODE
+></DT
+><DD
+><P
+>&#13;                        This is an element of the list that contains
+                        an event processing pipeline element. It associates
+                        an event processor with a name and places it in an ordered
+                        container of event processors.
+                    </P
+><P
+>&#13;                        The actual type is:
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CEventProcessor*&#62;</CODE
+>
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>EventProcessingPipeline</CODE
+></DT
+><DD
+><P
+>&#13;                        The actual event processing pipeline.  This is actually a
+                        <CODE
+CLASS="classname"
+>std::list&#60;PipelineElement&#62;</CODE
+>
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>EventProcessorIterator</CODE
+></DT
+><DD
+><P
+>&#13;                        Represents an iterator into the event processing
+                        pipeline container.  This is actually a
+                        <CODE
+CLASS="classname"
+>EventProcessingPipeline::iterator</CODE
+>
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>VariableArray</CODE
+></DT
+><DD
+><P
+>&#13;                        Defines a vector that contains TCL variables:
+                        <CODE
+CLASS="classname"
+>std::vector&#60;CTCLVariable*&#62;</CODE
+>
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r10463.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r11419.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CAnalyzer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CBufferDecoder</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

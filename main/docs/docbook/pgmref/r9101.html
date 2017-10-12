@@ -1,0 +1,2533 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CHistogrammer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CTclGrammerApp"
+HREF="r8479.html"><LINK
+REL="NEXT"
+TITLE="Dictionaries"
+HREF="r9852.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r8479.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r9852.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN9101"
+></A
+>CHistogrammer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN9105"
+></A
+><H2
+>Name</H2
+>CHistogrammer&nbsp;--&nbsp;SpecTcl histogramming core</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN9108"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;
+class <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> : public <CODE
+CLASS="classname"
+>CEventSink</CODE
+> {
+
+  typedef std::list&#60;CGateObserver*&#62;   GateObserverList;
+  typedef std::list&#60;CGatingObserver*&#62; GatingObserverList;
+
+  ParameterDictionary m_ParameterDictionary;
+  SpectrumDictionary  m_SpectrumDictionary;
+  CGateDictionary     m_GateDictionary; 
+  GateObserverList    m_gateObservers;  
+  GatingObserverList  m_gatingObservers;
+
+
+  CFlattenedGateList*   m_pGateList;
+  CSpectrumByParameter* m_pSpectrumLists;
+
+
+ public:
+
+  const ParameterDictionary&#38; getParameterDictionary() const ;
+
+  const SpectrumDictionary&#38; getSpectrumDictionary() const ;
+
+ protected:
+
+  void setParameterDictionary(const ParameterDictionary&#38; am_ParameterDictionary);
+
+  void setSpectrumDictionary(const SpectrumDictionary&#38; am_SpectrumDictionary) ;
+
+ public:
+
+  virtual void operator() (const CEvent&#38;     rEvent);
+  virtual void operator() (CEventList&#38; rEventList);
+
+
+  CParameter* AddParameter (const std::string&#38; sName,
+			    UInt_t nId,
+			    const char* pUnits);
+  CParameter* AddParameter (const std::string&#38; sName,
+			    UInt_t nId,
+			    UInt_t  nScale);
+  CParameter* AddParameter (const std::string&#38; sName,
+			    UInt_t nId, UInt_t nScale,
+			    Float_t nLow, Float_t nHi,
+			    const std::string&#38; sUnits);
+  CParameter* RemoveParameter (const std::string&#38; sName);
+  CParameter* FindParameter (const std::string&#38; rName);
+  CParameter* FindParameter (UInt_t nPar);
+  ParameterDictionaryIterator ParameterBegin();
+  ParameterDictionaryIterator ParameterEnd();
+  UInt_t ParameterCount();
+
+
+  void AddSpectrum(CSpectrum&#38; rSpectrum);
+  CSpectrum* RemoveSpectrum(const std::string sName);
+  void ClearSpectrum(const std::string&#38; rsName);
+  void ClearAllSpectra();
+  CSpectrum* FindSpectrum(const std::string&#38; rName);
+  CSpectrum* FindSpectrum(UInt_t id);
+  SpectrumDictionaryIterator SpectrumBegin();
+  SpectrumDictionaryIterator SpectrumEnd();
+  UInt_t SpectrumCount();
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
+  void UnGate(const std::string&#38; rSpectrum); 
+
+  void AddGate(const std::string&#38; rName, UInt_t nId, CGate&#38; rGate);
+  void DeleteGate(const std::string&#38; rGateName);
+  void ReplaceGate(const std::string&#38; rGateName, CGate&#38; rGate);
+  void ApplyGate(const std::string&#38; rGateName,  const std::string&#38; rSpectrum);
+  CGateContainer* FindGate(const std::string&#38; rGate);
+  CGateContainer* FindGate(UInt_t nId);
+  CGateDictionaryIterator GateBegin();
+  CGateDictionaryIterator GateEnd();
+  UInt_t GateCount();
+
+  void addGateObserver(CGateObserver* observer);
+  void removeGateObserver(CGateObserver* observer);
+
+  void addGatingObserver(CGatingObserver* observer);
+  void removeGatingObserver(CGatingObserver* observer);
+
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9112"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Histogramming core of SpecTcl.  In addition to performing the
+            actual histogramming, this class encapsulates SpecTcl's dictionaries.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9115"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            The first set of methods get and set attributes.  The getter methods
+            are public while the setters are all protected.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>ParameterDictionary&#38; </span
+> getParameterDictionary();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the SpecTcl parameter dictionary.
+                        This is a dictionary that contains all of the
+                        parameter definitions known to SpecTcl. Note that
+                        the <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> API class
+                        provides the access to this dictionary that most
+                        applications need and should be used instead rather than
+                        directly accessing the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>SpectrumDictionary&#38;  </span
+>getSpectrumDictionary();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the Spectrum dictionary.
+                        This contains all of the objects that define the
+                        spectra the histogrammer increments.  Note that
+                        the <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> API class
+                        provides the access to this dictionary that most
+                        applications need and should be used instead rather than
+                        directly accessing the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected: </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setParameterDictionary(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> ParameterDictionary&#38; </span
+><span
+class="parameter"
+> am_ParameterDictionary</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Allows derived classes to replace the parameter dictionary.
+                        This is only useful in the unlikely event you've
+                        derived a new dictionary class from the
+                        <CODE
+CLASS="classname"
+>ParameterDictionary</CODE
+> class.
+                    </P
+><P
+>&#13;                        This method should be called early in the lifetime of
+                        the derived class to ensure you don't lose existing definitions
+                        when replacing the object.  The constructor would be
+                        a good place to do this.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>  void  </span
+>setSpectrumDictionary(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>SpectrumDictionary&#38;  </span
+><span
+class="parameter"
+>am_SpectrumDictionary</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a replacement for a spectrum dictionary.
+                        Most of the comments associated with
+                        <CODE
+CLASS="methodname"
+>setParameterDictionary</CODE
+>
+                        apply here.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The next set of methods are invoked externally to perform histogramming.
+            Normally the analyzer object invokes these after building an
+            event list from the results of the analysis pipeline.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> CEvent&#38;      </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Resets all of the gates and histograms the
+                        <CODE
+CLASS="parameter"
+>rEvent</CODE
+>, a single event.
+                        Note that the histograms check the gates needed to
+                        be incremented so there's no separate pass taken to
+                        check all gates.  Furthermore, gates cache their
+                        results so the actual gate computation is not only
+                        performed only on the gates needed but at most once per
+                        gate.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator() (<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventList&#38; </span
+><span
+class="parameter"
+> rEventList</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Iterates over each event in <CODE
+CLASS="parameter"
+>rEventlist</CODE
+>
+                        invoking the previous overloaded <CODE
+CLASS="methodname"
+>operator()</CODE
+>
+                        for each element in that list.   This is the method
+                        invoked by the analyzer object to process events from
+                        the event processing pipeline.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The next set of methods mainpulate the parameter dictionary.
+            Note that the
+            <CODE
+CLASS="classname"
+>SpecTcl</CODE
+>
+            API provides methods to accomplish
+            everything these methods accomplish.  I recommend
+            using the API singleton to do parameter manipulation or,
+            even simpler, use <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+>
+            objects instead of directly working with SpecTcl low level
+            parameters.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38; </span
+><span
+class="parameter"
+> sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char* </span
+><span
+class="parameter"
+> pUnits</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t   </span
+><span
+class="parameter"
+>nScale</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>AddParameter (<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nScale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> nLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>nHi</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>sUnits</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods create a new parameter and
+                        add it to the parameter dictionary.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>sName</CODE
+> is the name of the new parameter.
+                        If a parameter with that name already exists,
+                        a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is thrown.
+                        <CODE
+CLASS="parameter"
+>nId</CODE
+> is the parameter's id which
+                        is the slot in the <CODE
+CLASS="classname"
+>CEvent</CODE
+> array
+                        like object in which parameter values are put.
+                        A <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is
+                        also thrown
+                        if a parameter with that Id already exists.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nScale</CODE
+> determines the
+                        resolution of the parameter in bits. When creating
+                        a spetrum on a parameter, consider being informed
+                        by this value when determining the binning for axes
+                        involving this parameter.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nLow</CODE
+> and <CODE
+CLASS="parameter"
+>nHigh</CODE
+>
+                        are soft limits on the values stored in the parameter.
+                        Spectra created with axes defined on this parameter
+                        should use these values to inform decisions about the
+                        limits on those axes.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>sUnits</CODE
+> is the units of measure
+                        for the parameter.   Spectra can label axes with that as
+                        a unix of meausre appropriately.
+                    </P
+><P
+>&#13;                        On successful return, a pointer to the new
+                        <CODE
+CLASS="classname"
+>CParameter</CODE
+> object is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter* </span
+> RemoveParameter (<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>sName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the parameter identified by
+                        <CODE
+CLASS="parameter"
+>sName</CODE
+> from the parameter
+                        dictionary. The parameter object is copy constructed
+                        into a dynamically allocated <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                        object whose pointer is returned.  The return value
+                        must therefore be <TT
+CLASS="literal"
+>delete</TT
+>d in order
+                        to prevent memory leaks.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>FindParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameter*  </span
+>FindParameter (<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nPar</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to a <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                        object in the parameter dictionary.  The parameter
+                        returned either has a name equal to
+                        <CODE
+CLASS="parameter"
+>rName</CODE
+> or a parameter id
+                        equal to <CODE
+CLASS="parameter"
+>nPar</CODE
+> depending on which
+                        actual method is called.
+                    </P
+><P
+>&#13;                        If there is no matching parameter a null pointer is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ParameterDictionaryIterator  </span
+>ParameterBegin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the first element of the
+                        parameter dictionary.  Parameter dictionary Iterators
+                        act like pointers that point to an
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CParameter&#62;</CODE
+>.
+                        The first element of this pair is the name of the
+                        parameter while the second is the parameter itself.
+                    </P
+><P
+>&#13;                        Incrementing an iterator points to the next element
+                        of the container.  Incrementing an iterator that points
+                        to the last container element returns
+                        the same value as returned by
+                        <CODE
+CLASS="methodname"
+>ParameterEnd</CODE
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ParameterDictionaryIterator  </span
+>ParameterEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an value that is no longer in the container.
+                        Typical iteration over the parameter dictionary follows
+                        this pattern:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CHistogrammer* pH;                     // Assume this points to the histogrammer.
+for (auto p = pH-&#62;ParameterBegin(); p != pH-&#62;ParameteEnd(); p++) {
+        // do something with p-&#62;first and p-&#62;second.
+        ...
+}
+
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>ParameterCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements in the parameter
+                        dictionary.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The next methods manipulate the spectrum dictionary. The
+            <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> API singleton class
+            provides these services as well and we recommend you use it rather
+            than relyingo n these methods.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum&#38;  </span
+><span
+class="parameter"
+>rSpectrum</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new spectrum object to the spectrum dictionary.
+                        The Spectrum's  name is used as the dictionary key.
+                        The spectrum's id is used as the spectrum number.
+                    </P
+><P
+>&#13;                        If a spectrum matches either the name or the id,
+                        a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>
+                        is thrown.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>RemoveSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string  </span
+><span
+class="parameter"
+>sName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes a spectrum with the name
+                        <CODE
+CLASS="parameter"
+>sName</CODE
+> from the spectrum dictionary.
+                        A pointer to the removed spectrum is returned to the
+                        caller.  If there is no matching spectrum,
+                        a null pointer is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ClearSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rsName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Locates the spectrum in the spectrum dictionary
+                        that is named <CODE
+CLASS="parameter"
+>rsName</CODE
+>.  That
+                        spectrum's <CODE
+CLASS="methodname"
+>clear</CODE
+> method is
+                        called.  Normally that method sets all of the channels of
+                        the spectrum to <TT
+CLASS="literal"
+>0</TT
+>.
+                    </P
+><P
+>&#13;                        If there is no matching spectrum, a
+                        <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is thrown.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ClearAllSpectra();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Iterates through the spectrum dictionary invoking each
+                        <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> object's
+                        <CODE
+CLASS="methodname"
+>clear</CODE
+> method.  This sets all
+                        channels for all spectra to zero (assuming that's what
+                        the <CODE
+CLASS="methodname"
+>clear</CODE
+> method does for all
+                        subclasses of <CODE
+CLASS="classname"
+>CSpectrum</CODE
+>).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>FindSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrum*  </span
+>FindSpectrum(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>id</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The return value of <CODE
+CLASS="methodname"
+>FindSpectrum</CODE
+>
+                        is a pointer to the <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> object
+                        in the spectrum dictionary that matches the search criterion
+                        passed in as an argument.
+                        <CODE
+CLASS="parameter"
+>rName</CODE
+> is the name of the spectrum
+                        that must match exactly. <CODE
+CLASS="parameter"
+>id</CODE
+> is the
+                        spectrum id.
+                    </P
+><P
+>&#13;                        If there is no matching spectrum in the dictionary,
+                        a null pointer is returned.  Note that the dictionary
+                        management methods ensure that there can be at most
+                        one match.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryIterator  </span
+>SpectrumBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryIterator  </span
+>SpectrumEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods can be used to iterate over all of the
+                        entries in the spectrum dictionary.  Both methods return
+                        a <CODE
+CLASS="classname"
+>SpectrumDictionaryIterator</CODE
+>. This
+                        object acts like a pointer to a
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std:;string, CSpectrum*&#62;</CODE
+>
+                        object.  The first element of the pair is the name of an
+                        entry in the dictinoary (spectrum name), the second a pointer
+                        to the spectrum with that name.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>SpectrumBegin</CODE
+> provides an iterator
+                        that points to information about the first entry in the
+                        dictionary.
+                        Incrementing an iterator via its <CODE
+CLASS="methodname"
+>operator++</CODE
+>
+                        points it to the next entry in the dictionary.  Incremeting
+                        the  iterator when it points to the last entry of the
+                        container makes it equal to the value returned from
+                        <CODE
+CLASS="methodname"
+>SpectrumEnd</CODE
+>.  
+                    </P
+><P
+>&#13;                        Typical spectrum dictionary iteration can use the
+                        STL algorithm std::for_each if you have a functor it can call,
+                        or can express your operation as a C++ lambda or, without
+                        being fancy looks something like (<CODE
+CLASS="varname"
+>pHisto</CODE
+>
+                        is a pointer to the histogrammer object).
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;    for (auto p = pHisto-&#62;SpectrumBegin(); p != pHisto-&#62;SpectrumEnd(); p++) {
+        std::string name = p-&#62;first;
+        CSpectrum*   pSpec= p-&#62;second;
+        
+        // Do something with the spectrum or name or both.
+    }
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>SpectrumCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of spectra in the spectrum dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addSpectrumDictionaryObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeSpectrumDictionaryObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>SpectrumDictionaryObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods control <I
+CLASS="firstterm"
+>observers</I
+> of
+                        the spectrum dictionary.  For information about the
+                        observer programming pattern see:
+                        <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>.
+                        For information about the
+                        <CODE
+CLASS="classname"
+>SpectrumDictionaryObserver</CODE
+> abstract
+                        base class, see <TT
+CLASS="literal"
+>DATA TYPES</TT
+> below.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>addSpectrumDictionaryObserver</CODE
+>
+                        adds an observer whose methods will be called when
+                        changes are made to the spectrum dictionary (adding or
+                        removing spectra).  <CODE
+CLASS="methodname"
+>removeSpectrumObserver</CODE
+>
+                        removes an existing observer (<CODE
+CLASS="parameter"
+>observer</CODE
+>).
+                        If the specified <CODE
+CLASS="parameter"
+>observer</CODE
+> has not
+                        been established,
+                        <CODE
+CLASS="methodname"
+>removeSpectrumObserver</CODE
+>
+                        does nothing.
+                    </P
+><P
+>&#13;                        It is possible to register a single observer object more
+                        than once.  This is considered a pathology but no
+                        effort is made to stop you from doing that.  If an
+                        observer has been multiply registered,
+                        <CODE
+CLASS="methodname"
+>removeSpectrumObserver</CODE
+> will
+                        remove all instances of that observer object.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            The Next group of methods are used to mainpulate gates.  In addition
+            to adding and replacing gates in the gate dictionary, this set of
+            methods can apply gates to a spectrum as well as remove any
+            gate application from a spectrum (called <I
+CLASS="firstterm"
+>ungating</I
+>).
+        </P
+><P
+>&#13;            A couple of words about why gates can't actually
+            be removed/deleted from
+            the gate dictionary.  Many gate types are compound gates.
+            Compound gates are formed from logical combinations of othe gates.
+            For example an <TT
+CLASS="literal"
+>and</TT
+> gate is true if all of its
+            constituent gates (some of which might also be compound) are
+            true.
+        </P
+><P
+>&#13;            It's very hard, therefore to get a good definition of the effect
+            on a compound gate when a gate it depends on (directly or indirectly)
+            is destroyed.  Therefore SpecTcl's commands, normally "deletes" a gate not
+            by destroying it but by replacing it with a False gate.  This has a
+            consistent well defined behavior with respect not only to gates
+            that directly depend on the 'deleted' gate but also indirectly
+            dependent gates.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const std::string&#38;  </span
+><span
+class="parameter"
+>rName, UInt_t nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new gate to the gate dictionary.
+                        <CODE
+CLASS="parameter"
+>rName</CODE
+> is the name that is given
+                        to the gate.  It must be unique or else a
+                        <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> will be thrown.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nId</CODE
+> is a gate id number.  It's value
+                        is not actually important to SpecTcl's processing but
+                        it too must be unique, or else a
+                        <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> will be thrown
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>rGate</CODE
+> is a reference to the
+                        gate that will be added.  The  object is cloned
+                        so that a dynamically created copy is actually stored.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ReplaceGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const std::string&#38;  </span
+><span
+class="parameter"
+>rGateName, </span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CGate&#38; </span
+><span
+class="parameter"
+> rGate</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>DeleteGate(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rGateName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                    These methods both actually replace the definition of
+                    an existing gate.  <CODE
+CLASS="methodname"
+>ReplaceGate</CODE
+>
+                    replaces the defintion of the gate named
+                    <CODE
+CLASS="parameter"
+>rGateName</CODE
+> with the gate
+                    <CODE
+CLASS="parameter"
+>rGate</CODE
+>. The previous gate
+                    definition object is deleted (recall that
+                    <CODE
+CLASS="methodname"
+>addGate</CODE
+> makes a dynamic clone).
+                </P
+><P
+>&#13;                    <CODE
+CLASS="methodname"
+>DeleteGate</CODE
+> simply calls
+                    <CODE
+CLASS="methodname"
+>ReplaceGate</CODE
+> with a false gate.
+                    SpecTcl's commands understand that such gates are actually
+                    deleted when listing gates.
+                </P
+><P
+>&#13;                    If no gate named <CODE
+CLASS="parameter"
+>rGateName</CODE
+>
+                    is defined in the gate dictionary, a
+                    <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is thrown.
+                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+>FindGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const std::string&#38;  </span
+><span
+class="parameter"
+>rGate</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateContainer*  </span
+>FindGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                    Locates a gate either by its
+                    name (<CODE
+CLASS="parameter"
+>rGate</CODE
+>) or integer gate
+                    id (<CODE
+CLASS="parameter"
+>nId</CODE
+>).  If no matching gate
+                    is found in the gate dictionary; a nul pointer is returned.
+                </P
+><P
+>&#13;                    The return value is a pointer to a <CODE
+CLASS="classname"
+>CGateContainer</CODE
+>.
+                    For all purposes, you can treat a <CODE
+CLASS="classname"
+>CGateContainer</CODE
+>
+                    as a pointer to the gate itself.  The gate container is what
+                    dependent gates actually use as this allows gate definitions
+                    to be modified transparently.
+                </P
+><P
+>&#13;                    Note that for any specific matched gate, SpecTcl
+                    gaurantees that a subsequent search for the same gate
+                    (by name or id) will return the same
+                    <CODE
+CLASS="classname"
+>CGateContainer</CODE
+>.  Furthermore
+                    a search for the same gate either by id or by name
+                    will, when matched both return the same gate container pointer.
+                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateDictionaryIterator  </span
+>GateBegin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateDictionaryIterator  </span
+>GateEnd();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods iteration over thee gate dictionary.  A
+                        <CODE
+CLASS="classname"
+>CGateDictionaryIterator</CODE
+>
+                        is like a pointer to a
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CGateContainer*&#62;</CODE
+>.
+                        The first element of the pair is a gate name.  The second a
+                        gate container that points to the gate that's currently
+                        bound to  that name.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>GateBegin</CODE
+> returns an iterator that
+                        points to the first element in the gate dictionary.
+                        Incrementing this iterator points to the next element of the
+                        dictionary.  Incrementing the iterator when it points to the
+                        last element of the dictionary results in the value
+                        returned by <CODE
+CLASS="methodname"
+>GetEnd</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>GateCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of entries in the gate dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addGateObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeGateObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGateObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods manage observers on the gate dictionary.
+                        For information about the
+                        observer programming pattern see:
+                        <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>.
+                        For information about the
+                        <CODE
+CLASS="classname"
+>CGateObserver</CODE
+> abstract
+                        base class, see <TT
+CLASS="literal"
+>DATA TYPES</TT
+> below.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>addGateObserver</CODE
+> adds a new
+                        <CODE
+CLASS="parameter"
+>observer</CODE
+>
+                        to the end of the list of observers of the
+                        gate dictionary.  <CODE
+CLASS="methodname"
+>removeGateObserver</CODE
+>
+                        removes the <CODE
+CLASS="parameter"
+>observer</CODE
+> from the
+                        set of observers established on the gate dictionary.
+                    </P
+><P
+>&#13;                        While establishing the same observer more than once is
+                        pathalogical, nothing is done to prevent that.  If
+                        <CODE
+CLASS="methodname"
+>removeGateObserver</CODE
+> is passed
+                        an <CODE
+CLASS="parameter"
+>observer</CODE
+> that has been
+                        added more than once, all instances of that observer
+                        are removed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ApplyGate(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const std::string&#38;  </span
+><span
+class="parameter"
+>rGateName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rSpectrum</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Applies the gate named
+                        <CODE
+CLASS="parameter"
+>rGateName</CODE
+> to the spectrum
+                        named <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+>.  If either the
+                        gate or the spectrum are not in their respective
+                        dictionaries, a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>
+                        is thrown.
+                    </P
+><P
+>&#13;                        Any previously applied gate remains defined but no longer
+                        affects when the spectrum is incremented.  If successful,
+                        the spectrum can only be incremented if the
+                        gate named by <CODE
+CLASS="parameter"
+>rGateName</CODE
+> evaluates
+                        to true for the event.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>UnGate(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rSpectrum</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is like doing a call to
+                        <CODE
+CLASS="methodname"
+>ApplyGate</CODE
+> to the spectrum named
+                        <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+> passing a gate that is
+                        a true gate.  
+                    </P
+><P
+>&#13;                        If <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+> does not name
+                        a spectrum that is defined in the spectrum dictionary
+                        a <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is thrown.
+                        If successful, <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+> is incremented
+                        whenever all of the parameters required are present and
+                        inside the spectrum's axis bounds.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addGatingObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatingObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeGatingObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CGatingObserver*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Manage the gating observers.  Gating observers
+                        observe the application of gates to spectra as well
+                        as the ungating of spectra.
+                        For infoirmation about the observer pattern see
+                        <A
+HREF="https://en.wikipedia.org/wiki/Observer_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Observer_pattern</A
+>.
+                        For information about
+                        <CODE
+CLASS="classname"
+>CGatingObserver*</CODE
+> objects
+                        see <TT
+CLASS="literal"
+>DATA TYPES</TT
+> below.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>addGatingObserver</CODE
+> adds a new
+                        <CODE
+CLASS="parameter"
+>observer</CODE
+> to the end of the list of
+                        observers that will be invoked when gate applications/removals
+                        are done.  <CODE
+CLASS="methodname"
+>removeGatingObserver</CODE
+>
+                        removes the observer <CODE
+CLASS="parameter"
+>observer</CODE
+>
+                        from the list of gating observers.
+                    </P
+><P
+>&#13;                        While it is pathalogical to add the same observer more
+                        than once, no steps are taken to block this.   Furthermore,
+                        if <CODE
+CLASS="methodname"
+>removeGatingObserver</CODE
+> is asked
+                        to remove a gating observer that has been multiply added,
+                        <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>all</I
+></SPAN
+> instances of it in the observer
+                        list are removed.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9767"
+></A
+><H2
+>DATA TYPES</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> methods use a number
+            of data types.  These will be documented in full later in this
+            part of the manual.  A brief overview of some of them is given here.
+        </P
+><P
+>&#13;            Let's start with dictionaries.  The <TT
+CLASS="filename"
+>Dictionary.h</TT
+>
+            is a templated class that wraps an <CODE
+CLASS="classname"
+>std::map</CODE
+>
+            object that is indexed by a string.  The actual object contained
+            by the map is templated.  The functionality added by
+            <CODE
+CLASS="classname"
+>Dictionaries</CODE
+> is support for observation.
+        </P
+><P
+>&#13;            Observation, or the observer pattern, is an object oriented
+            programming pattern that allows external objects (observers)
+            to be notified
+            of state changes in another objecdt (the observed objecdt).
+            <CODE
+CLASS="classname"
+>Dictionary</CODE
+> objects maintain a list of
+            observers.  
+        </P
+><P
+>&#13;            Each observer is an object from  class that is derived from
+            <CODE
+CLASS="classname"
+>DictionaryObserver</CODE
+>.  This is, inn turn
+            a templated class, templated by the type of object contained by
+            the <CODE
+CLASS="classname"
+>Dictionary</CODE
+>  it observers.
+        </P
+><P
+>&#13;            The observer base class provides an interface that looks like:
+        </P
+><PRE
+CLASS="programlisting"
+>&#13;template &#60;class T&#62;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&#38; item) {}
+  virtual void onRemove( std::string name,    T&#38; item) {}
+
+};            
+        </PRE
+><P
+>&#13;            Provided a do nothing implementation for each observer method
+            allows useful observers to only implement the methods they care about.
+        </P
+><P
+>&#13;            <CODE
+CLASS="methodname"
+>onAdd</CODE
+> is called whenever <CODE
+CLASS="parameter"
+>item</CODE
+>
+            is added to the dictionary with the name <CODE
+CLASS="parameter"
+>name</CODE
+>.
+            This observer method is called after <CODE
+CLASS="parameter"
+>item</CODE
+>
+            has been successfullly added to the dictionary.
+        </P
+><P
+>&#13;            <CODE
+CLASS="methodname"
+>onRemove</CODE
+> is invoked whenever the
+            <CODE
+CLASS="parameter"
+>item</CODE
+> associated with <CODE
+CLASS="parameter"
+>name</CODE
+>
+            is removed from the dictionary.  It is called just prior to
+            <CODE
+CLASS="parameter"
+>item</CODE
+>'s erasure from the map.
+        </P
+><P
+>&#13;            All observers form an ordered list and are called in the order in which
+            they were registered.
+        </P
+><P
+>&#13;            While we are talking about <CODE
+CLASS="classname"
+>Dictionary</CODE
+> observers,
+            let's look as well at <CODE
+CLASS="classname"
+>GatingObserver</CODE
+> objects.
+            These allow code to observer the application of gates to spectra
+            and the ungating of a spectrum.  As such they don't actually
+            fit well into the dictionary observers described.
+        </P
+><P
+>&#13;            Here's the interface presented by a <CODE
+CLASS="classname"
+>GatingOBserver</CODE
+>:
+        </P
+><PRE
+CLASS="programlisting"
+>&#13;class CGatingObserver
+{
+public:
+    virtual void onApply(const CGateContainer&#38; rGate, CSpectrum&#38; rSpectrum,
+                         CHistogrammer&#38; rSorter) = 0;
+    virtual void onRemove(const CGateContainer&#38; rGate, CSpectrum&#38; rSpectrum,
+                          CHistogrammer&#38; rSorter) = 0;
+
+};
+
+        </PRE
+><P
+>&#13;            As you can guess, <CODE
+CLASS="methodname"
+>onApply</CODE
+> is invoked when
+            <CODE
+CLASS="parameter"
+>rGate</CODE
+> is applied to
+            <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+>.  Similarly,
+            <CODE
+CLASS="methodname"
+>onRemove</CODE
+> is applied when
+            <CODE
+CLASS="parameter"
+>rSpectrum</CODE
+> is un-gated. In that case,
+            <CODE
+CLASS="parameter"
+>rGate</CODE
+> is the gate that used to be applied
+            to that spectrum.  Note that in all cases,
+            <CODE
+CLASS="parameter"
+>rSorter</CODE
+> is a reference to the histogrammer
+            object itself.
+        </P
+><P
+>&#13;            Next let's look at the type of dictinoaries
+            <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> maintains.  Each dictionary
+            represents a name indexed store of one of the fundamental
+            classes SpecTcl defines:
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="classname"
+>ParameterDictionary</CODE
+></DT
+><DD
+><P
+>&#13;                        The objects contained by this dictionary are
+                        <CODE
+CLASS="classname"
+>CParameter</CODE
+> objects.
+                        Note that
+                        this class is a final class; no subclasses are defined.
+                        The class supports copy construction allowing
+                        <CODE
+CLASS="classname"
+>ParameterDictionary</CODE
+> to
+                        contains <CODE
+CLASS="classname"
+>CParameter</CODE
+> objects rather
+                        than pointers or references.
+                    </P
+><P
+>&#13;                        Once created  a <CODE
+CLASS="classname"
+>CParameter</CODE
+> object
+                        is considered immutable.
+                        See the <CODE
+CLASS="classname"
+>CParameter</CODE
+> reference
+                        page for more information about that object.  Normal code,
+                        however should strongly consider using
+                        <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> and
+                        <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> objects
+                        as front ends to the <CODE
+CLASS="classname"
+>CParameter</CODE
+>
+                        objects SpecTcl's guts use.
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>SpectrumDictionary</CODE
+></DT
+><DD
+><P
+>&#13;                        This dictionary contains pointers to
+                        <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> objects.  The
+                        <CODE
+CLASS="classname"
+>CSpectrum</CODE
+> class is an
+                        abstract base class for concrete classes that
+                        implement the rich variety of spectra SpecTcl supports.
+                    </P
+><P
+>&#13;                        Therefore, spectrum objects must be created and then
+                        added to the dictionary in a separate step.
+                        
+                    </P
+><P
+>&#13;                        In parallel with the spectrum dictionary, SpecTcl maintains
+                        data structures that facilitate parameter driven
+                        histogramming.  Those structures are maintained using the
+                        dictionary observer mechanism.  Their purpose is to restrict
+                        the number of histograms that must be asked to increment
+                        themselves for each event to those that depend on at least
+                        one parameter present in that event.  For sparse events,
+                        this results in significant performance improvements.
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>CGateDictionary</CODE
+></DT
+><DD
+><P
+>&#13;                        Contains pointers to <CODE
+CLASS="classname"
+>CGateContainer</CODE
+>
+                        objects.  <CODE
+CLASS="classname"
+>CGateContainer</CODE
+> objects
+                        are wrappers for pointers to <CODE
+CLASS="classname"
+>CGate</CODE
+>
+                        objects.  When they were developed the various
+                        pointer like objects in the standard C++ library had not
+                        yet been defined and implemented.
+                    </P
+><P
+>&#13;                        A <CODE
+CLASS="classname"
+>CGateContainer</CODE
+> object is a fixed
+                        object that can be handed to a user of a gate that is
+                        invariant, although the gate it points to may vary with time.
+                        If, for example, spectra contained a pointer to their gate,
+                        each time the definition of that gate changed, the
+                        value of that pointer would need to change too.
+                        You can think of a <CODE
+CLASS="classname"
+>CGateContainer</CODE
+>
+                        as a hidden pointer the gate pointer with methods that
+                        allow it to look like the gate pointer itself.
+                    </P
+><P
+>&#13;                        By handing gated spectra a pointer to their gate's
+                        <CODE
+CLASS="classname"
+>CGateContainer</CODE
+> object the
+                        underlying gate pointer can be transparently modified
+                        with respect to the gate clients.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CGate</CODE
+> objects, which are what
+                        <CODE
+CLASS="classname"
+>CGateContainers</CODE
+> appear to point at,
+                        implement SpecTcl Gates.  <CODE
+CLASS="classname"
+>CGate</CODE
+>
+                        is an abstract base class for the class hierarchy that
+                        represents the rich set of gates SpecTcl defines.
+                    </P
+><P
+>&#13;                        See reference information  on gate classes and
+                        the gate container for more information.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r8479.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r9852.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTclGrammerApp</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Dictionaries</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

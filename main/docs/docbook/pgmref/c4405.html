@@ -1,0 +1,228 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>&#13;                Tcl++ classes
+            </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4403.html"><LINK
+REL="PREVIOUS"
+TITLE="Tcl++ classes"
+HREF="p4403.html"><LINK
+REL="NEXT"
+TITLE="CTCLInterpreter"
+HREF="r4431.html"></HEAD
+><BODY
+CLASS="chapter"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="p4403.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4431.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="chapter"
+><H1
+><A
+NAME="AEN4405"
+></A
+>Chapter 4. 
+                Tcl++ classes
+            </H1
+><P
+>&#13;                The Tcl++ class library is an object oriented wrapper on
+                libtcl, the Tcl API.  It can be used either as an application
+                framework, to create new specialized interpreters (SpecTcl
+                does this), or as a library for existing applications and
+                extensions.
+            </P
+><P
+>&#13;                This manual section (3tcl++) provides documentation for the
+                classes in the library.  The main base classes are:
+            </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+> wraps an
+                        interpreter with methods to manipulate it.
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>
+                        wraps a Tcl API object along with its interpreter
+                        and the appropriate methods to manipulate it.
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLObject</CODE
+> wraps a
+                        <SPAN
+CLASS="type"
+>Tcl_Obj*</SPAN
+> in an object oriented shell.
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+> wraps a
+                        command processor that uses the
+                        <SPAN
+CLASS="type"
+>Tcl_Obj</SPAN
+> array interface.
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> wraps a
+                        command processor that uses the old argc/argv
+                        interface.
+                    </P
+></LI
+><LI
+><P
+>&#13;                        <CODE
+CLASS="classname"
+>CTCLVariable</CODE
+> wraps a Tcl
+                        variable.  
+                    </P
+></LI
+></UL
+><P
+>&#13;                Several other classes either extensions of theses or
+                utility classes in their own right are defined.
+            </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="p4403.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4431.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Tcl++ classes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4403.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLInterpreter</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,977 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLString</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLHashTableIterator"
+HREF="r6510.html"><LINK
+REL="NEXT"
+TITLE="CTCLList"
+HREF="r6823.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r6510.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r6823.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLString"
+></A
+>CTCLString</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN6610"
+></A
+><H2
+>Name</H2
+>CTCLString&nbsp;--&nbsp;
+            Provide a wrapper for the <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> data type
+            and its API
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN6614"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLString.h&#62;
+...
+class CTCLString
+{
+public:
+  CTCLString ();
+  CTCLString (const char* pString  ) ;
+  CTCLString(const std::string&#38; rString);
+  CTCLString(const Tcl_DString&#38; rString);
+  CTCLString (const CTCLString&#38; aCTCLString );
+  ~ CTCLString ();
+
+  CTCLString&#38; operator= (const CTCLString&#38; aCTCLString);
+  int operator== (const CTCLString&#38; aCTCLString);
+  int operator!= (const CTCLString&#38; aCTCLString);
+  int operator&#62; (const CTCLString&#38; aCTCLString);
+  int operator&#60; (const CTCLString&#38; aCTCLString);
+  int operator&#62;=(const CTCLString&#38; aCTCLString);
+  int operator&#60;=(const CTCLString&#38; aCTCLString);
+
+  Tcl_DString&#38; getString();
+  CTCLString&#38; Append (const std::string&#38; rString, Int_t nLength=-1);
+  CTCLString&#38; Append (const CTCLString&#38;  rString, Int_t nLength=-1);
+  CTCLString&#38; Append (Tcl_DString&#38;       pString, Int_t nLength=-1);
+  CTCLString&#38; Append (const char*        pString, Int_t nLength=-1);
+  CTCLString&#38; AppendElement (const Tcl_DString*      pRhs);
+  CTCLString&#38; AppendElement (const CTCLString&#38;       rRhs);
+  CTCLString&#38; AppendElement (const std::string&#38;      rRhs);
+  CTCLString&#38; AppendElement (const char*             pRhs);
+  CTCLString&#38; AppendElement(DFloat_t value, const char* pFormat = "%f");
+  CTCLString&#38; AppendElement(long value, const char* pFormat = "%i");
+
+  CTCLString&#38; StartSublist ()  ;
+  CTCLString&#38; EndSublist ()  ;
+  UInt_t  Length () const ;
+  CTCLString&#38; Truncate (UInt_t nNewLength)  ;
+  Bool_t isCommand () const  ;
+
+  Bool_t Match (const char*       pPattern) const;
+  Bool_t Match (std::string&#38;      rPattern) const;
+  Bool_t Match (const CTCLString&#38; rPattern) const;
+
+  operator const char* () const;
+  operator std::string () const;
+  operator Tcl_DString* ();
+};
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6616"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The Tcl API provides a dynamic string type <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>.
+            For many purposes, the C++ <SPAN
+CLASS="type"
+>std::string</SPAN
+> is sufficient, however
+            the <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> list building functions are unmatched in
+            <SPAN
+CLASS="type"
+>std::string</SPAN
+>.  <CODE
+CLASS="classname"
+>CTCLString</CODE
+> is an object oriented
+            wrapping of a <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6625"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLString</SPAN
+> ();
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pString</CODE
+>) ;
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>(const <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <SPAN
+CLASS="type"
+>aCTCLString</SPAN
+> );
+            </PRE
+>
+            </P
+><P
+>&#13;                Constructs a <CODE
+CLASS="classname"
+>CTCLString</CODE
+> object.  With the exception
+                of the first constructor, which produces an empty string, all of these
+                constructors initialize the contents of the underlying
+                <CODE
+CLASS="classname"
+>Tcl_DString</CODE
+> with the string representation of their
+                parameter.
+            </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Supports assignment to a <CODE
+CLASS="classname"
+>CTCLString</CODE
+> from another;
+            <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator!=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator&#62;</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator&#60;</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator&#62;=</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator&#60;=</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Relational operators provide for lexicographic copmarisons between the object
+            and <CODE
+CLASS="parameter"
+>rhs</CODE
+> which is another <CODE
+CLASS="classname"
+>CTCLString</CODE
+>.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>&#38; <CODE
+CLASS="function"
+>getString</CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            Returns a reference tothe underlying <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> of the
+            object.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>Append</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>String</CODE
+>,
+                  <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nLength</CODE
+>=<TT
+CLASS="literal"
+>-1</TT
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>Append</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>String</CODE
+>,
+                  <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nLength</CODE
+>=<TT
+CLASS="literal"
+>-1</TT
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>Append</CODE
+> (<SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>&#38;       <CODE
+CLASS="parameter"
+>String</CODE
+>,
+                  <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nLength</CODE
+>=<TT
+CLASS="literal"
+>-1</TT
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>Append</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>*            <CODE
+CLASS="parameter"
+>String</CODE
+>,
+                  <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nLength</CODE
+>=<TT
+CLASS="literal"
+>-1</TT
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Appends a section of <CODE
+CLASS="parameter"
+>String</CODE
+> to the
+            <CODE
+CLASS="classname"
+>CTCLString</CODE
+> that is being built up.
+            The first <CODE
+CLASS="parameter"
+>nLength</CODE
+> characters are appended.
+            if <CODE
+CLASS="parameter"
+>nLength</CODE
+> is <TT
+CLASS="literal"
+>-1</TT
+> then
+            all <CODE
+CLASS="parameter"
+>String</CODE
+> is appended.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+> (const <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+>*  <CODE
+CLASS="parameter"
+>item</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38;   <CODE
+CLASS="parameter"
+>item</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+> (const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38;  <CODE
+CLASS="parameter"
+>item</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+> (const <SPAN
+CLASS="type"
+>char*</SPAN
+>         <CODE
+CLASS="parameter"
+>item</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+>(<SPAN
+CLASS="type"
+>DFloat_t</SPAN
+> <CODE
+CLASS="parameter"
+>item</CODE
+>,
+                         const <SPAN
+CLASS="type"
+>char*</SPAN
+> <CODE
+CLASS="parameter"
+>pFormat</CODE
+> = <TT
+CLASS="literal"
+>"%f"</TT
+>);
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>AppendElement</CODE
+>(<SPAN
+CLASS="type"
+>long</SPAN
+>     <CODE
+CLASS="parameter"
+>item</CODE
+>,
+                         const <SPAN
+CLASS="type"
+>char*</SPAN
+> <CODE
+CLASS="parameter"
+>pFormat</CODE
+> = <TT
+CLASS="literal"
+>"%i"</TT
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Appends <CODE
+CLASS="parameter"
+>item</CODE
+> as a list element to the end of the
+            string.  If necessary quotation is performed to ensure the item is treated as a
+            single list element.  The <CODE
+CLASS="parameter"
+>pFormat</CODE
+> parameter
+            controls the conversion of non string data types to a string and is of the form
+            of any control sequence used by sprintf.  For example
+            <TT
+CLASS="literal"
+>"i = %d"</TT
+> could be used to convert an integer to a label
+            and its value which would be appended to the string as e.g.
+            <TT
+CLASS="literal"
+>{i = 1234}</TT
+>
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>StartSublist</CODE
+> ()  ;
+<SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="function"
+>EndSublist</CODE
+> ()  ;
+        </PRE
+>
+        </P
+><P
+>&#13;            Used in conjuntion with <CODE
+CLASS="function"
+>AppendElement</CODE
+> these
+            start and end sublists which are list elements that consist of lists.
+            Sublists can be nested to any depth.
+            For example:
+            <PRE
+CLASS="programlisting"
+>&#13;    CTCLString s;
+    s.AppendElement("a");
+    s.StartSublist();
+    s.AppendElement("b");
+    s.AppendElement("c");
+    s.StartSublist();
+    s.AppendElement("d");
+    s.AppendElement("e");
+    s.EndSublist();
+    s.AppendElement("f");
+    s.EndSublist();
+    s.AppendElement("g");
+            </PRE
+>
+        Would make the <CODE
+CLASS="varname"
+>s</CODE
+> contain the string
+        <TT
+CLASS="literal"
+>"a {b c {d e} f} g"</TT
+>
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>UInt_t</SPAN
+>  <CODE
+CLASS="function"
+>Length</CODE
+>() const ;
+        </PRE
+>
+        </P
+><P
+>&#13;            Returns the number of characters in the string.
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN6779"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;CTCLString&#38; Truncate (UInt_t nNewLength)  ;
+        </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            Truncates the string to the first <CODE
+CLASS="parameter"
+>nNewLength</CODE
+>
+            characters.
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN6783"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>isCommand</CODE
+> () const  ;
+        </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            Analyzes the string and returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the
+            string is a 'well formed command'.  Note that a well formed command
+            may still have syntax and execution errors.  This just ensures that
+            a string has a balanced set of quoting characters.
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN6789"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>Match</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>*           <CODE
+CLASS="parameter"
+>Pattern</CODE
+>) const;
+<SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>Match</CODE
+> (<SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38;      <CODE
+CLASS="parameter"
+>Pattern</CODE
+>) const;
+<SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>Match</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>Pattern</CODE
+>) const;
+        </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            Returns <TT
+CLASS="literal"
+>kfTRUE</TT
+> if the contents of the string matches the
+            <CODE
+CLASS="parameter"
+>Pattern</CODE
+>
+            parameter.  The <CODE
+CLASS="parameter"
+>Pattern</CODE
+> parameter can contain all of the
+            wildcards in <I
+CLASS="firstterm"
+>glob</I
+> style pattern matching.  See
+            REFERENCES below for moer information about glob style matching.
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN6808"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;operator const char* () const;
+operator std::string () const;
+operator Tcl_DString* ();
+    </PRE
+><P
+></P
+></DIV
+><P
+>&#13;            These operators are implicit and explicit type conversion operators that
+            allow a <CODE
+CLASS="classname"
+>CTCLString</CODE
+> object to be treated as a
+            <SPAN
+CLASS="type"
+>char*</SPAN
+> pointing to a null terminated string, a
+            <SPAN
+CLASS="type"
+>std::string</SPAN
+> object, or a <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> pointer.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6815"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;Tcl_DStringAppend(3tcl),
+Tcl_DStringAppendElement(3tcl),
+Tcl_DStringEndSublist(3tcl),
+Tcl_DStringFree(3tcl),
+Tcl_DStringGetResult(3tcl),
+Tcl_DStringInit(3tcl),
+Tcl_DStringLength(3tcl),
+Tcl_DStringResult(3tcl),
+Tcl_DStringSetLength(3tcl),
+Tcl_DStringStartSublist(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN6818"
+></A
+><H2
+>REFERENCES</H2
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN6820"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;J.K. Ousterhout <CODE
+CLASS="parameter"
+>Tcl and the Tk Toolkit</CODE
+>
+Addison-Wesley Professional Computing Series 1994 see section 9.2
+            </PRE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r6510.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r6823.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLHashTableIterator</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLList</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

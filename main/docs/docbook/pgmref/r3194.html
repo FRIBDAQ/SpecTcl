@@ -1,0 +1,1581 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTreeParameterArray</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tree Parameter, Tree Variable API"
+HREF="p2375.html"><LINK
+REL="PREVIOUS"
+TITLE="CTreeParameter"
+HREF="r2386.html"><LINK
+REL="NEXT"
+TITLE="CTreeVariable"
+HREF="r3671.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r2386.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r3671.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN3194"
+></A
+>CTreeParameterArray</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN3198"
+></A
+><H2
+>Name</H2
+>CTreeParameterArray&nbsp;--&nbsp;Arrays of tree parameters</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN3201"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;TreeParameter.h&#62;
+
+class <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+>
+{
+CTreeParameterArray();
+CTreeParameterArray(std::string baseName, 
+          UInt_t resolution, UInt_t numElements, Int_t baseIndex);
+CTreeParameterArray(std::string baseName, 
+          UInt_t resolution, 
+          double lowLimit, double highOrWidth, 
+          std::string units, bool widthOrHighGiven, 
+          UInt_t elements, Int_t firstIndex);
+CTreeParameterArray(std::string baseName, UInt_t elements, Int_t baseIndex);
+CTreeParameterArray(std::string baseName, std::string units, 
+          UInt_t elements, Int_t firstIndex);
+CTreeParameterArray(std::string baseName, 
+          double low, double high, std::string units, 
+          UInt_t elements, Int_t firstIndex);
+CTreeParameterArray(std::string baseName, UInt_t channels, 
+          double low, double high, std::string units, 
+          UInt_t elements, Int_t firstIndex);
+
+void Initialize(std::string baseName, UInt_t resolution, 
+      UInt_t elements, Int_t baseIndex);
+void Initialize(std::string baseName, UInt_t resolution, 
+      double lowLimit, double widthOrHeight,
+      std::string units, bool widthOrHeightGiven, 
+      UInt_t elements, Int_t firstIndex);
+void Initialize(std::string baseName, UInt_t elements, Int_t firstIndex);
+void Initialize(std::string baseName, std::string units, UInt_t elements, 
+      Int_t firstIndex);
+void Initialize(std::string baseName, double lowLimit, double highLimit, 
+      std::string units, UInt_t elements, Int_t firstIndex);
+void Initialize(std::string baseName, UInt_t channels, 
+      double lowLimit, double highLimit, std::string units, 
+      UInt_t elements, Int_t firstIndex);
+
+CTreeParameter&#38; operator[](Int_t nIndex);
+void Reset();
+std::vector&#60;CTreeParameter*&#62;::iterator begin();
+std::vector&#60;CTreeParameter*&#62;::iterator end();
+UInt_t size();
+Int_t lowIndex();
+};
+                </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN3204"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    The <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> provides
+                    support for creating arrays of tree parameters.
+                    <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> objects can
+                    be treated like arrays programmatically but, in parameter
+                    space, create a subtree of parameters.
+                </P
+><P
+>&#13;                    By convention, parameters managed by the tree parameters
+                    occupy a hierarcy.  The name of a parameter is a
+                    dot (<TT
+CLASS="literal"
+>.</TT
+>) separated string.  Each
+                    dot represents a path separator.  Thus the name
+                    <TT
+CLASS="literal"
+>top.raw.adc.01</TT
+> represents the
+                    parameter <TT
+CLASS="literal"
+>01</TT
+> that has the parent
+                    <TT
+CLASS="literal"
+>adc</TT
+> which in turn has the parent
+                    <TT
+CLASS="literal"
+>raw</TT
+> which in turn is parented by
+                    <TT
+CLASS="literal"
+>top</TT
+>.
+                </P
+><P
+>&#13;                    Tree parameter array objects create a subtree below
+                    a parent name.  The names of the subtree are indices into
+                    the tree parameter array.  In the example above, the
+                    parent name might have been <TT
+CLASS="literal"
+>top.raw.adc</TT
+>
+                    and the index <TT
+CLASS="literal"
+>01</TT
+>.  To facilitate
+                    sorting, in parameter name space, indices are zero filled
+                    to the left to accomodate the number of digits needed by
+                    the largest index.
+                </P
+><P
+>&#13;                    Tree parameter indices are not constrained to start from
+                    zero but can start from any integer value (including
+                    negative integers).
+                </P
+><P
+>&#13;                    The main method a <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+>
+                    has, is of course, the index operator
+                    (<CODE
+CLASS="methodname"
+>operator[]</CODE
+>).  If the
+                    index provided to it is out of range a
+                    <CODE
+CLASS="classname"
+>CTreeException</CODE
+> is thrown,
+                    otherwise, this method returns a reference to the
+                    indexed tree parameter in the array.
+                </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN3224"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;                    Construction and initialization methods;  Like
+                    the <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> class,
+                    <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+>
+                    supports either one step or two step construction.
+                    Two step construction is supported via a
+                    default constructor and a set of
+                    <CODE
+CLASS="methodname"
+>Initialize</CODE
+> methods
+                    that provide the actual properties of the object.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Default constructor.  This is used with
+                                two step construction.  After constructing
+                                the array, one of the
+                                <CODE
+CLASS="methodname"
+>Initialize</CODE
+> methods
+                                below needs to be called to define the
+                                characteristics of the array.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> numElements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>baseIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Constructs and defines a tree parameter
+                                array.  <CODE
+CLASS="parameter"
+>baseName</CODE
+>
+                                is used to derive the names of the parameters
+                                in the array (see <TT
+CLASS="literal"
+>DESCRIPTION</TT
+>
+                                above).  <CODE
+CLASS="parameter"
+>numElements</CODE
+>
+                                and <CODE
+CLASS="parameter"
+>baseIndex</CODE
+>
+                                define the number of array elements and the
+                                base index for the array.
+                                Array indices are in the range
+                                <TT
+CLASS="literal"
+>[<CODE
+CLASS="parameter"
+>baseName</CODE
+>, <CODE
+CLASS="parameter"
+>baseName</CODE
+>+<CODE
+CLASS="parameter"
+>numElements</CODE
+>)</TT
+>.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>resolution</CODE
+> describes
+                                the suggested number of channels and the
+                                range of values a spectrum axis on these
+                                parameters should have as a number of bits
+                                occupied by the parameter.  This form
+                                of the constructor is best used for raw
+                                digitizer values.
+                            </P
+><P
+>&#13;                                All tree parameters in the array
+                                will be constructed with the same
+                                <CODE
+CLASS="parameter"
+>resolution</CODE
+>, it is
+                                unusual, but possible to retrieve individual
+                                elements of the array and reconfigure them.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highOrWidth</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+><span
+class="parameter"
+>widthOrHighGiven</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                <CODE
+CLASS="parameter"
+>The additional</CODE
+>
+                                parameters define the limits of the
+                                parameter.  <CODE
+CLASS="parameter"
+>lowLimit</CODE
+>
+                                is the recommended low limit of axes
+                                that are defined on these parameters.
+                                The meaning of
+                                <CODE
+CLASS="parameter"
+>highOrWidth</CODE
+> depends
+                                 on the value of the flag
+                                 <CODE
+CLASS="parameter"
+>widthOrHighGiven</CODE
+>.
+                            </P
+><P
+>&#13;                                If <CODE
+CLASS="parameter"
+>widthOrHighGiven</CODE
+>
+                                is <TT
+CLASS="literal"
+>true</TT
+>,
+                                <CODE
+CLASS="parameter"
+>highOrWidth</CODE
+> defines
+                                the suggested high limit of axes on these
+                                parameters.  If <TT
+CLASS="literal"
+>false</TT
+>,
+                                the paramete represents the width of each
+                                channel in parameter coordinates.  It, along
+                                with <CODE
+CLASS="parameter"
+>resolution</CODE
+>
+                                (which define the number of channels)
+                                are used to compute the high limit recommended
+                                for spectrum axes on these parameters.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string baseName </span
+><span
+class="parameter"
+></span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>baseIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This constructor does not supply any metadata
+                                for the tree parameters it creates.
+                                If metadata are desired, they can be supplied
+                                later either by a call ot the appropriate
+                                <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                                method or by iterating through the array
+                                setting metadata for each element.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                The <CODE
+CLASS="parameter"
+>units</CODE
+> parameter
+                                defines the units of measure for the tree
+                                parameters in the array.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>high</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Provides the suggested 
+                                <CODE
+CLASS="parameter"
+>low</CODE
+> and
+                                <CODE
+CLASS="parameter"
+>high</CODE
+> limits on axes
+                                defined on these parameters.
+                            </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameterArray(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>low</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> high</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                In this case <CODE
+CLASS="parameter"
+>channels</CODE
+>
+                                specifies the suggested number of bins
+                                on an axis on this parameter where
+                                the axis will run between
+                                <CODE
+CLASS="parameter"
+>low</CODE
+> and <CODE
+CLASS="parameter"
+>high</CODE
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>baseIndex</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>widthOrHeight</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+><span
+class="parameter"
+>widthOrHeightGiven</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>baseName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>elements</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>firstIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                These methods are called as the second
+                                step in a two step construction.  The
+                                meaning of their parameters is the same
+                                as the constructors with corresponding
+                                parameters.  See the documentation
+                                of the constructors above for more
+                                information.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    The remainder of the methods, besides
+                    <CODE
+CLASS="methodname"
+>operator[]</CODE
+> are miscellaneous.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator[](<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+><span
+class="parameter"
+>nIndex</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a reference to the tree parameter
+                                in the array indexed by
+                                <CODE
+CLASS="parameter"
+>nIndex</CODE
+>.
+                                A <CODE
+CLASS="classname"
+>CTreeException</CODE
+>
+                                is thrown if the index is out of range.
+                            </P
+><P
+>&#13;                                Since a reference is returned the tree
+                                parameter can be modified as well as set
+                                or inspected.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Reset();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Invokes the <CODE
+CLASS="methodname"
+>Reset</CODE
+>
+                                method on each element of the array.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CTreeParameter*&#62;::iterator  </span
+>begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::vector&#60;CTreeParameter*&#62;::iterator  </span
+>end();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Supports iteration of the
+                                <CODE
+CLASS="classname"
+>std::vector</CODE
+> used to
+                                maintain the tree parameters in the object.
+                                <CODE
+CLASS="methodname"
+>begin</CODE
+> returns
+                                an iterator that can be used as if it were
+                                a pointer to <CODE
+CLASS="classname"
+>CTreeParameter*</CODE
+>
+                                pointer that points to the first element
+                                of the vector.  This will be the tree
+                                parameter with the lowest index.
+                            </P
+><P
+>&#13;                                Incrementing the iterator points to the item with
+                                the next index in the container.  Incrementing
+                                the iterator when it points to the last
+                                tree parameter results in a value that is
+                                equal to that returned from
+                                <CODE
+CLASS="methodname"
+>end</CODE
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Retrurns the number of tree parameters in the
+                                array.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t  </span
+>lowIndex();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the smallest allowed index into the
+                                tree parameter array.
+                            </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r2386.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r3671.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTreeParameter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p2375.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTreeVariable</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

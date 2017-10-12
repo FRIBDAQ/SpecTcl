@@ -1,0 +1,683 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLException</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLObject"
+HREF="r5159.html"><LINK
+REL="NEXT"
+TITLE="CTCLObjectProcessor"
+HREF="r5530.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r5159.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r5530.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLException"
+></A
+>CTCLException</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5391"
+></A
+><H2
+>Name</H2
+>CTCLException&nbsp;--&nbsp;
+            Class for reporting exceptional conditions in Tcl applications
+            via the C++ try/catch mechanism.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5394"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLException.h&#62;
+...
+class CTCLException  : public CTCLInterpreterObject ,public CException
+{
+public:
+  CTCLException (CTCLInterpreter&#38; am_rInterpreter,
+                 Int_t am_nReason,
+                 const char* pString);
+  CTCLException(CTCLInterpreter&#38; am_rInterpreter,
+                Int_t am_nReason,
+                const std::string&#38; rString);
+  CTCLException (const CTCLException&#38; aCTCLException );
+  virtual ~CTCLException ( );
+
+  CTCLException operator= (const CTCLException&#38; aCTCLException);
+  int operator== (const CTCLException&#38; aCTCLException);
+
+  void AddErrorInfo (const char* pMessage)  ;
+  void AddErrorInfo(const std::string&#38; rMessage);
+  void AddErrorInfo(const CTCLString&#38; rMessage);
+
+  void SetErrorCode (const char* pMessage,
+                     const char* pMnemonic="???",
+                     const char* pFacility="TCL",
+                     const char* pSeverity="FATAL")  ;
+  void SetErrorCode(const std::string rMessage,
+                    const std::string &#38;rMnemonic=std::string("???"),
+                    const std::string &#38;rFacility=std::string("TCL"),
+                    const std::string &#38;rSeverity=std::string("FATAL"));
+
+  virtual   const char* ReasonText () const;
+  virtual   Int_t ReasonCode () const  ;
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5396"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CTCLException</CODE
+> class allows you to
+            instantiate and throw exceptions that are distinguishable as coming
+            from the TCL library and its extensions.   In most cases the
+            TclPlus library itself will convert error conditions detected by the
+            Tcl API and intantiate and throw an appropriate exception.
+        </P
+><P
+>&#13;            The following example shows how to execute code that is aware of
+            these exceptions.  In this case, the code just reports the error
+            message and continues.
+            <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN5401"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;    try {
+        // In here is TclPlus invoking code.
+    }
+    catch (CTCLException&#38; e) {
+        cerr &#60;&#60; "TclPlus error caught: " &#60;&#60; e.ReasonText() &#60;&#60; endl;
+    }
+            </PRE
+><P
+></P
+></DIV
+>
+        </P
+><P
+>&#13;            The following example shows a typical code segment that throws a
+            <CODE
+CLASS="classname"
+>CTCLException</CODE
+>:
+                <PRE
+CLASS="programlisting"
+>&#13;    int status = Tcl_xxxxxxx(pInterp-&#62;getInterpreter()....); // Some Tcl call.
+    if (status != TCL_OK) {
+        throw CTCLException(*pInterp, status,
+                            "Call to Tcl_xxxxxx returned an error");
+    }
+                </PRE
+>
+        </P
+><P
+>&#13;            Note that constructing a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> object
+            incorporates the Tcl result string at the time into the
+            text returned by the <CODE
+CLASS="function"
+>ReasonText()</CODE
+> member function.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5409"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLException</CODE
+> (<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+>,
+                 <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nReason</CODE
+>,
+                 const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pString</CODE
+>);
+  <CODE
+CLASS="function"
+>CTCLException</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+>,
+                <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="parameter"
+>nReason</CODE
+>,
+                const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>);
+  <CODE
+CLASS="function"
+>CTCLException</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLException</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>aCTCLException</CODE
+> );
+        </PRE
+>
+        </P
+><P
+>&#13;            These construct a <CODE
+CLASS="classname"
+>CTCLException</CODE
+>.
+            <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+> is a reference to the intepreter that was
+            used in the operation that resulted in the error.  The result string of that
+            interpreter will be saved as part of the text returned by the
+            <CODE
+CLASS="function"
+>ReasonText</CODE
+> member function.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="parameter"
+>nReason</CODE
+> is a reason for the exception.  Typically
+            this will be <TT
+CLASS="literal"
+>TCL_ERROR</TT
+> however other error codes can be
+            created and used for application specific problems.  This is the value that will
+            be returned by the <CODE
+CLASS="function"
+>ReasonCode</CODE
+> member function.
+        </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>rString</CODE
+> and <CODE
+CLASS="parameter"
+>pString</CODE
+> are intended to provide
+            information about the context of the error, and will be incorporated into the
+            text strin greturned from <CODE
+CLASS="function"
+>ReasonText</CODE
+>.
+        </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>aCTCLException</CODE
+> is a reference for the sourc object of
+            the copy constructor.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>CTCLException</SPAN
+> <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLException</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLException</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            These two functions provide a mechanism to assign exceptions and to compare
+            them for equality.  <CODE
+CLASS="parameter"
+>rhs</CODE
+> is the object that is the source
+            of the assignment or the object to which <CODE
+CLASS="varname"
+>this</CODE
+> is being compared.
+            Equality is defined as the two exceptions having the same underlying interpreter,
+            and same reason text.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AddErrorInfo</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pMessage</CODE
+>)  ;
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AddErrorInfo</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rMessage</CODE
+>);
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>AddErrorInfo</CODE
+>(const <SPAN
+CLASS="type"
+>CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rMessage</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            These functions are wrapperf ro the API function <CODE
+CLASS="function"
+>Tcl_AddErrorInfo</CODE
+>
+            the <CODE
+CLASS="parameter"
+>pMessage</CODE
+>, and <CODE
+CLASS="parameter"
+>rMessage</CODE
+>
+            parameters provide the message that is added to the <CODE
+CLASS="parameter"
+>errorInfo</CODE
+>
+            variable.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>SetErrorCode</CODE
+> (const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pMessage,</CODE
+>
+                     const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pMnemonic</CODE
+>=<TT
+CLASS="literal"
+>"???"</TT
+>,
+                     const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pFacility</CODE
+>=<TT
+CLASS="literal"
+>"TCL"</TT
+>,
+                     const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pSeverity</CODE
+>=<TT
+CLASS="literal"
+>"FATAL"</TT
+>)  ;
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>SetErrorCode</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="parameter"
+>rMessage</CODE
+>,
+                    const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rMnemonic</CODE
+>=<SPAN
+CLASS="type"
+>std::string</SPAN
+>(<TT
+CLASS="literal"
+>"???"</TT
+>),
+                    const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rFacility</CODE
+>=<SPAN
+CLASS="type"
+>std::string</SPAN
+>(<TT
+CLASS="literal"
+>"TCL"</TT
+>),
+                    const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rSeverity</CODE
+>=<SPAN
+CLASS="type"
+>std::string</SPAN
+>(<TT
+CLASS="literal"
+>"FATAL</TT
+>"));
+        </PRE
+>
+        </P
+><P
+>&#13;            These function set the <CODE
+CLASS="varname"
+>errorCode</CODE
+> Tcl interpreter variable.
+            The convention these function support is to set the error code to a list that
+            consists of a message (<CODE
+CLASS="parameter"
+>pMessage</CODE
+> and <CODE
+CLASS="parameter"
+>rMessage</CODE
+>,
+            mnemonic for the message (<CODE
+CLASS="parameter"
+>pMnemonic</CODE
+> or <CODE
+CLASS="parameter"
+>rMnemonic</CODE
+>, the
+            Facility (<CODE
+CLASS="parameter"
+>pFacility</CODE
+> or <CODE
+CLASS="parameter"
+>rFacility</CODE
+>)that is throwing
+            the error and the severity (<CODE
+CLASS="parameter"
+>pSeverity</CODE
+> or <CODE
+CLASS="parameter"
+>rSeverity</CODE
+>)
+            of the error.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;virtual   const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="function"
+>ReasonText</CODE
+> () const;
+virtual   <SPAN
+CLASS="type"
+>Int_t</SPAN
+> <CODE
+CLASS="function"
+>ReasonCode</CODE
+> () const  ;
+        </PRE
+>
+        </P
+><P
+>&#13;            These two functions are intended for use by exception catch blocks.
+            <CODE
+CLASS="function"
+>ReasonText</CODE
+> provides human readable text that
+            describes the exception.  <CODE
+CLASS="function"
+>ReasonCode</CODE
+> provides a
+            numerical code that describes the exception.  Often this just has the
+            value <TT
+CLASS="literal"
+>TCL_ERROR</TT
+>
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5527"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;Tcl_AddErrorInfo(3tcl),
+Tcl_SetErrorCode(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r5159.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r5530.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLObject</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLObjectProcessor</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

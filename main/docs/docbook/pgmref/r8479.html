@@ -1,0 +1,2054 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTclGrammerApp</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="NEXT"
+TITLE="CHistogrammer"
+HREF="r9101.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="p8474.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r9101.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN8479"
+></A
+>CTclGrammerApp</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN8483"
+></A
+><H2
+>Name</H2
+>CTclGrammerApp&nbsp;--&nbsp;Base Application class</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN8486"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;TclGrammerApp.h&#62;
+class <CODE
+CLASS="classname"
+>CTclGrammerApp</CODE
+>
+{
+  UInt_t getDisplaySize() const;
+  UInt_t getParams() const; 
+  UInt_t getListSize() const;
+  CAnalyzer* getAnalyzer() const;
+  CTCLHistogrammer* getHistogrammer() const;
+  CTKRunControl* getRunControl() const;
+  CXamineEventHandler* getXamineEvents() const;
+  CRunControlPackage* getRunControlPackage() const;
+  CParameterPackage* getParameterPackage() const;
+  CSpectrumPackage* getSpectrumPackage() const;
+  CDataSourcePackage* getDataSourcePackage() const;
+  CGatePackage* getGatePackage() const;
+  CTCLVariable getTclDisplaySize() const;
+  CTCLVariable getTclParameterCount() const;
+  CTCLVariable getTclEventListSize() const;
+  CMultiTestSource* getTestDataSource();
+  CDisplayInterface* getDisplayInterface();
+  
+protected:
+  void setDisplaySize (const UInt_t am_nDisplaySize);
+  void setParams (const UInt_t am_nParams);
+  void setListSize (const UInt_t am_nListSize);
+  void setAnalyzer (CAnalyzer* am_pAnalyzer);
+  void setHistogrammer (CTCLHistogrammer* am_pHistogrammer);
+  void setRunControl (CTKRunControl* am_pRunControl);
+  void setXamineEvents (CXamineEventHandler* am_pXamineEvents);
+  void setRunControlPackage (CRunControlPackage* am_pRunControlPackage);
+  void setParameterPackage (CParameterPackage* am_pParameterPackage);
+  void setSpectrumPackage (CSpectrumPackage* am_pSpectrumPackage);
+  void setDataSourcePackage (CDataSourcePackage* am_pDataSourcePackage);
+  void setGatePackage (CGatePackage* am_pGatePackage);
+  void setRCFile (const CTCLVariable am_RCFile);
+  void setTclDisplaySize (const CTCLVariable am_TclDisplaySize);
+  void setTclParameterCount (const CTCLVariable am_TclParameterCount);
+  void setTclEventListSize (const CTCLVariable am_TclEventListSize);
+  void setDisplayInterface(CDisplayInterface* pInterface);
+
+public:
+  void RegisterEventProcessor(CEventProcessor&#38; rEventProcessor,
+                              const char* name = 0); 
+  virtual void BindTCLVariables(CTCLInterpreter&#38; rInterp); 
+  virtual void SourceLimitScripts(CTCLInterpreter&#38; rInterpreter);
+  virtual void SetLimits(); 
+  virtual void CreateHistogrammer(); 
+  virtual void CreateDisplays(); 
+  virtual void SelectDisplayer();
+  virtual void SetUpDisplay(); 
+  virtual void SetupTestDataSource(); 
+  virtual void CreateAnalyzer(CEventSink* pSink);
+  virtual void SelectDecoder(CAnalyzer&#38; rAnalyzer); 
+  virtual void CreateAnalysisPipeline(CAnalyzer&#38; rAnalyzer) = 0;
+  virtual void AddCommands(CTCLInterpreter&#38; rInterp);
+  void SetupRunControl();
+  virtual void SourceFunctionalScripts(CTCLInterpreter&#38; rInterp);
+  virtual int operator()(); 
+
+  virtual void run();
+  CTCLInterpreter* getInterpreter();
+
+  static CTclGrammerApp* getInstance();
+
+protected:
+  static void UpdateUInt(CTCLVariable&#38; rVar, UInt_t&#38; rValue);
+  static void UpdateString(CTCLVariable&#38; rVar, std::string&#38; rString);
+  static std::string SourceOptionalFile(CTCLInterpreter&#38; rInterp,
+    std::string filename);
+
+
+ public:
+  static CTclGrammerApp* m_pInstance; 
+  static int             m_argc;  
+  static char**          m_pArgV; 
+
+};
+
+                </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8489"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    This class is the base class of the SpecTcl application
+                    class.  The standard SpecTcl skeleton provides a derivation
+                    (<CODE
+CLASS="classname"
+>MySpecTclApp</CODE
+>) which has stubs for all
+                    of the pure virtual methods.  Specialized derived classes
+                    can do quite a bit more.
+                </P
+><P
+>&#13;                    In general, to make a complete SpecTcl, you must write
+                    a class derived from <CODE
+CLASS="classname"
+>CTclGrammerApp</CODE
+>,
+                    instantiate it and assign a pointer to the global variable
+                    <CODE
+CLASS="varname"
+>CTclGrammerApp::m_pInstance</CODE
+>. 
+                </P
+><P
+>&#13;                    While normally this sort of thing might be a singleton
+                    pattern, our need to derive and use the <I
+CLASS="firstterm"
+>strategy pattern</I
+>
+                    makes these gymnastics necessary.  For more on the
+                    singleton pattern see:
+                    <A
+HREF="https://en.wikipedia.org/wiki/Singleton_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Singleton_pattern</A
+>.
+                    For information on the strategy pattern, see:
+                    <A
+HREF="https://en.wikipedia.org/wiki/Strategy_pattern"
+TARGET="_top"
+>https://en.wikipedia.org/wiki/Strategy_pattern</A
+>.
+                </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8500"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;                    The methods for this class come in several categories.
+                    Since this is an important base class, we'll be documenting
+                    methods that include accessors and mutators for member data
+                    as well as protected methods that may be of use in special
+                    situations.
+                </P
+><P
+>&#13;                    The first category of methods we'll document are accessors.
+                    These are methods that allow read access to member data.
+                    They are all public as external objects may want to
+                    obtain the values of these variables as well as derived
+                    classes:
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getDisplaySize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                SpecTcl places bulk spectrum data in a shared
+                                memory region using the <B
+CLASS="command"
+>sbind</B
+>
+                                command.  This allows displayers running on the
+                                same system as SpecTcl rapid access to these
+                                data improving display rendering times.
+                            </P
+><P
+>&#13;                                The size of the shared memory region is determined
+                                at startup (just after limit scripts are sourced).
+                                This method returns the number of megabytes allocated
+                                to this shared memory region.  
+                            </P
+><P
+>&#13;                                Note that as for most computer applications
+                                Mega means <TT
+CLASS="literal"
+>1024*1024</TT
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getParams() ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                SpecTcl uses a <CODE
+CLASS="classname"
+>CEvent</CODE
+>
+                                object to represent unpacked parameters from
+                                an event.   This object is self-resizing.
+                                It looks like an array but if an element is
+                                referenced out of range of the allowed indices,
+                                it is expanded as needed.
+                            </P
+><P
+>&#13;                                The <CODE
+CLASS="classname"
+>CEvent</CODE
+> object
+                                is instantiated by SpecTcl with an initial size.
+                                This method returns the initial number of elements
+                                in a <CODE
+CLASS="classname"
+>CEvent</CODE
+>.  Note that
+                                since these objects are recycled from event
+                                to event, tuning the initial size has no
+                                amortized effect on performance as all
+                                of these objects eventually grow to the appropriate
+                                size (usually quite quickly).
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getListSize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Determines the number of <CODE
+CLASS="classname"
+>CEvent</CODE
+>
+                                objects that are collected for each pass through
+                                the histogrammer.  
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CAnalyzer* </span
+> getAnalyzer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a pointer to the analyzer object.
+                                This is deprecated in favor of the
+                                <CODE
+CLASS="methodname"
+>GetAnalyzer</CODE
+> method
+                                in the <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> API
+                                class.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CTCLHistogrammer*  </span
+>getHistogrammer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a pointer to the histogrammer object.
+                                This is the special event sink pipeline element
+                                that performs gating and histogramming
+                            </P
+><P
+>&#13;                                Note that this is deprecated in favor of the
+                                <CODE
+CLASS="methodname"
+>GetHistogrammer</CODE
+> method
+                                if the <CODE
+CLASS="classname"
+>SpecTcl</CODE
+> API class.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CTKRunControl*  </span
+>getRunControl();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                <CODE
+CLASS="classname"
+>CRunControl</CODE
+> objects are
+                                responsible for starting and stopping playback
+                                from data sources as well as providing a
+                                callback when data can be read from a source.
+                            </P
+><P
+>&#13;                                The drun control object used by default for
+                                <CODE
+CLASS="classname"
+>CTclGrammerApp</CODE
+> objects
+                                is a <CODE
+CLASS="classname"
+>CTKRunControl</CODE
+> object
+                                that uses file events to know when data are ready
+                                from a data source.  This method returns a pointer
+                                to the run control object currently in use.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CXamineEventHandler*  </span
+>getXamineEvents();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                The Xamine displayer communicates with the
+                                its client via Unix IPC objects.  Shared memory
+                                is used to provide bulk spectrum data and metadata
+                                to Xamine.  Message based IPS are used to
+                                pass events from Xamine to SpecTcl.
+                            </P
+><P
+>&#13;                                An <CODE
+CLASS="classname"
+>XamineEventHandler</CODE
+>
+                                object is an object that is used to mediate
+                                message traffic from Xamine to SpecTcl.
+                                It handles both gate notifictions and notifications
+                                of button clicks for user button boxes.
+                            </P
+><P
+>&#13;                                This method returns thye current instance
+                                of the <CODE
+CLASS="classname"
+>CXamienEventHandler</CODE
+>.
+                                This may not be meaningful if a displayer other
+                                than Xamine is used.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>  CRunControlPackage*  </span
+>getRunControlPackage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                SpecTcl's commands are grouped into sets of
+                                related functionality called
+                                <I
+CLASS="firstterm"
+>command packages</I
+>.  Command
+                                package objects,
+                                derived from <CODE
+CLASS="classname"
+>CTCCommandPackage</CODE
+>,
+                                not only contain a set of commands
+                                but also provide services that can be accessed by
+                                the commands in the package. 
+                            </P
+><P
+>&#13;                                This scheme also servers to insulate SpecTcl's
+                                command functionality from the language that
+                                invokes it... to some extent.
+                            </P
+><P
+>&#13;                                This method returns a pointer to the run control
+                                command package.  This package provides services
+                                for the run control commands;
+                                <B
+CLASS="command"
+>start</B
+> and
+                                <B
+CLASS="command"
+>stop</B
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CParameterPackage*  </span
+>getParameterPackage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                See <CODE
+CLASS="methodname"
+>getRunControlPackage</CODE
+>
+                                for background information about command
+                                packages.  <CODE
+CLASS="classname"
+>CParameterPackage</CODE
+>
+                                is a package containing the commands that manipulate
+                                SpecTcl parameter definitions.  This includes both
+                                the <B
+CLASS="command"
+>parameter</B
+> and
+                                <B
+CLASS="command"
+>psuedo</B
+> commands.
+                            </P
+><P
+>&#13;                                This method returns a pointer to the parameter
+                                package object.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CSpectrumPackage*  </span
+>getSpectrumPackage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                The <CODE
+CLASS="classname"
+>CSpectrumPackage</CODE
+>
+                                object contains and provides services for
+                                commands that affect spectra.  These include
+                                <B
+CLASS="command"
+>spectrum</B
+>,
+                                <B
+CLASS="command"
+>clar</B
+>,
+                                <B
+CLASS="command"
+>sbind</B
+>,
+                                <B
+CLASS="command"
+>unbind</B
+>,
+                                <B
+CLASS="command"
+>channel</B
+>,
+                                <B
+CLASS="command"
+>swrite</B
+> and
+                                <B
+CLASS="command"
+>sread</B
+>.
+                                This method returns a pointer to this package
+                                object.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CDataSourcePackage*  </span
+>getDataSourcePackage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                The <CODE
+CLASS="classname"
+>CDataSourcePackage</CODE
+>
+                                contains and provides services for commands that
+                                provide access to SpecTcl data sources.
+                                These include the <B
+CLASS="command"
+>attach</B
+>
+                                and <B
+CLASS="command"
+>ringformat</B
+> classes.
+                                Older versions of SpecTcl also provide
+                                access to the obsolete <B
+CLASS="command"
+>tape</B
+>
+                                command.
+                            </P
+><P
+>&#13;                                This method returns a pointer to the
+                                data source package object.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CGatePackage*  </span
+>getGatePackage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                <CODE
+CLASS="classname"
+>CGatePackage</CODE
+> contains and
+                                provides services for commands that have to do
+                                with gates.  These commands include:
+                                <B
+CLASS="command"
+>gate</B
+>,
+                                <B
+CLASS="command"
+>apply</B
+> and
+                                <B
+CLASS="command"
+>ungate</B
+>.
+                            </P
+><P
+>&#13;                                This method returns a pointer to the
+                                <CODE
+CLASS="classname"
+>CGatePackage</CODE
+> object used
+                                by SpecTcl.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CTCLVariable  </span
+>getTclDisplaySize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns a <CODE
+CLASS="classname"
+>CTCLVariable</CODE
+> that,
+                                in <CODE
+CLASS="methodname"
+>BindTCLVariables</CODE
+>
+                                is bound to the Tcl variable
+                                <TT
+CLASS="literal"
+>DisplayMegabytes</TT
+>. 
+                            </P
+><P
+>&#13;                                This can be set to be the default number of
+                                display shared memory megabytes.  This must
+                                be done prior to the call to
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>.
+                                One way to accomplish this is to override
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>
+                                and replace it with something like:
+                            </P
+><PRE
+CLASS="programlisting"
+>&#13;void MySpecTclApp::SourceLimitScripts(CTCLInterpreter&#38; interp)
+{
+    CTCLVariable displaySize = getTclDisplaySize();
+    displaySize.Bind();
+    displaySize.Set("16");
+    
+    TclGrammerApp::SourceLimitScripts(interp);
+}
+                            </PRE
+><P
+>&#13;                                The method above, sets the default value for
+                                the display size to <TT
+CLASS="literal"
+>16MB</TT
+>
+                                before invoking the base class method to
+                                actually source the limit scripts. 
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CTCLVariable  </span
+>getTclParameterCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns an object that represents the
+                                Tcl variable that sets the
+                                default value for the initial size of
+                                new <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects.
+                                As discussed previously, there's not much to be
+                                gained from altering this default as eventually
+                                these objects equilibrate in size to the size needed
+                                to hold all of the parameters.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CTCLVariable </span
+>getTclEventListSize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns an object that respresents the Tcl
+                                variable that holds the default number of events
+                                that are processed by the event processing pipeline
+                                before passing events to the event sink pipeline.
+                                This can be set prior to the base class executing
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>.
+                                Note that method may invoke a script that overrides
+                                the default and that method will also set that
+                                parameter.  It is possible that playing with this
+                                will have a minor effect on SpecTcl performancde.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CMultiTestSource*  </span
+>getTestDataSource();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the object that provides test data
+                                for SpecTcl prior to first being attached
+                                to a real data source.  It's possible,
+                                once you have that object to add or select other
+                                than the default test source (fixed length
+                                events with gaussian parameters).
+                            </P
+><P
+>&#13;                                One potential use for this would be to hook
+                                directly to some event simulator, although
+                                much simpler would be to teach SpecTcl to analyze
+                                the saved event files from such a simulator.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CDisplayInterface*  </span
+>getDisplayInterface();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Provides a pointer to the current display
+                                interface.  This object provides methods
+                                to manage displayers that can be used by
+                                SpecTcl.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    The second set of methods we will document are mutators.
+                    A mutator is a method that allows you to modify internal
+                    attributes of an object.  These methods are all intended
+                    to be used by derived classes and therefore are all
+                    <TT
+CLASS="literal"
+>protected</TT
+>.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setDisplaySize (<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nDisplaySize</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the display memory size in megabytes.  This
+                                must be called after
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+> to
+                                override the value in those scripts or prior to
+                                set the default value.   It should also be
+                                called prior to
+                                <CODE
+CLASS="methodname"
+>CreateDisplays</CODE
+> which
+                                actually sets up the display shared memory.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setParams (<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nParams</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the number of parameters that will be used
+                                as the initial size for <CODE
+CLASS="classname"
+>CEvent</CODE
+>
+                                vectors.   To override the user's settings, this
+                                should be called after
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>, otherwise
+                                it is used as a default value for that
+                                parameter if it is not set in the user's scripts.
+                            </P
+><P
+>&#13;                                As previously discussed, setting this has
+                                essentially no impact on SpecTcl's performance
+                                due to the autosizing and recycling of parameter
+                                vectors.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>&#13;                                    void 
+                                 </span
+>setListSize (<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nListSize</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the event list size.  This is the number
+                                of events that is analyzed by the event processing
+                                pipeline before those events are passed to the
+                                event sink pipeline for histogramming and
+                                other processing.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    This set of methods are virtual and therefore can be overridden.
+                    These methods are all exposed in the
+                    <CODE
+CLASS="classname"
+>MySpecTclApp</CODE
+> class in the SpecTcl
+                    Skeleton.  In that class, the base class method is invoked.
+                    You can add code as needed to meet your needs.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+>RegisterEventProcessor(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventProcessor&#38; </span
+><span
+class="parameter"
+> rEventProcessor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+> char*  </span
+><span
+class="parameter"
+>name </span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Not actually a virtual method, this method is
+                                used to add an event processor to the end of
+                                the event processing pipeline.
+                                <CODE
+CLASS="parameter"
+>rEventProcessor</CODE
+>, is the
+                                processor to add and <CODE
+CLASS="parameter"
+>name</CODE
+>,
+                                if supplied is a name associated with the event
+                                processor.  If <CODE
+CLASS="parameter"
+>name</CODE
+>
+                                is not supplied, one is assigned.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>BindTCLVariables(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This is called to bind SpecTcl's special Tcl
+                                variables to this object's
+                                <CODE
+CLASS="classname"
+>CTCLVariable</CODE
+>
+                                members.  Doing this allows those objects
+                                to access the underlying Tcl variables.
+                                Variables bound and created include:
+                            </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                                        <CODE
+CLASS="varname"
+>tcl_rcFilename</CODE
+>
+                                        The name of the early Tcl initialization
+                                        file.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        <CODE
+CLASS="varname"
+>DisplayMegabytes</CODE
+>
+                                        Number of megabytes of display shared
+                                        memory allocated.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        <CODE
+CLASS="varname"
+>ParameterCount</CODE
+>
+                                        Number of parameers allocated in the
+                                        initial create of <CODE
+CLASS="classname"
+>CEvent</CODE
+>
+                                        objects.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        <CODE
+CLASS="varname"
+>EventListSize</CODE
+>
+                                        Number events analyzed by the analysis
+                                        pipeline before passing them on to the
+                                        sink pipeline.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        <CODE
+CLASS="varname"
+>DisplayType</CODE
+>
+                                        type of displayer used.
+                                    </P
+></LI
+></UL
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SourceLimitScripts(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38; </span
+><span
+class="parameter"
+> rInterpreter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sources the limit setting scripts
+                                (<TT
+CLASS="filename"
+>SpecTclInit.tcl</TT
+>) into
+                                <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+>.  All
+                                of the following locations are searched and for
+                                the reasons given:
+                            </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                                        The <TT
+CLASS="filename"
+>etc</TT
+> subdirectory
+                                        of the SpecTcl installation is searched
+                                        to provide system defaults that override
+                                        the default values compiled in to
+                                        SpecTcl.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        The user's home directory is searched
+                                        to provide account wide settings that may
+                                        override the system wide settings.
+                                    </P
+></LI
+><LI
+><P
+>&#13;                                        The current working directory is searched
+                                         to provide project specific settings.
+                                    </P
+></LI
+></UL
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SetLimits();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Updates the SpecTcl Tcl variables from the
+                                final tuning values after
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>
+                                has been executed.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>CreateHistogrammer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This method creates the event sink pipeline,
+                                assigning a pointer to it to
+                                <CODE
+CLASS="varname"
+>gpEventSinkPipeline</CODE
+>.
+                                It then immediately creates a
+                                <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> object
+                                saving it's pointer in
+                                <CODE
+CLASS="varname"
+>gpEventSink</CODE
+> and adding it
+                                to the end of the event sink pipeline.
+                            </P
+><P
+>&#13;                                In addition an observer is attached to the
+                                spectrum dictionary (part of the histogrammer).
+                                This observer, a
+                                <CODE
+CLASS="classname"
+>SpectrumDictionaryFitObserver</CODE
+>
+                                destroys fits on spectra that are being removed
+                                from the spectrum dictionary.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>CreateDisplays();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                SpecTcl supports more than one displayer.
+                                Currently it supports Xamine, a displayer built
+                                directly on Motif and the Xt/X11 toolkit and
+                                Spectra, a displayer build on Root.
+                                This method sets up a factory of display
+                                interfaces.
+                                It stocks it with creators for
+                                Xamine, Spectra and headless (batch) mode.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SelectDisplayer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Selects and starts the displayer whose name is
+                                stored in the Tcl variable
+                                <CODE
+CLASS="varname"
+>DisplayType</CODE
+>.
+                                <CODE
+CLASS="varname"
+>DisplayType</CODE
+> must have been
+                                set prior to
+                                <CODE
+CLASS="methodname"
+>SourceLimitScripts</CODE
+>.
+                            </P
+><P
+>&#13;                                The displayer process is started if appropriate.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SetUpDisplay();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets up communication between SpecTcl and the
+                                displayer.  Specifically, when gates are
+                                created or destroyed, when spectra have gates
+                                applied to them or are ungated, the displayer
+                                may provide visual cues.  This method sets up
+                                observers on the SpecTcl side that
+                                detect appropriate changes and communicate
+                                with the selected displayer so that this
+                                information is updated by the displayer..
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SetupTestDataSource();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                SpecTcl has a test data source.  If analysis
+                                is started, prior to attaching to a data source,
+                                the test source will supply data.  The
+                                test data source is, by default, a
+                                <CODE
+CLASS="classname"
+>CMlutiTestSource</CODE
+> which
+                                is can be a container for several types of
+                                data sources.  
+                            </P
+><P
+>&#13;                                This method establishes that data source
+                                and selects its default data source.
+                                The default data source delivers fixed sized
+                                events that contain several parameters of
+                                gaussian distributed parameters.
+                            </P
+><P
+>&#13;                                The SpecTcl skeleton files can analyze data
+                                from the default test source without modification.
+                                This is one way to use and become familiar with
+                                SpecTcl.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>CreateAnalyzer(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*  </span
+><span
+class="parameter"
+>pSink</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Creates and attaches the analyzer to the system.
+                                The analyzer is the object that controls the
+                                flow of data from a data source through the
+                                analysis pipeline and to the event sink
+                                pipeline.
+                            </P
+><P
+>&#13;                                By default a <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+>
+                                is instantiated and hooked in to SpecTcl.
+                                A pointer to the analyzer object is stored
+                                in <CODE
+CLASS="varname"
+>gpAnalyzer</CODE
+> as well
+                                as in the attribute
+                                <CODE
+CLASS="varname"
+>m_pAnalyzer</CODE
+>.  Both should
+                                be updated to change the analyzer, if that's
+                                desired.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SelectDecoder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the initial buffer decoder. Note that
+                                in most cases, SpecTcl's
+                                <B
+CLASS="command"
+>attach</B
+> command will
+                                select a new buffer decoder object to match the
+                                <CODE
+CLASS="option"
+>-format</CODE
+> value, implied by
+                                or explicit in the command.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>CreateAnalysisPipeline(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+><span
+class="initializer"
+> = 0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This is a pure virtual method and therefore
+                                must be implemented by any subclass that
+                                can be instantiated.  The code in this
+                                method should create and add elements
+                                to the event processing pipeline.                         
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="methodname"
+>RegisterEventProcessor</CODE
+>
+                                is provided as a convenience method for
+                                adding event processors to the analyzer.
+                                Note that event processors are a property
+                                of the <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+>
+                                class and its descendents.  
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>AddCommands(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Adds SpecTcl specific commands to the
+                                Tcl interpreter
+                                <CODE
+CLASS="parameter"
+>rInterp</CODE
+>.
+                                The base class method creates and adds
+                                all of the command packages that hold most
+                                of SpecTcl's commands.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SetupRunControl();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Not virtual and therefore cannot be overridden,
+                                this method creates a new
+                                <CODE
+CLASS="classname"
+>CTkRunControl</CODE
+>
+                                object, stores a pointer to it in 
+                                <CODE
+CLASS="varname"
+>gpRunControl</CODE
+> which
+                                establishes it as the run control object
+                                that SpecTcl uses.  The object's pointer is
+                                also stored in the attribute
+                                <CODE
+CLASS="varname"
+>m_pRunControl</CODE
+>.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>SourceFunctionalScripts(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sources functional setup scripts into
+                                <CODE
+CLASS="parameter"
+>rInterp</CODE
+>.  The
+                                functional setup scripts are those named
+                                <TT
+CLASS="filename"
+>SpecTclRC.tcl</TT
+>.  SpecTcl
+                                will first run any script by this name that
+                                exists in the user's home directory.  Next it
+                                will run any script by that name that exists in
+                                the current working directory.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+>operator()();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Entry point.  This method invokes all of the
+                                initialization methods in turn.
+                                It should return
+                                <TT
+CLASS="literal"
+>TCL_OK</TT
+> if successful
+                                and <TT
+CLASS="literal"
+>TCL_ERROR</TT
+> on
+                                any failure.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    The remainder of the methods we'll document are
+                    utility functions.  These are protected and therefore
+                    can only be called from methods in this class or a
+                    class derived from this class
+                    (e.g. <CODE
+CLASS="classname"
+>MySpecTclApp</CODE
+>).
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>UpdateUInt(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLVariable&#38;  </span
+><span
+class="parameter"
+>rVar</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t&#38; </span
+><span
+class="parameter"
+> rValue</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This utility method accepts a
+                                Tcl variable object
+                                (<CODE
+CLASS="parameter"
+>rVar</CODE
+>) which is
+                                supposed to hold an
+                                unsigned integer and sets
+                                <CODE
+CLASS="parameter"
+>rValue</CODE
+> to the value
+                                of that integer.  If the variable does not
+                                exist in the Tcl interpreter, no error
+                                is thrown and the <CODE
+CLASS="parameter"
+>rValue</CODE
+>
+                                is un-modified.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>UpdateString(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLVariable&#38;  </span
+><span
+class="parameter"
+>rVar</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string&#38;  </span
+><span
+class="parameter"
+>rString</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Similiar to
+                                <CODE
+CLASS="methodname"
+>UpdateUInt</CODE
+>
+                                but the Tcl variable is an arbitrary
+                                string.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>SourceOptionalFile(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>filename</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This method attempts to source the file
+                                <CODE
+CLASS="parameter"
+>filename</CODE
+> into the
+                                interpreter <CODE
+CLASS="parameter"
+>rInterp</CODE
+>.
+                                It is not an error for the file to not exist.
+                                That's the meaning of the
+                                "optional" part of this method's name.
+                            </P
+><P
+>&#13;                                The return value from this method is an empty
+                                string on success (including missing file)
+                                and an error message string if an error occured
+                                (such as the script failing).
+                            </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r9101.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Core SpecTcl classes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CHistogrammer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

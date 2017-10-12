@@ -1,0 +1,624 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTreeVariableProperites</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tree Parameter, Tree Variable API"
+HREF="p2375.html"><LINK
+REL="PREVIOUS"
+TITLE="CTreeVariable"
+HREF="r3671.html"><LINK
+REL="NEXT"
+TITLE="CTreeVariableArray"
+HREF="r4238.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r3671.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4238.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN4061"
+></A
+>CTreeVariableProperites</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4065"
+></A
+><H2
+>Name</H2
+>CTreeVariableProperties&nbsp;--&nbsp;Shared properties of CTreeVariable</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4068"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CTreeVariableProperties.h&#62;
+
+class <CODE
+CLASS="classname"
+>CTreeVariableProperties</CODE
+>
+{
+public:
+  CTreeVariableProperties&#38; operator=(double value);
+  CTreeVariableProperties&#38; operator=(const CTreeVariableProperties&#38; rhs);
+  CTreeVariableProperties&#38; operator=(const CTreeVariable&#38; rhs);
+  operator double();
+
+  bool    definitionChanged();
+  std::string  getName();  
+  std::string  getUnits();
+  bool    valueChanged();
+  
+  void    setUnits(std::string units);
+  void    resetDefinitionChanged();
+  void    fireTraces();
+  void    Link(CTCLInterpreter&#38; rInterp);
+};
+                </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4071"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    Unless you are iterating the tree variable dictionary, this
+                    class can be completely ignored as internal to the
+                    tree parameter subsystem.  A <CODE
+CLASS="classname"
+>CTreeVariableProperties</CODE
+>
+                    object contains the properties shared between several instances
+                    of a <CODE
+CLASS="classname"
+>CTreeVariable</CODE
+> that have
+                    the same name.
+                </P
+><P
+>&#13;                    Furthermore, it is the <CODE
+CLASS="classname"
+>CTreeVariableProperties</CODE
+>
+                    object that carries the binding between the variable and the
+                    associated Tcl variable.   
+                </P
+><P
+>&#13;                    Each tree variable holds the following information in this
+                    object:
+                </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                            The variable's name.
+                        </P
+></LI
+><LI
+><P
+>&#13;                            The variable's units.
+                        </P
+></LI
+><LI
+><P
+>&#13;                            The variable's value.  This is linked to a
+                            Tcl variable with the same name as this object.
+                        </P
+></LI
+><LI
+><P
+>&#13;                            Definition and value changed flags.
+                        </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4088"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;                    Note that since these objects are typically constructed
+                    by <CODE
+CLASS="classname"
+>CTreeVariable</CODE
+> objects, we're not
+                    going to document the class constructors.
+                </P
+><P
+>&#13;                    The first set of methods we document are those used
+                    by <CODE
+CLASS="classname"
+>CTreeVariable</CODE
+> to mimic
+                    a <SPAN
+CLASS="type"
+>double</SPAN
+>L
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeVariableProperties&#38;  </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeVariableProperties&#38;  </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CTreeVariableProperties&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeVariableProperties&#38;  </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CTreeVariable&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Assigns the <CODE
+CLASS="parameter"
+>rhs</CODE
+> or its
+                                value to the value of the object.
+                                Returning a reference to the object supports
+                                assignment chaining.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> </span
+>operator double();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the value of the object.  This
+                                allows the object to be treated like
+                                a <SPAN
+CLASS="type"
+>double</SPAN
+> for many purposes.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                        The next set of methods are used to query various
+                        aspects of the object:
+                    </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool     </span
+>definitionChanged();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Returns <TT
+CLASS="literal"
+>true</TT
+> if the
+                                    definition has changed either since construction
+                                    or since the change flags were reset last.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string   </span
+>getName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Returns the name of the variable.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string   </span
+>getUnits();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Returns the units of measure associated
+                                    with the variable.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool     </span
+>valueChanged();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Returns <TT
+CLASS="literal"
+>true</TT
+> if the
+                                    value of the object was changed either since
+                                    it was constructed or since the flag
+                                    that keeps track of this was last reset.
+                                </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                        These methods perform actions on the object:
+                    </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void     </span
+>setUnits(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Sets the units of measure for the object
+                                    to <CODE
+CLASS="parameter"
+>units</CODE
+>.  This
+                                    also sets the definition modified flag
+                                    to <TT
+CLASS="literal"
+>true</TT
+>.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void     </span
+>resetDefinitionChanged();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Resest the definition changed flag to
+                                    <TT
+CLASS="literal"
+>false</TT
+>.
+                                    Normally this is done after finding the
+                                    flag was <TT
+CLASS="literal"
+>true</TT
+> and
+                                    taking appropriate action.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void     </span
+>fireTraces();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Calls <CODE
+CLASS="function"
+>Tcl_UpdateLinkedVar</CODE
+>
+                                    to ensure the Tcl variable is updated and traces are fired.
+                                    for that variable.  This is necessary after
+                                    changes have been made to the value and the
+                                    variable is quiescent again.
+                                </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void     </span
+>Link(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTCLInterpreter&#38;  </span
+><span
+class="parameter"
+>rInterp</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                    Actually links the data in this object
+                                    to the Tcl variable of the same name.  The
+                                    current value of the variable is refreshed
+                                    so that the Tcl variable is assured to be
+                                    have the same value as the object's
+                                    value prior to this method call.
+                                </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r3671.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4238.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTreeVariable</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p2375.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTreeVariableArray</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

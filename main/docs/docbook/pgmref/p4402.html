@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Tcl++ classes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="CTreeVariableArray"
+HREF="r4238.html"><LINK
+REL="NEXT"
+TITLE="
+                Tcl++ classes
+            "
+HREF="c4404.html"></HEAD
+><BODY
+CLASS="part"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4238.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c4404.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="AEN4402"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>III. Tcl++ classes</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>4. <A
+HREF="c4404.html"
+>Tcl++ classes</A
+></DT
+><DT
+><A
+HREF="r4430.html"
+>CTCLInterpreter</A
+>&nbsp;--&nbsp;
+            Encapsulate a Tcl interpreter.
+        </DT
+><DT
+><A
+HREF="r4666.html"
+>CTCLInterpreterObject</A
+>&nbsp;--&nbsp;
+            Base class for objects that are associated with a Tcl Interpreter.
+        </DT
+><DT
+><A
+HREF="r4745.html"
+>CTCLResult</A
+>&nbsp;--&nbsp;
+            Provide an object oriented interace to the Tcl interpreter result.
+        </DT
+><DT
+><A
+HREF="r4856.html"
+>CTCLException</A
+>&nbsp;--&nbsp;
+            Class for reporting exceptional conditions in Tcl applications
+            via the C++ try/catch mechanism.
+        </DT
+><DT
+><A
+HREF="r4999.html"
+>CTCLObjectProcessor</A
+>&nbsp;--&nbsp;
+            Abstract base class to encapsulate the Tcl object command interface exposed by
+            <CODE
+CLASS="function"
+>Tcl_CreateObjCommand</CODE
+>.
+        </DT
+><DT
+><A
+HREF="r5114.html"
+>CTCLProcessor</A
+>&nbsp;--&nbsp;
+            Provide <CODE
+CLASS="parameter"
+>argc</CODE
+>, <CODE
+CLASS="parameter"
+>argv</CODE
+>
+            extension commands to Tcl.
+        </DT
+><DT
+><A
+HREF="r5304.html"
+>CTCLCompatibiltyProcessor</A
+>&nbsp;--&nbsp;
+            Adaptor between <CODE
+CLASS="classname"
+>CTCLOjbectProcessor</CODE
+>
+            and <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+>.
+        </DT
+><DT
+><A
+HREF="r5371.html"
+>CTCLCommandPackage</A
+>&nbsp;--&nbsp;
+            Group several related Tcl command extensions and common services they
+            may require together.
+        </DT
+><DT
+><A
+HREF="r5476.html"
+>CTCLPackagedCommand</A
+>&nbsp;--&nbsp;
+            Base class for a command that lives in a <CODE
+CLASS="classname"
+>CTCLCommandPackage</CODE
+>
+        </DT
+><DT
+><A
+HREF="r5537.html"
+>CTCLVariable</A
+>&nbsp;--&nbsp;
+            Encapsulate Tcl interpreter variables.
+        </DT
+><DT
+><A
+HREF="r5733.html"
+>CTCLApplication 3</A
+>&nbsp;--&nbsp;
+            Base class for TCL/Tk applications.
+        </DT
+><DT
+><A
+HREF="r5780.html"
+>CTCLHashTable</A
+>&nbsp;--&nbsp;
+            Object oriented interface to Tcl's hash table functions.
+        </DT
+><DT
+><A
+HREF="r5911.html"
+>CTCLHashTableItem</A
+>&nbsp;--&nbsp;
+            Encapsulation of an entry in a Tcl Hash table as encapsulated
+            in <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+>
+        </DT
+><DT
+><A
+HREF="r5979.html"
+>CTCLHashTableIterator</A
+>&nbsp;--&nbsp;
+            Iterator for visiting all elements of a <CODE
+CLASS="classname"
+>CTCLHashTable</CODE
+>
+        </DT
+><DT
+><A
+HREF="r6075.html"
+>CTCLString</A
+>&nbsp;--&nbsp;
+            Provide a wrapper for the <SPAN
+CLASS="type"
+>Tcl_DString</SPAN
+> data type
+            and its API
+        </DT
+><DT
+><A
+HREF="r6292.html"
+>CTCLList</A
+>&nbsp;--&nbsp;
+            Provide access to Tcl List parsing.
+        </DT
+><DT
+><A
+HREF="r6401.html"
+>CTCLChannel</A
+>&nbsp;--&nbsp;
+            Provide a C++ abstraction wrapper for Tcl Channels.
+        </DT
+><DT
+><A
+HREF="r6571.html"
+>CTCLFileHandler</A
+>&nbsp;--&nbsp;
+            Base class for building object oriented Tcl File event handlers.
+        </DT
+><DT
+><A
+HREF="r6657.html"
+>CTCLIdleProcess</A
+>&nbsp;--&nbsp;
+            Allows the establishment of an executable object that
+            can be scheduled to be invoked when the Tcl/Tk intperpreter
+            has no events that require processing.
+        </DT
+><DT
+><A
+HREF="r6718.html"
+>CTCLTimer</A
+>&nbsp;--&nbsp;
+            Abstract base class for C++ objects attached to timer events.
+        </DT
+><DT
+><A
+HREF="r6788.html"
+>CTCLLiveEventLoop</A
+>&nbsp;--&nbsp;Run Tcl with event loop.</DT
+><DT
+><A
+HREF="r6892.html"
+>CTCLChannelCommander</A
+>&nbsp;--&nbsp;Accept commands on a Tcl channel from the event loop.</DT
+><DT
+><A
+HREF="r7104.html"
+>CTCLStdioCommander</A
+>&nbsp;--&nbsp;Event driven command input on stdin/stdout</DT
+><DT
+><A
+HREF="r7168.html"
+>CTCLServer</A
+>&nbsp;--&nbsp;Listener for a Tcl server.</DT
+><DT
+><A
+HREF="r7296.html"
+>CTCLTcpServerInstance</A
+>&nbsp;--&nbsp;Channel commander that is a server instance for <CODE
+CLASS="classname"
+>CTCLServer</CODE
+></DT
+><DT
+><A
+HREF="r7369.html"
+>CItemConfiguration</A
+>&nbsp;--&nbsp;Hold a configuration</DT
+><DT
+><A
+HREF="r8092.html"
+>CConfigurableObject</A
+>&nbsp;--&nbsp;Base class for objects tht have a configuration.</DT
+><DT
+><A
+HREF="r8312.html"
+>CTCLObjectPackage</A
+>&nbsp;--&nbsp;Provide common functionality for a set of
+                related commands.</DT
+><DT
+><A
+HREF="r8374.html"
+>CTCLPackagedObjectProcessor</A
+>&nbsp;--&nbsp;Base class for commands living in a
+                    <CODE
+CLASS="classname"
+>CTCLObjectPackage</CODE
+>
+         </DT
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4238.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c4404.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTreeVariableArray</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Tcl++ classes</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

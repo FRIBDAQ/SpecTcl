@@ -1,0 +1,1072 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLInterpreter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="
+                Tcl++ classes
+            "
+HREF="c4404.html"><LINK
+REL="NEXT"
+TITLE="CTCLInterpreterObject "
+HREF="r4666.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c4404.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4666.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLInterpreter"
+></A
+>CTCLInterpreter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4434"
+></A
+><H2
+>Name</H2
+>CTCLInterpreter&nbsp;--&nbsp;
+            Encapsulate a Tcl interpreter.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4437"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;string&#62;
+#include &#60;vector&#62;
+#include &#60;TCLInterpreter.h&#62;
+
+class CTCLInterpreter
+{
+public:
+  CTCLInterpreter ();
+  CTCLInterpreter (Tcl_Interp* am_pInterpreter  );
+
+  Tcl_Interp* getInterpreter()
+  std::string Eval (const char* pScript) ;
+  std::string Eval(const CTCLString&#38; rScript);
+  std::string Eval(const std::string&#38; rScript);
+  std::string EvalFile (const char* pFilename)   ;
+  std::string EvalFile(const CTCLString&#38; rFilename);
+  std::string EvalFile(const std::string&#38; rFilename);
+
+  std::string GlobalEval (const char* pScript)   ;
+  std::string GlobalEval (const CTCLString&#38; rScript) ;
+  std::string GlobalEval(const std::string&#38; rScript) ;
+
+  std::string RecordAndEval (const char* pScript, Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const CTCLString&#38; rScript,
+                            Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const std::string&#38; rScript,
+                            Bool_t fEval = kfFALSE);
+
+  std::string ExprString (const char* pExpression)   ;
+  std::string ExprString(const CTCLString&#38; rExpr);
+  std::string ExprString(const std::string&#38; rExpr);
+
+  Long_t ExprLong (const char* pExpression)   ;
+  Long_t ExprLong (std::string&#38; rExpression);
+  Long_t ExprLong (const CTCLString&#38; rExpr);
+
+  DFloat_t ExprDouble (const char* pExpression)   ;
+  DFloat_t ExprDouble (const CTCLString&#38; rExpression);
+  DFloat_t ExprDouble(const std::string&#38; rExpression);
+
+  Bool_t ExprBoolean (const char*  pExpression)   ;
+  Bool_t ExprBoolean (const CTCLString&#38; rExpression);
+  Bool_t ExprBoolean(const std::string&#38; rExpression);
+
+  std::string TildeSubst (const char* pFilename) const  ;
+  std::string TildeSubst (const CTCLString&#38; rName) const;
+  std::string TildeSubst (const std::string&#38; rName) const;
+  std::string EvalFile (const char* pFilename)   ;
+  std::string EvalFile(const CTCLString&#38; rFilename);
+  std::string EvalFile(const std::string&#38; rFilename);
+
+  std::string GlobalEval (const char* pScript)   ;
+  std::string GlobalEval (const CTCLString&#38; rScript) ;
+  std::string GlobalEval(const std::string&#38; rScript) ;
+
+  std::string RecordAndEval (const char* pScript, Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const CTCLString&#38; rScript,
+                            Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const std::string&#38; rScript,
+                            Bool_t fEval = kfFALSE);
+
+  std::string ExprString (const char* pExpression)   ;
+  std::string ExprString(const CTCLString&#38; rExpr);
+  std::string ExprString(const std::string&#38; rExpr);
+
+  Long_t ExprLong (const char* pExpression)   ;
+  Long_t ExprLong (std::string&#38; rExpression);
+  Long_t ExprLong (const CTCLString&#38; rExpr);
+
+  DFloat_t ExprDouble (const char* pExpression)   ;
+  DFloat_t ExprDouble (const CTCLString&#38; rExpression);
+  DFloat_t ExprDouble(const std::string&#38; rExpression);
+
+  Bool_t ExprBoolean (const char*  pExpression)   ;
+  Bool_t ExprBoolean (const CTCLString&#38; rExpression);
+  Bool_t ExprBoolean(const std::string&#38; rExpression);
+
+  std::string TildeSubst (const char* pFilename) const  ;
+  std::string TildeSubst (const CTCLString&#38; rName) const;
+  std::string TildeSubst (const std::string&#38; rName) const;
+  Tcl_Interp* operator-&#62; ();
+  operator Tcl_Interp* ();
+  
+  
+  void setResult(const char* resultString);
+  void setResult(std::string resultString);
+  void setResult(Tcl_Obj*    resultObj);
+  void setResult(CTCLObject&#38; resultObj);
+
+};
+
+
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4439"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>
+            encapsulates a <SPAN
+CLASS="type"
+>Tcl_Interp*</SPAN
+> in an object.
+            Method invocations on that object provide access to many of the
+            Tcl interpreter. See METHODS below for more information about htis.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4444"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            <CODE
+CLASS="function"
+>CTCLInterpreter () </CODE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>CTCLInterpreter</CODE
+> (
+                <SPAN
+CLASS="type"
+>Tcl_Interp</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>)
+        </P
+><P
+>&#13;            Constructs an interpreter object.  The first form of this
+            constructor creates a new <SPAN
+CLASS="type"
+>Tcl_Interp*</SPAN
+> using
+            <CODE
+CLASS="function"
+>Tcl_CreateInterp()</CODE
+> and wraps the object
+            around it.  All members of the object will operate on that
+            newly created interpreter.  The second form, wraps an object
+            around <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+            a previously created <SPAN
+CLASS="type"
+>Tcl_Interp*</SPAN
+>.
+            Note that in either case on destruction, <CODE
+CLASS="function"
+>Tcl_DeleteInterp()</CODE
+>
+            is called on the wrapped interpreter.
+        </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>Tcl_Interp</SPAN
+>* <CODE
+CLASS="function"
+>getInterpreter</CODE
+>()
+        </P
+><P
+>&#13;            Returns the interpreter that is being wrapped by this object.
+            This interpreter can be used as an <CODE
+CLASS="parameter"
+>interp</CODE
+>
+            parameter for any <CODE
+CLASS="function"
+>Tcl_xxxxxx</CODE
+> call in the Tcl
+            API.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>Eval</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pScript</CODE
+>) ;
+<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>Eval</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>);
+<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>Eval</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Evaluates the script passed as a parameter.  The only differences between
+            these functions is the form of the script parameter.  Each function will
+            return the result of the script.  If there is an error in the script,
+            a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> will be thrown that will describe
+            what happened.  For example:
+            <PRE
+CLASS="programlisting"
+>&#13;    std::string commands;
+    CTCLInterpreter interp;     // New intepreter.
+    ...
+    // after commands has been built up:
+
+    string result
+    try {
+        result = interp.Eval(commands);
+        cout &#60;&#60; "Eval of " &#60;&#60; commands &#60;&#60; " was "
+             &#60;&#60;  result &#60;&#60; endl;
+    }
+    catch (CTCLException &#38;e) {
+        cerr &#60;&#60; "Eval of " &#60;&#60; commands &#60;&#60; " failed: "
+             &#60;&#60; e.ReasonText() &#60;&#60; endl;
+    }
+    // If no exception, result is usable as the output of the eval.
+
+            </PRE
+>
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>EvalFile</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pFilename</CODE
+>)   ;
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>EvalFile</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rFilename</CODE
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>EvalFile</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rFilename</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Sources the specified file in and executes it as a script in the interpreter that
+            is wrapped by the object.  The only difference between these functions is
+            how the name of the file is passed.  The return value is the script result.
+            A <CODE
+CLASS="classname"
+>CTCLException</CODE
+> will be thrown in the event the script
+            reports an error.  See the example in
+            <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>::<CODE
+CLASS="function"
+>Eval</CODE
+>
+            to see how to catch and report this kind of exception.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>GlobalEval</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pScript</CODE
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>GlobalEval</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>GlobalEval</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            This function evaluates a script at the global level.  Note that
+            <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>::<CODE
+CLASS="function"
+>Eval</CODE
+>,
+            and <CODE
+CLASS="classname"
+>CTCLInterpreter&#62;</CODE
+>::<CODE
+CLASS="function"
+>EvalFile</CODE
+>
+            evaluates the script at whatever call level the interpreter is currently
+            executing at.
+            The only difference between the methods above is how the script is passed.
+            The functions all return the interpreter result after the script executes.
+            If the script reports an error, a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> will
+            be thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>RecordAndEval</CODE
+> (<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pScript</CODE
+>,
+                       <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="parameter"
+>fEval</CODE
+>=<TT
+CLASS="literal"
+>kfFALSE</TT
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>RecordAndEval</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>,
+                       <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="parameter"
+>fEval</CODE
+>=<TT
+CLASS="literal"
+>kfFALSE</TT
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>RecordAndEval</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rScript</CODE
+>,
+                      <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="parameter"
+>fEval</CODE
+>=<TT
+CLASS="literal"
+>kfFALSE</TT
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Records a script in the Tcl interpreter history and, if <CODE
+CLASS="parameter"
+>fEval</CODE
+>
+            is <TT
+CLASS="literal"
+>kfTRUE</TT
+>, evaluates it as well.  The
+            return value is the interpreter result, which is only meaningful if the
+            script was evalutated.  If the script reports an error, a
+            <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>ExprString</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pExpression</CODE
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>ExprString</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpr</CODE
+>);
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>ExprString</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpr</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Evaluates an expression (as if with the <B
+CLASS="command"
+>expr</B
+>
+            Tcl command), and returns the result
+            of the evaluation as a string.  If the expression has an error,
+            a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> will be thrown.
+            The only difference between these functions is how the expression is passed.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>Long_t</SPAN
+> <CODE
+CLASS="function"
+>ExprLong</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pExpression</CODE
+>)   ;
+  <SPAN
+CLASS="type"
+>Long_t</SPAN
+> <CODE
+CLASS="function"
+>ExprLong</CODE
+>(<SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpression</CODE
+>);
+  <SPAN
+CLASS="type"
+>Long_t</SPAN
+> <CODE
+CLASS="function"
+>ExprLong</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpr</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Evaluates an expression (as if with the <B
+CLASS="command"
+>expr</B
+>
+            Tcl command).  If the result
+            can be converted into an integer, it is returned as a <SPAN
+CLASS="type"
+>Long_t</SPAN
+>.
+            If the expression either cannot be converted to an integer (e.g. it's a non-numerical
+            expression), or if the expression contains an error, a <CODE
+CLASS="classname"
+>CTCLException</CODE
+>
+            will be
+            thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>DFloat_t</SPAN
+> <CODE
+CLASS="function"
+>ExprDouble</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pExpression</CODE
+>)   ;
+  <SPAN
+CLASS="type"
+>DFloat_t</SPAN
+> <CODE
+CLASS="function"
+>ExprDouble</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpression</CODE
+>);
+  <SPAN
+CLASS="type"
+>DFloat_t</SPAN
+> <CODE
+CLASS="function"
+>ExprDouble</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpression</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Evaluates the parameter as an expression (as if with the <B
+CLASS="command"
+>expr</B
+> Tcl command).
+            If the result can be converted to a floating point value it is returned as
+            the function value.  If not, or if there is an error in the expression,
+            a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>ExprBoolean</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>*  <CODE
+CLASS="parameter"
+>pExpression</CODE
+>)   ;
+  <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>ExprBoolean</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpression</CODE
+>);
+  <SPAN
+CLASS="type"
+>Bool_t</SPAN
+> <CODE
+CLASS="function"
+>ExprBoolean</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rExpression</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Evaluates the parameter as an expression (as if with the <B
+CLASS="command"
+>expr</B
+>
+            Tcl command).  If the result can be interpreted as a boolean, it is returned
+            as the function value.  If not, or if there is an error in the expression,
+            a <CODE
+CLASS="classname"
+>CTCLException</CODE
+> is thrown.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>TildeSubst</CODE
+>(<SPAN
+CLASS="type"
+>const char</SPAN
+>* <CODE
+CLASS="parameter"
+>pFilename</CODE
+>) const  ;
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>TildeSubst</CODE
+>(<SPAN
+CLASS="type"
+>const CTCLString</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rName</CODE
+>) const;
+  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>TildeSubst</CODE
+>(<SPAN
+CLASS="type"
+>const std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rName</CODE
+>) const;
+            </PRE
+>
+        </P
+><P
+>&#13;            Performs tilde substitution on its parameter.   Tilde substitution means that leading
+             characters are expanded to the current user's home directory path, while
+            a leading  followed by a word that is a username will be expanded to the
+            home directory path of that user.  The expanded value is returned.
+            Note thatthe use of this member is deprecated as the underlying Tcl library
+            function is also deprecated.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>Tcl_Interp</SPAN
+>* <CODE
+CLASS="function"
+>operator-&#62;</CODE
+>();
+  <CODE
+CLASS="function"
+>operator Tcl_Interp* </CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            These two functions allow objects that are <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>
+            objects to be treated as if they were <SPAN
+CLASS="type"
+>Tcl_Interp*</SPAN
+>'s.
+            <CODE
+CLASS="function"
+>operator-&#62;</CODE
+> supports dereferncing to fields of the
+            wrapped interpreter (note that this is now deprecated within Tcl itself).
+            <CODE
+CLASS="function"
+>operator Tcl_Interp*</CODE
+> supports dynamic type conversion from
+            a <CODE
+CLASS="classname"
+>CTCLInterpreteter</CODE
+> object and a <SPAN
+CLASS="type"
+>Tcl_Interp*</SPAN
+>
+            pointer.
+        </P
+><PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+>
+  <CODE
+CLASS="function"
+>setResult</CODE
+>(<SPAN
+CLASS="type"
+>const char*</SPAN
+> <CODE
+CLASS="parameter"
+>resultString</CODE
+>)            
+  <SPAN
+CLASS="type"
+>void</SPAN
+>
+  <CODE
+CLASS="function"
+>setResult</CODE
+>(<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="parameter"
+>resultString</CODE
+>);
+  <SPAN
+CLASS="type"
+>void</SPAN
+>
+  <CODE
+CLASS="function"
+>setResult</CODE
+>(<SPAN
+CLASS="type"
+>Tcl_Obj*</SPAN
+>    <CODE
+CLASS="parameter"
+>resultObj</CODE
+>);
+  <SPAN
+CLASS="type"
+>void</SPAN
+>
+  <CODE
+CLASS="function"
+>setResult</CODE
+>(<SPAN
+CLASS="type"
+>CTCLObject&#38;</SPAN
+> <CODE
+CLASS="parameter"
+>resultObj</CODE
+>);
+        </PRE
+><P
+>&#13;            This set of overloaded methods sets the result of the interpreter.
+            The result is the value returned by a command on success or an
+            error message on failure.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4660"
+></A
+><H2
+>DEFECTS</H2
+><P
+>&#13;            It is not possible to avoid destroying the interpreter when the
+            object is destroyed.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4663"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;        CTCLException, CTCLApplication, CTCLChannel, CTCLCommandPackage,
+        CTCLFileHandler, CTCLList, CTCLObject, CTCLObjectProcessor, CTCLTimer,
+        CTCLVariable
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c4404.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4666.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Tcl++ classes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLInterpreterObject</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

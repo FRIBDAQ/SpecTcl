@@ -1,0 +1,680 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CEvent</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CParameter"
+HREF="r12723.html"><LINK
+REL="NEXT"
+TITLE="CSpectrum"
+HREF="r13076.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12723.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r13076.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12906"
+></A
+>CEvent</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12910"
+></A
+><H2
+>Name</H2
+>CEvent&nbsp;--&nbsp;Result of event processing pipeline</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12913"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Event.h&#62;
+
+typedef DFloat_t ParamType;
+typedef std::vector&#60;DopedValidValue&#60;ParamType&#62; &#62; CParameterVector;
+typedef DopedValidValue&#60;ParamType&#62;               CParameterValue;
+typedef CParameterVector::iterator               CEventIterator;
+
+class CEvent {
+  CEvent();
+  virtual ~CEvent() {} // Destructor
+  CEvent(UInt_t nInitialSize);
+
+  CParameterValue&#38; operator[](UInt_t nParam);
+  CEventIterator begin();
+  CEventIterator end();
+  UInt_t size() const;
+  void clear();
+
+  DopeVector&#38; getDopeVector() 
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12915"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CEvent</CODE
+> object is the result of
+            the event processing pipeline.  <CODE
+CLASS="classname"
+>CEvent</CODE
+> is
+            an array like object containing valid values.   If an index
+            into the object exceeds the rang of the underlying array the array
+            is extended as needed to accomadate this index.
+        </P
+><P
+>&#13;            Over the course of SpecTcl's evolution, several optimizations
+            have been made;
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                    Rather than each valid value having a validity flag,
+                    each value has an event serial number.  The set of values
+                    in the <CODE
+CLASS="classname"
+>CEvent</CODE
+> also have an
+                    event serial number.  When a valid value is assigned
+                    a value, it serial  is set as well.  This allows constant time
+                    invalidation of the entire vector of parameters by simply
+                    incrementing the event's serial.
+                </P
+></LI
+><LI
+><P
+>&#13;                    Histogramming is driven by spectra that depend on a parameter
+                    (where possible).  Associated with the event is a
+                    <I
+CLASS="firstterm"
+>dope vector</I
+>.  A dope vector is a
+                    vector of integers whose values are indices into the
+                    <CODE
+CLASS="classname"
+>CEvent</CODE
+> object of valid value.
+                    When a parameter is first given a value, its index is
+                    appended to the dope vector.
+                </P
+><P
+>&#13;                    This improves the performance for histogramming spares parameter
+                    spaces by making it, to first order, O(n) where n
+                    is the number of valid parameters where for sparse
+                    parameter sets, n &#60;&#60; m where m is the total number
+                    of defined parameters.
+                </P
+></LI
+><LI
+><P
+>&#13;                    <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects are recycled
+                    from event to event; simply invalidated after use.
+                    Invalidation does not shrink the object's slot count
+                    so over time, each <CODE
+CLASS="classname"
+>CEvent</CODE
+> equilibrates
+                    in size to accomodate the maximum required index.
+                </P
+></LI
+></UL
+><P
+>&#13;            As a result of the optimizations above, the implementation of
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> is not very straightforward.
+            It's use, however is.  Simply assign or fetch values from
+            indexed elements of a <CODE
+CLASS="classname"
+>CEvent</CODE
+> object.
+            use <CODE
+CLASS="methodname"
+>isValid</CODE
+> to determine if a value
+            can be fetched.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> and
+            <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> allow aliasing
+            simple variables to single elements, or ranges of elements of the active
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+>.  Using them is encouraged as
+            they'll keep track of the indices so you don't have to.  Using
+            <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> and
+            <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> objects is therefore
+            much less error prone than direct access to the active3
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> object.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12945"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CEvent();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates an event with the an initial size of 0.
+                        Note that since the event will auto resize as its
+                        elements are referenced, creation with a zero
+                        initial size is a perfectly valid use-case.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CEvent(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nInitialSize</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates a <CODE
+CLASS="classname"
+>CEvent</CODE
+> object with
+                        an initial allocation of <CODE
+CLASS="parameter"
+>nInitialSize</CODE
+>
+                        parameters that don't have a valid value. Since
+                        <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects are recycled
+                        from event to event, this constructor is not
+                        actually much of an optimization over time.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CParameterValue&#38;  </span
+>operator[](<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nParam</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the parameter value that
+                        is at slot number <CODE
+CLASS="parameter"
+>nParan</CODE
+> in
+                        the <CODE
+CLASS="classname"
+>CEvent</CODE
+> object.  The resulting
+                        object can always be assigned (making it valid if it
+                        isn't yet).  It can only be fetched as an rvalue
+                        if it is valid or else an exception will be thrown.
+                    </P
+><P
+>&#13;                        If the <CODE
+CLASS="classname"
+>CEvent</CODE
+> object does not
+                        yet contain an element at index <CODE
+CLASS="parameter"
+>nParam</CODE
+>
+                        (isn't big enough), the object is expanded with
+                        values that are not yet valid until <CODE
+CLASS="parameter"
+>nParam</CODE
+>
+                        can be indexed.
+                    </P
+><P
+>&#13;                        Note that this expansion is done in specific granule
+                        sizes so that
+                        it is possible that indices after
+                        <CODE
+CLASS="parameter"
+>nParam</CODE
+> are also generated.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventIterator </span
+> begin();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the first element in
+                        the <CODE
+CLASS="classname"
+>CEvent</CODE
+>.  This is a pointer
+                        like object to index <TT
+CLASS="literal"
+>0</TT
+>.  It is
+                        possible, for an empty <CODE
+CLASS="classname"
+>CEvent</CODE
+>,
+                        this value is the same as that returned by
+                        <CODE
+CLASS="methodname"
+>end</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventIterator  </span
+>end();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an end of iteration iterator.  Note that
+                        this is an end of iteration iterator at the time of
+                        execution and could be invalidated.  Consider the
+                        following code fragments where e is a
+                        <CODE
+CLASS="classname"
+>CEvent</CODE
+>.
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CEventIterator p = e.begin();
+CEventIterator end = e.end();
+while (p != end) {
+
+...
+    p++;
+}
+                    </PRE
+><P
+>&#13;                        The loop above is potentially  not going to cover the
+                        entire event as the body could do an assignment to
+                        <CODE
+CLASS="varname"
+>e</CODE
+> that could extend the event,
+                        in which case the assigned element would not be included
+                        in the iteration.
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;for (auto p = e.begin(); p != e.end(); p++) {
+...
+}
+                    </PRE
+><P
+>&#13;                        This loop will always cover the array as the end iterator
+                        is re-evaluated after each pass through the loop ensuring
+                        that any additions to the event are accommodated.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements currently in the
+                        <CODE
+CLASS="classname"
+>CEvent</CODE
+>.  Note that this
+                        can be larger than the highest index stored.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>clear();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Invalidates all parameters in the event (by incrementing
+                        the event's serial number) and clear's the event's
+                        dope vector.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DopeVector&#38;  </span
+>getDopeVector();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a reference to the event's dope vector.
+                        This is a vector who's elements
+                        are indices into the event
+                        of parameters that have been given values.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN13050"
+></A
+><H2
+>DATA TYPES</H2
+><P
+>&#13;            Several data types are defined oustide of the
+            <CODE
+CLASS="classname"
+>CEvent</CODE
+> class by its header:
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><CODE
+CLASS="classname"
+>ParamType</CODE
+></DT
+><DD
+><P
+>&#13;                        This is actually a double precision value.  It decouples
+                        the type of value parameters hold from the underlying
+                        natural type system allowing the type to change, if
+                        necessary, without undue impact on the rest of the code.
+                    </P
+></DD
+><DT
+>CParameterVector</DT
+><DD
+><P
+>&#13;                        This is the underlying data structure used by
+                        <CODE
+CLASS="classname"
+>CEvent</CODE
+> to hold the
+                        parameter values.  This is a vector of
+                        <CODE
+CLASS="classname"
+>DopedValidValue&#60;ParamType&#62;</CODE
+>.
+                    </P
+><P
+>&#13;                        All this means is that each value in the vector is
+                        contains a <CODE
+CLASS="classname"
+>ParamType</CODE
+>, knows
+                        when it's been assigned to and, when assigned has an
+                        associated dope vector to which it contributes itself.
+                    </P
+></DD
+><DT
+><CODE
+CLASS="classname"
+>CEventIterator</CODE
+></DT
+><DD
+><P
+>&#13;                        An iterator into a <CODE
+CLASS="classname"
+>CParameterVector</CODE
+>.
+                        This is the type of the value returned by
+                        <CODE
+CLASS="methodname"
+>begin</CODE
+> and
+                        <CODE
+CLASS="methodname"
+>end</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12723.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r13076.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CParameter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CSpectrum</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

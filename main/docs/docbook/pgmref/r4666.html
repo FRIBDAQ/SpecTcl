@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLInterpreterObject </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLInterpreter"
+HREF="r4430.html"><LINK
+REL="NEXT"
+TITLE="CTCLResult"
+HREF="r4745.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4430.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4745.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLInterpreterObject"
+></A
+>CTCLInterpreterObject</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4670"
+></A
+><H2
+>Name</H2
+>CTCLInterpreterObject&nbsp;--&nbsp;
+            Base class for objects that are associated with a Tcl Interpreter.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4673"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLInterpreterObject.h&#62;
+...
+class CTCLInterpreterObject
+{
+public:
+  CTCLInterpreterObject ();
+  CTCLInterpreterObject (CTCLInterpreter* pInterp );
+  CTCLInterpreterObject (const CTCLInterpreterObject&#38; src );
+
+  CTCLInterpreterObject&#38; operator=
+                        (const CTCLInterpreterObject&#38; rhs);
+  int operator== (const CTCLInterpreterObject&#38; rhs) const;
+
+
+  CTCLInterpreter* getInterpreter() const;
+  CTCLInterpreter* Bind (CTCLInterpreter&#38; rBinding);
+  CTCLInterpreter* Bind (CTCLInterpreter* pBinding);
+
+};
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4675"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>
+            is a base class for any object that requires a <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>
+            (Tcl interpreter) to operate.  Almost  all objects in the Tcl++ library are
+            derived from this base class.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4680"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;            <CODE
+CLASS="function"
+>CTCLInterpreterObject()</CODE
+>
+        </P
+><P
+>&#13;            Constructor for an interpreter object that will be bound to an underlying
+            interpreter at a later time.  See the <CODE
+CLASS="function"
+>Bind</CODE
+> functions
+            for more information about binding interpreters. More normally, if you
+            already have an interpreter you will construct using that interpreter.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>CTCLInterpreterObject</CODE
+>
+                       (<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>)
+        </P
+><P
+>&#13;            Constructs a <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+> given
+            that <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is an existing
+            interpreter encapsulated in a <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>CTCLInterpreterObject</CODE
+>
+                    (<SPAN
+CLASS="type"
+>const CTCLObject</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>src</CODE
+>)
+        </P
+><P
+>&#13;            Constructs a new <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>
+            that is an exact copy of <CODE
+CLASS="parameter"
+>src</CODE
+>.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>&#38;
+            <CODE
+CLASS="function"
+>operator=</CODE
+>
+                (const <SPAN
+CLASS="type"
+>CTCLInterpreterObjectd</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>)
+        </P
+><P
+>&#13;            Provides a mechanism for assigning a <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>
+            a copy of the <CODE
+CLASS="parameter"
+>rhs</CODE
+> <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+>.
+            The return value is just a reference to the left hand side of the assignment.  This
+            permits operator chaining.
+        </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+>(
+                            const <SPAN
+CLASS="type"
+>CTCLInterpreterObject</SPAN
+>&#38; rhs)
+        </P
+><P
+>&#13;            Compares a <CODE
+CLASS="classname"
+>CTCLInterpreterObject</CODE
+> to another
+            (<CODE
+CLASS="parameter"
+>rhs</CODE
+>).  If the underlying interpreters are the
+            same, the objects are said to be equal and <TT
+CLASS="literal"
+>1</TT
+> is
+            returned.  If not, <TT
+CLASS="literal"
+>0</TT
+> is returned.
+        </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="function"
+>getInterpreter</CODE
+>() const
+        </P
+><P
+>&#13;            Returns a pointer to the underlying <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>
+            object.  See the <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+>(3) manpage for
+            more information about the services offered by that class.
+        </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="function"
+>Bind</CODE
+>(
+                        <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rBinding</CODE
+>
+                                                          )
+        </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>CTCLInterpeter</SPAN
+>* <CODE
+CLASS="function"
+>Bind</CODE
+>(
+                        <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pBinding</CODE
+>)
+        </P
+><P
+>&#13;            Binds the object to a new interpreter.  Typically this will only be
+            called when the object was constructed without an initial interpreter.
+            This is because most objects really are related to some interpreter and cannot
+            be willy-nilly rebound.  The return value is  a pointer to the
+            <CODE
+CLASS="classname"
+>CTCLInterpreter</CODE
+> the object was previously
+            bound to.  This will be <TT
+CLASS="literal"
+>NULL</TT
+> if the object was not
+            initially bound.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4738"
+></A
+><H2
+>DEFECTS</H2
+><P
+>&#13;            No <CODE
+CLASS="function"
+>operator!=</CODE
+> was defined.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4742"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;        CTCLInterpreter, CTCLApplication, CTCLChannel, CTCLCommandPackage,
+        CTCLFileHandler, CTCLList, CTCLObject, CTCLObjectProcessor, CTCLTimer,
+        CTCLVariable
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4430.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4745.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLInterpreter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLResult</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

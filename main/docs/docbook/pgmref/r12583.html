@@ -1,0 +1,568 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>RingFormatHelper Factories</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CRingFormatHelper, CRingFormatHelper10, CRingFormatHelper11"
+HREF="r12390.html"><LINK
+REL="NEXT"
+TITLE="CParameter"
+HREF="r12723.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12390.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12723.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12583"
+></A
+>RingFormatHelper Factories</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12587"
+></A
+><H2
+>Name</H2
+>CRingFormatelperFactory, CRingFormatHelperCreator, CRingFormatHelper10Creator, CRingFormatHelper11Creator&nbsp;--&nbsp;</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12593"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CRingFormatHelperFactory.h&#62;
+
+class CRingFormatHelperFactory {
+    CRingFormatHelperFactory();
+    CRingFormatHelper* create(uint32_t major, uint32_t minor);
+    CRingFormatHelper* create(void* pFormatItem);
+    
+    void addCreator(
+        uint32_t major, uint32_t minor, const CRingFormatHelperCreator&#38; creator
+    );
+    void removeCreator(uint32_t major, uint32_t minor);
+
+};
+        </PRE
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;RingFormatHelperCreator.h&#62;
+
+class CRingFormatHelperCreator
+{   
+public:
+    CRingFormatHelperCreator() {}
+    virtual CRingFormatHelperCreator* clone() const = 0;
+    virtual CRingFormatHelper*        create() = 0;
+};
+        </PRE
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;RingFormatHelper10Creator.h&#62;
+
+class CRingFormatHelper10Creator : public CRingFormatHelperCreator
+{
+public:
+    CRingFormatHelper10Creator() {}
+    virtual CRingFormatHelperCreator* clone() const;
+    virtual CRingFormatHelper*        create();
+};
+        </PRE
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;RingFormatHelper10Creator.h&#62;
+
+class CRingFormatHelper10Creator : public CRingFormatHelperCreator
+{
+public:
+    CRingFormatHelper10Creator() {}
+    virtual CRingFormatHelperCreator* clone() const;
+    virtual CRingFormatHelper*        create();
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12598"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This complex of classes is responsible for selecting the
+            correct Ring format helper.  It follows the pattern of an extensible
+            factory.  <CODE
+CLASS="classname"
+>CRingFormatHelperFactory</CODE
+> is the
+            factory class, while the classes that are derived from
+            <CODE
+CLASS="classname"
+>CRingFormatHelperCreator</CODE
+> provide
+            creators that match ring item format information with
+            the ability to create the appopriate helper.
+        </P
+><P
+>&#13;            In this man page, we're only going to document the methods
+            of <CODE
+CLASS="classname"
+>CRingFormatHelperFactory</CODE
+> and the
+            creator base class of <CODE
+CLASS="classname"
+>CRingFormatHelperCreator</CODE
+>.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12606"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CRingFormatHelperFactory METHODS</CODE
+></H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CRingFormatHelperFactory();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructor.  Note the constructor creates a factory
+                        that has no creational objects.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CRingFormatHelper*  </span
+>create(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t  </span
+><span
+class="parameter"
+>major</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t  </span
+><span
+class="parameter"
+>minor</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Attempts to create a ring format helper that understands
+                        the format version specified by the
+                        <CODE
+CLASS="parameter"
+>major</CODE
+> and
+                        <CODE
+CLASS="parameter"
+>minor</CODE
+> versions specified.
+                        If there is no creator willing to make a helper for the
+                        specified format version, a null pointer is returned.
+                    </P
+><P
+>&#13;                        The return value is a pointer to a dynamically allocated helper
+                        that must eventually be freed by <TT
+CLASS="literal"
+>delete</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CRingFormatHelper*  </span
+>create(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void*  </span
+><span
+class="parameter"
+>pFormatItem</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given a ring format item, extracts the version information
+                        from it and attempts to return a pointer to a format
+                        helper.  If no creators have been registered to create
+                        a helper for the resulting version a null pointer is
+                        returned.
+                    </P
+><P
+>&#13;                        The pointer returned is to a dynamically allocated
+                        <CODE
+CLASS="classname"
+>CRingFormatHelper</CODE
+> object that
+                        must eventually be destroyed with <TT
+CLASS="literal"
+>delete</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addCreator(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t </span
+><span
+class="parameter"
+> major </span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t  </span
+><span
+class="parameter"
+>minor</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CRingFormatHelperCreator&#38;  </span
+><span
+class="parameter"
+>creator</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Registers <CODE
+CLASS="parameter"
+>creator</CODE
+> as a creational
+                        object that can create a helper for
+                        the version specified by <CODE
+CLASS="parameter"
+>major</CODE
+>
+                        and <CODE
+CLASS="parameter"
+>minor</CODE
+>.  Note that the
+                        <CODE
+CLASS="parameter"
+>creator</CODE
+> is cloned so its lifetime
+                        is not important.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeCreator(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t  </span
+><span
+class="parameter"
+>major</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>uint32_t </span
+><span
+class="parameter"
+> minor</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes/deletes the creator associated
+                        with the format level specified by
+                        <CODE
+CLASS="parameter"
+>major</CODE
+> and
+                        <CODE
+CLASS="parameter"
+>minor</CODE
+>.  Attempts to remove
+                        a creator for a format version level that has not been
+                        registered are silently ignored.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12698"
+></A
+><H2
+>RingFormatHelperCreator METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const = 0 </span
+><span
+class="type"
+>CRingFormatHelperCreator*  </span
+>clone();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to a dynamically allocated
+                        copy of <CODE
+CLASS="varname"
+>*this</CODE
+>.  Typically this can be done
+                        by defining a copy constructor and using it as a parameter
+                        of <TT
+CLASS="literal"
+>new</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>CRingFormatHelper* </span
+>create();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Creates a dynamically allocated helepr.  The factory
+                        will have matched a version specification with the helper
+                        registered for it.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12390.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12723.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CRingFormatHelper, CRingFormatHelper10, CRingFormatHelper11</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CParameter</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

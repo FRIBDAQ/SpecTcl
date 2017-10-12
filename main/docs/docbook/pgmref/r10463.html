@@ -1,0 +1,1323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CAnalyzer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="Dictionaries"
+HREF="r9852.html"><LINK
+REL="NEXT"
+TITLE="CTclAnalyzer"
+HREF="r10865.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r9852.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r10865.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN10463"
+></A
+>CAnalyzer</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN10467"
+></A
+><H2
+>Name</H2
+>CAnalyzer&nbsp;--&nbsp;Analyzer base class and classic analyzer</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN10470"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Analyzer.h&#62;
+
+class CAnalyzer
+{
+public:
+  virtual void OnBuffer(UInt_t nBytes, Address_t pData);
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder&#38; rDecoder);
+  virtual void OnPhysics(CBufferDecoder&#38; rDecoder);
+  virtual void OnScaler(CBufferDecoder&#38; rDecoder);
+  virtual void OnOther(UInt_t nType, CBufferDecoder&#38; rDecoder);
+  virtual void OnEndFile();
+  virtual void OnInitialize();
+
+  CEventList&#38; getEventList();
+  CBufferDecoder* getDecoder() ;
+  CEventSink* getSink() ;
+
+  CBufferDecoder* AttachDecoder(CBufferDecoder&#38; rDecoder);
+  CBufferDecoder* DetachDecoder();
+  CEventSink*     AttachSink(CEventSink&#38; rSink);
+  CEventSink*     DetachSink();
+  void            entityNotDone();
+
+  
+protected:
+  virtual UInt_t OnEvent(Address_t pRawData, CEvent&#38; anEvent);
+
+  void           AbortEvent();
+
+  void CopyEventList(const CEventList&#38; rhs);
+  void CopyEventPool(const CEventList&#38; rhs);
+  void DetachAll();
+  CEvent* CreateEvent();
+  void ReturnEvent(CEvent* pEvent);
+  void ClearEventList();
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10472"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This class is currently used as the base class for the
+            <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+> class used as the analyzer
+            in modern SpecTcl.  In the original SpecTcl version, this
+            <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>was</I
+></SPAN
+>
+            the analyzer. 
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10477"
+></A
+><H2
+>PUBLIC METHODS</H2
+><P
+>&#13;            The public interfaces to <CODE
+CLASS="classname"
+>CAnalyzer</CODE
+>
+            come in groups.  The first group defines the interface to the
+            analyzer used when handling data from an event source.  New analyzers
+            (such as <CODE
+CLASS="classname"
+>CTclAnalyzer</CODE
+>) can be built
+            by deriving a new class from these and overriding the
+            desired methods.
+        </P
+><P
+>&#13;            The second group of methods are public utilities.  These
+            provide methods that are related to the configuration of the
+            analyzer.  External entities may also call them but they
+            are not, strictly speaking, behavioral methods.
+        </P
+><P
+>&#13;            Let's look at the set of virtual public  methods that implement
+            the behavior of the analyzer first.  Note that 
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnBuffer(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nBytes</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>pData</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is invoked by the event input subsystem
+                        when a block of data is available on the data source.
+                        It will typically pass the block to the
+                        buffer decoder.  The buffer decoder will locate
+                        items within the block and make appropriate calls
+                        back to the analyzer to analyze those items.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nBytes</CODE
+> are the number
+                        of bytes of data in the block pointed to by
+                        <CODE
+CLASS="parameter"
+>pData</CODE
+>.
+                    </P
+><P
+>&#13;                        Typically derived classes don't need to override this
+                        method or at least can call it as part of their
+                        override.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnStateChange(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called by the buffer decoder when a state change item
+                        has been detected in the data block it was passed
+                        by <CODE
+CLASS="parameter"
+>OnBuffer</CODE
+>.  State change
+                        items indicate that a run has changed state.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>nType</CODE
+> is the item type from
+                        <TT
+CLASS="filename"
+>bufftypes.h</TT
+>.  It should normally
+                        be one of the following values.
+                    </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="literal"
+>BEGRUNBF</TT
+></DT
+><DD
+><P
+>&#13;                                    The state change indicates the beginning
+                                    of a new run.
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>ENDRUNBF</TT
+></DT
+><DD
+><P
+>&#13;                                    The state change indicates the end of the
+                                    active run
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>PAUSEBF</TT
+></DT
+><DD
+><P
+>&#13;                                    The state change indicates a pause in data taking.
+                                    Note that it is perfectly legal for this to be
+                                    immediately followed by an end of run.
+                                </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>RESUMEBF</TT
+></DT
+><DD
+><P
+>&#13;                                    The state change indicates a paused run
+                                    is being resumed.
+                                </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>rDecoder</CODE
+>, on the other hand
+                        refers to the buffer decoder that is calling this method.
+                        This is provided because the buffer decoder may have
+                        stashed items from the run state method that can be
+                        retrieved via some of its methods.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>OnPhysics(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when one or more physics events is received.
+                        <CODE
+CLASS="parameter"
+>rDecoder</CODE
+> is a reference to the
+                        decoder that called us.
+                    </P
+><P
+>&#13;                        Looking at this method you might rightfully wonder
+                        where the data is hiding.  The answer is that
+                        the decoder; <CODE
+CLASS="parameter"
+>rDecoder</CODE
+>
+                        has methods that can be used to get several pieces of
+                        information:
+                    </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                                The number of physics events being made available.
+                            </P
+></LI
+><LI
+><P
+>&#13;                                The number of bytes of data required to store
+                                these events.
+                            </P
+></LI
+><LI
+><P
+>&#13;                                A pointer to the first of those events.
+                            </P
+></LI
+></UL
+><P
+>&#13;                        Note that the buffer decoder is not responsible for
+                        telling you where the boundaries between events are.
+                        That's the responsibility of the event processor.
+                        Pushing that responsibility off to the event processor
+                        allows for the possibility that the DAQ system might
+                        be able to produce <I
+CLASS="firstterm"
+>superevents</I
+>, that
+                        is events that actually contain more than one single
+                        SpecTcl event.
+                    </P
+><P
+>&#13;                        The base class method calls the
+                        <CODE
+CLASS="methodname"
+>OnEvent</CODE
+> method for each
+                        event in the run of events.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>OnScaler(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called if the buffer decoder locates a scaler event.
+                        In this case, the buffer decoder is supposed to supply
+                        the number of scalers and a pointer to the body of the
+                        scaler item.  The shape of a scaler item varies depending
+                        on the data acquisition system that created it.
+                        This implies that specialized user software is required
+                        to process scalers.
+                    </P
+><P
+>&#13;                        If old versions of SpecTcl were used, the analysis of
+                        scaler data would have required subclassing
+                        <CODE
+CLASS="classname"
+>CAnalyzer</CODE
+> with a class that
+                        understood the specific scaler format and replacing
+                        the standard analyzer with an instance of this subclass.
+                        With current versions of SpecTcl, the understanding of
+                        scaler data is handled by the event processor.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>OnOther(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nType</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when the decoder finds items in a buffer that
+                        don't fit into the catagories handled by the other
+                        types.  <CODE
+CLASS="parameter"
+>nType</CODE
+> should be an
+                        item type from <TT
+CLASS="filename"
+>buftypes.h</TT
+>.
+                        for example <TT
+CLASS="literal"
+>STATEVARBF</TT
+> for an item
+                        containing state variables. <CODE
+CLASS="parameter"
+>rDecoder</CODE
+>,
+                        once more, is a reference to the decoder object.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnEndFile();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when by the input handlers when an end file has
+                        been detected on the event source.    At present this
+                        invokes the decoder's <CODE
+CLASS="methodname"
+>OnEnd</CODE
+>
+                        giving it a chance to flush out any unprocessed items.
+                        Unprocessed items can result from data sources that don't
+                        produce fixed size blocks of data (e.g. NSCLDAQ-10.x and later).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnInitialize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called after SpecTcl is fully initialized and
+                        is about to start processing commands.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            Now let's look at the methods that are not functional in  nature.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventList&#38;  </span
+>getEventList();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        SpecTcl's event processing builds lists of
+                        <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects produced
+                        by the <CODE
+CLASS="methodname"
+>OnPhysics</CODE
+> method.
+                        When the event list has been sufficiently filled,
+                        the event sink is called to, among other things
+                        histogram the event.
+                    </P
+><P
+>&#13;                        This method returns a reference to the list of events
+                        that have not yet been processed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*  </span
+>getDecoder();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the analyzer's current buffer
+                        decoder.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*  </span
+>getSink();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the event sink.  When this
+                        analyzer is used (usually not), this should
+                        return the histogrammer object. This analyzer does
+                        not pipeline the event sink, holding filters as
+                        a separate set of objects (another reason to use
+                        <CODE
+CLASS="classname"
+>CTCLAnalyzer</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*  </span
+>AttachDecoder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder&#38;  </span
+><span
+class="parameter"
+>rDecoder</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Attach a new buffer decoder to the analyzer.
+                        If there is already a buffer decoder its
+                        <CODE
+CLASS="methodname"
+>OnDetach</CODE
+> method is invoked.
+                        <CODE
+CLASS="parameter"
+>rDecoder</CODE
+>'s
+                        <CODE
+CLASS="methodname"
+>OnAttach</CODE
+> is invoked.
+                    </P
+><P
+>&#13;                        The return value is a pointer to the previous buffer
+                        decoder (NULL if there is none).  It is the
+                        responsibility of the caller to <TT
+CLASS="literal"
+>delete</TT
+>
+                        this decoder if it was dynamically allocated.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CBufferDecoder*  </span
+>DetachDecoder();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Detaches the current buffer decoder from the
+                        analyzer.  The current buffer decoder, if any
+                        will have its <CODE
+CLASS="methodname"
+>OnDetach</CODE
+>
+                        method invoked.  A pointer to that decoder
+                        will be returned.
+                    </P
+><P
+>&#13;                        If there was no current buffer decoder, a null pointer
+                        is returned.  If the buffer decoder returned was
+                        dynamically allocated its up to the caller to
+                        <TT
+CLASS="literal"
+>delete</TT
+> it.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*      </span
+>AttachSink(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink&#38;  </span
+><span
+class="parameter"
+>rSink</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Replaces the current event sink (normall the histogrammer)
+                        with <CODE
+CLASS="parameter"
+>rSink</CODE
+>.  If there's a
+                        prior event sink its <CODE
+CLASS="methodname"
+>OnDetach</CODE
+>
+                        is called.  <CODE
+CLASS="parameter"
+>rSink</CODE
+>'s
+                        <CODE
+CLASS="methodname"
+>OnAttach</CODE
+> method is called.
+                    </P
+><P
+>&#13;                        A pointer to the previous event sink is returned.
+                        If there is none, a null pointer is returned.
+                        If the previous event sink was dynamically created the
+                        caller must <TT
+CLASS="literal"
+>delete</TT
+> it.
+                    </P
+><P
+>&#13;                        Since most SpecTcls use a <CODE
+CLASS="classname"
+>CTCLAnalyzer</CODE
+>,
+                        which supports a pipeline of event sinks, there's
+                        not a reason to call this in a modern SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEventSink*      </span
+>DetachSink();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Detaches the current event sink from the analyzer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>entityNotDone();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This can be called from an event processor handling
+                        physics events.  When that event processor returns,
+                        the pointer will advance through the buffer, but
+                        the remaining entity count won't be decremented.
+                    </P
+><P
+>&#13;                        The intent of this method is to provide support for
+                        <I
+CLASS="firstterm"
+>superevent</I
+>.  A superevent
+                        is an entity that appears to the buffer decoder like
+                        a single event, but actually contains several
+                        events.
+                    </P
+><P
+>&#13;                        This has been used for high performance singles experiments,
+                        when muli-event ADC's are used.   In those experiments,
+                        the ADC's were allowed to use VME interrupts to signal
+                        they had some number of events to readout.  The
+                        ADCs were then drained completely for each of these
+                        'triggers'.  The result was an event from the standpoint
+                        of NSCLDAQ which contained several singles events.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10745"
+></A
+><H2
+>PROTECTED METHODS</H2
+><P
+>&#13;            These methods are used by derived classes.  They provide services
+            as well as a behavioral method (<CODE
+CLASS="methodname"
+>OnEvent</CODE
+>).
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> UInt_t  </span
+>OnEvent(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>pRawData</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>anEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called by the anaylzer for each event.
+                        <CODE
+CLASS="parameter"
+>pRawData</CODE
+> is a pointer to the
+                        event body while <CODE
+CLASS="parameter"
+>anEvent</CODE
+> is
+                        the <CODE
+CLASS="classname"
+>CEvent</CODE
+> 'array' this method
+                        should fill in.  The  method must return the
+                        number of bytes processed.
+                    </P
+><P
+>&#13;                        This version <CODE
+CLASS="classname"
+>CAnalyzer</CODE
+> base class
+                        is used by creating a derived class that implements an
+                        appropriate <CODE
+CLASS="methodname"
+>OnEvent</CODE
+> method and
+                        registering an instance of the derived class as the
+                        analyzer.  Modern SpecTcl's, register a
+                        <CODE
+CLASS="classname"
+>CTCLAnalyzer</CODE
+> instance which
+                        implements an <CODE
+CLASS="methodname"
+>OnEvent</CODE
+> method
+                        that executes an event processing pipeline instead.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>AbortEvent();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called frrom <CODE
+CLASS="methodname"
+>OnEvent</CODE
+> to prevent
+                        an  event from being histogrammed.  This can be called
+                        either as a software trigger on the event or, if a
+                        structural problem was detected with the event that makes
+                        the data untrustworthy.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void CopyEventList </span
+>(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CEventList&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The event list are the set of events that have been
+                        unpacked by <CODE
+CLASS="methodname"
+>OnPhysics</CODE
+> but not yet
+                        passed to the event sink.  This method makes a copy of
+                        the event list into <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+                    </P
+><P
+>&#13;                        This is primarily used by the assignment operator and
+                        copy constructor.  In other words, if you find yourself
+                        using this method, you're probably doing something
+                        very odd.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>CopyEventPool(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const CEventList&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        When <CODE
+CLASS="classname"
+>CEvent</CODE
+> objects have
+                        been analyzed by the event sink, they are
+                        invalidated and returned to an
+                        <I
+CLASS="firstterm"
+>event pool</I
+>.  This allows them
+                        to be recycled, removing the overhead of deletion and
+                        re-creation (an event serial is used so that the
+                        invalidation is short constant time as well).
+                    </P
+><P
+>&#13;                        This method copies the contents of the current
+                        event pool to the <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+                        This method is used by the assignment operator and
+                        copy constructor.  If you find yourself using this
+                        method for other purposes, you're probably doing something
+                        odd.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+> DetachAll();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Detaches both  the event sink and the buffer decoder.
+                        Note that this will leak memory if either of those
+                        objects was dynamically created.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEvent*  </span
+>CreateEvent();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a new invalidated event. Invalidated, in this
+                        context means any parameters in the array have not
+                        yet been assigned a value.
+                    </P
+><P
+>&#13;                        If there are entries in the event pool, on eis removed
+                        and a pointer to it is returned.  If not, <TT
+CLASS="literal"
+>new</TT
+>
+                        is used to create a new event.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ReturnEvent(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEvent*  </span
+><span
+class="parameter"
+>pEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Puts the event pointed to by <CODE
+CLASS="parameter"
+>pEvent</CODE
+>
+                        back into the event pool.  Normally the event is
+                        invalidated first.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ClearEventList();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        All events in the eventl ist are put into the event pool.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r9852.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r10865.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Dictionaries</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTclAnalyzer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

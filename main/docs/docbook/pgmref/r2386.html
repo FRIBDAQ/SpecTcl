@@ -1,0 +1,2486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTreeParameter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tree Parameter, Tree Variable API"
+HREF="p2375.html"><LINK
+REL="PREVIOUS"
+TITLE="Tree parametr, tree variable API"
+HREF="c2377.html"><LINK
+REL="NEXT"
+TITLE="CTreeParameterArray"
+HREF="r3194.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c2377.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r3194.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN2386"
+></A
+>CTreeParameter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN2390"
+></A
+><H2
+>Name</H2
+>CTreeParameter&nbsp;--&nbsp;Parameter object 'independent' of rEvent</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN2393"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;TreeParameter.h&#62;
+
+class <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+>
+{
+ CTreeParameter();
+  CTreeParameter(std::string name);
+  CTreeParameter(std::string name, std::string units);
+  CTreeParameter(std::string name, double lowLimit, double highLimit, 
+		 std::string units);
+  CTreeParameter(std::string name, UInt_t channels, 
+		 double lowLimit, double highLimit, std::string units);
+  CTreeParameter(std::string name, UInt_t resolution);
+  CTreeParameter(std::string name, UInt_t resolution, 
+		 double lowLimit, double widthOrHigh, 
+		 std::string units, bool widthOrHighGiven);
+  CTreeParameter(std::string name, const CTreeParameter&#38; Template);
+  CTreeParameter(const CTreeParameter&#38; rhs);
+  ~CTreeParameter();
+  
+  
+  void Initialize(std::string name, UInt_t resolution);
+  void Initialize(std::string name, UInt_t resolution, 
+		  double lowLimit, double highOrWidth, std::string units, 
+		  bool highOrWidthGiven);
+  void Initialize(std::string name);
+  void Initialize(std::string name, std::string units);
+  void Initialize(std::string name, UInt_t channels, 
+		  double lowLimit, double highLimit, std::string units);
+  
+  
+  static void BindParameters();
+  static void setEvent(CEvent&#38; rEvent);
+  bool isBound();
+  
+	// Arithmetic operations...
+  
+  operator double();
+  CTreeParameter&#38; operator= (double newValue);
+  CTreeParameter&#38; operator= (CTreeParameter&#38; rhs);
+  CTreeParameter&#38; operator+=(double rhs);
+  CTreeParameter&#38; operator-=(double rhs);
+  CTreeParameter&#38; operator*=(double rhs);
+  CTreeParameter&#38; operator/=(double rhs);
+  double          operator++(int dummy);
+  CTreeParameter&#38; operator++();
+  double          operator--(int dummy);
+  CTreeParameter&#38; operator--();
+  
+  
+  std::string getName();
+  int    getId();
+  double getValue();
+  void   setValue(double newValue);
+  UInt_t getBins();
+  void   setBins(UInt_t channels);
+  double getStart();
+  void   setStart(double low);
+  double getStop();
+  void   setStop(double high);
+  double getInc();
+  void   setInc(double channelWidth);
+  std::string getUnit();
+  void   setUnit(std::string units);
+  bool   isValid();
+  void   setInvalid();
+  void   Reset();
+  void   clear();
+  bool   hasChanged();
+  void   setChanged();
+  void   resetChanged();
+  static void ResetAll();
+  
+  
+  static std::multimap&#60;std::string, CTreeParameter*&#62;::iterator begin();
+  static std::multimap&#60;std::string, CTreeParameter*&#62;::iterator end();
+  static std::multimap&#60;std::string, CTreeParameter*&#62;::iterator find(std::string name);
+  void Bind();
+  
+  
+  
+};
+            </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN2396"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;                    A <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> object is an alias
+                    for an element of an event array.  By providing this independent
+                    alias:
+                </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;                            <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> objects
+                            can be organized into arbitrary structures
+                        </P
+></LI
+><LI
+><P
+>&#13;                            Additional metadata can be associated with the
+                            parameter that's held by the <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+>
+                            object.
+                        </P
+></LI
+></UL
+><P
+>&#13;                    The life cycle of a tree parameter is that it is
+                    constructed and initialized.  Some of the constructors
+                    provide for one step construction/initialization.
+                    
+                </P
+><P
+>&#13;                    Once initialized the tree parameters need to be bound to
+                    the underlying parameters.  This binding is many to one in the
+                    sense that  two tree parameters may have the same name and
+                    will bind to the same underlying parameter.  Binding involves
+                    associating a parameter id with the tree parameter object.
+                    If the parameter is already known to SpecTcl the existing
+                    Id is used.  If not, a new parameter is created with an
+                    Id allocated by SpecTcl and the resulting Id is used
+                    to bind the tree parameter.  SpecTcl will perform this binding
+                    late in its initialization process.
+                </P
+><P
+>&#13;                    For each event SpecTcl processes, a <CODE
+CLASS="classname"
+>CEvent</CODE
+>
+                    object must associated with the tree parameter subsystem.
+                    This association tells the tree parameter exactly which element
+                    of which <CODE
+CLASS="classname"
+>CEvent</CODE
+> object to fetch
+                    when referenced or to set when assigned or modified.
+                </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN2412"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;                    The tree parameter methods are divided  into several
+                    categories.  The first set we will describe are constructors
+                    and initialization methods:
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Default constructor.  This constructor requires
+                            two phase initialization.  That is at some point
+                            opne of the <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            methods must be called to make this a usable
+                            object.
+                        </P
+><P
+>&#13;                            Note that a constructed tree parameter
+                            <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>can</I
+></SPAN
+> be reinitialized
+                            at any time, though if its name changes it must
+                            be bound again.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a tree parameter with a name and no
+                            metadata.  The metadata can be added later either by
+                            invoking a <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            method or by invoking individual metadata setters.
+                        </P
+><P
+>&#13;                            Note if <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            is called with a different name after the object
+                            has been bound, it must be bound again.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a tree parameter specifying its
+                            <CODE
+CLASS="parameter"
+>name</CODE
+> and the
+                            <CODE
+CLASS="parameter"
+>units</CODE
+> of measure metadata.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a tree parameter named
+                            <CODE
+CLASS="parameter"
+>name</CODE
+>.  Metadata is provided
+                            that sets the range of the parameter to a low limit
+                            of
+                            <CODE
+CLASS="parameter"
+>lowLimit</CODE
+> and high limit of
+                            <CODE
+CLASS="parameter"
+>highLimit</CODE
+>.  The
+                            <CODE
+CLASS="parameter"
+>units</CODE
+> parameter specifies the
+                            units of measure.
+                        </P
+><P
+>&#13;                            Note that parameter limits are always advisory limits.
+                            Nothing happens if the parameter is given a value outside
+                            those limits.  Portions of the SpecTcl user interface,
+                            however, do use those limits to inform default
+                            choices for spectrum axis limits.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            This constructor provides not only the parameter's name,
+                            limits and units but also recommends that spectra
+                            with this parameter on an axis allocate
+                            <CODE
+CLASS="parameter"
+>channels</CODE
+> channels for that axis.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            In this constructor, the metadata for the
+                            tree parameter is the <CODE
+CLASS="parameter"
+>resolution</CODE
+>.
+                            This is well suited for a tree parameter that
+                            reflects raw digitizer value.
+                            The <CODE
+CLASS="parameter"
+>resolution</CODE
+> specifies the
+                            number of bits of data the digitizer provides.
+                        </P
+><P
+>&#13;                            This implies a parameter range of
+                            <TT
+CLASS="literal"
+>[0, 2^<CODE
+CLASS="parameter"
+>resolution</CODE
+>)</TT
+>
+                            with a suggested channel count for a unit mapping
+                            between parameter and spectrum coordinates.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>widthOrHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+><span
+class="parameter"
+>widthOrHighGiven</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a tree parameter with a rather complex
+                            set of metadata that depends on the value of
+                            the <CODE
+CLASS="parameter"
+>widthOrHeightGiven</CODE
+> flag.
+                            <CODE
+CLASS="parameter"
+>resolution</CODE
+> specifies that the
+                            spectrum channel recommendation is for
+                            <TT
+CLASS="literal"
+>2^<CODE
+CLASS="parameter"
+>resolution</CODE
+></TT
+>
+                            channels to be allocated on the axis.
+                        </P
+><P
+>&#13;                            The parameter (axis) low limit is recommended to
+                            be <CODE
+CLASS="parameter"
+>lowLimit</CODE
+>.  The
+                            <CODE
+CLASS="parameter"
+>widthOrHigh</CODE
+> meaning depends
+                            on the <CODE
+CLASS="parameter"
+>widthOrHighGiven</CODE
+>.
+                            If this is <TT
+CLASS="literal"
+>false</TT
+>,
+                            <CODE
+CLASS="parameter"
+>widthOrHigh</CODE
+> is the
+                            recommended high limit for the parameter.
+                            If <CODE
+CLASS="parameter"
+>true</CODE
+> <CODE
+CLASS="parameter"
+>widthOrHigh</CODE
+>
+                            represents the width of each channel.  The high limit
+                            will be computed from <CODE
+CLASS="parameter"
+>widthOrHigh</CODE
+>
+                            and the <CODE
+CLASS="parameter"
+>resolution</CODE
+> as follows:
+                            <TT
+CLASS="literal"
+><CODE
+CLASS="parameter"
+>lowLimit</CODE
+> + <CODE
+CLASS="parameter"
+>widthorHigh</CODE
+> * 2^<CODE
+CLASS="parameter"
+>resolution</CODE
+></TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>const CTreeParameter&#38;  </span
+><span
+class="parameter"
+>Template</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Constructs a new tree parameter that is a copy of
+                            <CODE
+CLASS="parameter"
+>Template</CODE
+>, except that it has
+                            the name <CODE
+CLASS="parameter"
+>name</CODE
+>.  This can be
+                            used to construct several parameters with the same
+                            properties where a <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+>
+                            is not really appropriate for example:
+                        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN2593"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;                                ...
+// Define PPAC L,R, U,D parameters
+
+CTreeParameter left("ppac.left", 0.0, 4095.0, "channels");
+CTreeParameter right("ppac.right", left);
+CTreeParameter up("ppac.up", left);
+CTreeParameter down("ppac.down", left);
+                                ...
+                            </PRE
+><P
+></P
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> </span
+>CTreeParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Tree parameter copy constructor.  Among other things,
+                            this allows a tree parameter to be passed by value
+                            to methods.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+><span
+class="parameter"
+> resolution</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>resolution</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highOrWidth</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> units</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+><span
+class="parameter"
+>highOrWidthGiven</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Initialize(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>lowLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>highLimit</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            These initialization methods support two stage
+                            construction.  The idea is that you could
+                            construct a tree parameter using the default
+                            constructor and then later complete construction
+                            using the appropriate <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            method above.  Note that with the exception
+                            of the default constructor, each constructor has a
+                            corresponding <CODE
+CLASS="methodname"
+>Initialize</CODE
+>
+                            method with arguments that have the same meaning
+                            as in the construcor.  Refer to the constructor
+                            documentation for more information.
+                        </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    A <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> can be used
+                    mostly as if it were a double precision
+                    floating point value.  Specifically, it has
+                    a <CODE
+CLASS="methodname"
+>double</CODE
+> method which can
+                    convert the object into a double.  It also supports
+                    several types of arithmetic operations of the
+                    compute-and-assign variety.
+                </P
+><P
+>&#13;                    Note that those which require a right hand side parameter
+                    (e.g. <CODE
+CLASS="methodname"
+>operator+=</CODE
+>) take a
+                    <SPAN
+CLASS="type"
+>double</SPAN
+>.  This in conjuntion with the
+                    conversion operator alows the use of tree parameters
+                    as well on the righ hand side.
+                </P
+><P
+>&#13;                    Note as well that a <CODE
+CLASS="classname"
+>CException</CODE
+>
+                    will be thrown if a method needs the value of the parameter
+                    prior to it having been given a value.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> </span
+>operator double();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This is a conversion operator that extracts
+                                extracts and returns the <SPAN
+CLASS="type"
+>double</SPAN
+>
+                                value of the parameter to which the object
+                                is bound for the current event.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator= (<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>newValue</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Gives the underlying parameter in the current
+                                event the double precision value
+                                <CODE
+CLASS="parameter"
+>newValue</CODE
+>.  Note that
+                                <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> objects
+                                or any other object with conversion operators
+                                to doubles can also be on the right hand side
+                                of this operator.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator+=(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Adds the double value on the right hand side of
+                                the <TT
+CLASS="literal"
+>+=</TT
+> operator to the
+                                object's parameter in the current event.
+                                Returning a reference to the parameter allows
+                                operator chaining such as
+                                
+                            </P
+><PRE
+CLASS="programlisting"
+>&#13;                                tp1  = tp2 += 1234.0; 
+                            </PRE
+><P
+>&#13;                                Where both <CODE
+CLASS="varname"
+>tp1</CODE
+> and
+                                <CODE
+CLASS="varname"
+>tp2</CODE
+> are tree parameters.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator-=(double rhs(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Subtracts the <CODE
+CLASS="parameter"
+>rhs</CODE
+>
+                                from the object and returns a reference to the
+                                object.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator*=(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Multiplies the object by the
+                                <CODE
+CLASS="parameter"
+>rhs</CODE
+> and returns a
+                                reference to the object.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator/=(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> rhs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Divides the value of the object by
+                                <CODE
+CLASS="parameter"
+>rhs</CODE
+>.  A reference
+                                to the object is returned.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+>operator++(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>dummy</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Provides a post decrement operator.  Because
+                                of the semantics of tree parameters, this is
+                                not exactly possible.  The <SPAN
+CLASS="emphasis"
+><I
+CLASS="emphasis"
+>value</I
+></SPAN
+>
+                                of the parameter prior to incrementing it is
+                                returned.  That's why the return is a
+                                <SPAN
+CLASS="type"
+>double</SPAN
+> not a
+                                <CODE
+CLASS="classname"
+>CTreeParameter&#38;</CODE
+>
+                            </P
+><PRE
+CLASS="programlisting"
+>&#13;double f = tp++;   // tp a tree parameter.
+                            </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator++();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Increments the value of the tree parameter
+                                object then returns a reference to that object.
+                                This is the normal pre-decrement semantics.
+                            </P
+><PRE
+CLASS="programlisting"
+>&#13;tp2 = ++tp1;      // Both tp2 and tp1 tree parameters.
+                            </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+>operator--(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int  </span
+><span
+class="parameter"
+>dummy</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Post decrement operator.  Note that like the
+                                post increment operator, a double is returned,
+                                not a reference to the object or a copy of it.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CTreeParameter&#38;  </span
+>operator--();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                predecrement operator.  The reference to the
+                                object is returned, after it is decremented.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    Note that many of the arithmetic operations are not inplemented.
+                    For example, there is no <CODE
+CLASS="methodname"
+>operator+</CODE
+>.
+                    This is because the <CODE
+CLASS="methodname"
+>operator double</CODE
+>
+                    makes those operations unecessary.  For example, given
+                    tree parameters <CODE
+CLASS="varname"
+>tp1, tp2</CODE
+>
+                </P
+><PRE
+CLASS="programlisting"
+>&#13;                    tp1 = tp2 * 100 + 3.1416;
+                </PRE
+><P
+>&#13;                    Is perfectly legal and does the right thing.
+                    <CODE
+CLASS="varname"
+>tp2</CODE
+> is replaced by its  value due to the
+                    <CODE
+CLASS="methodname"
+>operator double</CODE
+>.  The computation
+                    produces  a double and that is assigned to <CODE
+CLASS="varname"
+>tp1</CODE
+>
+                    via <CODE
+CLASS="methodname"
+>operator=(double)</CODE
+>.
+                </P
+><P
+>&#13;                    The next clump of methods are non arithmetic methods.
+                    These includes getters and setter for the metata
+                    the object has as well as tests that might be needed
+                    either to support some Tcl level commands or computation
+                    during an event processor.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getName();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the name of the tree parameter.
+                                
+                            </P
+><P
+>&#13;                                While it is possible to change the name of
+                                a tree parameter and then bind it to a different
+                                underlying parameter, that's not considered the
+                                way to do things (why not just instantiate a
+                                different tree parameter instead of flopping
+                                around the meaning of an existing one).
+                                Therefore, there is no method that directly
+                                just changes the name of a tree parameter.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>int     </span
+>getId();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns the Id of the underlying parameter.
+                                If the tree parameter has not yet been bound
+                                to its parameter, this will throw a
+                                <CODE
+CLASS="classname"
+>CTreeException</CODE
+>
+                                (defined in <TT
+CLASS="filename"
+>CTreeException.h</TT
+>).
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>getValue();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This is identical to the <CODE
+CLASS="methodname"
+>operator double</CODE
+>
+                                method.  The value of the parameter is fetched.
+                                <CODE
+CLASS="classname"
+>CTreeException</CODE
+> is thrown
+                                if there is no current event
+                                <CODE
+CLASS="classname"
+>std::string</CODE
+> is thrown if
+                                the parameter has not yet been given a value
+                                in the processing of this event.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+>setValue(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>newValue</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the underlying parameter value to
+                                <CODE
+CLASS="parameter"
+>newValue</CODE
+>.  This is identical
+                                to <CODE
+CLASS="methodname"
+>operator=(double)</CODE
+>.
+                                Note that <CODE
+CLASS="classname"
+>CTreeException</CODE
+>
+                                is thrown if the object has not yet been bound
+                                or there's no current event to get the value from.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getBins();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+> setBins(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>channels</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets/Gets the number of recommended bins for an axis
+                                on this parameter.  <CODE
+CLASS="parameter"
+>channels</CODE
+>
+                                is the new suggested number of bins.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>getStart();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>setStart(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>low</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Gets/Sets the suggested low limit for spectrum
+                                axes on the parameter.  <CODE
+CLASS="parameter"
+>low</CODE
+>
+                                will be the new suggested low limit.
+                            </P
+><P
+>&#13;                                Note that this and all parameter metadata can be
+                                set before the parameter is bound.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>getStop();&#13;</code
+>
+                            <code
+class="methodsynopsis"
+>  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>setStop(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> high</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Gets/Sets the  suggested high limit
+                                for spectrum axes on the parameter.
+                                <CODE
+CLASS="parameter"
+>high</CODE
+> will be the new
+                                suggested high limit.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>getInc();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>setInc(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>channelWidth</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Gets/Sets the channel width if the suggested
+                                channel count, low and high limits are used for
+                                spectrum parameters.  The channel width is
+                                in parameter coordinates.  <CODE
+CLASS="parameter"
+>channelWidth</CODE
+>
+                                is a new channel width.
+                            </P
+><P
+>&#13;                                Note that this is computed metadata.  The primitive
+                                metadata are the low limit, high limit and
+                                number of channels.  There fore,
+                                <CODE
+CLASS="methodname"
+>setInc</CODE
+> is actually
+                                modifying the suggested number of channels to
+                                get the requested channel width.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getUnit();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>setUnit(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>units</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Gets/Sets the units of measure for the parameter.
+                                <CODE
+CLASS="parameter"
+>units</CODE
+> is the new
+                                units of measure string for the parameter.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool   </span
+>isValid();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns <TT
+CLASS="literal"
+>true</TT
+> if, for this
+                                event, the parameter has been given a value.
+                                This means that the parameter can be used
+                                 in situations where it is an rvalue without
+                                 throwing an exception
+                            </P
+><P
+>&#13;                                For this method to work, the parameter must be
+                                bound and there must be a current event.
+                                If either of these conditions is not met,
+                                a <CODE
+CLASS="classname"
+>CTreeException</CODE
+> is
+                                thrown.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>setInvalid();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>Reset();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void   </span
+>clear();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Invalidates the parameter for the current
+                                event.  Once invalidated, the parameter
+                                will throw an <CODE
+CLASS="classname"
+>std::string</CODE
+>
+                                exception if used as an r value prior to being
+                                used as an l value.
+                            </P
+><P
+>&#13;                                <CODE
+CLASS="classname"
+>CTreeException</CODE
+> is thrown
+                                if the parameter as either not been bound or
+                                there is no current event.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool    </span
+>hasChanged();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>setChanged();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void    </span
+>resetChanged();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Each tree parameter has a flag that is set
+                                whenever any of the metadata for the parameter are
+                                modified. <CODE
+CLASS="methodname"
+>hasChanged</CODE
+>
+                                returns the value of this boolean flag.
+                                <CODE
+CLASS="methodname"
+>setChanged</CODE
+> sets the flag
+                                to <TT
+CLASS="literal"
+>true</TT
+>
+                                and <CODE
+CLASS="methodname"
+>resetChanged</CODE
+>
+                                set the flag to <TT
+CLASS="literal"
+>false</TT
+>
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> void  </span
+>ResetAll();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                This is normally called by SpecTcl's event
+                                processing subsystem before starting to
+                                process each event.  It iterates through
+                                all tree parameters that have been defined and
+                                invokes their <CODE
+CLASS="methodname"
+>Reset</CODE
+>
+                                method, which marks them as invalid.
+                            </P
+></DD
+></DL
+></DIV
+><P
+>&#13;                    Creating a <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> object
+                    registers it with a static registry.  This registry is
+                    used by SpecTcl to, e.g. bind the tree parameters to
+                    base parameters after initialization, and to
+                    reset the validity on all parameters.
+                </P
+><P
+>&#13;                    The following methods deal with this registry and parameter
+                    binding.
+                </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Bind();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Binds this tree parameter to the underlying parameter.
+                                If no underlying parameter with the tree
+                                parameter's name exists, one is created and
+                                assigned a unique id.
+                            </P
+><P
+>&#13;                                Binding a tree parameter that has not been
+                                given a name yet binds the tree parameter to
+                                a parameter with an empty name string.  This
+                                is perfectly legal but probably not what you
+                                want.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>BindParameters();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Iterates through all registered
+                                <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+> objects
+                                binding them to underlying parameters.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setEvent(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>rEvent</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Sets the event that all tree parameters are
+                                working on.  All tree parameters share this
+                                object.  Parameter bindings supply each tree
+                                parameter with a parameter id.  When the value
+                                of a parameter is retrieved/set/modified, that id
+                                is the index into <CODE
+CLASS="parameter"
+>rEvent</CODE
+>
+                                that is accessed.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+>isBound();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                If the object has been bound to its underlying
+                                parameter, this returns <TT
+CLASS="literal"
+>true</TT
+>.
+                                If not it returns <TT
+CLASS="literal"
+>false</TT
+>.
+                                Many tree parameter operations require tht the object
+                                be bound.  Some also require there be
+                                a current event.
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::multimap&#60;std::string, CTreeParameter*&#62;::iterator  </span
+>begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::multimap&#60;std::string, CTreeParameter*&#62;::iterator  </span
+>end();&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Supports iteration through the tree parameter
+                                registry by providing a start  of iteration
+                                iterator.  Note that using an
+                                <CODE
+CLASS="classname"
+>std::multimap</CODE
+> for the
+                                registry cleanly supports the many to one mapping
+                                of tree parameters to underlying parameters.
+                            </P
+><P
+>&#13;                                An iterator is a pointer like object.
+                                In this case these pointer point to
+                                <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CTreeParameter*&#62;</CODE
+>
+                                objects where the first element of the par is the
+                                name of the tree parameter and the second is a
+                                pointer to the tree parameter itself.
+                            </P
+><P
+>&#13;                                Iterators can be incremented. When incremented
+                                they point to the next item in the container.
+                                Note that multimap iterators will step through the
+                                map in key (parameter name) sort order.
+                                This means that all of the tree parameters
+                                that share the same name will be clumped together.
+                            </P
+><P
+>&#13;                                If an iterator points to the last item in the
+                                collection, incrementing it will produce
+                                an iterator that is equal to the iterator
+                                returned from <CODE
+CLASS="methodname"
+>end</CODE
+>
+                            </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::multimap&#60;std::string, CTreeParameter*&#62;::iterator  </span
+>find(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                                Returns an iterator to an element of the registry
+                                that has the indicated <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                                Note that more than one tree parameter can have
+                                this name.  In that case, this iterator will
+                                point to the first of them.  Incrementing the
+                                iterator will get successive tree parameters
+                                with the same name until either the end of the
+                                multimap is reached or a tree parameter with a
+                                different name is reached.
+                            </P
+><P
+>&#13;                                In practice this iteration over identically
+                                named tree parameters is not necessary because
+                                like named tree parameters share underlying metadata
+                                and data and parameter bindings make each
+                                such object interchangeable with the others.
+                            </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c2377.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r3194.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Tree parametr, tree variable API</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p2375.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTreeParameterArray</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

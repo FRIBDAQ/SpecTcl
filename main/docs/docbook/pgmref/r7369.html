@@ -1,0 +1,2362 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CItemConfiguration</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLTcpServerInstance"
+HREF="r7296.html"><LINK
+REL="NEXT"
+TITLE="CConfigurableObject"
+HREF="r8092.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7296.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r8092.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.citemconfiguration"
+></A
+>CItemConfiguration</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7373"
+></A
+><H2
+>Name</H2
+>CItemConfiguration&nbsp;--&nbsp;Hold a configuration</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7376"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CItemConfiguration.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CItemConfiguration </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CItemConfiguration(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="constructorsynopsis"
+>  CItemConfiguration(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CItemConfiguration();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>CItemConfiguration&#38; </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator==(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator!=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string </span
+>getName();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::string </span
+>cget(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>ConfigurationArray </span
+>cget();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>int </span
+>getIntegerParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>unsigned int </span
+>getUnsignedParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>bool </span
+>getBoolParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>double </span
+>getFloatParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::vector&#60;int&#62; </span
+>getIntegerList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>addParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>typeChecker </span
+><span
+class="parameter"
+>checker</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>defaultValue</span
+><span
+class="initializer"
+> = std::string("")</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>clearConfiguration();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>configure(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isInteger(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isBool(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isEnum(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isFloat(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isBoolList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isIntList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isStringList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7597"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+> captures the configuration of an
+            item.   A configuration is a set of name-value pairs.  
+         </P
+><P
+>&#13;            While the values are all stored as strings, validators and type safe
+            'getters' allow you to store strictly typed data as well.  A validator
+            is a function that is called to ensure a proposed new value for a
+            parameter is suitable for the parameter.    Validators are described
+            in "Types and public data" below.  A rich set of pre-defined
+            validators should meet most needs, however it is possible to write
+            and use custom validators should the built in ones be insufficient for
+            your application.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7602"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CItemConfiguration(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Constructs the configuration.  <CODE
+CLASS="parameter"
+>name</CODE
+> is just
+            any string you'd like to associate with the configuration.
+            <CODE
+CLASS="methodname"
+>getName</CODE
+> can be used to fetch the value
+            of this string.  Names are used with collections of configurations
+            when they may be inserted in an STL Map with the item name as the
+            lookup key.
+            </P
+><code
+class="methodsynopsis"
+>  CItemConfiguration(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;                Copy construction.  Note that if your application causes copy
+                construction several configurations with the same name can be
+                be created.  If you want to ensure that copy construction can't
+                exist, us a class derived from this in which the copy constructor
+                is declared <I
+CLASS="firstterm"
+>private</I
+> but never implemented.
+                </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+>~CItemConfiguration();&#13;</code
+><P
+>&#13;            Destructor.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CItemConfiguration&#38; </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Assignment operator.  Note that in the presence of named
+            configuration items, this can result in objects with duplicate
+            names.  To avoid this derive from this class and set
+            the <TT
+CLASS="literal"
+>=</TT
+> operator to be private...without ever
+            Implementing it.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator==(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Compares two objects for equality.  Equality is defined as having
+            the same name, same set of configuration items with matching values.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator!=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CItemConfiguration&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Inequality test operator is the logical inverse of equality.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string </span
+>getName();&#13;</code
+><P
+>&#13;            Returns the name string used to construct the object.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::string </span
+>cget(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns the string value of the configuration parameter
+            <CODE
+CLASS="parameter"
+>name</CODE
+>.  If the name is not a defined
+            configuration parameter, this will throw an explanatory string exception.
+            See <CODE
+CLASS="methodname"
+>addParameter</CODE
+> for information about how
+            to define configuration parameters.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>ConfigurationArray </span
+>cget();&#13;</code
+><P
+>&#13;            Returns a container <SPAN
+CLASS="type"
+>ConfigurationArray</SPAN
+> that provides
+            the entire configuration.  See "Types and public data" for more
+            information about the <SPAN
+CLASS="type"
+>ConfigurationArray</SPAN
+>
+            data type.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>int </span
+>getIntegerParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns the value of a parameter <CODE
+CLASS="parameter"
+>name</CODE
+> converted
+            to an integer.  This can throw an explanatory string exception either
+            if <CODE
+CLASS="parameter"
+>name</CODE
+> is not a defined parameter or if its
+            current value does not translate to an integer
+            (using <CODE
+CLASS="function"
+>strtoul</CODE
+>).  Typically <CODE
+CLASS="parameter"
+>name</CODE
+>
+            should have been defined with a validator that will make sure the
+            value will always be a legal integer.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>unsigned int </span
+>getUnsignedParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Same as <CODE
+CLASS="methodname"
+>getIntegerParameter</CODE
+> however
+            <CODE
+CLASS="function"
+>strtoul</CODE
+> is used to convert the string ot
+            an unsigned value.  Once more the configuration parameter
+            <CODE
+CLASS="parameter"
+>name</CODE
+> should have a validator attached
+            to it to ensure that the value always represents a legal
+            unsigned integer.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>bool </span
+>getBoolParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns the value of <CODE
+CLASS="parameter"
+>name</CODE
+> as a boolean.
+            This will throw a descriptive string exception if <CODE
+CLASS="parameter"
+>name</CODE
+>
+            is not a define configuration parameter or if the value is not one of
+            <TT
+CLASS="literal"
+>true</TT
+>,
+            <TT
+CLASS="literal"
+>yes</TT
+>,
+            <TT
+CLASS="literal"
+>1</TT
+>,
+            <TT
+CLASS="literal"
+>on</TT
+>,
+            or <TT
+CLASS="literal"
+>enabled</TT
+> for true and
+            <TT
+CLASS="literal"
+>false</TT
+>,
+            <TT
+CLASS="literal"
+>no</TT
+>,
+            <TT
+CLASS="literal"
+>0</TT
+>,
+            <TT
+CLASS="literal"
+>off</TT
+> or
+            <TT
+CLASS="literal"
+>disabled</TT
+> for false.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>double </span
+>getFloatParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns the value of a parameter <CODE
+CLASS="parameter"
+>name</CODE
+>
+            as a floating point <SPAN
+CLASS="type"
+>double</SPAN
+>
+            value.  If the parameter cannot be decoded as a floating point number
+            a string exception is thrown that describes this.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::vector&#60;int&#62; </span
+>getIntegerList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns a parameter <CODE
+CLASS="parameter"
+>name</CODE
+>
+            that is supposed to be a list of integers.
+            The list is returned as a <SPAN
+CLASS="type"
+>std::vector&#60;int&#62;</SPAN
+>.
+            A string exception is thrown describing the error in the event
+            that either the parameter value is not a valid Tcl list or
+            any of the values does not decode as an integer.
+        </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>addParameter(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>typeChecker </span
+><span
+class="parameter"
+>checker</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>defaultValue</span
+><span
+class="initializer"
+> = std::string("")</span
+></span
+>);&#13;</code
+><P
+>&#13;            Defines a new configuration parameter.  The value of this configuration
+            parameter is modified by calling <CODE
+CLASS="methodname"
+>configure</CODE
+>
+            below.  <CODE
+CLASS="parameter"
+>name</CODE
+> is the name of the new parameter.
+            This parameter definition is ovewritten if it already exists.
+            </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>checker</CODE
+> is a validation function that will be
+            called to approve or disapprove of changes to the configuration
+            value. Passing a <TT
+CLASS="literal"
+>NULL</TT
+> for <CODE
+CLASS="parameter"
+>checker</CODE
+>
+            disables value checking.
+            <CODE
+CLASS="parameter"
+>arg</CODE
+> is a parameter passed to the type checker.
+            See "Types and public data " below for a definition of the
+            <SPAN
+CLASS="type"
+>typeChecker</SPAN
+> function prototype.
+            </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>default</CODE
+> is the initial value of the parameter.
+            This defaults to the empty string.  Note that <CODE
+CLASS="parameter"
+>default</CODE
+>
+            is not passed through the <CODE
+CLASS="parameter"
+>checker</CODE
+>, so it
+            is up to the definer to ensure this value is a legal value for
+            the functions used to fetch it from the parameter.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>clearConfiguration();&#13;</code
+><P
+>&#13;            Destroys all parameter definitions.  After this is called,
+            no configuration parameters are defined.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>configure(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+><P
+>&#13;            Modifies the value of the configuration parameter
+            <CODE
+CLASS="parameter"
+>name</CODE
+> to
+            <CODE
+CLASS="parameter"
+>value</CODE
+>.  If either the
+            parameter <CODE
+CLASS="parameter"
+>name</CODE
+> has not been defined, or
+            <CODE
+CLASS="parameter"
+>value</CODE
+> fails checking, a string
+            exception is thrown to describe in human terms the problem.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7780"
+></A
+><H2
+>Types and public data</H2
+><P
+>&#13;            This class exports several public data types.  For the sake of
+            brevity only the final typename is give, therefore, when you
+            use a type like <SPAN
+CLASS="type"
+>ConfigurationArray</SPAN
+> remember that it
+            must be qualified with the <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>
+            class name (e.g. referred to in your source code as
+            <SPAN
+CLASS="type"
+>CItemConfiguration::ConfigurationArray</SPAN
+>)
+         </P
+><P
+>&#13;            One type is exported in the global (unqualified) namespace, this is
+            <SPAN
+CLASS="type"
+>typeChecker</SPAN
+> which defines the function prototype for
+            a configuration parameter validity checker.  The prototype of
+            this function is:
+            </P
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>bool </span
+>(*typeChecker)(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            Type checkers are registered when a configuration parameter is
+            created via <CODE
+CLASS="methodname"
+>addParameter</CODE
+>.  When
+            <CODE
+CLASS="methodname"
+>configure</CODE
+> is called and the parameter
+            has a type checker it is called.  <CODE
+CLASS="parameter"
+>name</CODE
+> is the
+            name of the configuration parameter being configured,
+            <CODE
+CLASS="parameter"
+>value</CODE
+> is the proposed new value for the
+            parameter.
+        </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>arg</CODE
+> is the <CODE
+CLASS="parameter"
+>arg</CODE
+>
+            parameter specified in the call to <CODE
+CLASS="methodname"
+>addParameter</CODE
+>
+            that created the configuration parameter in the first place.
+            Usually this is some additional information required to validate the
+            proposed value.
+        </P
+><P
+>&#13;            The function must return <TT
+CLASS="literal"
+>true</TT
+> in the event
+            the proposed <CODE
+CLASS="parameter"
+>value</CODE
+> is acceptable and
+            <SPAN
+CLASS="type"
+>false</SPAN
+> if not.
+            </P
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN7813"
+></A
+><H3
+>ConfigurationArray</H3
+><P
+>&#13;                This type is defined as
+                <SPAN
+CLASS="type"
+>std::vector&#60;std::pair&#60;std::string, std::string&#62; &#62;</SPAN
+>.
+                This is a vector that contains pairs of strings.  The first string of
+                each pair is the name of a configuration parameter.  The second
+                string is the configuration parameter's current value.
+                This type is returned from one of the overloaded <CODE
+CLASS="methodname"
+>cget</CODE
+>
+                methods.
+                </P
+><P
+>&#13;                You cannot make any assumption about the order of the parameters
+                in this array.
+                </P
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN7819"
+></A
+><H3
+>Pre-defined type checkers and related data types</H3
+><P
+>&#13;                This section describes type checkers that are defined as
+                static member functions of the <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>
+                class.  Each type checker's <CODE
+CLASS="parameter"
+>arg</CODE
+> is also
+                described along with a description of the
+                checker.
+                </P
+><P
+>&#13;                Prior to writing your own type checker you should ensure that
+                a suitable one does not already exist.
+                </P
+><P
+>&#13;                For all of the type checkers the parameters have the same
+                names an meanings:
+                 </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="parameter"
+>name</CODE
+></DT
+><DD
+><P
+>&#13;                                Name of the configuration parameter being checked.
+                                </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="parameter"
+>value</CODE
+></DT
+><DD
+><P
+>&#13;                                The proposed new value for the configuration
+                                parameter.  This is the value to be checked
+                                by the validation function.
+                                </P
+></DD
+><DT
+><SPAN
+CLASS="type"
+>void*</SPAN
+> <CODE
+CLASS="parameter"
+>arg</CODE
+></DT
+><DD
+><P
+>&#13;                                This anonymous pointer points to data that
+                                is used to further qualify type checking.
+                                For exmaple.  Integer type checkers can specify
+                                optional limits on the range of integers that
+                                are acceptable, for <CODE
+CLASS="methodname"
+>isInteger</CODE
+>,
+                                therefore <CODE
+CLASS="parameter"
+>arg</CODE
+> is actually
+                                a pointer to a data structure that specifies
+                                limit information.
+                                </P
+></DD
+></DL
+></DIV
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isInteger(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            Ensures that <CODE
+CLASS="parameter"
+>value</CODE
+> is a legal integer value.
+            The <CODE
+CLASS="parameter"
+>arg</CODE
+> parameter is a pointer to a
+            <SPAN
+CLASS="type"
+>Limits</SPAN
+> type.  This is a
+            <SPAN
+CLASS="type"
+>std::pair&#60;limit, limit&#62;</SPAN
+>.  Each <SPAN
+CLASS="type"
+>limit</SPAN
+>
+            defines a limit on the range of acceptable values.  The first one
+            defines the lower end of the range, the second the high end of the
+            range.
+            </P
+><P
+>&#13;            If <CODE
+CLASS="parameter"
+>arg</CODE
+> is <TT
+CLASS="literal"
+>NULL</TT
+> no
+            limit checking is performed.
+            </P
+><P
+>&#13;            The <SPAN
+CLASS="type"
+>limit</SPAN
+> is, in turn a struct that has the following
+            members:
+            </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7871"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;                bool s_checkMe;          // Check this limit if true
+                long s_value             // Limit value
+                </PRE
+><P
+></P
+></DIV
+><P
+>&#13;                The <CODE
+CLASS="structname"
+>limit</CODE
+> structure also defines
+                two construtors:
+                <code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+> </span
+>limit()();&#13;</code
+>
+                Defines a limit structure with <CODE
+CLASS="structfield"
+>s_checkMe</CODE
+>
+                initialized to
+                <TT
+CLASS="literal"
+>false</TT
+> (that is a limit that will not be checked).
+                <code
+class="methodsynopsis"
+>  <span
+class="type"
+> </span
+>limit(<span
+class="methodparam"
+><span
+class="type"
+>long </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+>
+                defines a limit with <CODE
+CLASS="structfield"
+>s_checkMe</CODE
+> set
+                to <TT
+CLASS="literal"
+>true</TT
+> and
+                <CODE
+CLASS="structfield"
+>s_value</CODE
+> initialized to
+                <CODE
+CLASS="parameter"
+>value</CODE
+>.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isBool(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This type checker ensures that the proposed
+            <CODE
+CLASS="parameter"
+>value</CODE
+> is a legal boolean value.
+            <CODE
+CLASS="methodname"
+>isBool</CODE
+> does not use its
+            <CODE
+CLASS="parameter"
+>arg</CODE
+> parameter.  Legal boolean values
+            are any text strings from the following set:
+            <TT
+CLASS="literal"
+>{true, yes, 1, on, enabled, false, no, 0, off,  disabled}</TT
+>.
+            Any string not in this set results in a failed type check.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isEnum(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This is a type checker for enumerated parameters.  An enumerated
+            parameter is a parameter that is constrained to have specific
+            discrete values (A boolean is a special case of an enumerated
+            parameter).  The <CODE
+CLASS="parameter"
+>arg</CODE
+> value is required and
+            must be a pointer to an
+            <SPAN
+CLASS="type"
+>std::set&#60;string&#62;</SPAN
+>.  The elements you put in this
+            set define the allowed values for <CODE
+CLASS="parameter"
+>value</CODE
+>.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isFloat(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            Checks that <CODE
+CLASS="parameter"
+>value</CODE
+> decodes as a floating point
+            number and optionally peforms limit checks on the value.
+            </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>arg</CODE
+> is a pointer to a
+            <SPAN
+CLASS="type"
+>FloatingLimits</SPAN
+>.  <SPAN
+CLASS="type"
+>FloatingLimits</SPAN
+> in turn
+            is defined to be a <SPAN
+CLASS="type"
+>std::pair&#60;flimit, flimit&#62;</SPAN
+>.
+            The first <SPAN
+CLASS="type"
+>flimit</SPAN
+> of the pair specifies the lower limit
+            if any, while the second specifies the upper limit.  If
+            <CODE
+CLASS="parameter"
+>arg</CODE
+> is <TT
+CLASS="literal"
+>NULL</TT
+> no
+            limit checking is performed.
+            </P
+><P
+>&#13;            <SPAN
+CLASS="type"
+>flimit</SPAN
+> is a struct that has the following
+            members
+            </P
+><P
+>&#13;                Data members of <CODE
+CLASS="structname"
+>flimit</CODE
+> are:
+                <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN7953"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;bool   s_checkMe;        // If true limit is checked.
+float  s_value;          // Limit value.
+                </PRE
+><P
+></P
+></DIV
+>
+                </P
+><P
+>&#13;                If <CODE
+CLASS="structfield"
+>s_checkMe</CODE
+> is <TT
+CLASS="literal"
+>true</TT
+>,
+                then <CODE
+CLASS="structfield"
+>s_value</CODE
+> is relevant and is the value
+                of the limit.
+                </P
+><P
+>&#13;                <CODE
+CLASS="structfield"
+>flimit</CODE
+> defines a pair of constructors:
+                </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+> </span
+>flimit();&#13;</code
+><P
+>Initializes <CODE
+CLASS="structfield"
+>s_checkMe</CODE
+> to
+            <TT
+CLASS="literal"
+>false</TT
+> disabling the limit.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+> </span
+>flimit(<span
+class="methodparam"
+><span
+class="type"
+>float </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+><P
+>&#13;                Initializes <CODE
+CLASS="structfield"
+>s_checkMe</CODE
+>
+                to <TT
+CLASS="literal"
+>true</TT
+> and sets
+                <CODE
+CLASS="structfield"
+>s_value</CODE
+>
+                to <CODE
+CLASS="parameter"
+>value</CODE
+>.  This enables the limit
+                and sets it's value to <CODE
+CLASS="parameter"
+>value</CODE
+>.
+                </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This validation function ensures tht the proposed parameter is a
+            properly formatted Tcl list. <CODE
+CLASS="parameter"
+>arg</CODE
+>, if supplied,
+            allows the list size to be constrained and optionally
+            elements of the list to be validated.  If <TT
+CLASS="literal"
+>NULL</TT
+>
+            no constraints are enforced on the contents of the list.
+            </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>arg</CODE
+> if not <TT
+CLASS="literal"
+>NULL</TT
+> is a pointer
+            to a <CODE
+CLASS="structname"
+>isListParameter</CODE
+> struct which contains
+            the following fields:
+            <DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN8000"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;ListSizeConstraint  s_allowedSize;   // Constraints on list size.
+TypeCheckInfo       s_checker;       // Element type checker.
+                </PRE
+><P
+></P
+></DIV
+>
+            </P
+><P
+>&#13;                <CODE
+CLASS="structfield"
+>s_allowedSize</CODE
+> constrains the number
+                of elements in a list.  It is of type
+                <CODE
+CLASS="structname"
+>ListSizeConstraint</CODE
+> which is a struct
+                containing two <SPAN
+CLASS="type"
+>limit</SPAN
+> element;
+                <CODE
+CLASS="structfield"
+>s_atLeast</CODE
+> which describes the minimum
+                number of elements the list must contain and
+                <CODE
+CLASS="structfield"
+>s_atMost</CODE
+> which specifies the maximum
+                numbger of elements the list must contain.  See
+                the <CODE
+CLASS="methodname"
+>isInteger</CODE
+> function description above
+                for more information about the <SPAN
+CLASS="type"
+>limit</SPAN
+> type.
+                </P
+><P
+>&#13;                <CODE
+CLASS="structfield"
+>s_checker</CODE
+>, of type
+                <SPAN
+CLASS="type"
+>TypeCheckInfo</SPAN
+> allows each element of the list to be
+                validated (e.g. to require that a list contain integers that are
+                all within some range).  
+                <SPAN
+CLASS="type"
+>TypeCheckInfo</SPAN
+> is a
+                <SPAN
+CLASS="type"
+>std::pair&#60;typeChecker, void*&#62;</SPAN
+>.  Where the
+                <SPAN
+CLASS="type"
+>typeChecker</SPAN
+> function is given each list value to
+                validate and the <SPAN
+CLASS="type"
+>void*</SPAN
+> element of the pair is the
+                <CODE
+CLASS="parameter"
+>arg</CODE
+> parameter passed to that validator.
+                If <SPAN
+CLASS="type"
+>TypeCheckInfo</SPAN
+> is <TT
+CLASS="literal"
+>NULL</TT
+> no per
+                element validation is performed, however the list size can be
+                constrained.
+                </P
+><P
+>&#13;                When elements are validated, the <CODE
+CLASS="parameter"
+>name</CODE
+>
+                parameter passed to the element validator is the name of the
+                configuration parameter that contains the list.  The
+                <CODE
+CLASS="parameter"
+>value</CODE
+> parameter is the proposed value
+                of a list element.
+                </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isBoolList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This is a specialization of <CODE
+CLASS="methodname"
+>isList</CODE
+>.
+            <CODE
+CLASS="parameter"
+>arg</CODE
+> shoule be either be a pointer to
+            a <SPAN
+CLASS="type"
+>ListSizeConstraint</SPAN
+> to constrain the number of
+            elements in the list or <TT
+CLASS="literal"
+>NULL</TT
+> to keep the size
+            unsconstrained.  The method passes each list element through
+            <CODE
+CLASS="methodname"
+>isBool</CODE
+> to ensure that the
+            list contains only boolean values.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isIntList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This is a specialization of the <CODE
+CLASS="methodname"
+>isList</CODE
+>
+            function.  <CODE
+CLASS="parameter"
+>arg</CODE
+> should either be
+            a pointer to a <SPAN
+CLASS="type"
+>ListSizeConstraint</SPAN
+> or it should be a
+            <TT
+CLASS="literal"
+>NULL</TT
+>.
+            If <CODE
+CLASS="parameter"
+>arg</CODE
+> is <TT
+CLASS="literal"
+>NULL</TT
+>,
+            the size of the list is unconstrained.  If not, the
+            <SPAN
+CLASS="type"
+>ListSizeConstraint</SPAN
+> is used to validate the
+            size of the list.
+            </P
+><P
+>&#13;            The list items are checked via <CODE
+CLASS="methodname"
+>isInteger</CODE
+>
+            to be sure they are legal integers.  No capability to set limits on
+            the integer values is provdided for at this time.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>bool </span
+>isStringList(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>void* </span
+><span
+class="parameter"
+>arg</span
+></span
+>);&#13;</code
+><P
+>&#13;            This is a specialization of <CODE
+CLASS="methodname"
+>isList</CODE
+>.  Any
+            string is allowed as a list item (if it has the necessary quoting to maintain
+            legal Tcl list syntax).   If not <TT
+CLASS="literal"
+>NULL</TT
+>,
+            <CODE
+CLASS="parameter"
+>arg</CODE
+> is a poitner to a
+            <SPAN
+CLASS="type"
+>ListSizeConstraint</SPAN
+> which can limit the number of elements
+            in the list.  If <TT
+CLASS="literal"
+>NULL</TT
+> no list size constraint
+            is enforced.
+            </P
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8084"
+></A
+><H2
+>Exceptions</H2
+><P
+>&#13;            In the event of error, the class thows exceptions of
+            type <SPAN
+CLASS="type"
+>std::string</SPAN
+>.  The contents of the string are a
+            human readable message that explains the problem and when it was
+            detected.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8088"
+></A
+><H2
+>&#13;            SEE ALSO
+         </H2
+><P
+>&#13;        <A
+HREF="r8092.html"
+>CConfigurableObject(3tcl)</A
+>
+     </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7296.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r8092.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLTcpServerInstance</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CConfigurableObject</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

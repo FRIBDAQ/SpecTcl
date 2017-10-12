@@ -1,0 +1,566 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLList</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4403.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLInterpreterObject  3 "
+HREF="r4649.html"><LINK
+REL="NEXT"
+TITLE="CTCLObject"
+HREF="r4837.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4649.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r4837.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLList"
+></A
+>CTCLList</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN4732"
+></A
+><H2
+>Name</H2
+>CTCLList&nbsp;--&nbsp;
+            Provide access to Tcl List parsing.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN4735"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLList.h&#62;
+...
+class CTCLList  : public CTCLInterpreterObject
+{
+
+public:
+  CTCLList (CTCLInterpreter* pInterp);
+  CTCLList (CTCLInterpreter* pInterp, const  char* am_pList  );
+  CTCLList (CTCLInterpreter* pInterp, const std::string&#38; rList);
+  CTCLList (const CTCLList&#38; aCTCLList );
+
+  CTCLList&#38; operator= (const CTCLList&#38; aCTCLList);
+  int operator== (const CTCLList&#38; aCTCLList);
+  int operator!= (const CTCLList&#38; aCTCLList);
+
+  const char* getList() const;
+
+  int Split (StringArray&#38; rElements)  ;
+  int Split (int&#38; argc, char*** argv);
+
+  const char* Merge (const StringArray&#38; rElements)  ;
+  const char* Merge(int argc, char** argv);
+
+};
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4737"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Tcl Lists are white space separated words.  It is definition of
+            words and quoting issues that makes the parsing of lists less than
+            straightforward.
+        </P
+><P
+>&#13;            Fortunately, Tcl provides several list processing functions.  The
+            concept of a list and access to list processing functions are
+            encapsulated in the <CODE
+CLASS="classname"
+>CTCLList</CODE
+> class.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4742"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;
+<SPAN
+CLASS="type"
+>CTCLList</SPAN
+> (<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLList</SPAN
+> (<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+          const  <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pList</CODE
+>  );
+<SPAN
+CLASS="type"
+>CTCLList</SPAN
+> (<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>,
+          const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rList</CODE
+>);
+<SPAN
+CLASS="type"
+>CTCLList</SPAN
+> (const <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            These four functions provide various ways to create a <CODE
+CLASS="classname"
+>CTCLList</CODE
+>
+            object.  The first constructor creates an empty list.  The next two, create a list
+            that has an initial value given by either the <TT
+CLASS="literal"
+>NULL</TT
+>
+            terminated string <CODE
+CLASS="parameter"
+>pList</CODE
+>, or the <SPAN
+CLASS="type"
+>std::string</SPAN
+>
+            object <CODE
+CLASS="parameter"
+>rList</CODE
+>.
+            The final constructor creates a list that is a duplicate of the list
+            described by the object <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;
+  <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="function"
+>operator=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator==</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+  <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator!=</CODE
+> (const <SPAN
+CLASS="type"
+>CTCLList</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rhs</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            These function provide assignment (<CODE
+CLASS="function"
+>operator=</CODE
+>),
+            equality comparison (<CODE
+CLASS="function"
+>operator==</CODE
+>), and
+            inequality comparison (<CODE
+CLASS="function"
+>operator!=</CODE
+>) with another
+            <CODE
+CLASS="classname"
+>CTCLList</CODE
+> object, <CODE
+CLASS="parameter"
+>rhs</CODE
+>.
+            Assignment is defined as copying the string format of the list.
+            Equality comparison is defined as the both interpreter and strings being equal.
+            Inequality is defined as !operator==.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="function"
+>getList()</CODE
+> const;
+            </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>getList</CODE
+> returns an immutable pointer to
+            the string rerpesentation of the list.  Note that the const qualfier
+            on the pointer means that attempts to dereference the pointer which
+            would modify the list result in error messages.  For Example:
+            <PRE
+CLASS="programlisting"
+>&#13;        CTCLList aList(pInterp, "some list");
+        const char* pData = aList.getList();
+        *pData = 'S';         // Compiler error!!!!
+            </PRE
+>
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>Split</CODE
+> (<SPAN
+CLASS="type"
+>StringArray</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rElements</CODE
+>)  ;
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>Split</CODE
+> (<SPAN
+CLASS="type"
+>int</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>argc</CODE
+>,
+           <SPAN
+CLASS="type"
+>char</SPAN
+>*** <CODE
+CLASS="parameter"
+>argv</CODE
+>);
+            </PRE
+>
+        </P
+><P
+>&#13;            Splits a list up into its component words.   <CODE
+CLASS="parameter"
+>relements</CODE
+>
+            is a <SPAN
+CLASS="type"
+>std::vector&#60;std::string&#62;</SPAN
+> into which the elements will be split.
+            <CODE
+CLASS="parameter"
+>argc</CODE
+> is a reference to an integer into which the
+            number of elements will be put. <CODE
+CLASS="parameter"
+>argv</CODE
+> is a pointer to a
+            <SPAN
+CLASS="type"
+>char</SPAN
+>** into which will be placed a pointer to dynamically
+            allocated storage containing a list of <CODE
+CLASS="parameter"
+>argc</CODE
+> pointers
+            to the words in the string.  This storage must be released by the caller
+            with  <CODE
+CLASS="function"
+>Tcl_Free</CODE
+>.
+            For example:
+            <PRE
+CLASS="programlisting"
+>&#13;                CTCLList someList(pInterp, someInitialContents);
+                ...
+                int argc;
+                char** argv;
+                someList.Split(argc, &#38;argv);
+                //
+                //  ... do something with the data
+                //
+                ...
+                //
+                // Done with the list elements.
+                //
+                Tcl_Free((char*)argv);
+            </PRE
+>
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="function"
+>Merge</CODE
+> (const <SPAN
+CLASS="type"
+>StringArray</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rElements</CODE
+>)  ;
+const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="function"
+>Merge</CODE
+>(<SPAN
+CLASS="type"
+>int</SPAN
+> argc,
+                 <SPAN
+CLASS="type"
+>char</SPAN
+>** <CODE
+CLASS="parameter"
+>argv</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Merges a bunch of words in to a list.  If necessary, quoting is performed to
+            ensure that words that have whitespace or other special characters will be
+            correctly formatted into the list. <CODE
+CLASS="parameter"
+>rElements</CODE
+> is a
+            <SPAN
+CLASS="type"
+>std::vector&#60;std::string&#62;</SPAN
+> of words that will be merged into the
+            string.  <CODE
+CLASS="parameter"
+>argc</CODE
+> is a count of the number of words,
+            and <CODE
+CLASS="parameter"
+>argv</CODE
+> is a pointer to an array of pointers to the
+            words stored as <TT
+CLASS="literal"
+>NULL</TT
+> terminated strings.
+            The return value is the final string representation of the list after the
+            merge operation has been performed.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN4834"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLInterpreter(3),
+CTCLInterpreterObject(3),
+Tcl_Free(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4649.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r4837.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLInterpreterObject  3</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4403.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLObject</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

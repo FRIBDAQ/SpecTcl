@@ -1,0 +1,2043 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Dictionaries</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CHistogrammer"
+HREF="r9101.html"><LINK
+REL="NEXT"
+TITLE="CAnalyzer"
+HREF="r10463.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r9101.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r10463.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN9852"
+></A
+>Dictionaries</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN9856"
+></A
+><H2
+>Name</H2
+>Dictionaries&nbsp;--&nbsp;Describe dictionaries used by SpecTcl</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN9859"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Dictionary.h&#62;
+template &#60;class T&#62;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&#38; item) {}
+  virtual void onRemove( std::string name,    T&#38; item) {}
+
+};
+
+template &#60;class T&#62;
+class CDictionaryObserverManager 
+{
+  void addObserver(DictionaryObserver&#60;T&#62;* observer);
+  void removeObserver(DictionaryObserver&#60;T&#62;* observer);
+  void invokeAdd(const std::string name, T&#38; item);
+  void invokeRemove(const std::string name, T&#38; item);
+
+};
+
+template &#60;class T&#62;
+class CDictionary      
+{
+  DictionaryIterator Lookup(std::string sName);
+  ConstDictionaryIterator Lookup(std::string sName);
+  template&#60;class Predicate&#62;
+    DictionaryIterator FindMatch(Predicate p);
+  template&#60;class Predicate&#62;
+    ConstDictionaryIterator FindMatch(Predicate p);
+  void Enter(std::string sName, T&#38; Item);
+  void Remove(std::string rsName);
+
+  DictionaryIterator begin();
+  ConstDictionaryIterator begin() const;
+  DictionaryIterator end();
+  ConstDictionaryIterator end() const ;
+
+  UInt_t size() const;
+  void addObserver(DictionaryObserver&#60;T&#62;* observer);
+  void removeObserver(DictionaryObserver&#60;T&#62;* observer);
+};
+
+        </PRE
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;DictionaryException&#62;
+class CDictionaryException  : public CException        
+{
+public:
+  enum {
+    knDuplicateKey,
+    knDuplicateId,
+    knNoSuchId,
+    knNoSuchKey,
+    knWrongGateType
+  };
+  
+public:
+  CDictionaryException(Int_t nReason, const char* pDoing, 
+		       const char* pName);
+  CDictionaryException(Int_t nReason, const char* pDoing, 
+		       const std::string&#38; rName);
+  CDictionaryException(Int_t nReason, const std::string&#38; rDoing,
+		       const char* pName);
+  CDictionaryException(Int_t nReason, const std::string&#38; rDoing,
+		       const std::string&#38; rName);
+  CDictionaryException(Int_t nReason, const char* pDoing,
+		       UInt_t nId) ;
+  CDictionaryException(Int_t nReason, const std::string&#38; rDoing,
+		       UInt_t nId) ;
+
+  virtual   const char* ReasonText ()  const;
+  virtual   Int_t ReasonCode () const  ;
+};
+
+        </PRE
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFitDictionary.h&#62;
+class CFitDictionary {
+public:
+  typedef std::map&#60;std::string, CSpectrumFit*&#62; FitMap;
+  typedef FitMap::iterator      iterator;
+
+  class CObserver {
+  public:
+    virtual void Add(CSpectrumFit&#38; fit) =0;
+    virtual void Delete(CSpectrumFit&#38; fit) = 0;
+    virtual void Update(CSpectrumFit&#38; fit) = 0;
+
+  };
+
+  typedef std::list&#60;CObserver*&#62; ObserverList;
+
+  static CFitDictionary&#38; getInstance();
+
+  void add(CSpectrumFit&#38; fit);
+  void addOrReplace(CSpectrumFit&#38; fit);
+  void Delete(std::string name);
+
+  iterator begin();
+  iterator end();
+  size_t   size();
+  iterator find(std::string name);
+  void     erase(iterator here);
+  void     erase(iterator first, iterator last);
+
+  void updateFits(std::string name=std::string("*")); 
+
+  void addObserver(CObserver&#38; obs);
+  void removeObserver(CObserver&#38; obs);
+ 
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9863"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This page describes SpecTcl dictionaries and their related classes.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CDictionary</CODE
+> class is a templated
+            class that associates names with arbitrary objects.  It adds to the
+            <CODE
+CLASS="classname"
+>std::map</CODE
+> class the ability to maintain
+            a set of <I
+CLASS="firstterm"
+>observers</I
+>.  Observers are objects
+            that are informed of changes in the dictionary (specifically
+            the addition and removal of items from the dictionary).
+        </P
+><P
+>&#13;            Closely related to the <CODE
+CLASS="classname"
+>CDictionary</CODE
+> class,
+            therefore are <CODE
+CLASS="classname"
+>DictionaryObserver</CODE
+>, the
+            templated base class of observers.  Applications will subclass this
+            and provide the appropriate template arguments for the dictionary
+            used to make use of them.  Note that in most cases where SpecTcl
+            uses a dictionary, it provides a typedef for the observer base class
+            that already has provided the template parameters.
+        </P
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CDictionaryObserverManager</CODE
+> is actually
+            usable by wrapers of any name/value container (e.g. hashes and
+            multimaps).  It maintains a list of observer and provides
+            methods to invoke the observers it maintains.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> class provides
+            an exception derived from <CODE
+CLASS="classname"
+>CException</CODE
+>
+            SpecTcl throws for many dictionary use violations.  These
+            are not normally thrown by the dictionary itself but by SpecTcl
+            code that provides a higher level API to specific dictionaries.
+        </P
+><P
+>&#13;            For example, the <CODE
+CLASS="classname"
+>CHistogrammer</CODE
+> throws these
+            if there is an attempt to duplicate the name or id of a dictionary
+            entry.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> provides a dictionary
+            that manages SpecTcl fit objects.  In addition, the observers
+            maintained by fit dictionaries, contain a callback that is invoked
+            if a fit is modified, as well as if it is added or removed
+            from the dictionary.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9882"
+></A
+><H2
+>CDictionaryObserverManager</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryObserver&#60;T&#62;*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds an <CODE
+CLASS="parameter"
+>observer</CODE
+>
+                        to the list of observers managed by
+                        this object.  Observers are an ordered list.  The
+                        new <CODE
+CLASS="parameter"
+>observer</CODE
+> is added to the
+                        end of the list.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryObserver&#60;T&#62;*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes an <CODE
+CLASS="parameter"
+>observer</CODE
+> from the
+                        list of observers managed by this object.  Note that
+                        while it is pathalogical, it is legal to register
+                        the same observer object more than once.  If
+                        <CODE
+CLASS="methodname"
+>removeObserver</CODE
+> is asked to
+                        remove an observer that is multiply registered,
+                        all instances of that observer are removed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>invokeAdd(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>T&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Iterates over the list of observer objects this object
+                        maintains.  For each observer, the
+                        <CODE
+CLASS="methodname"
+>onAdd</CODE
+> method is invoked
+                        with the parameters passed to <CODE
+CLASS="methodname"
+>invokeAdd</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>invokeRemove(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>T&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Same as <CODE
+CLASS="methodname"
+>invokeAddd</CODE
+>
+                        but each object's <CODE
+CLASS="methodname"
+>onRemove</CODE
+>
+                        is called instead.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9953"
+></A
+><H2
+>CDictionaryObserver</H2
+><P
+>&#13;            Note that this is a base class.  Real observers are classes
+            that inherit from this one.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onAdd(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string   </span
+><span
+class="parameter"
+> name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>T&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is invoked when an item is added to a
+                        dictionary.  <CODE
+CLASS="parameter"
+>name</CODE
+> is the name of
+                        the item (dictionary key), <CODE
+CLASS="parameter"
+>item</CODE
+>
+                        refers to the item about to be added.  Note that
+                        the base class implementation does nothing.  If you
+                        don't need to observe dictionary additions simply don't
+                        override this method.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onRemove(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>T&#38;  </span
+><span
+class="parameter"
+>item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is invoked when an item is about to be
+                        removed from a dictionary.  <CODE
+CLASS="parameter"
+>name</CODE
+>
+                        is the name (dictionary index) of the item and
+                        <CODE
+CLASS="parameter"
+>item</CODE
+> refers to the item.
+                    </P
+><P
+>&#13;                        At the time this method is called, the item is still
+                        in the dictionary.  The item is only removed from the
+                        dictionary after all observers have been invoked.
+                    </P
+><P
+>&#13;                        The base class implementation is empty.  Therefore if your
+                        observer does not need to observer dictionary
+                        removals, simply don't override the implementation
+                        of this method.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN9997"
+></A
+><H2
+>CDictionary</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryIterator  </span
+>Lookup(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sName</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ConstDictionaryIterator  </span
+>Lookup(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a <CODE
+CLASS="classname"
+>DictionaryIterator</CODE
+>
+                        that points to a
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, T&#62;</CODE
+>
+                        object that has a name that is the same as
+                        <CODE
+CLASS="parameter"
+>sName</CODE
+>.  The first item of the
+                        pair should be equal to <CODE
+CLASS="parameter"
+>sName</CODE
+>
+                        and is the name of the item in the dictionary.
+                        The second item of the pair should be the item which is
+                        associated with that key.
+                    </P
+><P
+>&#13;                        This method requires that <CODE
+CLASS="classname"
+>T</CODE
+>
+                        have a copy constructor or be trivially copy constructable.
+                        If there is no match for <CODE
+CLASS="parameter"
+>sName</CODE
+>
+                        in the dictionary, the value returned by
+                        <CODE
+CLASS="methodname"
+>end</CODE
+> is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>template&#60;class Predicate&#62; </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryIterator  </span
+>FindMatch(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Predicate </span
+><span
+class="parameter"
+> p</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>template&#60;class Predicate&#62; </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>ConstDictionaryIterator  </span
+>FindMatch(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Predicate </span
+><span
+class="parameter"
+> p</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Performs an search using an arbitrary predicate;
+                        <CODE
+CLASS="parameter"
+>p</CODE
+> as the matching criterion.
+                        The return value is a dictionary iterator as
+                        described in <CODE
+CLASS="methodname"
+>Lookup</CODE
+> above.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="parameter"
+>p</CODE
+> is any class that implements
+                        the <CODE
+CLASS="methodname"
+>operator()</CODE
+> taking as a
+                        single parameter a
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, T&#62;</CODE
+>
+                        object.  The first item of the pair is the name of some
+                        entry in the dictionary.  The second is the entry with
+                        that name.  The predicate must return a
+                        value that can be converte to <SPAN
+CLASS="type"
+>bool</SPAN
+>.  If
+                        the return is <TT
+CLASS="literal"
+>true</TT
+>, the item
+                        is treated as satisfying the match.  If not iteration
+                        continues with different pairs until either the entire
+                        container has been checked or a match is found.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Enter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>sName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>T&#38;  </span
+><span
+class="parameter"
+>Item</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds <CODE
+CLASS="parameter"
+>Item</CODE
+> to the dictionary indexed
+                        by <CODE
+CLASS="parameter"
+>sName</CODE
+>.  If an item already
+                        exists with that name it's overwitten. If
+                        <SPAN
+CLASS="type"
+>T</SPAN
+> is a pointer to dynamically allocated
+                        objets, this results in memory leaks unless the
+                        dictionary is encapsulated by a derived class or front-ended
+                        by an API.
+                    </P
+><P
+>&#13;                        Many SpecTcl dictionaries live privately in enclosing
+                        classes like <CODE
+CLASS="classname"
+>CHistogram</CODE
+>.
+                        In some cases (e.g. the parameter and spectrum
+                        dictionaries), these classes impose an API that throws
+                        errors if duplicate entries are attempted.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Remove(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>rsName</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes the entry whose index is
+                        <CODE
+CLASS="parameter"
+>rsName</CODE
+>.  This does nothing
+                        if there is no entry with the index
+                        <CODE
+CLASS="parameter"
+>rsName</CODE
+>.
+                    </P
+><P
+>&#13;                        Many SpecTcl dictionaries are encapsulated by other classes.
+                        In some cases those classes throw exceptions if attempts are
+                        made to remove nonexistent objects.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryIterator  </span
+>begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>ConstDictionaryIterator  </span
+>begin ();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryIterator  </span
+>end();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>ConstDictionaryIterator </span
+> end ();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods support iteration over dictionary contents.
+                        <CODE
+CLASS="classname"
+>DictionaryIterator</CODE
+> and
+                        <CODE
+CLASS="classname"
+>ConstDictionaryIterator</CODE
+> are
+                        pointer like objects.  They 'point' to
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, T&#62;</CODE
+>
+                        objects. The first item of the pair is a dictionary
+                        key.  The second, the object stored at that key.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>begin</CODE
+> returns an iterator
+                        to the first element of the container.  Currently,
+                        this is the one with the  key that collates earliest.
+                        Incrementing an iterator points it to another element
+                        of the container.   Currently, the iterator traverses
+                        the container in increasing collation order with respect
+                        to the key.
+                    </P
+><P
+>&#13;                        If an iterator points to the last element of the
+                        dict, incrementing it results in the same value
+                        returned from the <CODE
+CLASS="methodname"
+>end</CODE
+>
+                        method.  The iterators returned by these methods
+                        are compatible with the C++ standard library algorithms
+                        that accept container iterators.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements stored in the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryObserver&#60;T&#62;*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>DictionaryObserver&#60;T&#62;*  </span
+><span
+class="parameter"
+>observer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods support observation of the dictionary.
+                        <CODE
+CLASS="methodname"
+>addObserver</CODE
+> adds an
+                        <CODE
+CLASS="parameter"
+>observer</CODE
+>
+                        that will be called when items are added
+                        or removed from the dictionary.  Observers have been
+                        previously described.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>removeObserver</CODE
+> removes the
+                        <CODE
+CLASS="parameter"
+>observer</CODE
+> from the list of
+                        observers that monitor the dictionary.
+                        While it is pathalogical, <CODE
+CLASS="methodname"
+>addObserver</CODE
+>
+                        does not prevent you from adding the same observer object
+                        more than once.  If have added a specific observer more
+                        than onece, <CODE
+CLASS="methodname"
+>removeObserver</CODE
+>
+                        removes all instances of that observer from
+                        the dictionary's <CODE
+CLASS="classname"
+>CDictionaryObserverManager</CODE
+>
+                        object.
+                    </P
+></DD
+></DL
+></DIV
+><PRE
+CLASS="programlisting"
+>&#13;             
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10180"
+></A
+><H2
+>CDictionaryException</H2
+><P
+>&#13;            Before providing reference material to <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>,
+            Let's first look at the public enum that provides the valid
+            values for the reason code in the destructor:
+        </P
+><PRE
+CLASS="programlisting"
+>&#13;  enum {
+    knDuplicateKey,
+    knDuplicateId,
+    knNoSuchId,
+    knNoSuchKey,
+    knWrongGateType
+  };
+            
+        </PRE
+><P
+>&#13;            Not all values are used by the APIs in front of all dictionaries.
+            These values have the following meanings:
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="literal"
+>knDuplicateKey</TT
+></DT
+><DD
+><P
+>&#13;                        An attempt was made to insert an entry with a key that
+                        already exists in the dictionary.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>knDuplicateId</TT
+></DT
+><DD
+><P
+>&#13;                        For dictionaries whose entries have
+                        unique integer ids
+                        stored in their objects:  This value indicates an
+                        attempt to add an entry that has an id that matches
+                        an existing element of the dictionary.  For example;
+                        Adding two parameters  with the same Id throws this error.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>knNoSuchId</TT
+></DT
+><DD
+><P
+>&#13;                        This reason is used after a search by id results in no
+                        matching items.  Note that other dictionary APIs
+                        may indicate without an error that there is no match
+                        (e.g. returning a null pointer or an end iterator)
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>knNoSuchKey</TT
+></DT
+><DD
+><P
+>&#13;                        Similar to <TT
+CLASS="literal"
+>knNoSuchId</TT
+> this is thrown
+                        when a search for an item by name fails to locate
+                        a match.
+                    </P
+></DD
+><DT
+><TT
+CLASS="literal"
+>knWrongGateType</TT
+></DT
+><DD
+><P
+>&#13;                        This is not used in SpecTcl.  It is intended for use
+                        when a gate of an incompatible type for some operation
+                        is selected.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is essentially an
+            <CODE
+CLASS="classname"
+>CException</CODE
+> class whose
+            <CODE
+CLASS="methodname"
+>ReasonText</CODE
+> and
+            <CODE
+CLASS="methodname"
+>ReasonCode</CODE
+> interpret the
+            <CODE
+CLASS="parameter"
+>nReason</CODE
+> code used to construct it as
+            a member of the enum described above.
+        </P
+><P
+>&#13;            The class has as rich set of constructors. For the most part
+            these match the constructors available for
+            <CODE
+CLASS="classname"
+>CException</CODE
+>.  The parameters
+            <CODE
+CLASS="parameter"
+>nReason</CODE
+> should be chosen from the
+            reason enum described above.  The <CODE
+CLASS="parameter"
+>pName</CODE
+>
+            and <CODE
+CLASS="parameter"
+>rName</CODE
+> parameters are names of items
+            <CODE
+CLASS="parameter"
+>nId</CODE
+> parameters are relevant object Ids.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN10225"
+></A
+><H2
+>CFitDictionary&#62;</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CFitDictionary</CODE
+> is a specialized dictionary
+            that holds fits.  It also provides an extended observer as
+            a nested class; <CODE
+CLASS="classname"
+>CFitDictionary::CObserver</CODE
+>.
+            The observer base class for fit dictionaries have the following
+            pure virtual methods.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void  </span
+>Add(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a fit is added to the dictionary.  <CODE
+CLASS="parameter"
+>fit</CODE
+>
+                        is the object that was added.  Note that this object
+                        provides the needed methods to get the name of the
+                        fit as well as the  name of the spectrum on which the
+                        fit is defined.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>void  </span
+>Delete(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a fit is deleted (removed from the
+                        dictionary).  This is called prior to the actual
+                        removal of the <CODE
+CLASS="parameter"
+>fit</CODE
+> from
+                        the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>void  </span
+>Update((<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a fit is updated.  Updating a fit means
+                        that its parameters are recomputed based on the current
+                        data in  a spectrum.  If a
+                        <CODE
+CLASS="parameter"
+>fit</CODE
+> was created and then
+                        additional or new data were acquired, updating the
+                        fit is necessary to make the fit reflect the new
+                        channel values in the region of interest.
+                    </P
+><P
+>&#13;                        This method is called just after the update has been
+                        computed.  One use is to maintain the display of a fit
+                        on a spectrum by a displayer.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;            Note that the fit dictionary is also a singleton class and therefore
+            has private constructors and destructors.
+        </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFitDictionary&#38;  </span
+>getInstance();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the singleton instance of this class.  If the
+                        dictionary has not yet been created, this will create it.
+                        If it has, a reference to the existing dictionary
+                        is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>add(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds a new fit to the dictionary.  Note that if the
+                        dictionary already has a fit named the same as
+                        <CODE
+CLASS="parameter"
+>fit</CODE
+>, a
+                        <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+> is thrown
+                        with the reason
+                        <TT
+CLASS="literal"
+>CDictionaryException::knDuplicateKey</TT
+>.
+                    </P
+><P
+>&#13;                        See <CODE
+CLASS="methodname"
+>addOrReplace</CODE
+> below as well.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addOrReplace(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CSpectrumFit&#38;  </span
+><span
+class="parameter"
+>fit</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Adds <CODE
+CLASS="parameter"
+>fit</CODE
+> to the dictionary.  If
+                        a fit with that name already exists it is replaced
+                        by this new fit.  In that case observer
+                        <CODE
+CLASS="methodname"
+>Delete</CODE
+> methods are called.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Delete(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Delets any fit with the name
+                        <CODE
+CLASS="parameter"
+>name</CODE
+>.  If there is no such
+                        fit, <CODE
+CLASS="classname"
+>CDictionaryException</CODE
+>
+                        with the reason
+                        <TT
+CLASS="literal"
+>CDictionaryException::knNoSuchkey</TT
+>
+                        is thrown.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator </span
+> begin();&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+>end();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods support iteration over the container
+                        that holds the fit dictionary.
+                        <CODE
+CLASS="classname"
+>CFitDictionary::iterator</CODE
+>
+                        is an pointer like object that points at
+                        <CODE
+CLASS="classname"
+>std::pair&#60;std::string, CSpectrumFit*&#62;</CODE
+>
+                        objects.  The first element of the pair is the name of the
+                        fit while the second is  a pointer to the fit object.
+                    </P
+><P
+>&#13;                        <CODE
+CLASS="methodname"
+>begin</CODE
+> returns an iterator that
+                        points to the first element of the dictionary.  Incrementing
+                        an iterator results in an interator that points at the next
+                        element of the dictionary.  If the iterator points to
+                        the last element of the dictionary, incrementing it
+                        produces the value returned by
+                        <CODE
+CLASS="methodname"
+>end</CODE
+>
+                    </P
+><P
+>&#13;                        These iterators are suitable for use in any of the
+                        C++ standard library algorithms that require iterators.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>size_t    </span
+>size();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of elements in the dictionary.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+>find(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+> name</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns an iterator to the dictionary entry
+                        pair with the index <CODE
+CLASS="parameter"
+>name</CODE
+>.
+                        If <CODE
+CLASS="parameter"
+>name</CODE
+> is not found,
+                        the value returned from
+                        <CODE
+CLASS="methodname"
+>end</CODE
+> is returned:
+                    </P
+><PRE
+CLASS="programlisting"
+>&#13;CFitDictionary&#38; fitDict(CFitDictionary::getInstance());
+
+CFitDictionary::iterator p = fitDict-&#62;find("foo");
+if (p != fitDict.end()) {
+
+std::string name = p-&#62;first;
+CSpectrumFit* fit = p-&#62;second;
+
+// Do something with what was found.
+} else {
+j  // Item was not found.
+}
+                    </PRE
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void      </span
+>erase(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+><span
+class="parameter"
+>here</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void      </span
+>erase(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+><span
+class="parameter"
+>first</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>iterator  </span
+><span
+class="parameter"
+>last</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Removes items from the dictionary based on iterators.
+                        <CODE
+CLASS="parameter"
+>here</CODE
+> is an iterator that points to
+                        the item to remove&#62; <CODE
+CLASS="parameter"
+>first</CODE
+> and
+                        <CODE
+CLASS="parameter"
+>last</CODE
+> are iterators that define a
+                        range of items to remove.  All items from <CODE
+CLASS="parameter"
+>first</CODE
+>
+                        up to but not including <CODE
+CLASS="parameter"
+>last</CODE
+>
+                        are removed.
+                    </P
+><P
+>&#13;                        Note that <CODE
+CLASS="methodname"
+>erase</CODE
+> invalidates
+                        the iterator(s) it receives as parameters.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>updateFits(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+><span
+class="initializer"
+> = std::string("*")</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Recomputes fits with current spectrum data for all
+                        fit names that match the glob pattter
+                        <CODE
+CLASS="parameter"
+>name</CODE
+>.  Note that the default
+                        value for this parameter, <TT
+CLASS="literal"
+>*</TT
+>,
+                        matches all fits.
+                    </P
+><P
+>&#13;                        Fits are defined on regions of interest in spectra.
+                        As spectra accumulate or are cleared and a new data
+                        set analyzed, they can be recomputed on the current data.
+                        SpecTcl establishes observers that propagate the changes
+                        to the fit information to its displayers so that the fitlines
+                        displayed on those spectra also automatically update.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>addObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CObserver&#38; </span
+><span
+class="parameter"
+>obs</span
+></span
+>);&#13;</code
+>, <code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>removeObserver(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CObserver&#38;  </span
+><span
+class="parameter"
+>obs</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        These methods manage observers that are monitoring
+                        the fit dictionary.   <CODE
+CLASS="methodname"
+>addObserver</CODE
+>
+                        adds the observer <CODE
+CLASS="parameter"
+>obs</CODE
+> to end of the
+                        list of observers.  <CODE
+CLASS="methodname"
+>removeObserver</CODE
+>
+                        removes all instances of <CODE
+CLASS="parameter"
+>ojbs</CODE
+> from
+                        the list of observers maintained by the dictionary.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r9101.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r10463.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CHistogrammer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CAnalyzer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

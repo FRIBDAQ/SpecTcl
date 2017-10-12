@@ -1,0 +1,673 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CParameter</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="RingFormatHelper Factories"
+HREF="r12583.html"><LINK
+REL="NEXT"
+TITLE="CEvent"
+HREF="r12906.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r12583.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12906.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN12723"
+></A
+>CParameter</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN12727"
+></A
+><H2
+>Name</H2
+>CParameter&nbsp;--&nbsp;Encapsulate SpecTcl parameter definitions</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN12730"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;Parameter.h&#62;
+
+class CParameter : public CNamedItem {
+ public:
+  CParameter(const std::string&#38; rName,
+	     UInt_t nId,
+	     const char* pUnits);
+  CParameter(UInt_t am_nScale,  const std::string&#38; rName, UInt_t nNumber);
+  CParameter(UInt_t am_nScale,
+      const std::string&#38; rName, UInt_t nNumber, Float_t nLow, Float_t nHigh,
+      std::string am_sUnits);
+  CParameter(const CParameter&#38; aCParameter );
+  Bool_t hasScale();
+  UInt_t getScale() const;
+  Float_t getLow() const ;
+  Float_t getHigh() const;
+  std::string getUnits() const;
+
+  Float_t RawToMapped(Float_t Raw);
+  Float_t MappedToRaw(Float_t Mapped);
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12732"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CParameter</CODE
+> provides a class that contains
+            and maintains SpecTcl parameter definitions.  In most cases, it will
+            be more convenient to use <CODE
+CLASS="classname"
+>CTreeParameter</CODE
+>
+            or <CODE
+CLASS="classname"
+>CTreeParameterArray</CODE
+> objects instead of
+            working directly with <CODE
+CLASS="classname"
+>CParameter</CODE
+> objects.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN12739"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nId</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char*  </span
+><span
+class="parameter"
+>pUnits</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This constructor allows units of measure to be
+                        asssociated with the parameter.  Note that
+                        <CODE
+CLASS="parameter"
+>nId</CODE
+> and <CODE
+CLASS="parameter"
+>rName</CODE
+>
+                        must be unique amongst all other parameters if this
+                        object is to be inserted in the parameter dictionary.
+                    </P
+><P
+>&#13;                        The range of the parameter is considered arbitrary.  Tree
+                        parameters created this sort of parameter.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nScale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const  </span
+><span
+class="type"
+>std::string&#38; </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nNumber</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This constructor allows you to associate a scale with
+                        the parameter.  The scale, <CODE
+CLASS="parameter"
+>am_nScale</CODE
+>
+                        is intended to be the number of bits of resolution
+                        the parameter has.   As with all parameters
+                        that will be inserted into the parameter dictionary,
+                        both <CODE
+CLASS="parameter"
+>rName</CODE
+> and <CODE
+CLASS="parameter"
+>nNumber</CODE
+>
+                        must be unique.
+                    </P
+></DD
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CParameter(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>am_nScale</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+>const </span
+><span
+class="type"
+> std::string&#38;  </span
+><span
+class="parameter"
+>rName</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nNumber</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>nLow</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>nHigh</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>am_sUnits</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Provides a constructor that allows specification of
+                        a scale and parameter low and high limits as well as
+                        units of measure.  Once more I recommend using tree
+                        parameters to hold these metadata, as the manner in which
+                        these extra values are treated is outmoded and only
+                        provided for backwards compatibility.
+                    </P
+><P
+>&#13;                        This constructor was used to provide the capability
+                        of mapping parameters with fixed bit width to some
+                        arbitrary range of actual values.  It was used along
+                        with the Xamine mapped spectrum capability, and the
+                        <CODE
+CLASS="methodname"
+>RawToMapped</CODE
+> as well as
+                        <CODE
+CLASS="methodname"
+>MappedToRaw</CODE
+> methods to
+                        do something a lot less useful than what
+                        arbitrarily ranged parameters and spectra
+                        can accomplish.  As such, use of this constructor
+                        is strongly discouraged.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Bool_t  </span
+>hasScale();&#13;</code
+></DT
+><DD
+><P
+>&#13;                         Returns <TT
+CLASS="literal"
+>true</TT
+> if the object
+                         was constructed with a scale.  Returns
+                         <TT
+CLASS="literal"
+>false</TT
+> otherwise.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>UInt_t  </span
+>getScale();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the scale value of a parameter objecst.
+                        If the object was not given a scale, the result will
+                        be <TT
+CLASS="literal"
+>0</TT
+>.   Note that in that case
+                        <CODE
+CLASS="methodname"
+>hasScale</CODE
+> returns
+                        <TT
+CLASS="literal"
+>false</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>Float_t  </span
+>getLow();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the low limit provided to the parameter at
+                        creation time.  If a constructor was used that
+                        did not specify parameter limits, the value
+                        <TT
+CLASS="literal"
+>0</TT
+> is returned.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>Float_t  </span
+>getHigh();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the high limit for the parameter.  If a construtor
+                        was used that does not supply a high limit, this
+                        returns <TT
+CLASS="literal"
+>0</TT
+>.  Thus no parameter limits
+                        were provided if both <CODE
+CLASS="methodname"
+>getLow</CODE
+>
+                        and <CODE
+CLASS="methodname"
+>getHigh</CODE
+> return
+                        <TT
+CLASS="literal"
+>0</TT
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>getUnits();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the units of measure string associated with
+                        the parameter.  This will be an empty string if
+                        a constructor was used that did not supply
+                        units of measure.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+>RawToMapped(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t </span
+><span
+class="parameter"
+> Raw</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This can only be used with parameters that have
+                        been constructed with a scale and limits.  Those parameters
+                        are considered to be values from [0, 2^scale) which
+                        map to the interval [low, high).  
+                    </P
+><P
+>&#13;                        This method translates a raw parameter value into its
+                        mapped value (from [low, high)).  Using this with parameters
+                        that have not been constructed with low/high/scale
+                        values can result in a division by zero fault.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+> </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+>MappedToRaw(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Float_t  </span
+><span
+class="parameter"
+>Mapped</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Given a parameter that has been created with a high,
+                        low and scale value; translates a value in the
+                        range of [low, high) to the raw parameter value
+                        in the range [0, 2^scale).  
+                    </P
+><P
+>&#13;                        See also <CODE
+CLASS="methodname"
+>RawToMapped</CODE
+>.  Note
+                        as well that a divide by zero fault will occur if you
+                        apply this method to a parameter that was not construted
+                        as a mapped parameter.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r12583.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12906.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>RingFormatHelper Factories</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CEvent</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

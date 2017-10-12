@@ -1,0 +1,558 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CNSCLJumboBufferDecoder</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CNSCLBufferDecoder"
+HREF="r11703.html"><LINK
+REL="NEXT"
+TITLE="CRingBufferDecoder"
+HREF="r12027.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r11703.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r12027.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN11863"
+></A
+>CNSCLJumboBufferDecoder</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN11867"
+></A
+><H2
+>Name</H2
+>CNSCLJumboBufferDecoder&nbsp;--&nbsp;Decode NSCLDAQ 7.x/8.x buffers bigger than 128Kbytes.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN11870"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CNSCLJumbBufferDecoder&#62;
+
+class CNSCLJumboBufferDecoder : public CBufferDecoder {
+public:
+  CNSCLJumboBufferDecoder();
+  virtual ~CNSCLJumboBufferDecoder() ;
+  virtual const Address_t getBody();
+  virtual UInt_t getBodySize();
+  virtual UInt_t getRun();
+  virtual UInt_t getEntityCount();
+  virtual UInt_t getSequenceNo();
+  virtual UInt_t getLamCount();
+  virtual UInt_t getPatternCount();
+  virtual UInt_t getBufferType();
+  virtual void getByteOrder(Short_t&#38; Signature16, Int_t&#38; Signature32);
+  virtual std::string getTitle();
+  virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer&#38; rAnalyzer);
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11872"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This decoder is a special version of the
+            <CODE
+CLASS="classname"
+>CNSCLBufferDecoderr</CODE
+> class.  An unused
+            header words is repurposed to hold the top bits of a 32 bit buffer
+            size.  Furthermore;  events in physics buffers have a 32 bit event
+            size as their header.  This allows both for buffers bigger than
+            64Kwords and for events larger than 64Kwords.
+        </P
+><P
+>&#13;            The motivation for this type of buffer was a series of experiments
+            that used a waveform capture device capable of delivering
+            events much larger than 64Kwords of data.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11877"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CNSCLJumboBufferDecoder();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructor for objects of this class.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>const Address_t </span
+> getBody();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Operates the same as for <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>;
+                        returns a pointer tot he first byte after the 32 byte
+                        header.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+> getBodySize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of bytes used in the buffer.
+                        The jumbo buffer format holds the low
+                        16 bit of the used buffer size (words) in the first
+                        element of the buffer header.   A previously unused
+                        word in the buffer (<CODE
+CLASS="structfield"
+>nwdsHigh</CODE
+>)
+                        is used to hold the top 16 bits of the used buffer size.
+                    </P
+><P
+>&#13;                        The decoder combines these to form a 32 bit value
+                        and subtracts the size of the buffer header from that
+                        to get the final size.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getRun();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As with <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>, returns
+                        the run number from the buffer header.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getEntityCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As with <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>,
+                        returns the number of entities in the buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getSequenceNo();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As with <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>,
+                        returns the sequence number of the last buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+> getLamCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As for <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>,
+                        returns the lam count from the buffer header.
+                        This is deprecated as LAM register counts have not
+                        been part of typical NSCL events for decades.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+>getPatternCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As with <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>,
+                        returns the pattern register count from the
+                        buffer header.  This is deprecated as most
+                        events, these days, don't actually have any pattern
+                        registers, thanks to the ability of digitizers
+                        to auto-zero suppress.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t </span
+> getBufferType();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the type of data in the buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>getByteOrder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Short_t&#38;  </span
+><span
+class="parameter"
+>Signature16</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t&#38;  </span
+><span
+class="parameter"
+>Signature32</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        As with <CODE
+CLASS="classname"
+>CNSCLBufferDecoder</CODE
+>,
+                        returns the byte order signatures in
+                        <CODE
+CLASS="parameter"
+>Signature16</CODE
+> and
+                        <CODE
+CLASS="parameter"
+>Signature32</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string  </span
+>getTitle();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns title from the most recent run state
+                        transition buffer.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>UInt_t  </span
+><span
+class="parameter"
+>nBytes</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>pBuffer</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called for each block of data received from the data
+                        source.  This is a fixed block sized buffer decoder
+                        so the value of <CODE
+CLASS="parameter"
+>nBytes</CODE
+> should
+                        always be the same within a run.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r11703.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r12027.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CNSCLBufferDecoder</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CRingBufferDecoder</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

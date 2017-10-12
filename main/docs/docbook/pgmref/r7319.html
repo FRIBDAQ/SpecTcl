@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLLiveEventLoop</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLTimer"
+HREF="r7249.html"><LINK
+REL="NEXT"
+TITLE="CTCLChannelCommander"
+HREF="r7423.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7249.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7423.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLLiveEventLoop"
+></A
+>CTCLLiveEventLoop</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7323"
+></A
+><H2
+>Name</H2
+>CTCLLiveEventLoop&nbsp;--&nbsp;Run Tcl with event loop.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7326"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLLiveEventLoop.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLLiveEventLoop </span
+></SPAN
+>{
+<code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>CTCLLiveEventLoop* </span
+>getInstance();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>start();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>start(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>stop();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>long </span
+>setStopLatency(<span
+class="methodparam"
+><span
+class="type"
+>long </span
+><span
+class="parameter"
+>ms</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>long </span
+>getStopLatency();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7361"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            The Tcl/Tk applications programming interfaces provides an event loop.
+            In the case of Tk programs, the event loop is active once the Tk
+            package starts.  For pure Tcl (non GUI) programs, the event loop
+            is not active unless the script explicitly enters the event loop
+            via e.g. <B
+CLASS="command"
+>vwait</B
+>.
+         </P
+><P
+>&#13;            <B
+CLASS="command"
+>vwait</B
+> and other pure Tcl commands that enter
+            the event loop block the interpreter from processing commands on
+            stdin while the loop is running.  For some Tcl based data acquisition
+            programs this is not acceptable.  For example, a readout program may
+            want to accept commands on the command line while doing some periodic
+            processing.  This class provides the ability to do this.
+         </P
+><P
+>&#13;            The class is a singleton pattern instance, which means that you cannot
+            actually construct an instance, but must use the <CODE
+CLASS="methodname"
+>getInstance</CODE
+>
+            method to get a pointer to the single instance of the singleton.
+            The class works by establishing an event handler on stdin,
+            and manually running the event loop at the C++ level.
+            The C++ event loop and stdin input handler do prompting analagous
+            to that of tclsh.  When the stdin event handler has accumulated a
+            syntactically complete command it passes that on to the interpreter
+            for evaluation, reporting the result to stdout.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7369"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>static </span
+><span
+class="type"
+>CTCLLiveEventLoop* </span
+>getInstance();&#13;</code
+><P
+>&#13;                Returns a pointer to the singleton instance of the
+                live event loop object.  The object is a singleton because
+                while each application may have more than one interpreter,
+                there is only at most one event loop.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>start();&#13;</code
+><P
+>&#13;                Starts the event loop.  This will not return to the caller
+                until some external force has stopped the event loop.
+                External forces include the user closing stdin, or
+                the event loop being asked to stop.
+            </P
+><P
+>&#13;                In this invocation, the commands accumulated on stdin are
+                dispatched to the interpreter that was bound to the
+                <CODE
+CLASS="classname"
+>CTCLApplication</CODE
+> object.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>start(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>pInterp</span
+></span
+>);&#13;</code
+><P
+>&#13;                Starts the event loop.  Commands accumulated by the stdin event
+                handler are submited to <CODE
+CLASS="parameter"
+>pInterp</CODE
+> for
+                execution.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>stop();&#13;</code
+><P
+>&#13;                Requests the event loop to stop processing.
+                See below for the latency between this request and the
+                actual stop time. Note that a different thread can call this
+                than the one running the target interpreter.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>long </span
+>setStopLatency(<span
+class="methodparam"
+><span
+class="type"
+>long </span
+><span
+class="parameter"
+>ms</span
+></span
+>);&#13;</code
+><P
+>&#13;                The event loop waits for events with a timeout. When a wait
+                has completed, if there are events in the queue, they are all
+                processed.  After processing any pending events, the event loop
+                determines if a stop has been requested, and if so, returns to
+                its caller.
+            </P
+><P
+>&#13;                The wait timeout is set by this member function to
+                <CODE
+CLASS="parameter"
+>ms</CODE
+> milliseconds.  This effectively sets
+                an estimated latency between the <CODE
+CLASS="methodname"
+>stop</CODE
+>
+                member being called, and the event loop actually exiting.
+            </P
+><P
+>&#13;                The function returns the prior latency setting.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>long </span
+>getStopLatency();&#13;</code
+><P
+>&#13;                Returns the current value of the latency setting.
+                See <CODE
+CLASS="methodname"
+>setStopLatency</CODE
+> above for
+                more information. 
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7415"
+></A
+><H2
+>EXAMPLES</H2
+><P
+>&#13;            The sample below is a stock tclsh that always runs the event loop
+             in the background.  It is installed in the NSCLDAQ
+             <TT
+CLASS="filename"
+>bin</TT
+> directory as
+            <SPAN
+CLASS="application"
+>evttclsh</SPAN
+>
+         </P
+><DIV
+CLASS="example"
+><A
+NAME="AEN7420"
+></A
+><P
+><B
+>Example 1. evttclsh</B
+></P
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLApplication.h&#62;
+#include &#60;TCLLiveEventLoop.h&#62;
+
+class evttclsh : public CTCLApplication
+{
+public:
+  virtual int operator()();
+};
+
+int
+evttclsh::operator()()
+{
+  CTCLLiveEventLoop* pLoop = CTCLLiveEventLoop::getInstance();
+  pLoop-&#62;start();
+  return TCL_ERROR;
+}
+
+CTCLApplication* gpTCLApplication = new evttclsh;
+
+            </PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7249.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7423.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLTimer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLChannelCommander</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

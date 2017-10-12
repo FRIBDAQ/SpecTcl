@@ -1,0 +1,862 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLProcessor</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLObjectProcessor"
+HREF="r4999.html"><LINK
+REL="NEXT"
+TITLE="CTCLCompatibiltyProcessor"
+HREF="r5304.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r4999.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r5304.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLProcessor"
+></A
+>CTCLProcessor</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN5118"
+></A
+><H2
+>Name</H2
+>CTCLProcessor&nbsp;--&nbsp;
+            Provide <CODE
+CLASS="parameter"
+>argc</CODE
+>, <CODE
+CLASS="parameter"
+>argv</CODE
+>
+            extension commands to Tcl.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN5123"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLProcessor.h&#62;
+...
+class CTCLProcessor : public CTCLInterpreterObject
+{
+public:
+  CTCLProcessor(const std::string sCommand, CTCLInterpreter* pInterp);
+  CTCLProcessor(const char*       pCommand, CTCLInterpreter* pInterp);
+  virtual ~CTCLProcessor();
+
+  std::string getCommandName() const;
+
+  virtual int operator()(CTCLInterpreter&#38; rInterpreter,
+                         CTCLResult&#38;      rResult,
+                         int argc, char** argv) = 0;
+  virtual void OnDelete();
+
+  void Register();
+  void Unregister();
+
+  static  std::string ConcatenateParameters (int nArguments,
+                                              char* pArguments[])  ;
+  int ParseInt (const char* pString, int* pInteger)  ;
+  int ParseInt (const std::string&#38; rString, int* pInteger)
+
+  int ParseDouble (const char* pString, double* pDouble)  ;
+  int ParseDouble (const std::string&#38; rString, double* pDouble)
+
+  int ParseBoolean (const char* pString, Bool_t* pBoolean)  ;
+  int ParseBoolean (const std::string&#38; rString, Bool_t* pBoolean)
+
+  static int MatchKeyword(std::vector&#60;std::string&#62;&#38; MatchTable,
+                          const std::string&#38; rValue,
+                          int NoMatch = -1);
+
+
+};
+
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5125"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>Do not use this for new commands</CODE
+>.  Use
+            <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+> instead.
+        </P
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> provides a compatibility
+            interface to the old Tcl style <CODE
+CLASS="parameter"
+>argc</CODE
+>,
+            <CODE
+CLASS="parameter"
+>argv</CODE
+> style of command extension.
+            New commands should be written using the
+            <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+> class instead.
+        </P
+><P
+>&#13;            To extend the interpreter using this mechanism, you must
+            derive a class from <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> and
+            minimally override and implement its
+            <CODE
+CLASS="function"
+>operator()</CODE
+> pure virtual function.  You may optionally
+            overrid its <CODE
+CLASS="function"
+>OnDelete</CODE
+> member as well.
+            Having written the class, you must create an object of that class and
+            register it on an interpreter.  Once the class is registered,
+            invocations of the command under which it was registered will
+            invoke your <CODE
+CLASS="function"
+>operator()</CODE
+>.
+        </P
+><P
+>&#13;            If the interpreter is destroyed or the object destroyed, or unregistered,
+            the <CODE
+CLASS="function"
+>OnDelete</CODE
+> member will be called.
+            <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> defines and implements this function
+            with an empty body, so it is only necessary for you to override and implement
+            this if you have some cleanup actions that must be done when the command is
+            deleted.
+        </P
+><P
+>&#13;            This class is now implemented in terms of a <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+>
+            derived class called a <CODE
+CLASS="classname"
+>CTCLCompatibilityProcessor</CODE
+>. It is
+            less efficient to use this class than to use a class derived directly from a
+            <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+>.  This class is therefore not
+            recommended for use with new extensions, but is only provided for
+            compatibility with existing extensions written before
+            <CODE
+CLASS="classname"
+>CTCLObjectProcessor</CODE
+> was developed.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5148"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<CODE
+CLASS="function"
+>CTCLProcessor</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+> <B
+CLASS="command"
+>sCommand</B
+>,
+             <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>);
+<CODE
+CLASS="function"
+>CTCLProcessor</CODE
+>(const <SPAN
+CLASS="type"
+>char</SPAN
+>*       <CODE
+CLASS="parameter"
+>pCommand</CODE
+>,
+             <SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Constructs a <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+>.  <CODE
+CLASS="parameter"
+>sCommand</CODE
+>
+            or <CODE
+CLASS="parameter"
+>pCommand</CODE
+> are the initial name of the command.
+            Note that the Tcl interpreter supports command renaming at the script level,
+            so there is no gaurentee that this will always be the name of the command.
+            <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the interpreter on which the command
+            will be registered when the <CODE
+CLASS="function"
+>Register</CODE
+> function is called.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;
+<SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>getCommandName</CODE
+>() const;
+        </PRE
+>
+        </P
+><P
+>&#13;            Returns the initial name of the command.  Unlike
+            <CODE
+CLASS="classname"
+>CTCLObjectCommand</CODE
+>::<CODE
+CLASS="function"
+>getName</CODE
+>()
+            this function does not track changes in the command name.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;
+virtual <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>operator</CODE
+>()(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+>,
+                       <SPAN
+CLASS="type"
+>CTCLResult</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rResult</CODE
+>,
+                       <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>argc</CODE
+>,
+                       <SPAN
+CLASS="type"
+>char</SPAN
+>** <CODE
+CLASS="parameter"
+>argv</CODE
+>) = 0;
+virtual <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>OnDelete</CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator()</CODE
+> is a pure virtual function and therefore must
+            be overidden and implemented in concrete command implementations.
+            <CODE
+CLASS="parameter"
+>rInterpreter</CODE
+> is a reference to the interpreter that is
+            executing this command. <CODE
+CLASS="parameter"
+>rResult</CODE
+> is a reference to
+            a <CODE
+CLASS="classname"
+>CTCLResult</CODE
+> object that represents the result of the
+            interpreter.  Any text stored into this object will be made available to the
+            interpreter as the result of the command. <CODE
+CLASS="parameter"
+>argc</CODE
+>
+            and <CODE
+CLASS="parameter"
+>argv</CODE
+> are the number of words on the command line and
+            a pointer to an array of pointers to the command words respectively.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>operator()</CODE
+> should be written to return
+            <TT
+CLASS="literal"
+>TCL_OK</TT
+>
+            if it is successful and
+            <TT
+CLASS="literal"
+>TCL_ERROR</TT
+>
+            if it encounters an error.   Other return values are possible and meaningful
+            for commands that implement flow of control structures, but documenting these
+            is beyond the scope of this manpage.   See the return(3tcl) manpage for
+            more information about these.
+        </P
+><P
+>&#13;            <CODE
+CLASS="function"
+>OnDelete</CODE
+> is called whenever the interpreter
+            or the object is being
+            destroyed, or the object's <CODE
+CLASS="function"
+>Unregister</CODE
+> function has been
+            called.  <CODE
+CLASS="classname"
+>CTCLProcessor</CODE
+> provides a default implementation
+            for <CODE
+CLASS="function"
+>OnDelete</CODE
+> which does nothing.  It is only necessary
+            to override and implement this function if you require specific action when
+            the command is being unregistered.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Register</CODE
+>();
+<SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Unregister</CODE
+>();
+        </PRE
+>
+        </P
+><P
+>&#13;            These functions register and unregister the command with the intepreter
+            respectively.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;static  <SPAN
+CLASS="type"
+>std::string</SPAN
+> <CODE
+CLASS="function"
+>ConcatenateParameters</CODE
+>(<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>nArguments</CODE
+>,
+                                           <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pArguments</CODE
+>[])  ;
+        </PRE
+>
+        </P
+><P
+>&#13;            Concatenates all of the <CODE
+CLASS="parameter"
+>nArguments</CODE
+>
+            words in the <CODE
+CLASS="parameter"
+>pArguments</CODE
+> array into a <SPAN
+CLASS="type"
+>std::string</SPAN
+>
+            and returns it.  The words are space separated.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>ParseInt</CODE
+>(const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pString</CODE
+>,
+             <SPAN
+CLASS="type"
+>int</SPAN
+>* <CODE
+CLASS="parameter"
+>pInteger</CODE
+>)  ;
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>ParseInt</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>,
+             <SPAN
+CLASS="type"
+>int</SPAN
+>* <CODE
+CLASS="parameter"
+>pInteger</CODE
+>)
+        </PRE
+>
+        </P
+><P
+>&#13;            Parses the character string <CODE
+CLASS="parameter"
+>pString</CODE
+> or <CODE
+CLASS="parameter"
+>rString</CODE
+>
+            as a 32 bit signed integer into <CODE
+CLASS="parameter"
+>pInteger</CODE
+>.  Returns
+            <TT
+CLASS="literal"
+>TCL_OK</TT
+>
+            if successful, or
+            <TT
+CLASS="literal"
+>TCL_ERROR</TT
+>
+            if the string coult no be parsed.  In that case, the result string
+            of the interpreter will report why the string could not be parsed.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>ParseDouble</CODE
+>(const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pString</CODE
+>,
+                <SPAN
+CLASS="type"
+>double</SPAN
+>* <CODE
+CLASS="parameter"
+>pDouble</CODE
+>)  ;
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>ParseDouble</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>,
+                <SPAN
+CLASS="type"
+>double</SPAN
+>* <CODE
+CLASS="parameter"
+>pDouble</CODE
+>)
+        </PRE
+>
+        </P
+><P
+>&#13;            Parses the input string, either <CODE
+CLASS="parameter"
+>pString</CODE
+> or
+            <CODE
+CLASS="parameter"
+>rString</CODE
+>
+            as a double precision floating point value, storing the result in the
+            double pointed to by <CODE
+CLASS="parameter"
+>pDouble</CODE
+>.
+            On success,
+            <TT
+CLASS="literal"
+>TCL_OK</TT
+>
+            is returned.  On failure,
+            <TT
+CLASS="literal"
+>TCL_ERROR</TT
+> and the interpreter result is
+            a textual reason for the failure.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>ParseBoolean</CODE
+>(const <SPAN
+CLASS="type"
+>char</SPAN
+>* <CODE
+CLASS="parameter"
+>pString</CODE
+>,
+                 <SPAN
+CLASS="type"
+>Bool_t</SPAN
+>* <CODE
+CLASS="parameter"
+>pBoolean</CODE
+>)  ;
+<SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>ParseBoolean</CODE
+>(const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rString</CODE
+>,
+                 <SPAN
+CLASS="type"
+>Bool_t</SPAN
+>* <CODE
+CLASS="function"
+>pBoolean</CODE
+>)
+        </PRE
+>
+        </P
+><P
+>&#13;            Parses either <CODE
+CLASS="parameter"
+>pString</CODE
+>
+            or <CODE
+CLASS="parameter"
+>rString</CODE
+> as a boolean value.  The result
+            is stored in boolean pointed to by <CODE
+CLASS="parameter"
+>pBoolean</CODE
+>.
+            <TT
+CLASS="literal"
+>TCL_OK</TT
+>
+            is returned on success,
+            <TT
+CLASS="literal"
+>TCL_ERROR</TT
+>
+            on error.  If <TT
+CLASS="literal"
+>TCL_ERROR</TT
+> was returned, the interpreter
+            result is the textual reason for the failure.
+        </P
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;static <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="function"
+>MatchKeyword</CODE
+>(<SPAN
+CLASS="type"
+>std::vector&#60;std::string&#62;</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>MatchTable</CODE
+>,
+                        const <SPAN
+CLASS="type"
+>std::string</SPAN
+>&#38; <CODE
+CLASS="parameter"
+>rValue</CODE
+>,
+                        <SPAN
+CLASS="type"
+>int</SPAN
+> <CODE
+CLASS="parameter"
+>NoMatch</CODE
+> = <TT
+CLASS="literal"
+>-1</TT
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Searches for the string <CODE
+CLASS="parameter"
+>rValue</CODE
+> in the vector of strings
+            <CODE
+CLASS="parameter"
+>MatchTable</CODE
+>, and returns the index in the vector at which
+            the match occured.  If no match could be found, the value
+            <CODE
+CLASS="parameter"
+>NoMatch</CODE
+> is returned.
+        </P
+><P
+>&#13;            Within SpecTcl, this is often used to match command switches.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN5301"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLCompatibilityProcessor(3),
+CTCLObjectProcessor(3),
+CTCLPackagedCommand(3),
+CTCLResult(3),
+return(3tcl)
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r4999.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r5304.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLObjectProcessor</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLCompatibiltyProcessor</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

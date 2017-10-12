@@ -1,0 +1,915 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CBufferDecoder</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CTclAnalyzer"
+HREF="r10865.html"><LINK
+REL="NEXT"
+TITLE="CNSCLBufferDecoder"
+HREF="r11703.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r10865.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r11703.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN11419"
+></A
+>CBufferDecoder</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN11423"
+></A
+><H2
+>Name</H2
+>CBufferDecoder&nbsp;--&nbsp;Base class for SpecTcl buffer decoders</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN11426"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;BufferDecoder.h&#62;
+
+class CBufferDecoder {
+ protected:
+  UInt_t    m_nSize;    // Number of bytes in buffer.
+
+ public:
+  CBufferDecoder(); 
+  virtual ~CBufferDecoder();
+  int operator==(const CBufferDecoder&#38; aCBufferDecoder);
+  const Address_t getBuffer();
+ protected:
+  void setBuffer (Address_t am_pBuffer);
+ public:
+  virtual BufferTranslator* getBufferTranslator();
+  virtual const Address_t getBody() = 0;
+  virtual UInt_t getBodySize() = 0;
+  virtual UInt_t getRun() = 0;
+  virtual UInt_t getEntityCount() = 0;
+  virtual UInt_t getSequenceNo() = 0;
+  virtual UInt_t getLamCount() = 0;
+  virtual UInt_t getPatternCount() = 0;
+  virtual UInt_t getBufferType() = 0;
+  virtual void getByteOrder(Short_t&#38; Signature16,
+			    Int_t&#38; Signature32) = 0;
+  virtual std::string getTitle() = 0;
+  virtual void operator() (UInt_t nBytes,
+			   Address_t pBuffer,
+			   CAnalyzer&#38; rAnalyzer);
+
+  virtual void OnAttach(CAnalyzer&#38; rAnalyzer);
+  virtual void OnDetach(CAnalyzer&#38; rAnalyzer);
+  virtual bool blockMode();	
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
+
+ protected:
+  void ThrowIfNoBuffer(const char* pszWhatImDoing);
+};
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11428"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This class is an abstract base class for the set of buffer decoders.
+            Buffer decoders are responsible for taking a block of data received
+            from a data source and breaking it up into items.  These items are
+            then passed to the appropriate analyzer methods for
+            detailed processing.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11431"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CBufferDecoder();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The base class constructor is a default constructor.
+                        It has no parameters.  Typically, the state of a
+                        buffer decoder is meaningless until data arrives.
+                        This is because only when data arrives does the
+                        buffer decoder do anything.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>const  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+>getBuffer();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the data most recently received.
+                        If, for some pathalogical reason, data has not yet
+                        been received, a null pointer is received.
+                    </P
+><P
+>&#13;                        Note that it is possible that derived classes will have
+                        their own book-keeping for buffers of data received from
+                        the data source.  Those decoders should, nonetheless
+                        use <CODE
+CLASS="methodname"
+>setBuffer</CODE
+> to set the
+                        buffer member data of their base class to ensure
+                        this methiod works.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>BufferTranslator*  </span
+>getBufferTranslator();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to a buffer translator for this
+                        block of data.  A buffer translator is an object
+                        that knows how to perform byte order translations between
+                        the byte ordering of the source system and the system
+                        SpecTcl is executing on.
+                    </P
+><P
+>&#13;                        In most cases the default implementation will not be
+                        useful as it was written with NSCLDAQ-7.x/8.x
+                        buffer formats in mind.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual const  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>Address_t  </span
+>getBody();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a pointer to the body of the block of data
+                        the decoder is currently working on.  Normally, this is
+                        a pointer to the next item, or run of items the
+                        analyzer should process.  For NSCLDAQ-10.x and later,
+                        for example, this will be a pointer to the body
+                        of a ring item.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getBodySize();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of bytes in the body.  This will
+                        be the number of bytes of data in the block pointed
+                        to by the pointer returned from
+                        <CODE
+CLASS="methodname"
+>getBody</CODE
+>.  Note that actually
+                        this will be the number of bytes from that body to be
+                        processed by the analyzer and may, in fact, be smaller
+                        than the storage pointeed to by
+                        <CODE
+CLASS="methodname"
+>getBody</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getEntityCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the number of items in the block of data
+                        pointed to by <CODE
+CLASS="methodname"
+>getBody</CODE
+>.  This is
+                        mostly intended for use with blocks containing runs of
+                        events from physics triggers.  
+                    </P
+><P
+>&#13;                        The analyzer's
+                        <CODE
+CLASS="methodname"
+>OnPhysics</CODE
+> can use this and
+                        <CODE
+CLASS="methodname"
+>getBodySize</CODE
+> to know how much
+                        data to process and to double check the
+                        event processor does  not over step the boundaries of
+                        the block or leave data unprocessed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getSequenceNo();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the sequence number of the last item processed.
+                        Note that this may not be precisely determined for
+                        some DAQ systems, and may not even be available.
+                    </P
+><P
+>&#13;                        This value is maintained by SpecTcl in Tcl variables
+                        so that the GUI can display the analysis efficiency
+                        (which maybe less than 1 for online analysis).
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getLamCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        From the traditional nscldaq, returns the number of LAM
+                        registers.  This comes from the tradition of CAMAC where LAM bit masks
+                        show the set of modules with data available in a crate.
+                        This is vestigial; allowing NSCLDAQ-7.x/8.x to report
+                        the number of CAMAC crates in a 'larger' experiment.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getPatternCount();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Vestigial method from when readouts were pattern register
+                        driven.  This method used to return the number
+                        of pattern registers used to drive the readout pattern.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>UInt_t  </span
+>getBufferType();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the item type in the block of data currently
+                        being processed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>getByteOrder(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Short_t&#38; </span
+><span
+class="parameter"
+> Signature16</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Int_t&#38;  </span
+><span
+class="parameter"
+>Signature32</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns byte order signatures that describe the order
+                        of bytes in the data.  <CODE
+CLASS="parameter"
+>Signature16</CODE
+>
+                        will be written with the value <TT
+CLASS="literal"
+>0x0102</TT
+>
+                        in the byte ordering of the creating system.
+                        <CODE
+CLASS="parameter"
+>Signature32</CODE
+>, will similarly be written
+                        with <TT
+CLASS="literal"
+>0x01020304</TT
+> in the byte ordering
+                        of the originating system.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> = 0 </span
+><span
+class="type"
+>std::string  </span
+>getTitle();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the title from the most recently received
+                        begin run information.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+> UInt_t  </span
+><span
+class="parameter"
+>nBytes</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>pBuffer</span
+></span
+><span
+class="methodparam"
+>, <span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a new chunk of data comes in.  <CODE
+CLASS="parameter"
+>nBytes</CODE
+>
+                        is the number of bytes of data received. <CODE
+CLASS="parameter"
+>pBuffer</CODE
+>
+                        is pointer to the data received. <CODE
+CLASS="parameter"
+>rAnalyzer</CODE
+>
+                        refers to the analyzer that should be called back
+                        to handle specific items and runs of items.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnAttach(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method is called when a decoder object is
+                        attached to SpecTcl. This can happen at startup time, but
+                        also can happen when the
+                        <B
+CLASS="command"
+>attach</B
+> command specifies a format
+                        that selects a specific decoder object type.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnDetach(<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CAnalyzer&#38;  </span
+><span
+class="parameter"
+>rAnalyzer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when the buffer decoder is detached from SpecTcl.
+                        This will happen when a new one is attached.  Typically
+                        this will be because the <B
+CLASS="command"
+>attach</B
+>
+                        command is used to start taking data from a source
+                        that has a different format than the prior source.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>bool  </span
+>blockMode();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        If this method returns <TT
+CLASS="literal"
+>true</TT
+>,
+                        SpecTcl will require that a full fixed size block
+                        of data be read before invoking the decoder.  If,
+                        however <TT
+CLASS="literal"
+>false</TT
+> is returned,
+                        the buffer decoder is invoked on the successful
+                        completion of any read from the data source.
+                    </P
+><P
+>&#13;                        This only has any impact on how pipe data sources
+                        are handled.  Note that there's still no guarantee
+                        the  a block read is a clean multiple of the
+                        data items
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnSourceAttach();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Invoked when a new data source is attached to SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnSourceDetach();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when a data source is detached from SpecTcl.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>OnEndFile();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when an end file is encountered on the current
+                        data source.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected:  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>setBuffer (<span
+class="methodparam"
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>Address_t  </span
+><span
+class="parameter"
+>am_pBuffer</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Sets the value returned from
+                        <CODE
+CLASS="methodname"
+>getBuffer</CODE
+> to be
+                        <CODE
+CLASS="parameter"
+>am_pBuffer</CODE
+>.  This can be used
+                        by a derived class when it needs to do its oown buffer
+                        management to keep this base class apprised of the data
+                        it is operating on.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>protected:  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>ThrowIfNoBuffer(<span
+class="methodparam"
+><span
+class="modifier"
+>const  </span
+><span
+class="type"
+>char* </span
+><span
+class="parameter"
+> pszWhatImDoing</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        To use this a derived class must use
+                        <CODE
+CLASS="methodname"
+>setBuffer</CODE
+> to always maintain
+                        the a valid buffer pointer.  If this is called and
+                        either <CODE
+CLASS="methodname"
+>setBuffer</CODE
+> last
+                        set a null pointer or was never called, a
+                        <CODE
+CLASS="classname"
+>CEventFormatError</CODE
+> exception
+                        is called with a reason code of
+                        <TT
+CLASS="literal"
+>CEventFormatError::knNoCurrentBuffer</TT
+>
+                        and a was doing text of <CODE
+CLASS="parameter"
+>pszWhatImDoint</CODE
+>.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN11700"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;            (3SpecTcl)CNSCLBufferDecoder,
+                    (3SpecTcl)CNSCLJumboBufferDecoder, (3SpecTcl)CRingBufferDecoder,
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r10865.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r11703.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTclAnalyzer</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CNSCLBufferDecoder</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

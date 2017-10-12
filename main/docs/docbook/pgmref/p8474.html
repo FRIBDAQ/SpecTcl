@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Core SpecTcl classes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLPackagedObjectProcessor"
+HREF="r8374.html"><LINK
+REL="NEXT"
+TITLE="CTclGrammerApp"
+HREF="r8479.html"></HEAD
+><BODY
+CLASS="part"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r8374.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r8479.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="AEN8474"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+>IV. Core SpecTcl classes</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN8476"
+></A
+><H1
+>Core SpecTcl classes</H1
+><P
+>&#13;                This part describes the core SpecTcl classes.  These  classes
+                are those which can either be used by extensions to do their work
+                or provide hooks for extensions written by users.
+            </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="r8479.html"
+>CTclGrammerApp</A
+>&nbsp;--&nbsp;Base Application class</DT
+><DT
+><A
+HREF="r9101.html"
+>CHistogrammer</A
+>&nbsp;--&nbsp;SpecTcl histogramming core</DT
+><DT
+><A
+HREF="r9852.html"
+>Dictionaries</A
+>&nbsp;--&nbsp;Describe dictionaries used by SpecTcl</DT
+><DT
+><A
+HREF="r10463.html"
+>CAnalyzer</A
+>&nbsp;--&nbsp;Analyzer base class and classic analyzer</DT
+><DT
+><A
+HREF="r10865.html"
+>CTclAnalyzer</A
+>&nbsp;--&nbsp;Analyzer integrated with Tcl supporting pipeline</DT
+><DT
+><A
+HREF="r11419.html"
+>CBufferDecoder</A
+>&nbsp;--&nbsp;Base class for SpecTcl buffer decoders</DT
+><DT
+><A
+HREF="r11703.html"
+>CNSCLBufferDecoder</A
+>&nbsp;--&nbsp;Decode fixed sized event buffers from NSCLDAQ-7.x/8.x</DT
+><DT
+><A
+HREF="r11863.html"
+>CNSCLJumboBufferDecoder</A
+>&nbsp;--&nbsp;Decode NSCLDAQ 7.x/8.x buffers bigger than 128Kbytes.</DT
+><DT
+><A
+HREF="r12027.html"
+>CRingBufferDecoder</A
+>&nbsp;--&nbsp;Decode data from ring buffers</DT
+><DT
+><A
+HREF="r12390.html"
+>CRingFormatHelper</A
+>&nbsp;--&nbsp;ABC for4 ring buffer format helpers</DT
+><DT
+><A
+HREF="r12571.html"
+>CNamedItem</A
+>&nbsp;--&nbsp;Base class for items with names and ids.</DT
+><DT
+><A
+HREF="r12652.html"
+>CParameter</A
+>&nbsp;--&nbsp;Parameter definition.</DT
+><DT
+><A
+HREF="r12841.html"
+>CEvent</A
+>&nbsp;--&nbsp;Destination for decoded event data.</DT
+><DT
+><A
+HREF="r12971.html"
+>CSpectrum</A
+>&nbsp;--&nbsp;Classes implementing SpecTcl spectra</DT
+><DT
+><A
+HREF="r15072.html"
+>CFold</A
+>&nbsp;--&nbsp;Process gamma ray spectrum folds</DT
+><DT
+><A
+HREF="r15188.html"
+>CAxis</A
+>&nbsp;--&nbsp;Spectrum axis coordinate transforms.</DT
+><DT
+><A
+HREF="r15300.html"
+>CGate</A
+>&nbsp;--&nbsp;SpecTcl gate classes</DT
+><DT
+><A
+HREF="r16884.html"
+>CGateContainer</A
+>&nbsp;--&nbsp;Pointer like class for Gates.</DT
+><DT
+><A
+HREF="r16992.html"
+>CGateObserver</A
+>&nbsp;--&nbsp;Observe changes in the gate dictionary.</DT
+><DT
+><A
+HREF="r17077.html"
+>CFit</A
+>&nbsp;--&nbsp;Base class for spectrum fitting subsystem.</DT
+><DT
+><A
+HREF="r17340.html"
+>Predefined CFit classes</A
+>&nbsp;--&nbsp;3SpecTcl</DT
+><DT
+><A
+HREF="r17508.html"
+>CSpectrumFit</A
+>&nbsp;--&nbsp;Fit of spectrum channels.</DT
+><DT
+><A
+HREF="r17691.html"
+>CFitFactory</A
+>&nbsp;--&nbsp;Creating fit objects by name</DT
+><DT
+><A
+HREF="r17996.html"
+>CFitDictionary</A
+>&nbsp;--&nbsp;Fitting subsystem dictionary.</DT
+><DT
+><A
+HREF="r18268.html"
+>CEventSink</A
+>&nbsp;--&nbsp;Base class for event sink pipeline elements</DT
+><DT
+><A
+HREF="r18330.html"
+>CEventFilter</A
+>&nbsp;--&nbsp;Abstract base class for event filters.</DT
+><DT
+><A
+HREF="r18626.html"
+>CGatedEventFilter</A
+>&nbsp;--&nbsp;Filter with output conditionalized on a gate check.</DT
+><DT
+><A
+HREF="r18732.html"
+>CFilterOutputStage</A
+>&nbsp;--&nbsp;Abstract base class for filter output streamers.</DT
+><DT
+><A
+HREF="r18840.html"
+>CXdrFilterOutputStage</A
+>&nbsp;--&nbsp;Filter output stage for writing Xdr filters.</DT
+><DT
+><A
+HREF="r18964.html"
+>CFilterOutputStageCreator</A
+>&nbsp;--&nbsp;Create filter output stages for
+            <CODE
+CLASS="classname"
+>CFilterOutputStageFactory</CODE
+></DT
+><DT
+><A
+HREF="r19026.html"
+>CFilterOutputStageFactory</A
+>&nbsp;--&nbsp;Create filter output stage objects.</DT
+><DT
+><A
+HREF="r19093.html"
+>CXdrFilterOutputStageCreator</A
+>&nbsp;--&nbsp;
+            Create <CODE
+CLASS="classname"
+>CXrFilterOutputStage</CODE
+> objects
+        </DT
+><DT
+><A
+HREF="r19107.html"
+>FilterEventProcessor</A
+>&nbsp;--&nbsp;
+            Decodes events from a filter file into parameters.
+        </DT
+><DT
+>5. <A
+HREF="c19180.html"
+>Stuff to do</A
+></DT
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r8374.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r8479.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLPackagedObjectProcessor</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTclGrammerApp</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

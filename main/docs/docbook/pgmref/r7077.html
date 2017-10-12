@@ -1,0 +1,373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLIdleProcess</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLFileHandler"
+HREF="r6991.html"><LINK
+REL="NEXT"
+TITLE="CTCLTimer"
+HREF="r7138.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r6991.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7138.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.CTCLIdleProcess"
+></A
+>CTCLIdleProcess</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7081"
+></A
+><H2
+>Name</H2
+>CTCLIdleProcess&nbsp;--&nbsp;
+            Allows the establishment of an executable object that
+            can be scheduled to be invoked when the Tcl/Tk intperpreter
+            has no events that require processing.
+        </DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7084"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;TCLIdleProcess.h&#62;
+
+class CTCLIdleProcess : protected CTCLTimer
+{
+public:
+  CTCLIdleProcess(CTCLInterpreterObject* pObject);
+  CTCLIdleProcess(CTCLInterpreter* pInterp);
+  virtual ~CTCLIdleProcess();
+
+  void Set();
+  void Clear();
+  virtual void operator()() = 0;
+};
+    </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7086"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            While Tcl provides a mechanism for scheduling the execution of
+            a function when the interpreter main loop is idle (no pending events),
+            this is not suitable for processes that may need to be rescheduled.
+            Therefore, <CODE
+CLASS="classname"
+>CTCLIdleProcess</CODE
+> is actually based on a
+            timer dispatch where the delay interval is 0ms.
+        </P
+><P
+>&#13;        <CODE
+CLASS="classname"
+>CTCLIdleProcess</CODE
+>
+        provides an abstract base class for creating function like classes that
+        are 'called' to run interleaved with the interpreter.
+        A function like class is one that implements <CODE
+CLASS="classname"
+>operator()</CODE
+>
+        (see REFERENCES) below.  You can create an idle processor by creating
+        a subclass of <CODE
+CLASS="classname"
+>CTCLIdleProcess</CODE
+> overriding
+        <CODE
+CLASS="classname"
+>operator()</CODE
+>, creating an instance of that new class,
+        and invoking the <CODE
+CLASS="function"
+>Set()</CODE
+> function to schedule the
+        execution of the <CODE
+CLASS="function"
+>operator()</CODE
+>.  Note that
+        It is possible for the code in your <CODE
+CLASS="function"
+>operator()</CODE
+> to
+        reschedule itself by calling <CODE
+CLASS="function"
+>Set()</CODE
+>.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7099"
+></A
+><H2
+>METHODS</H2
+><P
+>&#13;        <PRE
+CLASS="programlisting"
+>&#13;  <CODE
+CLASS="function"
+>CTCLIdleProcess</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreterObject</SPAN
+>* <CODE
+CLASS="parameter"
+>pObject</CODE
+>);
+  <CODE
+CLASS="function"
+>CTCLIdleProcess</CODE
+>(<SPAN
+CLASS="type"
+>CTCLInterpreter</SPAN
+>* <CODE
+CLASS="parameter"
+>pInterp</CODE
+>);
+        </PRE
+>
+        </P
+><P
+>&#13;            Creates a <CODE
+CLASS="classname"
+>CTCLIdleProcess</CODE
+> and initializes the timer on which this
+            is based. <CODE
+CLASS="parameter"
+>pInterp</CODE
+> is the interpreter that will schedule
+            the object's <CODE
+CLASS="function"
+>operator()</CODE
+>.  <CODE
+CLASS="parameter"
+>pObject</CODE
+>
+            points to an interpreter object who's interpreter will schedule the
+            <CODE
+CLASS="function"
+>operator()</CODE
+> to run.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Set</CODE
+>();
+  <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>Clear</CODE
+>();
+            </PRE
+>
+        </P
+><P
+>&#13;            These function control the scheduling of the <CODE
+CLASS="function"
+>operator()</CODE
+>
+            call. <CODE
+CLASS="function"
+>Set</CODE
+> schedules the function to be called pretty much
+            the next time the interpreter loop is intered, while <CODE
+CLASS="function"
+>Clear</CODE
+>
+            cancels a pending schedule.
+        </P
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;  virtual <SPAN
+CLASS="type"
+>void</SPAN
+> <CODE
+CLASS="function"
+>operator()</CODE
+>() = 0;
+        </PRE
+>
+        </P
+><P
+>&#13;            This pure virtual function is overridden by your idle processor to
+            provide the behavior of the idle processor.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7130"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>&#13;CTCLTimer(3),
+Tcl_CreateTimerHandler(3tcl),
+Tcl_DoWhenIdle(3tcl),
+
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7133"
+></A
+><H2
+>REFERENCES</H2
+><P
+>&#13;            <PRE
+CLASS="programlisting"
+>&#13;Musser, Derge, Saini: <CODE
+CLASS="parameter"
+>STL Tutorial and Reference Guide</CODE
+>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+See section 2.4 for a description and discussion of function objects.
+            </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r6991.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7138.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLFileHandler</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLTimer</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

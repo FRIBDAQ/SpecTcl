@@ -1,0 +1,736 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CTCLChannelCommander</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CTCLLiveEventLoop"
+HREF="r7319.html"><LINK
+REL="NEXT"
+TITLE="CTCLStdioCommander"
+HREF="r7635.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7319.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r7635.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.ctclchannelcommander"
+></A
+>CTCLChannelCommander</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN7427"
+></A
+><H2
+>Name</H2
+>CTCLChannelCommander&nbsp;--&nbsp;Accept commands on a Tcl channel from the event loop.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN7430"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CTCLChannelCommander.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CTCLChannelCommander </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CTCLChannelCommander(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>interp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>channel</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CTCLChannelCommander();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>start();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>stop();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>Tcl_Channel </span
+>getChannel();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onInput();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onInputException();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onEndFile();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onCommand();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>prompt1();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>prompt2();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>sendPrompt(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>prompt</span
+></span
+>);&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7504"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            The <CODE
+CLASS="classname"
+>CTCLChannelCommander</CODE
+> is a class that
+            registers an input event handler for a Tcl channel.  When input
+            is available on the channel, a line of text is read, and appended
+            to a command under construction.  When the command is syntactically
+            complete, it is dispatched to a Tcl interpreter for execution.
+         </P
+><P
+>&#13;            The subclass <CODE
+CLASS="classname"
+>CTCLStdioCommander</CODE
+> is specifically
+            tailored to accept commands on stdin.  ALong with the server listener
+            <CODE
+CLASS="classname"
+>CTCLServer</CODE
+>, <CODE
+CLASS="classname"
+>CTCLTcpServerInstance</CODE
+>
+            is tailored to accpet commands on a socket.
+         </P
+><P
+>&#13;            Many aspects of the class are tailorable by overriding the various
+            methods in derived classes.  The class is capable of generating prompts
+            in case the channel is interactive.  The classs can also return the
+            results of commands to the client over the medium of its choice.
+            End file and exception handling can be simlarly tailored.
+         </P
+><P
+>&#13;            When deriving a specific class be sure you understand the default actions
+            of all of the base class members. You may save a great deal of work by
+            carefully chosing exactly which members to override, or generate a
+            great deal of work by making poor choices.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7514"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CTCLChannelCommander(<span
+class="methodparam"
+><span
+class="type"
+>CTCLInterpreter* </span
+><span
+class="parameter"
+>interp</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>Tcl_Channel </span
+><span
+class="parameter"
+>channel</span
+></span
+>);&#13;</code
+><P
+>&#13;            Constructs a new channel commander. Activation of the commander is
+            a two step process.  First the commander is constructed, second
+            it <CODE
+CLASS="methodname"
+>start</CODE
+> method is called to register the
+            event handlers.  
+           </P
+><P
+>&#13;            <CODE
+CLASS="parameter"
+>interp</CODE
+> is a pointer to the interpreter
+            channel on to which the commands will be dispatched.
+            <CODE
+CLASS="parameter"
+>channel</CODE
+> is the channel from which commands
+            will be accepted.
+           </P
+><P
+>&#13;            The application must also be visiting the event loop for
+            commands to be processed from the
+            <CODE
+CLASS="parameter"
+>channel</CODE
+>.
+            Tk applications automatically run the event loop.
+            Pure Tcl applications run the event loop only when
+            <B
+CLASS="command"
+>vwait</B
+> is waiting, while the
+            special shell or tcl applications based around
+            <CODE
+CLASS="classname"
+>CTCLLiveEventLoop</CODE
+> run the
+            event loop automatically just like Tk does.
+           </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>start();&#13;</code
+><P
+>&#13;                Enables processing of commands from the channel.  When
+                the event loop is entered, if the channel is readable,
+                control will be to
+                <CODE
+CLASS="methodname"
+>onInput</CODE
+> in object context.
+                It is not considered an error to call
+                <CODE
+CLASS="methodname"
+>start</CODE
+> when event processing
+                is in progress.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>stop();&#13;</code
+><P
+>&#13;                Requests channel processing be disabled.  The event handlers
+                that arrange for control to be dispatched to the
+                <CODE
+CLASS="methodname"
+>onInput</CODE
+>
+                method are disabled.  The channel remains open and must
+                be closed (if desired) by any client software.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>Tcl_Channel </span
+>getChannel();&#13;</code
+><P
+>&#13;                Returns the channel from which commands are being accepted.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onInput();&#13;</code
+><P
+>&#13;                This member function is called when data can be read from the
+                input channel.  The function attempts to read a line of text.
+                The text is appended to a command under construction and,
+                if <CODE
+CLASS="function"
+>Tcl_CommandComplete</CODE
+> says that
+                string is a syntactically complete command,
+                <CODE
+CLASS="methodname"
+>onCommand</CODE
+> is invoked to execute the
+                command.  
+            </P
+><P
+>&#13;                All of this command acquisition and exection is also mixed up
+                with prompting.
+                <CODE
+CLASS="methodname"
+>prompt1</CODE
+>
+                is called when the object is ready to get  a new command, and
+                <CODE
+CLASS="methodname"
+>prompt2</CODE
+> is called when the
+                object is ready to accept the next line of a multi-line command.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onInputException();&#13;</code
+><P
+>&#13;                Called when an exception condition is detected on the channel. The default implementation
+                calls
+                <CODE
+CLASS="methodname"
+>onEndFile</CODE
+>
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onEndFile();&#13;</code
+><P
+>&#13;                Called when reads of the channel indicate an end file condition.
+                <CODE
+CLASS="methodname"
+>onInputException</CODE
+>'s default implementation
+                also calls this.  The default behavior is to invoke
+                <CODE
+CLASS="methodname"
+>stop</CODE
+> so that no additional events will
+                be posted.  This is the normal and reasonable behavior because
+                a channel with an endfile condition continously generates
+                readable events.
+            </P
+><P
+>&#13;                The channel remains open.  It is always up to client software to
+                close the channel.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>onCommand();&#13;</code
+><P
+>&#13;                Called when a complete command has been accepted.  Complete in this
+                case means syntactically complete.  It does not imply correctness,
+                or even proper number of arguments.
+            </P
+><P
+>&#13;                Default behavior is to submit the command string to the
+                interpreter. Once the command has been executed,
+                <CODE
+CLASS="methodname"
+>returnResult</CODE
+>
+                is executed to allow the command result to be reported
+                if desired.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>returnResult();&#13;</code
+><P
+>&#13;                By default this does nothing.  It is provided to allow subclasses
+                to tailore what is done with command results.  For example,
+                the
+                <CODE
+CLASS="classname"
+>CTCLStdioCommander</CODE
+>
+                class reports the result on
+                <TT
+CLASS="literal"
+>stdout</TT
+>.
+                <CODE
+CLASS="classname"
+>CTCLTcpServerInstance</CODE
+> on the other hand
+                reports the result back to the client over the socket.
+            </P
+><P
+>&#13;                The <CODE
+CLASS="methodname"
+>GetResultString</CODE
+> method of the
+                interpreter object (the pointer <CODE
+CLASS="varname"
+>m_pInterp</CODE
+>
+                is a pointer to the interpreter object) should be used to
+                get the result string.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>prompt1();&#13;</code
+><P
+>&#13;                Called when its time to prompt for the first line of a command.
+                This calls
+                <CODE
+CLASS="methodname"
+>prompt1String</CODE
+> to get the prompt string,
+                and calls
+                <CODE
+CLASS="methodname"
+>sendPrompt</CODE
+> to actually emit the prompt.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>prompt2();&#13;</code
+><P
+>&#13;                Called when its time to prompt for additional linesof a command.
+                This calls
+                <CODE
+CLASS="methodname"
+>prompt2String</CODE
+> to get the prompt string
+                and calls
+                <CODE
+CLASS="methodname"
+>sendPrompt</CODE
+> to actually emit the prompt.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="type"
+>void </span
+>sendPrompt(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>prompt</span
+></span
+>);&#13;</code
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN7624"
+></A
+><H2
+>Prompting</H2
+><P
+>&#13;            The class provides a framework for prompting interactive channels.
+            This frameworks is based on two prompt strings that can be gotten
+            via calls to
+            <CODE
+CLASS="methodname"
+>prompt1String</CODE
+> and
+            <CODE
+CLASS="methodname"
+>prompt2String</CODE
+>
+            respectively.
+        </P
+><P
+>&#13;            The first of these prompts is emitted when the software is
+            ready to accept the first line of a new command.
+            By default it is the text "<TT
+CLASS="literal"
+>% </TT
+>".  Scripts
+            can customize this prompt by defining the
+            variable <CODE
+CLASS="varname"
+>tcl_prompt1</CODE
+> to be a script
+            whose returned value is the prompt.
+        </P
+><P
+>&#13;            The second of these prompts is emitted when the software
+            is ready to accept continuation lines of multiline commands.
+            By default it is the text "<TT
+CLASS="literal"
+>%_ </TT
+>".
+            Scripts can customize this prompt by defining the
+            variable <CODE
+CLASS="varname"
+>tcl_prompt2</CODE
+> to be a script
+            whose returned value is the desired prompt.
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7319.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r7635.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CTCLLiveEventLoop</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLStdioCommander</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,353 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CFilterOutputStageCreator</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CXdrFilterOutputStage"
+HREF="r18840.html"><LINK
+REL="NEXT"
+TITLE="CFilterOutputStageFactory"
+HREF="r19026.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18840.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r19026.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18964"
+></A
+>CFilterOutputStageCreator</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18968"
+></A
+><H2
+>Name</H2
+>CFilterOutputStageCreator&nbsp;--&nbsp;Create filter output stages for
+            <CODE
+CLASS="classname"
+>CFilterOutputStageFactory</CODE
+></DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18972"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFilterOutputStageCreator.h&#62;
+
+class CFilterOutputStageCreator
+{
+public:
+  virtual CFilterOutputStage*  operator()(std::string type) = 0;
+  virtual std::string document() const = 0;
+  virtual CFilterOutputStageCreator* clone() = 0;
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18974"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This is an abstract base class that creates objects on behalf of the
+            <CODE
+CLASS="classname"
+>CFilterOutputStageFactory</CODE
+> extensible
+            factory.  Concrete classes of this type create specific output
+            stage objects.  This is one of the keys to providing an extensible
+            Filter subsystsem.  To add a new filter output stage type only
+            requires that you write a filter output stage, a creator for that
+            output stage and register that creator with the Filter output
+            stage factcory singleton.
+        </P
+><P
+>&#13;            This class defines the interface that is required of a concrete
+            filter output stage creator.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18979"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>CFilterOutputStage*   </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>type</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Concrete classes must implement this to respond to their
+                        filter type by returning a pointer to a newly created
+                        instance of a filter output stage.  If the
+                        <CODE
+CLASS="parameter"
+>type</CODE
+> is not recognized, the
+                        creator should return a <TT
+CLASS="literal"
+>nullptr</TT
+>.
+                    </P
+><P
+>&#13;                        Naturally care must be taken by authors of  filter
+                        output stage creators not to recognize strings that are
+                        already recognized by other formatters.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const = 0 </span
+><span
+class="type"
+>std::string  </span
+>document();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns a string that documents the type of output stage
+                        created by this creator.  This is used by
+                        the <B
+CLASS="command"
+>filter</B
+> command to provide a list
+                        of available filter formats.
+                    </P
+><P
+>&#13;                        To line up properly, the string returned should be of the form:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN19009"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;                1         2         3
+      col:  0123456789012345678901234567890
+            type      - description
+                        </PRE
+><P
+></P
+></DIV
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>CFilterOutputStageCreator*  </span
+>clone();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        There are situations when the filter output
+                        stage factor must create a copy  of an existing creator
+                        given a pointer to it with type
+                        <CODE
+CLASS="classname"
+>CFilterOutputStageCreator*</CODE
+>.
+                        The <CODE
+CLASS="methodname"
+>clone</CODE
+> method provides
+                        support for it.  The method should return a pointer to
+                        a new instance of a duplicate of the object it is called on.
+                    </P
+><P
+>&#13;                        If a creator implements copy construction, the simplest
+                        way to do this is:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN19024"
+></A
+><PRE
+CLASS="programlisting"
+>&#13;CFilterOutputStageCreator*
+CMyOutputStageCreator::clone()
+{
+   return new CMyOutputStageCreator(*this);
+}
+                        </PRE
+><P
+></P
+></DIV
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18840.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r19026.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CXdrFilterOutputStage</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CFilterOutputStageFactory</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,412 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Predefined CFit classes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFit"
+HREF="r17077.html"><LINK
+REL="NEXT"
+TITLE="Stuff to do"
+HREF="c17424.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r17077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c17424.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN17341"
+></A
+>Predefined CFit classes</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN17345"
+></A
+><H2
+>Name</H2
+>CGaussianFit, CLinearFit&nbsp;--&nbsp;3SpecTcl</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN17349"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CGaussianFit.h&#62;
+
+class CGaussianFit : public CFit
+{
+public:
+  CGaussianFit(std::string name, int id = 0);
+
+  virtual void Perform();
+  virtual double operator()(double x);
+  virtual CFit::FitParameterList GetParameters();
+  virtual std::string Type() const;
+  virtual std::string makeTclFitScript();
+  virtual CFit* clone();
+
+};
+
+
+
+#include &#60;CLinearFit.h&#62;
+
+class CLinearFit  : public CFit        
+{
+
+public:
+  CLinearFit ();		 //!&#60; Constructor.
+
+  virtual   void Perform ()   ; 
+  virtual   double operator() (double x)   ; 
+  virtual   CFit::FitParameterList GetParameters ()   ; 
+  virtual   std::string Type() const;
+  virtual CFit* clone();
+
+
+};
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17352"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            SpecTcl provides two simple fit functions.  The programming manual
+            describes how to add additional fit types to the fit subsystem.
+            The fit functions provided are classes that implement a Gaussian
+            fit on a constant background and a linear fit.  
+        </P
+><P
+>&#13;            The linear fit class is mostly provided as an example while the
+            gaussian fit has some actual usefulness.
+        </P
+><P
+>&#13;            The fit classes SpecTcl predefines use the GSL (GNU Scientific
+            Library) to perform their fits.  It is easy enough to extend
+            SpecTcl's fitting subsystem with fits performed by Root.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17357"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CGaussianFit</CODE
+> METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGaussianFit(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int  </span
+><span
+class="parameter"
+>id </span
+><span
+class="initializer"
+> =  0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The constructor initializes the base class
+                        <CODE
+CLASS="classname"
+>CNamedObject</CODE
+> providing a name
+                        and an ID.  This is not strictly speaking needed for
+                        the SpecTcl fitting system, but was used in another
+                        application of this class not relevant to current
+                        SpecTcls.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Perform();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Performs the fit using the available points.
+                        At least 5 points must  have been accepted to support
+                        performing the gaussian fit.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> x</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the value of the fitted function at the point
+                        <CODE
+CLASS="parameter"
+>x</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::FitParameterList  </span
+>GetParameters();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the fit parameters.  The fit
+                        performed is of the form:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN17408"
+></A
+><P
+CLASS="literallayout"
+><br>
+y&nbsp;&nbsp;=&nbsp;b&nbsp;+&nbsp;h*e<SUP
+>((x-x0)/&#963;)<SUP
+>2</SUP
+>/2</SUP
+><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+><P
+></P
+></DIV
+><P
+>&#13;                        In this equation, the parameters returned are:
+                        <TT
+CLASS="literal"
+>baseline</TT
+> for <TT
+CLASS="literal"
+>b</TT
+>.
+                        <TT
+CLASS="literal"
+>height</TT
+> for <TT
+CLASS="literal"
+>h</TT
+>.
+                        <TT
+CLASS="literal"
+>centroid</TT
+> for <TT
+CLASS="literal"
+>x0</TT
+>.
+                        <TT
+CLASS="literal"
+>sigma</TT
+> for <TT
+CLASS="literal"
+>&#963;</TT
+>.
+                    </P
+><P
+>&#13;                        In addition the parameter <TT
+CLASS="literal"
+>chisquare</TT
+>
+                        contains the chi square of the fit.
+                    </P
+></DD
+></DL
+></DIV
+><P
+>&#13;
+  ();
+  virtual std::string Type() const;
+  virtual std::string makeTclFitScript();
+  virtual CFit* clone();            
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r17077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c17424.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFit</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Stuff to do</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

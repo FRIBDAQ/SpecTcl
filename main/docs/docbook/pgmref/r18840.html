@@ -1,0 +1,544 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CXdrFilterOutputStage</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFilterOutputStage"
+HREF="r18732.html"><LINK
+REL="NEXT"
+TITLE="CFilterOutputStageCreator"
+HREF="r18964.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18732.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18964.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18840"
+></A
+>CXdrFilterOutputStage</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18844"
+></A
+><H2
+>Name</H2
+>CXdrFilterOutputStage&nbsp;--&nbsp;Filter output stage for writing Xdr filters.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18847"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CXdrFilterOutputStage.h&#62;
+
+class CXdrFilterOutputStage : public CFilterOutputStage
+
+public:
+  CXdrFilterOutputStage();
+
+  virtual void open(std::string filename) ;
+  virtual void close() ;
+  virtual void DescribeEvent(std::vector&#60;std::string&#62; parameterNames,
+                             std::vector&#60;UInt_t&#62;      parameterIds);
+
+  virtual void operator()(CEvent&#38; event);
+  virtual std::string type() const;
+
+
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18849"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            This concrete output stage uses XDR (EXternal Data Represntation)
+            to write a system independent form of filter output data.  See the
+            section <TT
+CLASS="literal"
+>File Format</TT
+> below for a description of
+            the file format.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18853"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CXdrFilterOutputStage();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Constructs an Xdr Filter. 
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>open(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>filename</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called to open the file.  This creates a
+                        <CODE
+CLASS="classname"
+>CXdrOutputStream</CODE
+>
+                        object that is open on the <CODE
+CLASS="parameter"
+>filename</CODE
+>.
+                        That object is used to perform action serializations
+                        of primitive items to file.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>close();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Closes the output file.  The
+                        <CODE
+CLASS="classname"
+>CXdrOutputStream</CODE
+> object
+                        created in <CODE
+CLASS="methodname"
+>open</CODE
+>
+                        is destroyed.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void </span
+> DescribeEvent(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;std::string&#62; </span
+><span
+class="parameter"
+>parameterNames</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+><span
+class="parameter"
+>parameterIds</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called when the filter knows what parameters will be output
+                        to the file. <CODE
+CLASS="parameter"
+>parameterNames</CODE
+>
+                        is a vector of the names of the parameters while
+                        <CODE
+CLASS="parameter"
+>parameterIds</CODE
+> are the ids
+                        of the parameters that are actually in the SpecTcl
+                        parameter dictionary.
+                    </P
+><P
+>&#13;                        A series of <TT
+CLASS="literal"
+>header</TT
+> records are
+                        written via the <CODE
+CLASS="classname"
+>CXdrOutputStream</CODE
+>.
+                        These records are described in
+                        <TT
+CLASS="literal"
+>File Format</TT
+> below and describe the
+                        set of parameters that will be written to the filter
+                        file.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>event</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called to write an event to the filter files.
+                        An <TT
+CLASS="literal"
+>event</TT
+> record is written to file.
+                        See <TT
+CLASS="literal"
+>File Format</TT
+> for the
+                        contents of this record.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>xdr</TT
+> to signify
+                        that this output stage produces XDR formatted
+                        data.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18935"
+></A
+><H2
+>File Format</H2
+><P
+>&#13;            The file produed by <CODE
+CLASS="classname"
+>CXdrOutputStage</CODE
+> objects
+            consists of a set of records.  Each record is identified by
+            a string record type.  At present, two record types are defined:
+            <TT
+CLASS="literal"
+>header</TT
+> which contains a set of parameter names
+            and <TT
+CLASS="literal"
+>event</TT
+> which contains an event.
+        </P
+><P
+>&#13;            The file consists first of one or more <TT
+CLASS="literal"
+>header</TT
+>
+            items followed by a sequence of <TT
+CLASS="literal"
+>event</TT
+> items.
+            Items are written into fixed length 8192 byte blocks.  Each
+            <TT
+CLASS="literal"
+>header</TT
+> item is in a block by iteself.
+            Several <TT
+CLASS="literal"
+>event</TT
+> items will be packed into
+            a single block.
+        </P
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN18946"
+></A
+><H3
+>header items</H3
+><P
+>&#13;                A header block consits of an XDR string with the value
+                <TT
+CLASS="literal"
+>header</TT
+>.   This is then followed by a count
+                of strings to follow.  The count is an xdr integer.
+                The strings that follow are each the name of a parameter
+                that is written to the filter file.  
+            </P
+><P
+>&#13;                It is important to
+                maintain the order in which the parameters appear as this
+                will be needed to decode the following
+                <TT
+CLASS="literal"
+>event</TT
+> items.  There can be several
+                <TT
+CLASS="literal"
+>header</TT
+> items.  They cumulatively
+                describe the set of parameters written to the file.
+            </P
+></DIV
+><DIV
+CLASS="refsect2"
+><A
+NAME="AEN18953"
+></A
+><H3
+>event items</H3
+><P
+>&#13;                Event items each have a compressed event.  The compression
+                scheme takes advantage of the fact that in most cases,
+                the occupancy of parameter space is sparse for an event.
+            </P
+><P
+>&#13;                Each event begins with a bitmask.  The set bits in this bitmask
+                determine the number of parameters that follow.  Each element
+                of the bitmask is an XDR integer and the number of bitmasks is
+                determined by the number of 32 bit integers (XDR integers
+                are 32 bits wide) required to provide one bit for each parameter.
+            </P
+><P
+>&#13;                Bitmasks are ordered by parameters as they appear in the
+                <TT
+CLASS="literal"
+>header</TT
+> records.  The first bitmask has a bit for
+                each of the first 32 parameters and so on.  Within each 32 bit
+                bitmask, bits are assigned from low order to high order within
+                the 32 parameter group.
+            </P
+><P
+>&#13;                Following the bitmasks are a set of XDR double precision
+                values.  Each of those values represents a parameter value for
+                one of the parameters corresponding to the bits set in the
+                bitmask.  The first parameter is for the lowest order bit set in the
+                first nonzero bitmask, and so on.
+            </P
+><P
+>&#13;                Suppose, for example, we have an event with 48 parameters.
+                This requires two bitmasks.  All bits in the first bitmask
+                are used and the lower 16 bits in the second one are used.
+                Suppose the value of the first bitmask is
+                <TT
+CLASS="literal"
+>0x0000000a</TT
+> and that of the second one is
+                <TT
+CLASS="literal"
+>0x00000001</TT
+>.
+                Three parameter values will follow.  
+            </P
+><P
+>&#13;                If we number the parameters from zero;  The first value will
+                be for parameter 1, the second for parameter 2 and the last
+                for parameter 32.
+            </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18732.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18964.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFilterOutputStage</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CFilterOutputStageCreator</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

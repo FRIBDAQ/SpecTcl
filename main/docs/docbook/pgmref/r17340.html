@@ -1,0 +1,639 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Predefined CFit classes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CFit"
+HREF="r17077.html"><LINK
+REL="NEXT"
+TITLE="CSpectrumFit"
+HREF="r17508.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r17077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r17508.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN17340"
+></A
+>Predefined CFit classes</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN17344"
+></A
+><H2
+>Name</H2
+>CGaussianFit, CLinearFit&nbsp;--&nbsp;3SpecTcl</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN17348"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CGaussianFit.h&#62;
+
+class CGaussianFit : public CFit
+{
+public:
+  CGaussianFit(std::string name, int id = 0);
+
+  virtual void Perform();
+  virtual double operator()(double x);
+  virtual CFit::FitParameterList GetParameters();
+  virtual std::string Type() const;
+  virtual std::string makeTclFitScript();
+  virtual CFit* clone();
+
+};
+
+
+
+#include &#60;CLinearFit.h&#62;
+
+class CLinearFit  : public CFit        
+{
+
+public:
+  CLinearFit ();		 //!&#60; Constructor.
+
+  virtual   void Perform ()   ; 
+  virtual   double operator() (double x)   ; 
+  virtual   CFit::FitParameterList GetParameters ()   ; 
+  virtual   std::string Type() const;
+  virtual CFit* clone();
+
+
+};
+
+
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17351"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            SpecTcl provides two simple fit functions.  The programming manual
+            describes how to add additional fit types to the fit subsystem.
+            The fit functions provided are classes that implement a Gaussian
+            fit on a constant background and a linear fit.  
+        </P
+><P
+>&#13;            The linear fit class is mostly provided as an example while the
+            gaussian fit has some actual usefulness.
+        </P
+><P
+>&#13;            The fit classes SpecTcl predefines use the GSL (GNU Scientific
+            Library) to perform their fits.  It is easy enough to extend
+            SpecTcl's fitting subsystem with fits performed by Root.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17356"
+></A
+><H2
+><CODE
+CLASS="classname"
+>CGaussianFit</CODE
+> METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="constructorsynopsis"
+>&#13;  CGaussianFit(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>int  </span
+><span
+class="parameter"
+>id </span
+><span
+class="initializer"
+> =  0</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        The constructor initializes the base class
+                        <CODE
+CLASS="classname"
+>CNamedObject</CODE
+> providing a name
+                        and an ID.  This is not strictly speaking needed for
+                        the SpecTcl fitting system, but was used in another
+                        application of this class not relevant to current
+                        SpecTcls.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Perform();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Performs the fit using the available points.
+                        At least 5 points must  have been accepted to support
+                        performing the gaussian fit.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>double </span
+><span
+class="parameter"
+> x</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the value of the fitted function at the point
+                        <CODE
+CLASS="parameter"
+>x</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::FitParameterList  </span
+>GetParameters();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the fit parameters.  The fit
+                        performed is of the form:
+                    </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN17407"
+></A
+><P
+CLASS="literallayout"
+><br>
+y&nbsp;&nbsp;=&nbsp;b&nbsp;+&nbsp;he<SUP
+>-((x-x0)/&#963;)<SUP
+>2</SUP
+>/2</SUP
+><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+><P
+></P
+></DIV
+><P
+>&#13;                        In this equation, the parameters returned are:
+                        <TT
+CLASS="literal"
+>baseline</TT
+> for <TT
+CLASS="literal"
+>b</TT
+>.
+                        <TT
+CLASS="literal"
+>height</TT
+> for <TT
+CLASS="literal"
+>h</TT
+>.
+                        <TT
+CLASS="literal"
+>centroid</TT
+> for <TT
+CLASS="literal"
+>x0</TT
+>.
+                        <TT
+CLASS="literal"
+>sigma</TT
+> for <TT
+CLASS="literal"
+>&#963;</TT
+>.
+                    </P
+><P
+>&#13;                        In addition the parameter <TT
+CLASS="literal"
+>chisquare</TT
+>
+                        contains the chi square of the fit.
+                    </P
+><P
+>&#13;                        This method throws an exception if the fit is not in the
+                        <TT
+CLASS="literal"
+>Performed</TT
+> state.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Returns the string <TT
+CLASS="literal"
+>gaussian</TT
+>
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>std::string </span
+> makeTclFitScript();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Throws an exception if the fit is not
+                        <TT
+CLASS="literal"
+>Performed</TT
+>.   Returns a string that
+                        defines a tcl proc named <TT
+CLASS="literal"
+>fitline</TT
+>.
+                        The proc accepts a single double parameter and returns
+                        the fit value at the point passed in.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN17447"
+></A
+><H2
+>CLinearFit</H2
+><P
+>&#13;            Linear fit is intended just to be a sample.  It performs a fit to the
+            function:
+        </P
+><DIV
+CLASS="informalexample"
+><P
+></P
+><A
+NAME="AEN17450"
+></A
+><P
+CLASS="literallayout"
+><br>
+y&nbsp;=&nbsp;mx&nbsp;&nbsp;+&nbsp;b<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+><P
+>&#13;                Where the fit parameters are the slope, <CODE
+CLASS="varname"
+>m</CODE
+>
+                and Y axis intercept; <CODE
+CLASS="varname"
+>b</CODE
+>.  The important
+                methods for this class are:
+            </P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual   </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>Perform();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Performs the fit.   If at least two points have not
+                            been accepted; an exception is thrown.  If the fit
+                            has two points and they are on a vertical line,
+                            an exception is thrown since the slope is not defined.
+                        </P
+><P
+>&#13;                            The Gnu Scientific Library function
+                            <CODE
+CLASS="function"
+>gsl_fit_linear</CODE
+> is used
+                            to perform the fit.  If successful, the state of the
+                            fit is set to <TT
+CLASS="literal"
+>CFit::Performed</TT
+>.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>double  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>double  </span
+><span
+class="parameter"
+>x</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                            If the fit is not in the <TT
+CLASS="literal"
+>CFit::Performed</TT
+>
+                            state an exception is thrown.  Otherwise, the value
+                            of the fit function at <CODE
+CLASS="parameter"
+>x</CODE
+> is
+                            returned.
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>CFit::FitParameterList </span
+> GetParameters();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            If the fit is not <TT
+CLASS="literal"
+>CFit::Performed</TT
+>
+                            an exception is thrown.  If it has been,
+                            the fit parameters are returned.  The fit parameters
+                            are named <TT
+CLASS="literal"
+>slope</TT
+> and
+                            <TT
+CLASS="literal"
+>offset</TT
+> with obvious meanings and
+                            the fit provides the required
+                            <TT
+CLASS="literal"
+>chisquare</TT
+> "parameter".
+                        </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual    </span
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string  </span
+>Type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                            Returns the text <TT
+CLASS="literal"
+>linear</TT
+>
+                        </P
+></DD
+></DL
+></DIV
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r17077.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r17508.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CFit</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CSpectrumFit</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

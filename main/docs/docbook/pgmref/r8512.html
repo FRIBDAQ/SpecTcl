@@ -1,0 +1,757 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CConfigurableObject</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Tcl++ classes"
+HREF="p4402.html"><LINK
+REL="PREVIOUS"
+TITLE="CItemConfiguration"
+HREF="r7789.html"><LINK
+REL="NEXT"
+TITLE="CTCLObjectPackage"
+HREF="r8732.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r7789.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r8732.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="manpage.cconfigurableobject"
+></A
+>CConfigurableObject</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN8516"
+></A
+><H2
+>Name</H2
+>CConfigurableObject&nbsp;--&nbsp;Base class for objects tht have a configuration.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN8519"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="programlisting"
+>&#13;#include &#60;CConfigurableObject.h&#62;
+         </PRE
+><pre
+class="classsynopsis"
+> <SPAN
+class="ooclass"
+>class <span
+class="classname"
+>CConfigurableObject </span
+></SPAN
+>{
+<code
+class="constructorsynopsis"
+>&#13;  CConfigurableObject();&#13;</code
+><code
+class="constructorsynopsis"
+>  CConfigurableObject(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="destructorsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual </span
+>~CConfigurableObject();&#13;</code
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="type"
+>CConfigurableObject&#38; </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rsh</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator==(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator!=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>Attach(<span
+class="methodparam"
+><span
+class="type"
+>CItemConfiguration* </span
+><span
+class="parameter"
+>pConfiguration</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>bool </span
+><span
+class="parameter"
+>dynamic</span
+><span
+class="initializer"
+> = true</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>configure(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string </span
+>getName();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::string </span
+>cget(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CItemConfiguration::ConfigurationArray </span
+>cget();&#13;</code
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void </span
+>onAttach();&#13;</code
+>}</pre
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8600"
+></A
+><H2
+>Description</H2
+><P
+>&#13;            <CODE
+CLASS="classname"
+>CConfigurableObject</CODE
+> is an abstract base class
+            for objects
+            that contain configurations via the
+            <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>
+            class.  The class embeds an <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>
+            and provides a mechanism for initializing the configuration as it is
+            attached.
+         </P
+><P
+>&#13;            Due to the rules regarding virtual member use in constructors,
+            construction and initialization of a <CODE
+CLASS="classname"
+>CConfigurableObject</CODE
+>
+            is usually a two step process.  The object is constructed, and then
+            either an empty or initialized configuration is attached to the
+            object via  call to <CODE
+CLASS="methodname"
+>Attach</CODE
+>.
+            </P
+><P
+>&#13;            When <CODE
+CLASS="methodname"
+>Attach</CODE
+> is called it, in turn calls
+            the virtual method (pure/abstract in this base class), to
+            allow the actual concrete class to initialize the configuration
+            by defining an appropriate set of parameters and their constraints.
+            </P
+><P
+>&#13;            Once initialized, a partial facade is supplied that allows external
+            clients to configure and dump the configuration of an object.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8612"
+></A
+><H2
+>&#13;            Public member functions
+         </H2
+><code
+class="methodsynopsis"
+>&#13;  CConfigurableObject();&#13;</code
+><P
+>&#13;            Construts a configurable object.  Note that this does not
+            create a configuration unless explicitly done by the constructor.
+            Normally due to restrictions in when virtual functions are actually
+            virtual (they are not in constructors), The client that constructs
+            this will also construct and attach a
+            <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+> via
+            <CODE
+CLASS="methodname"
+>Attach</CODE
+> soon after constructing the object.
+            </P
+><code
+class="methodsynopsis"
+>  CConfigurableObject(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Copy construction.  This results in a snapshot of the configuration
+            being dynamically made, and marked for deletion on destruction of
+            the object.  No attempt is made to synchronize the copy with the
+            original.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+>~CConfigurableObject();&#13;</code
+><P
+>&#13;            Destroys the configurable object.  If the configuration attached
+            was marked as dynamcially allocated it is deleted in order
+            to prevent memory leaks.  Dynamic marking is done either
+            by copy construction or by specifying at
+            <CODE
+CLASS="methodname"
+>Attach</CODE
+> time that the object is responsible
+            for deleting <CODE
+CLASS="classname"
+>ItemConfiguration</CODE
+>
+            object being attached.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CConfigurableObject&#38; </span
+>operator=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rsh</span
+></span
+>);&#13;</code
+><P
+>&#13;            Object assignment.  If the target object's configuration exists
+            and was dynamically attached, it is deleted.  Regardless, the source's
+            configuration cloned and assigned to the current configuration with
+            dynamic marking.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator==(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns nonzero if <CODE
+CLASS="parameter"
+>rhs</CODE
+>'s configuration is
+            identical to that of <CODE
+CLASS="parameter"
+>this</CODE
+>.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>int </span
+>operator!=(<span
+class="methodparam"
+><span
+class="modifier"
+>const </span
+><span
+class="type"
+>CConfigurableObject&#38; </span
+><span
+class="parameter"
+>rhs</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns nonzero if <CODE
+CLASS="methodname"
+>operator==</CODE
+> returns 0.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>Attach(<span
+class="methodparam"
+><span
+class="type"
+>CItemConfiguration* </span
+><span
+class="parameter"
+>pConfiguration</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>bool </span
+><span
+class="parameter"
+>dynamic</span
+><span
+class="initializer"
+> = true</span
+></span
+>);&#13;</code
+><P
+>&#13;            The client should call this to attach a configuration,
+            <CODE
+CLASS="parameter"
+>pConfiguration</CODE
+>, (either
+            pre-configured or empty) to the object.
+            <CODE
+CLASS="parameter"
+>dynamic</CODE
+> should be <TT
+CLASS="literal"
+>true</TT
+>
+            if <CODE
+CLASS="parameter"
+>pConfiguration</CODE
+> should be
+            deleted when the object is destroyed.
+            </P
+><P
+>&#13;            The virtual function <CODE
+CLASS="methodname"
+>onAttach</CODE
+> will be invoked
+            to allow the configuration to be set up for the object.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>void </span
+>configure(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>value</span
+></span
+>);&#13;</code
+><P
+>&#13;            Passes the <CODE
+CLASS="parameter"
+>name</CODE
+> and <CODE
+CLASS="parameter"
+>value</CODE
+>
+            parameters on to the configuration object's
+            <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+> object.  If no configuration
+            has been attached to the object, a string exception is
+            thrown describing this fact.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>const </span
+><span
+class="type"
+>std::string </span
+>getName();&#13;</code
+><P
+>&#13;            Returns the configuration's name.  This will throw a string
+            exception if no configuration has been attached to the object.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>std::string </span
+>cget(<span
+class="methodparam"
+><span
+class="type"
+>std::string </span
+><span
+class="parameter"
+>name</span
+></span
+>);&#13;</code
+><P
+>&#13;            Returns the value of a configuration option <CODE
+CLASS="parameter"
+>name</CODE
+>.
+            The assumption is that clients only want to present configuration
+            option values to humans, or save them and therefore ther is only
+            a facade in front of the string value function.
+            </P
+><P
+>&#13;            In addition to the string exceptions that can be thrown by the
+            configuration object, an exception will be thrown if the
+            object has no attached configuration.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="type"
+>CItemConfiguration::ConfigurationArray </span
+>cget();&#13;</code
+><P
+>&#13;            Returns the entire configuration. Throws a string exception if no
+            configuration object has been attached.
+            </P
+><code
+class="methodsynopsis"
+>  <span
+class="modifier"
+>virtual </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void </span
+>onAttach();&#13;</code
+><P
+>&#13;            Concrete base classes should supply and implement this. Normally
+            <CODE
+CLASS="methodname"
+>onAttache</CODE
+> is used to initialize the
+            configuration which is stored in the protected data member
+            <CODE
+CLASS="varname"
+>m_pConfiguration</CODE
+>, a pointer to
+            <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>.
+            </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8723"
+></A
+><H2
+>Exceptions</H2
+><P
+>&#13;            <SPAN
+CLASS="type"
+>std::string</SPAN
+> exceptions are thrown both from this and
+            the calls it makes to <CODE
+CLASS="classname"
+>CItemConfiguration</CODE
+>.
+         </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN8728"
+></A
+><H2
+>&#13;            SEE ALSO
+         </H2
+><P
+>&#13;        <A
+HREF="r7789.html"
+>CItemConfiguration</A
+>
+     </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r7789.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r8732.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CItemConfiguration</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p4402.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CTCLObjectPackage</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

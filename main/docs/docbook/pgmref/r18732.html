@@ -1,0 +1,473 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CFilterOutputStage</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="SpecTcl Programming Reference."
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Core SpecTcl classes"
+HREF="p8474.html"><LINK
+REL="PREVIOUS"
+TITLE="CGatedEventFilter"
+HREF="r18626.html"><LINK
+REL="NEXT"
+TITLE="CXdrFilterOutputStage"
+HREF="r18840.html"></HEAD
+><BODY
+CLASS="refentry"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>SpecTcl Programming Reference.</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="r18626.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="r18840.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="AEN18732"
+></A
+>CFilterOutputStage</H1
+><DIV
+CLASS="refnamediv"
+><A
+NAME="AEN18736"
+></A
+><H2
+>Name</H2
+>CFilterOutputStage&nbsp;--&nbsp;Abstract base class for filter output streamers.</DIV
+><DIV
+CLASS="refsynopsisdiv"
+><A
+NAME="AEN18739"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="synopsis"
+>&#13;#include &#60;CFilterOutputStage.h&#62;
+
+class CFilterOutputStage
+{
+
+public:
+virtual void open(std::string filename) = 0;
+virtual void close() = 0;
+virtual void onAttach(CEventFilter&#38; filter);
+virtual void DescribeEvent(std::vector&#60;std::string&#62; parameterNames,
+                         std::vector&#60;UInt_t&#62;      parameterIds) =0;
+virtual void operator()(CEvent&#38; event) = 0;
+virtual std::string  type() const = 0;
+};
+
+        </PRE
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18741"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>&#13;            Filter output is managed by output streamers.  These
+            are concrete subclasses of <CODE
+CLASS="classname"
+>CFilterOutputStage</CODE
+>.
+            <CODE
+CLASS="classname"
+>CFilterOutputStage</CODE
+> provides the interface
+            between a filter an its output streamer.  The output streamer
+            knows the format for the filter file and is expected to output
+            filter data tothe filter file in that format.
+        </P
+><P
+>&#13;            Currently SpecTcl has a built in filter output stage that
+            understands how to write data in a simple XDR format.  A
+            plugin also provides for filters to be written as
+            <CODE
+CLASS="classname"
+>TNtuples</CODE
+> objects into Root files.
+        </P
+></DIV
+><DIV
+CLASS="refsect1"
+><A
+NAME="AEN18748"
+></A
+><H2
+>METHODS</H2
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>open(<span
+class="methodparam"
+><span
+class="type"
+>std::string  </span
+><span
+class="parameter"
+>filename</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Concrete filter classes must implement this to
+                        establish a writable connection to the filter file
+                        <CODE
+CLASS="parameter"
+>filename</CODE
+>.   Any file connection
+                        information must be kept by the class.
+                    </P
+><P
+>&#13;                        Any errors
+                        should be reported as exceptions.
+                        The preferred exception type is
+                        <CODE
+CLASS="classname"
+>CErrnoException</CODE
+>.  If that's not
+                        possible (e.g. some library that does not set
+                        <CODE
+CLASS="varname"
+>errno</CODE
+> was used to make the connection)
+                        an exception derived from <CODE
+CLASS="classname"
+>CException</CODE
+>
+                        should be used, even if it's necessary to create
+                        a new exception type.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>close();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Concrete classes should implement this method to
+                        shutdown any connection to the filter output file.
+                        While errors are, theoretically, not possible,
+                        they should nonetheless be caught and handled:
+                    </P
+><P
+>&#13;                        Any errors
+                        should be reported as exceptions.
+                        The preferred exception type is
+                        <CODE
+CLASS="classname"
+>CErrnoException</CODE
+>.  If that's not
+                        possible (e.g. some library that does not set
+                        <CODE
+CLASS="varname"
+>errno</CODE
+> was used to make the connection)
+                        an exception derived from <CODE
+CLASS="classname"
+>CException</CODE
+>
+                        should be used, even if it's necessary to create
+                        a new exception type.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+> </span
+><span
+class="type"
+>void  </span
+>onAttach(<span
+class="methodparam"
+><span
+class="type"
+>CEventFilter&#38;  </span
+><span
+class="parameter"
+>filter</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This is called when the output stage is attached
+                        to a filter. <CODE
+CLASS="parameter"
+>filter</CODE
+>
+                        is a reference to the filter to which this object
+                        has just been attached.  Since many filters don't
+                        actually have to take any action on this event,
+                        the base class provides an implementation for
+                        <CODE
+CLASS="methodname"
+>onAttach</CODE
+> that does
+                        nothing.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>=0 </span
+><span
+class="type"
+>void  </span
+>DescribeEvent(<span
+class="methodparam"
+><span
+class="type"
+>std::vector&#60;std::string&#62;  </span
+><span
+class="parameter"
+>parameterNames</span
+></span
+><span
+class="methodparam"
+>, <span
+class="type"
+>std::vector&#60;UInt_t&#62;  </span
+><span
+class="parameter"
+>parameterIds</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called by the filter when it's unambiguously known
+                        which parameters will be output by the filter.
+                        <CODE
+CLASS="parameter"
+>parameterNames</CODE
+> are the
+                        requested parameter names.
+                        <CODE
+CLASS="parameter"
+>parameterIds</CODE
+> are the
+                        ids of the parameters that actually exist.
+                    </P
+><P
+>&#13;                        The filter should act on the parameters
+                        in <CODE
+CLASS="parameter"
+>parameterIds</CODE
+>.
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>= 0 </span
+><span
+class="type"
+>void  </span
+>operator()(<span
+class="methodparam"
+><span
+class="type"
+>CEvent&#38;  </span
+><span
+class="parameter"
+>event</span
+></span
+>);&#13;</code
+></DT
+><DD
+><P
+>&#13;                        Called by the filter to write an event to the
+                        output stream.  
+                    </P
+></DD
+><DT
+><code
+class="methodsynopsis"
+>&#13;  <span
+class="modifier"
+>virtual  </span
+><span
+class="modifier"
+>const = 0 </span
+><span
+class="type"
+>std::string   </span
+>type();&#13;</code
+></DT
+><DD
+><P
+>&#13;                        This method should be implemented to return a
+                         string that describes the filter's function
+                         and format.  For example,
+                         <CODE
+CLASS="classname"
+>CXdrFilterOutputStage</CODE
+>::<CODE
+CLASS="methodname"
+>type</CODE
+>()
+                         retuns <TT
+CLASS="literal"
+>xdr</TT
+>.
+                    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="r18626.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="r18840.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CGatedEventFilter</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="p8474.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CXdrFilterOutputStage</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
