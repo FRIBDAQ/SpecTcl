@@ -167,7 +167,7 @@ public:
   // Selectors:                  
   
 public:
-  Bool_t getType() const
+  Int_t getType() const
   {
     return m_nType;
   }

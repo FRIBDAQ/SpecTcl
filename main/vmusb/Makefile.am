@@ -53,18 +53,18 @@ VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@
+	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
 # Removed 		    @top_builddir@/Tape/libtape.la 
 
 
 VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
-		    @top_builddir@/Display/libXamine.la
+		    @top_builddir@/Display/libXamine.la 
 
 VMUSBSpecTcl_LDFLAGS = 	\
 	@LIBTCLPLUS_LDFLAGS@	\
-	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
+	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ @ROOT_LDFLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=@libdir@"

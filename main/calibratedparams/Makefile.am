@@ -27,12 +27,12 @@ noinst_HEADERS	=		CCalibratedParameterCommand.h	\
 				CLinearFit.h
 
 libCalibrations_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	@LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath-link=$(libdir)"
+	@LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath-link=$(libdir)" @ROOT_LDFLAGS@
 
 libCalibrations_la_CPPFLAGS = -I. -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Display      \
 	-I@top_srcdir@/factories \
-	-I@top_srcdir@/Core \
+	-I@top_srcdir@/Core @ROOT_CFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT
 

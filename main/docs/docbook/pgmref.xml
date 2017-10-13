@@ -22880,7 +22880,7 @@ protected:
                     <para>
                         Base class construction provides the
                         <parameter>rName</parameter> as the
-                        spectrum name and <parmameter>nId</parmameter>
+                        spectrum name and <parameter>nId</parameter>
                         as the spectrum id.  Parameter/axis conversion
                         specification are provided
                         via the vector <parameter>Maps</parameter>.
@@ -23441,7 +23441,9 @@ int BigPotOfStorage[10*1024*1024];          // 10Mega ints.
                     </para>
                 </listitem>
             </varlistentry>
-  
+	    <varlistentry>
+	      <term></term>
+	      <listitem><para>
   
   
   
@@ -23483,7 +23485,9 @@ int BigPotOfStorage[10*1024*1024];          // 10Mega ints.
 
 protected:
   void ReleaseStorage();
-
+</para>
+	      </listitem>
+	    </varlistentry>
         </variablelist>
     </refsect1>
     <refsect1>
@@ -23491,10 +23495,13 @@ protected:
             DATA TYPES
         </title>
         <variablelist>
+	  <varlistentry>
+	    <term></term>
+	    <listitem><para>
   typedef std::vector&lt;CAxis&gt;  Axes;
   typedef Axes::iterator  AxisIterator;
   typedef struct SpectrumDefinition;
-            
+</para></listitem></varlistentry>
         </variablelist>
     </refsect1>
 </refentry>

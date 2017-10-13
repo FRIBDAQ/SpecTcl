@@ -16,7 +16,7 @@ include $(INSTDIR)/etc/Directories.include
 
 #  Build up the compilation flags:
 
-CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS)
+CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS) $(ROOTCFLAGS)
 
 # The c compilation flags for now are just the same as the c++ flags:
 
@@ -32,7 +32,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerApp \
 	-lgsl -lgslcblas	\
 	$(LIBTCLPLUS_LDFLAGS) \
 	$(X11LIBS)    \
-	-Wl,"-rpath=$(SPECLIBS)" $(TCLLIBS)   
+	-Wl,"-rpath=$(SPECLIBS)" $(TCLLIBS)   $(ROOTLDFLAGS)
 
 
 

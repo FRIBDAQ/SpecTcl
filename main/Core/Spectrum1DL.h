@@ -169,6 +169,9 @@ public:
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
 
+  virtual Size_t StorageNeeded() const;
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  
   // Utility functions:
 protected:
   void CreateChannels();	//!< Create storage.

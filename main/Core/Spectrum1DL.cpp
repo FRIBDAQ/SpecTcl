@@ -95,13 +95,12 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
-  CreateChannels();
   m_pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels, 0.0, static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(
-    nChannels, reinterpret_cast<Int_t*>(getStorage())
-  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  CreateChannels();              // Ivokes setStorage indirectly.
+
 }
 /*!
     Construct a 1d spectrum.   In this constructor,
@@ -132,18 +131,19 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
   CSpectrum(rName, nId,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			  CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels+2),
   m_nParameter(rParameter.getNumber()),
   m_pRootSpectrum(0)
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
-  CreateChannels();
   m_pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels,
     static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
   m_pRootSpectrum->Adopt(
-    nChannels, reinterpret_cast<Int_t*>(getStorage()));
+     0, nullptr);
+  CreateChannels();		// Invokes setStorage indirectly
+
 }
 // Unused?? BUGBUGBUG - remove if really unused.
 
@@ -209,7 +209,7 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
   if(rParam.isValid()) {  // Only increment if param present.
     m_pRootSpectrum->Fill(rParam);
-#ifndef NO_ROOT
+#ifdef NO_ROOT
     Int_t nChannel =
    (Int_t)ParameterToAxis(0, rParam);
     
@@ -219,8 +219,9 @@ CSpectrum1DL::Increment(const CEvent& rE)
       UInt_t* p = (UInt_t*)getStorage();
       assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
-#endif
     }
+
+#endif
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -351,7 +352,7 @@ CSpectrum1DL::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  UInt_t* pStorage = new UInt_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];   //  For root underlow/overflow.
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
   createStatArrays(1);
@@ -366,4 +367,28 @@ void
 CSpectrum1DL::setStorage(Address_t pStorage)
 {
   m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+}
+
+/**
+ *  Storage needed for Root requires 2 extra channels:
+ */
+
+Size_t
+CSpectrum1DL::StorageNeeded() const
+{
+  return (m_nChannels) * sizeof(UInt_t);
+}
+
+/**
+ *  Number of bins on a dimension.  We need to do this ourselves because
+ *  Of the root +2 channel kludge.
+ *  @param nDim - Which dimension (0 will give m_nChannels but others give 1).
+ *  @return Size_t
+ */
+
+Size_t
+CSpectrum1DL::Dimension(UInt_t nDim) const
+{
+    if (nDim == 0) return m_nChannels;
+    return 1;
 }

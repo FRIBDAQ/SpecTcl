@@ -3,14 +3,14 @@
 commonCPPFLAGS= -I@top_srcdir@/Core \
 				-I@top_srcdir@/Utility \
 				@LIBTCLPLUS_CFLAGS@	\
-				@TCL_CPPFLAGS@
+				@TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
 
 # Removed 		@top_builddir@/Tape/libtape.la 
 
 commonLDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
-		@TCL_LIBS@
+		@TCL_LIBS@ @ROOT_LDFLAGS@
 
 
 noinst_PROGRAMS = testfile # ltwrite
