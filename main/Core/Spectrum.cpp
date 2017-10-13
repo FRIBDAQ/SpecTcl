@@ -255,7 +255,8 @@ CSpectrum::ReplaceStorage(Address_t pNewLoc, Bool_t fTransferOwnership)
     memset(pNewLoc, 0, StorageNeeded());
   }
   if(m_fOwnStorage) ReleaseStorage();
-  m_pStorage    = pNewLoc;
+  m_pStorage = pNewLoc;		// Since this is private.
+  setStorage(pNewLoc);		// For any spetrum specific code.
   m_fOwnStorage = fTransferOwnership;
 
 }

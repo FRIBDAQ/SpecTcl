@@ -8,7 +8,7 @@ SpecTcl_SOURCES = MySpecTclApp.cpp  MySpecTclApp.h
 SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 		 -I@top_srcdir@/Utility \
 		 @LIBTCLPLUS_CFLAGS@ \
-		 @TCL_CPPFLAGS@
+		 @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
 SpecTcl_CPPFLAGS = -g
 
@@ -20,7 +20,7 @@ LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 
 SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@top_builddir@/Display/libXamine.la \
-		-lXt -lX11 -lgsl -lgslcblas $(LDFLAGS)
+		@ROOT_LDFLAGS@ -lXt -lX11 -lgsl -lgslcblas
 
 SpecTcl_LDFLAGS = -Wl,"-rpath=$(libdir)"
 

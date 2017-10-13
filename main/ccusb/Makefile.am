@@ -24,7 +24,7 @@ AM_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core \
 	-I@top_srcdir@/Display \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@
+	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
 # removed 	@top_builddir@/Tape/libtape.la 
 
@@ -33,7 +33,7 @@ CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Replace/libreplace.la \
 	@top_builddir@/calibratedparams/libCalibrations.la \
 	@top_builddir@/Display/libXamine.la          \
-	@LIBTCLPLUS_LDFLAGS@	\
+	@LIBTCLPLUS_LDFLAGS@	@ROOT_LDFLAGS@ \
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \

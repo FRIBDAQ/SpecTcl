@@ -5,7 +5,7 @@ lib_LTLIBRARIES=libScripted.la
 
 ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
 
-libScripted_la_LDFLAGS = -version-info $(SOVERSION):0
+libScripted_la_LDFLAGS = -version-info $(SOVERSION):0 @ROOT_LDFLAGS@
 
 MainSources=CConfigurableObject.cpp \
 	CSegmentUnpacker.cpp \
@@ -57,7 +57,7 @@ libScripted_la_CPPFLAGS =   -I@top_srcdir@/Utility \
 			    @TK_CPPFLAGS@ \
 			    -DINSTALLED_IN='"$(prefix)"' \
 			    @XINCLUDES@ \
-			    @LIBTCLPLUS_CFLAGS@
+			    @LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
 noinst_HEADERS =  CBoolConfigParam.h \
 	CCAENDigitizerCreator.h \
@@ -91,7 +91,7 @@ ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
 	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \
-	$(LD_EXTRA_FLAGS) \
+	$(LD_EXTRA_FLAGS) @ROOT_LDFLAGS@ \
 	-lgsl \
 	-lgslcblas \
 	@LIBTCLPLUS_LDFLAGS@ \
@@ -111,7 +111,7 @@ ScriptedSpecTcl_CPPFLAGS =  -I@top_srcdir@/Utility \
 			    @TK_CPPFLAGS@ \
 			    -DINSTALLED_IN='"$(prefix)"' \
 			    @XINCLUDES@ \
-			    @LIBTCLPLUS_CFLAGS@
+			    @LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
 
 #
@@ -168,7 +168,7 @@ unittest_CXXFLAGS= -I@top_srcdir@/Core \
 		   -I@top_srcdir@/Utility \
 		    @CPPUNIT_CFLAGS@ \
 		    @TCL_CPPFLAGS@ \
-		    @LIBTCLPLUS_CFLAGS@
+		    @LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 
 
 unittest_DEPENDENCIES = @builddir@/libScripted.la
@@ -178,7 +178,7 @@ unittest_DEPENDENCIES = @builddir@/libScripted.la
 
 unittest_LDADD =   @builddir@/libScripted.la \
 		    @top_builddir@/Core/libTclGrammerApp.la \
-		    @top_builddir@/Display/libXamine.la
+		    @top_builddir@/Display/libXamine.la @ROOT_LDFLAGS@
 
 unittest_LDFLAGS = \
 	@LIBTCLPLUS_LDFLAGS@ \

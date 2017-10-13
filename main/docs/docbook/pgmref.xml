@@ -23373,9 +23373,14 @@ public:
                 </term>
                 <listitem>
                     <para>
-                        This constructor is used when construction time
-                        provides sufficient information to provide
-                        the axis definitions without computation.
+                        Base class construction provides the
+                        <parameter>rName</parameter> as the
+                        spectrum name and <parameter>nId</parameter>
+                        as the spectrum id.  Parameter/axis conversion
+                        specification are provided
+                        via the vector <parameter>Maps</parameter>.
+                        <parameter>pGate</parameter> is the gate conainer
+                        of the spectrum's initial gate.
                     </para>
                     <para>
                         <parameter>rName</parameter> and
@@ -34390,6 +34395,7 @@ public:
         <synopsis>
 #include &lt;CXdrFilterOutputStageCreator.h&gt;
 
+
 class CXdrFilterOutputStageCreator : public CFilterOutputStageCreator
 {
 public:
@@ -34456,6 +34462,7 @@ public:
             take data from the decoded XDR blocks and store them into
             SpecTcl parameters.
         </para>
+
     </refsect1>
     <refsect1>
         <title>METHODS</title>
@@ -34558,6 +34565,7 @@ public:
                     </para>
                 </listitem>
             </varlistentry>
+
         </variablelist>
     </refsect1>
 
