@@ -220,7 +220,7 @@ CGamma2DB::set (const UInt_t* pIndices, ULong_t nValue)
 //     Selector.
 //
 
-UInt_t
+Size_t
 CGamma2DB::Dimension (UInt_t n) const
 {
   switch(n) {
@@ -260,7 +260,7 @@ CGamma2DB::CreateStorage()
 {
   setStorageType(keByte);
   Size_t nBytes = StorageNeeded();
-  UChar_t* pStorage = new UChar_t[nBytes/sizeof(UChar_t)];
+  UChar_t* pStorage = new UChar_t[static_cast<unsigned>(nBytes/sizeof(UChar_t))];
 
   ReplaceStorage(pStorage);
   Clear();

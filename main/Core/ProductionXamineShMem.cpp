@@ -306,7 +306,7 @@ void CProductionXamineShMem::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 
       // Deal with the spectrum:
 
-      pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
+      pSpectrum->ReplaceStorage(new char[static_cast<unsigned>(pSpectrum->StorageNeeded())],
                                 kfTRUE);
       m_DisplayBindings[nSpec] = "";
       freeSpectrum(nSpec);

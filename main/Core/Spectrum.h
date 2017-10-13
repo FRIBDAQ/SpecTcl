@@ -77,6 +77,7 @@
 class CEvent;
 class CGateContainer;
 
+
 extern CGateContainer* pDefaultGate; // Gate set by default on a spectrum
 				// This defaults to a CTrueGate.
                          
@@ -180,7 +181,7 @@ public:
   // Mutators are available to derived classes:
 
 protected:                   
-  void setStorage (Address_t am_pStorage)
+  virtual void setStorage (Address_t am_pStorage)
   { 
     m_pStorage = am_pStorage;
   }

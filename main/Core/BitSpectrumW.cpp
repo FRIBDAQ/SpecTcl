@@ -327,7 +327,7 @@ CBitSpectrumW::CreateStorage()
   setStorageType(keWord);
 
   Size_t        nBytes   = StorageNeeded();
-  UShort_t*     pStorage = new UShort_t[nBytes/sizeof(UShort_t)];
+  UShort_t*     pStorage = new UShort_t[static_cast<unsigned>(nBytes/sizeof(UShort_t))];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

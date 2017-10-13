@@ -370,7 +370,7 @@ CSpectrum2DB::CreateStorage()
   setStorageType(keByte);
 
   Size_t nBytes = StorageNeeded();
-  UChar_t*      pStorage = new UChar_t[nBytes/sizeof(UChar_t)];
+  UChar_t*      pStorage = new UChar_t[static_cast<unsigned>(nBytes/sizeof(UChar_t))];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
@@ -431,7 +431,7 @@ CSpectrum2DB::CreateAxisVector(const CParameter& xParam,
       Number of channels on the axis or 0 if the axis selector
       was not valid.
 */  
-UInt_t 
+Size_t
 CSpectrum2DB::Dimension(UInt_t n) const
 {
   switch(n) {

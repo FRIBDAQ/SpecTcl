@@ -246,7 +246,7 @@ CGamma1DL::CreateStorage()
 {
   setStorageType(keLong);
   Size_t nBytes = StorageNeeded();
-  UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
+  UInt_t* pStorage = new UInt_t[static_cast<unsigned>(nBytes/sizeof(UInt_t))];
   ReplaceStorage(pStorage);
   Clear();
   createStatArrays(1);

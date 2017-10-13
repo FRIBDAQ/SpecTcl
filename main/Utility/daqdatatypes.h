@@ -40,6 +40,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>		/* All C headers are legal in all C++'s even c++11 */
+#include <Rtypes.h>
 typedef    int8_t     INT8;
 typedef    uint8_t    UINT8;
 typedef    int16_t    INT16;
@@ -57,7 +58,7 @@ typedef    uint32_t   UINT32;
 
 
 
-
+#ifdef NO_ROOT
 typedef int32_t  Int_t;
 typedef uint32_t UInt_t;
 
@@ -68,15 +69,18 @@ typedef long  Long_t;
 typedef unsigned long ULong_t;
 
 typedef float Float_t;
-typedef double DFloat_t;
+
 
 
 
 typedef char Char_t;
 typedef unsigned char UChar_t;
-
-typedef char (*Textsz_t);             // Null terminated string.
 typedef UInt_t Size_t;
+typedef UChar_t Bool_t;
+#endif
+typedef double DFloat_t;
+typedef char (*Textsz_t);             // Null terminated string.
+
 
 typedef void (*Address_t);           // Typical pointer.
 
@@ -98,7 +102,7 @@ typedef enum {
 #define kACTIONSIZE 1024 // Size of action message.
 
 
-typedef UChar_t Bool_t;
+
 static const Bool_t kfTRUE = 0xff; // TRUE boolean.
 static const Bool_t kfFALSE= 0;	  // FALSE boolean. 
 

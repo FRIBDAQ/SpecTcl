@@ -227,7 +227,7 @@ CGamma2DD<T>::GetResolutions(std::vector<UInt_t>& rvResolutions)
    axis.
 */
 template<class T>
-UInt_t
+Size_t
 CGamma2DD<T>::Dimension(UInt_t n) const
 {
   switch (n) {
@@ -371,7 +371,7 @@ CGamma2DD<T>::CreateStorage()
     setStorageType(keUnknown_dt);
   }
   Size_t nBytes = StorageNeeded();
-  T* pStorage = new T[nBytes/sizeof(T)];
+  T* pStorage = new T[static_cast<unsigned>(nBytes/sizeof(T))];
 
   ReplaceStorage(pStorage);
   Clear();

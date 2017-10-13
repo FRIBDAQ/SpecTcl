@@ -2,7 +2,7 @@
 
 lib_LTLIBRARIES = libTclGrammerApp.la
 
-libTclGrammerApp_la_CPPFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"'
+libTclGrammerApp_la_CPPFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
 
 Analysis_SRC =  CBufferCallbackList.cpp \
@@ -343,7 +343,7 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			 @LIBTCLPLUS_LDFLAGS@ \
-			@TCL_LIBS@
+			@TCL_LIBS@ @ROOT_LDFLAGS@
 
 libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
 
@@ -378,7 +378,8 @@ commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Display \
 									@LIBTCLPLUS_CFLAGS@ \
 									@TCL_CPPFLAGS@ \
-									@CPPUNIT_CFLAGS@
+									@CPPUNIT_CFLAGS@ \
+				@ROOT_CFLAGS@
 
 # Removed @top_builddir@/Tape/libtape.la
 
@@ -386,7 +387,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@CPPUNIT_LIBS@ \
 		@TK_LIBS@ \
-		@TCL_LIBS@
+		@TCL_LIBS@ @ROOT_LDFLAGS@
 
 
 scalertests_CXXFLAGS = $(commonCXXFLAGS)
