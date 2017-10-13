@@ -241,7 +241,7 @@ CGamma2DW::CreateStorage()
 {
   setStorageType(keWord);
   Size_t nBytes = StorageNeeded();
-  UShort_t* pStorage = new UShort_t[nBytes/sizeof(UShort_t)];
+  UShort_t* pStorage = new UShort_t[static_cast<unsigned>(nBytes/sizeof(UShort_t))];
 
   ReplaceStorage(pStorage);
   Clear();
@@ -311,7 +311,7 @@ CGamma2DW::CreateAxisVector(vector<CParameter>& rParams,
       Number of channels on the axis or 0 if the axis selector
       was not valid.
 */
-UInt_t 
+Size_t 
 CGamma2DW::Dimension(UInt_t n) const
 {
   switch(n) {

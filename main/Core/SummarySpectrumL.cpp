@@ -263,7 +263,7 @@ CSummarySpectrumL::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing SummaryW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny * Dimension(0))];
+  return (ULong_t)p[nx + (ny * static_cast<unsigned>(Dimension(0)))];
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -290,7 +290,7 @@ CSummarySpectrumL::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  p[nx + (ny * Dimension(0))] = (UInt_t)nValue;
+  p[nx + static_cast<unsigned>((ny * Dimension(0)))] = (UInt_t)nValue;
 
   
 }
@@ -360,7 +360,7 @@ CSummarySpectrumL::CreateStorage()
 
   setStorageType(keLong);
 
-  Size_t        nBytes   = StorageNeeded();
+  UInt_t        nBytes   = StorageNeeded();
   UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.

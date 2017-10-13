@@ -78,11 +78,11 @@
 #endif
 
 
-
 //  Foward Class definitions:
 
 class CParameter;               
-                
+class TH1I;
+
 /*!
    Implements 1d histograms with Longword channel buckets.  The histogram
    works on arbitrary parameters (reals, integers, mapped integers).  The
@@ -94,7 +94,7 @@ class CSpectrum1DL  : public CSpectrum
 {
   UInt_t m_nChannels;		//!< Number of channels.
   UInt_t m_nParameter;		//!< Number parameter which is histogrammed
-
+  TH1I*  m_pRootSpectrum; //!<  Spectrum from Root.
   
 public:
 
@@ -111,7 +111,7 @@ public:
 	       Float_t              fHigh);
 
 
-  virtual  ~ CSpectrum1DL( ) { }       //Destructor	
+  virtual  ~ CSpectrum1DL( ) ;    //Destructor	
 private:
 			//Copy constructor [illegal]
 
@@ -152,6 +152,9 @@ protected:
   { 
     m_nParameter = am_nParameter;
   }
+  // Override base class so we can swoosh storage in/out of TH1I/root spectrum:
+  
+  virtual void setStorage(Address_t pStorage);
 
   //
   //  Operations:

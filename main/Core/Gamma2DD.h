@@ -129,7 +129,7 @@ public:
   virtual void    set(const UInt_t* pIndices, ULong_t value);
   
   virtual void   GetResolutions(std::vector<UInt_t>& rvResolutions);
-  virtual UInt_t Dimension(UInt_t n) const;
+  virtual Size_t Dimension(UInt_t n) const;
   virtual UInt_t Dimensionality() const;
 
   virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters);

@@ -162,7 +162,7 @@ public:
 
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
-  virtual   UInt_t Dimension (UInt_t n) const;
+  virtual   Size_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;

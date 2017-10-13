@@ -313,7 +313,7 @@ CSpectrum2DL::CreateStorage()
   setStorageType(keLong);
 
   Size_t nBytes = StorageNeeded();
-  UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
+  UInt_t*      pStorage = new UInt_t[static_cast<unsigned>(nBytes/sizeof(UInt_t))];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
@@ -372,7 +372,7 @@ CSpectrum2DL::CreateAxisVector(const CParameter& xParam,
       Number of channels on the axis or 0 if the axis selector
       was not valid.
 */  
-UInt_t 
+Size_t 
 CSpectrum2DL::Dimension(UInt_t n) const
 {
   switch(n) {

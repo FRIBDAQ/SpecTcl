@@ -42,6 +42,7 @@
 #include "Event.h"
 #include "CAxis.h"
 #include <assert.h>
+#include <TH1I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -89,11 +90,18 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
 			nChannels,
 			CParameterMapping(rParameter)))),
   m_nChannels(nChannels),
-  m_nParameter(rParameter.getNumber())
+  m_nParameter(rParameter.getNumber()),
+  m_pRootSpectrum(0)
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
   CreateChannels();
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(), nChannels, 0.0, static_cast<Double_t>(nChannels)
+  );
+  m_pRootSpectrum->Adopt(
+    nChannels, reinterpret_cast<Int_t*>(getStorage())
+  );
 }
 /*!
     Construct a 1d spectrum.   In this constructor,
@@ -125,10 +133,17 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			  CParameterMapping(rParameter)))),
   m_nChannels(nChannels),
-  m_nParameter(rParameter.getNumber())
+  m_nParameter(rParameter.getNumber()),
+  m_pRootSpectrum(0)
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
   CreateChannels();
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(), nChannels,
+    static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
+  );
+  m_pRootSpectrum->Adopt(
+    nChannels, reinterpret_cast<Int_t*>(getStorage()));
 }
 // Unused?? BUGBUGBUG - remove if really unused.
 
@@ -154,6 +169,17 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
 //  setStorageType(keWord);
 //}
 //--------------------
+
+/**
+ * destructor
+ *    Be sure to null out the root spectrum storage so it doesn't get deleted.
+ *    we need to manage it:
+ */
+CSpectrum1DL::~CSpectrum1DL()
+{
+    m_pRootSpectrum->fArray = nullptr;           // Prevent storage destruction.
+    delete m_pRootSpectrum;
+}   
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -182,6 +208,8 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
 
   if(rParam.isValid()) {  // Only increment if param present.
+    m_pRootSpectrum->Fill(rParam);
+#ifndef NO_ROOT
     Int_t nChannel =
    (Int_t)ParameterToAxis(0, rParam);
     
@@ -191,6 +219,7 @@ CSpectrum1DL::Increment(const CEvent& rE)
       UInt_t* p = (UInt_t*)getStorage();
       assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
+#endif
     }
   }
 }
@@ -215,6 +244,7 @@ CSpectrum1DL::UsesParameter(UInt_t nId) const
 
 }
 
+
 //////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -225,6 +255,8 @@ CSpectrum1DL::UsesParameter(UInt_t nId) const
 ULong_t
 CSpectrum1DL::operator[](const UInt_t* pIndices) const
 {
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(pIndices[0]));
+#ifdef NO_ROOT
   // Provides the value of an element of the spectrum.
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
@@ -236,7 +268,7 @@ CSpectrum1DL::operator[](const UInt_t* pIndices) const
 		      std::string("Indexing 1DL spectrum"));
   }
   return (ULong_t)p[n];
-		      
+#endif
 }
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -249,6 +281,9 @@ CSpectrum1DL::operator[](const UInt_t* pIndices) const
 void
 CSpectrum1DL::set(const UInt_t* pIndices, ULong_t nValue)
 {
+  m_pRootSpectrum->SetBinContent(
+    pIndices[0], static_cast<Double_t>(nValue));
+#ifdef NO_ROOT
   // Provides write access to a channel of the spectrum.
   //
   UInt_t* p = (UInt_t*)getStorage();
@@ -259,8 +294,13 @@ CSpectrum1DL::set(const UInt_t* pIndices, ULong_t nValue)
   }
   p[n] = (UInt_t)nValue;
 
-  
+#endif
 }
+
+/**
+ ** End TODO use root spectrum.
+ */
+
 /////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -315,4 +355,15 @@ CSpectrum1DL::CreateChannels()
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
   createStatArrays(1);
+}
+/**
+ * setStorage
+ *   This requires us to update the fArray field of the root spectrum:
+ *
+ * @param pStorage - new storage.
+ */
+void
+CSpectrum1DL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
 }

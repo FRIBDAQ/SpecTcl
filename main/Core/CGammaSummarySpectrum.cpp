@@ -332,7 +332,7 @@ CGammaSummarySpectrum<T>::Dimensionality() const
   Returns the number of channels in any of the two dimensions.
 */
 template <class T>
-UInt_t
+Size_t
 CGammaSummarySpectrum<T>::Dimension(UInt_t n) const
 {
   if (n == 0) {
@@ -439,7 +439,7 @@ CGammaSummarySpectrum<T>::CreateStorage()
    
   }
 
-  T* pStorage = new T[StorageNeeded()/sizeof(T)];
+  T* pStorage = new T[static_cast<unsigned>(StorageNeeded()/sizeof(T))];
   ReplaceStorage(pStorage);
   Clear();
   
