@@ -89,7 +89,7 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
 		  CAxis((Float_t)0.0, (Float_t)(nChannels-1),
 			nChannels,
 			CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels+2),
   m_nParameter(rParameter.getNumber()),
   m_pRootSpectrum(0)
 {
@@ -367,6 +367,7 @@ void
 CSpectrum1DL::setStorage(Address_t pStorage)
 {
   m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nChannels;            // Number of cells.
 }
 
 /**
