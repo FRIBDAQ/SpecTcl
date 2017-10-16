@@ -1100,4 +1100,9 @@ November 30-?? 2011
 	*  Fixed bug #4960 - running SpecTcl from ~ fails. Note users will
 	need to get the new SpecTclRC.tcl from Skel.
 	* Fix for bug #5642 - Xamine compilation warnings.
+5.0-experimental - try to slip root under the hood.
+	* Resolve data type conflicts between typedefs in SpecTcl and those
+	in root in favor or root.
+	* Make Spectrum1DL histogram into TH1I
+	* Make Spectrum1DW histogram into TH1W
 	
