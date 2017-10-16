@@ -61,9 +61,11 @@
 #include "CAxis.h"
 #endif
 
+
 //  Foward Class definitions:
 
-class CParameter;               
+class CParameter;
+class TH2I;
 
 class CSpectrum2DL  : public CSpectrum
 {
@@ -71,7 +73,7 @@ class CSpectrum2DL  : public CSpectrum
   UInt_t m_nYScale;		// Number of channels on  y Axis.
   UInt_t m_nXParameter;		// Number of parameter on X axis.
   UInt_t m_nYParameter;         // Number of parameter on Y axis.
-  
+  TH2I*  m_pRootSpectrum;   // For root histogramming.
 public:
 
 			//Constructor(s) with arguments
@@ -89,7 +91,7 @@ public:
   
 
 
-  virtual  ~ CSpectrum2DL( ) { }       //Destructor	
+  virtual  ~ CSpectrum2DL( );
 private:
 			//Copy constructor [illegal]
 
@@ -133,6 +135,10 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return ke2D;
   }
+  
+  virtual void setStorage(Address_t pStorage);
+
+  
   // Mutators (available to derived classes:
 
 protected:
@@ -168,6 +174,7 @@ public:
   }
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
+  virtual Size_t StorageNeeded() const;
 
   // Utility functions:
 protected:
