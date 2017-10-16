@@ -26,6 +26,7 @@
 #include "Event.h"
 #include "CAxis.h"
 #include "CParameterMapping.h"
+#include <TH2I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -68,16 +69,29 @@ CSpectrum2DL::CSpectrum2DL(const std::string& rName, UInt_t nId,
 			     nXScale, 0.0, (Float_t)(nXScale-1),
 			     rYParameter, 
 			     nYScale, 0.0, (Float_t)(nYScale-1))),
-  m_nXScale(nXScale),
-  m_nYScale(nYScale),
+  m_nXScale(nXScale + 2),                 // Account for Root needing 2
+  m_nYScale(nYScale + 2),                 // extra chans on each axis.
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber())
+  m_nYParameter(rYParameter.getNumber()),
+  m_pRootSpectrum(0)
 
 {
   AddAxis(nXScale, 0.0, (Float_t)(nXScale), 
 	  rXParameter.getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rYParameter.getUnits());
+  
+  // Create the root spectrum and set its storage to null so that it gets
+  // deleted.  CreateStorate indirectly calls setStorage which will swap in
+  // SpecTcl managed storage for the root TArrayI normally used:
+  
+  m_pRootSpectrum = new TH2I(
+    rName.c_str(), rName.c_str(),
+    nXScale, 0.0, static_cast<Double_t>(nXScale),
+    nYScale, 0.0, static_cast<Double_t>(nYScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);          // Free the root storage.
+  
   CreateStorage();
 }
 
@@ -116,19 +130,33 @@ CSpectrum2DL:: CSpectrum2DL(const std::string& rName, UInt_t nId,
 			     fxLow, fxHigh,
 			     rYParameter, nYChannels,
 			     fyLow, fyHigh)),
-  m_nXScale(nXChannels),
-  m_nYScale(nYChannels),
+  m_nXScale(nXChannels + 2),
+  m_nYScale(nYChannels + 2),
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber())
+  m_nYParameter(rYParameter.getNumber()),
+  m_pRootSpectrum(0)
   
 {
   AddAxis(nXChannels, fxLow, fxHigh, rXParameter.getUnits());
   AddAxis(nYChannels, fyLow, fyHigh, rYParameter.getUnits());
+  
+  // See comments in previousl constructor:
+  
+  m_pRootSpectrum = new TH2I(
+    rName.c_str(),  rName.c_str(),
+    nXChannels,  static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
+    nYChannels,  static_cast<Double_t>(fyLow), static_cast<Double_t>(fyHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
   
-
-
+CSpectrum2DL::~CSpectrum2DL()
+{
+  m_pRootSpectrum->fArray = nullptr;         // Prevents multiple deletes of
+  delete m_pRootSpectrum;                    // SpecTcl Managed storage.
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -153,28 +181,7 @@ CSpectrum2DL::Increment(const CEvent& rE)
 
   if(xParam.isValid()  && // Require the parameters be in event
      yParam.isValid()) {
-    Int_t nx = (Int_t)ParameterToAxis(0, xParam);
-    Int_t ny = (Int_t)ParameterToAxis(1, yParam);
-    bool increment = true;
-      if (nx < 0) {
-        logUnderflow(0);
-        increment = false;
-      } else if (nx >= (int)m_nXScale) {
-        logOverflow(0);
-        increment = false;
-      }
-      if (ny < 0) {
-        logUnderflow(1);
-        increment  = false;
-      } else if (ny >= (int)m_nYScale) {
-        logOverflow(1);
-        increment  = false;
-      }
-      if(increment) {
-	
-	UInt_t* pSpec = (UInt_t*)getStorage();
-	pSpec[nx + (ny * m_nXScale)]++;
-      }
+    m_pRootSpectrum->Fill(xParam, yParam);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -224,7 +231,8 @@ CSpectrum2DL::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny * m_nXScale)];
+  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  return (ULong_t)(m_pRootSpectrum->GetBinContent(bin));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -251,7 +259,8 @@ CSpectrum2DL::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB spectrum y axis"));
   }
-  p[nx + (ny * m_nXScale)] = (ULong_t)nValue;
+  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 
   
 }
@@ -383,4 +392,28 @@ CSpectrum2DL::Dimension(UInt_t n) const
   default:
     return 0;
   }
+}
+/**
+ * setStorage
+ *   Swap out the current storage for the  spectrum with new storage.
+ *   In SpecTcl, SpecTcl manages storage used by histograms.
+ *
+ *   @param pStorage   - pointer to new storage (m_nXSale * m_nYScale) cells.
+ */
+void
+CSpectrum2DL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fN = m_nXScale * m_nYScale;
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+}
+/**
+ * StorageNeeded
+ *    Compute the storage requirements in bytes of the spectrum.
+ *
+ *  @return Size_t
+ */
+Size_t
+CSpectrum2DL::StorageNeeded() const
+{
+  return m_nXScale * m_nYScale * sizeof(Int_t);
 }
