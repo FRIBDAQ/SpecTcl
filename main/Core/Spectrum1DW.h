@@ -74,7 +74,8 @@
 
 //  Foward Class definitions:
 
-class CParameter;               
+class CParameter;
+class TH1S;
                 
 /*!
    Implements 1d histograms with word channel buckets.  The histogram
@@ -87,6 +88,7 @@ class CSpectrum1DW  : public CSpectrum
 {
   UInt_t m_nChannels;		//!< Number of channels.
   UInt_t m_nParameter;		//!< Number parameter which is histogrammed
+  TH1S*  m_pRootSpectrum; //!< Spectrum from Root's point of view.
 
   
 public:
@@ -106,7 +108,7 @@ public:
   //  CSpectrum1DW(const std::string& rName, UInt_t nId,
   //	       const CParameter& rParameter);
 
-  virtual  ~ CSpectrum1DW( ) { }       //Destructor	
+  virtual  ~ CSpectrum1DW( ) ;          // Must kill off root spectrum.s
 private:
 			//Copy constructor [illegal]
 
@@ -147,6 +149,7 @@ protected:
   { 
     m_nParameter = am_nParameter;
   }
+  virtual void setStorage(Address_t pStorage); // so we can manage TH1S storage.
 
   //
   //  Operations:
@@ -159,7 +162,9 @@ public:
 
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
-
+  virtual Size_t StorageNeeded() const;    // Root 1ds need 2 extra channels worth.
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  
   // Utility functions:
 protected:
   void CreateChannels();	//!< Create storage.

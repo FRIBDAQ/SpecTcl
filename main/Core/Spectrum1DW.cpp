@@ -72,6 +72,7 @@
 #include "Event.h"
 #include "CAxis.h"
 #include <assert.h>
+#include <TH1S.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -118,10 +119,21 @@ CSpectrum1DW::CSpectrum1DW(const std::string& rName,
 		  CAxis(0.0, (Float_t)(nChannels-1),
 		  nChannels,
 		  CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
-  m_nParameter(rParameter.getNumber())
+  m_nChannels(nChannels+2),            // Root adds two channels.
+  m_nParameter(rParameter.getNumber()),
+  m_pRootSpectrum(0)
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), rParameter.getUnits());
+  
+  // Create the root spectrum.  Then CreateChannels will indirectly
+  // set the spectrum's  storage to the storage SpecTcl manages:
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(), nChannels, 0.0,
+    static_cast<Double_t>(nChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);      // Get th1 to delete its storage.
+  
   CreateChannels();
 }
 /*!
@@ -156,36 +168,30 @@ CSpectrum1DW::CSpectrum1DW(const std::string&  rName,
   CSpectrum(rName, nId,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			   CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
-  m_nParameter(rParameter.getNumber())
+  m_nChannels(nChannels+2),                  // Root adds two channels.
+  m_nParameter(rParameter.getNumber()),
+  m_pRootSpectrum(0)
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  
+  // See comments in prior constructor about the order of this.
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(), nChannels,
+    static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateChannels();
 }
-// Unused?? BUGBUGBUG - remove if really unused.
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CSpectrum1DW(const std::string& rname, UInt_t nId,
-//               const CParameter& rParameter)
-// Operation Type:
-//   Constructor
-// Comments:
-//   The nice thing about this constructor is that it doesn't 
-//   allocate any storage. Therefore, a derived spectrum type
-//   can call this constructor, but allocate its own storage.
-//
-// CSpectrum1DW::CSpectrum1DW(const std::string& rName, UInt_t nId,
-//			   const CParameter& rParameter) :
-//  CSpectrum(rName, nId),
-//  m_nScale(0),
-//  m_nParameter(rParameter.getNumber()),
-//  m_nScaleDifference(0)
-//{
-//  setStorageType(keWord);
-//}
-//--------------------
+/**
+ * destructor
+ */
+CSpectrum1DW::~CSpectrum1DW()
+{
+  m_pRootSpectrum->fArray = nullptr;          // Prevents attempted delete.
+  delete m_pRootSpectrum;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -213,15 +219,7 @@ CSpectrum1DW::Increment(const CEvent& rE)
 
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-        Int_t nChannel = Randomize(ParameterToAxis(0, 
-						 rEvent[m_nParameter]));
-        
-        if(checkRange(nChannel, m_nChannels, 0)) {
-            
-          UShort_t* p = (UShort_t*)getStorage();
-          assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!
-          p[nChannel]++;		      // Increment the histogram.
-        }
+        m_pRootSpectrum->Fill(rEvent[m_nParameter]);
     }
   }
 }
@@ -256,17 +254,8 @@ CSpectrum1DW::UsesParameter(UInt_t nId) const
 ULong_t
 CSpectrum1DW::operator[](const UInt_t* pIndices) const
 {
-  // Provides the value of an element of the spectrum.
-  // note:  This is not a 'normal' indexing operation in that
-  // references are not returned.
-  //
-  UShort_t* p = (UShort_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DL spectrum"));
-  }
-  return (ULong_t)p[n];
+  
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(pIndices[0]));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -280,17 +269,7 @@ CSpectrum1DW::operator[](const UInt_t* pIndices) const
 void
 CSpectrum1DW::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  // Provides write access to a channel of the spectrum.
-  //
-  UShort_t* p = (UShort_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DL spectrum"));
-  }
-  p[n] = (UShort_t)nValue;
-
-  
+  m_pRootSpectrum->SetBinContent(pIndices[0], static_cast<Double_t>(nValue));
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -345,4 +324,39 @@ CSpectrum1DW::CreateChannels()
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
   createStatArrays(1);
+}
+/**
+ * setStorage
+ *    Need to set the root storage:
+ *
+ * @param pStorage - newly assigned spectrum storage.
+ */
+void
+CSpectrum1DW::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  m_pRootSpectrum->fN = m_nChannels;            // Number of cells.
+}
+/**
+ * StorageNeeded
+ *    @return number of bytes needed by this spectrum.  Note the constructor
+ *            has diddled m_nChannels to account for the extra 2 chans.
+ */
+Size_t
+CSpectrum1DW::StorageNeeded() const
+{
+  return m_nChannels * sizeof(UShort_t);
+}
+/**
+ * Dimension
+ *    Number of channels in a specific dimension:
+ *
+ *  @param nDim - Which dimension (0 will give m_nChannels but others give 1).
+ *  @return Size_t
+ */
+Size_t
+CSpectrum1DW::Dimension(UInt_t nDim) const
+{
+  if (nDim == 0) return m_nChannels;
+  return 1;
 }
