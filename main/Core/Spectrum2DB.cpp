@@ -70,6 +70,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Event.h"
 #include "CAxis.h"
 #include "CParameterMapping.h"
+#include <TH2C.h>
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -113,14 +114,26 @@ CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
 			     nXScale, 0.0, (Float_t)(nXScale-1),
 			     rYParameter, 
 			     nYScale, 0.0, (Float_t)(nYScale-1))),
-  m_nXScale(nXScale),
-  m_nYScale(nYScale),
+  m_nXScale(nXScale + 2),             // +2 because root uses 0 and max for
+  m_nYScale(nYScale + 2),             // under/overflow indicators.
   m_nXParameter(rXParameter.getNumber()),
   m_nYParameter(rYParameter.getNumber())
 
 {
   AddAxis(nXScale, 0.0, (Float_t)(nXScale -1), rXParameter.getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale -1), rYParameter.getUnits());
+  
+  // The root spectrum is created and its storage deleted (Adopt call). The
+  // subsequent CreateStorage call calls setStorage allowing SpecTcl to manage
+  // the storage.
+  
+  m_pRootSpectrum = new TH2C(
+    rName.c_str(), rName.c_str(),
+    nXScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nXScale),
+    nYScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nYScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
 
@@ -160,42 +173,38 @@ CSpectrum2DB:: CSpectrum2DB(const std::string& rName, UInt_t nId,
 			     fxLow, fxHigh,
 			     rYParameter, nYChannels,
 			     fyLow, fyHigh)),
-  m_nXScale(nXChannels),
-  m_nYScale(nYChannels),
+  m_nXScale(nXChannels + 2),
+  m_nYScale(nYChannels + 2),
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber())
+  m_nYParameter(rYParameter.getNumber()),
+  m_pRootSpectrum(0)
   
 {
   AddAxis(nXChannels, fxLow, fxHigh, rXParameter.getUnits());
   AddAxis(nYChannels, fyLow, fyHigh, rYParameter.getUnits());
+  
+  // See prior constructor to understand what's happening here.
+  
+  m_pRootSpectrum = new TH2C(
+    rName.c_str(), rName.c_str(),
+    nXChannels, static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
+    nYChannels, static_cast<Double_t>(fyLow), static_cast<Double_t>(fyHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
-  
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CSpectrum2DB(const std::string& rname, UInt_t nId,
-//               const CParameter& rXParameter, const CParameter rYParmeter)
-// Operation Type:
-//   Constructor
-// Comments:
-//   This constructor exists for use by derived classes that want
-//   to allocate their own storage.
-//
-//CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
-//		   const CParameter& rXParameter, 
-//		   const CParameter& rYParameter) :
-//  CSpectrum(rName, nId),
-//  m_nXScale(0),
-//m_nYScale(0),
-//m_nXParameter(rXParameter.getNumber()),
-//m_nYParameter(rYParameter.getNumber()),
-//m_nXScaleDifference(0),
-//m_nYScaleDifference(0)
-//{
-//  setStorageType(keByte);
-//}
+/**
+ * destructor
+ *   Before deleting the root spectrum we need to make its storage pointer
+ *   null so that root doesn't try to manage the sdtorage for us.
+ */
+CSpectrum2DB::~CSpectrum2DB()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -218,19 +227,7 @@ CSpectrum2DB::Increment(const CEvent& rE)
   if((m_nXParameter < nParams) && (m_nYParameter < nParams)) {
     if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
        rEvent[m_nYParameter].isValid()) {
-      Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
-      Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-      
-      // Got to use temps as otherwise short circuit && in if can lose
-      // unders/overs  in y if x is not ok.
-      
-      bool xok = checkRange(nx, m_nXScale, 0);
-      bool yok = checkRange(ny, m_nYScale, 1);
-      if(xok && yok) {
-	
-	UChar_t* pSpec = (UChar_t*)getStorage();
-	pSpec[nx + (ny * m_nXScale)]++;
-      }
+      m_pRootSpectrum->Fill(rEvent[m_nXParameter], rEvent[m_nYParameter]);
     }
   }
     
@@ -282,7 +279,8 @@ CSpectrum2DB::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny * m_nXScale)];
+  UInt_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -309,8 +307,8 @@ CSpectrum2DB::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB spectrum y axis"));
   }
-  p[nx + (ny * m_nXScale)] = (UInt_t)nValue;
-
+  UInt_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
   
 }
 
@@ -442,4 +440,28 @@ CSpectrum2DB::Dimension(UInt_t n) const
   default:
     return 0;
   }
+}
+/**
+ * setStorage
+ *    Replaces the root spectrum storage with new storage.  This is done when
+ *    spectra are sbind'ed and unbind-ed.
+ * @param pStorage - New spectrum storage.  The caller is responsible for
+ *        copying the spectrum into the new storage at some point
+ */
+void
+CSpectrum2DB::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fN = m_nXScale * m_nYScale;    // # cells of storage.
+  m_pRootSpectrum->fArray = reinterpret_cast<Char_t*>(pStorage);
+}
+/**
+ * StorageNeeded
+ *    Compute the storage requirements in bytes of the spectrum.
+ *
+ *  @return Size_t
+ */
+Size_t
+CSpectrum2DB::StorageNeeded() const
+{
+  return m_nXScale * m_nYScale * sizeof(Char_t);
 }

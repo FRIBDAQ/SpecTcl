@@ -1105,4 +1105,7 @@ November 30-?? 2011
 	in root in favor or root.
 	* Make Spectrum1DL histogram into TH1I
 	* Make Spectrum1DW histogram into TH1W
-	
+	* Make Spectrum1DB histogram into TH1C
+	* Make Spectrum2DL histogram into TH2I
+	* Make Spectrum2DW histogram into TH2W
+	* Make Spectrum2DB histogram into TH2C
