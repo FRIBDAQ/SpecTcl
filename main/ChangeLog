@@ -1109,3 +1109,7 @@ November 30-?? 2011
 	* Make Spectrum2DL histogram into TH2I
 	* Make Spectrum2DW histogram into TH2W
 	* Make Spectrum2DB histogram into TH2C
+	* First shot at merging SpecTcl and Root Event loops.
+	* Add rootexec command - executes a root macro file in root
+	interp.
+

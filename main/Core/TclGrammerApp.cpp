@@ -43,6 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
+#include "CRootExec.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
 #include "GatingDisplayObserver.h"
@@ -62,6 +63,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeVariable.h>
 #include <TCLException.h>
 #include <TCLLiveEventLoop.h>
+#include <TCLTimer.h>
 
 #include "CFoldCommand.h"
 #include "CFitCommand.h"
@@ -94,6 +96,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 
+#include <TApplication.h>
+#include <TRint.h>
+#include <TSystem.h>
+
 #if defined(Darwin)
 #include <sys/syslimits.h>
 #endif
@@ -123,6 +129,10 @@ static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome Tcl
 
 
 // File scoped unbound variables:
+
+static int Argc;
+static char** Argv;
+
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
 static const UInt_t knDisplaySize    = 8;
@@ -152,6 +162,29 @@ char** CTclGrammerApp::m_pArgV = NULL;
 int CTclGrammerApp::m_argc = 0;
 
 // Local classes:
+
+/**
+ * CRootEventLoop
+ *    Is a timer class that executes whenever the Tcl event loop is idle,
+ *    asking Root to run any pending events it has.
+ */
+class CRootEventLoop : public CTCLTimer
+{
+public:
+  CRootEventLoop(CTCLInterpreter* pInterp) :
+    CTCLTimer(pInterp, 100) {
+      Set();
+    }
+  ~CRootEventLoop() {}
+  
+  virtual void operator()() {
+    extern TSystem* gSystem;
+    gSystem->ProcessEvents();         // Process root events.
+    Set();                            // Reschedule
+  }
+};
+
+
 
 /**
  * @class CSpecTclInitVar
@@ -758,6 +791,8 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   
   new CSpectrumStatsCommand(rInterp);
   
+  new CRootExec(rInterp, "rootexec");
+  
   cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
 
   new CSharedMemoryKeyCommand(rInterp, *SpecTcl::getInstance());
@@ -910,6 +945,11 @@ int CTclGrammerApp::operator()() {
   
   Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
 
+  // Setup to handle root events too:
+  
+  gApplication = new TRint("SpecTcl", &Argc, Argv );
+  new CRootEventLoop(gpInterpreter);
+  
   // Additional credits.
 
   cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
@@ -930,6 +970,7 @@ int CTclGrammerApp::operator()() {
   cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
   cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
   cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
+  cerr << "    - Root is a product of CERN (http://root.cern.ch)\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
   cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
   cerr << " the list of credits.\n";
@@ -1141,7 +1182,8 @@ void CTclGrammerApp::run()
  * \return
  */
 int main(int argc, char* argv[]) {
-
+    Argc = argc;
+    Argv = argv;
     try {
         CTclGrammerApp::m_argc = argc;
         CTclGrammerApp::m_pArgV = argv;
