@@ -62,7 +62,8 @@
 
 //  Foward Class definitions:
 
-class CParameter;               
+class CParameter;
+class TH2C;
 
 class CSpectrum2DB  : public CSpectrum
 {
@@ -70,7 +71,7 @@ class CSpectrum2DB  : public CSpectrum
   UInt_t m_nYScale;		// Number of channels on  y Axis.
   UInt_t m_nXParameter;		// Number of parameter on X axis.
   UInt_t m_nYParameter;         // Number of parameter on Y axis.
-  
+  TH2C*  m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments
@@ -87,7 +88,7 @@ public:
 	       UInt_t nYChannels, Float_t fyLow, Float_t fyHigh);
   
 
-  virtual  ~ CSpectrum2DB( ) { }       //Destructor	
+  virtual  ~ CSpectrum2DB( ) ;
 private:
 			//Copy constructor [illegal]
 
@@ -131,6 +132,9 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return ke2D;
   }
+  
+  virtual void setStorage(Address_t pStorage);
+  
   // Mutators (available to derived classes:
 
 protected:
@@ -167,6 +171,8 @@ public:
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
+  virtual Size_t StorageNeeded() const;
+  
   // Utility functions:
 protected:
   //!  Create an axis vector describing axis mappings.
