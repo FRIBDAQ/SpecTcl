@@ -63,7 +63,8 @@
 
 //  Foward Class definitions:
 
-class CParameter;               
+class CParameter;
+class TH2S;                    // Root 2d short histogram.
 
 class CSpectrum2DW  : public CSpectrum
 {
@@ -71,6 +72,7 @@ class CSpectrum2DW  : public CSpectrum
   UInt_t m_nYScale;		// Number of channels on  y Axis.
   UInt_t m_nXParameter;		// Number of parameter on X axis.
   UInt_t m_nYParameter;         // Number of parameter on Y axis.
+  TH2S*  m_pRootSpectrum;       // Root spectrum.
   
 public:
 
@@ -89,7 +91,7 @@ public:
   
 
 
-  virtual  ~ CSpectrum2DW( ) { }       //Destructor	
+  virtual  ~ CSpectrum2DW( ) ;           // Significant with root spectra.
 private:
 			//Copy constructor [illegal]
 
@@ -133,6 +135,9 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return ke2D;
   }
+  
+  virtual void setStorage(Address_t pStorage);
+
   // Mutators (available to derived classes:
 
 protected:
@@ -168,6 +173,7 @@ public:
   }
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
+  virtual Size_t StorageNeeded() const;
 
   // Utility functions:
 protected:

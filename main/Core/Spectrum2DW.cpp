@@ -76,6 +76,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Event.h"
 #include "CAxis.h"
 #include "CParameterMapping.h"
+#include <TH2S.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -118,16 +119,29 @@ CSpectrum2DW::CSpectrum2DW(const std::string& rName, UInt_t nId,
 			     nXScale, 0.0, (Float_t)(nXScale-1),
 			     rYParameter, 
 			     nYScale, 0.0, (Float_t)(nYScale-1))),
-  m_nXScale(nXScale),
-  m_nYScale(nYScale),
+  m_nXScale(nXScale + 2),           // For underflow and overflow
+  m_nYScale(nYScale + 2),           // root channels we add 2.
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber())
+  m_nYParameter(rYParameter.getNumber()),
+  m_pRootSpectrum(0)
 
 {
   AddAxis(nXScale, 0.0, (Float_t)(nXScale), 
 	  rXParameter.getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rYParameter.getUnits());
+  
+  // Create the root spectrum, note that CreateStorage will set the histogram's
+  // storage to be managed by SpecTcl not root:
+  
+  m_pRootSpectrum = new TH2S(
+    rName.c_str(), rName.c_str(),
+    nXScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nXScale),
+    nYScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nYScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);       // Free root's storage (see above).
+  
+  
   CreateStorage();
 }
 
@@ -166,42 +180,40 @@ CSpectrum2DW:: CSpectrum2DW(const std::string& rName, UInt_t nId,
 			     fxLow, fxHigh,
 			     rYParameter, nYChannels,
 			     fyLow, fyHigh)),
-  m_nXScale(nXChannels),
-  m_nYScale(nYChannels),
+  m_nXScale(nXChannels + 2),
+  m_nYScale(nYChannels + 2),
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber())
+  m_nYParameter(rYParameter.getNumber()),
+  m_pRootSpectrum(0)
   
 {
   AddAxis(nXChannels, fxLow, fxHigh, rXParameter.getUnits());
   AddAxis(nYChannels, fyLow, fyHigh, rYParameter.getUnits());
+  
+  // Create the root spectrum and let its storage be managed by us.
+  // The call to CreateStorage establishes our storage:
+  
+  m_pRootSpectrum = new TH2S(
+    rName.c_str(), rName.c_str(),
+    nXChannels, static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
+    nYChannels, static_cast<Double_t>(fyLow), static_cast<Double_t>(fyHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);     // Free root storage for spectrum.
+  
   CreateStorage();
 }
-  
+/**
+ * destructor
+ *    We need to replace the storage with a null pointer as deletion
+ *    of the actual storage will have been done by SpecTcl
+ */
+CSpectrum2DW::~CSpectrum2DW()
+{
+  m_pRootSpectrum->fArray = nullptr;     // Prevents root from deleting actual storage.
+  delete m_pRootSpectrum;
+}
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CSpectrum2DW(const std::string& rname, UInt_t nId,
-//               const CParameter& rXParameter, const CParameter rYParmeter)
-// Operation Type:
-//   Constructor
-// Comments:
-//   This constructor exists for use by derived classes that want
-//   to allocate their own storage.
-//
-//CSpectrum2DW::CSpectrum2DW(const std::string& rName, UInt_t nId,
-//		   const CParameter& rXParameter, 
-//		   const CParameter& rYParameter) :
-//  CSpectrum(rName, nId),
-//  m_nXScale(0),
-//m_nYScale(0),
-//m_nXParameter(rXParameter.getNumber()),
-//m_nYParameter(rYParameter.getNumber()),
-//m_nXScaleDifference(0),
-//m_nYScaleDifference(0)
-//{
-//  setStorageType(keWord);
-//}
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -226,28 +238,7 @@ CSpectrum2DW::Increment(const CEvent& rE)
 
   if(xParam.isValid()  && // Require the parameters be in event
      yParam.isValid()) {
-    Int_t nx = (Int_t)ParameterToAxis(0, xParam);
-    Int_t ny = (Int_t)ParameterToAxis(1, yParam);
-    bool increment = true;
-      if (nx < 0) {
-        logUnderflow(0);
-        increment = false;
-      } else if (nx >= (int)m_nXScale) {
-        logOverflow(0);
-        increment = false;
-      }
-      if (ny < 0) {
-        logUnderflow(1);
-        increment  = false;
-      } else if (ny >= (int)m_nYScale) {
-        logOverflow(1);
-        increment  = false;
-      }
-      if(increment) {
-	
-	UShort_t* pSpec = (UShort_t*)getStorage();
-	pSpec[nx + (ny * m_nXScale)]++;
-      }
+    m_pRootSpectrum->Fill(xParam, yParam);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -297,7 +288,8 @@ CSpectrum2DW::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny * m_nXScale)];
+  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  return (ULong_t)(m_pRootSpectrum->GetBinContent(bin));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -324,7 +316,9 @@ CSpectrum2DW::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB spectrum y axis"));
   }
-  p[nx + (ny * m_nXScale)] = (UInt_t)nValue;
+  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
+  
 
   
 }
@@ -457,4 +451,28 @@ CSpectrum2DW::Dimension(UInt_t n) const
   default:
     return 0;
   }
+}
+/**
+ * setStorage
+ *    Replaces the root spectrum storage with new storage.  This is done when
+ *    spectra are sbind'ed and unbind-ed.
+ * @param pStorage - New spectrum storage.  The caller is responsible for
+ *        copying the spectrum into the new storage at some point
+ */
+void
+CSpectrum2DW::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fN = m_nXScale * m_nYScale;    // # cells of storage.
+  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+}
+/**
+ * StorageNeeded
+ *    Compute the storage requirements in bytes of the spectrum.
+ *
+ *  @return Size_t
+ */
+Size_t
+CSpectrum2DW::StorageNeeded() const
+{
+  return m_nXScale * m_nYScale * sizeof(UShort_t);
 }
