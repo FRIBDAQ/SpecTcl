@@ -94,12 +94,14 @@
 //  Forward class definition:
 
 class CParameter;
+class TH2S;                // Root 16 bit 2d spectrum class.
 
 
 class CGamma2DW : public CGammaSpectrum
 {
   UInt_t m_nXScale;		//!< X channel count.
   UInt_t m_nYScale;		//!< Y Channel count.
+  TH2S*  m_pRootSpectrum;
   
 public:
 
@@ -116,11 +118,9 @@ public:
 	    Float_t yLow, Float_t yHigh);
 
 
-  // Constuctor for use by derived classes
-  //  CGamma2DW(const std::string& rName, UInt_t nId,
-  //    std::vector<CParameter>& rParameter);
+  
 
-  virtual  ~ CGamma2DW( ) { }       //Destructor	
+  virtual  ~ CGamma2DW( );
 private:
 			//Copy constructor [illegal]
 
@@ -185,6 +185,9 @@ public:
   virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters);
   virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
 			 std::vector<std::pair<UInt_t, Float_t> >& yParameters);
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
+  
  private:
   static CSpectrum::Axes CreateAxisVector(std::vector<CParameter>& rParams,
 					  UInt_t nXchan, UInt_t nYchan,
