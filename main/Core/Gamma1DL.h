@@ -58,6 +58,8 @@
 #include <histotypes.h>
 #endif
 
+class TH1I;             // Root 1d 32 bit spectrum.
+
 //  Foward Class definition:
 
 class CParameter;
@@ -65,7 +67,7 @@ class CParameter;
 class CGamma1DL : public CGammaSpectrum
 {
   UInt_t         m_nScale;	// Spectrum channel count.
-
+  TH1I*          m_pRootSpectrum;
  public:
 
   //Constructors
@@ -84,7 +86,7 @@ class CGamma1DL : public CGammaSpectrum
   // CGamma1DL(const std::string& rName, UInt_t nId,
   //	    std::vector<CParameter> rrParameters);
 
-  virtual ~CGamma1DL( ) { }      //Destructor
+  virtual ~CGamma1DL( );
 
  private:
 
@@ -129,6 +131,8 @@ class CGamma1DL : public CGammaSpectrum
 
 
   virtual void GetResolutions(std::vector<UInt_t>& rvResolutions);
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
 
   // Utility functions:
 

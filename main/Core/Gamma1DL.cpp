@@ -95,6 +95,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CParameterMapping.h"
 #include "CAxis.h"
 #include <assert.h>
+#include <TH1I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -137,11 +138,17 @@ CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
   CGammaSpectrum(rName, nId,
 	    MakeAxesVector(rrParameters, nScale,
 			   0.0, (Float_t)(nScale)), rrParameters),
-  m_nScale(nScale)
+  m_nScale(nScale + 2)
 {
   // The assumption is that all axes have the same units.
 
   AddAxis(nScale, 0.0, (Float_t)(nScale - 1), rrParameters[0].getUnits());
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    nScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
 
 }
@@ -171,12 +178,27 @@ CGamma1DL::CGamma1DL(const string& rName, UInt_t nId,
 		     Float_t fLow, Float_t fHigh) :
   CGammaSpectrum(rName, nId,
 		 MakeAxesVector(rrParameters, nChannels, fLow, fHigh), rrParameters),
-  m_nScale(nChannels)
+  m_nScale(nChannels + 2)
 {
   AddAxis(nChannels, fLow, fHigh, rrParameters[0].getUnits());
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
+  );
+  m_pRootSpectrum->Adopt(0,nullptr);
   CreateStorage();
 }
-
+/**
+ * destructor
+ *   Do the fancy footwork needed to ensure Root doesn't try to manage
+ *   our storage for us.
+ */
+CGamma1DL::~CGamma1DL()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -190,12 +212,10 @@ ULong_t
 CGamma1DL::operator[] (const UInt_t* pIndices) const
 {
   UInt_t* pStorage = (UInt_t*)getStorage();
-  UInt_t n = pIndices[0];
-  if (n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n, 
-		      std::string("Indexing 1DL gamma spectrum"));
-  }
-  return (ULong_t)pStorage[n];
+  Double_t n = pIndices[0];
+  
+  Int_t bin = m_pRootSpectrum->FindBin(n);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -211,12 +231,9 @@ void
 CGamma1DL::set (const UInt_t* pIndices, ULong_t nValue)
 {
   UInt_t* pStorage = (UInt_t*)getStorage();
-  UInt_t n = pIndices[0];
-  if (n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DL gamma spectrum"));
-  }
-  pStorage[n] = (UInt_t)nValue;
+  Double_t n = pIndices[0];
+  Int_t  bin = m_pRootSpectrum->FindBin(n);
+  m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
 }
 
 
@@ -292,12 +309,9 @@ CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
   UInt_t* pStorage = (UInt_t*)getStorage();
 
   for(int i =0; i < rParams.size(); i++) {
-    UInt_t   nParameter = rParams[i].first;
-    Float_t  fValue     = rParams[i].second;
-    Int_t   y          = (Int_t)ParameterToAxis(0, fValue);
-    if(checkRange(y, m_nScale, 0)) {
-      pStorage[y]++;
-    }
+    UInt_t    nParameter = rParams[i].first;
+    Double_t  fValue     = rParams[i].second;
+    m_pRootSpectrum->Fill(fValue);
     
   }
 }
@@ -311,4 +325,26 @@ CGamma1DL::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
 			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("Invalid gamma 2d deluxe increment call in CGamma1DL");
+}
+/**
+ * setStorage
+ *    Replace the spectrum storage with new storage.  The caller is responsible
+ *    for actually managing the storage.
+ *  @param pStorage - pointer to the storage to be used for the spectrum
+ *       channels.
+ */
+void
+CGamma1DL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nScale;
+}
+/**
+ * StorageNeeded
+ *   @return Size_t number of bytes of spectrum storage required.
+ */
+Size_t
+CGamma1DL::StorageNeeded() const
+{
+  return m_nScale * sizeof(Int_t);
 }
