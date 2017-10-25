@@ -935,6 +935,7 @@ int CTclGrammerApp::operator()() {
   
   gApplication = new TRint("SpecTcl", &Argc, Argv );
   new CRootEventLoop(gpInterpreter);
+  new CRootExitCommand(*gpInterpreter, "exit");         // Override Tcl exit.
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
