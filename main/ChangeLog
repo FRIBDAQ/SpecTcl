@@ -1117,4 +1117,6 @@ November 30-?? 2011
 	* Slide TH1I underneath the hood of CBitSpectrumL
 	* Slide TH1S underneath the hood of CBitSpectrumW
 	* Slide a TH1I under the hood of CGamma1DL
+	* Slide a TH1S under the hood of a CGamma1DW
+	
 

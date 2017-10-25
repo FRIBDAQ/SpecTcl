@@ -85,6 +85,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CParameterMapping.h"
 #include "CAxis.h"
 #include <assert.h>
+#include <TH1S.h>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -127,10 +129,17 @@ CGamma1DW::CGamma1DW(const std::string& rName, UInt_t nId,
   CGammaSpectrum(rName, nId,
 		 MakeAxesVector(rrParameters, nScale,
 				0.0, (Float_t)(nScale)), rrParameters),
-  m_nScale(nScale)
+  m_nScale(nScale + 2)
 {
   // we asssume all parameters have the same units...
   AddAxis(nScale, 0.0, (Float_t)(nScale - 1), rrParameters[0].getUnits());
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(),
+    nScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 
 }
@@ -160,12 +169,27 @@ CGamma1DW::CGamma1DW(const string& rName, UInt_t nId,
 		     Float_t fLow, Float_t fHigh) :
   CGammaSpectrum(rName, nId,
 	    MakeAxesVector(rrParameters, nChannels, fLow, fHigh), rrParameters),
-  m_nScale(nChannels)
+  m_nScale(nChannels + 2)
 {
   AddAxis(nChannels, fLow, fHigh, rrParameters[0].getUnits());
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
 }
 
+/**
+ * Destructor - do the fancy dance needed to ensure Root does not try to manage
+ *              my spectrum storage.
+ */
+CGamma1DW::~CGamma1DW()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -178,13 +202,14 @@ CGamma1DW::CGamma1DW(const string& rName, UInt_t nId,
 ULong_t
 CGamma1DW::operator[] (const UInt_t* pIndices) const
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
-  UInt_t n = pIndices[0];
+  
+  Double_t n = pIndices[0];
   if (n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n, 
 		      std::string("Indexing 1DL gamma spectrum"));
   }
-  return (ULong_t)pStorage[n];
+  Int_t bin = m_pRootSpectrum->FindBin(n);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -199,13 +224,14 @@ CGamma1DW::operator[] (const UInt_t* pIndices) const
 void
 CGamma1DW::set (const UInt_t* pIndices, ULong_t nValue)
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
-  UInt_t n = pIndices[0];
+  
+  Double_t n = pIndices[0];
   if (n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing 1DL gamma spectrum"));
   }
-  pStorage[n] = (UShort_t)nValue;
+  Int_t bin = m_pRootSpectrum->FindBin(n);
+  m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
 }
 
 
@@ -278,16 +304,11 @@ CGamma1DW::MakeAxesVector(vector<CParameter> Params,
 void
 CGamma1DW::Increment(vector<pair<UInt_t, Float_t> >& rParams)
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
+
   for(int i =0; i < rParams.size(); i++) {
-    UInt_t   nParameter = rParams[i].first;
-    Float_t  fValue     = rParams[i].second;
-    Int_t   y          = (Int_t)ParameterToAxis(0, fValue);
-  
-    if(checkRange(y, m_nScale, 0)) {
-      pStorage[y]++;
-    }
-    
+    UInt_t    nParameter = rParams[i].first;
+    Double_t  fValue     = rParams[i].second;
+    m_pRootSpectrum->Fill(fValue);    
   }
 }
 
@@ -298,4 +319,27 @@ CGamma1DW::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
 			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("Gamma 2d Deluxe increment called for CGamma1DW");
+}
+/**
+ * setStorage
+ *    Replace root histogram storage with something else.
+ *
+ * @param pStorage - pointer to new storage.
+ */
+void
+CGamma1DW::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nScale;
+}
+
+/**
+ *  StorageNeeded
+ *
+ *  @return Size_t - number of bytes of spectrum storage required.
+ */
+Size_t
+CGamma1DW::StorageNeeded() const
+{
+  return static_cast<Size_t>(m_nScale * sizeof(Short_t));
 }
