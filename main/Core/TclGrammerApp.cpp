@@ -44,6 +44,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
 #include "CRootExec.h"
+#include "CRootExitCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
 #include "GatingDisplayObserver.h"

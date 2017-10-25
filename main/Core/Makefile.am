@@ -237,7 +237,7 @@ SpecTcl_SRC =  MySpecTclApp.cpp \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h  TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
-	CFoldCommand.h CRootExec.h
+	CFoldCommand.h CRootExec.h CRootExit.h
 
 Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 
