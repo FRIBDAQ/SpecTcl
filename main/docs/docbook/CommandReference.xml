@@ -6385,6 +6385,59 @@ stop
         </itemizedlist>
     </refsect1>
 </refentry>
+<refentry id='ref.rootexec'>
+    <refmeta>
+        <refentrytitle id='ref.rootexec.title'>rootexec</refentrytitle>
+        <manvolnum>1SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>rootexec (experimental 5.0)</refname>
+        <refpurpose>Execute a root macro file.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+            <command>
+rootexec <replaceable>filename</replaceable>
+            </command>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            SpecTcl 5.0 introduces an experimental integration with CERN's Root
+            data analysis framework.  This command passes the
+            <replaceable>filename</replaceable> parameter to the root interpreter
+            for execution.  
+        </para>
+        <para>
+            Note that SpecTcl's initialization order is such that this is
+            supported from within <filename>SpecTclRC.tcl</filename> but
+            <emphasis>not</emphasis> from within
+            <filename>SpecTclInit.tcl</filename>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>EXAMPLE</title>
+        <para>
+            Suppose we have a file named Browser.C that contains the C++ code:
+        </para>
+        <informalexample>
+            <programlisting>
+void Browser() {
+    new TBrowser;
+}
+            </programlisting>
+        </informalexample>
+        <para>
+            The command
+            <command>rootexec Browser.C</command> will bring up a Root Browser
+            window.  Note that all SpecTcl spectra now are histogrammed using
+            Root histogram objects and will appear in the
+            <filename>root/ROOT memory</filename> folder of the browser.
+        </para>
+    </refsect1>
+
+</refentry>
 </reference>
 
 </book>
