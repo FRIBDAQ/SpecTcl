@@ -79,6 +79,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <math.h>
 #include "CAxis.h"
+#include <TH1I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -114,13 +115,22 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
 	    Axes(1, CAxis(0.0, Float_t(nChannels-1), 
 			  nChannels,
 			  CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels + 2),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
   
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels)); // bits are unitless.
-  CreateStorage();
+  
+  // Create the corresponding Root spectrum:
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);      // delete the root spectrum storage
+  
+  CreateStorage();                  // This replaces spectrum storage too.
 }
 /*! 
   Constructs a bit spectrum that has a cut in axis and
@@ -153,13 +163,31 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
 		       (Float_t) nHigh,
 		       (nHigh - nLow),
 		       CParameterMapping(rParameter)))),
-  m_nChannels(nHigh - nLow),
+  m_nChannels(nHigh - nLow + 2),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
 {
   AddAxis((nHigh - nLow), 
 	  (Float_t)nLow, (Float_t)nHigh); // bits are unitless.
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    m_nChannels - 2, static_cast<Double_t>(nLow), static_cast<Double_t>(nHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
+}
+
+/**
+ * destructor
+ *   We need to delete the root spectrum but first - need to null out its
+ *   storage attribute so that its destruction does not try to kill SpecTcl's
+ *   storage.
+ */
+CBitSpectrumL::~CBitSpectrumL()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
 }
 
 // Functions for class CBitSpectrumL:
@@ -182,40 +210,17 @@ CBitSpectrumL::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {
-      UInt_t* p = (UInt_t*)getStorage();
-      assert(p != (UInt_t*)kpNULL);
-      UInt_t nParam = 
-	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
-      
-      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0);
-      
-      
-      //
-      //  Increment a channel in p for every bit set in 
-      //  nParam:
-      //
-      for(UInt_t nChan = 0; nChan < m_nChannels; nChan++) {
-	if(nBit & nParam) {
-	  p[nChan]++;
-          nParam &= ~nBit;            // Remove the bit.
-	}
-	nBit = nBit << 1;
-      }
-      // Under/overflows:
-      
-      UInt_t lowBit = 1 << (UInt_t)AxisToMapped(0, 0);
+      UInt_t nParam = rEvent[m_nParameter];
+      Double_t bitnum = 0;
       UInt_t bit = 1;
       while(nParam) {
         if (bit & nParam) {
-            if (bit < lowBit) {
-                logUnderflow(0);
-            } else {
-                logOverflow(0);
-            }
+            
             nParam &= ~bit;
-           
+            m_pRootSpectrum->Fill(bitnum);
         }
         bit = bit << 1;
+        bitnum += 1.0;
       }
     }
   }
@@ -248,13 +253,11 @@ CBitSpectrumL::operator[](const UInt_t* pIndices) const
   // produces rvalues.  This, however allows a uniform call/return 
   // for all types of spectra.
   //
-  UInt_t* p = (UInt_t*)getStorage();
+  
   UInt_t    n = pIndices[0];
-  if(n > Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing BitW spectrum"));
-  }
-  return (ULong_t)p[n];
+  Int_t   bin = m_pRootSpectrum->FindBin(n);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(n));
+
 }
 ///////////////////////////////////////////////////////////////////////
 //
@@ -279,12 +282,8 @@ CBitSpectrumL::set(const UInt_t* pIndices, ULong_t nValue)
   //
   UInt_t* p = (UInt_t*)getStorage();
   UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DW spectrum"));
-  }
-  p[n] = (UInt_t)nValue;
- 
+  Int_t  bin = m_pRootSpectrum->FindBin(n);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -344,4 +343,26 @@ CBitSpectrumL::CreateStorage()
 
   createStatArrays(1);
 
+}
+/**
+ * setStorage
+ *    Replace the root storage with SpecTcl managed storage.
+ * @param pStorage - pointer to SpecTcl managed storage for the spectrum.
+ */
+void
+CBitSpectrumL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nChannels;
+}
+/**
+ * StorageNeeded
+ *    Return the number of bytres of storage  needed by this spectrum.
+ *
+ *  @return Size_t
+ */
+Size_t
+CBitSpectrumL::StorageNeeded() const
+{
+  return m_nChannels * sizeof(UInt_t);
 }
