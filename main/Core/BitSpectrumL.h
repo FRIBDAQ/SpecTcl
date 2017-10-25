@@ -77,6 +77,8 @@
 #endif 
 #endif
 
+class TH1I;           // Root Spectrum to use.
+
 /*!
    Represents a spectrum of longword channels, each channel corresponds
    to a bit in the integerized (mapped) parameter.  If the bit
@@ -89,6 +91,7 @@ class CBitSpectrumL  : public CSpectrum
   UInt_t m_nChannels;		// Spectrum size in channels.
   UInt_t m_nParameter;		// Number parameter which is histogrammed
   CParameter m_PDescription;
+  TH1I*      m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments
@@ -102,7 +105,7 @@ public:
 		UInt_t nHigh);	// Slice of the space... floats are no good.
 		
 
-  virtual  ~ CBitSpectrumL( ) { }       //Destructor	
+  virtual  ~ CBitSpectrumL( ) ;
 private:
 			//Copy constructor [illegal]
 
@@ -135,6 +138,7 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return keBitmask;
   }
+  virtual void setStorage(Address_t pStorage);
 
   // Mutators (available to derived classes:
 
@@ -159,6 +163,7 @@ public:
 
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
+  virtual Size_t StorageNeeded() const;
 
   // Utility functions:
 protected:

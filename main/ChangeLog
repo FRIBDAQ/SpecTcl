@@ -1114,4 +1114,5 @@ November 30-?? 2011
 	interp.
 	* Replace Tcl exit command with gApplication->Terminate()
 	operation.  Voids segfaults.
+	* Slide TH1I underneath the hood of CBitSpectrumL
 
