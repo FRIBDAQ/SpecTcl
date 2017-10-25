@@ -72,6 +72,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <math.h>
 #include "CAxis.h"
+#include <TH1S.h>
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -106,12 +108,23 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName,
 	    Axes(1, CAxis((Float_t)0.0, Float_t(nChannels), 
 			  nChannels,
 			  CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels + 2),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
   
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels - 1));
+  
+  
+  // The usual dance to make a root spectrum whose storage is managed by
+  // SpecTcl
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
 /*! 
@@ -144,12 +157,27 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
 				  (Float_t) nHigh,
 				  (nHigh - nLow),
 				  CParameterMapping(rParameter)))),
-  m_nChannels(nHigh - nLow),
+  m_nChannels(nHigh - nLow + 2),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
 {
   AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
+  
+  m_pRootSpectrum = new TH1S(
+    rName.c_str(), rName.c_str(),
+    m_nChannels - 2, static_cast<Double_t>(nLow), static_cast<Double_t>(nHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
+}
+/**
+ * destructor
+ *    need to null out storage before destroying the root spectrum.
+ */
+CBitSpectrumW::~CBitSpectrumW()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
 }
 
 // Functions for class CBitSpectrumW:
@@ -174,38 +202,16 @@ CBitSpectrumW::Increment(const CEvent& rE)
     if(rEvent[m_nParameter].isValid()) {
       UShort_t* p = (UShort_t*)getStorage();
       assert(p != (UShort_t*)kpNULL);
-      UInt_t nParam = 
-	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
-      
-      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0);
-      
-      
-      //
-      //  Increment a channel in p for every bit set in 
-      //  nParam:
-      //
-      for(UInt_t nChan = 0; nChan < m_nChannels; nChan++) {
-	if(nBit & nParam) {
-	  p[nChan]++;
-          nParam &= ~nBit;            // Remove the bit.
-	}
-	nBit = nBit << 1;
-      }
-      // Under/overflows:
-      
-      UInt_t lowBit = 1 << (UInt_t)AxisToMapped(0, 0);
-      UInt_t bit = 1;
+      UInt_t nParam = rEvent[m_nParameter];
+      UInt_t nBit   = 1;
+      Double_t bitNum = 0;
       while(nParam) {
-        if (bit & nParam) {
-            if (bit < lowBit) {
-                logUnderflow(0);
-            } else {
-                logOverflow(0);
-            }
-            nParam &= ~bit;
-            
+        if(nBit & nParam) {
+          m_pRootSpectrum->Fill(bitNum);
+          nParam &= ~nBit;            // Remove the bit.
         }
-        bit = bit << 1;
+        nBit = nBit << 1;
+        bitNum += 1.0;
       }
     }
   }
@@ -237,13 +243,10 @@ CBitSpectrumW::operator[](const UInt_t* pIndices) const
   // produces rvalues.  This, however allows a uniform call/return 
   // for all types of spectra.
   //
-  UShort_t* p = (UShort_t*)getStorage();
-  UInt_t    n = pIndices[0];
-  if(n > Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing BitW spectrum"));
-  }
-  return (ULong_t)p[n];
+  UShort_t*   p = (UShort_t*)getStorage();
+  Double_t    n = pIndices[0];
+  Int_t     bin = m_pRootSpectrum->FindBin(n);
+  return (ULong_t)m_pRootSpectrum->GetBinContent(bin);
 }
 ///////////////////////////////////////////////////////////////////////
 //
@@ -266,14 +269,10 @@ CBitSpectrumW::set(const UInt_t* pIndices, ULong_t nValue)
  
   // Provides write access to a channel of the spectrum.
   //
-  UShort_t* p = (UShort_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DW spectrum"));
-  }
-  p[n] = (UShort_t)nValue;
- 
+  
+  Double_t   n = pIndices[0];
+  Int_t    bin = m_pRootSpectrum->FindBin(n);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -334,4 +333,24 @@ CBitSpectrumW::CreateStorage()
 
   createStatArrays(1);
 
+}
+/**
+ * setStorage
+ *    Set the new root storage:
+ *  @param pStorage - pointer to storage to use.
+ */
+void
+CBitSpectrumW::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nChannels;
+}
+/**
+ * StorageNeeded
+ *   @return number of bytes of storage the spectrum requires.
+ */
+Size_t
+CBitSpectrumW::StorageNeeded() const
+{
+  return m_nChannels * sizeof(UShort_t);
 }

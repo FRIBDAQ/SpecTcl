@@ -75,6 +75,8 @@
 #ifndef __PARAMETER_H
 #include "Parameter.h"
 #endif
+            
+class TH1S;             // I*2 spectrum for root.
                 
 /*!
    Represents a spectrum of longword channels, each channel corresponds
@@ -88,6 +90,7 @@ class CBitSpectrumW  : public CSpectrum
   UInt_t m_nChannels;		// Spectrum size in channels.
   UInt_t m_nParameter;		// Number parameter which is histogrammed
   CParameter m_PDescription;
+  TH1S*      m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments
@@ -101,7 +104,7 @@ public:
 		UInt_t nHigh);	// Slice of the space... floats are no good.
 		
 
-  virtual  ~ CBitSpectrumW( ) { }       //Destructor	
+  virtual  ~CBitSpectrumW( );
 private:
 			//Copy constructor [illegal]
 
@@ -146,6 +149,7 @@ protected:
   { 
     m_nParameter = am_nParameter;
   }
+  virtual void setStorage(Address_t pStorage);
 
   //
   //  Operations:
@@ -158,7 +162,8 @@ public:
 
   virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
-
+  virtual Size_t StorageNeeded() const;
+  
   // Utility functions:
 protected:
   void CreateStorage();		//!< Create spec storage
