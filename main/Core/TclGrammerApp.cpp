@@ -951,6 +951,11 @@ int CTclGrammerApp::operator()() {
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
 
+    // Setup the Root interpreter and eventloop:
+  
+  gApplication = new TRint("SpecTcl", &Argc, Argv );
+  new CRootEventLoop(gpInterpreter);
+  
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up.
@@ -966,10 +971,7 @@ int CTclGrammerApp::operator()() {
   
   Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
 
-  // Setup to handle root events too:
-  
-  gApplication = new TRint("SpecTcl", &Argc, Argv );
-  new CRootEventLoop(gpInterpreter);
+
   
   // Additional credits.
 
