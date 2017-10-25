@@ -1112,4 +1112,6 @@ November 30-?? 2011
 	* First shot at merging SpecTcl and Root Event loops.
 	* Add rootexec command - executes a root macro file in root
 	interp.
+	* Replace Tcl exit command with gApplication->Terminate()
+	operation.  Voids segfaults.
 
