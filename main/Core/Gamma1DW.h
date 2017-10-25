@@ -90,10 +90,12 @@
 //  Foward Class definition:
 
 class CParameter;
+class TH1S;             /// Root histogram class we'll use.
 
 class CGamma1DW : public CGammaSpectrum
 {
   UInt_t         m_nScale;	//!< Spectrum channel count.
+  TH1S*          m_pRootSpectrum;
 
  public:
 
@@ -113,7 +115,7 @@ class CGamma1DW : public CGammaSpectrum
   // CGamma1DW(const std::string& rName, UInt_t nId,
   //	    std::vector<CParameter> rrParameters);
 
-  virtual ~CGamma1DW( ) { }      //Destructor
+  virtual ~CGamma1DW( ) ;
 
  private:
 
@@ -157,7 +159,10 @@ class CGamma1DW : public CGammaSpectrum
 
 
   virtual void GetResolutions(std::vector<UInt_t>& rvResolutions);
-
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
+  
+  
   // Utility functions:
 
 protected:
