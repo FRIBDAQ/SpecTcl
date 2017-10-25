@@ -79,6 +79,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CGammaBand.h"
 #include "CGammaContour.h"
 #include <assert.h>
+#include <TH2S.h>
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -106,14 +107,21 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
 			     0.0,    (Float_t)(nXScale ),
 			     0.0,    (Float_t)(nYScale)),
 		 rParameters),
-  m_nXScale(nXScale),
-  m_nYScale(nYScale)
+  m_nXScale(nXScale + 2),
+  m_nYScale(nYScale + 2)
 {
 
   // The assumption is all parameters have the same units.
 
   AddAxis(nXScale, 0.0, (Float_t)(nXScale - 1), rParameters[0].getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), rParameters[0].getUnits());
+  
+  m_pRootSpectrum = new TH2S(
+    rName.c_str(), rName.c_str(),
+    nXScale, static_cast<Double_t>(0), static_cast<Double_t>(nXScale),
+    nYScale, static_cast<Double_t>(0), static_cast<Double_t>(nYScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
 
   CreateStorage();
   
@@ -149,16 +157,32 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   CGammaSpectrum(rName, nId,
 	    CreateAxisVector(rParameters, nXScale, nYScale,
 			     xLow, xHigh, yLow, yHigh), rParameters),
-  m_nXScale(nXScale),
-  m_nYScale(nYScale)
+  m_nXScale(nXScale + 2),
+  m_nYScale(nYScale + 2)
 {
   // The assumption is all paramters have the same units.
   AddAxis(nXScale, xLow, xHigh, rParameters[0].getUnits());
   AddAxis(nYScale, yLow, yHigh, rParameters[0].getUnits());
 
+  m_pRootSpectrum = new TH2S(
+    rName.c_str(), rName.c_str(),
+    nXScale, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
+    nYScale, static_cast<Double_t>(yLow), static_cast<Double_t>(yHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
 
+/**
+ * destructor
+ */
+CGamma2DW::~CGamma2DW()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+  
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -171,9 +195,9 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
 ULong_t
 CGamma2DW::operator[] (const UInt_t* pIndices) const
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
-  UInt_t nx = pIndices[0];
-  UInt_t ny = pIndices[1];
+  
+  Double_t nx = pIndices[0];
+  Double_t ny = pIndices[1];
   if (nx >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DW gamma spectrum x axis"));
@@ -182,7 +206,8 @@ CGamma2DW::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  return (ULong_t)pStorage[nx + (ny * m_nXScale)];
+  Int_t bin  = m_pRootSpectrum->FindBin(nx, ny);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -197,9 +222,9 @@ CGamma2DW::operator[] (const UInt_t* pIndices) const
 void
 CGamma2DW::set (const UInt_t* pIndices, ULong_t nValue)
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
-  UInt_t nx = pIndices[0];
-  UInt_t ny = pIndices[1];
+  
+  Double_t nx = pIndices[0];
+  Double_t ny = pIndices[1];
   if (nx >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DW gamma spectrum x axis"));
@@ -208,7 +233,8 @@ CGamma2DW::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  pStorage[nx + (ny * m_nXScale)] = (UInt_t)nValue;
+  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 
 
@@ -329,28 +355,17 @@ CGamma2DW::Dimension(UInt_t n) const
 void
 CGamma2DW::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 {
-  UShort_t* pStorage = (UShort_t*)getStorage();
+ 
   
   if(rParameters.size() > 0) {
 
     for(int i = 0; i < rParameters.size() - 1; i++) {
       for(int j = i+1; j < rParameters.size(); j++ ) {
-	UInt_t  parx = rParameters[i].first;
-	Float_t xval = rParameters[i].second;
-	
-	UInt_t  pary = rParameters[j].first;
-	Float_t yval = rParameters[j].second;
-	
-	// transform -> Spectrum coordinates and increment.
-	
-	Int_t x = (Int_t)ParameterToAxis(0, xval);
-	Int_t y = (Int_t)ParameterToAxis(1, yval);
-	bool xok = checkRange(x, m_nXScale, 0);
-        bool yok = checkRange(y, m_nYScale, 1);
+
+        Double_t xval = rParameters[i].second;
+        Double_t yval = rParameters[j].second;
         
-	if (xok && yok) {
-	  pStorage[x + y*m_nXScale]++;
-	}
+        m_pRootSpectrum->Fill(xval, yval);
       }
     }
   }
@@ -362,4 +377,24 @@ CGamma2DW:: Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
 			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("2d deluxe increment called on CGamma2dW");
+}
+/**
+ * setStorage
+ *     Called to change where spectrum storage is.
+ * @param pStorage - pointer to the new spectrum storage.
+ */
+void
+CGamma2DW::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  m_pRootSpectrum->fN     = m_nXScale * m_nYScale;
+}
+/**
+ * StorageNeeded
+ *    @return Size_t - Number of bytes of spectrum storage required.
+*/
+Size_t
+CGamma2DW::StorageNeeded() const
+{
+  return static_cast<Size_t>( m_nXScale * m_nYScale * sizeof(Short_t));
 }
