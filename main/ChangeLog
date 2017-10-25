@@ -1119,4 +1119,5 @@ November 30-?? 2011
 	* Slide a TH1I under the hood of CGamma1DL
 	* Slide a TH1S under the hood of a CGamma1DW
 	* Slide a TH2C under the hood of CGamma2DB
+	* Slide a TH2I under the hood of CGamma2DL
 
