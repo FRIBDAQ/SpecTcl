@@ -38,6 +38,10 @@
 #include <histotypes.h>
 #endif
 
+#include <TH2I.h>
+#include <TH2S.h>
+#include <TH2C.h>
+
 // forward definitions:
 
 class CParameter;
@@ -49,10 +53,13 @@ class CParameter;
    Axis scaling: The X axis is always unit-less. the Y axis can have a collection of CAxes items
    for each vertical channel.
 
-   The class is templated by the type of channel   Normally this is UInt_t, 
-   UShort_t, or UChar_t.
+   The class is templated by the type of channel   Normally this is Int_t, 
+   Short_t, or Char_t.
+   
+   The second template parameter R must be a root 2d histogram type. All this
+   is made somewhat simpler by the typedefs at the bottom of this file.
 */
-template <class T>
+template <typename T, typename R>
 class CGammaSummarySpectrum : public CSpectrum
 {
 
@@ -63,7 +70,7 @@ private:
   UInt_t                m_nYChannels; // Number of channels in the y direction.
   std::vector<CAxis>       m_Axes;      // One axis vector per x channel.
   std::vector<std::vector<UInt_t> >  m_Parameters; // Vector of parameters per x channel.
-
+  R*                    m_pRootSpectrum; 
   // Construtors and other canonicals:
 
 public:
@@ -83,7 +90,8 @@ private:
   CGammaSummarySpectrum& operator=(const CGammaSummarySpectrum& rhs);
   int operator==(const CGammaSummarySpectrum& rhs) const;
   int operator!=(const CGammaSummarySpectrum& rhs) const;
-
+  
+public:
   // The interface that must be implemented to produce the spectrum:
   // (implementations of functions that are pure virtual in the base class
   //
@@ -106,7 +114,9 @@ public:
   virtual Float_t GetLow(UInt_t n) const;
   virtual Float_t GetHigh(UInt_t n) const;
   virtual std::string GetUnits(UInt_t n) const;
-
+  
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
   //  Utility functions:
 
 private:
@@ -118,16 +128,16 @@ private:
 		  UInt_t                   ychannels,
 		  Float_t                  yLow,
 		  Float_t                  yHigh);
-  void indexCheck(UInt_t x, UInt_t y) const;
 };
+
+
+
+typedef CGammaSummarySpectrum<Int_t,    TH2I>   CGammaSummarySpectrumL;
+typedef CGammaSummarySpectrum<Short_t, TH2S> CGammaSummarySpectrumW;
+typedef CGammaSummarySpectrum<Char_t,  TH2C>  CGammaSummarySpectrumB;
 
 #ifndef __CGAMMASUMMARYSPECTRUM_CXX
 #include "CGammaSummarySpectrum.cpp"
 #endif
-
-typedef CGammaSummarySpectrum<UInt_t>   CGammaSummarySpectrumL;
-typedef CGammaSummarySpectrum<UShort_t> CGammaSummarySpectrumW;
-typedef CGammaSummarySpectrum<UChar_t>  CGammaSummarySpectrumB;
-
 
 #endif

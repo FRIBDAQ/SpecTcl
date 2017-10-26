@@ -53,7 +53,9 @@
 #endif
 #endif
 
-
+#include <TH2I.h>
+#include <TH2S.h>
+#include <TH2C.h>
 
 using namespace std;
 
@@ -69,24 +71,32 @@ using namespace std;
                         list of parameter for an x channel of the spectrum.
 
 */
-template <class T>
-CGammaSummarySpectrum<T>::CGammaSummarySpectrum(string              name, 
+template <typename T, typename R>
+CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(string              name, 
 						UInt_t              nId,
 						UInt_t              nYChannels,
 						vector<vector <CParameter> >*  pParameters) :
   CSpectrum(name, nId),
-  m_nXChannels(pParameters->size()),
-  m_nYChannels(nYChannels)
+  m_nXChannels(pParameters->size() + 2),
+  m_nYChannels(nYChannels + 2)
 {
 
   UInt_t nXChannels = pParameters->size();
-  CreateStorage();
+ 
   fillParameterArray(*pParameters,
 		     nXChannels);
   CreateAxes(*pParameters,
 	     nXChannels,
 	     nYChannels,
 	     0, nYChannels - 1);
+  
+  m_pRootSpectrum = new R(
+    name.c_str(), name.c_str(),
+    nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels),
+    nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  CreateStorage();
 }
 /*!
    Create a gamma summary spectrum that is mapped, that is some parameter range,
@@ -103,32 +113,44 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(string              name,
    \param fYHigh    - Y channel nYChannels means this value of the parameter.
 
 */
-template <class T>
-CGammaSummarySpectrum<T>::CGammaSummarySpectrum(const std::string name, 
+template <typename T, typename R>
+CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(const std::string name, 
 						UInt_t            nId,
 						std::vector<std::vector<CParameter> >* pParameters,
 						UInt_t            nYChannels,
 						Float_t           fYLow,
 						Float_t           fYHigh) :
   CSpectrum(name, nId),
-  m_nXChannels(pParameters->size()),
-  m_nYChannels(nYChannels)
+  m_nXChannels(pParameters->size() + 2),
+  m_nYChannels(nYChannels + 2)
 
 {
-  UInt_t nXChannels = pParameters->size();
-  CreateStorage();
-  fillParameterArray(*pParameters, nXChannels);
+  
+  UInt_t nXParameters = pParameters->size();
+  fillParameterArray(*pParameters, nXParameters);
   CreateAxes(*pParameters,
-	     nXChannels,
+	     nXParameters,
 	     nYChannels,
 	     fYLow, fYHigh);
+  
+  m_pRootSpectrum = new R(
+    name.c_str(), name.c_str(),
+    nXParameters, static_cast<Double_t>(0.0), static_cast<Double_t>(nXParameters),
+    nYChannels, static_cast<Double_t>(fYLow), static_cast<Double_t>(fYHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  CreateStorage();
 }
 
 /*!
-  Destructor is here for chaining:
+  Destructor must play some fancy footwork to continue to manage root's storage:
 */
-template <class T>
-CGammaSummarySpectrum<T>::~CGammaSummarySpectrum() {}  
+template <typename T, typename R>
+CGammaSummarySpectrum<T,R>::~CGammaSummarySpectrum()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}  
 
 /*!
    Increment the spectrum.  Iterating through each x channel and its associated
@@ -138,14 +160,14 @@ CGammaSummarySpectrum<T>::~CGammaSummarySpectrum() {}
    \param rEvent  - The event for which we must increment the spectrum.
 
 */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::Increment(const CEvent& e)
+CGammaSummarySpectrum<T,R>::Increment(const CEvent& e)
 {
   CEvent& event((CEvent&)e);
 
-  T* p = (T*)getStorage();
-  for (UInt_t x = 0; x < m_nXChannels; x++) {
+
+  for (UInt_t x = 0; x < m_nXChannels - 2; x++) {
     vector<UInt_t>&      params(m_Parameters[x]);
     // 
     // Iterate over all parameters in a y stripe:
@@ -153,13 +175,11 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
     for(int i =0; i < params.size(); i++) {
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
-        Int_t chan = static_cast<Int_t>(m_Axes[x].ParameterToAxis(event[paramId]));
-        if(checkRange(chan, m_nYChannels, 0)) {
-          p[chan*m_nXChannels]++;
-        }
+        m_pRootSpectrum->Fill(
+          static_cast<Double_t>(x), static_cast<Double_t>(event[paramId])
+        );
       }
     }
-    p++;			//  Next y strip.
   }
 }
 /*!
@@ -169,32 +189,29 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
     \retval the channel value defined at the indices,.
  
 */
-template <class T>
+template <typename T, typename R>
 ULong_t
-CGammaSummarySpectrum<T>::operator[](const UInt_t* pIndices) const
+CGammaSummarySpectrum<T,R>::operator[](const UInt_t* pIndices) const
 {
-  UInt_t x = pIndices[0];
-  UInt_t y = pIndices[1];
-  indexCheck(x,y);
+  Double_t x = pIndices[0];
+  Double_t y = pIndices[1];
 
-  T* p = (T*)getStorage();
-  return (ULong_t)p[x + y*m_nXChannels];
+  Int_t bin = m_pRootSpectrum->FindBin(x, y);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 /*!
   Sets a channel value in a spectrum
   \param pIndices  - Pointer to the index array as for operator[].
   \param nValue    - Value to use.
 */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
+CGammaSummarySpectrum<T,R>::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  UInt_t x = pIndices[0];
-  UInt_t y = pIndices[1];
-  indexCheck(x,y);
-
-  T* p = (T*)getStorage();
-  p[x+y*m_nXChannels] = (T)(nValue);
+  Double_t x = pIndices[0];
+  Double_t y = pIndices[1];
+  Int_t  bin = m_pRootSpectrum->FindBin(x, y);
+  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 
 /*!
@@ -204,9 +221,9 @@ CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
      \retval false - The parameter isn't used by the spectrum.
 
 */
-template <class T>
+template <typename T, typename R>
 Bool_t
-CGammaSummarySpectrum<T>::UsesParameter(UInt_t nId) const
+CGammaSummarySpectrum<T,R>::UsesParameter(UInt_t nId) const
 {
   for (int i =0; i < m_Parameters.size(); i++) {
     const std::vector<UInt_t>& p(m_Parameters[i]);
@@ -222,9 +239,9 @@ CGammaSummarySpectrum<T>::UsesParameter(UInt_t nId) const
    are removed.  The parameters are not returned in any specific order.
    \parameter std::vector<UInt_t>& ids - Parameters are returned in this vector.
 */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::GetParameterIds(vector<UInt_t>& ids)
+CGammaSummarySpectrum<T,R>::GetParameterIds(vector<UInt_t>& ids)
 {
   std::set<UInt_t> resultSet;	// Used to uniquify.
   for (int i =0; i < m_Parameters.size(); i++) {
@@ -245,9 +262,9 @@ CGammaSummarySpectrum<T>::GetParameterIds(vector<UInt_t>& ids)
 /*!
   Get the number of channels on the Y axis.
 */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::GetResolutions(vector<UInt_t>& rvResolutions)
+CGammaSummarySpectrum<T,R>::GetResolutions(vector<UInt_t>& rvResolutions)
 {
   rvResolutions.push_back(m_nYChannels);
 }
@@ -267,9 +284,9 @@ CGammaSummarySpectrum<T>::GetResolutions(vector<UInt_t>& rvResolutions)
    \note Not threadsafe as the definition is built uip in a static structure.
 
 */
-template <class T>
+template <typename T, typename R>
 CSpectrum::SpectrumDefinition& 
-CGammaSummarySpectrum<T>::GetDefinition()
+CGammaSummarySpectrum<T,R>::GetDefinition()
 {
   static SpectrumDefinition def;
   def.fLows.clear();
@@ -311,9 +328,9 @@ CGammaSummarySpectrum<T>::GetDefinition()
   for histogramming purposes. 
   \retval false
 */
-template <class T>
+template <typename T, typename R>
 Bool_t
-CGammaSummarySpectrum<T>::needParameter() const
+CGammaSummarySpectrum<T,R>::needParameter() const
 {
   return kfFALSE;
 }
@@ -321,9 +338,9 @@ CGammaSummarySpectrum<T>::needParameter() const
 /*!
     Returns the number of dimensions (2) in the spectrum.
 */
-template <class T>
+template <typename T, typename R>
 UInt_t
-CGammaSummarySpectrum<T>::Dimensionality() const
+CGammaSummarySpectrum<T,R>::Dimensionality() const
 {
   return 2;
 }
@@ -331,9 +348,9 @@ CGammaSummarySpectrum<T>::Dimensionality() const
 /*!
   Returns the number of channels in any of the two dimensions.
 */
-template <class T>
+template <typename T, typename R>
 Size_t
-CGammaSummarySpectrum<T>::Dimension(UInt_t n) const
+CGammaSummarySpectrum<T,R>::Dimension(UInt_t n) const
 {
   if (n == 0) {
     return m_nXChannels;
@@ -348,9 +365,9 @@ CGammaSummarySpectrum<T>::Dimension(UInt_t n) const
   \retval keGSummary
 */
 
-template <class T>
+template <typename T, typename R>
 SpectrumType_t
-CGammaSummarySpectrum<T>::getSpectrumType()
+CGammaSummarySpectrum<T,R>::getSpectrumType()
 {
   return keGSummary;
 }
@@ -358,9 +375,9 @@ CGammaSummarySpectrum<T>::getSpectrumType()
 /*!
   Return a low limit on an axis.
 */
-template <class T>
+template <typename T, typename R>
 Float_t
-CGammaSummarySpectrum<T>::GetLow(UInt_t n) const
+CGammaSummarySpectrum<T,R>::GetLow(UInt_t n) const
 {
   if (n == 0) {
     return 0.0;
@@ -376,9 +393,9 @@ CGammaSummarySpectrum<T>::GetLow(UInt_t n) const
 /*!
   Return high limit on an axis:
 */
-template<class T>
+template<typename T, typename R>
 Float_t
-CGammaSummarySpectrum<T>::GetHigh(UInt_t n) const
+CGammaSummarySpectrum<T,R>::GetHigh(UInt_t n) const
 {
   if (n == 0) {
     return static_cast<Float_t>(m_nXChannels - 1);
@@ -394,9 +411,9 @@ CGammaSummarySpectrum<T>::GetHigh(UInt_t n) const
 /*!
   Return the units for an axis:
 */
-template<class T>
+template<typename T, typename R>
 string
-CGammaSummarySpectrum<T>::GetUnits(UInt_t n) const
+CGammaSummarySpectrum<T,R>::GetUnits(UInt_t n) const
 {
   if (n == 0 ) {
     return string("channels");
@@ -420,9 +437,9 @@ CGammaSummarySpectrum<T>::GetUnits(UInt_t n) const
  *     m_nYChanhnels - NUmber of Y CHannels.
  *     T             - Type of channel.
  */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::CreateStorage()
+CGammaSummarySpectrum<T,R>::CreateStorage()
 {
   switch (sizeof(T)) {
   case sizeof(UChar_t):
@@ -449,9 +466,9 @@ CGammaSummarySpectrum<T>::CreateStorage()
 /*
  *  Fill the parameter array, from the array of pararmeter vectors:
  */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::fillParameterArray(vector<vector<CParameter> >& params,
+CGammaSummarySpectrum<T,R>::fillParameterArray(vector<vector<CParameter> >& params,
 					  UInt_t xChannels)
 {
   for (int i=0; i < xChannels; i++) {
@@ -468,9 +485,9 @@ CGammaSummarySpectrum<T>::fillParameterArray(vector<vector<CParameter> >& params
 ** Create the axis vector that determines how paramters map to channels in each
 ** of the strips:
 */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::CreateAxes(vector<vector<CParameter> >& params,
+CGammaSummarySpectrum<T,R>::CreateAxes(vector<vector<CParameter> >& params,
 				    UInt_t              nx,
 				    UInt_t              ny,
 				    Float_t             low,
@@ -481,21 +498,28 @@ CGammaSummarySpectrum<T>::CreateAxes(vector<vector<CParameter> >& params,
     m_Axes.push_back(CAxis(low, hi, ny, p[0].getUnits()));
   }
 }
-
-/*
- * Factored out code for checking indices.. throws a CRangeError if an index is out of range.
+/**
+ * setStorage
+ *    Set new storage location.
+ *
+ *  @param pStorage - pointer to new spectrum storage.
  */
-template <class T>
+template <typename T, typename R>
 void
-CGammaSummarySpectrum<T>::indexCheck(UInt_t x, UInt_t y) const
+CGammaSummarySpectrum<T,R>::setStorage(Address_t pStorage)
 {
-  if (x >= m_nXChannels) {
-    throw CRangeError(0, m_nXChannels, x, 
-		      "X Indexing gamma summary spectrum");
-  }
-  if (y >= m_nYChannels) {
-    throw CRangeError(0, m_nYChannels, y,
-		      "Y Indexing gamma summary spectrum");
-  }
+  m_pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
+  m_pRootSpectrum->fN     = m_nXChannels * m_nYChannels;
+}
+/**
+ * StorageNeeded
+ *
+ * @return Size_t - number of bytes of storage required for spectrum.
+ */
+template <typename T, typename R>
+Size_t
+CGammaSummarySpectrum<T, R>::StorageNeeded() const
+{
+  return static_cast<Size_t>(m_nXChannels * m_nYChannels * sizeof(T));
 }
 #endif

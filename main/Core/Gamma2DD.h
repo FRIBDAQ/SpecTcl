@@ -63,7 +63,7 @@
 
 class CParameter;
 class TH2I;
-class TH2W;
+class TH2S;
 class TH2C;
 
 /*!
@@ -158,6 +158,12 @@ private:
 
 };
 
+
+
+typedef CGamma2DD<Int_t, TH2I>  CGamma2DDL;
+typedef CGamma2DD<Short_t, TH2S> CGamma2DDW;
+typedef CGamma2DD<Char_t, TH2C>  CGamma2DDB;
+
 // Needed in case the compiler is not a repository compiler with respect to
 // templates.
 
@@ -165,7 +171,4 @@ private:
 #include "Gamma2DD.cpp"
 #endif
 
-typedef CGamma2DD<Int_t, TH2I>  CGamma2DDL;
-typedef CGamma2DD<Short_t, TH2W> CGamma2DDW;
-typedef CGamma2DD<Char_t, TH2C>  CGamma2DDB;
 #endif

@@ -1575,21 +1575,21 @@ CSpectrumFactory::CreateG2dDeluxe(string name,
 {
   switch (eType) {
   case keByte:
-    return new CGamma2DD<Char_t, TH2C>(name,
+    return new CGamma2DDB(name,
 				  NextId(),
 				  rxParameters, ryParameters,
 				  xChannels, yChannels,
 				  xLow, xHigh,
 				  yLow, yHigh);
   case keWord:
-    return new CGamma2DD<Short_t, TH2S>(name,
+    return new CGamma2DDW(name,
 				   NextId(),
 				   rxParameters, ryParameters,
 				   xChannels, yChannels,
 				   xLow, xHigh,
 				   yLow, yHigh);
   case keLong:
-    return new CGamma2DD<Int_t, TH2I>(name,
+    return new CGamma2DDL(name,
 				  NextId(),
 				  rxParameters, ryParameters,
 				  xChannels, yChannels,
