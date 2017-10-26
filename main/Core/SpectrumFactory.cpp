@@ -73,6 +73,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CGammaSummarySpectrum.h"
 
 #include "Histogrammer.h"
+#include <TH2I.h>
+#include <TH2S.h>
+#include <TH2C.h>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -1571,21 +1575,21 @@ CSpectrumFactory::CreateG2dDeluxe(string name,
 {
   switch (eType) {
   case keByte:
-    return new CGamma2DD<UChar_t>(name,
+    return new CGamma2DD<Char_t, TH2C>(name,
 				  NextId(),
 				  rxParameters, ryParameters,
 				  xChannels, yChannels,
 				  xLow, xHigh,
 				  yLow, yHigh);
   case keWord:
-    return new CGamma2DD<UShort_t>(name,
+    return new CGamma2DD<Short_t, TH2S>(name,
 				   NextId(),
 				   rxParameters, ryParameters,
 				   xChannels, yChannels,
 				   xLow, xHigh,
 				   yLow, yHigh);
   case keLong:
-    return new CGamma2DD<UInt_t>(name,
+    return new CGamma2DD<Int_t, TH2I>(name,
 				  NextId(),
 				  rxParameters, ryParameters,
 				  xChannels, yChannels,
