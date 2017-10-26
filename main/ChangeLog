@@ -1121,5 +1121,8 @@ November 30-?? 2011
 	* Slide a TH2C under the hood of CGamma2DB
 	* Slide a TH2I under the hood of CGamma2DL
 	* Slide a TH2S under the hood of CGamma2DW
-        * Modify template class CGamm2DD (gamma deluxe spectra) to use
-	Root histogram classes.
+        * Modify template class CGamma2DD (gamma deluxe spectra) to use
+	Root histogram classes. 
+	* Modify template class CGammaSummarySpectrum to use Root
+	histogram classes.
+	
