@@ -40,8 +40,11 @@
 using namespace std;
 #endif
 
+/// Need all of these to smooth instantiation.
 
-
+#include <TH2I.h>
+#include <TH2S.h>
+#include <TH2C.h>
 
 /*!
    Construct the spectrum, for 1:1 channel mapping:
@@ -53,8 +56,8 @@ using namespace std;
    \param xChannels   - Number of x channel bins.
    \param yChannels   - Number of y channel bins.
 */
-template<class T>
-CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
+template<typename T, typename R>
+CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
 			   std::vector<CParameter>&  xParameters,
 			   std::vector<CParameter>&  yParameters,
 			   UInt_t xChannels, UInt_t yChannels) :
@@ -64,14 +67,22 @@ CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
 				  0.0,   (Float_t)(xChannels),
 				  0.0,   (Float_t)(yChannels)),
 		 xParameters, yParameters),
-  m_nXscale(xChannels),
-  m_nYscale(yChannels),
+  m_nXscale(xChannels + 2),
+  m_nYscale(yChannels + 2),
   m_xParameters(xParameters),
   m_yParameters(yParameters)
 {
   AddAxis(xChannels, 0.0, (Float_t)(xChannels - 1), xParameters[0].getUnits());
   AddAxis(yChannels, 0.0, (Float_t)(yChannels - 1), yParameters[0].getUnits());
+  
+  m_pRootSpectrum = new R(
+    rName.c_str(), rName.c_str(),
+    xChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(xChannels),
+    yChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(yChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
+  
 }
 
 
@@ -90,8 +101,8 @@ CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
    \param yHigh       - The high limit of the y axis.
 
 */
-template <class T>
-CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
+template <typename T, typename R>
+CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
 			   std::vector<CParameter>& xParameters,
 			   std::vector<CParameter>& yParameters,
 			   UInt_t nXChannels, UInt_t nYChannels,
@@ -103,41 +114,57 @@ CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
 				  xLow, xHigh,
 				  yLow, yHigh),
 		 xParameters, yParameters),
-  m_nXscale(nXChannels),
-  m_nYscale(nYChannels),
+  m_nXscale(nXChannels + 2),
+  m_nYscale(nYChannels + 2),
   m_xParameters(xParameters),
   m_yParameters(yParameters)
 {
   AddAxis(nXChannels, xLow, xHigh, xParameters[0].getUnits());
   AddAxis(nYChannels, yLow, yHigh, yParameters[0].getUnits());
 
+  m_pRootSpectrum = new R(
+    rName.c_str(), rName.c_str(),
+    nXChannels, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
+    nYChannels, static_cast<Double_t>(yLow), static_cast<Double_t>(yHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateStorage();
 }
 
-
+/**
+ * destructor
+ */
+template<typename T, typename R>
+CGamma2DD<T,R>::~CGamma2DD()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}
 /*!
    Equality is just a shallow comparison of the member data.
    and the base class (actually not much point to this):
 */
 
-template<class T>
+template<typename T, typename R>
 int
-CGamma2DD<T>::operator==(const CGamma2DD<T>& rhs)
+CGamma2DD<T, R>::operator==(const CGamma2DD<T,R>& rhs)
 {
   return (CGammaSpectrum::operator==(rhs)                 &&
 	  m_nXscale      == rhs.m_nXscale                 &&
 	  m_nYscale      == rhs.m_nYscale                 &&
 	  m_xParameters  == rhs.m_xParameters             &&
-	  m_yParameters  == rhs.m_yParameters);
+	  m_yParameters  == rhs.m_yParameters            &&
+    m_pRootSpectrum == rhs.m_pRootSpectrum);
 }
 
 /*!
    Get the number of channels in the xaxis:
 
 */
-template<class T>
+template<typename T, typename R>
 UInt_t
-CGamma2DD<T>::getXScale() const 
+CGamma2DD<T,R>::getXScale() const 
 {
   return m_nXscale;
 }
@@ -145,9 +172,9 @@ CGamma2DD<T>::getXScale() const
 /*
    Get the number of channels on the y axis:
 */
-template<class T>
+template<typename T, typename R>
 UInt_t
-CGamma2DD<T>::getYScale() const
+CGamma2DD<T,R>::getYScale() const
 {
   return m_nYscale;
 }
@@ -155,18 +182,18 @@ CGamma2DD<T>::getYScale() const
 /*!
    Return the set of X axis parameters
 */
-template<class T>
+template<typename T, typename R>
 vector<CParameter>
-CGamma2DD<T>::getXParameters() const 
+CGamma2DD<T,R>::getXParameters() const 
 {
   return m_xParameters;
 }
 /*!
    Return the set of y axis parameters.
 */
-template<class T>
+template<typename T, typename R>
 vector<CParameter>
-CGamma2DD<T>::getYParameters() const
+CGamma2DD<T,R>::getYParameters() const
 {
   return m_yParameters;
 }
@@ -175,9 +202,9 @@ CGamma2DD<T>::getYParameters() const
 
 */
 
-template<class T>
+template<typename T, typename R>
 SpectrumType_t
-CGamma2DD<T>::getSpectrumType()
+CGamma2DD<T,R>::getSpectrumType()
 {
   return keG2DD;
 }
@@ -189,33 +216,37 @@ CGamma2DD<T>::getSpectrumType()
    \return ULong_t 
    \retval The value at the selected channel.
 */
-template<class T>
+template<typename T, typename R>
 ULong_t
-CGamma2DD<T>:: operator[](const UInt_t* pIndices) const
+CGamma2DD<T,R>:: operator[](const UInt_t* pIndices) const
 {
-  T* pStorage = static_cast<T*>(getStorage());
-  return static_cast<ULong_t>(pStorage[pIndices[1]*m_nXscale + pIndices[0]]);
+  Double_t  x = pIndices[0];
+  Double_t  y = pIndices[1];
+  Int_t   bin = m_pRootSpectrum->FindBin(x, y);
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(x, y));
 }
 
 /*!
    set  - sets the value of a channel to a specific value:
    \param pIndices - points to an array of idices.
 */
-template<class T>
+template<typename T, typename R>
 void
-CGamma2DD<T>::set(const UInt_t* pIndices, ULong_t value)
+CGamma2DD<T,R>::set(const UInt_t* pIndices, ULong_t value)
 {
-  T* pStorage = static_cast<T*>(getStorage());
-  pStorage[pIndices[1]*m_nXscale + pIndices[0]] = static_cast<T>(value);
+  Double_t  x = pIndices[0];
+  Double_t  y = pIndices[1];
+  Int_t   bin = m_pRootSpectrum->FindBin(x, y);
+  m_pRootSpectrum->SetBinContent(x, y, static_cast<Double_t>(value));
 }
 
 
 /*!
    Return a vector of the number of channels on each axis.
 */
-template<class T>
+template<typename T, typename R>
 void
-CGamma2DD<T>::GetResolutions(std::vector<UInt_t>& rvResolutions)
+CGamma2DD<T,R>::GetResolutions(std::vector<UInt_t>& rvResolutions)
 {
   rvResolutions.push_back(m_nXscale);
   rvResolutions.push_back(m_nYscale);
@@ -226,9 +257,9 @@ CGamma2DD<T>::GetResolutions(std::vector<UInt_t>& rvResolutions)
    CRangeError exceptions... dimension means number of channels on that
    axis.
 */
-template<class T>
+template<typename T, typename R>
 Size_t
-CGamma2DD<T>::Dimension(UInt_t n) const
+CGamma2DD<T,R>::Dimension(UInt_t n) const
 {
   switch (n) {
   case 0:
@@ -244,9 +275,9 @@ CGamma2DD<T>::Dimension(UInt_t n) const
   Return the number of dimensions in the spectrum:
 
 */
-template<class T>
+template<typename T, typename R>
 UInt_t
-CGamma2DD<T>::Dimensionality() const
+CGamma2DD<T,R>::Dimensionality() const
 {
   return 2;
 
@@ -255,9 +286,9 @@ CGamma2DD<T>::Dimensionality() const
 /*!
    Improper increment results in an exception:
 */
-template<class T>
+template<typename T, typename R>
 void
-CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters)
+CGamma2DD<T,R>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters)
 {
   throw CException("Attempted a 'non-deluxe' increment of a gamma deluxe spectrum");
 }
@@ -268,28 +299,17 @@ CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters)
    \param rYParameters - the yparameter number/value pairs.
 
 */
-template<class T>
+template<typename T, typename R>
 void
-CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
+CGamma2DD<T,R>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
 			std::vector<std::pair<UInt_t, Float_t> >& rYParameters)
 {
   if ((rXParameters.size() > 0) && (rYParameters.size() > 0)) {
     for (int i =0; i < rXParameters.size(); i++) {
       for (int j = 0; j < rYParameters.size(); j++) {
-	Float_t xval = rXParameters[i].second;
-	Float_t yval = rYParameters[j].second;
-
-	// Transform x/yval -> Spectrum channel coordinates:
-
-	Int_t x = (Int_t)ParameterToAxis(0, xval);
-	Int_t y = (Int_t)ParameterToAxis(1, yval);
-	
-        bool xok = checkRange(x, m_nXscale, 0);
-        bool yok = checkRange(y, m_nYscale, 1);
-	if (xok && yok) {
-	  T* pStorage =(T*)getStorage();
-	  pStorage[x + y*m_nXscale]++;
-	}
+        Float_t xval = rXParameters[i].second;
+        Float_t yval = rYParameters[j].second;
+        m_pRootSpectrum->Fill(xval, yval);
       }
     }
   }
@@ -313,9 +333,9 @@ defClear()
   definition.fHighs.clear();
 }
 
-template<class T>
+template<typename T, typename R>
 CSpectrum::SpectrumDefinition&
-CGamma2DD<T>::GetDefinition()
+CGamma2DD<T,R>::GetDefinition()
 {
   defClear();
   definition.sName = getName();
@@ -353,9 +373,9 @@ CGamma2DD<T>::GetDefinition()
 // Any other match is considered keUnknown_dt...which hopefully will cause
 // all sorts of conniptions when used:
 
-template<class T>
+template<typename T, typename R>
 void
-CGamma2DD<T>::CreateStorage()
+CGamma2DD<T,R>::CreateStorage()
 {
 
   if (sizeof(T) == sizeof(UChar_t)) {
@@ -382,9 +402,9 @@ CGamma2DD<T>::CreateStorage()
 // we're going to assume that all x/y axis parameters have the same range
 // characteristics.
 //
-template<class T>
+template<typename T, typename R>
 CSpectrum::Axes
-CGamma2DD<T>::CreateAxisVector(std::vector<CParameter> xParams,
+CGamma2DD<T,R>::CreateAxisVector(std::vector<CParameter> xParams,
 			       std::vector<CParameter> yParams,
 			       UInt_t nXchan, UInt_t nYchan,
 			       Float_t xLow,  Float_t xHigh,
@@ -397,5 +417,28 @@ CGamma2DD<T>::CreateAxisVector(std::vector<CParameter> xParams,
 			 CParameterMapping(yParams[0])));
   return Result;
 }
-
+/**
+ * setStorage
+ * Replace the root storage with new storage.
+ *
+ * @param pStorge -new storage.
+ */
+template<typename T, typename R>
+void
+CGamma2DD<T,R>::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
+  m_pRootSpectrum->fN     = m_nXscale * m_nYscale;
+}
+/**
+ * StorageNeeded
+ *
+ * @return Size_t  - number of bytes of spectrum storage required.
+ */
+template<typename T, typename R>
+Size_t
+CGamma2DD<T,R>::StorageNeeded() const
+{
+  return static_cast<Size_t>(m_nXscale * m_nYscale * sizeof(T));
+}
 #endif

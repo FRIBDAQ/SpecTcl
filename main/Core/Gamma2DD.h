@@ -62,6 +62,9 @@
 // Forward class definition:
 
 class CParameter;
+class TH2I;
+class TH2W;
+class TH2C;
 
 /*!
    The Gamma2DD spectrum class is a templated class that
@@ -79,7 +82,7 @@ class CParameter;
   so this is easily possible.
 
 */
-template<class T>
+template<typename T, typename R>
 class CGamma2DD : public CGammaSpectrum
 {
 private:
@@ -87,6 +90,7 @@ private:
   UInt_t m_nYscale;
   std::vector<CParameter> m_xParameters;
   std::vector<CParameter> m_yParameters;
+  R*                      m_pRootSpectrum;
 
 public:
   // Constructors/destructors and canonicals.
@@ -103,13 +107,13 @@ public:
 	     Float_t xLow, Float_t xHigh,
 	     Float_t yLow, Float_t yHigh);
 
-  virtual ~CGamma2DD() {}
+  virtual ~CGamma2DD() ;
 
 private:
-  CGamma2DD(const CGamma2DD<T>& rhs);
-  CGamma2DD& operator=(const CGamma2DD<T>& rhs);
+  CGamma2DD(const CGamma2DD<T, R>& rhs);
+  CGamma2DD& operator=(const CGamma2DD<T, R>& rhs);
 public:
-  int operator==(const CGamma2DD<T>& rhs);
+  int operator==(const CGamma2DD<T, R>& rhs);
 
   // Selectors:
 
@@ -137,6 +141,8 @@ public:
 			 std::vector<std::pair<UInt_t, Float_t> >& rYParameters);
 
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
 
 private:
   // Utility functions:
@@ -159,7 +165,7 @@ private:
 #include "Gamma2DD.cpp"
 #endif
 
-typedef CGamma2DD<UInt_t>  CGamma2DDL;
-typedef CGamma2DD<UShort_t> CGamma2DDW;
-typedef CGamma2DD<UChar_t>  CGamma2DDB;
+typedef CGamma2DD<Int_t, TH2I>  CGamma2DDL;
+typedef CGamma2DD<Short_t, TH2W> CGamma2DDW;
+typedef CGamma2DD<Char_t, TH2C>  CGamma2DDB;
 #endif
