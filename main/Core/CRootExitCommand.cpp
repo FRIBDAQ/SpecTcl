@@ -26,6 +26,8 @@
 #include <Exception.h>
 #include <exception>
 #include <string>
+#include <SpecTcl.h>
+
 
 
 /**
@@ -66,6 +68,7 @@ CRootExitCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
         if (objv.size() == 2) {
             status = objv[1];             // Overridden by user.
         }
+        killSpectra();
         gApplication->Terminate(status);
     }
     catch (CException& e) {
@@ -92,4 +95,28 @@ CRootExitCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
     
     interp.setResult("Root didn't exit!!!");
     return TCL_ERROR;
+}
+/**
+ * killSpectra
+ *   We need to kill off SpecTcl's spectra as on termnination, root
+ *   will try to clean up its histograms.  If we let it it'll see the
+ *   non null fArray attributes and try to kill our managed storage doing
+ *   horrible things.
+ */
+void
+CRootExitCommand::killSpectra()
+{
+    SpecTcl* pApi = SpecTcl::getInstance();
+    
+    // Make the list of spectrum names first. (since removal will
+    // invalidate iterators in general):
+    
+    std::vector<std::string> spectrumNames;
+    for(auto p = pApi->SpectrumBegin(); p != pApi->SpectrumEnd(); p++) {
+        spectrumNames.push_back(p->first);
+    }
+    for (int i = 0; i < spectrumNames.size(); i++) {
+        CSpectrum* pSpec = pApi->RemoveSpectrum(spectrumNames[i]);
+        delete pSpec;
+    }
 }

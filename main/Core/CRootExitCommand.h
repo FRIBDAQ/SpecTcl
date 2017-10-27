@@ -45,6 +45,8 @@ public:
     virtual ~CRootExitCommand();
     
     virtual int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+private:
+    void killSpectra();
 };
 
 #endif

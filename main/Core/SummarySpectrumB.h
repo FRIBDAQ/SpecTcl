@@ -74,7 +74,8 @@
 //  Foward Class definitions:
 
 class CParameter;               
-                
+class TH2C;
+
 /*!
    A summary spectrum is a special 2-d spectrum that allows you to 
    view several parameters simultaneously.  Each x axis channel
@@ -99,6 +100,7 @@ class CSummarySpectrumB  : public CSpectrum
   UInt_t              m_nYScale;     //!< Number of Y channels. 
   UInt_t              m_nXChannels;  //!< Number of X chanels.  
   std::vector<UInt_t>      m_vParameters; //!< std::vector of parameter id's.
+  TH2C*               m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments
@@ -113,7 +115,7 @@ public:
 		    Float_t fYHigh); //!< Axis represents [fYlow, fYHigh].
 
 
-  virtual  ~ CSummarySpectrumB( ) { }       //Destructor	
+  virtual  ~ CSummarySpectrumB( ) ;
 private:
 			//Copy constructor [illegal]
 
@@ -177,6 +179,10 @@ public:
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
 
   virtual Bool_t needParameter() const;
+  
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
+  virtual   Size_t Dimension (UInt_t nDimension) const;
   // Utility functions.
 protected:
   void CreateStorage();
