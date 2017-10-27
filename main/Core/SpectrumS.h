@@ -75,6 +75,7 @@
 //  Foward Class definitions:
 
 class CParameter;               
+class TH1I;                        //                 
                 
 /*!
    Implements 1d StripChart histograms with Longword channel buckets.  The histogram
@@ -89,6 +90,7 @@ class CSpectrumS  : public CSpectrum
   UInt_t m_nChannel;          //!< Time channel
   UInt_t m_nParameter;	      //!< Count to add to channel
   int    m_nOffset;           //!< Spectrum channel Offest
+  TH1I*  m_pRootSpectrum;
 
   
 public:
@@ -108,7 +110,7 @@ public:
 	       Float_t                  fHigh);
 
 
-  virtual  ~ CSpectrumS( ) { }       //Destructor	
+  virtual  ~ CSpectrumS( ) ;
 private:
 			//Copy constructor [illegal]
 
@@ -173,6 +175,8 @@ public:
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   void ShiftDataUp (int64_t nShift);
   void ShiftDataDown(int64_t nShift);
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
 
 
   // Utility functions:
