@@ -202,13 +202,12 @@ CSpectrumS::Increment(const CEvent& rE)
     Double_t time   = rTime;
     Double_t counts = rParam;
     Int_t bin       = m_pRootSpectrum->FindBin(rTime);
-    UInt_t effectiveBin = (time - xmin)/(range);  // Bin if infinite spectrum.
+    Int_t effectiveBin = (time - xmin)*(m_nChannels-1)/(range) + 2;  // Bin if infinite spectrum.
     Int_t overflowBin = m_nChannels - 1;
     
     // See if we need to shift the spectrum and reset the axis limits.
 
     if (bin == overflowBin ) {
-      
       int shift = static_cast<int>(effectiveBin + (.25 * m_nChannels) - m_nChannels);
       ShiftDataDown(shift);                // Moves the data down
       
@@ -220,6 +219,7 @@ CSpectrumS::Increment(const CEvent& rE)
       
       
     }else if (bin == 0) {            ///  Underflow bin.
+      
       ShiftDataUp(effectiveBin);
       
       xmin = time;
@@ -365,18 +365,17 @@ CSpectrumS::CreateChannels()
 void
 CSpectrumS::ShiftDataDown(int64_t nShift) 
 {
-    if (nShift >= m_nChannels) {
-      Clear();
-      return;
-    }
+  if (nShift >= m_nChannels) {
+    Clear();
+    return;
+  }
 
-
-    for (int i = 1; i <= m_nChannels-nShift; i++) {
-      m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
-    }
-    for (int i =  m_nChannels-nShift+1; i <= m_nChannels; i++) {
-      m_pRootSpectrum->SetBinContent(i, 0.0);
-    }
+  for (int i = 1; i <= m_nChannels-nShift; i++) {
+    m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
+  }
+  for (int i =  m_nChannels-nShift+1; i <= m_nChannels; i++) {
+    m_pRootSpectrum->SetBinContent(i, 0.0);
+  }
 }
 
 
@@ -389,10 +388,10 @@ CSpectrumS::ShiftDataUp(int64_t nShift)
       return;
 
     }
-    for (int i =  m_nChannels ; i > (nShift * -1); i--) {
+    for (int i =  m_nChannels ; i > (-nShift); i--) {
       m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
     }
-    for (int i = (nShift * -1) ; i > 0 ; i--) {
+    for (int i = (-nShift ) -1 ; i > 0 ; i--) {
       m_pRootSpectrum->SetBinContent(i, 0.0);
     }
 }
