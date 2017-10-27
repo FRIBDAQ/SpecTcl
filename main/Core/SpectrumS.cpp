@@ -54,6 +54,9 @@
 #include "CAxis.h"
 #include <assert.h>
 #include <math.h>
+#include <TH1I.h>
+#include <TAxis.h>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -97,20 +100,27 @@ static const char* Copyright =
 CSpectrumS::CSpectrumS(const std::string&     rName, 
 			  UInt_t              nId,
 			  const CParameter&   rParameter,
-		          const CParameter&   nChannel,
+		    const CParameter&   nChannel,
 			  UInt_t              nChannels):
   CSpectrum(rName, nId,
 	    Axes(1,
 		  CAxis((Float_t)0.0, (Float_t)(nChannels-1),
 			nChannels-1,
 			CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels + 2),
   m_nChannel(nChannel.getNumber()),
-  m_nParameter(rParameter.getNumber())
+  m_nParameter(rParameter.getNumber()),
+  m_nOffset(0)
  
 {
-  AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
-	  rParameter.getUnits());
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels), rParameter.getUnits());
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
+  
   CreateChannels();
 }
 /*!
@@ -143,15 +153,35 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
     CSpectrum(rName, nId,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			  CParameterMapping(rParameter)))),
-  m_nChannels(nChannels),
+  m_nChannels(nChannels + 2),
   m_nChannel(nchannel.getNumber()),
-  m_nParameter(rParameter.getNumber())
+  m_nParameter(rParameter.getNumber()),
+  m_nOffset(0)
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  
+  m_pRootSpectrum = new TH1I(
+    rName.c_str(), rName.c_str(),
+    nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateChannels();
-  m_nOffset=0;
+  
+}
+/**
+ * destructor
+ */
+CSpectrumS::~CSpectrumS()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
 }
 
+
+/**
+ *   Increment
+ * @param rE - the event to use to increment the spectrum.
+ */
 void 
 CSpectrumS::Increment(const CEvent& rE) 
 {
@@ -163,23 +193,40 @@ CSpectrumS::Increment(const CEvent& rE)
 
 
   if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
-    int64_t nChannel = (int64_t)ParameterToAxis(0, rTime)- m_nOffset;
+    TAxis* axis       = m_pRootSpectrum->GetXaxis();
+    
+    Double_t  xmin  = axis->GetXmin();
+    Double_t  xmax  = axis->GetXmax();
+    Double_t  range = (xmax - xmin);
 
-    int64_t shift = nChannel;
-    if (nChannel >= m_nChannels ) {
-      shift = static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels);
-      ShiftDataDown(shift);
-      m_nOffset = static_cast<int>(m_nOffset + shift);
-      nChannel = nChannel - shift;
-    }else if (nChannel < 0) {
-      ShiftDataUp(nChannel);
-      m_nOffset =m_nOffset + nChannel;
-      nChannel = 0;
+    Double_t time   = rTime;
+    Double_t counts = rParam;
+    Int_t bin       = m_pRootSpectrum->FindBin(rTime);
+    UInt_t effectiveBin = (time - xmin)/(range);  // Bin if infinite spectrum.
+    Int_t overflowBin = m_nChannels - 1;
+    
+    // See if we need to shift the spectrum and reset the axis limits.
+
+    if (bin == overflowBin ) {
+      
+      int shift = static_cast<int>(effectiveBin + (.25 * m_nChannels) - m_nChannels);
+      ShiftDataDown(shift);                // Moves the data down
+      
+      // Compute and set the new values for the Axis limits/
+      
+      xmin = xmin + 0.25*range;
+      xmax = xmax + 0.25*range;
+      axis->Set(m_nChannels - 2, xmin, xmax);
+      
+      
+    }else if (bin == 0) {            ///  Underflow bin.
+      ShiftDataUp(effectiveBin);
+      
+      xmin = time;
+      xmax = xmin + range;
+      axis->Set(m_nChannels - 2, xmin, xmax);
     }
-      UInt_t* p = (UInt_t*)getStorage();
-      assert(p != (UInt_t*)kpNULL);                           // Spectrum storage must exist!!
-      int value = rParam;
-      p[nChannel] = p[nChannel]+value;	      // Increment the histogram.
+    m_pRootSpectrum->Fill(time, counts);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -218,13 +265,14 @@ CSpectrumS::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  UInt_t* p = (UInt_t*)getStorage();
+  
   UInt_t   n = pIndices[0];
   if(n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing StripChart"));
   }
-  return (ULong_t)p[n];
+  
+  return (ULong_t)m_pRootSpectrum->GetBinContent(n);
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -246,7 +294,7 @@ CSpectrumS::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing StripChart"));
   }
-  p[n] = (UInt_t)nValue;
+  m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
 
   
 }
@@ -317,19 +365,17 @@ CSpectrumS::CreateChannels()
 void
 CSpectrumS::ShiftDataDown(int64_t nShift) 
 {
-    UInt_t* p = (UInt_t*)getStorage();
-
     if (nShift >= m_nChannels) {
       Clear();
       return;
     }
 
-    assert(p != (UInt_t*)kpNULL);
-    for (int i = 0; i < m_nChannels-nShift; i++) {
-      p[i] = p[i+nShift];
+
+    for (int i = 1; i <= m_nChannels-nShift; i++) {
+      m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
     }
-    for (int i =  m_nChannels-nShift; i < m_nChannels; i++) {
-      p[i] = 0;
+    for (int i =  m_nChannels-nShift+1; i <= m_nChannels; i++) {
+      m_pRootSpectrum->SetBinContent(i, 0.0);
     }
 }
 
@@ -337,18 +383,38 @@ CSpectrumS::ShiftDataDown(int64_t nShift)
 void 
 CSpectrumS::ShiftDataUp(int64_t nShift)
 {
-    UInt_t* p = (UInt_t*)getStorage();
-    assert(p != (UInt_t*)kpNULL);
-
+    
     if (m_nChannels <=  (-nShift)) {
       Clear();
       return;
 
     }
-    for (int i =  m_nChannels-1 ; i >= (nShift * -1); i--) {
-      p[i] = p[i+nShift];
+    for (int i =  m_nChannels ; i > (nShift * -1); i--) {
+      m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
     }
-    for (int i = (nShift * -1) ; i >=0 ; i--) {
-      p[i] = 0;
+    for (int i = (nShift * -1) ; i > 0 ; i--) {
+      m_pRootSpectrum->SetBinContent(i, 0.0);
     }
+}
+/**
+ * setStorage
+ *    Set storage for the spectrum.
+ *
+ *  @param pStorage - pointer to new spectrum storage.
+ */
+void
+CSpectrumS::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN    = m_nChannels;
+}
+/*
+ *  StorageNeeded
+ *
+ *  @return Size_t - number of bytes of storage required by this spectrum.
+ */
+Size_t
+CSpectrumS::StorageNeeded() const
+{
+  return m_nChannels * sizeof(Int_t);
 }
