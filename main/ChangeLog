@@ -1125,4 +1125,4 @@ November 30-?? 2011
 	Root histogram classes. 
 	* Modify template class CGammaSummarySpectrum to use Root
 	histogram classes.
-	
+	* Slide a TH1I under the hood of CSpectrumS (strip chart spectrum).
