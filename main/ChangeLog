@@ -1139,4 +1139,5 @@ November 30-?? 2011
 	* Slide a TH2I under the hood of CSpectrum2DmL (multiply
 	incremented 2d longword spectrum).
 	* Slide a TH2S under the hood of CSpectrum2DmW and ensure that the
-	  base class sets the data type properly for both 2DmL and 2DmW
+	base class sets the data type properly for both 2DmL and 2DmW
+	* Slide a TH2C under the hood of CVSpectrum2DmB (byte 2d multiply).
