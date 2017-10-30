@@ -1,4 +1,6 @@
 lib_LTLIBRARIES = libradwareio.la
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
 libradwareio_la_SOURCES		= 	cask.c 			\
 					caskyn.c		\
@@ -15,7 +17,9 @@ noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
 AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
-				$(TCLCCSW) 
+				$(TCLCCSW) $(ROOT_CFLAGS)
+
+libradwareio_la_LDFLAGS = $(ROOT_LDFLAGS)
 
 
 EXTRA_DIST = permission.txt radwareio.xml

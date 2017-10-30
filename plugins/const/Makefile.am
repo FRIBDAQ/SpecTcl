@@ -1,5 +1,9 @@
 lib_LTLIBRARIES  = libconstparam.la
 
+
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
+
 libconstparam_la_SOURCES = 	CConstCommand.cpp  \
 				CConstData.cpp	\
 				CConstPackage.cpp \
@@ -10,9 +14,9 @@ noinst_HEADERS = 	CConstCommand.h  \
 			CConstProcessor.h
 
 AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
-				$(TCLCCSW) 
+				$(TCLCCSW) $(ROOT_CFLAGS)
 
-
+libconstparam_la_LDFLAGS=$(ROOT_LDFLAGS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs $(prefix)/TclLibs/constparam

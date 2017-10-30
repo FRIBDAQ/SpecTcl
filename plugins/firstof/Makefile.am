@@ -1,4 +1,9 @@
 lib_LTLIBRARIES=libfirstof.la
+
+
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
+
 libfirstof_la_SOURCES 	=	CFirstofCommand.cpp		\
 				CFirstofEventProcessor.cpp	\
 				firstofPackage.cpp 		\
@@ -7,7 +12,8 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 			CFirstofEventProcessor.h \
 			CBiggestOfEventProcessor.h
 
-AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW)
+AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW) $(ROOT_CFLAGS)
+libfirsto_la_LDFALGS = $(ROOT_LDFLAGS)
 
 
 install-exec-local:
