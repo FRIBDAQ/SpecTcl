@@ -110,7 +110,7 @@ CRWWrite::operator()(CTCLInterpreter& interp,
   // We need to turn the spectrum into an array of floats for wspec to work with.
 
   Size_t   nchan     = pSpectrum->Dimension(0);
-  Float_t*  channels  = new Float_t[nchan];
+  Float_t*  channels  = new Float_t[static_cast<unsigned>(nchan)];
   for (UInt_t i =0; i < nchan; i++) {
     channels[i] = static_cast<Float_t>((*pSpectrum)[&i]);
   }

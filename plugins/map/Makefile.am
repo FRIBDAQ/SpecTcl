@@ -1,13 +1,15 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
+
 ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
 AM_CPPFLAGS = -I. 						\
 	@SPECTCLCCSW@					\
-	@TCLCCSW@
+	@TCLCCSW@ $(ROOT_CFLAGS)
 
 lib_LTLIBRARIES=libMapValues.la
+
 
 libMapValues_la_CXXFLAGS=$(ROOT_CFLAGS)
 

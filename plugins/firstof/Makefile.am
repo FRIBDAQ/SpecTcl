@@ -13,6 +13,9 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 
 AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW) $(ROOT_CFLAGS)
 
+libfirsto_la_LDFLAGS = $(ROOT_LDFLAGS)
+
+
 libfirstof_la_LDFLAGS=$(ROOT_LDFLAGS)
 
 install-exec-local:

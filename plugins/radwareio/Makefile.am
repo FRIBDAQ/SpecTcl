@@ -1,4 +1,6 @@
 lib_LTLIBRARIES = libradwareio.la
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
 ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
@@ -21,6 +23,7 @@ AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
 				$(TCLCCSW)  $(ROOT_CFLAGS)
 
 libradwareio_la_LDFLAGS=$(ROOT_LDFLAGS)
+
 
 
 EXTRA_DIST = permission.txt radwareio.xml
