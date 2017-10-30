@@ -95,6 +95,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Event.h"
 #include <algorithm>
 #include <assert.h>
+#include <TH2I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -128,8 +129,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   CSpectrum(rName, nId,
 	   CreateAxes(rrParameters, nYScale, 
 		      0.0, (Float_t)(nYScale - 1)) ),
-  m_nYScale(nYScale),
-  m_nXChannels(rrParameters.size())
+  m_nYScale(nYScale + 2),
+  m_nXChannels(rrParameters.size() + 2)
 {
   // The assumption is that all parameters have the same units.
   AddAxis(rrParameters.size(), 0.0, 
@@ -137,6 +138,13 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
+  
+  m_pRootSpectrum = new TH2I(
+    rName.c_str(), rName.c_str(),
+    rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
+    nYScale, 0.0, static_cast<Double_t>(nYScale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);       // SpecTcl will manage storage.
   CreateStorage();
 
 }
@@ -166,8 +174,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
 				     Float_t fYHigh) :
   CSpectrum(rName, nId,
 	    CreateAxes(rrParameters, nYScale, fYLow, fYHigh)),
-  m_nYScale(nYScale),
-  m_nXChannels(rrParameters.size())
+  m_nYScale(nYScale + 2),
+  m_nXChannels(rrParameters.size() + 2)
 
 {
 
@@ -176,8 +184,23 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
 	  (Float_t)(rrParameters.size() - 1)); //  Unit-less
   AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
+  
+  m_pRootSpectrum  = new TH2I(
+    rName.c_str(), rName.c_str(),
+    rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
+    nYScale, static_cast<Double_t>(fYLow), static_cast<Double_t>(fYHigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);              // SpecTcl manages storage.
   CreateStorage();
 
+}
+/**
+ * Destructor:
+ */
+CSummarySpectrumL::~CSummarySpectrumL()
+{
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -202,13 +225,8 @@ CSummarySpectrumL::Increment(const CEvent& rE)
   for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
     if(m_vParameters[xChan] < nParams) {
       if(rEvent[m_vParameters[xChan]].isValid()) {
-	Float_t rawParam = rEvent[m_vParameters[xChan]];
-	UInt_t y = Randomize(ParameterToAxis(xChan,
-					     rawParam));
-	
-	if(checkRange(y, m_nYScale, 0)) {
-	  pStorage[xChan + y*m_nXChannels]++;
-	}
+        Double_t rawParam = rEvent[m_vParameters[xChan]];
+        m_pRootSpectrum->Fill(static_cast<Double_t>(xChan), rawParam);
       }
     }
   }
@@ -253,17 +271,20 @@ CSummarySpectrumL::operator[](const UInt_t* pIndices) const
   // references are not returned.
   //
   UInt_t* p = (UInt_t*)getStorage();
-  UInt_t   nx = pIndices[0];
-  UInt_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  Int_t   nx = pIndices[0] + 1;
+  Int_t   ny = pIndices[1] + 1;
+  if(nx + 1 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing SummaryW spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny + 1 >= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing SummaryW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny * static_cast<unsigned>(Dimension(0)))];
+  
+  return static_cast<ULong_t>(
+    m_pRootSpectrum->GetBinContent(m_pRootSpectrum->GetBin(nx, ny))
+  );
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -282,17 +303,17 @@ CSummarySpectrumL::set(const UInt_t* pIndices, ULong_t nValue)
   UInt_t* p = (UInt_t*)getStorage();
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  if(nx +2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DW spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny +2 >= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  p[nx + static_cast<unsigned>((ny * Dimension(0)))] = (UInt_t)nValue;
-
-  
+  m_pRootSpectrum->SetBinContent(
+    m_pRootSpectrum->GetBin(nx+1, ny+1), static_cast<Double_t>(nValue)
+  );
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -429,4 +450,45 @@ Bool_t
 CSummarySpectrumL::needParameter() const
 {
   return kfFALSE;
+}
+/**
+ * setStorage
+ *    Replace root storage with our storage.  Since we're managing
+ *    storage we don't let Root delete the current spectrum's storage.
+ *    We did that once at construction time.
+ *  @param pStorage - pointer to the new spectrum storage.
+ */
+void
+CSummarySpectrumL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN     = Dimension(0) * Dimension(1);
+}
+/**
+ * StorageNeeded
+ *    @return size_t - bytes of spectrum storage required.
+ */
+Size_t
+CSummarySpectrumL::StorageNeeded() const
+{
+  
+  return static_cast<Size_t>(Dimension(0) * Dimension(1) * sizeof(Int_t));
+}
+/**
+ *  Dimension
+ *     Returns the number of cells on an axis of the spectrum.
+ *  @param axis - 0 for x axis (number of params + 2) 1 for y axis.
+ */
+Size_t
+CSummarySpectrumL::Dimension(UInt_t axis) const
+{
+  if (axis == 0) {
+    return m_nXChannels;
+  } else if (axis == 1) {
+    return m_nYScale;
+  } else {
+    throw CRangeError(
+      0, 1, axis, std::string("requesting dimension of an axis")
+    );
+  }
 }

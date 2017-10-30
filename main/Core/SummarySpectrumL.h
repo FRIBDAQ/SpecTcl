@@ -52,7 +52,8 @@
 
 //  Foward Class definitions:
 
-class CParameter;               
+class CParameter;
+class TH2I;
                 
 /*!
    A summary spectrum is a special 2-d spectrum that allows you to 
@@ -78,6 +79,7 @@ class CSummarySpectrumL  : public CSpectrum
   UInt_t              m_nYScale;     //!< Number of Y channels. 
   UInt_t              m_nXChannels;  //!< Number of X chanels.  
   std::vector<UInt_t>      m_vParameters; //!< STD(Vector) of parameter id's.
+  TH2I*               m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments
@@ -92,7 +94,7 @@ public:
 		    Float_t fYHigh); //!< Axis represents [fYlow, fYHigh].
 
 
-  virtual  ~ CSummarySpectrumL( ) { }       //Destructor	
+  virtual  ~ CSummarySpectrumL( );
 private:
 			//Copy constructor [illegal]
 
@@ -154,6 +156,9 @@ public:
   virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
   virtual Bool_t needParameter() const;
+  virtual void setStorage(Address_t pStorage);
+  virtual Size_t StorageNeeded() const;
+  virtual Size_t Dimension(UInt_t nAxis) const;
  
   // Utility functions.
 protected:
@@ -162,6 +167,7 @@ protected:
   CSpectrum::Axes CreateAxes(std::vector<CParameter> Parameters,
 			     UInt_t             nChannels,
 			     Float_t fyLow, Float_t fyHigh);
+  
   
 };
 
