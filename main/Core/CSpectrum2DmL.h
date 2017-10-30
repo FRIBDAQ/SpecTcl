@@ -22,7 +22,7 @@
 #endif
 
 class CEvent;
-
+class TH2I;
 /*!
    This is a specialization of the 2dm spectrum that understands
    how to handle longword spectra.  For more information about this spectrum
@@ -30,6 +30,7 @@ class CEvent;
 */
 class CSpectrum2DmL : public CSpectrum2Dm
 {
+    TH2I*  m_pRootSpectrum;
 public:
   CSpectrum2DmL(std::string              name,
 	       UInt_t                   id,
@@ -55,7 +56,8 @@ public:
   virtual ULong_t operator[] (const UInt_t* pIndices) const;
   virtual void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual void    Increment(const CEvent& rEvent);
-  
+  virtual void    setStorage(Address_t pStorage);
+  virtual Size_t  StorageNeeded() const;
 
 
 private:

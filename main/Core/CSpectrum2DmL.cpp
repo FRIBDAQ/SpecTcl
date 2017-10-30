@@ -20,6 +20,7 @@
 #include "CSpectrum2DmL.h"
 #include <Event.h>
 #include <RangeError.h>
+#include <TH2I.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -49,8 +50,14 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     std::vector<CParameter>& parameters,
 			     UInt_t                   xscale,
 			     UInt_t                   yscale) :
-  CSpectrum2Dm(name, id, parameters, xscale, yscale)
+  CSpectrum2Dm(name, id, parameters, xscale + 2, yscale + 2)
 {
+  m_pRootSpectrum = new TH2I(
+    name.c_str(), name.c_str(),
+    xscale, 0.0, static_cast<Double_t>(xscale),
+    yscale, 0.0, static_cast<Double_t>(yscale)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateChannels();
 }
 
@@ -79,13 +86,22 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   ychans,
 			     Float_t  xlow, Float_t   xhigh,
 			     Float_t  ylow, Float_t   yhigh) :
-  CSpectrum2Dm(name, id, parameters, xchans, ychans,
+  CSpectrum2Dm(name, id, parameters, xchans + 2, ychans + 2,
 	       xlow, xhigh, ylow, yhigh)
 {
+  m_pRootSpectrum = new TH2I(
+    name.c_str(), name.c_str(),
+    xchans, static_cast<Double_t>(xlow), static_cast<Double_t>(xhigh),
+    ychans, static_cast<Double_t>(ylow), static_cast<Double_t>(yhigh)
+  );
+  m_pRootSpectrum->Adopt(0, nullptr);
   CreateChannels();
 }
 
-CSpectrum2DmL::~CSpectrum2DmL() {}
+CSpectrum2DmL::~CSpectrum2DmL() {
+  m_pRootSpectrum->fArray = nullptr;
+  delete m_pRootSpectrum;
+}
 
 ///////////////////////////////////////////////////////////////////
 ///////////////// Virtual function overrides //////////////////////
@@ -109,9 +125,9 @@ CSpectrum2DmL::~CSpectrum2DmL() {}
 ULong_t
 CSpectrum2DmL::operator[](const UInt_t* pIndices) const
 {
-  UInt_t* p      = (UInt_t*)getStorage();
-  UInt_t  x      = pIndices[0];
-  UInt_t  y      = pIndices[1];
+  
+  Int_t  x      = pIndices[0];
+  Int_t  y      = pIndices[1];
   if (x >= Dimension(0)) {
     throw CRangeError(0, Dimension(0) - 1, x,
 		      string("Indexing 2m spectrum (x)"));
@@ -120,7 +136,9 @@ CSpectrum2DmL::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1) - 1, y,
 		      string("Indexing 2m Spectrum (y)"));
   }
-  return p[coordsToIndex(x,y)];
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(
+    m_pRootSpectrum->GetBin(x, y)
+  ));
 }
 
 /*!
@@ -133,9 +151,9 @@ CSpectrum2DmL::operator[](const UInt_t* pIndices) const
 void
 CSpectrum2DmL::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  UInt_t*p      = (UInt_t*)getStorage();
-  UInt_t x     = pIndices[0];
-  UInt_t y     = pIndices[1];
+
+  Int_t x     = pIndices[0];
+  Int_t y     = pIndices[1];
 
   if (x >= Dimension(0)) {
     throw CRangeError(0, Dimension(0) - 1, x,
@@ -146,7 +164,9 @@ CSpectrum2DmL::set(const UInt_t* pIndices, ULong_t nValue)
 		      string("Indexing 2m Spectrum (y)"));
   }
 
-  p[coordsToIndex(x,y)] = nValue;
+  m_pRootSpectrum->SetBinContent(
+    m_pRootSpectrum->GetBin(x,y), static_cast<Double_t>(nValue)
+  );
 
 }
 
@@ -198,20 +218,35 @@ CSpectrum2DmL::IncPair(const CEvent& rEvent, UInt_t nx, UInt_t ny, int i)
   // The parameters must both be defined:
 
   if (!(const_cast<CEvent&>(rEvent)[nx].isValid() && 
-	const_cast<CEvent&>(rEvent)[ny].isValid())) {
+      const_cast<CEvent&>(rEvent)[ny].isValid())) {
     return;			// One or both invalid for this event.
   }
   // The parameters must both be in range for the spectrum after scaling:
 
-  Float_t x = const_cast<CEvent&>(rEvent)[nx];
-  Float_t y = const_cast<CEvent&>(rEvent)[ny];
-
-  Int_t ix = (Int_t)m_axisMappings[i].MappedParameterToAxis(x);
-  Int_t iy = (Int_t)m_axisMappings[i+1].MappedParameterToAxis(y);
+  Double_t x = const_cast<CEvent&>(rEvent)[nx];
+  Double_t y = const_cast<CEvent&>(rEvent)[ny];
   
-  if (canIncrement(ix, iy, m_xChannels, m_yChannels)) {
-    UInt_t* p = static_cast<UInt_t*>(getStorage());
-    p[coordsToIndex(ix, iy)]++;
-  }
+  m_pRootSpectrum->Fill(x,y);
   
+}
+/**
+ * setStorage
+ *    Replace the histogram root histogram storage with new storage
+ *
+ *  @param pStorage - new histogram storage.
+ */
+void
+CSpectrum2DmL::setStorage(Address_t pStorage)
+{
+  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  m_pRootSpectrum->fN     = Dimension(0) * Dimension(1);
+}
+/**
+ * StorageNeeded
+ *    @return Size_t - number of bytes of storage the histogram needs.
+ */
+Size_t
+CSpectrum2DmL::StorageNeeded() const
+{
+  return static_cast<Size_t>(Dimension(0) * Dimension(1) * sizeof(Int_t));
 }

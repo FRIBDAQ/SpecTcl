@@ -20,6 +20,7 @@
 #include <config.h>
 #include "CSpectrum2Dm.h"
 #include "CParameterMapping.h"
+#include <RangeError.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -50,18 +51,18 @@ CSpectrum2Dm::CSpectrum2Dm(string              name,
 			   UInt_t              yscale) :
   CSpectrum(name, id,
 	    CreateAxisVector(parameters[0],
-			     xscale, 0.0, static_cast<Float_t>(xscale),
+			     xscale - 2, 0.0, static_cast<Float_t>(xscale),
 			     parameters[1],
-			     yscale, 0.0, static_cast<Float_t>(yscale))),
+			     yscale - 2, 0.0, static_cast<Float_t>(yscale))),
   m_xChannels(xscale),
   m_yChannels(yscale)
 {
 
 
-  AddAxis(xscale, 0.0, xscale-1.0, parameters[0].getUnits());
-  AddAxis(yscale, 0.0, yscale-1.0, parameters[1].getUnits());
+  AddAxis(xscale, 0.0, xscale-2.0, parameters[0].getUnits());
+  AddAxis(yscale, 0.0, yscale-2.0, parameters[1].getUnits());
 
-  CreateMappings(parameters, 0.0, static_cast<Float_t>(xscale),
+  CreateMappings(parameters, 0.0, static_cast<Float_t>(xscale - 2),
 		0.0, static_cast<Float_t>(yscale));
   
 }
@@ -93,13 +94,13 @@ CSpectrum2Dm:: CSpectrum2Dm(std::string              name,
 			    Float_t  xlow, Float_t   xhigh,
 			    Float_t  ylow, Float_t   yhigh) : 
   CSpectrum(name, id,
-	    CreateAxisVector(parameters[0], xchans, xlow, xhigh,
-			     parameters[1], ychans, ylow, yhigh)),
+	    CreateAxisVector(parameters[0], xchans - 2, xlow, xhigh,
+			     parameters[1], ychans - 2, ylow, yhigh)),
   m_xChannels(xchans),
   m_yChannels(ychans)
 {
-  AddAxis(xchans, xlow, xhigh, parameters[0].getUnits());
-  AddAxis(ychans, ylow, yhigh, parameters[1].getUnits());
+  AddAxis(xchans - 2, xlow, xhigh, parameters[0].getUnits());
+  AddAxis(ychans - 2 , ylow, yhigh, parameters[1].getUnits());
 
   CreateMappings(parameters, xlow, xhigh, ylow, yhigh);
 }
@@ -302,4 +303,20 @@ CSpectrum2Dm::needParameter() const
 {
   return kfFALSE;
 
+}
+/**
+ * Dimension
+ *    @param axis  - axis selector 0 - x, 1 - y other CRangeError is thrown.
+ *    @return Size_t Number of bins on the specified axis.
+ */
+Size_t
+CSpectrum2Dm::Dimension(UInt_t axis) const
+{
+  if (axis == 0) {
+    return m_xChannels;
+  } else if (axis == 1) {
+    return m_yChannels;
+  } else {
+    throw CRangeError(0, 1, axis, std::string("Getting number of bins on an axis"));
+  }
 }

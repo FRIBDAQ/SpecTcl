@@ -1130,4 +1130,12 @@ November 30-?? 2011
 	* Slide a TH2C under the hood of CSummarySpectrumB (byte summary
 	spectrum).
 	* Fix free errors on exit.
-	* Slide a TH2I under the hood of CSummarySpectrumL (long summary spectrum).
+	* Slide a TH2I under the hood of CSummarySpectrumL (long summary
+	spectrum).
+	* Slide a TH2S under the hood of CSummarySpectrumW (word summary
+	spectrum).
+	* Setup base class modes for CSpectrum2Dm (2d-sum spectrum) for
+	root histogramming
+	* Slide a TH2I under the hood of CSpectrum2DmL (multiply
+	incremented 2d longword spectrum).
+	
