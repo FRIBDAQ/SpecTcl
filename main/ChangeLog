@@ -1138,4 +1138,5 @@ November 30-?? 2011
 	root histogramming
 	* Slide a TH2I under the hood of CSpectrum2DmL (multiply
 	incremented 2d longword spectrum).
-	
+	* Slide a TH2S under the hood of CSpectrum2DmW and ensure that the
+	  base class sets the data type properly for both 2DmL and 2DmW
