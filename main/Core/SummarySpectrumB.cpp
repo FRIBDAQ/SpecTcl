@@ -258,15 +258,17 @@ CSummarySpectrumB::operator[](const UInt_t* pIndices) const
   //
   Int_t   nx = pIndices[0];
   Int_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  if(nx + 2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing SummaryW spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny +2 >= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing SummaryW spectrum y axis"));
   }
-  return (ULong_t)(m_pRootSpectrum->GetBinContent(nx+1, ny+1));
+  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(
+    m_pRootSpectrum->GetBin(nx+1, ny+1)
+  ));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -285,15 +287,17 @@ CSummarySpectrumB::set(const UInt_t* pIndices, ULong_t nValue)
   
   Int_t   nx = pIndices[0];
   Int_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  if(nx +2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DW spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny + 2 >= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  m_pRootSpectrum->SetBinContent(nx, ny, static_cast<Double_t>(nValue));
+  m_pRootSpectrum->SetBinContent(
+    m_pRootSpectrum->GetBin(nx+1, ny+1), static_cast<Double_t>(nValue)
+  );
 }
 
 ///////////////////////////////////////////////////////////////////////////
