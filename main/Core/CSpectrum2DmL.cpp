@@ -59,6 +59,7 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateChannels();
+  setStorageType(keLong);
 }
 
 /*!
@@ -96,6 +97,7 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateChannels();
+  setStorageType(keLong);
 }
 
 CSpectrum2DmL::~CSpectrum2DmL() {
