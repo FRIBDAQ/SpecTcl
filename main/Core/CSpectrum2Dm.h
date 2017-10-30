@@ -113,7 +113,7 @@ public:
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
   virtual SpectrumType_t getSpectrumType();
   virtual Bool_t needParameter() const;
-
+  virtual Size_t Dimension(UInt_t axis) const;
 
 protected:
     bool canIncrement(Int_t x, Int_t y, int nx, int ny);
