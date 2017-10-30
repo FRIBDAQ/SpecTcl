@@ -22,6 +22,7 @@
 #endif
 
 class CEvent;
+class TH2C;
 
 /*!
    This is a specialization of the 2dm spectrum that understands
@@ -30,6 +31,8 @@ class CEvent;
 */
 class CSpectrum2DmB : public CSpectrum2Dm
 {
+private:
+    TH2C*   m_pRootSpectrum;
 public:
   CSpectrum2DmB(std::string              name,
 	       UInt_t                   id,
@@ -55,7 +58,8 @@ public:
   virtual ULong_t operator[] (const UInt_t* pIndices) const;
   virtual void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual void    Increment(const CEvent& rEvent);
-  
+  virtual void    setStorage(Address_t pEvent);
+  virtual Size_t  StorageNeeded() const;
 
 
 private:
