@@ -88,7 +88,6 @@ class CSpectrum1DW  : public CSpectrum
 {
   UInt_t m_nChannels;		//!< Number of channels.
   UInt_t m_nParameter;		//!< Number parameter which is histogrammed
-  TH1S*  m_pRootSpectrum; //!< Spectrum from Root's point of view.
 
   
 public:

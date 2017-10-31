@@ -52,12 +52,13 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
 			     UInt_t                   yscale) :
   CSpectrum2Dm(name, id, parameters, xscale + 2 , yscale + 2)
 {
-  m_pRootSpectrum = new TH2S(
+  TH2S* pRootSpectrum = new TH2S(
     name.c_str(), name.c_str(),
     xscale, 0.0, static_cast<Double_t>(xscale),
     yscale, 0.0, static_cast<Double_t>(yscale)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();
   setStorageType(keWord);
 }
@@ -90,12 +91,13 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
   CSpectrum2Dm(name, id, parameters, xchans + 2, ychans + 2,
 	       xlow, xhigh, ylow, yhigh)
 {
-  m_pRootSpectrum = new TH2S(
+  TH2S* pRootSpectrum = new TH2S(
     name.c_str(), name.c_str(),
     xchans, static_cast<Double_t>(xlow),  static_cast<Double_t>(xhigh),
     ychans, static_cast<Double_t>(ylow),  static_cast<Double_t>(yhigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();
   setStorageType(keWord);
 }
@@ -103,8 +105,9 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
 
 CSpectrum2DmW::~CSpectrum2DmW()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  TH2S* pRootSpectrum = reinterpret_cast<TH2S*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
+
 }
 
 
@@ -133,16 +136,17 @@ CSpectrum2DmW::operator[](const UInt_t* pIndices) const
   
   Int_t  x      = pIndices[0];
   Int_t  y      = pIndices[1];
-  if (x >= Dimension(0)) {
+  if (x + 2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0) - 1, x,
 		      string("Indexing 2m spectrum (x)"));
   }
-  if (y >= Dimension(1)) {
+  if (y + 2>= Dimension(1)) {
     throw CRangeError(0, Dimension(1) - 1, y,
 		      string("Indexing 2m Spectrum (y)"));
   }
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(
-    m_pRootSpectrum->GetBin(x,y)
+  const TH1* pRootSpectrum = getRootSpectrum();
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(
+    pRootSpectrum->GetBin(x + 1,y + 1)
   ));
 }
 
@@ -168,9 +172,10 @@ CSpectrum2DmW::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1) - 1, y,
 		      string("Indexing 2m Spectrum (y)"));
   }
-
-  m_pRootSpectrum->SetBinContent(
-    m_pRootSpectrum->GetBin(x,y), static_cast<Double_t>(nValue)
+  TH1* pRootSpectrum = getRootSpectrum();
+  
+  pRootSpectrum->SetBinContent(
+    pRootSpectrum->GetBin(x,y), static_cast<Double_t>(nValue)
   );
 }
 
@@ -229,7 +234,7 @@ CSpectrum2DmW::IncPair(const CEvent& rEvent, UInt_t nx, UInt_t ny, int i)
 
   Double_t x = const_cast<CEvent&>(rEvent)[nx];
   Double_t y = const_cast<CEvent&>(rEvent)[ny];
-  m_pRootSpectrum->Fill(x,y);
+  getRootSpectrum()->Fill(x,y);
     
 }
 /**
@@ -241,8 +246,9 @@ CSpectrum2DmW::IncPair(const CEvent& rEvent, UInt_t nx, UInt_t ny, int i)
 void
 CSpectrum2DmW::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
-  m_pRootSpectrum->fN     = Dimension(0) * Dimension(1);
+  TH2S* pRootSpectrum = reinterpret_cast<TH2S*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  pRootSpectrum->fN     = Dimension(0) * Dimension(1);
 }
 /**
  * StorageNeeded

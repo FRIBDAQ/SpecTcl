@@ -73,7 +73,7 @@ class CSpectrum2DL  : public CSpectrum
   UInt_t m_nYScale;		// Number of channels on  y Axis.
   UInt_t m_nXParameter;		// Number of parameter on X axis.
   UInt_t m_nYParameter;         // Number of parameter on Y axis.
-  TH2I*  m_pRootSpectrum;   // For root histogramming.
+
 public:
 
 			//Constructor(s) with arguments

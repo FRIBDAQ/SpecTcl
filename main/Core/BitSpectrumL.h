@@ -91,7 +91,6 @@ class CBitSpectrumL  : public CSpectrum
   UInt_t m_nChannels;		// Spectrum size in channels.
   UInt_t m_nParameter;		// Number parameter which is histogrammed
   CParameter m_PDescription;
-  TH1I*      m_pRootSpectrum;
 public:
 
 			//Constructor(s) with arguments

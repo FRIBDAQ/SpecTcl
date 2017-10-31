@@ -115,12 +115,12 @@ CSpectrumS::CSpectrumS(const std::string&     rName,
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), rParameter.getUnits());
   
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();
 }
 /*!
@@ -160,11 +160,12 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
   
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();
   
 }
@@ -173,8 +174,9 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
  */
 CSpectrumS::~CSpectrumS()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
+
 }
 
 
@@ -190,10 +192,10 @@ CSpectrumS::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
   CParameterValue& rTime(rEvent[m_nChannel]);
   CParameterValue& rParam(rEvent[m_nParameter]);
-
+  TH1* pRootSpectrum  = getRootSpectrum();
 
   if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
-    TAxis* axis       = m_pRootSpectrum->GetXaxis();
+    TAxis* axis       = pRootSpectrum->GetXaxis();
     
     Double_t  xmin  = axis->GetXmin();
     Double_t  xmax  = axis->GetXmax();
@@ -201,7 +203,7 @@ CSpectrumS::Increment(const CEvent& rE)
 
     Double_t time   = rTime;
     Double_t counts = rParam;
-    Int_t bin       = m_pRootSpectrum->FindBin(rTime);
+    Int_t bin       = pRootSpectrum->FindBin(rTime);
     Int_t effectiveBin = (time - xmin)*(m_nChannels-1)/(range) + 2;  // Bin if infinite spectrum.
     Int_t overflowBin = m_nChannels - 1;
     
@@ -226,7 +228,7 @@ CSpectrumS::Increment(const CEvent& rE)
       xmax = xmin + range;
       axis->Set(m_nChannels - 2, xmin, xmax);
     }
-    m_pRootSpectrum->Fill(time, counts);
+    pRootSpectrum->Fill(time, counts);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -265,14 +267,16 @@ CSpectrumS::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
+  const TH1* pRootSpectrum = getRootSpectrum();
+  Int_t   n = pIndices[0];
+  if(n + 2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing StripChart"));
   }
   
-  return (ULong_t)m_pRootSpectrum->GetBinContent(n);
+  return (ULong_t)pRootSpectrum->GetBinContent(
+    pRootSpectrum->GetBin(n + 1)
+  );
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -294,7 +298,10 @@ CSpectrumS::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing StripChart"));
   }
-  m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
+  TH1* pRootSpectrum = getRootSpectrum();
+  pRootSpectrum->SetBinContent(
+    pRootSpectrum->GetBin(n+1), static_cast<Double_t>(nValue)
+  );
 
   
 }
@@ -369,12 +376,12 @@ CSpectrumS::ShiftDataDown(int64_t nShift)
     Clear();
     return;
   }
-
+  TH1* pRootSpectrum = getRootSpectrum();
   for (int i = 1; i <= m_nChannels-nShift; i++) {
-    m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
+    pRootSpectrum->SetBinContent(i, pRootSpectrum->GetBinContent(i+nShift));
   }
   for (int i =  m_nChannels-nShift+1; i <= m_nChannels; i++) {
-    m_pRootSpectrum->SetBinContent(i, 0.0);
+    pRootSpectrum->SetBinContent(i, 0.0);
   }
 }
 
@@ -388,11 +395,12 @@ CSpectrumS::ShiftDataUp(int64_t nShift)
       return;
 
     }
+    TH1* pRootSpectrum =  getRootSpectrum();
     for (int i =  m_nChannels ; i > (-nShift); i--) {
-      m_pRootSpectrum->SetBinContent(i, m_pRootSpectrum->GetBinContent(i+nShift));
+      pRootSpectrum->SetBinContent(i, pRootSpectrum->GetBinContent(i+nShift));
     }
     for (int i = (-nShift ) -1 ; i > 0 ; i--) {
-      m_pRootSpectrum->SetBinContent(i, 0.0);
+      pRootSpectrum->SetBinContent(i, 0.0);
     }
 }
 /**
@@ -404,8 +412,9 @@ CSpectrumS::ShiftDataUp(int64_t nShift)
 void
 CSpectrumS::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
-  m_pRootSpectrum->fN    = m_nChannels;
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  pRootSpectrum->fN    = m_nChannels;
 }
 /*
  *  StorageNeeded

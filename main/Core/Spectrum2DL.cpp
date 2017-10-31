@@ -72,8 +72,7 @@ CSpectrum2DL::CSpectrum2DL(const std::string& rName, UInt_t nId,
   m_nXScale(nXScale + 2),                 // Account for Root needing 2
   m_nYScale(nYScale + 2),                 // extra chans on each axis.
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nYParameter(rYParameter.getNumber())
 
 {
   AddAxis(nXScale, 0.0, (Float_t)(nXScale), 
@@ -85,13 +84,13 @@ CSpectrum2DL::CSpectrum2DL(const std::string& rName, UInt_t nId,
   // deleted.  CreateStorate indirectly calls setStorage which will swap in
   // SpecTcl managed storage for the root TArrayI normally used:
   
-  m_pRootSpectrum = new TH2I(
+  TH2I* pRootSpectrum = new TH2I(
     rName.c_str(), rName.c_str(),
     nXScale, 0.0, static_cast<Double_t>(nXScale),
     nYScale, 0.0, static_cast<Double_t>(nYScale)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);          // Free the root storage.
-  
+  pRootSpectrum->Adopt(0, nullptr);          // Free the root storage.
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 
@@ -133,8 +132,7 @@ CSpectrum2DL:: CSpectrum2DL(const std::string& rName, UInt_t nId,
   m_nXScale(nXChannels + 2),
   m_nYScale(nYChannels + 2),
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nYParameter(rYParameter.getNumber())
   
 {
   AddAxis(nXChannels, fxLow, fxHigh, rXParameter.getUnits());
@@ -142,20 +140,21 @@ CSpectrum2DL:: CSpectrum2DL(const std::string& rName, UInt_t nId,
   
   // See comments in previousl constructor:
   
-  m_pRootSpectrum = new TH2I(
+  TH2I* pRootSpectrum = new TH2I(
     rName.c_str(),  rName.c_str(),
     nXChannels,  static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
     nYChannels,  static_cast<Double_t>(fyLow), static_cast<Double_t>(fyHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
   
 CSpectrum2DL::~CSpectrum2DL()
 {
-  m_pRootSpectrum->fArray = nullptr;         // Prevents multiple deletes of
-  delete m_pRootSpectrum;                    // SpecTcl Managed storage.
+  TH2I* pRootSpectrum = reinterpret_cast<TH2I*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;         // Prevents multiple deletes of
+  
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,7 +180,7 @@ CSpectrum2DL::Increment(const CEvent& rE)
 
   if(xParam.isValid()  && // Require the parameters be in event
      yParam.isValid()) {
-    m_pRootSpectrum->Fill(xParam, yParam);
+    getRootSpectrum()->Fill(xParam, yParam);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -220,19 +219,20 @@ CSpectrum2DL::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  UInt_t* p = (UInt_t*)getStorage();
-  UInt_t   nx = pIndices[0];
-  UInt_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  
+  Int_t   nx = pIndices[0];
+  Int_t   ny = pIndices[1];
+  if(nx + 2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DW spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny + 2>= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
-  return (ULong_t)(m_pRootSpectrum->GetBinContent(bin));
+  const TH1* pRootSpectrum = getRootSpectrum();
+  Int_t bin = pRootSpectrum->GetBin(nx + 1, ny + 1);
+  return (ULong_t)(pRootSpectrum->GetBinContent(bin));
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -248,19 +248,20 @@ CSpectrum2DL::set(const UInt_t* pIndices, ULong_t nValue)
 {
   // Provides write access to a channel of the spectrum.
   //
-  UInt_t* p = (UInt_t*)getStorage();
+  
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
-  if(nx >= Dimension(0)) {
+  if(nx + 2>= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, nx,
 		      std::string("Indexing 2DB spectrum x axis"));
   }
-  if(ny >= Dimension(1)) {
+  if(ny + 2>= Dimension(1)) {
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB spectrum y axis"));
   }
-  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
-  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
+  TH1* pRootSpectrum = getRootSpectrum();
+  Int_t bin = pRootSpectrum->GetBin(nx + 1, ny + 1);
+  pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 
   
 }
@@ -403,8 +404,9 @@ CSpectrum2DL::Dimension(UInt_t n) const
 void
 CSpectrum2DL::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fN = m_nXScale * m_nYScale;
-  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  TH2I* pRootSpectrum = reinterpret_cast<TH2I*>(getRootSpectrum());
+  pRootSpectrum->fN = m_nXScale * m_nYScale;
+  pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
 }
 /**
  * StorageNeeded

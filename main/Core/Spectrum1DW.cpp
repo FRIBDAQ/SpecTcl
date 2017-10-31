@@ -120,19 +120,19 @@ CSpectrum1DW::CSpectrum1DW(const std::string& rName,
 		  nChannels,
 		  CParameterMapping(rParameter)))),
   m_nChannels(nChannels+2),            // Root adds two channels.
-  m_nParameter(rParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), rParameter.getUnits());
   
   // Create the root spectrum.  Then CreateChannels will indirectly
   // set the spectrum's  storage to the storage SpecTcl manages:
   
-  m_pRootSpectrum = new TH1S(
+  TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(), nChannels, 0.0,
     static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);      // Get th1 to delete its storage.
+  pRootSpectrum->Adopt(0, nullptr);      // Get th1 to delete its storage.
+  setRootSpectrum(pRootSpectrum);
   
   CreateChannels();
 }
@@ -169,19 +169,18 @@ CSpectrum1DW::CSpectrum1DW(const std::string&  rName,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			   CParameterMapping(rParameter)))),
   m_nChannels(nChannels+2),                  // Root adds two channels.
-  m_nParameter(rParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
   
   // See comments in prior constructor about the order of this.
   
-  m_pRootSpectrum = new TH1S(
+  TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(), nChannels,
     static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();
 }
 /**
@@ -189,8 +188,9 @@ CSpectrum1DW::CSpectrum1DW(const std::string&  rName,
  */
 CSpectrum1DW::~CSpectrum1DW()
 {
-  m_pRootSpectrum->fArray = nullptr;          // Prevents attempted delete.
-  delete m_pRootSpectrum;
+  TH1S* pRootSpectrum = reinterpret_cast<TH1S*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;          // Prevents attempted delete.
+  
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ CSpectrum1DW::Increment(const CEvent& rE)
 
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-        m_pRootSpectrum->Fill(rEvent[m_nParameter]);
+        getRootSpectrum()->Fill(rEvent[m_nParameter]);
     }
   }
 }
@@ -254,8 +254,10 @@ CSpectrum1DW::UsesParameter(UInt_t nId) const
 ULong_t
 CSpectrum1DW::operator[](const UInt_t* pIndices) const
 {
-  
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(pIndices[0]));
+  const TH1* pRootSpectrum = getRootSpectrum();
+  return static_cast<ULong_t>(
+    pRootSpectrum->GetBinContent(pRootSpectrum->GetBin(pIndices[0] + 1))
+  );
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -269,7 +271,10 @@ CSpectrum1DW::operator[](const UInt_t* pIndices) const
 void
 CSpectrum1DW::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  m_pRootSpectrum->SetBinContent(pIndices[0], static_cast<Double_t>(nValue));
+  TH1* pRootSpectrum = getRootSpectrum();
+  pRootSpectrum->SetBinContent(
+    pRootSpectrum->GetBin(pIndices[0] + 1), static_cast<Double_t>(nValue)
+  );
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -334,8 +339,9 @@ CSpectrum1DW::CreateChannels()
 void
 CSpectrum1DW::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
-  m_pRootSpectrum->fN = m_nChannels;            // Number of cells.
+  TH1S* pRootSpectrum = reinterpret_cast<TH1S*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  pRootSpectrum->fN = m_nChannels;            // Number of cells.
 }
 /**
  * StorageNeeded

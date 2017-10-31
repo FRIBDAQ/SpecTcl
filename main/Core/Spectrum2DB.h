@@ -71,7 +71,7 @@ class CSpectrum2DB  : public CSpectrum
   UInt_t m_nYScale;		// Number of channels on  y Axis.
   UInt_t m_nXParameter;		// Number of parameter on X axis.
   UInt_t m_nYParameter;         // Number of parameter on Y axis.
-  TH2C*  m_pRootSpectrum;
+
 public:
 
 			//Constructor(s) with arguments

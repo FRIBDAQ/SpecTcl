@@ -124,13 +124,13 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
   
   // Create the corresponding Root spectrum:
   
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);      // delete the root spectrum storage
-  
-  CreateStorage();                  // This replaces spectrum storage too.
+  pRootSpectrum->Adopt(0, nullptr);      // delete the root spectrum storage
+  setRootSpectrum(pRootSpectrum);        // for the base class
+  CreateStorage();                       // This replaces spectrum storage too.
 }
 /*! 
   Constructs a bit spectrum that has a cut in axis and
@@ -170,11 +170,12 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
   AddAxis((nHigh - nLow), 
 	  (Float_t)nLow, (Float_t)nHigh); // bits are unitless.
   
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     m_nChannels - 2, static_cast<Double_t>(nLow), static_cast<Double_t>(nHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);      // Set base class root spectrump ptr.
   CreateStorage();
 }
 
@@ -186,8 +187,9 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
  */
 CBitSpectrumL::~CBitSpectrumL()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
+  
 }
 
 // Functions for class CBitSpectrumL:
@@ -217,7 +219,7 @@ CBitSpectrumL::Increment(const CEvent& rE)
         if (bit & nParam) {
             
             nParam &= ~bit;
-            m_pRootSpectrum->Fill(bitnum);
+            getRootSpectrum()->Fill(bitnum);
         }
         bit = bit << 1;
         bitnum += 1.0;
@@ -254,9 +256,10 @@ CBitSpectrumL::operator[](const UInt_t* pIndices) const
   // for all types of spectra.
   //
   
-  UInt_t    n = pIndices[0];
-  Int_t   bin = m_pRootSpectrum->FindBin(n);
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(n));
+  const TH1*     pRootSpectrum = getRootSpectrum();
+  Int_t    n = pIndices[0];
+  Int_t   bin = pRootSpectrum->GetBin(n + 1);
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(bin));
 
 }
 ///////////////////////////////////////////////////////////////////////
@@ -280,10 +283,11 @@ CBitSpectrumL::set(const UInt_t* pIndices, ULong_t nValue)
  
   // Provides write access to a channel of the spectrum.
   //
-  UInt_t* p = (UInt_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  Int_t  bin = m_pRootSpectrum->FindBin(n);
-  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
+  
+  TH1*    pRootSpectrum = getRootSpectrum();
+  Int_t   n = pIndices[0];
+  Int_t  bin = pRootSpectrum->GetBin(n + 1);
+  pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -352,8 +356,12 @@ CBitSpectrumL::CreateStorage()
 void
 CBitSpectrumL::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
-  m_pRootSpectrum->fN     = m_nChannels;
+  CSpectrum::setStorage(pStorage);
+  
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  
+  pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  pRootSpectrum->fN     = m_nChannels;
 }
 /**
  * StorageNeeded
