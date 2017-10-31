@@ -90,15 +90,15 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
 			nChannels,
 			CParameterMapping(rParameter)))),
   m_nChannels(nChannels+2),
-  m_nParameter(rParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels, 0.0, static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();              // Ivokes setStorage indirectly.
 
 }
@@ -132,16 +132,15 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
 	    Axes(1, CAxis(fLow, fHigh, nChannels,
 			  CParameterMapping(rParameter)))),
   m_nChannels(nChannels+2),
-  m_nParameter(rParameter.getNumber()),
-  m_pRootSpectrum(0)
+  m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
-  m_pRootSpectrum = new TH1I(
+  TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels,
     static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
-  m_pRootSpectrum->Adopt(
-     0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateChannels();		// Invokes setStorage indirectly
 
 }
@@ -177,8 +176,9 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
  */
 CSpectrum1DL::~CSpectrum1DL()
 {
-    m_pRootSpectrum->fArray = nullptr;           // Prevent storage destruction.
-    delete m_pRootSpectrum;
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;           // Prevent storage destruction.
+
 }   
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,20 +208,7 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
 
   if(rParam.isValid()) {  // Only increment if param present.
-    m_pRootSpectrum->Fill(rParam);
-#ifdef NO_ROOT
-    Int_t nChannel =
-   (Int_t)ParameterToAxis(0, rParam);
-    
-    
-    if(checkRange(nChannel, m_nChannels, 0)) {
-        
-      UInt_t* p = (UInt_t*)getStorage();
-      assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
-      p[nChannel]++;		      // Increment the histogram.
-    }
-
-#endif
+    getRootSpectrum()->Fill(rParam);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -256,20 +243,10 @@ CSpectrum1DL::UsesParameter(UInt_t nId) const
 ULong_t
 CSpectrum1DL::operator[](const UInt_t* pIndices) const
 {
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(pIndices[0]));
-#ifdef NO_ROOT
-  // Provides the value of an element of the spectrum.
-  // note:  This is not a 'normal' indexing operation in that
-  // references are not returned.
-  //
-  UInt_t* p = (UInt_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DL spectrum"));
-  }
-  return (ULong_t)p[n];
-#endif
+  const TH1* pRootSpectrum = getRootSpectrum();
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(
+    pRootSpectrum->GetBin(pIndices[0]+1)));
+
 }
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -282,25 +259,12 @@ CSpectrum1DL::operator[](const UInt_t* pIndices) const
 void
 CSpectrum1DL::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  m_pRootSpectrum->SetBinContent(
-    pIndices[0], static_cast<Double_t>(nValue));
-#ifdef NO_ROOT
-  // Provides write access to a channel of the spectrum.
-  //
-  UInt_t* p = (UInt_t*)getStorage();
-  UInt_t   n = pIndices[0];
-  if(n >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DL spectrum"));
-  }
-  p[n] = (UInt_t)nValue;
+  TH1* pRootSpectrum = getRootSpectrum();
+  pRootSpectrum->SetBinContent(
+    pRootSpectrum->GetBin(pIndices[0] + 1), static_cast<Double_t>(nValue)
+  );
 
-#endif
 }
-
-/**
- ** End TODO use root spectrum.
- */
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -366,8 +330,9 @@ CSpectrum1DL::CreateChannels()
 void
 CSpectrum1DL::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
-  m_pRootSpectrum->fN     = m_nChannels;            // Number of cells.
+  TH1I* pRootSpectrum = reinterpret_cast<TH1I*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Int_t*>(pStorage);
+  pRootSpectrum->fN     = m_nChannels;            // Number of cells.
 }
 
 /**

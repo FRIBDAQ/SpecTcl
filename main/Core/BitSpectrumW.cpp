@@ -119,12 +119,12 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName,
   // The usual dance to make a root spectrum whose storage is managed by
   // SpecTcl
   
-  m_pRootSpectrum = new TH1S(
+  TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 /*! 
@@ -163,11 +163,12 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
 {
   AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
   
-  m_pRootSpectrum = new TH1S(
+  TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(),
     m_nChannels - 2, static_cast<Double_t>(nLow), static_cast<Double_t>(nHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 /**
@@ -176,8 +177,8 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
  */
 CBitSpectrumW::~CBitSpectrumW()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  TH1S* pRootSpectrum = reinterpret_cast<TH1S*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
 }
 
 // Functions for class CBitSpectrumW:
@@ -207,7 +208,7 @@ CBitSpectrumW::Increment(const CEvent& rE)
       Double_t bitNum = 0;
       while(nParam) {
         if(nBit & nParam) {
-          m_pRootSpectrum->Fill(bitNum);
+          getRootSpectrum()->Fill(bitNum);
           nParam &= ~nBit;            // Remove the bit.
         }
         nBit = nBit << 1;
@@ -243,10 +244,11 @@ CBitSpectrumW::operator[](const UInt_t* pIndices) const
   // produces rvalues.  This, however allows a uniform call/return 
   // for all types of spectra.
   //
-  UShort_t*   p = (UShort_t*)getStorage();
-  Double_t    n = pIndices[0];
-  Int_t     bin = m_pRootSpectrum->FindBin(n);
-  return (ULong_t)m_pRootSpectrum->GetBinContent(bin);
+
+  const TH1* pRootSpectrum  =  getRootSpectrum();
+  UInt_t    n = pIndices[0];
+  Int_t     bin = pRootSpectrum->GetBin(n+1);
+  return (ULong_t)pRootSpectrum->GetBinContent(bin);
 }
 ///////////////////////////////////////////////////////////////////////
 //
@@ -270,9 +272,10 @@ CBitSpectrumW::set(const UInt_t* pIndices, ULong_t nValue)
   // Provides write access to a channel of the spectrum.
   //
   
-  Double_t   n = pIndices[0];
-  Int_t    bin = m_pRootSpectrum->FindBin(n);
-  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
+  TH1* pRootSpectrum = getRootSpectrum();
+  Int_t   n = pIndices[0];
+  Int_t    bin = pRootSpectrum->FindBin(n+1);
+  pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 /////////////////////////////////////////////////////////////////////
 //
@@ -342,8 +345,9 @@ CBitSpectrumW::CreateStorage()
 void
 CBitSpectrumW::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
-  m_pRootSpectrum->fN     = m_nChannels;
+  TH1S* pRootSpectrum = reinterpret_cast<TH1S*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  pRootSpectrum->fN     = m_nChannels;
 }
 /**
  * StorageNeeded

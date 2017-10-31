@@ -70,7 +70,7 @@ private:
   UInt_t                m_nYChannels; // Number of channels in the y direction.
   std::vector<CAxis>       m_Axes;      // One axis vector per x channel.
   std::vector<std::vector<UInt_t> >  m_Parameters; // Vector of parameters per x channel.
-  R*                    m_pRootSpectrum; 
+
   // Construtors and other canonicals:
 
 public:

@@ -90,12 +90,13 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(string              name,
 	     nYChannels,
 	     0, nYChannels - 1);
   
-  m_pRootSpectrum = new R(
+  R* pRootSpectrum = new R(
     name.c_str(), name.c_str(),
     nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels),
     nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 /*!
@@ -133,12 +134,13 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(const std::string name,
 	     nYChannels,
 	     fYLow, fYHigh);
   
-  m_pRootSpectrum = new R(
+  R* pRootSpectrum = new R(
     name.c_str(), name.c_str(),
     nXParameters, static_cast<Double_t>(0.0), static_cast<Double_t>(nXParameters),
     nYChannels, static_cast<Double_t>(fYLow), static_cast<Double_t>(fYHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 
@@ -148,8 +150,9 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(const std::string name,
 template <typename T, typename R>
 CGammaSummarySpectrum<T,R>::~CGammaSummarySpectrum()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  R* pRootSpectrum = reinterpret_cast<R*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
+  
 }  
 
 /*!
@@ -175,7 +178,7 @@ CGammaSummarySpectrum<T,R>::Increment(const CEvent& e)
     for(int i =0; i < params.size(); i++) {
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
-        m_pRootSpectrum->Fill(
+        getRootSpectrum()->Fill(
           static_cast<Double_t>(x), static_cast<Double_t>(event[paramId])
         );
       }
@@ -193,11 +196,12 @@ template <typename T, typename R>
 ULong_t
 CGammaSummarySpectrum<T,R>::operator[](const UInt_t* pIndices) const
 {
-  Double_t x = pIndices[0];
-  Double_t y = pIndices[1];
+  Int_t x = pIndices[0];
+  Int_t y = pIndices[1];
 
-  Int_t bin = m_pRootSpectrum->FindBin(x, y);
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
+  const TH1* pRootSpectrum = getRootSpectrum();
+  Int_t bin = pRootSpectrum->GetBin(x + 1, y+1);
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(bin));
 }
 /*!
   Sets a channel value in a spectrum
@@ -208,10 +212,11 @@ template <typename T, typename R>
 void
 CGammaSummarySpectrum<T,R>::set(const UInt_t* pIndices, ULong_t nValue)
 {
-  Double_t x = pIndices[0];
-  Double_t y = pIndices[1];
-  Int_t  bin = m_pRootSpectrum->FindBin(x, y);
-  m_pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
+  Int_t x = pIndices[0];
+  Int_t y = pIndices[1];
+  TH1* pRootSpectrum = getRootSpectrum();
+  Int_t  bin = pRootSpectrum->GetBin(x + 1, y + 1);
+  pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
 }
 
 /*!
@@ -508,8 +513,9 @@ template <typename T, typename R>
 void
 CGammaSummarySpectrum<T,R>::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
-  m_pRootSpectrum->fN     = m_nXChannels * m_nYChannels;
+  R* pRootSpectrum = reinterpret_cast<R*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
+  pRootSpectrum->fN     = m_nXChannels * m_nYChannels;
 }
 /**
  * StorageNeeded

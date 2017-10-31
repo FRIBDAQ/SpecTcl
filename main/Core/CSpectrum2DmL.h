@@ -31,7 +31,6 @@ class TH2I;
 class CSpectrum2DmL : public CSpectrum2Dm
 {
 private:
-    TH2I*  m_pRootSpectrum;
 public:
   CSpectrum2DmL(std::string              name,
 	       UInt_t                   id,

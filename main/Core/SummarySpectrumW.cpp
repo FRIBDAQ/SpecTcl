@@ -125,12 +125,13 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
 	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   
-  m_pRootSpectrum = new TH2S(
+  TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
     nYScale, 0.0, static_cast<Double_t>(nYScale)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 
 }
@@ -169,12 +170,13 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
   AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   
-  m_pRootSpectrum = new TH2S(
+  TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
     nYScale, static_cast<Double_t>(fYLow), static_cast<Double_t>(fYHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 
 }
@@ -183,8 +185,9 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
  */
 CSummarySpectrumW::~CSummarySpectrumW()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  TH2S* pRootSpectrum = reinterpret_cast<TH2S*>(getRootSpectrum());
+  pRootSpectrum->fArray = nullptr;
+  
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -210,7 +213,7 @@ CSummarySpectrumW::Increment(const CEvent& rE)
     if(m_vParameters[xChan] < nParams) {
       if(rEvent[m_vParameters[xChan]].isValid()) {
         Double_t rawParam = rEvent[m_vParameters[xChan]];
-        m_pRootSpectrum->Fill(static_cast<Double_t>(xChan), rawParam);
+        getRootSpectrum()->Fill(static_cast<Double_t>(xChan), rawParam);
       }
     }
   }
@@ -265,8 +268,9 @@ CSummarySpectrumW::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing SummaryW spectrum y axis"));
   }
+  const TH1* pRootSpectrum = getRootSpectrum();
   return static_cast<ULong_t>(
-    m_pRootSpectrum->GetBinContent(m_pRootSpectrum->GetBin(nx+1, ny+1))
+    pRootSpectrum->GetBinContent(pRootSpectrum->GetBin(nx+1, ny+1))
   );
 		      
 }
@@ -294,9 +298,9 @@ CSummarySpectrumW::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  
-  m_pRootSpectrum->SetBinContent(
-    m_pRootSpectrum->GetBin(nx+1, ny+1), static_cast<Double_t>(nValue)
+  TH1* pRootSpectrum = getRootSpectrum();
+  pRootSpectrum->SetBinContent(
+    pRootSpectrum->GetBin(nx+1, ny+1), static_cast<Double_t>(nValue)
   );
 }
 
@@ -441,8 +445,9 @@ CSummarySpectrumW::needParameter() const
 void
 CSummarySpectrumW::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
-  m_pRootSpectrum->fN     = Dimension(0) * Dimension(1);
+  TH2S* pRootSpectrum = reinterpret_cast<TH2S*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<Short_t*>(pStorage);
+  pRootSpectrum->fN     = Dimension(0) * Dimension(1);
 }
 /**
  * StorageNeeded

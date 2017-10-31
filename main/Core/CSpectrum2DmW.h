@@ -32,7 +32,7 @@ class TH2S;
 class CSpectrum2DmW : public CSpectrum2Dm
 {
 private:
-    TH2S* m_pRootSpectrum;
+
 public:
   CSpectrum2DmW(std::string              name,
 	       UInt_t                   id,

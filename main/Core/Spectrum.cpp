@@ -89,6 +89,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <RangeError.h>
 #include <stdlib.h>
 #include <time.h>
+#include <TH1.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -120,7 +121,8 @@ CSpectrum::CSpectrum (const std::string& rName,
   m_fOwnStorage(0),
   m_pGate(pGate),
   m_DataType(keUnknown_dt),	// Up to subclasser to fix this.
-  m_AxisMappings(Maps)
+  m_AxisMappings(Maps),
+  m_pRootSpectrum(0)
 {
 }
 
@@ -138,17 +140,23 @@ CSpectrum:: CSpectrum(const std::string& rName, UInt_t nId,
   m_pStorage(0),
   m_fOwnStorage(0),
   m_pGate(pGate),
-  m_DataType(keUnknown_dt)	// Up to subclasser to fix this.
+  m_DataType(keUnknown_dt),	// Up to subclasser to fix this.
+  m_pRootSpectrum(0)        // Up to subclasses to fix this.
 {
 }
 /*!
   If necessary, the destructor releases the spectrum storage.
+  NOTE: Subclasses must null out the root spectrum storage first.
 */
 CSpectrum::~CSpectrum()
 {
+  if (m_pRootSpectrum) {
+    delete m_pRootSpectrum;
+  }
   if(m_fOwnStorage) {
     ReleaseStorage();
   }
+  
 }
 
 // Functions for class CSpectrum
@@ -730,6 +738,26 @@ std::vector<unsigned>
 CSpectrum::getOverflows() const
 {
     return m_overflowCounters;
+}
+/**
+ * renameSpectrum
+ *    Changes the name of the underlying spectrum.  If there's a root
+ *    spectrum, its name and title are changed too.
+ *
+ *  @param name - new name for the spectrum.
+ *  @note If the spectrum is in the SpecTcl spectrum dictionary, it's the caller's
+ *        responsibility to remove/reinsert it with the right name.  This
+ *        is because the use case for this is just to create anonymous spectra
+ *        for e.g. read which are later renamed to their final spetrum name
+ *        avoiding nasty root messages about memory leaks.
+ */
+void
+CSpectrum::renameSpectrum(const char* name)
+{
+  setName(name);
+  if (m_pRootSpectrum) {
+    m_pRootSpectrum->SetNameTitle(name, name);
+  }
 }
 /**
  * checkRange

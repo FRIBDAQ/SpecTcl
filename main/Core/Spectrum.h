@@ -76,6 +76,7 @@
 
 class CEvent;
 class CGateContainer;
+class TH1;                    // Root histogram base class.
 
 
 extern CGateContainer* pDefaultGate; // Gate set by default on a spectrum
@@ -118,6 +119,7 @@ private:
   std::vector<unsigned> m_underflowCounters;  //!< one per axis.
   std::vector<unsigned> m_overflowCounters;   //!< one per axis.
   std::string     m_description;
+  TH1*            m_pRootSpectrum;
 public:
 			// Constructor
 
@@ -175,8 +177,14 @@ public:
   std::string getTextDescription() const {
     return m_description;
   }
+  TH1*    getRootSpectrum() {
+    return m_pRootSpectrum;
+  }
+  const TH1* getRootSpectrum() const {
+    return m_pRootSpectrum;
+  }
   virtual SpectrumType_t getSpectrumType() = 0;
-
+  
 
   // Mutators are available to derived classes:
 
@@ -204,7 +212,11 @@ protected:
   public:
   void setTextDescription(std::string d) {
     m_description = d;
-  }//
+  }
+  void setRootSpectrum(TH1* pRootSpec) {
+    m_pRootSpectrum = pRootSpec;
+  }
+  //
   // Operations:
   //                   
 public:
@@ -239,6 +251,7 @@ public:
   void logUnderflow(unsigned axis, unsigned increment = 1);
   std::vector<unsigned> getUnderflows() const;
   std::vector<unsigned> getOverflows() const;
+  void renameSpectrum(const char* name);    // Give spectrum a new name.
 
   // Pure virtual members:
 

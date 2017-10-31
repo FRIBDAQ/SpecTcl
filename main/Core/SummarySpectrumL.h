@@ -79,7 +79,7 @@ class CSummarySpectrumL  : public CSpectrum
   UInt_t              m_nYScale;     //!< Number of Y channels. 
   UInt_t              m_nXChannels;  //!< Number of X chanels.  
   std::vector<UInt_t>      m_vParameters; //!< STD(Vector) of parameter id's.
-  TH2I*               m_pRootSpectrum;
+
 public:
 
 			//Constructor(s) with arguments

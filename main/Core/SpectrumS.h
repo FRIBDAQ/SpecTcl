@@ -90,9 +90,7 @@ class CSpectrumS  : public CSpectrum
   UInt_t m_nChannel;          //!< Time channel
   UInt_t m_nParameter;	      //!< Count to add to channel
   int    m_nOffset;           //!< Spectrum channel Offest
-  TH1I*  m_pRootSpectrum;
 
-  
 public:
 
   CSpectrumS(const std::string&         rName, 
