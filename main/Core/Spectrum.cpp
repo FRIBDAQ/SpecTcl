@@ -574,7 +574,7 @@ CSpectrum::GetDefinition()
 
   GetParameterIds(Def.vParameters);
   for(int i =0; i < Dimensionality(); i ++) {
-    Def.nChannels.push_back(Dimension(i));
+    Def.nChannels.push_back(Dimension(i)  - 2 );
     Def.fLows.push_back(GetLow(i));
     Def.fHighs.push_back(GetHigh(i));
   }

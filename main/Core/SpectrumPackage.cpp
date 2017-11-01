@@ -1816,7 +1816,7 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     sprintf(txtNum, "%f", Def.fHighs[i]);
     Description.AppendElement(txtNum); // High...
 
-    sprintf(txtNum, "%d", Def.nChannels[i] - 2 );    // Because of Root TH.
+    sprintf(txtNum, "%d", Def.nChannels[i]);    // Because of Root TH.
     Description.AppendElement(txtNum);   // Channel count.
 
     Description.EndSublist();	// End axis definition.
