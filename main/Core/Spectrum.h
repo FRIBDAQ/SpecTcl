@@ -202,7 +202,7 @@ protected:
   }
   void AddAxis(UInt_t nChannels, Float_t fLow,
 	       Float_t fHigh, const std::string& Units = std::string("")) {
-    m_nChannels.push_back(nChannels);
+    m_nChannels.push_back(nChannels + 2);    // Root
     m_fLows.push_back(fLow);
     m_fHighs.push_back(fHigh);
     m_Units.push_back(Units);

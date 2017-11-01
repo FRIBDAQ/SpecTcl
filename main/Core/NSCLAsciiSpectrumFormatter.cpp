@@ -177,15 +177,25 @@ CNSCLAsciiSpectrumFormatter::operator==
 //     Read(istream& rStream)
 //  Operation Type: 
 //     I/O
-CSpectrum* 
+// Reads in a spectrum in simple ASCII
+// format.
+//    Note that as SpecTcl add spectrum types,
+// this code may need to be modified.
+//
+//   @param rStream - std::istream from which the spectrum is read.
+//   @param rDict   - SpecTcl's parameter dictionary.
+//   @return std::pair<std::string, CSpectrum*> - The first element is the
+//                    name of the spectrum as specified by the file.  The second
+//                    is a pointer to a dynamically allocated anonymous spectrum.
+//                    We use an anonymous spectrum so that Root doesn't get pissed off
+//                    about a TH1 being replaced if this spectrum already exists
+//                    in root or SpecTcl in the current directory.
+//
+std::pair<std::string, CSpectrum* >
 CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
 				  ParameterDictionary& rDict)  
 {
-  // Reads in a spectrum in simple ASCII
-  // format.
-  //    Note that as SpecTcl add spectrum types,
-  // this code may need to be modified.
-  //
+  
   // Formal Parameters:
   //    istream& rStream:
   //       C++ Stream from which to read the data.
@@ -301,21 +311,21 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
     }
     // Now we can create the spectrum:
 
-    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+    pSpectrum = Factory.CreateSpectrum("", eSpecType, eDataType,
 				       gSummaryParams, 
 				       createDims, &createLows, &createHighs);
 				       
 
   }
   else if (vyParameters.size() == 0) {
-    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+    pSpectrum = Factory.CreateSpectrum("", eSpecType, eDataType,
 				       vParameters, 
 				       createDims,
 				       &createLows, 
 				       &createHighs);
   } 
   else {
-    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+    pSpectrum = Factory.CreateSpectrum("", eSpecType, eDataType,
 				       vParameters, vyParameters,
 				       createDims[0],  createDims[1],
 				       &createLows, &createHighs);
@@ -342,7 +352,7 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
     delete pSpectrum;		// allocated memory before retossing the
     throw;			// exception to the next levels.
   }
-  return pSpectrum;		// Return the final spectrum to the caller.
+  return std::pair<std::string, CSpectrum*>(Name, pSpectrum);		// Return the final spectrum to the caller.
   
 }
 //////////////////////////////////////////////////////////////////////////////

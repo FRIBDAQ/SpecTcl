@@ -1601,34 +1601,49 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   ParameterDictionary& rDict((ParameterDictionary&)
 			        m_pHistogrammer->getParameterDictionary());
   CSpectrum*           pSpectrum(0);
+  std::string          originalName;
   CSpectrum*           pOld(0);              // Will hold old spectrum.
 
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-
+  std::pair<std::string, CSpectrum*> specread;
+  
   // First thing to try to do is to get the spectrum formatter to read the
   // spectrum from file.  We'll get a  pointer to a newly allocated 
   // filled in spectrum.  The flags will determine if we are to wrap
   // a snapshot spectrum around this.
 
   try {
-    pSpectrum = pFormat->Read(rIn, rDict);
+    specread = pFormat->Read(rIn, rDict);
+    originalName = specread.first;
+    pSpectrum    = specread.second;
+    
+    
     //
     // Process the Replace flag, this determines if we are allowed to
     // overwrite an existing spectrum or if we must uniquify the name.
     //
     if((fFlags & fReplace) == 0) { // Must uniquify name:
-        UniquifyName(pSpectrum);
+        pSpectrum->renameSpectrum(UniquifyName(originalName).c_str());
     }
-    else {			// If spectrum already exists must delete
-        // If the spectrum is bound we must remove it:
-        //
-        try {
-            UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-            pDisplay->removeSpectrum(*pSpectrum, *m_pHistogrammer);
+    else {			// Replace existing spectrum if there's one.
+        
+        pOld = api.FindSpectrum(originalName);
+        if (pOld) {        
+          // Apply any old gate to the new spectrum - doesn't matter if this is
+          // a snapshot or not:
+          CGateContainer* pGate = (CGateContainer*)pOld->getGate();
+          if(pGate) {
+            pSpectrum->ApplyGate(pGate);
+          }
+          // If needed unbind the old spectrum.
+          
+          pDisplay->removeSpectrum(*pOld, *m_pHistogrammer);
+          api.RemoveSpectrum(originalName);
+          
+          delete pOld;             // Should also unbind.
         }
-        catch (...) {
-        }
-        pOld = api.RemoveSpectrum(pSpectrum->getName());
+        
+        pSpectrum->renameSpectrum(originalName.c_str());   // Now that the old one is gone.
     }
     //  Process the Live flag: This determines if we need to wrap the
     //  spectrum around a snapshot spectrum container:
@@ -1640,16 +1655,6 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     //  dictionary.
     //
     m_pHistogrammer->AddSpectrum(*pSpectrum);
-    if((fFlags & fReplace) != 0) {
-      if(pOld) {		// If there's an old spectrum, transfer it's
-				// gate.
-	CGateContainer* pGate = (CGateContainer*)pOld->getGate();
-	if(pGate) {
-	  pSpectrum->ApplyGate(pGate);
-	}
-      }
-      delete pOld;
-    }
 
     if(fFlags & fBind) {	// Bind it if requested.
         pDisplay->addSpectrum(*pSpectrum, *(api.GetHistogrammer()));
@@ -1664,6 +1669,14 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     rResult = Reason + string(" ") +
       string(rExcept.WasDoing()); // return it to the caller 
     return TCL_ERROR;		// along with an error completion status.
+  }
+  catch (...) {
+    rResult = string( " some unexpected exception type was caught reading the spectrum");
+    if(pSpectrum) {		// It may have been entered in the hgrammer.
+      api.RemoveSpectrum(pSpectrum->getName());
+      delete pSpectrum;
+    }
+    return TCL_ERROR;
   }
   //
   // Control passes here only if the spectrum was read in with no errors.
@@ -2180,25 +2193,25 @@ CSpectrumPackage::ValidateIndices(CSpectrum* pSpec,
 //   void  UniquifyName(CSpectrum* pSpectrum)
 // Operation Type:
 //   Utility.
+//     Given a candidate spectrum name, returns a new spectrum name based on it
+//     that is unique
+// @param basename - the base spectrum name.
+// @return std::string - a spectrum name similar to basename but this spectrum
+//                       is not know to SpecTcl.
 //
-void
-CSpectrumPackage::UniquifyName(CSpectrum* pSpectrum)
+std::string
+CSpectrumPackage::UniquifyName(std::string basename)
 {
-  // This function replaces the spectrum's name with one not in the
-  // spectrum dictionary of the histogrammer.  This is done by appending,
-  // as needed _n where n is a counting integer... until there's
-  // no match for the name in the dictionary.
-  //
-  string basename(pSpectrum->getName());
   UInt_t nSuffix(0);
+  std::string result(basename);
 
-  while(m_pHistogrammer->FindSpectrum(pSpectrum->getName())) {
+  while(m_pHistogrammer->FindSpectrum(result)) {
     char Suffix[100];
     sprintf(Suffix,"_%u", nSuffix);
-    pSpectrum->ChangeName(basename + string(Suffix));
+    result = basename + Suffix;
     nSuffix++;
   }
-
+  return result;
 }
 ///////////////////////////////////////////////////////////////////////////
 //
