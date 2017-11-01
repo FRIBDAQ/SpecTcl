@@ -39,7 +39,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
    Revision 5.2  2005/06/03 15:19:22  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
-   Revision 5.1.2.1  2004/12/21 17:51:23  ron-fox
+  Revision 5.1.2.1  2004/12/21 17:51:23  ron-fox
    Port to gcc 3.x compilers.
 
    Revision 5.1  2004/11/29 16:56:06  ron-fox
@@ -113,7 +113,7 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
 			     UInt_t nChannels) :
   CSpectrum(rName, nId, 
 	    Axes(1, CAxis(0.0, Float_t(nChannels-1), 
-			  nChannels + 2,
+			  nChannels ,
 			  CParameterMapping(rParameter)))),
   m_nChannels(nChannels + 2),
   m_nParameter(rParameter.getNumber()),
