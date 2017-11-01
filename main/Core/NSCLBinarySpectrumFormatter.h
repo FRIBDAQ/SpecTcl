@@ -114,7 +114,7 @@ public:
 
 public:
 
- virtual   CSpectrum* Read (std::istream& rStream,
+ virtual   std::pair<std::string, CSpectrum*> Read (std::istream& rStream,
 			    ParameterDictionary& rDict);
  virtual   void Write (std::ostream& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict);

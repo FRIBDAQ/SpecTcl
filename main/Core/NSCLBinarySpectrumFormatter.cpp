@@ -106,10 +106,15 @@ CNSCLBinarySpectrumFormatter::operator==
 //
 //  Function:       
 //     Read(istream& rStream, ParameterDictionary& rDict)
-//  Operation Type: 
-//     I/O
-CSpectrum* CNSCLBinarySpectrumFormatter::Read(istream& rStream,
-					      ParameterDictionary& rDict)  
+//
+//  @param rStream - the stream from which to read the spectrum.
+//  @param rDict   - The parameter dictionary (not used in this format.)
+//  @return std::pair<std::string, CSpectrum*>  - Pair consisting of the spectrum name
+//                   and a dynamically allocated anonymous spectrum that was read
+//                   from the file. 
+//   
+std::pair<std::string, CSpectrum*>
+CNSCLBinarySpectrumFormatter::Read(istream& rStream,  ParameterDictionary& rDict)  
 {
   // Reads a spectrum from file.
   // 
@@ -223,18 +228,20 @@ CSpectrum* CNSCLBinarySpectrumFormatter::Read(istream& rStream,
   // Create temporary dummy vectors  
   vector<Float_t> vTransform;
 
-  ///// BUGBUGBUG  - CreateSpectrum needs to be fixed still
-
+  ///// 
+  // We're going to create an anonymous spectrum so that Root doesn't get pissed
+  // that we're replacing an existng TH1 object
+  // 
   AssurePossibleSpectrum(eSpecType,eDataType);
   CSpectrum* pSpectrum;
-  pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType, vParameters, 
+  pSpectrum = Factory.CreateSpectrum("", eSpecType, eDataType, vParameters, 
 				     vChannels);
   pSpectrum->Clear();
   //fill in the spectrum
   //testdata(SpecObject);
   //testdata(pSpectrum);
   insertdata(pSpectrum, Channels, vDimensions, vResolutions);
-  return pSpectrum;
+  return std::pair<std::string, CSpectrum*>(Name, pSpectrum);
 }
 //////////////////////////////////////////////////////////////////////////////
 //

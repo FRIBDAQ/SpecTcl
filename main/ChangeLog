@@ -1140,4 +1140,11 @@ November 30-?? 2011
 	incremented 2d longword spectrum).
 	* Slide a TH2S under the hood of CSpectrum2DmW and ensure that the
 	base class sets the data type properly for both 2DmL and 2DmW
-	* Slide a TH2C under the hood of CVSpectrum2DmB (byte 2d multiply).
+	* Slide a TH2C under the hood of CVSpectrum2DmB (byte 2d
+	multiply).
+	* Factor m_pRootSpectrum out into CSpectrum base class.
+	* Modify Read so that Root does not complain about orphaned
+	histogram objects.
+	* Fix the base class Dimension so that it returns the right values
+	(?).
+	

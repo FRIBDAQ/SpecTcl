@@ -136,7 +136,7 @@ public:
 
   // Pure virtual interface definitions.
   //
- virtual   CSpectrum* Read (std::istream& rStream, 
+ virtual   std::pair<std::string, CSpectrum*> Read (std::istream& rStream, 
 			    ParameterDictionary& rDict)   = 0  ;
  virtual   void Write (std::ostream& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict)   = 0  ;

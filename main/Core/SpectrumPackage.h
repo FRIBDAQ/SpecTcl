@@ -244,7 +244,7 @@ public:
   static DataType_t      Datatype(SpectrumType_t st, const char* pType);
   static UInt_t*         ValidateIndices(CSpectrum* pSpec,
 					 const std::vector<UInt_t>& rIndices);
-  void                   UniquifyName(CSpectrum* pSpectrum); // >>NEW<<
+  std::string            UniquifyName(std::string originalName); // >>NEW<<
   Bool_t                 AllParamsExist(CSpectrum* pSpectrum); // >>NEW<<
 
 };

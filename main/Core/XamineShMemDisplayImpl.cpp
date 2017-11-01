@@ -203,7 +203,9 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
  *
  *  This needs to remove the spectrum but also the gates associated with it.
  */
-void CXamineShMemDisplayImpl::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
+void CXamineShMemDisplayImpl::removeSpectrum(
+    CSpectrum &rSpectrum, CHistogrammer& rSorter
+)
 {
 
     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
