@@ -540,8 +540,8 @@ getindices(UInt_t index, const vector<UInt_t>& vDimensions, UInt_t *indexarray) 
 //
 void CNSCLBinarySpectrumFormatter::
 setdimensions(nsclbin& Obj, const CSpectrum& rSpectrum) {
-  Obj.setxlength(rSpectrum.Dimension(0));
-  Obj.setylength(rSpectrum.Dimension(1));
+  Obj.setxlength(rSpectrum.Dimension(0) -2);          // -2 is for root.
+  Obj.setylength(rSpectrum.Dimension(1) - 2);
 }
 
 // void setdata(nsclbin& Obj, const CSpectrum& rSpectrum)
@@ -562,7 +562,7 @@ setdata(nsclbin& Obj, const CSpectrum& rSpectrum) {
   memset(pLows, 0, nCoordinates*sizeof(UInt_t));
 
   for(UInt_t i = 0; i < nCoordinates; i++) {
-    pHis[i] = rSpectrum.Dimension(i);
+    pHis[i] = rSpectrum.Dimension(i) - 2 ;     // -2 is for root.
   }
   do {
     ULong_t Value = rSpectrum[pIdx];
@@ -637,8 +637,8 @@ testdata(CSpectrum *pSpectrum) {
   cout <<"name: "<<pSpectrum->getName()<<"\n";
   cout <<"data type: "<<pSpectrum->StorageType()<<"\n";
   cout <<"dimensions: "<<pSpectrum->Dimensionality()<<"\n";
-  cout <<"x dimension: "<<pSpectrum->Dimension(0)<<"\n";
-  cout <<"y dimension: "<<pSpectrum->Dimension(1)<<"\n";
+  cout <<"x dimension: "<<pSpectrum->Dimension(0) - 2<<"\n";
+  cout <<"y dimension: "<<pSpectrum->Dimension(1) - 2<<"\n";
 }
 void CNSCLBinarySpectrumFormatter::
 testdata(nsclbin& obj) {

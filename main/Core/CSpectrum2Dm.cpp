@@ -51,18 +51,18 @@ CSpectrum2Dm::CSpectrum2Dm(string              name,
 			   UInt_t              yscale) :
   CSpectrum(name, id,
 	    CreateAxisVector(parameters[0],
-			     xscale - 2, 0.0, static_cast<Float_t>(xscale),
+			     xscale, 0.0, static_cast<Float_t>(xscale),
 			     parameters[1],
-			     yscale - 2, 0.0, static_cast<Float_t>(yscale))),
-  m_xChannels(xscale),
-  m_yChannels(yscale)
+			     yscale, 0.0, static_cast<Float_t>(yscale))),
+  m_xChannels(xscale + 2),
+  m_yChannels(yscale + 2)
 {
 
 
-  AddAxis(xscale, 0.0, xscale-2.0, parameters[0].getUnits());
-  AddAxis(yscale, 0.0, yscale-2.0, parameters[1].getUnits());
+  AddAxis(xscale, 0.0, xscale, parameters[0].getUnits());
+  AddAxis(yscale, 0.0, yscale, parameters[1].getUnits());
 
-  CreateMappings(parameters, 0.0, static_cast<Float_t>(xscale - 2),
+  CreateMappings(parameters, 0.0, static_cast<Float_t>(xscale),
 		0.0, static_cast<Float_t>(yscale));
   
 }
@@ -94,13 +94,13 @@ CSpectrum2Dm:: CSpectrum2Dm(std::string              name,
 			    Float_t  xlow, Float_t   xhigh,
 			    Float_t  ylow, Float_t   yhigh) : 
   CSpectrum(name, id,
-	    CreateAxisVector(parameters[0], xchans - 2, xlow, xhigh,
-			     parameters[1], ychans - 2, ylow, yhigh)),
-  m_xChannels(xchans),
-  m_yChannels(ychans)
+	    CreateAxisVector(parameters[0], xchans, xlow, xhigh,
+			     parameters[1], ychans, ylow, yhigh)),
+  m_xChannels(xchans+2),
+  m_yChannels(ychans+2)
 {
-  AddAxis(xchans - 2, xlow, xhigh, parameters[0].getUnits());
-  AddAxis(ychans - 2 , ylow, yhigh, parameters[1].getUnits());
+  AddAxis(xchans, xlow, xhigh, parameters[0].getUnits());
+  AddAxis(ychans, ylow, yhigh, parameters[1].getUnits());
 
   CreateMappings(parameters, xlow, xhigh, ylow, yhigh);
 }
@@ -216,8 +216,8 @@ CSpectrum2Dm::GetCommonDefinition()
   def.vParameters = m_parameterList;
 
   def.nChannels.clear();
-  def.nChannels.push_back(m_xChannels);
-  def.nChannels.push_back(m_yChannels);
+  def.nChannels.push_back(m_xChannels - 2);
+  def.nChannels.push_back(m_yChannels - 2);
 
   def.fLows.clear();
   def.fLows.push_back(GetLow(0));

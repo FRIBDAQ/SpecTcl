@@ -50,7 +50,7 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     std::vector<CParameter>& parameters,
 			     UInt_t                   xscale,
 			     UInt_t                   yscale) :
-  CSpectrum2Dm(name, id, parameters, xscale + 2, yscale + 2)
+  CSpectrum2Dm(name, id, parameters, xscale, yscale)
 {
   TH2I* pRootSpectrum = new TH2I(
     name.c_str(), name.c_str(),
@@ -88,7 +88,7 @@ CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   ychans,
 			     Float_t  xlow, Float_t   xhigh,
 			     Float_t  ylow, Float_t   yhigh) :
-  CSpectrum2Dm(name, id, parameters, xchans + 2, ychans + 2,
+  CSpectrum2Dm(name, id, parameters, xchans, ychans,
 	       xlow, xhigh, ylow, yhigh)
 {
   TH2I* pRootSpectrum = new TH2I(
@@ -161,17 +161,17 @@ CSpectrum2DmL::set(const UInt_t* pIndices, ULong_t nValue)
   Int_t x     = pIndices[0];
   Int_t y     = pIndices[1];
 
-  if (x >= Dimension(0)) {
+  if (x +2 >= Dimension(0)) {
     throw CRangeError(0, Dimension(0) - 1, x,
 		      string("Indexing 2m spectrum (x)"));
   }
-  if (y >= Dimension(1)) {
+  if (y +2 >= Dimension(1)) {
     throw CRangeError(0, Dimension(1) - 1, y,
 		      string("Indexing 2m Spectrum (y)"));
   }
   TH1* pRootSpectrum = getRootSpectrum();
   pRootSpectrum->SetBinContent(
-    pRootSpectrum->GetBin(x,y), static_cast<Double_t>(nValue)
+    pRootSpectrum->GetBin(x+1,y+1), static_cast<Double_t>(nValue)
   );
 
 }

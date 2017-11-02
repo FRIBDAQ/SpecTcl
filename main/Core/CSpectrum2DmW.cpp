@@ -50,7 +50,7 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
 			     std::vector<CParameter>& parameters,
 			     UInt_t                   xscale,
 			     UInt_t                   yscale) :
-  CSpectrum2Dm(name, id, parameters, xscale + 2 , yscale + 2)
+  CSpectrum2Dm(name, id, parameters, xscale, yscale)
 {
   TH2S* pRootSpectrum = new TH2S(
     name.c_str(), name.c_str(),
@@ -88,7 +88,7 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
 			     UInt_t                   ychans,
 			     Float_t  xlow, Float_t   xhigh,
 			     Float_t  ylow, Float_t   yhigh) :
-  CSpectrum2Dm(name, id, parameters, xchans + 2, ychans + 2,
+  CSpectrum2Dm(name, id, parameters, xchans, ychans,
 	       xlow, xhigh, ylow, yhigh)
 {
   TH2S* pRootSpectrum = new TH2S(
