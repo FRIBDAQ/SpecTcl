@@ -75,13 +75,13 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   AddAxis(xChannels, 0.0, (Float_t)(xChannels - 1), xParameters[0].getUnits());
   AddAxis(yChannels, 0.0, (Float_t)(yChannels - 1), yParameters[0].getUnits());
   
-  m_pRootSpectrum = new R(
+  R* pRootSpectrum = new R(
     rName.c_str(), rName.c_str(),
     xChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(xChannels),
     yChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(yChannels)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  setRootSpectrum(m_pRootSpectrum);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
   
 }
@@ -123,13 +123,13 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   AddAxis(nXChannels, xLow, xHigh, xParameters[0].getUnits());
   AddAxis(nYChannels, yLow, yHigh, yParameters[0].getUnits());
 
-  m_pRootSpectrum = new R(
+  R* pRootSpectrum = new R(
     rName.c_str(), rName.c_str(),
     nXChannels, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
     nYChannels, static_cast<Double_t>(yLow), static_cast<Double_t>(yHigh)
   );
-  m_pRootSpectrum->Adopt(0, nullptr);
-  setRootSpectrum(m_pRootSpectrum);
+  pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(pRootSpectrum);
   CreateStorage();
 }
 
@@ -139,8 +139,9 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
 template<typename T, typename R>
 CGamma2DD<T,R>::~CGamma2DD()
 {
-  m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+  R* pRootSpectrum = (R*)getRootSpectrum();
+  pRootSpectrum->fArray = nullptr;
+  
 }
 /*!
    Equality is just a shallow comparison of the member data.
@@ -155,8 +156,7 @@ CGamma2DD<T, R>::operator==(const CGamma2DD<T,R>& rhs)
 	  m_nXscale      == rhs.m_nXscale                 &&
 	  m_nYscale      == rhs.m_nYscale                 &&
 	  m_xParameters  == rhs.m_xParameters             &&
-	  m_yParameters  == rhs.m_yParameters            &&
-    m_pRootSpectrum == rhs.m_pRootSpectrum);
+	  m_yParameters  == rhs.m_yParameters);
 }
 
 /*!
@@ -223,8 +223,9 @@ CGamma2DD<T,R>:: operator[](const UInt_t* pIndices) const
 {
   Double_t  x = pIndices[0];
   Double_t  y = pIndices[1];
-  Int_t   bin = m_pRootSpectrum->FindBin(x, y);
-  return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(x, y));
+  const TH1* pRootSpectrum = getRootSpectrum();
+  Int_t   bin = pRootSpectrum->GetBin(x, y);
+  return static_cast<ULong_t>(pRootSpectrum->GetBinContent(x, y));
 }
 
 /*!
@@ -237,8 +238,9 @@ CGamma2DD<T,R>::set(const UInt_t* pIndices, ULong_t value)
 {
   Double_t  x = pIndices[0];
   Double_t  y = pIndices[1];
-  Int_t   bin = m_pRootSpectrum->FindBin(x, y);
-  m_pRootSpectrum->SetBinContent(x, y, static_cast<Double_t>(value));
+  TH1* pRootSpectrum = getRootSpectrum();
+  Int_t   bin = pRootSpectrum->GetBin(x, y);
+  pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(value));
 }
 
 
@@ -310,7 +312,7 @@ CGamma2DD<T,R>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters
       for (int j = 0; j < rYParameters.size(); j++) {
         Float_t xval = rXParameters[i].second;
         Float_t yval = rYParameters[j].second;
-        m_pRootSpectrum->Fill(xval, yval);
+        getRootSpectrum()->Fill(xval, yval);
       }
     }
   }
@@ -428,8 +430,9 @@ template<typename T, typename R>
 void
 CGamma2DD<T,R>::setStorage(Address_t pStorage)
 {
-  m_pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
-  m_pRootSpectrum->fN     = m_nXscale * m_nYscale;
+  R* pRootSpectrum = reinterpret_cast<R*>(getRootSpectrum());
+  pRootSpectrum->fArray = reinterpret_cast<T*>(pStorage);
+  pRootSpectrum->fN     = m_nXscale * m_nYscale;
 }
 /**
  * StorageNeeded
