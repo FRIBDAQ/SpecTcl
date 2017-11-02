@@ -81,6 +81,7 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
     yChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(yChannels)
   );
   m_pRootSpectrum->Adopt(0, nullptr);
+  setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
   
 }
@@ -128,7 +129,7 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
     nYChannels, static_cast<Double_t>(yLow), static_cast<Double_t>(yHigh)
   );
   m_pRootSpectrum->Adopt(0, nullptr);
-  
+  setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
 }
 

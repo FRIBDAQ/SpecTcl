@@ -475,7 +475,7 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
 				// First dimension is easy:
   
   Float_t xlow, xhigh;
-  UInt_t  nChannels = rSpectrum.Dimension(0); // Everyone has this..
+  UInt_t  nChannels = rSpectrum.Dimension(0) - 2; // Everyone has this.. (-2 root)
   xlow = spectrumDef.fLows[0];
   xhigh= spectrumDef.fHighs[0];
 
@@ -534,7 +534,7 @@ CNSCLAsciiSpectrumFormatter::WriteValues
   memset(pLows, 0, nCoordinates*sizeof(UInt_t));
 
   for(UInt_t i = 0; i < nCoordinates; i++) {
-    pHis[i] = rSpectrum.Dimension(i);
+    pHis[i] = rSpectrum.Dimension(i) - 2;   // -2 root
   }
 
   do {
