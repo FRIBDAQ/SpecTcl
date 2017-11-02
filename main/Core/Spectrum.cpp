@@ -689,12 +689,57 @@ CSpectrum::createStatArrays(unsigned nAxes)
  *    Replaces all counters with zero.
  *    This is actually done by recreating the arrays using their
  *    current sizes.
+ *      Note, this is done by clearing the first and last channel(row, cols for 2ds)
+ *      in the underlying root spectrum.  That effectively clears the underflows
+ *      and overflows.
+ *
+ *      Note that if an axis has nBins it has  nBins+2 cells. Cell 0 are the underflows
+ *      and Cell nBins+1 are the overflows, while cells [1,nbins] are the
+ *      histogram channels.  2D's are the same idea but there are rows and columns of
+ *      over/underflows.
  */
 void
 CSpectrum::clearStatArrays()
 {
-    size_t nAxes = m_overflowCounters.size();
-    createStatArrays(nAxes);               // They start zeroed.
+    TH1* pHist = getRootSpectrum();
+    
+    
+    if (pHist->InheritsFrom("TH2")) {
+      // 2-d spectrum
+      
+      TAxis* pX = pHist->GetXaxis();
+      TAxis* pY = pHist->GetYaxis();
+      
+      Int_t nX = pX->GetNbins();
+      Int_t nY = pY->GetNbins();
+      
+      // Do the row of X under/overflows:
+      
+      for (int x = 0; x <= nX+2; x++) {
+        Int_t nUnder = pHist->GetBin(x, 0);
+        Int_t nOver  = pHist->GetBin(x, nY+1);
+        pHist->SetBinContent(nUnder, 0.0);
+        pHist->SetBinContent(nOver, 0.0);
+      }
+      // Do the columns of Y under/overflows.  Only have to go from [1, nY]
+      // Since the previous step did all four corners.
+      
+      for (int y = 1; y < nY+1;  y++) {
+        Int_t nUnder = pHist->GetBin(0, y);
+        Int_t nOver  = pHist->GetBin(nX+1, y);
+        
+        pHist->SetBinContent(nUnder, 0.0);
+        pHist->SetBinContent(nOver, 0.0);
+      }
+      
+    } else {
+      // 1-d spectrum
+      
+      TAxis*  pX = pHist->GetXaxis();
+      Int_t nBins = pX->GetNbins();
+      pHist->SetBinContent(0, 0.0);           // underflow count.
+      pHist->SetBinContent(nBins+1, 0.0);     // overflow count
+    }
 }
 /**
  * logOverflow
@@ -724,20 +769,101 @@ CSpectrum::logUnderflow(unsigned axis, unsigned increment)
 /**
  * getUnderflows
  *   @return std::vector<unsigned> - Underflow counters.
+ *          [0] are the X axis undeflows while [1] the Y axis.
+ *          These are gotten by looking at the root over/underflow
+ *          channels in the spetrum.  This requires summing for
+ *          2d spectra.
  */
 std::vector<unsigned>
 CSpectrum::getUnderflows() const
 {
-    return m_underflowCounters;
+  const TH1* pSpec = getRootSpectrum();
+  const TAxis* pX  = pSpec->GetXaxis();               // all specs have a meaningful one.
+  
+  // How we do this depends on the spectrum dimensionality
+  // for consistency we'll ask that of Root, rather than doing the
+  // Dimensionality test.  That will give us X and Y values for
+  // summary spectra so somewhat of a different result than before.
+  
+  std::vector<unsigned> result;
+  
+  if (pSpec->InheritsFrom ("TH2")) {
+    Int_t  nx = pX->GetNbins();
+    const TAxis* pY = pSpec->GetYaxis();
+    Int_t  ny = pY->GetNbins();
+    
+    // Sum x underflows:
+    // Omit y = 0 and y = ny+2 as those are corners.  Not clear what they mean.
+    
+    unsigned total  = 0;
+    for (Int_t i =1; i < ny+1; i++) {
+      Int_t bin = pSpec->GetBin(0, i);
+      total += pSpec->GetBinContent(bin);
+    }
+    result.push_back(total);
+    
+    // sum y underflows:
+    
+    total = 0;
+    for (Int_t i = 1; i < nx+1; i++) {
+      Int_t bin = pSpec->GetBin(i, 0);
+      total += pSpec->GetBinContent(bin);
+    }
+    result.push_back(total);
+    
+  } else {
+    result.push_back(pSpec->GetBinContent(0));    // bin zero is underflow.
+  }
+  
+  return result;
 }
 /**
  * getOverflows
  *  @return std::vector<unsigned> - overflow counters
+ *       [0] are the x axis overflows and [1] the y axis overflows
  */
 std::vector<unsigned>
 CSpectrum::getOverflows() const
 {
-    return m_overflowCounters;
+  const TH1* pSpec = getRootSpectrum();
+  const TAxis* pX  = pSpec->GetXaxis();               // all specs have a meaningful one.
+  
+  // How we do this depends on the spectrum dimensionality
+  // for consistency we'll ask that of Root, rather than doing the
+  // Dimensionality test.  That will give us X and Y values for
+  // summary spectra so somewhat of a different result than before.
+  
+  std::vector<unsigned> result;
+  
+  if (pSpec->InheritsFrom ("TH2")) {
+    Int_t  nx = pX->GetNbins();
+    const TAxis* pY = pSpec->GetYaxis();
+    Int_t  ny = pY->GetNbins();
+    
+    // Sum x underflows:
+    // Omit y = 0 and y = ny+2 as those are corners.  Not clear what they mean.
+    
+    unsigned total  = 0;
+    for (Int_t i =1; i < ny+1; i++) {
+      Int_t bin = pSpec->GetBin(nx+1, i);
+      total += pSpec->GetBinContent(bin);
+    }
+    result.push_back(total);
+    
+    // sum y underflows:
+    
+    total = 0;
+    for (Int_t i = 1; i < nx+1; i++) {
+      Int_t bin = pSpec->GetBin(i, ny+1);
+      total += pSpec->GetBinContent(bin);
+    }
+    result.push_back(total);
+    
+  } else {
+    result.push_back(pSpec->GetBinContent(0));    // bin zero is underflow.
+  }
+  
+  return result;
 }
 /**
  * renameSpectrum

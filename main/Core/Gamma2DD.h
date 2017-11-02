@@ -90,7 +90,6 @@ private:
   UInt_t m_nYscale;
   std::vector<CParameter> m_xParameters;
   std::vector<CParameter> m_yParameters;
-  R*                      m_pRootSpectrum;
 
 public:
   // Constructors/destructors and canonicals.
