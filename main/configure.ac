@@ -912,6 +912,7 @@ AC_OUTPUT(Makefile
           contrib/multiread/Makefile
           contrib/treeparam/Makefile
           compress/Makefile
+	  RootInterface/Makefile
           Core/Makefile 
           ccusb/Makefile
           ccusb/MakefileSkel
