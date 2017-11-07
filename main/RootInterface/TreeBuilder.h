@@ -88,8 +88,9 @@ public:
 private:
     Contents     m_contents;
     bool         m_fFree;
-    TreeFolder(const char* name);
+    
 public:
+    TreeFolder(const char* name);
     virtual ~TreeFolder();
     
     // Operations:
