@@ -107,4 +107,21 @@ public:
     
     virtual bool isFolder() const {return true;}
 };
+
+/**
+ * @class TreeTerminal
+ *    Terminal node for the parameter tree.  In addition to the name,
+ *    this item contains a parameter number.  The parameter number is the
+ *    parameter id, and is used to fish the parameter from the CEvent array.
+ */
+class TreeTerminal : public TreeItemBaseClass
+{
+private:
+    unsigned   m_parameterId;
+public:
+    TreeTerminal(const char* name, unsigned parameterId);
+    
+    unsigned id() const;
+    
+};
 #endif
