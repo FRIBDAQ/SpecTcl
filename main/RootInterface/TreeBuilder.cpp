@@ -138,4 +138,25 @@ TreeFolder::freeStorage(bool yesno)
 {
     m_fFree = yesno;
 }
+/*------------------------------------------------------------------------------
+ * TreeTerminal - a parameter.
+ */
 
+/**
+ * constructor
+ *   @param name - name of the parameter (tail of the path).
+ *   @param parameterId - the parameter's id in the CEvent vector for the event.
+ */
+TreeTerminal::TreeTerminal(const char* name, unsigned parameterId) :
+    TreeItemBaseClass(name),
+    m_parameterId(parameterId) {}
+    
+/**
+ * id
+ *   @return unsigned - the parameter's id.
+ */
+unsigned
+TreeTerminal::id() const
+{
+    return m_parameterId;
+}
