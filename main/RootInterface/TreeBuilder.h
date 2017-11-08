@@ -51,6 +51,7 @@
 #define TREEBUILDER_H
 
 #include <string>
+#include <vector>
 #include <map>
 
 /**
@@ -83,9 +84,10 @@ public:
  */
 class TreeFolder : public TreeItemBaseClass
 {
+    friend class ParameterTree;
 public:
     typedef std::map<std::string, TreeItemBaseClass*> Contents;
-private:
+protected:
     Contents     m_contents;
     bool         m_fFree;
     
@@ -106,6 +108,7 @@ public:
     // Base class interface implement:
     
     virtual bool isFolder() const {return true;}
+
 };
 
 /**
@@ -122,6 +125,42 @@ public:
     TreeTerminal(const char* name, unsigned parameterId);
     
     unsigned id() const;
+    virtual bool isFolder() const { return false; }
     
+};
+/**
+ * @class ParameterTree
+ *    This class is derived from the TreeFolder class, however it
+ *    supplies methods that can take a set of parameters and build the
+ *    tree of parameters.  In all cases the parameter tree is built with
+ *    dynamic parameters.
+ *
+ *    Note that the top level folder is unamed (more properly the nane
+ *    is an empty string).
+ */
+class ParameterTree : public TreeFolder
+{
+public:
+    typedef struct _ParameterDef {
+        std::string s_name;
+        unsigned    s_id;
+        _ParameterDef(const char* name, unsigned id) :
+            s_name(name), s_id(id) {}
+            
+    } ParameterDef, *pParameterDef;
+    
+public:
+    ParameterTree();
+    ParameterTree(const std::vector<ParameterDef>& params);
+    ~ParameterTree();
+    
+    void buildTree(const std::vector<ParameterDef>& params);
+    void clearTree();
+private:
+    void addParameter(const ParameterDef& param);
+    TreeFolder* makeFolderPath(const std::vector<std::string>& path);
+    void clearSubTree(TreeFolder& top);
+    
+    static std::vector<std::string> pathElements(const char* name);
 };
 #endif

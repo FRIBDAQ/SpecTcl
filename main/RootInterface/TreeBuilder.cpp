@@ -21,6 +21,7 @@
 #include "TreeBuilder.h"
 #include <algorithm>
 #include <stdexcept>
+#include <cstring>
 /*-----------------------------------------------------------------------------
  *    TreeItemBaseClass
  *
@@ -138,6 +139,7 @@ TreeFolder::freeStorage(bool yesno)
 {
     m_fFree = yesno;
 }
+
 /*------------------------------------------------------------------------------
  * TreeTerminal - a parameter.
  */
@@ -159,4 +161,164 @@ unsigned
 TreeTerminal::id() const
 {
     return m_parameterId;
+}
+
+/*----------------------------------------------------------------------------
+ *  ParameterTree - the full parsed parameter tree.
+ */
+
+/**
+ * Default constructor.
+ *     The user is eventually expected to invoke buildTree to build the
+ *     parameter tree.
+ */
+ParameterTree::ParameterTree() :
+    TreeFolder("") {}
+
+/**
+ * constructor
+ *    @param params  -Vector of parameter definitions that will be  used
+ *                    to construct the tree.
+ */
+ParameterTree::ParameterTree(const std::vector<ParameterDef>& params) :
+    TreeFolder("")
+{
+    buildTree(params);    
+}
+/**
+ * destructor
+ *    Clears the tree
+ */
+ParameterTree::~ParameterTree()
+{
+    clearTree();
+}
+
+/**
+ * buildTree
+ *     - Clears any existing parameter tree and
+ *     - Constructs a new one, given the parameter definitions.
+ * @param params - Vector of parameter definitions.
+ */
+void
+ParameterTree::buildTree(const std::vector<ParameterDef>& params)
+{
+    clearTree();
+    for (size_t i = 0; i < params.size(); i++) {
+        addParameter(params[i]);
+    }
+}
+/**
+ * clearTree - clears the parameter tree currently stored.  See
+ *              clearSubTree for more.
+ */
+void
+ParameterTree::clearTree()
+{
+    clearSubTree(*this);
+}
+
+/*------------------ Utility methods for ParameterTree -----------------------*/
+
+/**
+ *   Adds a new parameter to the tree
+ *   - Splits the name into path elements.
+ *   - If necessary makes the full folder path down to the owning folder.
+ *   - Adds the item to the folder.
+ *
+ * @param param - definition of the parameter.
+*/
+void
+ParameterTree::addParameter(const ParameterDef& param)
+{
+    std::vector<std::string> path = pathElements(param.s_name.c_str());
+    std::string tail = path.back();
+    unsigned      id = param.s_id;
+    path.pop_back();
+    
+    // Path is only the directory part of the path, while tail is the parameter name.
+    
+    TreeFolder* container = makeFolderPath(path);
+    container->addItem(new TreeTerminal(tail.c_str(), id));
+}
+/**
+ * makeFolderPath
+ *    Given a directory path set, creates, as needed the set of folders
+ *    required to make that path exist.
+ *
+ *  @param path - the folder path from top to bottom.
+ *  @return TreeFolder* - Pointer to the folder at the end of the path.
+ *  @throw std::invalid_argument - If a path element exists but is not a folder.
+ */
+TreeFolder*
+ParameterTree::makeFolderPath(const std::vector<std::string>& path)
+{
+    // If there's no path elements this is a top folder:
+    
+    TreeFolder* result = this;   // if empty path this is the result.
+    
+    for (size_t i = 0; i < path.size(); i++) {
+        
+        // If needed, create the new tree folder:
+        
+        if (result->getContents().count(path[i]) == 0) {
+            result->addItem(new TreeFolder(path[i].c_str()));   
+        }
+        TreeItemBaseClass* pItem = result->m_contents[path[i]];
+        if (!pItem->isFolder()) {
+            throw std::invalid_argument("Making folder path - an element exists but is not a folder");
+        }
+        result = reinterpret_cast<TreeFolder*>(pItem);
+        
+        // Go to the next level of the path.
+    }
+    
+    return result;
+}
+/**
+ * pathElements
+ *    Takes a string with periods as path separators and splits the path
+ *    into its consituent elements.
+ *
+ *  @param name - the path to split.
+ *  @return std::vector<std::string> path elements, one per vector element.
+ */
+std::vector<std::string>
+ParameterTree::pathElements(const char* name)
+{
+    std::vector<std::string> result;
+    const char* pEnd = name + std::strlen(name);     // Pointer to the  end.
+    while (true) {
+        size_t n = std::strcspn(name, ".");          // Number of chars to delimeter.
+        std::string element(name, n);
+        result.push_back(element);
+        if (n < strlen(name)) {
+            name += n + 1;                       // Point past the .
+        } else {
+            break;                               // done.
+        }
+    }
+    
+    return result;
+}
+/**
+ * clearSubTree
+ *    Clear the folder hierarchy starting with but not including the folder
+ *    given:
+ *       For each item in the folder:
+ *       -   If it is not a subfolder just delete it.
+ *       -   If it is a subfolder, invoke clearSubTree on it, then delete it.
+ *       -   Remove clear the contents of the folder.
+ * @param top - Folder to empty out.
+ */
+void
+ParameterTree::clearSubTree(TreeFolder& top)
+{
+    for (auto p = top.m_contents.begin(); p != top.m_contents.end(); p++) {
+        if (p->second->isFolder()) {
+            clearSubTree(*reinterpret_cast<TreeFolder*>(p->second));           // Recurse.
+        }
+        delete p->second;                       // Destroy the object.
+    }
+    top.m_contents.clear();                     // empty the container.
 }
