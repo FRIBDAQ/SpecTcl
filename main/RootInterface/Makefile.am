@@ -2,7 +2,7 @@ lib_LTLIBRARIES=libRootInterface.la
 
 libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp
 
-
+include_HEADERS=CEventLeaf.h
 
 noinst_PROGRAMS=unittests
 
