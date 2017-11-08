@@ -3,11 +3,15 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 
+#include <Asserts.h>
+#include <TreeBuilder.h>
 
 
-class Testname : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(Testname);
-  CPPUNIT_TEST(aTest);
+
+class terminaltests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(terminaltests);
+  CPPUNIT_TEST(constructtest);
+  CPPUNIT_TEST(notfolder);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -19,10 +23,19 @@ public:
   void tearDown() {
   }
 protected:
-  void aTest();
+  void constructtest();
+  void notfolder();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Testname);
+CPPUNIT_TEST_SUITE_REGISTRATION(terminaltests);
 
-void Testname::aTest() {
+void terminaltests::constructtest() {
+  TreeTerminal t("test", 1234);
+  EQ(std::string("test"), t.getName());
+  EQ(unsigned(1234), t.id());
+}
+
+void terminaltests::notfolder() {
+  TreeTerminal t("test", 1234);
+  ASSERT(!t.isFolder());
 }
