@@ -159,8 +159,8 @@ public:
 private:
     void addParameter(const ParameterDef& param);
     TreeFolder* makeFolderPath(const std::vector<std::string>& path);
-    void clearSubTree(TreeFolder& top);
     
     static std::vector<std::string> pathElements(const char* name);
+    static void clearSubTree(TreeFolder& top);
 };
 #endif
