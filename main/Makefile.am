@@ -6,8 +6,8 @@ SUBDIRS = Replace \
 					factories \
 					XamineParsers \
 					Display \
-					RootInterface \
 					Core \
+					RootInterface \
 					SpecTcl \
 					TreeParam \
 					contrib \
