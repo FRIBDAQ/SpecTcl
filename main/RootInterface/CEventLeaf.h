@@ -20,9 +20,11 @@
  */
 #ifndef CEVENTLEAF_H
 #define CEVENTLEAF_H
-#include <TLeaf.h>
+#include <TLeafD.h>
 
 class CEvent;                 //!< Getting data from this sort of thing.
+class TBranch;
+class TBuffer;
 
 /**
  * @class CEventLeaf
@@ -32,18 +34,23 @@ class CEvent;                 //!< Getting data from this sort of thing.
  *     - Overriding the Value Getters so that values are gotten from that
  *       CEvent rather than from some pointer as Root normally operates.
  */
-class CEventLeaf : public TLeaf
+class CEventLeaf : public TLeafD
 {
 private:
     static CEvent*  m_pCurrentEvent;         // Event from which we'll get data.
 private:
     unsigned m_nId;                          // Parameter id.
 public:
-    CEventLeaf(unsigned id);
+    CEventLeaf();
+    CEventLeaf(TBranch* parent, const char* name, unsigned id);
     
     virtual Double_t GetValue(Int_t i =0) const;  // Root defines all in terms of this by default.
+    void FillBasket(TBuffer& b);
     
-    static setEvent(CEvent& rEvent);
+    static void setEvent(CEvent& rEvent);
+    
+    
+    ClassDef(CEventLeaf, 1);
 };
 
 #endif
