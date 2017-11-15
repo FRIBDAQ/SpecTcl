@@ -21,7 +21,8 @@ unittests_LDADD = libRootInterface_la-TreeBuilder.lo \
 	@top_builddir@/Core/libTclGrammerApp_la-Event.lo \
 	@top_builddir@/Core/libTclGrammerApp_la-DopeVector.lo \
 	@CPPUNIT_LIBS@ @ROOT_LDFLAGS@ @LIBEXCEPTION_LDFLAGS@
-unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core
+unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core \
+	-I@top_srcdir@/Utility
 
 
 TESTS=unittests
