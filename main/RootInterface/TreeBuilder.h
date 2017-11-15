@@ -53,6 +53,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <Rtypes.h>
+
+class CEvent;
 
 /**
  * @class TreeItemBaseClass
@@ -162,5 +165,27 @@ private:
     
     static std::vector<std::string> pathElements(const char* name);
     static void clearSubTree(TreeFolder& top);
+};
+
+/**
+ * @class ParameterMarshaller
+ *    Marshals parameter from the CEvent array into a pot of storage
+ *    that Root could be pointed at.  Note that the marshall and reset
+ *    methods only run O(n) where n is the number of _set_ parameters
+ *    thanks to the dope vector hiding in the CEvent object.
+ */
+class ParameterMarshaller
+{
+private:
+    std::size_t m_nParamCount;
+    Double_t*   m_pParameters;
+    
+public:
+    ParameterMarshaller(std::size_t numParameters);
+    virtual ~ParameterMarshaller();
+    
+    void marshall(CEvent& event);
+    void reset(CEvent& event);
+    Double_t* pointer();
 };
 #endif

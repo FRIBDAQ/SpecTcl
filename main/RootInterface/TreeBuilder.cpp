@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstring>
+#include <Event.h>
+#include <cmath>
 /*-----------------------------------------------------------------------------
  *    TreeItemBaseClass
  *
@@ -321,4 +323,77 @@ ParameterTree::clearSubTree(TreeFolder& top)
         delete p->second;                       // Destroy the object.
     }
     top.m_contents.clear();                     // empty the container.
+}
+/*----------------------------------------------------------------------------
+ *   ParamterMarshaller
+ */
+
+/**
+ * constructor
+ *    @param numParameters - number of parameters we're supposed to be able
+ *                           to handle.
+ */
+
+ParameterMarshaller::ParameterMarshaller(std::size_t numParameters) :
+    m_nParamCount(numParameters), m_pParameters(0)
+{
+    m_pParameters = new Double_t[numParameters];
+    Double_t nan = std::nan("1");
+    for (int i = 0; i < numParameters; i++) m_pParameters[i] = nan;
+}
+/**
+ * destructor - kills off the m_pParameters array.
+ */
+ParameterMarshaller::~ParameterMarshaller()
+{
+    delete []m_pParameters;
+}
+/**
+ * marshall
+ *    Marshall the set parameters in an event into our soup:
+ *
+ *  @param event - reference to the event to marhsall from.
+ */
+void
+ParameterMarshaller::marshall(CEvent& event)
+{
+    DopeVector& dope(event.getDopeVector());
+    for (int i = 0; i < dope.size(); i++) {
+        std::size_t n = dope[i];
+        if (i >= m_nParamCount) {
+            std::cerr << "Warning event set parameter " << n
+                << " but marshaller only had " << m_nParamCount << " elements\n";
+            std::cerr << "Paramter ignored\n";
+        } else {
+            m_pParameters[n] = event[n];           // By definition valid.
+        }
+    }
+}
+/**
+ *  reset
+ *     Resets all elements back to NAN... the event supplies the dope vector
+ *     indicating which elments might not be NANs.
+ *  @param event - evnent that modified the parameter soup.
+ */
+void
+ParameterMarshaller::reset(CEvent& event)
+{
+    DopeVector& dope(event.getDopeVector());
+    for (int i = 0; i < dope.size(); i++) {
+        std::size_t n = dope[i];
+        Double_t nan = std::nan("1");
+        if (i < m_nParamCount) {            // Silent cause marshal complained.
+            m_pParameters[i] = nan;
+        }
+    }
+}
+/**
+ *  pointer
+ *     Returns the soup pointer:
+ *  @return Double_t*
+ */
+Double_t*
+ParameterMarshaller::pointer()
+{
+    return m_pParameters;
 }
