@@ -15,7 +15,7 @@ clean-local:
 noinst_PROGRAMS=unittests
 
 unittests_SOURCES=TestRunner.cpp treefoldertests.cpp treeterminaltests.cpp \
-	paramtreetests.cpp
+	paramtreetests.cpp marshallertests.cpp
 
 unittests_LDADD = libRootInterface_la-TreeBuilder.lo \
 	@top_builddir@/Core/libTclGrammerApp_la-Event.lo \
