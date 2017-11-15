@@ -382,8 +382,8 @@ ParameterMarshaller::reset(CEvent& event)
     for (int i = 0; i < dope.size(); i++) {
         std::size_t n = dope[i];
         Double_t nan = std::nan("1");
-        if (i < m_nParamCount) {            // Silent cause marshal complained.
-            m_pParameters[i] = nan;
+        if (n < m_nParamCount) {            // Silent cause marshal complained.
+            m_pParameters[n] = nan;
         }
     }
 }
