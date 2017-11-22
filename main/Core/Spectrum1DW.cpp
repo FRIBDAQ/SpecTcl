@@ -73,6 +73,7 @@
 #include "CAxis.h"
 #include <assert.h>
 #include <TH1S.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -127,11 +128,15 @@ CSpectrum1DW::CSpectrum1DW(const std::string& rName,
   // Create the root spectrum.  Then CreateChannels will indirectly
   // set the spectrum's  storage to the storage SpecTcl manages:
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(), nChannels, 0.0,
     static_cast<Double_t>(nChannels)
   );
   pRootSpectrum->Adopt(0, nullptr);      // Get th1 to delete its storage.
+  gDirectory->Cd(olddir.c_str());
+  
   setRootSpectrum(pRootSpectrum);
   
   CreateChannels();
@@ -174,13 +179,16 @@ CSpectrum1DW::CSpectrum1DW(const std::string&  rName,
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
   
   // See comments in prior constructor about the order of this.
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(), nChannels,
     static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateChannels();
 }
 /**

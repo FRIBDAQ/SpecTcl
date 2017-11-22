@@ -75,7 +75,7 @@ protected:
 // Utilities to fill spectra and report the stats.
 // for all of them parameter is a vector of channel increments, n the y chans.
 // and the return is a pair where first is underflows and second overflows.
-//
+// Note that summary spectra are 2-d spectrum now that we use root.
 
 // Summary..B
 
@@ -156,13 +156,13 @@ void TestSummary::allinB()
   std::pair<std::vector<unsigned>, std::vector<unsigned> > result =
     fillB(e, 1024);
     
-  // Both vectors are length 1 and have 0 in their 0'th element.
+  // Both vectors are length 2 and have 0 in their 1'st (y) element.
   
-  EQ(size_t(1), result.first.size());
-  EQ(size_t(1), result.second.size());
+  EQ(size_t(2), result.first.size());
+  EQ(size_t(2), result.second.size());
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 
 // all channels underflow:
@@ -178,8 +178,8 @@ void TestSummary::allunderB()
     
   // SB  50 underflows.
   
-  EQ(unsigned(50), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(50), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // 1/2 of the channels are underflows:
 
@@ -194,8 +194,8 @@ void TestSummary::halfunderB()
     
   // SB  25 underflows.
   
-  EQ(unsigned(25), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(25), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // All channels are overflows:
 
@@ -210,8 +210,8 @@ void TestSummary::allOverB()
     
   // SB  50 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(50), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(50), result.second[1]);
 }
  // 1/2 channels overflow:
  
@@ -226,8 +226,8 @@ void TestSummary::allOverB()
     
   // SB  25 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(25), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(25), result.second[1]);
 }
 
 // Word spectrum tests::
@@ -246,11 +246,11 @@ void TestSummary::allinW()
     
   // Both vectors are length 1 and have 0 in their 0'th element.
   
-  EQ(size_t(1), result.first.size());
-  EQ(size_t(1), result.second.size());
+  EQ(size_t(2), result.first.size());
+  EQ(size_t(2), result.second.size());
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 
 // all channels underflow:
@@ -266,8 +266,8 @@ void TestSummary::allunderW()
     
   // SB  50 underflows.
   
-  EQ(unsigned(50), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(50), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // 1/2 of the channels are underflows:
 
@@ -282,8 +282,8 @@ void TestSummary::halfunderW()
     
   // SB  25 underflows.
   
-  EQ(unsigned(25), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(25), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // All channels are overflows:
 
@@ -298,8 +298,8 @@ void TestSummary::allOverW()
     
   // SB  50 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(50), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(50), result.second[1]);
 }
  // 1/2 channels overflow:
  
@@ -314,8 +314,8 @@ void TestSummary::allOverW()
     
   // SB  25 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(25), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(25), result.second[1]);
 }
 
 
@@ -335,11 +335,11 @@ void TestSummary::allinL()
     
   // Both vectors are length 1 and have 0 in their 0'th element.
   
-  EQ(size_t(1), result.first.size());
-  EQ(size_t(1), result.second.size());
+  EQ(size_t(2), result.first.size());
+  EQ(size_t(2), result.second.size());
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 
 // all channels underflow:
@@ -355,8 +355,8 @@ void TestSummary::allunderL()
     
   // SB  50 underflows.
   
-  EQ(unsigned(50), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(50), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // 1/2 of the channels are underflows:
 
@@ -371,8 +371,8 @@ void TestSummary::halfunderL()
     
   // SB  25 underflows.
   
-  EQ(unsigned(25), result.first[0]);
-  EQ(unsigned(0), result.second[0]);
+  EQ(unsigned(25), result.first[1]);
+  EQ(unsigned(0), result.second[1]);
 }
 // All channels are overflows:
 
@@ -387,8 +387,8 @@ void TestSummary::allOverL()
     
   // SB  50 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(50), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(50), result.second[1]);
 }
  // 1/2 channels overflow:
  
@@ -403,6 +403,6 @@ void TestSummary::allOverL()
     
   // SB  25 underflows.
   
-  EQ(unsigned(0), result.first[0]);
-  EQ(unsigned(25), result.second[0]);
+  EQ(unsigned(0), result.first[1]);
+  EQ(unsigned(25), result.second[1]);
 }

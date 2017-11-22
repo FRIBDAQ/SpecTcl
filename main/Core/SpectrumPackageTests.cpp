@@ -110,7 +110,10 @@ public:
         CSpectrum* pSpec = pApi->FindSpectrum("unique");
         std::vector<UInt_t> resolution;
         pSpec->GetResolutions(resolution);
-        EQMSG("N bins correct", nbins[0], resolution[0]);
+        
+        // nbins +2 because root has its two bins (under/overflows)
+        
+        EQMSG("N bins correct", nbins[0]+2, resolution[0]);
         EQMSG("Low range correct", lows[0], pSpec->GetLow(0));
         EQMSG("High range correct", highs[0], pSpec->GetHigh(0));
 

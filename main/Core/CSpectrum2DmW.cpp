@@ -21,6 +21,7 @@
 #include <Event.h>
 #include <RangeError.h>
 #include <TH2S.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -52,6 +53,8 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
 			     UInt_t                   yscale) :
   CSpectrum2Dm(name, id, parameters, xscale, yscale)
 {
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     name.c_str(), name.c_str(),
     xscale, 0.0, static_cast<Double_t>(xscale),
@@ -61,6 +64,8 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
   setRootSpectrum(pRootSpectrum);
   CreateChannels();
   setStorageType(keWord);
+  gDirectory->Cd(olddir.c_str());
+  
 }
 
 /*!
@@ -91,6 +96,8 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
   CSpectrum2Dm(name, id, parameters, xchans, ychans,
 	       xlow, xhigh, ylow, yhigh)
 {
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     name.c_str(), name.c_str(),
     xchans, static_cast<Double_t>(xlow),  static_cast<Double_t>(xhigh),
@@ -100,6 +107,8 @@ CSpectrum2DmW::CSpectrum2DmW(std::string              name,
   setRootSpectrum(pRootSpectrum);
   CreateChannels();
   setStorageType(keWord);
+  gDirectory->Cd(olddir.c_str());
+  
 }
 
 

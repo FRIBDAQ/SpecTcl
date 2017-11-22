@@ -45,6 +45,7 @@ using namespace std;
 #include <TH2I.h>
 #include <TH2S.h>
 #include <TH2C.h>
+#include <TDirectory.h>
 
 /*!
    Construct the spectrum, for 1:1 channel mapping:
@@ -75,6 +76,8 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   AddAxis(xChannels, 0.0, (Float_t)(xChannels - 1), xParameters[0].getUnits());
   AddAxis(yChannels, 0.0, (Float_t)(yChannels - 1), yParameters[0].getUnits());
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   R* pRootSpectrum = new R(
     rName.c_str(), rName.c_str(),
     xChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(xChannels),
@@ -83,6 +86,7 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
   
 }
 
@@ -123,6 +127,8 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   AddAxis(nXChannels, xLow, xHigh, xParameters[0].getUnits());
   AddAxis(nYChannels, yLow, yHigh, yParameters[0].getUnits());
 
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   R* pRootSpectrum = new R(
     rName.c_str(), rName.c_str(),
     nXChannels, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
@@ -131,6 +137,8 @@ CGamma2DD<T, R>::CGamma2DD(const std::string& rName, UInt_t nId,
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
+  
 }
 
 /**

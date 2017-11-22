@@ -80,6 +80,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <math.h>
 #include "CAxis.h"
 #include <TH1I.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -122,8 +123,10 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels)); // bits are unitless.
   
-  // Create the corresponding Root spectrum:
+  // Create the corresponding Root spectrum - don't assume anything about root's cd.
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
@@ -131,6 +134,8 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
   pRootSpectrum->Adopt(0, nullptr);      // delete the root spectrum storage
   setRootSpectrum(pRootSpectrum);        // for the base class
   CreateStorage();                       // This replaces spectrum storage too.
+  
+  gDirectory->Cd(olddir.c_str());
 }
 /*! 
   Constructs a bit spectrum that has a cut in axis and
@@ -170,6 +175,11 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
   AddAxis((nHigh - nLow), 
 	  (Float_t)nLow, (Float_t)nHigh); // bits are unitless.
   
+  // Don't assume the user hasn't changed the directory.  For example
+  // TBrowser will Cd when you click on a directory.
+  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     m_nChannels - 2, static_cast<Double_t>(nLow), static_cast<Double_t>(nHigh)
@@ -177,6 +187,7 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);      // Set base class root spectrump ptr.
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
 }
 
 /**

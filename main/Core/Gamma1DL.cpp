@@ -96,6 +96,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CAxis.h"
 #include <assert.h>
 #include <TH1I.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -143,14 +144,17 @@ CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
   // The assumption is that all axes have the same units.
 
   AddAxis(nScale, 0.0, (Float_t)(nScale - 1), rrParameters[0].getUnits());
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nScale)
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
-
+  setRootSpectrum(m_pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
 }
 /*!
    Construct a 1d Gamma spectrum with channels that contain 
@@ -181,13 +185,17 @@ CGamma1DL::CGamma1DL(const string& rName, UInt_t nId,
   m_nScale(nChannels + 2)
 {
   AddAxis(nChannels, fLow, fHigh, rrParameters[0].getUnits());
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
   m_pRootSpectrum->Adopt(0,nullptr);
   CreateStorage();
+  setRootSpectrum(m_pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
 }
 /**
  * destructor
@@ -197,7 +205,6 @@ CGamma1DL::CGamma1DL(const string& rName, UInt_t nId,
 CGamma1DL::~CGamma1DL()
 {
   m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@ libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp
 libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
 	$(ROOT_CFLAGS)
 
-noinst_HEADERS=TreeBuilder.h
+include_HEADERS=TreeBuilder.h
 
 install-exec-local:
 

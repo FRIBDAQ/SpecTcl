@@ -23,6 +23,8 @@ class marshalltests : public CppUnit::TestFixture {
   CPPUNIT_TEST(marshall_4);
   
   CPPUNIT_TEST(reset);
+  
+  CPPUNIT_TEST(mapping);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -43,6 +45,8 @@ protected:
   void marshall_4();
   
   void reset();
+  
+  void mapping();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(marshalltests);
@@ -140,3 +144,24 @@ void marshalltests::reset()
     ASSERT(std::isnan(p[i]));
   }
 }
+// Check that non unit mappings work.
+
+void marshalltests::mapping()
+{
+  ParameterMarshaller m(100);
+  unsigned* pMap    = m.mapping();
+  for (int i = 0; i < 100; i++) {
+    pMap[i] = 99-i;                     // Make it a reversi.
+  }
+  CEvent e;
+  for (int i =0; i < 100; i++) {
+    e[i] = i;                         // m_pParameters should count backwards.
+  }
+  m.marshall(e);
+  Double_t* p = m.pointer();
+  
+  for (int i =0; i < 100; i++) {
+    EQ(Double_t(99-i), p[i]);
+  }
+}
+

@@ -82,6 +82,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <assert.h>
 #include <TH2S.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -125,6 +126,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
 	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
@@ -132,6 +135,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 
 }
@@ -170,6 +175,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
   AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
@@ -177,6 +184,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 
 }

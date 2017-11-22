@@ -96,6 +96,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <assert.h>
 #include <TH2I.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -138,7 +139,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2I* pRootSpectrum = new TH2I(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
@@ -146,6 +148,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   );
   pRootSpectrum->Adopt(0, nullptr);       // SpecTcl will manage storage.
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 
 }
@@ -185,7 +189,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
 	  (Float_t)(rrParameters.size() - 1)); //  Unit-less
   AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2I* pRootSpectrum  = new TH2I(
     rName.c_str(), rName.c_str(),
     rrParameters.size(), 0.0, static_cast<Double_t>(rrParameters.size()),
@@ -193,6 +198,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   );
   pRootSpectrum->Adopt(0, nullptr);              // SpecTcl manages storage.
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 
 }

@@ -43,6 +43,7 @@
 #include "CAxis.h"
 #include <assert.h>
 #include <TH1I.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -94,11 +95,15 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels, 0.0, static_cast<Double_t>(nChannels)
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateChannels();              // Ivokes setStorage indirectly.
 
 }
@@ -135,12 +140,16 @@ CSpectrum1DL::CSpectrum1DL(const std::string&  rName,
   m_nParameter(rParameter.getNumber())
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(), nChannels,
     static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateChannels();		// Invokes setStorage indirectly
 
 }

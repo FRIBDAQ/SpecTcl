@@ -27,6 +27,7 @@
 #include "CAxis.h"
 #include "CParameterMapping.h"
 #include <TH2I.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -84,6 +85,8 @@ CSpectrum2DL::CSpectrum2DL(const std::string& rName, UInt_t nId,
   // deleted.  CreateStorate indirectly calls setStorage which will swap in
   // SpecTcl managed storage for the root TArrayI normally used:
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2I* pRootSpectrum = new TH2I(
     rName.c_str(), rName.c_str(),
     nXScale, 0.0, static_cast<Double_t>(nXScale),
@@ -91,6 +94,8 @@ CSpectrum2DL::CSpectrum2DL(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);          // Free the root storage.
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 }
 
@@ -140,6 +145,8 @@ CSpectrum2DL:: CSpectrum2DL(const std::string& rName, UInt_t nId,
   
   // See comments in previousl constructor:
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2I* pRootSpectrum = new TH2I(
     rName.c_str(),  rName.c_str(),
     nXChannels,  static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
@@ -147,6 +154,8 @@ CSpectrum2DL:: CSpectrum2DL(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 }
   

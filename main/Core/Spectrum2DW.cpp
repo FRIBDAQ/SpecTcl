@@ -77,6 +77,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CAxis.h"
 #include "CParameterMapping.h"
 #include <TH2S.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -133,6 +134,8 @@ CSpectrum2DW::CSpectrum2DW(const std::string& rName, UInt_t nId,
   // Create the root spectrum, note that CreateStorage will set the histogram's
   // storage to be managed by SpecTcl not root:
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nXScale),
@@ -140,6 +143,7 @@ CSpectrum2DW::CSpectrum2DW(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);       // Free root's storage (see above).
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
   
   CreateStorage();
 }
@@ -191,6 +195,8 @@ CSpectrum2DW:: CSpectrum2DW(const std::string& rName, UInt_t nId,
   // Create the root spectrum and let its storage be managed by us.
   // The call to CreateStorage establishes our storage:
   
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2S* pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     nXChannels, static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
@@ -198,6 +204,7 @@ CSpectrum2DW:: CSpectrum2DW(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);     // Free root storage for spectrum.
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
   
   CreateStorage();
 }

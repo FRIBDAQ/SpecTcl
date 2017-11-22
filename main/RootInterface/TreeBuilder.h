@@ -56,6 +56,8 @@
 #include <Rtypes.h>
 
 class CEvent;
+class TTree;
+class TBranch;
 
 /**
  * @class TreeItemBaseClass
@@ -173,13 +175,18 @@ private:
  *    that Root could be pointed at.  Note that the marshall and reset
  *    methods only run O(n) where n is the number of _set_ parameters
  *    thanks to the dope vector hiding in the CEvent object.
+ *
+ *    Since root wants the leaves of a tree to be contiguous in memory,
+ *    we provide a map that can be used to remap parameter numbers into
+ *    different slots in the m_pParameters so that parameters can be scattered
+ *    as needed from the rEvent vector.
  */
 class ParameterMarshaller
 {
 private:
-    std::size_t m_nParamCount;
-    Double_t*   m_pParameters;
-    
+    std::size_t  m_nParamCount;
+    Double_t*    m_pParameters;
+    unsigned*    m_pMap;
 public:
     ParameterMarshaller(std::size_t numParameters);
     virtual ~ParameterMarshaller();
@@ -187,5 +194,38 @@ public:
     void marshall(CEvent& event);
     void reset(CEvent& event);
     Double_t* pointer();
+    unsigned* mapping();
 };
+/**
+ * @class SpecTclRootTree
+ *    This class constructs and fills Trees from SpecTcl parameters handed to it
+ *    properly massaged.  A ParameterTree is used to determine the branch hierarchy.
+ *    The mapping feature of the ParameterMarshaller is used to make the leaves
+ *    of each branch contiguous.
+ *
+ *    The user of this class is expected to have set things up so that the tree
+ *    is saved in to the right place (file or memory e.g.).
+ */
+class SpecTclRootTree
+{
+private:
+    ParameterMarshaller* m_pMarshaller;
+    TTree*       m_pTree;
+    unsigned*    m_pMap;
+    unsigned     m_nLastId;
+    std::string  m_treeName;
+public:
+    SpecTclRootTree(std::string treeName, const std::vector<ParameterTree::ParameterDef>& params);
+    virtual ~SpecTclRootTree();
+    void Fill(CEvent& event);
+private:
+    void buildMarshaller(const std::vector<ParameterTree::ParameterDef>& params);
+    void buildTree(const std::vector<ParameterTree::ParameterDef>& params);
+    unsigned buildBranch(std::string name, const TreeFolder& folder, unsigned firstSlot);
+    std::pair<unsigned, void*> mapParameters(
+        unsigned firstSlot, std::vector<const TreeTerminal*>& leaves
+    );
+    std::string createLeafSpecs(std::vector<const TreeTerminal*>& leaves); 
+};
+
 #endif

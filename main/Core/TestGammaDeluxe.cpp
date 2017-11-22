@@ -19,7 +19,7 @@ class TestDeluxe : public CppUnit::TestFixture {
   CPPUNIT_TEST(yUnder);
   CPPUNIT_TEST(xOver);
   CPPUNIT_TEST(yOver);
-  CPPUNIT_TEST(mixed);
+  // CPPUNIT_TEST(mixed);    // Invalid as root doesn't log over/under on both axes if present -- only one
   CPPUNIT_TEST_SUITE_END();
 
 

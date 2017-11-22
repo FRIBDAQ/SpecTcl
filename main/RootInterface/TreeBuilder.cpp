@@ -24,6 +24,10 @@
 #include <cstring>
 #include <Event.h>
 #include <cmath>
+#include <TTree.h>
+#include <TBranch.h>           // Actually probably don't need this.
+#include <TDirectory.h>
+
 /*-----------------------------------------------------------------------------
  *    TreeItemBaseClass
  *
@@ -335,11 +339,17 @@ ParameterTree::clearSubTree(TreeFolder& top)
  */
 
 ParameterMarshaller::ParameterMarshaller(std::size_t numParameters) :
-    m_nParamCount(numParameters), m_pParameters(0)
+    m_nParamCount(numParameters), m_pParameters(0), m_pMap(0)
 {
     m_pParameters = new Double_t[numParameters];
+    m_pMap        = new unsigned[numParameters];
+    
     Double_t nan = std::nan("1");
-    for (int i = 0; i < numParameters; i++) m_pParameters[i] = nan;
+    for (int i = 0; i < numParameters; i++) {
+        m_pParameters[i] = nan;
+        m_pMap[i]        = i;             // Default map is unit mapping.
+    }
+        
 }
 /**
  * destructor - kills off the m_pParameters array.
@@ -347,6 +357,7 @@ ParameterMarshaller::ParameterMarshaller(std::size_t numParameters) :
 ParameterMarshaller::~ParameterMarshaller()
 {
     delete []m_pParameters;
+    delete []m_pMap;
 }
 /**
  * marshall
@@ -360,12 +371,17 @@ ParameterMarshaller::marshall(CEvent& event)
     DopeVector& dope(event.getDopeVector());
     for (int i = 0; i < dope.size(); i++) {
         std::size_t n = dope[i];
-        if (i >= m_nParamCount) {
+        if (n >= m_nParamCount) {
             std::cerr << "Warning event set parameter " << n
                 << " but marshaller only had " << m_nParamCount << " elements\n";
             std::cerr << "Paramter ignored\n";
         } else {
-            m_pParameters[n] = event[n];           // By definition valid.
+            // This if is needed becaus it's possible ot invalidate a parameter
+            // and that does not remove the dope vector entry for it.
+            
+            if (event[n].isValid()) {
+                m_pParameters[m_pMap[n]] = event[n];           // By definition valid.
+            }
         }
     }
 }
@@ -383,7 +399,7 @@ ParameterMarshaller::reset(CEvent& event)
         std::size_t n = dope[i];
         Double_t nan = std::nan("1");
         if (n < m_nParamCount) {            // Silent cause marshal complained.
-            m_pParameters[n] = nan;
+            m_pParameters[m_pMap[n]] = nan;
         }
     }
 }
@@ -396,4 +412,208 @@ Double_t*
 ParameterMarshaller::pointer()
 {
     return m_pParameters;
+}
+/**
+ * mapping
+ *    Returns the mapping array:
+ */
+unsigned*
+ParameterMarshaller::mapping()
+{
+    return m_pMap;
+}
+/*-----------------------------------------------------------------------------
+ * SpecTclRootTree implementation.
+ *
+ */
+
+/**
+ * constructor
+ *   -  Construct an appropriately sized marshaller.
+ *   -  Build the tree.
+ *
+ *  @param name   - Name of the tree to create.
+ *  @param params - vector that contains parameter definitions.  Each
+ *                  parameter definnition contains a name and a parameter
+ *                  id.  The id is the index of that parameter in rEvent.
+ */
+SpecTclRootTree::SpecTclRootTree(
+    std::string name, const std::vector<ParameterTree::ParameterDef>& params
+) :
+  m_pMarshaller(0), m_pTree(0), m_pMap(0), m_nLastId(0), m_treeName(name)
+{
+    buildMarshaller(params);
+    buildTree(params);
+}
+
+/**
+ * Destructor
+ */
+SpecTclRootTree::~SpecTclRootTree()
+{
+  delete m_pMarshaller;
+  delete m_pTree;
+}
+/**
+ * Fill
+ *    - Marshall the event.
+ *    - Fill the tree
+ *    - Reset the marshalled event.
+ * @param event - The event to be filled into the tree.
+ */
+void
+SpecTclRootTree::Fill(CEvent& event)
+{
+    m_pMarshaller->marshall(event);
+    m_pTree->Fill();
+    m_pMarshaller->reset(event);
+}
+/**
+ * buildMarshaller
+ *   To build the marshaller, we need to figure out the
+ *   largest parameter index.  That needs a pass through the
+ *   parameter definitions.
+ * @param params - parameter definitions.
+ */
+void
+SpecTclRootTree::buildMarshaller(const std::vector<ParameterTree::ParameterDef>& params)
+{
+    std::size_t last(0);
+    for (int i = 0; i < params.size(); i++) {
+        if(params[i].s_id > last) last = params[i].s_id;
+    }
+    
+    m_pMarshaller = new ParameterMarshaller(last+1);
+    
+    // For good measure for now, zero out the map:
+    
+    m_nLastId = last;
+    m_pMap    = m_pMarshaller->mapping();
+    for (int i = 0; i < last; i++) {
+        m_pMap[i] = 0;                       // For now in any event.
+    }
+}
+/**
+ * buildTree
+ *   - Figure out the parameter hiearchy.
+ *   - For each folder:
+ *      .  Assign a contiguous block of slots in the marshaller.
+ *      .  Create a leaf specification text for the branch.
+ *      .  Add the branch to the tree.
+ *  @note - until we understand how to do hierarchical trees, we'll just lay
+ *          the branches out flat.  In the end, we want the branch hiearachy
+ *          to accurately reflect the parameter name hiearchy decoded by the
+ *          ParameterTree object
+ *          
+ *  @param params - parameter definitions
+ */
+void
+SpecTclRootTree::buildTree(const std::vector<ParameterTree::ParameterDef>& params)
+{
+    m_pTree = new TTree(m_treeName.c_str(), m_treeName.c_str());
+    unsigned freeslot = 0;                 // First free slot in the marshaller.
+    ParameterTree hierarchy(params);
+    
+    std::string folder("SpecTcl");         // Top level folder.
+    buildBranch(folder, hierarchy, freeslot);
+}
+/**
+ * buildBranch
+ *    For a folder of the parameter hierarchy:
+ *    - collect the terminals (leaves).
+ *    - collecte the folders (subbranches).
+ *    - make the mapping for the leaves into the marshaller.
+ *    - Construct the leaves description string.
+ *    - Create and hook the branch into the hierarchy.
+ *    - Recurse for each folder.
+ *
+ * @param name - name of the branch
+ * @param folder - TreeFolder we need to ake a branch from
+ * @param firstSlot - First available slot in m_pMap.
+ * @return unsigned - Next free available slot in m_pMap.
+ */
+unsigned
+SpecTclRootTree::buildBranch(std::string name, const TreeFolder& folder, unsigned firstSlot)
+{
+        const TreeFolder::Contents&      c(folder.getContents());
+        std::vector<const TreeFolder*>   subfolders;
+        std::vector<const TreeTerminal*> leaves;
+        
+        // Fill the subfolders and leaves vectors from c:
+        
+        for(auto p = c.begin();  p != c.end(); p++) {
+            if (p->second->isFolder()) {
+                subfolders.push_back(
+                    reinterpret_cast<const TreeFolder*>(p->second)
+                );
+            } else {
+                leaves.push_back(
+                    reinterpret_cast<const TreeTerminal*>(p->second)
+                );
+            }
+        }
+        // Generate the branch for the leaves. - no need if there are no leaves.
+        
+        if (!leaves.empty()) {
+            std::pair<unsigned, void*> mapInfo = mapParameters(firstSlot, leaves);
+            std::string              leafspecs = createLeafSpecs(leaves);
+            m_pTree->Branch(name.c_str(), mapInfo.second, leafspecs.c_str());
+            firstSlot = mapInfo.first;             // Next unused slot.
+        }
+        
+        // For each subfolder make a branch whose name is the name.subfolder
+        
+        for (int i = 0; i < subfolders.size(); i++) {
+            std::string subName = subfolders[i]->getName();
+            firstSlot = buildBranch(subName, *(subfolders[i]), firstSlot);
+        }
+        
+        return firstSlot;
+}
+/**
+ * mapParameters
+ *    Creates a mapping beetween the parameter ids in the leaves passed in
+ *    and a contiguous set of slots in the marshall array.
+ *
+ *  @param firstSlot - first free slot in the marshalling array.
+ *  @param leaves    - Vector of pointers to leaf descriptions.
+ *  @return std::pair<unsigned, void*> - first is the next availabel marshall
+ *          slot number.  second is a pointer to the start of the parameters.
+ *  @note This should not be called if there are no leaves.
+ */
+std::pair<unsigned, void*>
+SpecTclRootTree::mapParameters(
+    unsigned firstSlot, std::vector<const TreeTerminal*>& leaves
+)
+{
+    std::pair<unsigned, void*> result;
+    
+    result.first  =  firstSlot + leaves.size();
+    result.second = &(m_pMarshaller->pointer()[firstSlot]);
+    
+    for (int i = 0; i < leaves.size(); i++) {
+        m_pMap[leaves[i]->id()] = firstSlot++;  // Assign a mapping.
+    }
+    
+    return result;
+}
+/**
+ * createLeafSpecs
+ *    Creates a root leaf specification string of the form
+ *    name1/D:name2/D:...nameLast/D
+ * @param leaves - vector of pointer to leaf descriptions.
+ * @return the leaf specification.
+ */
+std::string
+SpecTclRootTree::createLeafSpecs(std::vector<const TreeTerminal*>& leaves)
+{
+    std::string result;
+    
+    for (int i =0; i < leaves.size(); i++) {
+        result += leaves[i]->getName();
+        result += "/D:";
+    }
+    
+    result.pop_back();           // remove trailing ':'
+    return result;
 }

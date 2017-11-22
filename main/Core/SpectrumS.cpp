@@ -56,7 +56,7 @@
 #include <math.h>
 #include <TH1I.h>
 #include <TAxis.h>
-
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -114,13 +114,16 @@ CSpectrumS::CSpectrumS(const std::string&     rName,
  
 {
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), rParameter.getUnits());
-  
+std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateChannels();
 }
 /*!
@@ -159,13 +162,16 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
   m_nOffset(0)
 {
   AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1I* pRootSpectrum = new TH1I(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(fLow), static_cast<Double_t>(fHigh)
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateChannels();
   
 }
