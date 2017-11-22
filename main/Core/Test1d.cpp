@@ -74,7 +74,6 @@ void Test1d::under1DL()
     EQ(unsigned(0), stats[0]);
     
     stats = test.getUnderflows();
-    EQ(size_t(1), stats.size());
     EQ(unsigned(1), stats[0]);
 }
 // Overflow

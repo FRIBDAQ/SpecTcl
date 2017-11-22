@@ -82,6 +82,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CGammaContour.h"
 #include <assert.h>
 #include <TH2C.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -113,7 +114,8 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   // The assumption is that all axes have the same units.
   AddAxis(nXScale, 0.0, (Float_t)(nXScale), rParameters[0].getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), rParameters[0].getUnits());
-
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH2C(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nXScale),
@@ -122,7 +124,8 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
   
-  
+  gDirectory->Cd(olddir.c_str());
+  setRootSpectrum(m_pRootSpectrum);
 }
 /*!
   Construct a gamma spectrum where the axis is an arbitrary
@@ -161,6 +164,8 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   AddAxis(nXScale, xLow, xHigh, rParameters[0].getUnits());
   AddAxis(nYScale, yLow, yHigh, rParameters[0].getUnits());
 
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH2C(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
@@ -168,6 +173,8 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
+  setRootSpectrum(m_pRootSpectrum);
 }
 
 	    
@@ -178,7 +185,6 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
 CGamma2DB::~CGamma2DB()
 {
   m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
 }
 
 //////////////////////////////////////////////////////////////////////

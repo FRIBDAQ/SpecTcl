@@ -136,7 +136,7 @@ CGamma2DL::CGamma2DL(const std::string& rName, UInt_t nId,
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
-  
+  setRootSpectrum(m_pRootSpectrum);
   
 }
 /*!
@@ -183,14 +183,15 @@ CGamma2DL::CGamma2DL(const std::string& rName, UInt_t nId,
   );
   m_pRootSpectrum->Adopt(0, nullptr);
   CreateStorage();
+  setRootSpectrum(m_pRootSpectrum);
 }
+
 /**
  * destructor
  */
 CGamma2DL::~CGamma2DL()
 {
   m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
 }
 
 //////////////////////////////////////////////////////////////////////

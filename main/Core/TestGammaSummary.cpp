@@ -10,7 +10,7 @@
 
 #include "CGammaSummarySpectrum.h"
 
-// Note gamma summary spectra _are_ templated (hoorah) so we only test the longs
+// Note gamma summary spectra _are_ templated (hoorah) so we only test the longs 
 
 
 class TestGammaS : public CppUnit::TestFixture {
@@ -40,7 +40,7 @@ protected:
 };
 
 // fill
-//
+//   Note with root, gamma summaries are 2-d spectra but only y over/unders count
 std::pair<std::vector<unsigned>, std::vector<unsigned> >
 TestGammaS::fill(std::vector<std::vector<int> > values, unsigned n)
 {
@@ -87,11 +87,11 @@ void TestGammaS::allin()
     std::pair<std::vector<unsigned>, std::vector<unsigned> > result =
         fill(values, 1024);
         
-    EQ(size_t(1), result.first.size());
-    EQ(size_t(1), result.second.size());
+    EQ(size_t(2), result.first.size());
+    EQ(size_t(2), result.second.size());
     
-    EQ(unsigned(0), result.first[0]);
-    EQ(unsigned(0), result.second[0]);
+    EQ(unsigned(0), result.first[1]);
+    EQ(unsigned(0), result.second[1]);
     
 }
         // All values are underflows
@@ -114,8 +114,8 @@ void TestGammaS::allunder()
         
     
     
-    EQ(unsigned(500), result.first[0]);
-    EQ(unsigned(0), result.second[0]);
+    EQ(unsigned(500), result.first[1]);
+    EQ(unsigned(0), result.second[1]);
     
 }
     // All values are overflows.
@@ -136,8 +136,8 @@ void TestGammaS::allover()
         
     
     
-    EQ(unsigned(0), result.first[0]);
-    EQ(unsigned(500), result.second[0]);
+    EQ(unsigned(0), result.first[1]);
+    EQ(unsigned(500), result.second[1]);
     
 }
 //   mixed by x channel 1/2 over 1/2 under.
@@ -158,8 +158,8 @@ void TestGammaS::mixed1()
         
     
     
-    EQ(unsigned(250), result.first[0]);
-    EQ(unsigned(250), result.second[0]);   
+    EQ(unsigned(250), result.first[1]);
+    EQ(unsigned(250), result.second[1]);   
 }
 // Mixed over/under/in within an individual x.
 
@@ -184,6 +184,6 @@ void TestGammaS::mixed2()
         
     
     
-    EQ(unsigned(counters[1]), result.first[0]);
-    EQ(unsigned(counters[0]), result.second[0]);      
+    EQ(unsigned(counters[1]), result.first[1]);
+    EQ(unsigned(counters[0]), result.second[1]);      
 }

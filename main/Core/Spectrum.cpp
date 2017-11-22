@@ -827,6 +827,7 @@ CSpectrum::getOverflows() const
 {
   const TH1* pSpec = getRootSpectrum();
   const TAxis* pX  = pSpec->GetXaxis();               // all specs have a meaningful one.
+  Int_t  nx = pX->GetNbins();
   
   // How we do this depends on the spectrum dimensionality
   // for consistency we'll ask that of Root, rather than doing the
@@ -836,7 +837,6 @@ CSpectrum::getOverflows() const
   std::vector<unsigned> result;
   
   if (pSpec->InheritsFrom ("TH2")) {
-    Int_t  nx = pX->GetNbins();
     const TAxis* pY = pSpec->GetYaxis();
     Int_t  ny = pY->GetNbins();
     
@@ -860,7 +860,7 @@ CSpectrum::getOverflows() const
     result.push_back(total);
     
   } else {
-    result.push_back(pSpec->GetBinContent(0));    // bin zero is underflow.
+    result.push_back(pSpec->GetBinContent(nx+1));    // bin n+1 is underflow.
   }
   
   return result;

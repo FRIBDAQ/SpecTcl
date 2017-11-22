@@ -71,7 +71,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CAxis.h"
 #include "CParameterMapping.h"
 #include <TH2C.h>
-
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -126,7 +126,8 @@ CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
   // The root spectrum is created and its storage deleted (Adopt call). The
   // subsequent CreateStorage call calls setStorage allowing SpecTcl to manage
   // the storage.
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2C* pRootSpectrum = new TH2C(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(0.0), static_cast<Double_t>(nXScale),
@@ -134,6 +135,7 @@ CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
   
   CreateStorage();
 }
@@ -184,7 +186,8 @@ CSpectrum2DB:: CSpectrum2DB(const std::string& rName, UInt_t nId,
   AddAxis(nYChannels, fyLow, fyHigh, rYParameter.getUnits());
   
   // See prior constructor to understand what's happening here.
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH2C* pRootSpectrum = new TH2C(
     rName.c_str(), rName.c_str(),
     nXChannels, static_cast<Double_t>(fxLow), static_cast<Double_t>(fxHigh),
@@ -192,6 +195,8 @@ CSpectrum2DB:: CSpectrum2DB(const std::string& rName, UInt_t nId,
   );
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
+  gDirectory->Cd(olddir.c_str());
+  
   CreateStorage();
 }
 

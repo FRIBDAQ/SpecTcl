@@ -19,21 +19,21 @@ class Test2dM : public CppUnit::TestFixture {
   CPPUNIT_TEST(yundersB);
   CPPUNIT_TEST(xoversB);
   CPPUNIT_TEST(yoversB);
-  CPPUNIT_TEST(mixedB);
+  // CPPUNIT_TEST(mixedB); // Invalid as Root will only log one over/under not both.
   
   CPPUNIT_TEST(allinW);
   CPPUNIT_TEST(xundersW);
   CPPUNIT_TEST(yundersW);
   CPPUNIT_TEST(xoversW);
   CPPUNIT_TEST(yoversW);
-  CPPUNIT_TEST(mixedW);
+  // CPPUNIT_TEST(mixedW);   // Invalid s ee mixedB
   
   CPPUNIT_TEST(allinL);
   CPPUNIT_TEST(xundersL);
   CPPUNIT_TEST(yundersL);
   CPPUNIT_TEST(xoversL);
   CPPUNIT_TEST(yoversL);
-  CPPUNIT_TEST(mixedL);
+  // CPPUNIT_TEST(mixedL);   // Invalid see above.
   CPPUNIT_TEST_SUITE_END();
 
 

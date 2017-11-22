@@ -73,6 +73,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <math.h>
 #include "CAxis.h"
 #include <TH1S.h>
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -119,6 +120,9 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName,
   // The usual dance to make a root spectrum whose storage is managed by
   // SpecTcl
   
+  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(),
     nChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nChannels)
@@ -126,6 +130,8 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName,
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
+  
 }
 /*! 
   Constructs a bit spectrum that has a cut in axis and
@@ -162,6 +168,8 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
   m_PDescription(rParameter)
 {
   AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   
   TH1S* pRootSpectrum = new TH1S(
     rName.c_str(), rName.c_str(),
@@ -170,6 +178,8 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
+  
 }
 /**
  * destructor

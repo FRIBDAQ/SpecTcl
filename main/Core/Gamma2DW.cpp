@@ -122,9 +122,8 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
     nYScale, static_cast<Double_t>(0), static_cast<Double_t>(nYScale)
   );
   m_pRootSpectrum->Adopt(0, nullptr);
-
+  setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
-  
   
 }
 /*!
@@ -170,8 +169,9 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
     nYScale, static_cast<Double_t>(yLow), static_cast<Double_t>(yHigh)
   );
   m_pRootSpectrum->Adopt(0, nullptr);
-  
+  setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
+  
 }
 
 /**
@@ -180,7 +180,7 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
 CGamma2DW::~CGamma2DW()
 {
   m_pRootSpectrum->fArray = nullptr;
-  delete m_pRootSpectrum;
+
   
 }
 
