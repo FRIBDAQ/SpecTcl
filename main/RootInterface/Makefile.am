@@ -1,9 +1,12 @@
 lib_LTLIBRARIES=libRootInterface.la
 
-libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp 
+libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp \
+	RootTreeSink.h RootTreeSink.cpp
 
 libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
-	$(ROOT_CFLAGS)
+	@ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
+
+libRootInterface_la_LIBADD=@LIBEXCEPTION_LDFLAGS@ @TCL_LIBS@
 
 include_HEADERS=TreeBuilder.h
 
@@ -20,7 +23,7 @@ unittests_SOURCES=TestRunner.cpp treefoldertests.cpp treeterminaltests.cpp \
 unittests_LDADD = libRootInterface_la-TreeBuilder.lo \
 	@top_builddir@/Core/libTclGrammerApp_la-Event.lo \
 	@top_builddir@/Core/libTclGrammerApp_la-DopeVector.lo \
-	@CPPUNIT_LIBS@ @ROOT_LDFLAGS@ @LIBEXCEPTION_LDFLAGS@
+	@CPPUNIT_LIBS@ @ROOT_LDFLAGS@ @LIBEXCEPTION_LDFLAGS@ @TCL_LDFLAGS@
 unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core \
 	-I@top_srcdir@/Utility
 

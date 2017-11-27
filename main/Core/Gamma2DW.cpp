@@ -115,7 +115,8 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
 
   AddAxis(nXScale, 0.0, (Float_t)(nXScale - 1), rParameters[0].getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), rParameters[0].getUnits());
-  
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(0), static_cast<Double_t>(nXScale),
@@ -124,6 +125,7 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   m_pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
   
 }
 /*!
@@ -162,7 +164,8 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   // The assumption is all paramters have the same units.
   AddAxis(nXScale, xLow, xHigh, rParameters[0].getUnits());
   AddAxis(nYScale, yLow, yHigh, rParameters[0].getUnits());
-
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");
   m_pRootSpectrum = new TH2S(
     rName.c_str(), rName.c_str(),
     nXScale, static_cast<Double_t>(xLow), static_cast<Double_t>(xHigh),
@@ -171,6 +174,7 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   m_pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(m_pRootSpectrum);
   CreateStorage();
+  gDirectory->Cd(olddir.c_str());
   
 }
 
