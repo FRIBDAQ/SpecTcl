@@ -141,7 +141,7 @@ TreeCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     SpecTcl* pApi = SpecTcl::getInstance();
     
     requireAtLeast(objv, 4, "roottree create requires at least a name and parameter pattern list");
-    requireAtMost(objv, 5, "roottree create can atm ost have a name, parameter patternlist and gate name");
+    requireAtMost(objv, 5, "roottree create can at most have a name, parameter patternlist and gate name");
  
     CGateContainer* pGate = pDefaultGate;           // Use default gate if none supplied.
     
@@ -192,7 +192,7 @@ TreeCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     sinkName += treeName;
     pApi->AddEventSink(*pSink, sinkName.c_str());
     try {
-        pEp->addTreeSink(sinkName.c_str(), pSink);
+        pEp->addTreeSink(treeName.c_str(), pSink);
     }
     catch (...) {
         // Add failed,, remove and delete:
@@ -261,7 +261,7 @@ TreeCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         if (Tcl_StringMatch(pattern.c_str(), name.c_str())) {
             const std::vector<std::string>& patterns(p->second->getParameterPatterns());
             CGateContainer& gc (p->second->getGate());
-            std::string gateName = gc->getName();
+            std::string gateName = gc.getName();
             
             // Build list of patterns.
             
