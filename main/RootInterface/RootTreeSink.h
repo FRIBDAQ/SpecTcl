@@ -73,6 +73,16 @@ public:
     void OnBegin(unsigned run, std::string title);
     void OnEnd();
     virtual void operator()(CEventList& rEvents);
+    
+    // Selectors needed to do lists:
+public:
+    const std::vector<std::string>& getParameterPatterns() const {
+        return m_parameterPatterns;
+    }
+    CGateContainer& getGate()  {
+        return m_Gate;
+    }
+    
 private:
     void operator()(CEvent& rEvent);
     void openFile(const std::string& filename);

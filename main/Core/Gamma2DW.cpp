@@ -80,7 +80,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CGammaContour.h"
 #include <assert.h>
 #include <TH2S.h>
-
+#include <TDirectory.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
