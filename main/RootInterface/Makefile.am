@@ -2,7 +2,9 @@ lib_LTLIBRARIES=libRootInterface.la
 
 libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp \
 	RootTreeSink.h RootTreeSink.cpp \
-	RootEventProcessor.h RootEventProcessor.cpp
+	RootEventProcessor.h RootEventProcessor.cpp \
+	TreeCommand.h TreeCommand.cpp
+
 
 libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
 	@ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
