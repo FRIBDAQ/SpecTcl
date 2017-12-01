@@ -26,6 +26,7 @@
 #include <map>
 
 class RootTreeSink;
+class TFile;
 
 /**
  * @class RootEventProcessor
@@ -39,17 +40,34 @@ class RootTreeSink;
 class RootEventProcessor : public CEventProcessor
 {
 private:
+    TFile*                               m_pFile;
+    unsigned                             m_nNumBeginSequence;
     std::map<std::string, RootTreeSink*> m_sinks;
 public:
+    RootEventProcessor();
+
+    // Event processor interface subset we need to implement.
+    
     virtual Bool_t OnBegin(CAnalyzer& rA, CBufferDecoder& rB);
     virtual Bool_t OnEnd(CAnalyzer& rA, CBufferDecoder& rB);
+    virtual Bool_t operator()(const Address_t pEvent,
+			    CEvent& rEvent,
+			    CAnalyzer& rAnalyzer,
+			    CBufferDecoder& rDecoder);
+    virtual Bool_t OnEventSourceOpen(std::string name);
+    
+    // Tree sink management.
     
     void addTreeSink(const char* name, RootTreeSink* sink);
     RootTreeSink* removeTreeSink(const char* name);
     
     std::map<std::string, RootTreeSink*>::const_iterator begin() const;
     std::map<std::string, RootTreeSink*>::const_iterator end() const;
-    
+
+private:
+    std::string defaultFilename();
+    void invokeOnOpen();
+    void invokeOnAboutToClose();
     
 };
 

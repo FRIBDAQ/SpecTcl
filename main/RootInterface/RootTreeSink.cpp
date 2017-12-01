@@ -25,6 +25,7 @@
 #include "TreeBuilder.h"
 #include "GateContainer.h"
 #include <SpecTcl.h>
+#include <TFile.h>
 #include <TDirectory.h>
 #include <Event.h>
 #include <EventList.h>
@@ -32,7 +33,6 @@
 
 #include <sstream>
 #include <fnmatch.h>                 // For parameter pattern matching.
-
 
 
 /**
@@ -52,7 +52,6 @@ RootTreeSink::RootTreeSink(
     m_pTree(0),
     m_Gate(*m_pGate),
     m_parameterPatterns(patterns),
-    m_nNumBeginSequence(0),
     m_treeName(name)
 {
     
@@ -67,42 +66,35 @@ RootTreeSink::~RootTreeSink()
 }
 
 /**
- * OnBegin
- *    Destroy any existing stuff.
- *    Open a Root file based on the run number.
- *    Construct the Tree based on the parameter filters.
- *    Set the appropriate member variables to be ready for events.
+ * OnOpen
+ *    A new file has been opened for us.
+ *    - Complain if we know the file is already open.
+ *    - Create a new tree.
+ *  @param pNewFile - the file that's been opened for our trees.
  */
 void
-RootTreeSink::OnBegin(unsigned run, std::string title)
+RootTreeSink::OnOpen(TFile* pNewFile)
 {
-    tearDown();                    // in case there is no end run.
+    // Not sure if I can sanely tear down the tree when the file has been
+    // yanked out from underneath it, so:
     
-    // construct the name of the new root file and open it.
-    
-    std::stringstream sName;
-    sName << "run-" << run << ".root";
-    
-    std::string olddir = gDirectory->GetPath();
-    gDirectory->Cd("/");
-    
-    openFile(sName.str());
-    
-    // Build the tree:
-    
+    if (m_pFile) {
+        std::cerr << "** Warning -- RootTreeSink::OnOpen - Root file has not been closed \n";
+        std::cerr << "**            This will result in a small memory leak\n";
+    }
+    m_pFile = pNewFile;
     createTree();
-    gDirectory->Cd(olddir.c_str());
-    
 }
 /**
- * OnEnd
- *    Tear down the infrastructure for making/writing the tree and
- *    so on.
+ * OnAboutToClose
+ *     The guy managing the TFile* is about to close it.
+ *     teardown our tree and null out the tree/file pointers.
  */
 void
-RootTreeSink::OnEnd()
+RootTreeSink::OnAboutToClose()
 {
-    tearDown();
+    
+    tearDown();            // Nulls the pointers for us too.
 }
 
 /**
@@ -116,22 +108,15 @@ RootTreeSink::OnEnd()
 void
 RootTreeSink::operator()(CEventList& rEvents)
 {
+    // Just silently ignore the data if we've not got a file.
     
-    // IF needed open a file and construct the tree:
+    if (m_pFile) {
     
-    if (! m_pFile) {
-
-        std::string olddir = gDirectory->GetPath();
-        gDirectory->Cd("/");
-        openFile(defaultFilename().c_str());
-        createTree();
-        gDirectory->Cd(olddir.c_str());
+        // Process the events one at a time.
         
-    }
-    // Process the events one at a time.
-    
-    for (int i =0; i < rEvents.size(); i++) {
-        (*this)(*(rEvents[i]));
+        for (int i =0; i < rEvents.size(); i++) {
+            (*this)(*(rEvents[i]));
+        }
     }
 }
 /*----------------------------------------------------------------------------
@@ -155,31 +140,6 @@ RootTreeSink::operator()(CEvent& event)
         m_pTree->Fill(event);
     }
 }
-/**
- * openFile
- *    Create a new open Root file given its name
- *
- *  @param filename name of the file to open.
- *  @note Pointer to the file is saved in m_pFile.
- *  @note It's up to the caller to do any save/restore of the root current
- *        directory as this operation sets it to the newly opened file.
- */
-void
-RootTreeSink::openFile(const std::string& filename)
-{
-    m_pFile = new TFile(filename.c_str(), "UPDATE");   // Add to any existing file.
-}
-/**
- * createTree
- *    - Figure out the set of parameters to put in the tree.
- *    - Create and stock and appropriate SpecTclRootTree from those.
- *    - The pointer to the resulting, dynamically allocated SpecTclRootTree is
- *      saved in m_pTree.
- *
- *  @note - The m_parameterPatterns vector is a vector of glob patterns.  If
- *          any of them match a parameter name, that parameter is included
- *          in the tree.
- */
 void
 RootTreeSink::createTree()
 {
@@ -204,29 +164,18 @@ RootTreeSink::createTree()
     m_pTree = new SpecTclRootTree(m_treeName, params);
 }
 /**
- * defaultFilename
- *    @return std::string - A default filename used if no begin run item
- *                          defines the TFile name.
- */
-std::string
-RootTreeSink::defaultFilename()
-{
-    std::stringstream sName;
-    sName << "SpecTcl-" << m_nNumBeginSequence++ << ".root";
-    return sName.str();
-}
-/**
  * tearDown
  *    If the file is open and the tree exists, flush everything out to file.
  *    destroy the tree and destroy the file object.
+ *
+ *    Note m_pFile is anaged externall so we don't do anything to it.
  */
 void
 RootTreeSink::tearDown()
 {
     if (m_pFile) {
         m_pFile->Flush();
-        delete m_pTree;
-        delete m_pFile;
+        delete m_pTree; 
         
         m_pTree = nullptr;
         m_pFile = nullptr;

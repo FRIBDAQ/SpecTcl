@@ -26,6 +26,19 @@
 #include <stdexcept>
 
 #include <iostream>
+#include <sstream>
+#include <algorithm>
+
+#include <TFile.h>
+#include <TDirectory.h>
+
+/**
+ *  constructor
+ *     Just initialize stuff so we know there's no file open.
+ */
+RootEventProcessor::RootEventProcessor() :
+    m_pFile(0), m_nNumBeginSequence()
+{}
 
 /**
  *  The event processor lives for the life of the program once
@@ -36,18 +49,24 @@
 
 /**
  * OnBegin
- *    Invokes the OnBegin method for all of the event sinks that have
- *    been defined.  This is done so that they can compute/open a new
- *    TFile.
- *
+ *    If there's an open file (no end because e.g. we were reattached),
+ *    -  Invoke all the OnAboutToClose methods.
+ *    -  Close the file.
+ *    Then:
+ *    -  Open a new file using the 'standard' filename.
+ *    -  Invoke the OnOpen method for each sink.
+ *    
  * @param rA  - references the analyzer object.  We don't need this.
  * @param rB  - references the buffer decoder object. We'll get run number
  *              and title from this.
  * @return kfTRUE - unless an exception is thrown in which case kfFALSE is
  *              returned along with a message to stderr.
+ * @note in event built data there could be more than one begin per run.
+ *       in that case we'll open/close for all but the last begin and all will
+ *       still be (inefficiently) good.
  */
 Bool_t
-RootEventProcessor::OnBegin(CAnalyzer& rA, CBufferDecoder& rB)
+RootEventProcessor::OnBegin(CAnalyzer& rA, CBufferDecoder& rB) 
 {
     Bool_t result = kfTRUE;
     std::string message;
@@ -56,9 +75,25 @@ RootEventProcessor::OnBegin(CAnalyzer& rA, CBufferDecoder& rB)
     std::string title = rB.getTitle();
     
     try {
-        for (auto p = m_sinks.begin(); p != m_sinks.end(); p++)  {
-            p->second->OnBegin(run, title);
+        // If the file is open clean up:
+        
+        if (m_pFile) {
+            invokeOnAboutToClose();
+            m_pFile->Write();
+            delete m_pFile;
+            m_pFile = nullptr;             // in case something bad happens.
         }
+        // Construct a new filename, open the file and invoke the OnOpen's.
+        std::string olddir = gDirectory->GetPath();
+        gDirectory->Cd("/");
+        
+        std::stringstream sFilename;
+        sFilename << "run-" << run << ".root";
+        m_pFile = new TFile(sFilename.str().c_str(), "UPDATE");
+        
+        invokeOnOpen();
+        gDirectory->Cd(olddir.c_str());
+        
     }
     catch (CException& e) {
         message = "CException caught RootEventProcessor::OnBegin ";
@@ -91,8 +126,10 @@ RootEventProcessor::OnBegin(CAnalyzer& rA, CBufferDecoder& rB)
 }
 /**
  * OnEnd
- *    Called at the end of the run.  We invoke this method in all of the
- *    event sinks.
+ *    Called at the end of the run.
+ *    If a file is open;
+ *    - Invoke about to close on all sinks.
+ *    - Close the file.
  *
  * @param rA  - Reference to the analyzer.
  * @param rB  - Reference to the buffer decoder.
@@ -107,8 +144,11 @@ RootEventProcessor::OnEnd(CAnalyzer& rA, CBufferDecoder& rB)
     std::string message;
     
     try {
-        for (auto p = m_sinks.begin(); p != m_sinks.end(); p++) {
-            p->second->OnEnd();  
+        if (m_pFile) {              /// there could be more than one end/run
+            m_pFile->Write();
+            invokeOnAboutToClose();
+            delete m_pFile;
+            m_pFile = nullptr;
         }
     }
     catch (CException& e) {
@@ -141,6 +181,44 @@ RootEventProcessor::OnEnd(CAnalyzer& rA, CBufferDecoder& rB)
     }
     return result;
 }
+/**
+ * operator()
+ *   This is only used because we may get created or attached in mid
+ *   run.   If there's no open file, we  need to open a new file
+ *   and let the event processors open their new file.
+ */
+Bool_t
+RootEventProcessor::operator()(
+    const Address_t pEvent, CEvent& rEvent, CAnalyzer& rAnalyzer,
+	CBufferDecoder& rDecoder
+)
+{
+    if (!m_pFile) {
+        std::string olddir = gDirectory->GetPath();
+        gDirectory->Cd("/");
+        m_pFile = new TFile(defaultFilename().c_str(), "UPDATE");
+        invokeOnOpen();
+        gDirectory->Cd(olddir.c_str());
+        
+    }
+    return kfTRUE;
+}
+/**
+ * OnEventSourceOpen
+ *    Invoked when a new event source is being opened.  If the file is
+ *    open we close it as this may happen in the middle of analyzing a run.
+ */
+Bool_t
+RootEventProcessor::OnEventSourceOpen(std::string name)
+{
+    if (m_pFile) {
+        invokeOnAboutToClose();
+        delete m_pFile;
+        m_pFile = nullptr;
+    }
+}
+
+
 /**
  * addTreeSink
  *    Add a new tree sink to the managed sinks.
@@ -207,4 +285,49 @@ std::map<std::string, RootTreeSink*>::const_iterator
 RootEventProcessor::end() const
 {
     return m_sinks.end();
+}
+
+/**
+ * defaultFilename
+ *    @return std::string - A default filename used if no begin run item
+ *                          defines the TFile name.
+ */
+std::string
+RootEventProcessor::defaultFilename()
+{
+    std::stringstream sName;
+    sName << "SpecTcl-" << m_nNumBeginSequence++ << ".root";
+    return sName.str();
+}
+/**
+ * invokeOnOpen
+ *    For each event sink we manage, invoke its OnOpen method passing in
+ *    out m_pFile pointer.
+ */
+void
+RootEventProcessor::invokeOnOpen()
+{
+    // this is a job for for_each along with a lambda:
+    
+    TFile* pFile = m_pFile;
+    std::for_each (m_sinks.begin(), m_sinks.end(),
+        [pFile](std::pair<std::string, RootTreeSink*> p) {
+            p.second->OnOpen(pFile);
+        }
+    );
+}
+/**
+ * invokOnAboutToClose
+ *    for each event sink, invoke its OnAboutToClose method.
+ */
+void
+RootEventProcessor::invokeOnAboutToClose()
+{
+    // another job for for_each and a lambda:
+    
+    std::for_each (m_sinks.begin(), m_sinks.end(),
+        [](std::pair<std::string, RootTreeSink*> p) {
+            p.second->OnAboutToClose();
+        }
+    );
 }

@@ -63,15 +63,15 @@ private:
     SpecTclRootTree* m_pTree;
     CGateContainer&  m_Gate;
     std::vector<std::string> m_parameterPatterns;
-    unsigned         m_nNumBeginSequence;
+    
     std::string      m_treeName;
 public:
     RootTreeSink(std::string name, const std::vector<std::string>& patterns, CGateContainer* m_pGate);
     virtual ~RootTreeSink();                       // not sure if final so...
     
     
-    void OnBegin(unsigned run, std::string title);
-    void OnEnd();
+    void OnOpen(TFile* pNewFile);
+    void OnAboutToClose();
     virtual void operator()(CEventList& rEvents);
     
     // Selectors needed to do lists:
@@ -85,10 +85,8 @@ public:
     
 private:
     void operator()(CEvent& rEvent);
-    void openFile(const std::string& filename);
-    void closeFile();
+    
     void createTree();
-    std::string defaultFilename();
     void tearDown();
     
 };
