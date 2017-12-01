@@ -561,7 +561,10 @@ SpecTclRootTree::buildBranch(std::string name, const TreeFolder& folder, unsigne
         
         for (int i = 0; i < subfolders.size(); i++) {
             std::string subName = subfolders[i]->getName();
-            firstSlot = buildBranch(subName, *(subfolders[i]), firstSlot);
+            std::string branchName = name;
+            branchName += "_";
+            branchName += subName;
+            firstSlot = buildBranch(branchName, *(subfolders[i]), firstSlot);
         }
         
         return firstSlot;
