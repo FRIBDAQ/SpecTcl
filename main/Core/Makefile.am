@@ -196,7 +196,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	UngateCommand.cpp GatePackage.cpp GateFactory.cpp \
 	GateFactoryException.cpp TCLHistogrammer.cpp \
 	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
-	ReadCommand.cpp CRootExec.cpp CRootExitCommand.cpp	\
+	ReadCommand.cpp  CRootExitCommand.cpp	\
 	TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
@@ -237,7 +237,7 @@ SpecTcl_SRC =  MySpecTclApp.cpp \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h  TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
-	CFoldCommand.h CRootExec.h CRootExitCommand.h
+	CFoldCommand.h  CRootExitCommand.h
 
 Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 

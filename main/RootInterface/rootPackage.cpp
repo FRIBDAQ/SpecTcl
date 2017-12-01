@@ -36,6 +36,7 @@
 #include <SpecTcl.h>
 #include <TCLInterpreter.h>
 #include "TreeCommand.h"
+#include "CRootExec.h"
 
 static const char* version("1.0");
 extern "C" {
@@ -47,7 +48,8 @@ extern "C" {
         CTCLInterpreter* pInterp = api->getInterpreter();
         
         new TreeCommand(*pInterp, "roottree");
-        
+        new CRootExec(*pInterp, "rootexec");
+
         return TCL_OK;
     }
 }
