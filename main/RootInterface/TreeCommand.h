@@ -63,5 +63,6 @@ private:
     void list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     
     RootEventProcessor* eventProcessor();
+    std::string sinkName(std::string treeName) const;
 };
 #endif

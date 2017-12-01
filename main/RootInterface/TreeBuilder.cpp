@@ -371,12 +371,8 @@ ParameterMarshaller::marshall(CEvent& event)
     DopeVector& dope(event.getDopeVector());
     for (int i = 0; i < dope.size(); i++) {
         std::size_t n = dope[i];
-        if (n >= m_nParamCount) {
-            std::cerr << "Warning event set parameter " << n
-                << " but marshaller only had " << m_nParamCount << " elements\n";
-            std::cerr << "Paramter ignored\n";
-        } else {
-            // This if is needed becaus it's possible ot invalidate a parameter
+        if (n < m_nParamCount) {
+            // This if is needed because it's possible to invalidate a parameter
             // and that does not remove the dope vector entry for it.
             
             if (event[n].isValid()) {

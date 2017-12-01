@@ -93,7 +93,7 @@ TreeCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         } else {
             std::string msg = "subcommand ";
             msg += subcommand;
-            msg + " is not a valid subcommand";
+            msg += " is not a valid subcommand";
             throw msg;
         }
     }
@@ -188,16 +188,15 @@ TreeCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     RootTreeSink* pSink = new RootTreeSink(treeName, patterns, pGate);
     RootEventProcessor *pEp = eventProcessor();   // Creates/registers if needed.
     
-    std::string sinkName("root-tree:");
-    sinkName += treeName;
-    pApi->AddEventSink(*pSink, sinkName.c_str());
+    std::string sink = sinkName(treeName);
+    pApi->AddEventSink(*pSink, sink.c_str());
     try {
         pEp->addTreeSink(treeName.c_str(), pSink);
     }
     catch (...) {
         // Add failed,, remove and delete:
         
-        pApi->RemoveEventSink(sinkName);
+        pApi->RemoveEventSink(sink);
         delete pSink;
         throw;                         // This is an error.
     }
@@ -214,6 +213,7 @@ TreeCommand::destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     requireExactly(objv, 3, "roottree delete requirea a tree name");
     std::string treeName = objv[2];
+    std::string sink = sinkName(treeName);
     
     RootEventProcessor* pProcessor = eventProcessor(); // creates if user is perverse.
     RootTreeSink*       pSink      = pProcessor->removeTreeSink(treeName.c_str());
@@ -221,7 +221,7 @@ TreeCommand::destroy(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     // The removeTreeSink method threw if there was no such sink.
     
     SpecTcl* pApi = SpecTcl::getInstance();
-    pApi->RemoveEventSink(treeName);
+    pApi->RemoveEventSink(sink);
     delete pSink;
     
 }
@@ -258,7 +258,7 @@ TreeCommand::list(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         CTCLObject parameterList; parameterList.Bind(interp);
         
         std::string name = p->first;
-        if (Tcl_StringMatch(pattern.c_str(), name.c_str())) {
+        if (Tcl_StringMatch(name.c_str(), pattern.c_str())) {
             const std::vector<std::string>& patterns(p->second->getParameterPatterns());
             CGateContainer& gc (p->second->getGate());
             std::string gateName = gc.getName();
@@ -303,4 +303,16 @@ TreeCommand::eventProcessor()
         pApi->AddEventProcessor(*m_pEventProcessor, "RootTreeEventProcessor");
     }
     return m_pEventProcessor;
+}
+/**
+ * sinkName
+ *   @param treeName - name of the tree being created.
+ *   @return std::string - name to assign the event sink object.
+ */
+std::string
+TreeCommand::sinkName(std::string treeName) const
+{
+    std::string result("root-tree:");
+    result += treeName;
+    return result;
 }
