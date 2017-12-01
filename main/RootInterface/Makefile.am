@@ -3,7 +3,8 @@ lib_LTLIBRARIES=libRootInterface.la
 libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp \
 	RootTreeSink.h RootTreeSink.cpp \
 	RootEventProcessor.h RootEventProcessor.cpp \
-	TreeCommand.h TreeCommand.cpp rootPackage.cpp 
+	TreeCommand.h TreeCommand.cpp CRootExec.h CRootExec.cpp \
+	rootPackage.cpp 
 
 
 libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \

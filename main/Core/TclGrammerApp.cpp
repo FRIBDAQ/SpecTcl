@@ -43,7 +43,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
-#include "CRootExec.h"
 #include "CRootExitCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
@@ -792,7 +791,6 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   
   new CSpectrumStatsCommand(rInterp);
   
-  new CRootExec(rInterp, "rootexec");
   
   cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
 
