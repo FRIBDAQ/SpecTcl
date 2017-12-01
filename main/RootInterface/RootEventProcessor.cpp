@@ -238,6 +238,12 @@ RootEventProcessor::addTreeSink(const char* name, RootTreeSink* sink)
         throw std::invalid_argument(msg);
     }
     m_sinks[name] = sink;
+    
+    // If there's an open file, add this to it:
+    
+    if (m_pFile) {
+        sink->OnOpen(m_pFile);
+    }
 }
 /**
  * removeSink
@@ -261,6 +267,13 @@ RootEventProcessor::removeTreeSink(const char* name)
     }
     RootTreeSink* result = p->second;
     m_sinks.erase(p);
+    
+    // If there's an open file, flush  the file and close out the tree:
+    
+    if (m_pFile) {
+        m_pFile->Write();
+        result->OnAboutToClose();       // Not actually but for this guy yes.
+    }
     
     return result;
     
