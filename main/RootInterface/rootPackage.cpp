@@ -37,6 +37,7 @@
 #include <TCLInterpreter.h>
 #include "TreeCommand.h"
 #include "CRootExec.h"
+#include "CRootExitCommand.h"
 
 static const char* version("1.0");
 extern "C" {
@@ -47,6 +48,7 @@ extern "C" {
         SpecTcl* api = SpecTcl::getInstance();
         CTCLInterpreter* pInterp = api->getInterpreter();
         
+        new CRootExitCommand(*pInterp, "exit");    // Replace root exit command.
         new TreeCommand(*pInterp, "roottree");
         new CRootExec(*pInterp, "rootexec");
 

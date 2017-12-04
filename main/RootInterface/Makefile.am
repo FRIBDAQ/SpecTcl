@@ -4,6 +4,7 @@ libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp \
 	RootTreeSink.h RootTreeSink.cpp \
 	RootEventProcessor.h RootEventProcessor.cpp \
 	TreeCommand.h TreeCommand.cpp CRootExec.h CRootExec.cpp \
+	CRootExitCommand.h CRootExitCommand.cpp \
 	rootPackage.cpp 
 
 
