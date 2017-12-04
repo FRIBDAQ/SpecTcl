@@ -38,6 +38,39 @@
 #include "TreeCommand.h"
 #include "CRootExec.h"
 #include "CRootExitCommand.h"
+#include <TCLTimer.h>
+#include <TApplication.h>
+#include <TRint.h>
+#include <TSystem.h>
+#include <iostream>
+
+extern int SpecTclArgc;
+extern char** SpecTclArgv;
+
+// Local classes:
+
+/**
+ * CRootEventLoop
+ *    Is a timer class that executes whenever the Tcl event loop is idle,
+ *    asking Root to run any pending events it has.
+ */
+class CRootEventLoop : public CTCLTimer
+{
+public:
+  CRootEventLoop(CTCLInterpreter* pInterp) :
+    CTCLTimer(pInterp, 100) {
+      Set();
+    }
+  ~CRootEventLoop() {}
+  
+  virtual void operator()() {
+    extern TSystem* gSystem;
+    gSystem->ProcessEvents();         // Process root events.
+    Set();                            // Reschedule
+  }
+};
+
+
 
 static const char* version("1.0");
 extern "C" {
@@ -48,9 +81,22 @@ extern "C" {
         SpecTcl* api = SpecTcl::getInstance();
         CTCLInterpreter* pInterp = api->getInterpreter();
         
+        // Set up the Root event loop to be multiplexed with Tcl's event
+        // loop off the timer:
+        
+  
+        gApplication = new TRint("SpecTcl", &SpecTclArgc, SpecTclArgv );
+        new CRootEventLoop(pInterp);
+        
+        
+        // Set up root interface commands:
+        
         new CRootExitCommand(*pInterp, "exit");    // Replace root exit command.
         new TreeCommand(*pInterp, "roottree");
         new CRootExec(*pInterp, "rootexec");
+        
+        std::cerr << " SpecTcl Root interface loaded: \n";
+        std::cerr << "    - Root is a product of CERN (http://root.cern.ch)\n";
 
         return TCL_OK;
     }
