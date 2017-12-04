@@ -32,7 +32,7 @@ if {[info globals SpecTclRCHasRun] eq ""}  {
 
 
 
-    set splash [splash::new -text 1 -imgfile $splashImage -progress 6 -hidemain 0]
+    set splash [splash::new -text 1 -imgfile $splashImage -progress 7 -hidemain 0]
     splash::progress $splash {Loading button bar} 0
 
     puts -nonewline "Loading SpecTcl gui..."
@@ -72,7 +72,16 @@ if {[info globals SpecTclRCHasRun] eq ""}  {
     puts " Done"
 
 
+    splash::progress $splash {Loading SpecTcl/Root interface package} 1
+
+    
+    
     splash::progress $splash {SpecTcl ready for use} 1
 
+    load $SpecTclHome/lib/libRootInterface.so
+    package require rootinterface
+    
     splash::config $splash -delay 2000
+
+    
 }

@@ -1,73 +1,87 @@
-
-#   Procedure to format a set of parameter definition lists
-#   into a nice output string which can be used as desired.
-#   Typical use might be:
-#       
-#     ParList { [parameter -list -byid] }
+#    This software is Copyright by the Board of Trustees of Michigan
+#    State University (c) Copyright 2005.
 #
-proc ParList { ParameterList } {
-    set output "Name\t\tId\t\tResolution\n"
-    set fmt    "%s \t %d  \t\t %d \n"
-    foreach Parameter $ParameterList {
-	set line [format $fmt [lindex $Parameter 0] [lindex $Parameter 1] [lindex $Parameter 2]]
-	append output $line
+#    You may use this software under the terms of the GNU public license
+#    (GPL).  The terms of this license are described at:
+#
+#     http://www.gnu.org/licenses/gpl.txt
+#
+#    Author:
+#             Ron Fox
+#	     NSCL
+#	     Michigan State University
+#	     East Lansing, MI 48824-1321
 
+
+# (C) Copyright Michigan State University 2014, All rights reserved 
+#
+#
+#  Setup the standard scripted commandsin SpecTcl.
+#
+
+
+#  Access SpecTcl Packages, 
+#  Load splash and jpeg support:
+
+if {[info globals SpecTclRCHasRun] eq ""}  {
+    set SpecTclRCHasRun 1;	# Protect against double run.
+
+    lappend auto_path $SpecTclHome/TclLibs
+    package require splash
+    package require img::jpeg
+
+
+
+    set splash [splash::new -text 1 -imgfile $splashImage -progress 7 -hidemain 0]
+    splash::progress $splash {Loading button bar} 0
+
+    puts -nonewline "Loading SpecTcl gui..."
+    source $SpecTclHome/Script/gui.tcl
+    puts  "Done."
+
+    splash::progress $splash {Loading state I/O scripts} 1
+
+    puts -nonewline "Loading state I/O scripts..."
+    source $SpecTclHome/Script/fileall.tcl
+    puts "Done."
+
+    splash::progress $splash {Loading formatted listing scripts} 1
+
+    puts -nonewline "Loading formatted listing scripts..."
+    source $SpecTclHome/Script/listall.tcl
+    puts "Done."
+
+    splash::progress $splash {Loading gate copy scripts} 1
+
+    puts -nonewline "Loading gate copy script procs..."
+    source $SpecTclHome/Script/CopyGates.tcl
+    puts "Done."
+
+    splash::progress $splash {Loading tkcon console} 1
+
+    if {$tcl_platform(os) != "Windows NT"} {
+	puts -nonewline "Loading TKCon console..."
+	source $SpecTclHome/Script/tkcon.tcl
+	puts "Done."
     }
-    return $output
+
+    splash::progress $splash {Loading SpecTcl Tree Gui} 1
+
+    puts -nonewline "Starting treeparamgui..."
+    source $SpecTclHome/Script/SpecTclGui.tcl
+    puts " Done"
+
+
+    splash::progress $splash {Loading SpecTcl/Root interface package} 1
+
+    
+    
+    splash::progress $splash {SpecTcl ready for use} 1
+
+    load $SpecTclHome/lib/libRootInterface.so
+    package require rootinterface
+    
+    splash::config $splash -delay 2000
+
+    
 }
-proc SaveParams { file ParameterList } {
-    set fmt "parameter %s %d %d\n"
-    foreach Parameter $ParameterList {
-	puts $file [format $fmt [lindex $Parameter 0] [lindex $Parameter 1] [lindex $Parameter 2]]
-    }	
-}
-
-set StartButtonText  "Start Analysis"
-proc StartStop {} {
-    global RunState
-    if { $RunState } {
-	stop
-    } else {
-	start
-    }
-}
-
-proc UpdateStartButton {name element op} {
-    global RunState
-    global StartButtonText
-    if { $RunState } {
-	set StartButtonText "Stop Analysis"
-    } else {
-	set StartButtonText "Start Analysis"
-    }
-}
-
-proc Help {} {
-    global SpecTclHome
-    set URL [format "%s%s" $SpecTclHome /doc/index.htm]
-    exec netscape $URL &
-}
-
-button .exit -text Exit -command "exit"
-button .startstop -textvariable StartButtonText -command StartStop
-button .clearall  -text "Clear Spectra" -command {clear -all}
-button .help      -text "Help"          -command {Help}
-label   .speclbl  -text "Defined Spectra"
-listbox .spectra
-
-pack .startstop .clearall .exit .help .speclbl .spectra  -side top -fill x
-
-trace variable RunState w  UpdateStartButton
-
-proc specupdate {} {
-    .spectra delete 0 [.spectra size]
-    foreach spec [spectrum -list] {
-      .spectra insert end [lindex $spec 1]
-    }
-    after 1000 specupdate
-    update idle
-}
-specupdate
-
-
-
