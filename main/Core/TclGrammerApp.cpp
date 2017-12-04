@@ -43,7 +43,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
-#include "CRootExitCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
 #include "GatingDisplayObserver.h"
@@ -933,7 +932,6 @@ int CTclGrammerApp::operator()() {
   
   gApplication = new TRint("SpecTcl", &Argc, Argv );
   new CRootEventLoop(gpInterpreter);
-  new CRootExitCommand(*gpInterpreter, "exit");         // Override Tcl exit.
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
