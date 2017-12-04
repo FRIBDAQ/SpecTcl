@@ -97,9 +97,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 
-#include <TApplication.h>
-#include <TRint.h>
-#include <TSystem.h>
+
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -131,8 +129,8 @@ static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome Tcl
 
 // File scoped unbound variables:
 
-static int Argc;
-static char** Argv;
+int SpecTclArgc;
+char** SpecTclArgv;
 
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
@@ -161,29 +159,6 @@ static const char* ProtectedVariables[] = {
 CTclGrammerApp* CTclGrammerApp::m_pInstance = NULL;
 char** CTclGrammerApp::m_pArgV = NULL;
 int CTclGrammerApp::m_argc = 0;
-
-// Local classes:
-
-/**
- * CRootEventLoop
- *    Is a timer class that executes whenever the Tcl event loop is idle,
- *    asking Root to run any pending events it has.
- */
-class CRootEventLoop : public CTCLTimer
-{
-public:
-  CRootEventLoop(CTCLInterpreter* pInterp) :
-    CTCLTimer(pInterp, 100) {
-      Set();
-    }
-  ~CRootEventLoop() {}
-  
-  virtual void operator()() {
-    extern TSystem* gSystem;
-    gSystem->ProcessEvents();         // Process root events.
-    Set();                            // Reschedule
-  }
-};
 
 
 
@@ -949,10 +924,6 @@ int CTclGrammerApp::operator()() {
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
 
-    // Setup the Root interpreter and eventloop:
-  
-  gApplication = new TRint("SpecTcl", &Argc, Argv );
-  new CRootEventLoop(gpInterpreter);
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
@@ -991,7 +962,6 @@ int CTclGrammerApp::operator()() {
   cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
   cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
   cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
-  cerr << "    - Root is a product of CERN (http://root.cern.ch)\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
   cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
   cerr << " the list of credits.\n";
@@ -1203,8 +1173,8 @@ void CTclGrammerApp::run()
  * \return
  */
 int main(int argc, char* argv[]) {
-    Argc = argc;
-    Argv = argv;
+    SpecTclArgc = argc;
+    SpecTclArgv = argv;
     try {
         CTclGrammerApp::m_argc = argc;
         CTclGrammerApp::m_pArgV = argv;
