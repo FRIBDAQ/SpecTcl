@@ -130,10 +130,12 @@ bool GGate::operator==(const GGate& rhs)
 {
   if ( m_pInfo->getType() == SpJs::BandGate ) {
       auto& info = dynamic_cast<SpJs::Band&>(*m_pInfo);
-      return ( info == *rhs.m_pInfo );
+      auto& rhsinfo = dynamic_cast<SpJs::Band&>(*rhs.m_pInfo);
+      return ( info == rhsinfo );
     } else {
       auto& info = dynamic_cast<SpJs::Contour&>(*m_pInfo);
-      return ( info == *rhs.m_pInfo );
+      auto& rhsinfo = dynamic_cast<SpJs::Contour&>(*rhs.m_pInfo);
+      return ( info == rhsinfo );
     }
 
   // we should never ever ever get here.

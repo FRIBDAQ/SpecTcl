@@ -439,7 +439,107 @@ bool Band::operator!=(const Band& rhs) const {
 unique_ptr<GateInfo> Band::clone() const {
     return unique_ptr<GateInfo>(new Band(*this));
 }
+  ///////////////////////////////////////////////////////////////////////
 
+  Gamma2DGate::Gamma2DGate() :
+    Gamma2DGate("", {}, ContourGate) {} // Default gate type is most common.
+  Gamma2DGate::Gamma2DGate(const std::string& name,
+			   const std::vector<std::string>& params,
+			   GateType type) :
+    GateInfo2D(name, type),
+    m_parameters(params) {}
+  Gamma2DGate::Gamma2DGate(const GateInfo2D& base) :
+    GateInfo2D(base),
+    m_parameters(base.getParameters())
+  {}
+  Gamma2DGate::Gamma2DGate(const Gamma2DGate& rhs) :
+    GateInfo2D(rhs),
+    m_parameters(rhs.getParameters())
+  {}
+  Gamma2DGate::~Gamma2DGate() {}
+
+  std::unique_ptr<GateInfo>
+  Gamma2DGate::clone() const
+  {
+    return std::unique_ptr<GateInfo>(new Gamma2DGate(*this));
+  }
+
+  void
+  Gamma2DGate::setParameter0(const std::string& paramName)
+  {
+    if (m_parameters.size() > 0) {
+      m_parameters[0] = paramName;
+    } else {
+      m_parameters.push_back(paramName);
+    }
+  }
+  void
+  Gamma2DGate::setParameter1(const std::string& paramName)
+  {
+    if (m_parameters.size() > 1) {
+      m_parameters[1] = paramName;
+    } else {
+      if (m_parameters.size() == 0) {
+	m_parameters.push_back("");
+      }
+      m_parameters.push_back(paramName);
+    }
+  }
+  void
+  Gamma2DGate::setParameter(unsigned offset, const std::string& paramName)
+  {
+    if (m_parameters.size() < offset) {
+      m_parameters[offset] = paramName;
+    } else {
+      throw std::out_of_range("Parameter index out of range (Gamma2DGate::setParameter)");
+    }
+  }
+  void
+  Gamma2DGate::setParameters(const std::vector<std::string>& parameters)
+  {
+    m_parameters = parameters;
+  }
+
+  std::string
+  Gamma2DGate::getParameter0() const
+  {
+    if (m_parameters.size() > 0) {
+      return m_parameters[0];
+    } else {
+      return "";                    // Consistent with regular.
+    }
+  }
+  std::string
+  Gamma2DGate::getParameter1() const
+  {
+    if (m_parameters.size() > 1) {
+      return m_parameters[1];
+    } else {
+      return "";
+    }
+  }
+
+  std::string
+  Gamma2DGate::getParameter(unsigned n ) const
+  {
+    if (m_parameters.size() > n) {
+      return m_parameters[n];
+    } else {
+      throw std::out_of_range("No such parameter offset (Gamma2DGate::getParameter");
+    }
+  }
+  std::vector<std::string>
+  Gamma2DGate::getParameters() const
+  {
+    return m_parameters;
+  }
+  bool
+  Gamma2DGate::operator==(const Gamma2DGate& rhs) const
+  {
+    return (m_parameters == rhs.m_parameters) &&
+      (Gamma2DGate::operator==(rhs));
+  }
+  
 } // end of namespace
 
 std::ostream& operator<<(std::ostream& stream,  const SpJs::Contour& cont)

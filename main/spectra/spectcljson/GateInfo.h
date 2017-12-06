@@ -250,7 +250,44 @@ namespace SpJs
     virtual bool operator!=(const Contour& rhs) const;
   }; // end of class
 
+/**
+ *  Gamma2DGate 
+ *    This is a base class for all 2-d gamma gates.  It's a GateInfo2D with an arbitrarily
+ *    long vector of parameters.
+ */
+
+struct Gamma2DGate : public GateInfo2D {
+protected:
+  std::vector<std::string> m_parameters;
+public:
+  Gamma2DGate();
+  Gamma2DGate(const std::string& name,
+	      const std::vector<std::string>& params,
+	      GateType type);
+  Gamma2DGate(const GateInfo2D& base);
+  Gamma2DGate(const Gamma2DGate& rhs);
+  virtual ~Gamma2DGate();
+  
+  std::unique_ptr<GateInfo> clone() const;
+  void setParameter0(const std::string& paramName);
+  void setParameter1(const std::string& paramName);
+  void setParameter(unsigned offset, const std::string& paramName);
+  void setParameters(const std::vector<std::string>& parameters);
+
+  std::string getParameter0() const;
+  std::string getParameter1() const;
+  std::string getParameter(unsigned n) const;
+  std::vector<std::string> getParameters() const;
+
+  virtual bool operator==(const Gamma2DGate& rhs) const;
+  virtual bool operator!=(const Gamma2DGate& rhs) const {
+    return (*this != rhs);
+  }
+  
+};
 } // end of namespace
+
+
 
 extern std::ostream& operator<<(std::ostream& stream,  const SpJs::Contour& cont);
 
