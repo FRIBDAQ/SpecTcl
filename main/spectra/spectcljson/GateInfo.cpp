@@ -540,7 +540,75 @@ unique_ptr<GateInfo> Band::clone() const {
       (Gamma2DGate::operator==(rhs));
   }
   
+
+
+/**
+ * Gamma contour - a contour for gamma spectroscopy - can also be a fold.
+ */
+
+GammaContour::GammaContour() :
+    GammaContour("", {})
+{}
+
+GammaContour::GammaContour(
+    const std::string& name, const std::vector<std::string>& params
+)  :
+    Gamma2DGate(name, params, GammaContourGate)
+{}
+
+GammaContour::GammaContour(const GateInfo2D& base) :
+    Gamma2DGate(base)
+{
+    setType(GammaContourGate);          // In case this is a metamorphosis.        
+}
+
+GammaContour::GammaContour(const GammaContour& base) :
+    Gamma2DGate(base)
+{}
+
+GammaContour::~GammaContour() {}
+
+std::unique_ptr<GateInfo>
+GammaContour::clone() const
+{
+    return std::unique_ptr<GateInfo>(new GammaContour(*this));
+}
+
+
+/**
+ * GammaBand - Band on a set of parameters in gamma spectroscopy.
+ */
+
+GammaBand::GammaBand() :
+    GammaBand("", {})
+{}
+GammaBand::GammaBand(
+    const std::string& name, const std::vector<std::string>& params
+) :
+    Gamma2DGate(name, params, GammaBandGate)
+{}
+
+GammaBand::GammaBand(const GateInfo2D& base) :
+    Gamma2DGate(base)
+{
+        setType(GammaBandGate);               // in case this is a morph
+}
+
+GammaBand::GammaBand(const GammaBand& rhs) :
+    Gamma2DGate(rhs)
+{}
+
+GammaBand::~GammaBand() {}
+
+std::unique_ptr<GateInfo>
+GammaBand::clone() const
+{
+    return std::unique_ptr<GateInfo>(new GammaBand(*this));
+}
+
 } // end of namespace
+//////////////////////////////////////////////////////////////////////////////
+//  Out of namespace helper functions.
 
 std::ostream& operator<<(std::ostream& stream,  const SpJs::Contour& cont)
 {

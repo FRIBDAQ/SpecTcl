@@ -285,6 +285,35 @@ public:
   }
   
 };
+
+struct GammaContour : public Gamma2DGate
+{
+public:
+  GammaContour();
+  GammaContour(
+    const std::string& name, const std::vector<std::string>& params
+  );
+  GammaContour(const GateInfo2D& base);
+  GammaContour(const GammaContour& rhs);
+  virtual ~GammaContour();
+  
+  std::unique_ptr<GateInfo> clone() const;
+  
+  // base class comparisons work since we have no data.
+};
+
+struct GammaBand : public Gamma2DGate
+{
+  GammaBand();
+  GammaBand(
+    const std::string& name, const std::vector<std::string>& params
+  );
+  GammaBand(const GateInfo2D& base);
+  GammaBand(const GammaBand& rhs);
+  virtual ~GammaBand();
+  
+  std::unique_ptr<GateInfo> clone() const;
+};
 } // end of namespace
 
 
