@@ -65,6 +65,13 @@ class GateInfoTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(gamma2DSetParam_2);              // replace nonex parameter
   CPPUNIT_TEST(gamma2DCompare_1);
   CPPUNIT_TEST(gamma2DCompare_2);
+  
+  CPPUNIT_TEST(gammaContourConstruct_1);         // Default constructor
+  CPPUNIT_TEST(gammaContourConstruct_2);         // parameterized constructor.
+  CPPUNIT_TEST(gammaContourConstrcut_3);         // Construct from GateInfo2D
+  CPPUNIT_TEST(gammaContourConstruct_4);         // Copy construction.
+  CPPUNIT_TEST(gammaContourClone);               // Test cloning.
+  
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -116,6 +123,14 @@ protected:
   void gamma2DSetParam_2();              // Replace nonex parameter
   void gamma2DCompare_1();
   void gamma2DCompare_2();
+  
+  // Gamma contour tests:
+  
+  void gammaContourConstruct_1();         // Default constructor
+  void gammaContourConstruct_2();         // parameterized constructor.
+  void gammaContourConstrcut_3();         // Construct from GateInfo2D
+  void gammaContourConstruct_4();         // Copy construction.
+  void gammaContourClone();               // Test cloning.
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
@@ -539,4 +554,47 @@ void GateInfoTest::gamma2DCompare_2()
     std::string newp("newParam");
     g2.setParameter0(newp);
     CPPUNIT_ASSERT(g1 != g2);
+}
+
+void GateInfoTest::gammaContourConstruct_1()         // Default constructor
+{
+    SpJs::GammaContour g;
+    CPPUNIT_ASSERT_EQUAL(std::string(""), g.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, g.getType());
+    CPPUNIT_ASSERT(g.getParameters().empty());
+    
+}
+void GateInfoTest::gammaContourConstruct_2()         // parameterized constructor.
+{
+    std::vector<std::string> params={"p1", "p2", "p3"};
+    SpJs::GammaContour g("test-gate", params);
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), g.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, g.getType());
+    CPPUNIT_ASSERT_EQUAL(params, g.getParameters());
+}
+void GateInfoTest::gammaContourConstrcut_3()         // Construct from GateInfo2D
+{
+    std::vector<std::string> params = {"p1", "p2", "p3", "p4"};
+    SpJs::GammaContour g1("test-gate", params);
+    SpJs::GateInfo2D& gref(g1);
+    SpJs::GammaContour g2(gref);
+    
+    CPPUNIT_ASSERT(g1 == g2);
+}
+void GateInfoTest::gammaContourConstruct_4()         // Copy construction.
+{
+    std::vector<std::string> params = {"p1", "p2", "p3", "p4"};
+    SpJs::GammaContour g1("test-gate", params);
+    SpJs::GammaContour g2(g1);
+    
+    CPPUNIT_ASSERT( g1 == g2);
+}
+void GateInfoTest::gammaContourClone()
+{
+    std::vector<std::string> params = {"p1", "p2", "p3", "p4"};
+    SpJs::GammaContour g1("test-gate", params);
+    std::unique_ptr<SpJs::GateInfo> p = g1.clone();
+    SpJs::GammaContour* pG2 = dynamic_cast<SpJs::GammaContour*>(p.get());
+    CPPUNIT_ASSERT(pG2);
+    CPPUNIT_ASSERT(*pG2 == g1);
 }
