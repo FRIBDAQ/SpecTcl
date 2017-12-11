@@ -51,6 +51,20 @@ class GateInfoTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(compareGammaSlice_0);  // operator==, operator!=
   CPPUNIT_TEST(setGammaSliceParam_0);
 
+  CPPUNIT_TEST(gamma2DConstruct_1);
+  CPPUNIT_TEST(gamma2DConstruct_2);
+  CPPUNIT_TEST(gamma2DConstruct_3);
+  CPPUNIT_TEST(gamma2DConstruct_4);
+  
+  CPPUNIT_TEST(gamma2DClone_1);
+  
+  CPPUNIT_TEST(gamma2DSetParam0);               // set param 0.
+  CPPUNIT_TEST(gamma2DSetParam1_1);             // set param 1 when param 0 exists
+  CPPUNIT_TEST(gamma2DSetParam1_2);             // set param 1 when param 0 nonex.
+  CPPUNIT_TEST(gamma2DSetParam_1);              // Replace existing parameter.
+  CPPUNIT_TEST(gamma2DSetParam_2);              // replace nonex parameter
+  CPPUNIT_TEST(gamma2DCompare_1);
+  CPPUNIT_TEST(gamma2DCompare_2);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -81,9 +95,27 @@ protected:
   void bandGetPointOutOfRange_0();
   void contourGetPointOutOfRange_0();
   
+  
   // Gamma slice only tests
   
   void setGammaSliceParam_0();
+  
+  // 2d gamma gates:
+  
+  void gamma2DConstruct_1();
+  void gamma2DConstruct_2();
+  void gamma2DConstruct_3();
+  void gamma2DConstruct_4();
+  
+  void gamma2DClone_1();
+  
+  void gamma2DSetParam0();               // set param 0.
+  void gamma2DSetParam1_1();             // set param 1 when param 0 exists
+  void gamma2DSetParam1_2();
+  void gamma2DSetParam_1();              // Replace existing parameter.
+  void gamma2DSetParam_2();              // Replace nonex parameter
+  void gamma2DCompare_1();
+  void gamma2DCompare_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
@@ -367,4 +399,144 @@ void GateInfoTest::setGammaSliceParam_0()
     
     CPPUNIT_ASSERT_THROW(s.setParameter("junk", 1234), std::out_of_range);
     CPPUNIT_ASSERT_THROW(s.getParameter(1234), std::out_of_range);
+}
+
+void GateInfoTest::gamma2DConstruct_1()
+{
+    using SpJs::Gamma2DGate;
+    Gamma2DGate gate;
+    CPPUNIT_ASSERT_EQUAL(std::string(""), gate.getName());
+    SpJs::GateType t = gate.getType();
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, t);
+    std::vector<std::string> ps;
+    CPPUNIT_ASSERT_EQUAL(ps, gate.getParameters());
+    
+}
+void GateInfoTest::gamma2DConstruct_2()
+{
+    using SpJs::Gamma2DGate;
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    
+    Gamma2DGate gate("test-gate", params, SpJs::GammaContourGate);
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), gate.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, gate.getType());
+    CPPUNIT_ASSERT_EQUAL(params[0], gate.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(params[1], gate.getParameter1());
+    CPPUNIT_ASSERT_EQUAL(params, gate.getParameters());
+    CPPUNIT_ASSERT_EQUAL(params[2], gate.getParameter(2));
+    CPPUNIT_ASSERT_THROW(
+        gate.getParameter(3),
+        std::out_of_range
+    );
+    
+    
+}
+void GateInfoTest::gamma2DConstruct_3()
+{
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    SpJs::Gamma2DGate g1("test-gate", params, SpJs::GammaContourGate);
+    SpJs::GateInfo2D& gref(g1);
+    
+    SpJs::Gamma2DGate gate(gref);
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), gate.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, gate.getType());
+    CPPUNIT_ASSERT_EQUAL(params[0], gate.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(params[1], gate.getParameter1());
+    CPPUNIT_ASSERT_EQUAL(params, gate.getParameters());
+    CPPUNIT_ASSERT_EQUAL(params[2], gate.getParameter(2));
+    CPPUNIT_ASSERT_THROW(
+        gate.getParameter(3),
+        std::out_of_range
+    );    
+}
+void GateInfoTest::gamma2DConstruct_4()
+{
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    SpJs::Gamma2DGate g1("test-gate", params, SpJs::GammaContourGate);
+    SpJs::Gamma2DGate gate(g1);
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), gate.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, gate.getType());
+    CPPUNIT_ASSERT_EQUAL(params[0], gate.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(params[1], gate.getParameter1());
+    CPPUNIT_ASSERT_EQUAL(params, gate.getParameters());
+    CPPUNIT_ASSERT_EQUAL(params[2], gate.getParameter(2));
+    CPPUNIT_ASSERT_THROW(
+        gate.getParameter(3),
+        std::out_of_range
+    );    
+}
+void GateInfoTest::gamma2DClone_1()
+{
+    std::vector<std::string> params = {"p1", "p2", "p3"};
+    SpJs::Gamma2DGate g1("test-gate", params, SpJs::GammaContourGate);
+    std::unique_ptr<SpJs::GateInfo> pGate1 = g1.clone();
+    SpJs::Gamma2DGate* pGate = dynamic_cast<SpJs::Gamma2DGate*>(pGate1.get());
+    CPPUNIT_ASSERT(pGate);              // Ensures dyncast worked.
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), pGate->getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, pGate->getType());
+    CPPUNIT_ASSERT_EQUAL(params[0], pGate->getParameter0());
+    CPPUNIT_ASSERT_EQUAL(params[1], pGate->getParameter1());
+    CPPUNIT_ASSERT_EQUAL(params, pGate->getParameters());
+    CPPUNIT_ASSERT_EQUAL(params[2], pGate->getParameter(2));
+    CPPUNIT_ASSERT_THROW(
+        pGate->getParameter(3),
+        std::out_of_range
+    );    
+}
+void GateInfoTest::gamma2DSetParam0()
+{
+    SpJs::Gamma2DGate g("test-gate", {"p1", "p2"}, SpJs::GammaContourGate);
+    g.setParameter0("param1");
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("param1"), g.getParameter0());
+}
+
+
+void GateInfoTest::gamma2DSetParam1_1()
+{
+    SpJs::Gamma2DGate g("test-gate", {"p1", "p2"}, SpJs::GammaContourGate);
+    g.setParameter1("param1");
+    CPPUNIT_ASSERT_EQUAL(std::string("param1"), g.getParameter1());
+}
+void GateInfoTest::gamma2DSetParam1_2()
+{
+    SpJs::Gamma2DGate g;
+    g.setParameter1("param1");
+    CPPUNIT_ASSERT_EQUAL(std::string(""), g.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(std::string("param1"), g.getParameter1());
+}
+
+void GateInfoTest::gamma2DSetParam_1()
+{
+    SpJs::Gamma2DGate g("test-gate", {"p1", "p2"}, SpJs::GammaContourGate);
+    g.setParameter(1, "NewParam");
+    CPPUNIT_ASSERT_EQUAL(std::string("NewParam"), g.getParameter1());
+}
+void GateInfoTest::gamma2DSetParam_2()
+{
+    SpJs::Gamma2DGate g("test-gate", {"p1", "p2"}, SpJs::GammaContourGate);
+    CPPUNIT_ASSERT_THROW(
+        g.setParameter(2, "ShouldToss"),
+        std::out_of_range
+    );
+}
+void GateInfoTest::gamma2DCompare_1()
+{
+    std::vector<std::string> params={"p1", "p2"};
+    SpJs::Gamma2DGate g1("test-gate", params, SpJs::GammaContourGate);
+    SpJs::Gamma2DGate g2(g1);
+    
+    CPPUNIT_ASSERT(g1 == g2);
+}
+void GateInfoTest::gamma2DCompare_2()
+{
+    std::vector<std::string> params={"p1", "p2"};
+    SpJs::Gamma2DGate g1("test-gate", params, SpJs::GammaContourGate);
+    SpJs::Gamma2DGate g2(g1);
+    std::string newp("newParam");
+    g2.setParameter0(newp);
+    CPPUNIT_ASSERT(g1 != g2);
 }

@@ -281,7 +281,7 @@ public:
 
   virtual bool operator==(const Gamma2DGate& rhs) const;
   virtual bool operator!=(const Gamma2DGate& rhs) const {
-    return (*this != rhs);
+    return !(*this == rhs);
   }
   
 };

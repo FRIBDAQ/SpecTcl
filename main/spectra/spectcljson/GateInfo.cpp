@@ -442,7 +442,7 @@ unique_ptr<GateInfo> Band::clone() const {
   ///////////////////////////////////////////////////////////////////////
 
   Gamma2DGate::Gamma2DGate() :
-    Gamma2DGate("", {}, ContourGate) {} // Default gate type is most common.
+    Gamma2DGate("", {}, GammaContourGate) {} // Default gate type is most common.
   Gamma2DGate::Gamma2DGate(const std::string& name,
 			   const std::vector<std::string>& params,
 			   GateType type) :
@@ -488,7 +488,7 @@ unique_ptr<GateInfo> Band::clone() const {
   void
   Gamma2DGate::setParameter(unsigned offset, const std::string& paramName)
   {
-    if (m_parameters.size() < offset) {
+    if (m_parameters.size() > offset) {
       m_parameters[offset] = paramName;
     } else {
       throw std::out_of_range("Parameter index out of range (Gamma2DGate::setParameter)");
@@ -536,8 +536,8 @@ unique_ptr<GateInfo> Band::clone() const {
   bool
   Gamma2DGate::operator==(const Gamma2DGate& rhs) const
   {
-    return (m_parameters == rhs.m_parameters) &&
-      (Gamma2DGate::operator==(rhs));
+    return (GateInfo2D::operator==(rhs)) &&
+    (m_parameters == rhs.m_parameters);
   }
   
 
