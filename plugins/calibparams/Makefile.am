@@ -1,15 +1,20 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
+
 INCLUDES = -I. 						\
 	@SPECTCLCCSW@					\
 	@TCLCCSW@ 					\
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT      \
-	@GSL_CXXFLAGS@
+	@GSL_CXXFLAGS@ $(ROOT_CFLAGS)
 
 
 lib_LTLIBRARIES=libCalibrations.la
 
-libCalibrations_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @GSL_LDFLAGS@ 
+libCalibrations_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @GSL_LDFLAGS@ \
+	$(ROOT_LDFLAGS)
+
 
 libCalibrations_la_SOURCES =	CalibrationPackage.cpp		\
 				CCalibratedParameterCommand.cpp	\

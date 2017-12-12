@@ -1,12 +1,17 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
+ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
+
 AM_CPPFLAGS = -I. 						\
 	@SPECTCLCCSW@					\
 	@TCLCCSW@
 
 lib_LTLIBRARIES=libMapValues.la
 
-libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)"
+libMapValues_la_CXXFLAGS=$(ROOT_CFLAGS)
+
+libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" $(ROOT_LDFLAGS)
 
 libMapValues_la_SOURCES =	CMapValueCommand.cpp	\
 				CMapValueProcessor.cpp	\
