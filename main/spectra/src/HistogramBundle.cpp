@@ -175,17 +175,20 @@ bool HistogramBundle::synchronize2DGates(const MasterGateList* pGateList)
       // for convenience declare variable to store value referenced by iterator
       auto& pExtGate = (*it2d);
       QString name   = pExtGate->getName();
-      QString param0 = pExtGate->getParameterX();
-      QString param1 = pExtGate->getParameterY();
 
+      // Keep the gate if all gate parameters are in our spectrum.
+      
       auto& localParams = m_hInfo.s_params;
-      if ( (QString::fromStdString(localParams.at(0)) == param0 )
-          && (QString::fromStdString(localParams.at(1))  == param1) ) {
-
-          // parameter matches. we want this in our new list
-
-        tempList[pExtGate->getName()] = pExtGate.get();
-
+      auto  gateParams  = pExtGate->getParameters();
+      if (localParams.size() == gateParams.size()) {
+        bool match(true);
+        for (int i = 0; i < localParams.size(); i++) {
+            if (gateParams.count(QString::fromStdString(localParams[i])) == 0) { 
+                match = false;              // Not in set of gate parameters.
+                break;
+            }
+        }
+        if (match) tempList[pExtGate->getName()] = pExtGate.get();
       }
 
       ++it2d;

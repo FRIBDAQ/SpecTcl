@@ -128,16 +128,27 @@ GGate& GGate::operator=(const GGate& rhs)
 // momentarily before being synchronized.
 bool GGate::operator==(const GGate& rhs)
 {
-  if ( m_pInfo->getType() == SpJs::BandGate ) {
+  SpJs::GateType type = m_pInfo->getType();
+  if ( type == SpJs::BandGate ) {
       auto& info = dynamic_cast<SpJs::Band&>(*m_pInfo);
       auto& rhsinfo = dynamic_cast<SpJs::Band&>(*rhs.m_pInfo);
       return ( info == rhsinfo );
-    } else {
+    } else if (type = SpJs::ContourGate) {
       auto& info = dynamic_cast<SpJs::Contour&>(*m_pInfo);
       auto& rhsinfo = dynamic_cast<SpJs::Contour&>(*rhs.m_pInfo);
       return ( info == rhsinfo );
+    } else if (type == SpJs::GammaContourGate) {
+      auto& info(dynamic_cast<SpJs::GammaContour&>(*m_pInfo));
+      auto& rhsinfo(dynamic_cast<SpJs::GammaContour&>(*rhs.m_pInfo));
+      
+      return (info == rhsinfo);
+    
+    } else if (type == SpJs::GammaBandGate) {
+      auto& info(dynamic_cast<SpJs::GammaBand&>(*m_pInfo));
+      auto& rhsinfo(dynamic_cast<SpJs::GammaBand&>(*rhs.m_pInfo));
+      
+      return (info == rhsinfo);
     }
-
   // we should never ever ever get here.
   Q_ASSERT( false );
 
@@ -170,6 +181,23 @@ QString GGate::getParameterY() const
     return QString::fromStdString(m_pInfo->getParameter1());
 }
 
+
+std::set<QString>
+GGate::getParameters() const
+{
+  std::vector<std::string> params = m_pInfo->getParameters();
+  std::set<QString>     result;
+  for( size_t i =0; i < params.size(); i++) {
+    result.insert(QString::fromStdString(params[i]));
+  }
+  return result;
+}
+size_t
+GGate::parameterCount() const
+{
+  return m_pInfo->getParameters().size();
+}
+
 std::vector<std::pair<double, double> > GGate::getPoints() const
 {
     return m_pInfo->getPoints();
@@ -197,7 +225,12 @@ void GGate::setInfo(const SpJs::GateInfo2D &info)
 
     // spectcl may not have closed the contour so we need to make sure
     // it gets closed.
-    if ( info.getType() == SpJs::ContourGate ) {
+    // NOTE: In general SpecTcl won't close the contour.  The closure is assumed
+    //       from the gate type (R. Fox).
+    if ( (
+      info.getType() == SpJs::ContourGate)  ||
+      (info.getType() == SpJs::GammaContourGate)
+    ) {
       double firstX = 0;
       double firstY = 0;
       double lastX = 0;
@@ -206,7 +239,7 @@ void GGate::setInfo(const SpJs::GateInfo2D &info)
       m_pCut->GetPoint(0, firstX, firstY);
       m_pCut->GetPoint(nPoints-1, lastX, lastY);
 
-      if ( firstX != lastX || firstY != lastY ) {
+      if ( (firstX != lastX) || (firstY != lastY) ) {
         m_pCut->Set(nPoints+1);
         m_pCut->SetPoint(nPoints, firstX, firstY);
       }
@@ -233,6 +266,12 @@ void GGate::setType(SpJs::GateType type)
     } else if (type == SpJs::ContourGate){
         SpJs::Contour contour(*m_pInfo);
         setInfo(contour);
+    } else if (type == SpJs::GammaContourGate)  {
+      SpJs::GammaContour gc(*m_pInfo);
+      setInfo(gc);
+    } else if (type == SpJs::GammaBandGate) {
+      SpJs::GammaBand gb(*m_pInfo);
+      setInfo(gb);
     } else {
         throw runtime_error("Cannot convert 2D gate to a slice");
     }

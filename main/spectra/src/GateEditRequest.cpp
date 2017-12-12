@@ -38,15 +38,32 @@ GateEditRequest::GateEditRequest(const GGate& cut)
 
     m_reqStr = server + "/spectcl/gate/edit";
     m_reqStr += QString("?name=") + cut.getName();
-
-    if (isBand(cut)) {
-      m_reqStr += QString("&type=b");
-    } else {
-      m_reqStr += QString("&type=c");
+    
+    
+    SpJs::GateType type = cut.getType();
+    if ((type == SpJs::BandGate) || (type == SpJs::ContourGate)) { // 2d gate.
+        if (type == SpJs::BandGate) {
+          m_reqStr += QString("&type=b");
+        } else {
+          m_reqStr += QString("&type=c");
+        }
+        m_reqStr += QString("&xparameter=") + cut.getParameterX();
+        m_reqStr += QString("&yparameter=") + cut.getParameterY();
+    } else {                                                    // 2d gamma gate.
+        if (type == SpJs::GammaContourGate) {
+            m_reqStr += QString("&type=gc");
+        } else {
+            m_reqStr += QString("&type=gb");
+        }
+        // Now the parameters:
+        
+        std::set<QString> params = cut.getParameters();
+        for (auto p = params.begin(); p != params.end(); p++) {
+            m_reqStr += QString("&parameter=");
+            m_reqStr += *p;
+        }
+        
     }
-    m_reqStr += QString("&xparameter=") + cut.getParameterX();
-    m_reqStr += QString("&yparameter=") + cut.getParameterY();
-
     auto points = cut.getPoints();
 
     size_t nPoints = points.size();

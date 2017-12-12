@@ -29,6 +29,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 #include <utility>
 
 #include <TROOT.h>
@@ -136,6 +137,11 @@ public:
 
     /*! \brief Get the name of the parameter for y-axis */
     QString getParameterY() const;
+    
+    /*! Get all parameter names (primarily for gamma 2d gates). */
+    
+    std::set<QString> getParameters() const;
+    size_t parameterCount() const;
 
 
     /*! \brief Retrieve list of point defining cut 
