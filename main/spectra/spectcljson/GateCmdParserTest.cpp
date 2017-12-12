@@ -30,6 +30,8 @@ class GateCmdParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseList_3 );
   
   CPPUNIT_TEST(parseGammaSlice_0);
+  CPPUNIT_TEST(parseGammaContour_0);
+  CPPUNIT_TEST(parseGammaBand_0);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,7 +46,9 @@ protected:
   void parseList_2();
   void parseList_3();
   
-  void parseGammaSlice_0(); 
+  void parseGammaSlice_0();
+  void parseGammaContour_0();
+  void parseGammaBand_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
@@ -186,4 +190,12 @@ void GateCmdParserTest::parseGammaSlice_0()
   
   
   CPPUNIT_ASSERT(gs == *p);
+}
+void GateCmdParserTest::parseGammaContour_0()
+{
+  
+}
+void GateCmdParserTest::parseGammaBand_0()
+{
+  
 }

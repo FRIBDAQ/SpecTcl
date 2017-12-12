@@ -66,11 +66,14 @@ namespace SpJs
           pInfo = parseContour(gate);
       } else if (typeStr == "gs") {
           pInfo = parseGammaSlice(gate);
-
+      } else if (typeStr == "gc") {
+        pInfo = parseGammaContour(gate);
+      } else if (typeStr == "gb") {
+        pInfo = parseGammaBand(gate);
+        
       // Missing gate types are:
       // c2band - contour from 2 bands (compound).
-      // gb     - gamma band
-      // gc     - gamma contour
+ 
       // em     - Makd equal
       // am     - And mask.
       // nm     - Nand mask.
@@ -84,8 +87,6 @@ namespace SpJs
       // see the kludge comment.
       
       } else if (typeStr == "c2band"               ||
-                 typeStr == "gb"                   ||
-                 typeStr == "gc"                   ||
                  typeStr == "em"                   ||
                  typeStr == "am"                   ||
                  typeStr == "nm"                   ||
@@ -223,7 +224,61 @@ namespace SpJs
 
       return std::move(pInfo);
   }
-
+  /**
+   *  Common work for gamma2D gates.  Pull out the parameter names and
+   *  the points and stuff them into the gate definition.
+   */
+  void
+  GateCmdParser::parse2DGammaGate(Gamma2DGate& gate, const Json::Value& value)
+  {
+    // Should be at least two parameters:
+    
+    size_t nParams = value["parameters"].size();
+    if (nParams >= 2) {
+      std::vector<std::string> params;
+      for (auto i = 0; i < nParams; i++) {
+        params.push_back(value["parameters"][i].asString());
+      }
+      gate.setParameters(params);
+      
+    } else {
+      throw std::runtime_error("Gamma 2d gates must have at least two parameters");
+    }
+    
+    // Shoulid be at least two points (a lie for contours but let that slide):
+    
+    size_t nPoints = value["points"].size();
+    if (nPoints >= 2) {
+      std::vector<std::pair<double, double> > points;
+      for (auto i = 0; i < nPoints; i++) {
+        double x = value["points"][i]["x"].asDouble();
+        double y = value["points"][i]["y"].asDouble();
+        points.push_back({x,y});
+      }
+      gate.setPoints(points);
+    } else {
+      throw std::runtime_error("Gamma 2d gates must have at least two points");
+    }
+  }
+  std::unique_ptr<GateInfo>
+  GateCmdParser::parseGammaContour(const Json::Value& value)
+  {
+    std::vector<std::string> ps;
+    GammaContour* pGate = new GammaContour(value["name"].asString(), ps );
+    parse2DGammaGate(*pGate, value);
+    
+    return std::unique_ptr<GateInfo>(pGate);
+  }
+  
+  std::unique_ptr<GateInfo>
+  GateCmdParser::parseGammaBand(const Json::Value& value)
+  {
+    std::vector<std::string> ps;
+    GammaBand* pBand = new GammaBand(value["name"].asString(), ps);
+    parse2DGammaGate(*pBand, value);
+    
+    return std::unique_ptr<GateInfo>(pBand);
+  }
 
 } // end of namespace
 
