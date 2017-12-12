@@ -72,6 +72,13 @@ class GateInfoTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(gammaContourConstruct_4);         // Copy construction.
   CPPUNIT_TEST(gammaContourClone);               // Test cloning.
   
+  
+  CPPUNIT_TEST(gammaBandConstruct_1);         // Default constructor
+  CPPUNIT_TEST(gammaBandConstruct_2);         // parameterized constructor.
+  CPPUNIT_TEST(gammaBandConstrcut_3);         // Construct from GateInfo2D
+  CPPUNIT_TEST(gammaBandConstruct_4);         // Copy construction.
+  CPPUNIT_TEST(gammaBandClone);               // Test cloning.
+  
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -131,6 +138,13 @@ protected:
   void gammaContourConstrcut_3();         // Construct from GateInfo2D
   void gammaContourConstruct_4();         // Copy construction.
   void gammaContourClone();               // Test cloning.
+
+  void gammaBandConstruct_1();         // Default constructor
+  void gammaBandConstruct_2();         // parameterized constructor.
+  void gammaBandConstrcut_3();         // Construct from GateInfo2D
+  void gammaBandConstruct_4();         // Copy construction.
+  void gammaBandClone();               // Test cloning.
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
@@ -598,3 +612,50 @@ void GateInfoTest::gammaContourClone()
     CPPUNIT_ASSERT(pG2);
     CPPUNIT_ASSERT(*pG2 == g1);
 }
+    // Default constructor
+    
+void GateInfoTest::gammaBandConstruct_1()
+{
+    SpJs::GammaBand g;
+    CPPUNIT_ASSERT_EQUAL(std::string(""), g.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaBandGate, g.getType());
+    CPPUNIT_ASSERT(g.getParameters().empty());
+}
+// parameterized constructor.
+void GateInfoTest::gammaBandConstruct_2()
+{
+    std::vector<std::string> params={"p1", "p2", "p3", "p4"};
+    SpJs::GammaBand g("test-gate", params);
+    CPPUNIT_ASSERT_EQUAL(std::string("test-gate"), g.getName());
+    CPPUNIT_ASSERT_EQUAL(SpJs::GammaBandGate, g.getType());
+    CPPUNIT_ASSERT_EQUAL(params, g.getParameters());
+}
+// Construct from GateInfo2D
+void GateInfoTest::gammaBandConstrcut_3()
+{
+    std::vector<std::string> params={"p1", "p2", "p3", "p4"};
+    SpJs::GammaBand g("test-gate", params);
+    SpJs::GateInfo2D& gref(g);
+    SpJs::GammaBand gate(gref);
+    
+    CPPUNIT_ASSERT(gate == g);
+
+}
+ // Copy construction.
+void GateInfoTest::gammaBandConstruct_4()
+{
+    std::vector<std::string> params={"p1", "p2", "p3", "p4"};
+    SpJs::GammaBand g("test-gate", params);
+    SpJs::GammaBand g2(g);
+    CPPUNIT_ASSERT(g == g2);
+}
+    // Test cloning.
+    
+void GateInfoTest::gammaBandClone()
+{
+    std::vector<std::string> params={"p1", "p2", "p3", "p4"};
+    SpJs::GammaBand g("test-gate", params);
+    std::unique_ptr<SpJs::GateInfo> ptr(g.clone());
+    SpJs::GammaBand* pG2 = dynamic_cast<SpJs::GammaBand*>(ptr.get());
+    CPPUNIT_ASSERT(*pG2 == g);
+}               
