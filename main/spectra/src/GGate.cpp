@@ -126,6 +126,7 @@ GGate& GGate::operator=(const GGate& rhs)
 
 // we consider equality with the spectcl state... the gui state may differ
 // momentarily before being synchronized.
+// TODO?  rhs type is not the same as *this type?
 bool GGate::operator==(const GGate& rhs)
 {
   SpJs::GateType type = m_pInfo->getType();
@@ -133,22 +134,22 @@ bool GGate::operator==(const GGate& rhs)
       auto& info = dynamic_cast<SpJs::Band&>(*m_pInfo);
       auto& rhsinfo = dynamic_cast<SpJs::Band&>(*rhs.m_pInfo);
       return ( info == rhsinfo );
-    } else if (type = SpJs::ContourGate) {
+  } else if (type == SpJs::ContourGate) {
       auto& info = dynamic_cast<SpJs::Contour&>(*m_pInfo);
       auto& rhsinfo = dynamic_cast<SpJs::Contour&>(*rhs.m_pInfo);
       return ( info == rhsinfo );
-    } else if (type == SpJs::GammaContourGate) {
+  } else if (type == SpJs::GammaContourGate) {
       auto& info(dynamic_cast<SpJs::GammaContour&>(*m_pInfo));
       auto& rhsinfo(dynamic_cast<SpJs::GammaContour&>(*rhs.m_pInfo));
       
       return (info == rhsinfo);
     
-    } else if (type == SpJs::GammaBandGate) {
+  } else if (type == SpJs::GammaBandGate) {
       auto& info(dynamic_cast<SpJs::GammaBand&>(*m_pInfo));
       auto& rhsinfo(dynamic_cast<SpJs::GammaBand&>(*rhs.m_pInfo));
       
       return (info == rhsinfo);
-    }
+  }
   // we should never ever ever get here.
   Q_ASSERT( false );
 

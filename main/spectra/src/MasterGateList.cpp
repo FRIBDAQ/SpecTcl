@@ -112,7 +112,7 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 
     } else if (
       (type == SpJs::BandGate) || (type == SpJs::ContourGate)  ||
-      (type == SpJs::GammaBandGate) || (type == SpJs::GammaContourGate))
+      (type == SpJs::GammaBandGate) || (type == SpJs::GammaContourGate)
     ) {
 
         auto it = find2D(QString::fromStdString(pGate->getName()));
