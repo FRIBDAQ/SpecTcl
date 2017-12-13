@@ -37,11 +37,16 @@ namespace Xamine2Root
     void HistFiller::fill(TH1 &rHist, std::string name) {
         char* pName = const_cast<char*>(name.c_str());
         int id = xamine_shared->getspecid(pName);
-
+        if (id == -1) {
+            throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
+        }
         fill(rHist, id);
     }
 
     void HistFiller::fill(TH1 &rHist, int id) {
+        if (id == -1) {
+            throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
+        }
         if (rHist.GetDimension() != spectrumDimension(id)) {
             std::cout << rHist.GetDimension() << std::endl;
             std::cout << spectrumDimension(id) << std::endl;
@@ -59,7 +64,9 @@ namespace Xamine2Root
 
     void HistFiller::fill1D(TH1& rHist, int id) {
         using namespace std;
-
+        if (id == -1) {
+            throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
+        }
         int nx = xamine_shared->getxdim(id);
 
         if (nx != rHist.GetNbinsX()) {
@@ -76,7 +83,9 @@ namespace Xamine2Root
 
     void HistFiller::fill2D(TH2& rHist, int id) {
         using namespace std;
-
+        if (id == -1) {
+            throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
+        }
         int nx = xamine_shared->getxdim(id);
         int ny = xamine_shared->getydim(id);
 
