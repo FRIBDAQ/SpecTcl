@@ -22581,13 +22581,1476 @@ class CEvent {
         </variablelist>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CSpectrum</refentrytitle>
+        <manvolnum>Spectrum classes</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CSpectrum</refname>
+        <refpurpose>Classes implementing SpecTcl spectra</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Spectrum.h&gt;
+
+class CSpectrum  : public CNamedItem        
+{
+public:
+  typedef std::vector&lt;CAxis&gt;  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct {
+    std::string             sName;
+    UInt_t             nId;
+    SpectrumType_t     eType;
+    DataType_t         eDataType;
+    std::vector&lt;UInt_t&gt;     vParameters;
+    std::vector&lt;UInt_t&gt;     vyParameters;
+    std::vector&lt;UInt_t&gt;     nChannels;
+    std::vector&lt;Float_t&gt;    fLows;
+    std::vector&lt;Float_t&gt;    fHighs;
+  } SpectrumDefinition;		    
+public:
+			// Constructor
+
+  CSpectrum (const std::string&amp; rName,  UInt_t nId, Axes  Maps,
+	     CGateContainer* pGate = pDefaultGate); 
+  CSpectrum(const std::string&amp; rName, UInt_t nId,
+	    CGateContainer*  pGate = pDefaultGate);
+
+public:
+  const Address_t getStorage() const;
+  Bool_t getOwnStorage() const;
+  const CGateContainer* getGate() const;
+  Axes getAxisMaps() const;
+  Int_t getAxisMapCount() const;
+  std::string getTextDescription() const;
+  virtual SpectrumType_t getSpectrumType() = 0;
+              
+public:
+  void operator() (const CEvent&amp; rEvent);
+  CGateContainer* ApplyGate(CGateContainer* pNewGate);
+  CGateContainer* Ungate();	// Sets the spectrum gate to a CTrueGate
+  Bool_t UsesParameter (const CParameter&amp; rParameter) const;
+  DataType_t StorageType () const;
+
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+  
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector&lt;unsigned&gt; getUnderflows() const;
+  std::vector&lt;unsigned&gt; getOverflows() const;
+
+  virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
+  virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
+  virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
+  virtual   void GetParameterIds(std::vector&lt;UInt_t&gt;&amp; rvIds) = 0;
+  virtual   void GetResolutions(std::vector&lt;UInt_t&gt;&amp;  rvResolutions) = 0;
+  virtual   void Increment(const CEvent&amp; rEvent) = 0;
+
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
+
+  virtual   void Copy(void* pStorage) const;
+  virtual   void Clear ()  ;
+  virtual   Size_t StorageNeeded () const;
+  virtual   void ReplaceStorage (Address_t pNewLoc, 
+				 Bool_t fTransferOwnership=kfTRUE)  ;
+  virtual   Bool_t CheckGate(const CEvent&amp; rEvent);
+  virtual   SpectrumDefinition&amp; GetDefinition() ;
+
+  virtual   Bool_t needParameter() const;
+  void setTextDescription(std::string d) ;
+
+
+
+protected:                   
+  void setStorage (Address_t am_pStorage);
+  void setOwnStorage (Bool_t am_fOwnStorage);
+  void setStorageType(DataType_t dt) ;
+  void AddAxis(UInt_t nChannels, Float_t fLow,
+	       Float_t fHigh, const std::string&amp; Units = std::string(""));
+  bool checkRange(int channel, int nChans, int axis);
+  static Int_t Randomize(Float_t channel);
+
+  void ReleaseStorage();
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CSpectrum</classname> is the base class for all spectrum
+            classes.  SpecTcl has a rich set of spectra.  While there are
+            many spectrum types often,  in practice, they are only differentiated
+            by how they are constructed and how they increment spectra.
+        </para>
+        <para>
+            The Spectra classes are amongst the oldest in SpecTcl.  There is
+            certainly room for refactoring in the future.  There is also
+            call for using templated types at some point (at the time
+            these classes were written C++ Templates were not always
+            reliably implemented by compilers).
+        </para>
+        <para>
+            Here are the basic types of Spectra implemented by SpecTcl and a
+            summary of how they are incremented.
+        </para>
+        
+    </refsect1>
+    <refsect1>
+        <title>CSpectrum METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Axes  </type><parameter>Maps</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter>pGate</parameter>
+                            <initializer> pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor is used when construction time
+                        provides sufficient information to provide
+                        the axis definitions without computation.
+                    </para>
+                    <para>
+                        <parameter>rName</parameter> and
+                        <parameter>nId</parameter> provide the name and
+                        Id of the new spectrum.  <parameter>Maps</parameter>
+                        is a vector of axis definitions.
+                    </para>
+                    <para>
+                        pGate is the gate to be applied to the spectrum.
+                        <varname>pDefault</varname> gate points to a
+                        gate container for the default gate which is a
+                        <literal>True</literal> gate.
+                    </para>                              
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer*  </type><parameter>pGate </parameter>
+                            <initializer> pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructor to use when a set of axes easily be
+                        pre-built.  The protected method
+                        <methodname>addAxis</methodname> can be used to
+                        add axis definitions one-by-one to the spectrum.
+                        The remaining parameters have the same meaning
+                        as for the previousl constructor.
+                    </para>
+
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>Address_t </type>
+                        <methodname>getStorage</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the storage associated with the
+                        histogram.  Note that this SpecTcl can maintain
+                        spectra which are purely local or it can locate
+                        spectra in a shared memory region so that local
+                        display programs can access bulk spectrum storage
+                        quickly.
+                    </para>
+                    <para>
+                        Closely associated with this pointer, therefore,
+                        is the concept of storage ownership.  The spectrum
+                        storage is said to be owned by the spectrum
+                        object if, on destruction it the storage can be
+                        released via the <literal>delete</literal> operator.
+                        If storage is not owned by the spectrum, it must
+                        not be deleted on destruction.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>ool_t </type>
+                        <methodname>getOwnStorage</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the state of the spectrum storage ownership
+                        flag.  See <methodname>getStorage</methodname>
+                        above for a discussion of storage ownership, how it is
+                        managed and why it exists.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>getGate</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the pointer to the
+                        <classname>CGateContainer</classname> object that
+                        holds the gate applied to this spectrum.  Gate
+                        containers are named, pointer like objects that
+                        contain a SpecTcl gate.   They provide another level
+                        of indirection that allows gates to be replaced
+                        without requiring that clients of those gates
+                        be notified.
+                    </para>
+                    <para>
+                        The rule is that the gate dictionary contains gate
+                        containers that, once created, are never destroyed
+                        while gate clients will contain pointers to those
+                        gate containers which, in turn provide a fixed
+                        point of reference for the gate regardless of what
+                        might happen to change the gate later.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Axes </type>
+                        <methodname>getAxisMaps</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Int_t </type>
+                        <methodname>getAxisMapCount</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        <methodname>getAxisMaps</methodname>
+                        returns the vector of
+                        <classname>CAxis</classname> objects associated
+                        with this spectrum.   Each axis object defines
+                        how raw parameter values are mapped to
+                        bins on a channel.
+                    </para>
+                    <para>
+                        In general, element 0 of this vector describes the
+                        X axis while, if the spectrum is 2-d element 1
+                        describes the Y axis.
+                        An exception to this are summary spectra which only have
+                        an axis definition for the Y axis as the X axis is
+                        defined by the number of parameters summarized.
+                    </para>
+                    <para>
+                        <methodname>getAxisMapCount</methodname> returns the
+                        number of elements in the axis map vector.
+                        it is equivalent to <literal>aspec.getAxisMaps().size()</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>getTextDescription</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a textual description of the spectrum, if one
+                        was provided (see <methodname>setTextDescription</methodname>).
+                        If not, returns an empty string.
+                    </para>
+                    <para>
+                        This method provides the capability for SpecTcl
+                        to cache the Tcl description of a spectrum
+                        normally produced by <command>spectrum -list</command>.
+                        This was added because when there are a large number
+                        of spectra, computing the spectrum definition string
+                        can be very time consuming.  Therefore, SpecTcl's
+                        <command>spectrum</command> command now computes
+                        this string on spectrum creation.
+                    </para>
+                    <para>
+                        The SpecTcl <command>spectrum -list</command> command
+                        uses this cached spectrum description string.  If, however,
+                        the string is empty, it computes the description string
+                        ab intio, caches that string in the spectrum to satisfy
+                        future requests and uses the computed string when
+                        producing its returned value.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented by concrete
+                        spectrum type classes.  It is expected to return the
+                        actual spectrum type.  Note that if new
+                        spectrum types are implemented
+                        <filename>histotypes.h</filename> must be updated
+                        to extend the <type>SpectrumType_t</type> enumerated
+                        data type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>CEvent&amp; </type>
+                            <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Process the implications of an event;
+                        <parameter>rEvent</parameter> for this spectrum.
+                        While this method is virtual, the base class implementation
+                        is normally sufficient.  The base class implemebntaton
+                        checks the gate applied to this spectrum and, if satisfied,
+                        invokes the <methodname>Increment</methodname> method for
+                        this spectrum. 
+                    </para>
+                    <para>
+                        Normally only the <methodname>Increment</methodname>
+                        method needs to be implemented for spectrum event
+                        processing to work properly.
+                    </para>
+                    <para>
+                        Note that there is no gaurantee that this method
+                        will be invoked for all events.   SpecTcl's histogramming
+                        subsystem and the dope arrays in <classname>CEvent</classname>
+                        collaborate to minimize the number of histograms
+                        that must be invoked for each event.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>ApplyGate</methodname>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter>pNewGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Applies a new gate specified by
+                        the gate container <parameter>pNewGate</parameter> to the
+                        spectrum.  The previously applied gate container is
+                        returned.  From now on <parameter>pNewGate</parameter> is
+                        checked by <methodname>operator()</methodname> and must
+                        be satisfied for that method to call
+                        <methodname>Increment</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>Ungate</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Ungates the spectrum and returs the pointer to the
+                        previously applied gate container.  Note that spectra
+                        are never actually ungated. This method applies
+                        a predefined gate container that points to a
+                        <literal>true</literal> gate ensuring that
+                        <methodname>operator()</methodname> will always
+                        invoke <methodname>increment</methodname> when
+                        called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>UsesParameter </methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> CParameter&amp; </type><parameter>rParameter</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the spectrum uses 
+                        <parameter>rParameter</parameter>, this method returns
+                        <literal>kFTRUE</literal>, otherwise it returns
+                        <literal>kfFALSE</literal>.
+                    </para>
+                    <para>
+                        Note the difference between uses and required.
+                        For example, a summary spectrum has no required parameters
+                        but uses all of the parametersa in its definition.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>DataType_t </type>
+                        <methodname>StorageType </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the type of channel the spectrum contains.
+                        See the definition of
+                        <type>DataType_t</type> in
+                        <filename>histottypes.h</filename> for the possible
+                        values this method can return.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t  </type>
+                        <methodname>ParameterToAxis</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nAxis</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> Float_t </type><parameter>fParameterValue</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a raw parameter value <parameter>fParameterValue</parameter>,
+                        converts it to a bin number on the spectrum axis
+                        indexed by <parameter>nAxis</parameter>.  The resulting
+                        bin number is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>AxisToParameter</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nAxis</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t  </type><parameter>nAxisValue</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Inverse transformation from <methodname>ParameterToAxis</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>createStatArrays</methodname>
+                        <methodparam>
+                            <type>unsigned </type><parameter>nAxes</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        With Root integration, <methodname>createStatArrays</methodname>
+                        is obsolete, but provided for compatibility sake.
+                        Prior to version 5.0, SpecTcl maintained over/underflow
+                        statistics in separate arrays called statistics arrays,
+                        one element per axis.  With Root integration, SpecTcl
+                        histograms encapsulate a <classname>TH1</classname>
+                        or <classname>TH2</classname> derived root class.
+                        Those types of spectra maintain over/underflow
+                        statistics in additional channels of the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>  
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>clearStatArrays</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Clears overflow and underflow statistics for the spectrum.
+                        With Root integration, this method is somewhat misnamed.
+                        In 5.0 and later, SpecTcl spectra are wrappers around
+                        <classname>TH1</classname> or <classname>TH2</classname>
+                        subclasses.  These maintain over/underflow counts
+                        in addtional spetrum channels.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>logOverflow</methodname>
+                        <methodparam>
+                            <type>unsigned </type><parameter>axis,</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>unsigned </type><parameter>increment </parameter>
+                            <initializer>1</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>logUnderflow</methodname>
+                        <methodparam>
+                            <type>unsigned </type><parameter>axis,</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>unsigned </type><parameter>increment </parameter>
+                            <initializer>1</initializer>
+                        </methodparam>                
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These two methods are completely obsolete and are
+                        only present for compatibility sake.  With
+                        5.0's root integration, all SpecTcl histograms
+                        are wrappers around root
+                        <classname>TH1</classname> and
+                        <classname>TH2</classname> objects.  The
+                        <methodname>Fill</methodname> method of these
+                        objects maintains over/underflow statistics in addional
+                        channels of the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;unsigned&gt; </type>
+                        <methodname>getUnderflows</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;unsigned&gt; </type>
+                        <methodname>getOverflows</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the over/underlflow counters for the
+                        histogram.
+                    </para>
+                    <para>
+                        The return value is a vector.  The vector has one element
+                        for 1-d spectra and two elements for 2-d spectra.
+                    </para>
+                    <para>
+                        5.0 integrates with Root.  Underflows and
+                        overflows are stored in extra channels of the
+                        histogram.
+                    </para>
+                    <para>
+                        For 1-d spectra, these methods are trivial.  Underflows
+                        are stored in channel 0 and overflows are stored
+                        in channel <literal>n+1</literal> (n the number of
+                        bins on the X axis).
+                    </para>
+                    <para>
+                        For 2-d spectra, summing must be done.  For example,
+                        X underflows are the sum of all channels with coordinates
+                        [0, i] where i is in the range [1, n], n the number of
+                        channels in the spectrum.  Similarly, Y underflows are
+                        summed over all X with Y = 0.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t</type>
+                        <methodname> UsesParameter</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <modifier>const   = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented by
+                        concrete spectrum classes. <parameter>nId</parameter>
+                        is a parameter id.  The method returns
+                        <literal>kfTRUE</literal> if the parameter specified
+                        by that id is used by the spectrum.  Otherwise, it
+                        returns <literal>kfFALSE</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>ULong_t </type>
+                        <methodname>operator[] </methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>UInt_t* </type>
+                            <parameter>pIndices</parameter>
+                        </methodparam>
+                        <modifier> const  = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented bvy any concrete.
+                        spectrum class.  <parameter>pIndices</parameter> points
+                        to one (1-d spectra) or two (2-d spectra) axis bin
+                        numbers. The method returns the contents of the
+                        bin at that coordinate.  An exception such as
+                        <classname>std::range_error</classname> is thrown
+                        if one or more of the indices is out of range.
+                    </para>
+                    <para>
+                        Note that with Root integration, Spectra aer
+                        wrappers around <classname>TH1</classname> or
+                        <classname>TH2</classname> derived objects.  These
+                        methods may be used to index the over/underflow
+                        channels of these objects as well as the regular
+                        channels.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual   </modifier>
+                        <type>void </type>
+                        <methodname>set</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>UInt_t* </type>
+                            <parameter>pIndices</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>ULong_t </type><parameter>nValue</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual member allows you to store a
+                        <parameter>nValue</parameter> at the axis bin indices
+                        selected by <parameter>pIndices</parameter>.
+                        As with <methodname>operator[]</methodname>,
+                        <parameter>pInidices</parameter> points to a one or
+                        two element array containing the X axis bin number and,
+                        if the spectrum is 2d the Y axis bin number to modify.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>GetParameterIds</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;UInt_t&gt;&amp; </type>
+                            <parameter>rvIds</parameter>
+                        </methodparam>
+                        
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        <parameter>rvIds</parameter> will be given the set of
+                        parameter ids used by the spectrum.  The concreate class
+                        should implement this method so that on return
+                        <parameter>rvIds</parameter> <emphasis>only</emphasis>
+                        contains the parameter ids.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>GetResolutions</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;UInt_t&gt;&amp;  </type>
+                            <parameter>rvResolutions</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        On return from this method call,
+                        <parameter>rvResolutions</parameter> will be a vector
+                        containing the number of channels in each axis of the
+                        spectrum.  Element 0 of <parameter>rvResolutions</parameter>
+                        will be the number of channels on the X axis and,
+                        if the spectrum is 2-d, element 1 will be the number
+                        of channels on the y axis.
+                    </para>
+                    <para>
+                        Note that summary spectra are an exception in that
+                        they only have a settable Y axis.   Calling this method
+                        on summary spectra will return a single element vector
+                        containing the number of channels on the
+                        <emphasis>Y</emphasis> axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const</modifier> <type> CEvent&amp; </type>
+                            <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given an event which can be assumed to satisfy the
+                        spectrum's gate, this method should increment the
+                        channel(s) appropriate to the contents of the event.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> UInt_t</type>
+                        <methodname> Dimensionality </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the spectrum dimensionality.  This the number
+                        of axes that have controllable resolutions.  Note that
+                        summary spectra, while they are 2-d spectra only have a
+                        Y axis with a controllable resolution.  Summary spectra
+                        will therefore return <literal>1</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Size_t </type>
+                        <methodname>Dimension </methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nDimension</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of channels in dimension
+                        <parameter>nDimension</parameter>.  As usual,
+                        with the exception of summary spectra,
+                        <literal>0</literal> specifies the X dimension
+                        while <literal>1</literal> specifies the y.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Float_t </type>
+                        <methodname>GetLow</methodname>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nDimension</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the axis low limit for the axis number
+                        <parameter>nDimension</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Float_t </type>
+                        <methodname>GetHigh</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nDimension</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the high limit of the axis selected by
+                        <parameter>nDimension</parameter>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string  </type>
+                        <methodname>GetUnits</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nDimension</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the units of measure of the axis selected by
+                        <parameter>nDimension</parameter>.  This will
+                        will be an empty string if no axis units were
+                        specified.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Copy</methodname>
+                        <methodparam>
+                            <type>void* </type><parameter>pStorage</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Since SpecTcl can relocate spectra in an out of
+                        shared memory this method is provided to support that
+                        relocation.
+                        <methodname>Copy</methodname> copies the contents of this
+                        spectrum into storage pointed to by
+                        <parameter>pStorage</parameter>.  It is the responsibility
+                        of the caller to ensure that this points to sufficient
+                        storage.
+                    </para>
+                    <para>
+                        Note that <methodname>StorageNeeded</methodname>
+                        can be used not only to determine how much storage
+                        is required but to allow this method to be correctly
+                        implemented in the base class.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Clear </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Clears the spectrum.  This also clears the
+                        over/underflow counters.  For most spectra,
+                        the base class implementation is sufficient.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Size_t </type>
+                        <methodname>StorageNeeded</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of bytes of storage required
+                        for this spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>ReplaceStorage</methodname>
+                        <methodparam>
+                            <type>Address_t </type><parameter>pNewLoc</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Bool_t </type><parameter>fTransferOwnership</parameter>
+                            <initializer>kfTRUE</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Replaces the storage associated with the spectrum
+                        with <parameter>pNewLoc</parameter>. If there's already
+                        storage associated with the spectrum, its contents are
+                        copied into <parameter>pNewLoc</parameter> using the
+                        <methodname>Copy</methodname> method.
+                        If the storage is owned by the spectrum,
+                        <methodname>ReleaseStorage</methodname> is called to
+                        free it.  Finally, the value of
+                        the storage storage ownership flag is
+                        set to the value of
+                        <parameter>fTransferOwnership</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>CheckGate</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTRUE</literal> if the event
+                        <parameter>rEvent</parameter> satisfies the gate
+                        that is currently applied to thsi spectrum.
+                        If not, returns <literal>kfFALSE</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>SpectrumDefinition&amp; </type>
+                        <methodname>GetDefinition</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a struct that describes the spectrum.
+                        See <literal>TYPES</literal> below for
+                        more information about the fields in the
+                        <type>SpectrumDefinition</type> data type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>needParameter</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is used by SpecTcl's histogramming object to organize
+                        spectra.  Some spectra require the existence of at least
+                        one specific parameter (e.g. 1-d or 2-d spectra).  These
+                        spectra are placed in lists organized by the id of the
+                        first parameter needed.
+                    </para>
+                    <para>
+                        Other spectra can't make the statement that some specific
+                        parameter is required for them to be incremented
+                        (e.g. Summary spectra and all types of gamma spectra).
+                        These are placed in a list and must have their
+                        <methodname>operator()</methodname> called for every event.
+                    </para>
+                    <para>
+                        This method returns <literal>kfTRUE</literal> if this spectrum
+                        has a parameter that is required for the spectrum
+                        to be incremented.  If not, <literal>kfFALSE</literal> is
+                        returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setTextDescription</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>d</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Computing spectrum definition strings can be costly and
+                        adds up rapidly for analysis cases with several hundreds
+                        or even thousands of spectra.  This method allows a
+                        description string to be cached with the spectrum so that it
+                        can be fetched with <methodname>getTextDescription</methodname>.
+                        <parameter>d</parameter> will be the new cached spectrum
+                        description string.
+                    </para>
+                    <para>
+                        SpecTcl makes use of this description caching to vastly
+                        improve the performance of <command>spectrum -list</command>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>setStorage </methodname>
+                        <methodparam>
+                            <type>Address_t </type><parameter>am_pStorage</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This simply sets the private member data holding the
+                        pointer to the spectrum storage with
+                        <parameter>am_pStorage</parameter>.
+                        <methodname>ReplaceStorage</methodname> is preferred
+                        as it takes care of copying current spectrum data and,
+                        if appropriate, deleting prior storage.
+                        This method is provided if a concrete spectrum class
+                        has specific, special storage management requirements.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>setOwnStorage </methodname>
+                        <methodparam>
+                            <type>Bool_t </type>
+                            <parameter>am_fOwnStorage</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the storage ownership flag to
+                        <parameter>am_fOwnStorage</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>setStorageType</methodname>
+                        <methodparam>
+                            <type>DataType_t </type><parameter>dt</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Intended for use by specific, concrete constructors.
+                        This method sets the spectrum data type element to
+                        <parameter>dt</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>AddAxis</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>Units</parameter>
+                            <initializer>std::string("")</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is intended for use by constructors that
+                        must incrementally add axis definitions to a spectrum.
+                        This method adds a single axis definition for
+                        an axis with <parameter>nChannels</parameter> bins,
+                        that represent parameter values in the range
+                        [<parameter>fLow</parameter>, <parameter>fHigh</parameter>).
+                    </para>
+                    <para>
+                        If supplied, <parameter>Units</parameter> is saved
+                        as the units of measure for the axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>bool </type>
+                        <methodname>checkRange</methodname>
+                        <methodparam>
+                            <type>int </type>
+                            <parameter>channel</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>nChans</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>axis</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is obsolete.  It checks that a avlue
+                        <parameter>channel</parameter> is in the range
+                        [<literal>0</literal>, <parameter>nChans</parameter>).
+                        If so, the method returns <literal>true</literal>.  If
+                        not either <methodname>logUnderflow</methodname>
+                        or <methodname>logOverflow</methodname> is called
+                        as appropriate and <literal>false</literal>
+                        is returned.
+                    </para>
+                    <para>
+                        THe method is obsolete because with SpecTcl 5.0
+                        root integration, the spectrum classes are wrappers
+                        around
+                        <classname>TH1</classname> and
+                        <classname>TH2</classname> derived objects.  Those
+                        objects maintain overflows and underflows via calls to
+                        <methodname>Fill</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>ReleaseStorage</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Frees storage associated with the spectrum.
+                        This should only be called if the
+                        spectrum owns its storage.
+                    </para>
+                </listitem>
+            </varlistentry>
+  
+
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>TYPES</title>
+        <variablelist>
+            <varlistentry>
+                <term>Axes</term>
+                <listitem>
+                    <para>
+                        Spectra have a vector of <classname>CAxis</classname>
+                        objects.  Each object defines an axis and, more importantly,
+                        the mapping function between raw parameters and bins
+                        on that axis.  
+                    </para>
+                    <para>
+                        See <classname>CAxis</classname> for more information
+                        about this class.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>AxisIterator</term>
+                <listitem>
+                    <para>
+                        Defines an iterator into the collection of axes
+                        a spectrum maintains.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>SpectrumDefinitions</term>
+                <listitem>
+                    <para>
+                        Spectra require a uniform description.  The
+                        <type>SpectrumDefinition</type> struct
+                        provides that type.  It has the following
+                        members:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><type>std::string </type><structfield>sName</structfield></term>
+                            <listitem>
+                                <para>
+                                    Contains the name of the spectrum.
+                                    
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>UInt_t </type><structfield>nId</structfield></term>
+                            <listitem>
+                                <para>
+                                    The id of the spectrum.  This is a  positive
+                                    integer that no longer has much m eaning in
+                                    SpecTcl.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>SpectrumType_t </type><structfield>eType</structfield></term>
+                            <listitem>
+                                <para>
+                                    This is an enumerated value that contains
+                                    the spectrum type.  Valid values are
+                                    <literal>ke1D, ke12D, keBitmask, keSummary,
+                                    keG1D, keG2d, keUnknown, keStrip, keG2DD, keGSummary</literal>.
+                                </para>
+                                <para>
+                                    As each specific spectrum class is introduced,
+                                    its type is given as well.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>DataType_t </type><structfield>eDataType</structfield></term>
+                            <listitem>
+                                <para>
+                                    An enumerated value containing the data
+                                    type for the spectrum channels.  This is
+                                    one of
+                                    <literal>keByte, keWord, keLong, keFloat, keDouble,
+                                    keUnknown_dt</literal>.  With reasonably
+                                    obvious meanings. 
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>std::vector&lt;UInt_t&gt;  </type><structfield> vParameters</structfield></term>
+                            <listitem>
+                                <para>
+                                    A vector containing the parameter ids of the
+                                    parameters on the x axis the spectrum.  Note
+                                    that for 1D spectra ther only is an X axis
+                                    hence the lack of a qualifier on the name.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>std::vector&lt;UInt_t&gt; </type><structfield>vyParameters</structfield></term>
+                            <listitem>
+                                <para>
+                                    Ids of the parameters on the Y axis.  For 1D
+                                    spectra this will be an empty vector.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>std::vector&lt;UInt_t&gt;</type><structfield>nChannels</structfield></term>
+                            <listitem>
+                                <para>
+                                    Vector containing the number of channels on
+                                    various spectrum axes.  Element 0
+                                    is the number of parameters on the X axis.
+                                    If the spectrum is a 2-D spectrum,
+                                    element 1 will be the number of channels
+                                    on the Y axis.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>std::vector&lt;Float_t&gt; </type><structfield>fLows</structfield></term>
+                            <listitem>
+                                <para>
+                                    Vector of axis low limits.  For each
+                                    element in <structfield>nChannels</structfield>,
+                                    a corresponding element in this vector
+                                    provides the low limit of the axis in
+                                    real world coordinates.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><type>std::vector&lt;Float_t&gt; </type><structfield>fHighs</structfield></term>
+                            <listitem>
+                                <para>
+                                    Similar to <structfield>fLows</structfield>
+                                    but provides the real world coordinates of
+                                    axis high limits.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        
+                    </variablelist>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
         <itemizedlist>
             <listitem>
                 <para>
-                    Spectrum classes
-                    CSpectrum,
+                   
 BitSpectrumL.h
 BitSpectrumW.h
 CGammaSpectrum.h
@@ -22617,6 +24080,11 @@ SummarySpectrumW.h
             </listitem>
             <listitem>
                 <para>
+                    CAxis
+                </para>
+            </listitem>
+            <listitem>
+                <para>
                     Gate Classes, and CGateContainer, Gate observer
                 </para>
             </listitem>
@@ -22628,6 +24096,10 @@ SummarySpectrumW.h
             <listitem>
                 <para>
                     Filter subsystem
+                </para>
+            </listitem><listitem>
+                <para>
+                    Root interface classes.
                 </para>
             </listitem>
         </itemizedlist>
