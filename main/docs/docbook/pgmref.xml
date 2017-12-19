@@ -22684,6 +22684,79 @@ protected:
   void ReleaseStorage();
 };
 
+<beginpage />
+
+#include &lt;BitSpectrumL.h&gt;       // BitSpectrumW.h for word spectra.
+
+class CBitSpectrumL  : public CSpectrum  // CBitSpectrumW for word spectra.
+{
+public:
+  CBitSpectrumL(const std::string&amp; rName, UInt_t nId,
+		const CParameter&amp; rParameter,
+		UInt_t nChannels);
+  CBitSpectrumL(const std::string&amp; rName, UInt_t nId,
+		const CParameter&amp; rParameter,
+		UInt_t nLow,
+		UInt_t nHigh);	
+
+public:
+  UInt_t getChannels() const;
+  UInt_t getParameter() const;
+  virtual SpectrumType_t getSpectrumType();
+
+public:                 
+  virtual   void Increment (const CEvent&amp; rEvent);
+};
+
+<beginpage />
+
+#include &lt;CGammaSpectrum.h&gt;
+class CGammaSpectrum : public CSpectrum
+{
+public:
+  CGammaSpectrum(const std::string&amp; rName, UInt_t nId,  CSpectrum::Axes Maps,
+		 std::vector&lt;CParameter&gt;&amp; Parameters,
+		 CGateContainer* pGate = pDefaultGate);
+  CGammaSpectrum(const std::string&amp; rName, UInt_t nId,  CSpectrum::Axes Maps,
+		 std::vector&lt;CParameter&gt;&amp; xParameters,
+		 std::vector&lt;CParameter&gt;&amp; yParameters,
+		 CGateContainer* pGate = pDefaultGate);
+  CGammaSpectrum(const std::string&amp; rName, UInt_t nId, 
+		 std::vector&lt;CParameter&gt;&amp; Parameters,
+		 CGateContainer* pGate = pDefaultGate);
+  CGammaSpectrum(const std::string&amp; rName, UInt_t nId,
+		 std::vector&lt;CParameter&gt;&amp; xParameters,
+		 std::vector&lt;CParameter&gt;&amp; yParameters,
+		 CGateContainer* pGate = pDefaultGate);
+  virtual ~CGammaSpectrum();
+
+public:
+
+  virtual void Increment(const CEvent&amp; rEvent);
+  virtual void Increment(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt; &amp; rParameters) =0;
+  virtual void Increment(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParameters,
+			 std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParameters) = 0;
+  Bool_t       haveFold();
+  void         Fold(CGateContainer* pGate);
+  CFold*       getFold();
+  virtual void GetParameterIds(std::vector&lt;UInt_t&gt;&amp; rvIds);
+  
+  UInt_t getnParams() const;
+  UInt_t getParameterId (UInt_t n) const;
+ 
+protected:
+  void CreateParameterList(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; outList, 
+			   const CEvent&amp; rEvent);
+  void CreateYParameterList(std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; outList,
+			    const CEvent&amp; rEvent);
+  void CreateParameterVector(std::vector&lt;CParameter&gt;&amp; Parameters);
+  void CreateYParameterVector(std::vector&lt;CParameter&gt;&amp; Parameters);
+
+  
+};
+
+
+
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -24043,7 +24116,646 @@ protected:
             </varlistentry>
         </variablelist>
     </refsect1>
-
+    <refsect1>
+        <title>Bitmask spectra</title>
+        <para>
+            Bit mask spectra are defined on a single parameter.  They assume
+            the parameter is actually an integer and increment a channel for
+            each bit set in the parameter (as an integer).  Two types of
+            bit mask spectra are defined;
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <classname>CBitSpectrumL</classname>, defined in
+                        <filename>BitSpectrumL.h</filename>, defines a spectrum
+                        whose channels are all longwords (32 bits wide)
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <classname>CBitSpectrunmW</classname>, defined in
+                        <filename>BitSpectrumW.h</filename>, defines a spectrum
+                        whose channels are all 16 bits wide.
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>
+            This section will only document the methods of significance that either
+            have special implementation or have not been documented for
+            <classname>CSpectrum</classname>
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CBitSpectrumL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> CParameter&amp; </type><parameter>rParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nChannels</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        In this constructor, <parameter>rName</parameter> is
+                        the name of the spectrum being created and
+                        <parameter>nId</parameter> its id.
+                        <parameter>rParameter</parameter> defines the parameter
+                        that is used to increment the spectrum.
+                        <parameter>nChannels </parameter>.
+                    </para>
+                    <para>
+                        The spectrum will increment for hte bottom
+                        <parameter>nChannels</parameter> bits in
+                        <parameter>rParameter</parameter>.  It, therefore has
+                        an X axis with a range <literal>[0, <parameter>nChannels</parameter>)</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    
+                </term>
+                <listitem>
+                    <para>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CBitSpectrumL</methodname>
+                        <methodparam>
+                            <modifier>const</modifier><type> std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier><type> CParameter&amp; </type>
+                            <parameter>rParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>nLow</parameter> 		
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor creates a bit mask spectra that increments
+                        for bit numbers in the range of
+                        <literal>[<parameter>nLow</parameter>, <parameter>nHigh</parameter>)</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getChannels</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of channels in the spectrum.
+                        This will also be the number of bits in the range
+                        of bits the spectrum displays.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getParameter</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the id of the parameter the spectrum is
+                        defined on.  This will be the id of the
+                        <parameter>rParameter</parameter> parameter passsed to
+                        the constructor.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the value <literal>keBitMask</literal>
+                        indicating this is a bit mask spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment </methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the parameter the spectrum was constructed on was
+                        assigned a value in <parameter>rEvent</parameter>,
+                        it is converted to a 32 bit integer.
+                        For every bit that is set in that spectrum within the
+                        range of bits the X axis covers, the appropriate
+                        channel is incremented.
+                    </para>
+                    <para>
+                        Note that normally this is called from within
+                        <classname>CSpectrum</classname>::<methodname>operator()</methodname>
+                        if the gate applied on this spectrum is satisfied.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Gamma spectrum base class (<classname>CGammaSpectrum</classname> methods</title>
+        <para>
+            Gamma spectra are multiply incremented spectra.  The
+            <classname>CGammaSpectrum</classname> class is a base class for
+            several types of gamma spectra.  One feature gamma spectra have that is
+            unique is the ability to have a gate applied as a
+            <firstterm>fold</firstterm>.  Folds are a mechanism for untangling
+            sequential decays.
+        </para>
+        <para>
+            If a gamma spectrum has a fold applied, that fold must be defined
+            only on parameters present in the gamma spectrum.  In that case,
+            the spectrum is incremented only for parameters that do not fall
+            in the fold as long as at least one set of parameters do fall in the
+            fold.
+        </para>
+        <para>
+            One way to look at this:  Suppose you have several peaks in this
+            spectrum, one of which you've identified as a peak of interest.
+            if you set a gamma gate on that peak and apply it as a fold, the
+            only remaining peaks will be those that came in coincidence with the
+            peak you set the fold on.  Those peaks typically represent parts of
+            a sequential decay that included the peak you set the fold on.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGammaSpectrum</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> CSpectrum::Axes</type><parameter> Maps</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter> Parameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer*</type><parameter> pGate </parameter>
+                            <initializer>pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor creates a new gamma spetrum
+                        base class given the spectrum name
+                        (<parameter>rName</parameter>) and id
+                        (<parameter>id</parameter>).
+                        Axis definitions are supplied by a vector of
+                        <classname>CAxis</classname>; <parameter>Maps</parameter>.
+                        
+                    </para>
+                    <para>
+                        The gamma spectrum will be incremented from the parameters
+                        in <parameter>Parameters</parameter>.  What this means
+                        depends on the specific type of gamma spectrum being
+                        created by the subclass.
+                    </para>
+                    <para>
+                        Finally <parameter>pGate</parameter> points to the gate container
+                        of the gate initially applied to the spectrum.
+                        This defaults to <varname>pDefaultGate</varname> which
+                        points to a container for a true gate.
+                    </para>
+                    <para>
+                        Note that this constructor is used when there's no
+                        distinction between X and Y parameters such as in
+                        gamma 1d or ordinary gamma 2d spectra.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGammaSpectrum</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> CSpectrum::Axes</type><parameter> Maps</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter> xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type>
+                            <parameter>yParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer* </type>
+                            <parameter>pGate</parameter><initializer>pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor should be used by subclasses
+                        that differentiate between parameters on the X and Y
+                        axis.  For example, the Gamma Deluxe spectrum.
+                    </para>
+                    <para>
+                        The only difference between this and the previous
+                        constructor is that parameters are specified
+                        by <parameter>xParameters</parameter> - the parameters
+                        on the X axis and <parameter>yParameters</parameter> -
+                        the parameters on the Y axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGammaSpectrum</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter> rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter>Parameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer*</type><parameter>pGate</parameter>
+                            <initializer>pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                    <constructorsynopsis>
+                        <methodname>CGammaSpectrum</methodname>
+                         <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter> xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type>
+                            <parameter>yParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer* </type>
+                            <parameter>pGate</parameter><initializer>pDefaultGate</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These constructors are used when the axis definitions
+                        will be computed and added via <methodname>AddAxis</methodname>
+                        as during the constructor body.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; rEvent</type><parameter>CEvent&amp; rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Gamma spectrum increments are mediated by the fold applied
+                        on them.  Gamma spectra always have a fold although
+                        the fold may be a default one.  
+                    </para>
+                    <para>
+                        This method invokes the fold given the list of parameters
+                        and the event, for ordinary gamma spectra, or the
+                        x and y parameters and the event for gamma deluxe
+                        spectra.  The fold, in turn will determine which of the
+                        <methodname>Increment</methodname> methods below and
+                        how to invoke it.  Those methods will perform the
+                        final increment.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt; &amp;</type>
+                            <parameter> rParameters</parameter>
+                        </methodparam>
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented in
+                        concrete derived classes.  It performs the appropriate
+                        increments of the spectrum given a vector of
+                        pairs.  The first element of each pair is a parameter
+                        number and the second the value of that parameter.
+                        Note that The fold that calls this may have
+                        removed some of the parameter/values present in the
+                        event due to the impact of the fold.
+                    </para>
+                    <para>
+                        This increment is used by ordinary gamma spectra that
+                        don't have a concept of X and Y parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;</type>
+                            <parameter> yParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented in concrete
+                        derived classes.  It performs appropriate increments
+                        for gamma spectra that differentiate between X and
+                        Y parameters (Gamma Deluxe).  It will be called by
+                        the spetrum's fold after it has reduced the parameters
+                        to the appropriate set after the application of the
+                        fold.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>haveFold</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns true if the spectrum has a named fold. Note that
+                        the default fold, a fold wrapped around a True gate,
+                        has no name.  Only folds wrapped around gamma gates
+                        have names, the name of the wrapped gate.
+                    </para>
+                    <para>
+                        What this method actually tells you is whether or not
+                        the spectrum has a fold that can influence how
+                        spectra are incremented.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void  </type>
+                        <methodname>Fold</methodname>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter>pGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Wraps the gate container (and hence the gate it contains)
+                        pointed to by <parameter>pGate</parameter> into a
+                        <classname>CFold</classname> object and applies the
+                        resulting fold to the spectrum.  The fold can,
+                        if it is a gamma gate, dictate how the spectrum
+                        is incremented by reducing the set of parameters
+                        used to increrment the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CFold* </type>
+                        <methodname>getFold</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the  fold applied to the
+                        spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>GetParameterIds</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;UInt_t&gt;&amp; </type>
+                            <parameter>rvIds</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The set of parameter ids used by this spectrum are
+                        appended to <parameter>rvIds</parameter>.  Note this
+                        vector is not cleared by the method.
+                    </para>
+                    <para>
+                        For spectra that care about X/Y parameters, the
+                        X parameters are added first followed by the Y
+                        parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>CreateParameterList</methodname>
+                        <methodparam>
+                            <type>std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;</type>
+                            <parameter> outList</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given the event
+                        <parameter>rEvent</parameter>, creates a vector of parameter
+                        number/value pairs for all parameters the spectrum is
+                        defined on that have been assigned values in
+                        <parameter>rEvent</parameter>.  Note that if the
+                        spectrum cares about X/Y parameters, this will represent
+                        the X parameters only.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>CreateYParameterList</methodname>
+                        <methodparam>
+                            <type>std::vector&lt; std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;</type>
+                            <parameter> outList</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        For spectra that care about which parameters are X
+                        and Y, produces what <methodname>CreateParameterList</methodname>
+                        does for the Y parameters.  For those spectra,
+                        <methodname>CreateParameterList</methodname> only
+                        produces a list of X parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>CreateParameterVector</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type>
+                            <parameter>Parameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>CreateYParameterVector</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type>
+                            <parameter>Parameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates vectors of parameter definitions into
+                        <parameter>Parameters</parameter>.  If the
+                        Spectrum does not care about X,Y parameters,
+                        <methodname>CreateParameterVector</methodname>
+                        creates a vector with all of the parameters.
+                        If the spectrum does care about X/Y parameters,
+                        the method produces only the X parameters
+                        and <methodname>CreateYParameterVector</methodname>
+                        produces the definitions of the Y parameters.
+                    </para>
+                </listitem>
+            </varlistentry>  
+        </variablelist>
+    </refsect1>
 </refentry>
         <chapter>
             <title>Stuff to do</title>
@@ -24051,9 +24763,15 @@ protected:
             <listitem>
                 <para>
                    
-BitSpectrumL.h
-BitSpectrumW.h
 CGammaSpectrum.h
+
+Gamma1DL.h
+Gamma1DW.h
+Gamma2DB.h
+Gamma2DD.h
+Gamma2DL.h
+Gamma2DW.h
+
 CGammaSummarySpectrum.h
 CSpectrum2DmB.h
 CSpectrum2Dm.h
@@ -24076,6 +24794,11 @@ SummarySpectrumB.h
 SummarySpectrumL.h
 SummarySpectrumW.h
 
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    CFold
                 </para>
             </listitem>
             <listitem>
