@@ -22755,8 +22755,123 @@ protected:
   
 };
 
+<beginpage />
+
+#include &lt;Gamma1DL.h&gt;             // Also Gamma1DW.h
+
+class CGamma1DL : public CGammaSpectrum // Also CGamma1DW
+{
+ public:
+  CGamma1DL(const std::string&amp; rName, UInt_t nId,
+	    std::vector&lt;CParameter&gt;&amp; rrParameters,
+	    UInt_t nScale);	
+
+  CGamma1DL(const std::string&amp; rName, UInt_t nId,
+	    std::vector&lt;CParameter&gt;&amp; rrParameters,
+	    UInt_t nChannels,
+	    Float_t fLow, Float_t fHigh); 
+
+ virtual SpectrumType_t getSpectrumType();
 
 
+  virtual ULong_t operator[] (const UInt_t* pIndices) const;
+  virtual void set (const UInt_t* pIndices, ULong_t nValue);
+  
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rParameters);
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParameters,
+			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParameters);
+
+
+  virtual void GetResolutions(std::vector&lt;UInt_t&gt;&amp; rvResolutions);
+
+protected:
+  static Axes MakeAxesVector(std::vector&lt;CParameter&gt; Params,
+			      UInt_t             nChannels,
+			      Float_t fLow, Float_t fHigh);
+  void   CreateStorage();
+};
+
+<beginpage />
+#include &lt;Gamma2DL.h&gt;   // Also 2DW and 2DB versions.
+
+class CGamma2DL : public CGammaSpectrum
+{
+public:
+  CGamma2DL(const std::string&amp; rName, UInt_t nId,
+	       std::vector&lt;CParameter&gt;&amp; rParameters,
+	       UInt_t nXScale, UInt_t nYScale);
+  CGamma2DL(const std::string&amp; rName, UInt_t nId,
+	    std::vector&lt;CParameter&gt;&amp; rParameters,
+	    UInt_t nXScale, UInt_t nYScale,
+	    Float_t xLow, Float_t xHigh,
+	    Float_t yLow, Float_t yHigh);
+
+public:
+  UInt_t getXScale();
+  UInt_t getYScale();
+  virtual SpectrumType_t getSpectrumType();
+  virtual void GetResolutions(std::vector&lt;UInt_t&gt;&amp;  rvResolutions);
+
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rParameters);
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParameters,
+			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParameters);
+};
+<beginpage />
+#include &lt;Gamma2DD.h&gt;
+template&lt;class T&gt;
+class CGamma2DD : public CGammaSpectrum
+{
+public:
+  CGamma2DD(const std::string&amp; rName, UInt_t nId,
+	     std::vector&lt;CParameter&gt;&amp;  xParameters,
+	     std::vector&lt;CParameter&gt;&amp;  yParameters,
+	     UInt_t xChannels, UInt_t yChannels);
+  
+  CGamma2DD(const std::string&amp; rName, UInt_t nId,
+	     std::vector&lt;CParameter&gt;&amp; xParameters,
+	     std::vector&lt;CParameter&gt;&amp; yParameters,
+	     UInt_t nXChannels, UInt_t nYChannels,
+	     Float_t xLow, Float_t xHigh,
+	     Float_t yLow, Float_t yHigh);
+  virtual SpectrumType_t getSpectrumType();
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rParameters);
+  virtual void Increment(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rXParameters,
+			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rYParameters);
+
+
+
+};
+
+
+typedef CGamma2DD&lt;UInt_t&gt;  CGamma2DDL;
+typedef CGamma2DD&lt;UShort_t&gt; CGamma2DDW;
+typedef CGamma2DD&lt;UChar_t&gt;  CGamma2DDB;
+
+<beginpage />
+#include &lt;CGammaSummarySpectrum.h&gt;
+
+template &lt;class T&gt;
+class CGammaSummarySpectrum : public CSpectrum
+{
+public:
+  CGammaSummarySpectrum(const std::string name, 
+			UInt_t nId,
+			UInt_t               nYChannels,
+			std::vector&lt;std::vector&lt;CParameter&gt; &gt;* pParameters);
+  CGammaSummarySpectrum(const std::string name, UInt_t nId,
+			std::vector&lt;std::vector&lt;CParameter&gt; &gt;* pParameters,
+			UInt_t               nYChannels,
+			Float_t              fYLow,
+			Float_t              fYHigh);
+
+
+  virtual   void Increment (const CEvent&amp; rEvent)  ;
+  virtual SpectrumType_t getSpectrumType();
+};
+
+typedef CGammaSummarySpectrum&lt;UInt_t&gt;   CGammaSummarySpectrumL;
+typedef CGammaSummarySpectrum&lt;UShort_t&gt; CGammaSummarySpectrumW;
+typedef CGammaSummarySpectrum&lt;UChar_t&gt;  CGammaSummarySpectrumB;
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -24185,15 +24300,6 @@ protected:
             </varlistentry>
             <varlistentry>
                 <term>
-                    
-                </term>
-                <listitem>
-                    <para>
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>
                     <constructorsynopsis>
                         <methodname>CBitSpectrumL</methodname>
                         <methodparam>
@@ -24450,6 +24556,8 @@ protected:
                             <initializer>pDefaultGate</initializer>
                         </methodparam>
                     </constructorsynopsis>
+                </term>
+                <term>
                     <constructorsynopsis>
                         <methodname>CGammaSpectrum</methodname>
                          <methodparam>
@@ -24756,34 +24864,720 @@ protected:
             </varlistentry>  
         </variablelist>
     </refsect1>
+    <refsect1>
+        <title>Methods for simple 1-D Gamma spectra</title>
+        <para>
+            Gamma spectra are intended to provide a way to look at data from
+            several gain matched, identical gamma-ray detectors.
+            Gamma spectra are multiply incremented an have folds which can
+            be used to untangle sequential decays that occur within one
+            event trigger.
+        </para>
+        <para>
+            1-D gamma spectra take a set of parameters and, simplistically,
+            increment for each parameter present in the event.  Folds will
+            reduce the set of parameters the spectrum increments for on an
+            event by event basis.  
+        </para>
+        <para>
+            Two types of classes have been defined for gamma 1d spectra;
+            <classname>CGamma1DL</classname> has longword (32 bit) channels
+            while <classname>CGamma1DW</classname> has word (16 bit)
+            channels.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma1DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter> rrParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nScale</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma1DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type>
+                            <parameter>rrParameters,</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs a 1d Gamma Spectrum.  For the two constructors,
+                        <parameter>rName</parameter> and
+                        <parameter>nId</parameter> are the name and
+                        id of the spectrum respecdtively.
+                        <parameter>rrParameters</parameter> is a vector containing
+                        the descriptions of the parameters on which the spectrum
+                        is defined.
+                    </para>
+                    <para>
+                        In the first form, <parameter>nScales</parameter> is
+                        the number of channels in the spectrum.  The X axis of the
+                        spectrum, in this case is the range
+                        <literal>[0, <parameter>nScale</parameter>)</literal>.
+                    </para>
+                    <para>
+                        In the second form, the number of channels is given
+                        by <parameter>nChannels</parameter> and
+                        the axis range in parameter coordinates is
+                        <literal>[<parameter>fLow</parameter>,<parameter>fHigh</parameter>)</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the value <literal>keG1D</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>  virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Increments appropriate channels of the spectrum
+                        given the vector of parameter ids and pairs.  For
+                        this simple 1D Gamma spectrum, this just means
+                        incrementing for all values that are in axis range.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>xParameters,</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;</type>
+                            <parameter> yParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is not appropriate for gamma 1d spectra
+                        as there's no differentiation between X and Y parameters
+                        in this type of spectrum.  Invokingh this wil therefore
+                        throw a <classname>CException</classname> whose
+                        reason text explains that you're trying to increment
+                        a gamma 1d spectrum with the gamma 2d deluxe increment
+                        method.
+                    </para>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Gamma 2D L/W/B spectrum methods</title>
+        <para>
+            The Gamma 2D spectra come in longword (32 bit channels),
+            word (16 bit channels) and byte versinos (8 bit channels).
+            The classes are called
+            <classname>CGamm2DL</classname>, <classname>CGamma2DW</classname>,
+            and <classname>CGamma2DB</classname> respectively.  As all have
+            the same set of methods with the same semantics, only
+            <classname>CGamma2DL</classname>'s methods will be described.
+        </para>
+        <para>
+            <classname>CGamma2DL</classname> spectra, while they are 2d don't
+            differentiate between X and Y axes.  Instead, the spectrum is
+            incremented for every ordered pair of parmaeters that fit into
+            the spectrum.  See <methodname>Increment</methodname> below for
+            the increment pseudo code.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma2DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp; </type><parameter>rParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nXScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYScale</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma2DL</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> std::string&amp; </type><parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter> rParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nXScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>xLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>xHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>yLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>yHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These constructors differ only in how the X/Y axes
+                        are specified.  Both of them require
+                        a spectrum name (<parameter>rName</parameter>),
+                        id (<parameter>nId</parameter>).  Both require
+                        a vector of parameters that will be used to increment
+                        the spectrum and evaluate it's associated fold
+                        (<parameter>rParameters</parameter>).  
+                    </para>
+                    <para>
+                        The first constructor specifies the axes only with bin
+                        counts, <parameter>nXScale </parameter> and
+                        <parameter>nYscale</parameter>.  The
+                        X axis runs the range
+                        <literal>[0, <parameter>nXScale</parameter>)</literal>
+                        and the Y axis has the range
+                        <literal>[0, <parameter>nYScale</parameter>)</literal>
+                    </para>
+                    <para>
+                            The second constructor provides full mappings
+                        for both the X and Y axes.  In addition to
+                        <parameter>nXScale</parameter> and <parameter>nYScale</parameter>,
+                        which specify the number of bins on the X and Y axi
+                        respectively, both axis ranges are specified.
+                        The X axis range is
+                        <literal>[<parameter>xLow</parameter>, <parameter>xHigh</parameter>)</literal>.
+                        The  axis range is
+                        <literal>[<parameter>yLow</parameter>, <parameter>yHigh</parameter>)</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Retrns <literal>keG2D</literal> - Gamma 2d spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual </modifier>
+                    <type>void </type>
+                    <methodname>Increment</methodname>
+                    <methodparam>
+                        <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                        <parameter>rParameters</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        This method should be called to increment the spectrum.
+                        <parameter>rParameters</parameter> is a vector
+                        of parameter ids and their associated values.  The
+                        spectrum's fold may have reduced the set of parameters
+                        from the set in the event for this spectrum.
+                    </para>
+                    <para>
+                        The Gamma 2d spectrum does not know about separate
+                        X and Y parameters but increments for all ordered pairs
+                        of paramters in the spectrum following psuedo code like:
+                    </para>
+                    <programlisting>
+for i in 0 - rParameters.size() -1 
+   for j in i +1 - rParameters.size()
+      xparam  = RawToXaxis(rParameters[i].second)
+      yparam  = RawToYaxis(rParameters[j].second)
+      if xparam and yparam fall in X and Y axes respectively
+        increment spectrum at xparam,yparam
+      end if
+    end for
+end for
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>yParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This increment operation is not valid for this spectrum
+                        type as it does not distinguish between X and Y parameters.
+                        If it is called in error it will throw a
+                        <classname>CException</classname> with the reason text
+                        <literal>"Gamma 2d Deluxe increment called on CGamma2DL"</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Gamma "Deluxe" spectra</title>
+        <para>
+            The Gamma Deluxe (2GDD)) spectrum is intended to provide particle gamma
+            coincidence spectrum.  The 2GDD family of spectra have a
+            distinct set of X and Y parameters, unlike the simple Gamma 2D
+            spectra.  2GDD spectra are incremented over every pair of X/Y
+            parameters.   Psuedo code will be shown for this in the
+            documentation for the <methodname>Increment</methodname> method.
+        </para>
+        <para>
+            When code for the 2GDD spectra was written, C++ templates were quite a
+            bit more stable.  As such this spectrum is implemented as a template
+            class with the channel type as the template parameter.  Note that
+            with Root integration (not shown), a second template parameter,
+            the type of Root histogram used for the spectrum
+            was added (not shown in this documentation).
+        </para>
+        <para>
+            A set of typedefs define
+            <classname>CGamma2DDL</classname>, a spectrum with longword (32 bit) channels,
+            <classname>CGamma2DDW</classname>, a spectrum with word (16 bit) channels
+            and
+            <classname>CGamma2DDB</classname>, a spectrum with byte (8 bit) channels.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma2DD</methodname>
+                        <methodparam>
+                            <modifier>const</modifier><type> std::string&amp;</type>
+                            <parameter> rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter>xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;  </type>
+                            <parameter>yParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> xChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>yChannels</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGamma2DD</methodname>
+                        <methodparam>
+                            <modifier>const</modifier><type> std::string&amp;</type>
+                            <parameter> rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;</type>
+                            <parameter>xParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;&amp;  </type>
+                            <parameter>yParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> xChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t </type><parameter>yChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>xLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> Float_t </type><parameter>xHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>yLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>yHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructors for G2DD spectra.  Both constructors
+                        provide paramters to identify the spectrum.
+                        <parameter>rName</parameter> is the spectrum's name
+                        and <parameter>nID</parameter> its identifier.
+                        Both provide a pair of vector parameters;
+                        <parameter>xParameters</parameter> and
+                        <parameter>yParameters</parameter> which
+                        provide parameters for the X and Y axes respectively.
+                        Both also provide a pair of parameters;
+                        <parameter>xChannels</parameter> and
+                        <parameter>yChannels</parameter> to provide the
+                        number of bins on the X and Y axes respectively.
+                    </para>
+                    <para>
+                        The first of the constructors does not provide
+                        for a mapping between raw parameters and axis values/bins.
+                        The X axis has the range
+                        <literal>[0, <parameter>xChannels</parameter>)</literal>.
+                        The Y axis has the range
+                        <literal>[0, <parameter>yChannels</parameter>)</literal>
+                    </para>
+                    <para>
+                        The second of the constructors provides for the ability
+                        to specify parameter coordinate ranges for each axis
+                        as well as the binning.   The X axis in this case has the
+                        range
+                        <literal>[<parameter>xLow</parameter>, <parameter>xHigh</parameter>)</literal>
+                        with <parameter>xChannels</parameter> bins.
+                        Similarly, the Y axis has the range
+                        <literal>[<parameter>yLow</parameter>, <parameter>yHigh</parameter>)</literal>
+                        with <parameter>yChannels</parameter> bins.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>keG2DD</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This, axis blind method is not appropriate for
+                        incrementing the Gamma Deluxe family of spectra.
+                        If invoked, it will throw a
+                        <classname>CException</classname> with the
+                        reason text
+                        <literal>Attempted a 'non-deluxe' increment of a gamma deluxe spectrum</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname> Increment</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rXParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rYParameters</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is the appropriate increment method for
+                        G2DD spectra.  <parameter>rXParameters</parameter> is
+                        a vector of parameter ids and their values for the X
+                        axis.  Similarly
+                        <parameter>rYParameters</parameter> is a vector
+                        for the Y axis.
+                    </para>
+                    <para>
+                        The evaluation of the spectrum's fold can reduce the
+                        set of parameters passed to the increment.
+                        Psuedo code below shows how these parameters increment
+                        the spectrum.
+                    </para>
+                    <programlisting>
+for i in [0, rXParameters.size())
+   for j in [0, rYParameters.size()]
+       x = RawToXaxis(rXParameters[i].second)
+       y = RawToYaxis(rYParameters[j].second)
+       if x and y are in the axis ranges
+          increment spectrum at (x,y)
+        endif
+    end for
+end for
+       
+
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Gamma Summary Spectra</title>
+        <para>
+            <classname>CGammaSummary</classname> spectrum is a templated class.
+            Template parameters include the data type of the channel. After
+            Root integration, an additional template parameter that is the
+            type of Root histogram wrapped by this class was added.
+            For convenience, the header defines <literal>typedef</literal>s for
+            <classname>CGammaSummarySpectrumL</classname> - 32 bit channels,
+            <classname>CGammaSummarySpectrumW</classname> - 16 bit channels and
+            <classname>CGammaSummarySpectrumB</classname> - 8 bit channels.
+        </para>
+        <para>
+            Gamma summary spectra are a great deal like ordinary summary spectra,
+            except that rather than each X channel representing a single parameter
+            it is a gamma spectrum on set of parameters.  This is reflected in its
+            constructors as you will see.
+        </para>
+        <para>
+            While gamma summary spectra have a gate applied to them, the don't have
+            folds.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGammaSummarySpectrum</methodname>
+                        <methodparam>
+                            <type>const std::string</type><parameter> name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::vector&lt;CParameter&gt; &gt;* </type>
+                            <parameter>pParameters</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGammaSummarySpectrum</methodname>
+                        <methodparam>
+                            <type>const std::string </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type> <parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::vector&lt;CParameter&gt; &gt;* </type>
+                            <parameter>pParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nYChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fYLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fYHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As usual there are a pair of constructors.  The
+                        first of these provides for an one to one mapping
+                        between parameter values and Y axis channels.  The second
+                        allows for arbitary mappings.
+                    </para>
+                    <para>
+                        For the most part, parameterrs are the same as for
+                        other gamma spectra.  The <parameter>pParameters</parameter>
+                        paramameter points, however to a vector of vectors.
+                        The outer vector indexes the X axis channels while the
+                        inner vector contains the parameters that contribute
+                        to the gamma spectrum that is on the Y axis for each
+                        of those channels.   The
+                        <methodname>Increment</methodname> method documentation
+                        provides pseudo code for the increment logic.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                      returns the value <literal>keGSummary</literal>
+                      indicating this spectrum is a gamma summary spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Increments the appropriate channels in the spectrum
+                        given the event <parameter>rEvent</parameter>.
+                        The object has a member <varname>m_Parameters</varname>
+                        that is a vector of vectors of parameter ids.
+                        This is used to drive the increment.  Here's pseudo
+                        code for the increment operation.
+                    </para>
+                    <programlisting>
+for i in [0, m_Parameters.size()]
+    for all m_Parameters[i] py where rEvent[py].isValid()
+        y = rawToYAxis(rEvent[py]);
+        increment channel (i,y)
+    end for
+end for
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+  
+
+        </variablelist>
+    </refsect1>
 </refentry>
         <chapter>
             <title>Stuff to do</title>
         <itemizedlist>
             <listitem>
                 <para>
-                   
-CGammaSpectrum.h
 
-Gamma1DL.h
-Gamma1DW.h
-Gamma2DB.h
-Gamma2DD.h
-Gamma2DL.h
-Gamma2DW.h
 
-CGammaSummarySpectrum.h
-CSpectrum2DmB.h
-CSpectrum2Dm.h
-CSpectrum2DmL.h
-CSpectrum2DmW.h
-MSpectrum1DL.h
-MSpectrum1DW.h
-MSpectrum2DB.h
-MSpectrum2DW.h
-NSCLAsciiSpectrumFormatter.h
-NSCLBinarySpectrumFormatter.h
-SnapshotSpectrum.h
 Spectrum1DL.h
 Spectrum1DW.h
 Spectrum2DB.h
