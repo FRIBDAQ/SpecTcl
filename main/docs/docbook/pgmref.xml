@@ -22872,6 +22872,54 @@ public:
 typedef CGammaSummarySpectrum&lt;UInt_t&gt;   CGammaSummarySpectrumL;
 typedef CGammaSummarySpectrum&lt;UShort_t&gt; CGammaSummarySpectrumW;
 typedef CGammaSummarySpectrum&lt;UChar_t&gt;  CGammaSummarySpectrumB;
+
+<beginpage />
+#include &lt;Spectrum1DL.h&gt;   // also have Spectrum1DW.h
+
+class CSpectrum1DL  : public CSpectrum   // Spectrum1DW.h -&gt; CSpectrum1DW
+{
+public:
+  CSpectrum1DL(const std::string&amp;   rName, 
+	       UInt_t               nId,
+	       const CParameter&amp;    rParameter,
+	       UInt_t               nChannels);
+
+  CSpectrum1DL(const std::string&amp;   rName,
+	       UInt_t               nId,
+	       const   CParameter&amp;  rParameter,
+	       UInt_t               nChannels,
+	       Float_t              fLow, 
+	       Float_t              fHigh);
+
+
+  UInt_t getParameter();
+  virtual SpectrumType_t getSpectrumType();
+  virtual   void Increment (const CEvent&amp; rE);
+};
+<beginpage />
+#include &lt;Spectrum2DL.h&gt; // 2DW and 2DB are also available.
+
+class CSpectrum2DL  : public CSpectrum
+{
+
+public:
+  CSpectrum2DL(const std::string& rName, UInt_t nId,
+	       const CParameter& rXParameter,
+	       const CParameter& rYParameter,
+	       UInt_t nXScale, UInt_t nYScale);
+
+  CSpectrum2DL(const std::string& rName, UInt_t nId,
+	       const CParameter& rXParameter,
+	       const CParameter& rYParameter,
+	       UInt_t nXChannels, Float_t fxLow, Float_t fxHigh,
+	       UInt_t nYChannels, Float_t fyLow, Float_t fyHigh);
+  UInt_t getXParameter();
+  UInt_t getYParameter();
+  virtual SpectrumType_t getSpectrumType() ;
+  virtual   void Increment (const CEvent& rEvent)  ;
+
+ 
+};
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -25566,9 +25614,176 @@ end for
                     </programlisting>
                 </listitem>
             </varlistentry>
-  
+            
 
         </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Simple One dimensional spectra</title>
+        <para>
+            The simple one dimensional spectrum classes are:
+            <classname>CSpectrum1DL</classname> - 32 bit channels and
+            <classname>CSpectrum1DW</classname> - 16 bit channels.
+            These spectra take a single parameter and will perform at most
+            one increment per event.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum1DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;  </type>
+                            <parameter> rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CParameter&amp;</type><parameter> rParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nChannels</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum1DL</methodname>
+                        <methodparam>
+                            <modifier>const</modifier><type> std::string&amp;   </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const   </modifier><type>CParameter&amp; </type>
+                            <parameter> rParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter> fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t</type><parameter>fHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These two constructors differ only in how the
+                        X axis of the spectrum is described.  For both of them,
+                        <parameter>rName</parameter> and
+                        <parameter>nId</parameter> are the name and id of the
+                        spectrum being created.
+                        <parameter>rParameter</parameter> references the
+                        description of the parameter that will be used to
+                        increment the spectrum. and
+                        <parameter>nChannels</parameter> is the number of
+                        bins on the X axis.
+                    </para>
+                    <para>
+                        In the first form of the constructor, the mapping from
+                        raw parameter to bin is one-to-one.  That is the
+                        X axis is assumed to cover the range
+                        <literal>[0, <parameter>nChannels</parameter>)</literal>.
+                    </para>
+                    <para>
+                        In the second form of the constructor, the additional
+                        parameters; <parameter>fLow</parameter> and
+                        <parameter>fHigh</parameter> specify the range of the
+                        X axis.  The X axis range is considered to be
+                        <literal>[<parameter>fLow</parameter>, <parameter>fHigh</parameter>)</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getParameter</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the id of the parameter that will be used
+                        to increment the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>ke1D</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type>
+                            <parameter>rE</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Performs the appropriate increment for the event
+                        <parameter>rE</parameter>. At most only one increment
+                        can be performed.  Pseudo code for the increment
+                        (assuming the gate has been satisfied) is
+                    </para>
+                    <programlisting>
+UInt_t id = getParameter();
+if (rE[id].isValid())
+   x = rawToXaxis(rE[id])
+   increment channel x if in range
+end if
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Simple two dimensional spectra</title>
+        <para>
+            Two dimensional spectra are defined on a pair of parameters
+            called the X and Y parameters.  A two dimensional spectrum
+            increments a channel in a two dimensional grid of channels indexed
+            by a mapping of the values of the X and Y parameters.
+            The two dimensional spectrum classes are
+            <classname>CSpectrum2DL</classname> - 32 bit channels,
+            <classname>CSpectrum2DW</classname> - 16 bit channels and
+            <classname>CSpectrum2DB</classname> - 8 bit channels.
+        </para>
+        <para>
+            As usual, psuedo code for the increment (assuming the spectrum's gate
+            has been satisfied) is presented in the documentation of the
+            <methodname>Increment method</methodname>.
+        </para>
     </refsect1>
 </refentry>
         <chapter>
@@ -25578,8 +25793,6 @@ end for
                 <para>
 
 
-Spectrum1DL.h
-Spectrum1DW.h
 Spectrum2DB.h
 Spectrum2DL.h
 Spectrum2DW.h
