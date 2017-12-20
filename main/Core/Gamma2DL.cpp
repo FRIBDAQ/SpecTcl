@@ -355,10 +355,10 @@ CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 	
 	// transform -> Spectrum coordinates and increment.
 	
-        Int_t x = (Int_t)ParameterToAxis(0, xval);
+  Int_t x = (Int_t)ParameterToAxis(0, xval);
 	Int_t y = (Int_t)ParameterToAxis(1, yval);
 	bool xok = checkRange(x, m_nXScale, 0);
-        bool yok = checkRange(y, m_nYScale, 1);
+  bool yok = checkRange(y, m_nYScale, 1);
         
 	if (xok && yok) {
 	  pStorage[x + y*m_nXScale]++;
