@@ -87,6 +87,7 @@ private:
   // The interface that must be implemented to produce the spectrum:
   // (implementations of functions that are pure virtual in the base class
   //
+public:
   virtual   void Increment (const CEvent& rEvent)  ;
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);

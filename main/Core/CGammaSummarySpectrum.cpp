@@ -153,10 +153,10 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
     for(int i =0; i < params.size(); i++) {
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
-	Int_t chan = static_cast<Int_t>(m_Axes[x].ParameterToAxis(event[paramId]));
+        Int_t chan = static_cast<Int_t>(m_Axes[x].ParameterToAxis(event[paramId]));
         if(checkRange(chan, m_nYChannels, 0)) {
-	  p[chan*m_nXChannels]++;
-	}
+          p[chan*m_nXChannels]++;
+        }
       }
     }
     p++;			//  Next y strip.
