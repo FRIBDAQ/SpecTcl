@@ -22903,23 +22903,71 @@ class CSpectrum2DL  : public CSpectrum
 {
 
 public:
-  CSpectrum2DL(const std::string& rName, UInt_t nId,
-	       const CParameter& rXParameter,
-	       const CParameter& rYParameter,
+  CSpectrum2DL(const std::string&amp; rName, UInt_t nId,
+	       const CParameter&amp; rXParameter,
+	       const CParameter&amp; rYParameter,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CSpectrum2DL(const std::string& rName, UInt_t nId,
-	       const CParameter& rXParameter,
-	       const CParameter& rYParameter,
+  CSpectrum2DL(const std::string&amp; rName, UInt_t nId,
+	       const CParameter&amp; rXParameter,
+	       const CParameter&amp; rYParameter,
 	       UInt_t nXChannels, Float_t fxLow, Float_t fxHigh,
 	       UInt_t nYChannels, Float_t fyLow, Float_t fyHigh);
   UInt_t getXParameter();
   UInt_t getYParameter();
   virtual SpectrumType_t getSpectrumType() ;
-  virtual   void Increment (const CEvent& rEvent)  ;
+  virtual   void Increment (const CEvent&amp; rEvent)  ;
 
  
 };
+<beginpage />
+#include &lt;SpectrumS.h&gt;
+
+class CSpectrumS  : public CSpectrum
+{
+public:
+
+  CSpectrumS(const std::string&amp;         rName, 
+	       UInt_t                   nId,
+	       const CParameter&amp;        rParameters,
+	       const CParameter&amp;        nChannel,
+	       UInt_t                    nChannels);
+
+  CSpectrumS(const std::string&amp;         rName,
+	       UInt_t                   nId,
+	       const CParameter&amp;        rParameters,
+ 	       const CParameter&amp;        nChannel,
+	       UInt_t                   nChannels,
+	       Float_t                  fLow, 
+	       Float_t                  fHigh);
+
+  void ShiftDataUp (int64_t nShift);
+  void ShiftDataDown(int64_t nShift);
+
+  virtual SpectrumType_t getSpectrumType();
+  virtual   void Increment (const CEvent&amp; rE);
+};
+<beginpage />
+#include &lt;SummarySpectrumL.h&gt; //W and B versions also.
+
+class CSummarySpectrumL  : public CSpectrum
+{
+public:
+  CSummarySpectrumL(const std::string&amp; rName, UInt_t nId,
+		    std::vector&lt;CParameter&gt; rrParameters,
+		    UInt_t nYScale); 
+  CSummarySpectrumL(const std::string&amp; rName, UInt_t nId,
+		    std::vector&lt;CParameter&gt; rrParameters,
+		    UInt_t nYScale,
+		    Float_t fYLow,
+		    Float_t fYHigh); 
+  UInt_t getnParams() const ;
+  UInt_t getParameterId(UInt_t n) const;
+  virtual SpectrumType_t getSpectrumType();
+  virtual   void Increment (const CEvent&amp; rEvent)  ;
+  
+};
+
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -22938,8 +22986,9 @@ public:
             reliably implemented by compilers).
         </para>
         <para>
-            Here are the basic types of Spectra implemented by SpecTcl and a
-            summary of how they are incremented.
+            The remaining sections in this manpage provide information
+            about the classes that provide base support as well as provide
+            concrete implementations of specific spectrum types.
         </para>
         
     </refsect1>
@@ -25773,7 +25822,7 @@ end if
             Two dimensional spectra are defined on a pair of parameters
             called the X and Y parameters.  A two dimensional spectrum
             increments a channel in a two dimensional grid of channels indexed
-            by a mapping of the values of the X and Y parameters.
+            by a mapping of the values of the X and Y parameterss.
             The two dimensional spectrum classes are
             <classname>CSpectrum2DL</classname> - 32 bit channels,
             <classname>CSpectrum2DW</classname> - 16 bit channels and
@@ -25784,6 +25833,559 @@ end if
             has been satisfied) is presented in the documentation of the
             <methodname>Increment method</methodname>.
         </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum2DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter> rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId`</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>CParameter&amp; </type>
+                            <parameter>rXParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>CParameter&amp; </type>
+                            <parameter>rYParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>nXScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYScale</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrum2DL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>CParameter&amp;</type>
+                            <parameter> rXParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>CParameter&amp; </type>
+                            <parameter>rYParameter</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nXChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fxLow, </parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fxHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fyLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fyHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The two constructors, like the constructors for most
+                        spectrum types differ only in how the axes of the spectrum
+                        are specified.  
+                    </para>
+                    <para>
+                        The first constructor specifies
+                        the X axis as covering the range
+                        <literal>[0, <parameter>nXChannels</parameter>)</literal>
+                        with <parameter>nXChannels</parameter> bins.
+                        The Y axis is similarly specified as covering the range
+                        <literal>[0, <parameter>nYChannels</parameter>)</literal>
+                        with <parameter>nYChannels</parameter> bins.
+                    </para>
+                    <para>
+                        The second constructor, provides for arbitrary limits and
+                        binning.  <parameter>nXChannels</parameter> and
+                        <parameter>nYChannels</parameter> specify the number of
+                        bins on the X and Y axes respectively  as before. The range
+                        of the X axis is, however specified a
+                        <literal>[<parameter>fxLow</parameter>, <parameter>fxHigh</parameter>)</literal>.
+                        The range for the Y axis is similarly
+                        <literal>[<parameter>fyLow</parameter>, <parameter>fyHigh</parameter>)</literal>.
+                    </para>
+                    <para>
+                        The remainder of the constructor parameters are common
+                        to both forms of the constructor.
+                        <parameter>rName</parameter> and <parameter>nId</parameter>
+                        identify the spectrum.
+                        <parameter>rXParameter</parameter> and
+                        <parameter>rYParameter</parameter> are the definition
+                        objects for the X and Y axis parameters respectively.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getXParameter</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the parameter id of the X axis parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getYParameter</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the parameter id of the Y axis parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>ke2D</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEvent&amp; </type>
+                            <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Increments the spectrum as appropriate given the
+                        event <parameter>rEvent</parameter>.
+                        <methodname>Increment</methodname> does not
+                        check the gate.  <methodname>operator()</methodname>
+                        is assumed to already have done that.
+                    </para>
+                    <para>
+                        Pseudo code for the increment is:
+                    </para>
+                    <programlisting>
+xid  = getXParameter();
+yid  = getYParameter();
+if rEvent[xid].isValid() and rEvent[yid].isValid()
+    x = rawToXaxis(rEvent[xid])
+    y = rawToYAxis(rEvent[yid])
+    increment spectrum at channel (x,y)
+end if
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Strip chart spectrum</title>
+        <para>
+            Strip chart spectra are 1-d spectra that are intended to
+            represent the time evolution of some parameter.  They are
+            defined on two parameters. The value of one of them is called the
+            parameter while the value of the other is called the channel.
+        </para>
+        <para>
+            The increment logic will be given in psuedo code when we describe
+            the <methodname>Increment method</methodname>. The basic idea, however
+            is that the channel selects a bin in the spectrum into which the
+            parameter is summed.  If the channel value of an event is outside
+            the range of the spectrum, the spectrum is shifted to accommodate it.
+            Thus, if you think of the channel parameter as related to time, the
+            spectrum does implement a strip chart of the parameter.
+        </para>
+        <para>
+            Note, however that shifts in either direction are supported.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrumS</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier><type> CParameter&amp;</type>
+                            <parameter>rParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier><type> CParameter&amp;</type>
+                            <parameter>nChannel</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>nChannels</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrumS</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp;</type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier><type> CParameter&amp;</type>
+                            <parameter> rParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>CParameter&amp;</type>
+                            <parameter>nChannel</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t  </type><parameter>nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t</type><parameter>fHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These tow constructors again differ only in the
+                        initial axis specification.  In the first form,
+                        the spectrum has <parameter>nChannels</parameter>
+                        channels and the channel width corresponds to
+                        one unit of width in the raw parameter space.
+                    </para>
+                    <para>
+                        In the second form of the constructor,
+                        the initial range of the spectrum
+                        is
+                        <literal>[<parameter>fLow</parameter>, <parameter>fHigh</parameter>)</literal>.
+                        The width of a channel is
+                        <literal>(fHigh - fLow)/nChannels</literal>.
+                    </para>
+                    <para>
+                        For both constructor forms,
+                        <parameter>rName</parameter> and
+                        <parameter>nId</parameter> identify the spectrum.
+                        <parameter>rParameters</parameter> is the spectrum's
+                        parameter value.  This parameter is on the Y axis of the
+                        strip chart.  <parameter>nChannel</parameter> is the
+                        spectrum's channel parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ShiftDataUp</methodname>
+                        <methodparam>
+                            <type>int64_t </type><parameter>nShift</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is normally used by
+                        <methodname>Increment</methodname> for events where
+                        the channel parameter is to the left of the origin of
+                        the X axis.  Data are shifted upwards
+                        (to the right) and zero filled
+                        on the left.  <parameter>nShift</parameter> is the
+                        number of channels to shift the data.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>ShiftDataDown</methodname>
+                        <methodparam>
+                            <type>int64_t</type><parameter> nShift</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Same as <parameter>shiftDataUp</parameter> but the channels
+                        are shifted to the left in the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>keStrip</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>CEvent&amp; </type>
+                            <parameter>rE</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Increments the spectrum as per the contents of the
+                        event <parameter>rE</parameter>.  The Psuedo code is:
+                    </para>
+                    <programlisting>
+nc = getChannelParameter()
+np = getParameter()
+if (rEvent[nc].isValid() and rEvent[np].isValid())
+    channel = rawToX(rEvent[nc])
+    if (channel &gt; last channel)
+        shift spectrum down
+    else if (channel &lt; 0)
+        shift spectrum up
+    endif
+    channel = rawToX(rEvent[nc])
+    increment spectrum at channel by rEvent[np]
+end if
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Summary Spectra</title>
+        <para>
+            Summary spectra are intended to allow you to look at a large number
+            of parameters simultaneously.  An obvious use case is to look at all
+            of the detectors in a detector array.   Summary spectra are two
+            dimensional spectra but actually, each Y strip is a one channel wide
+            spectrum of a single parameter.
+        </para>
+        <para>
+            The increment logic, as usual, is shown in pseudo code for the
+            <methodname>Increment</methodname> method.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSummarySpectrumL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;</type>
+                            <parameter> rrParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYScale</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSummarySpectrumL</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::string&amp; </type>
+                            <parameter>rName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;CParameter&gt;</type>
+                            <parameter> rrParameters</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nYScale</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fYLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fYHigh</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The two forms of the constructor differ in how they
+                        create the range and binning of the Y axis.
+                        In the first form; there are
+                        <parameter>nYScale </parameter> bins on an axis that spans
+                        the interval
+                        <literal>[0, <parameter>nYScale</parameter>)</literal>.
+                        In the second form; there are again
+                        <parameter>nYScale</parameter> channels, but the axis spans the
+                        interval
+                        <literal>[<parameter>fYLow</parameter>, <parameter>fYHigh</parameter>)</literal>.
+                    </para>
+                    <para>
+                        The remaining parameters are semantically the same for
+                        both constructors.  <parameter>rName</parameter>
+                        and <parameter>nId</parameter> identify the spectrum.
+                        <parameter>rrParameters</parameter> provide the
+                        parameters that are histogrammed in the summary.
+                        The index of each element of the vector indicates which
+                        X channel that parameter's spectrum occupies.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getnParams</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of parameters on the X axis.
+                        This is also the number of channels on the X axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getParameterId</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>n</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the parameter id for channel
+                        <parameter>n</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>SpectrumType_t </type>
+                        <methodname>getSpectrumType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>keSummary</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Increment</methodname>
+                        <methodparam>
+                            <modifier>const </modifier><type>CEvent&amp; </type>
+                            <parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given an event <parameter>rEvent</parameter> increments
+                        the appropriate channels of the spectrum.  The psuedo
+                        code for this method looks a bit like this, assuming
+                        there's a vector m_parameters that has the parameter
+                        ids of the parameters used to construct the spectrum:
+                    </para>
+                    <programlisting>
+xchan = 0
+for each parameter id in m_parameters as id
+    if rEvent[id].isValid()
+        value = rawToYAxis(rEvent[id])
+        Increment channel (xchan, value)
+    endif
+    xchan = xchan + 1
+end for
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
     </refsect1>
 </refentry>
         <chapter>
@@ -25791,15 +26393,6 @@ end if
         <itemizedlist>
             <listitem>
                 <para>
-
-
-Spectrum2DB.h
-Spectrum2DL.h
-Spectrum2DW.h
-SpectrumS.h
-SummarySpectrumB.h
-SummarySpectrumL.h
-SummarySpectrumW.h
 
                 </para>
             </listitem>
