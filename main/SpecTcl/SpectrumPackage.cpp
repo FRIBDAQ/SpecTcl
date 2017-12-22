@@ -1600,6 +1600,8 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     if( !((fFlags & fLive) && AllParamsExist(pSpectrum))) {  // Must wrap
       pSpectrum = new CSnapshotSpectrum(*pSpectrum, kfTRUE);
     }
+    pSpectrum->createStatArrays(pSpectrum->Dimensionality());
+    
     //  We now have a viable spectrum.  The spectrum is entered into the
     //  dictionary.
     //
