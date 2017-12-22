@@ -26388,6 +26388,152 @@ end for
         </variablelist>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFold</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFold</refname>
+        <refpurpose>Process gamma ray spectrum folds</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFold.h&gt;
+
+class CFold
+{
+public:
+  CFold(CGateContainer* m_pGate);
+  std::string getFoldName();
+  void        setGate(CGateContainer* pGate);
+  void        operator()(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rEvent, 
+                         CGammaSpectrum* pSpectrum);
+  void        operator()(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParams,
+			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParams,
+			 CGammaSpectrum* pSpectrum);
+protected:
+  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
+                                std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
+                                UInt_t removeMe);
+  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
+                               std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
+                               UInt_t remove1, UInt_t remove2);
+  
+};
+
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Fold mediate the processing of an event in Gamma spectra derived
+            from <classname>CGammaSpectrum</classname>.  They help determine which
+            peaks are part of a sequential decay process.   They do this by only
+            incrementing parameters that are <emphasis>not</emphasis> in the fold's
+            gate 
+        </para>
+        <para>
+            This <firstterm>cutting down</firstterm> of the parameters allows
+            the spectrum to only increment for gamma rays that are coincident
+            with the one in the fold.  In this case, coincident means they
+            gammas are in the same event.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CFold</methodname>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter>pGate</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The constructor requires a <parameter>pGate</parameter>
+                        which will be used as the fold.  The gate should be
+                        a valid gamma gate, however it is not an error to use
+                        a non-gamma gate.  Using a  non-gamma gate, however
+                        will not affect how the spectrum is incremented.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>getFoldName</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the name of the fold. The name of the fold
+                        is the same asw the name of the gate it evaluates.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setGate</methodname>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter>pGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the fold gate to <parameter>pGate</parameter>.
+                        Note that a side-effect of this is that the fold's name
+                        is changed since it derived from the
+                        name of the underlying gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                Placeholder.
+                </term>
+                <listitem>
+                    <para>
+
+  void        operator()(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParams,
+			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParams,
+			 CGammaSpectrum* pSpectrum);
+protected:
+  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
+                                std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
+                                UInt_t removeMe);
+  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
+                               std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
+                               UInt_t remove1, UInt_t remove2);
+  
+};
+
+
+
+
+
+
+
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
         <itemizedlist>
