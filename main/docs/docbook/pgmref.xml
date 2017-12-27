@@ -26503,30 +26503,297 @@ protected:
             </varlistentry>
             <varlistentry>
                 <term>
-                Placeholder.
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void  </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>xParams</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>yParams</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGammaSpectrum* </type><parameter>pSpectrum</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
                 </term>
                 <listitem>
                     <para>
+                        Processes the cut for a gamma deluxe spectrum.
+                        For each pair of parameters that satisfies the
+                        gamma gate, all other parameter pairs increment
+                        the spectrum.   
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>CutDownParameters</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;</type>
+                            <parameter>rNew</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rOld</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>removeMe</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a new list of parameters, <parameter>rNew</parameter>
+                        that consists of the previous list, <parameter>rOld</parameter>
+                        without any instance of parameter id <parameter>removeMe</parameter>
+                        in it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname> CutDownParameters</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; </type>
+                            <parameter>rNew</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp;  </type>
+                            <parameter>rOld</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> remove1</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t</type><parameter>remove2</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a new vector, <parameter>rNew</parameter> consisting
+                        of the elements of <parameter>rOld</parameter> that cointains
+                        neither <parameter>remove1</parameter> nor
+                        <parameter>remove2</parameter>.  This is somewhat faster
+                        than using the previous method twice and is a natural
+                        method for use with 2d gates that are wrapped by
+                        a fold.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CAxis</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CAxis</refname>
+        <refpurpose>Spectrum axis coordinate transforms.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CAxis.h&gt;
 
-  void        operator()(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; xParams,
-			 std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; yParams,
-			 CGammaSpectrum* pSpectrum);
-protected:
-  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
-                                std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
-                                UInt_t removeMe);
-  void        CutDownParameters(std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rNew, 
-                               std::vector&lt;std::pair&lt;UInt_t, Float_t&gt; &gt;&amp; rOld, 
-                               UInt_t remove1, UInt_t remove2);
+class CAxis      
+{
+public:
+
+  CAxis (UInt_t nChannels,
+	 std::string sUnits = std::string(""));
+  CAxis (Float_t fLow,
+	 Float_t fHigh,
+	 UInt_t  nChannels,
+	 std::string sUnits = std::string(""));	
+
+public:
+  // Selectors for member data.
+  
+  float getLow() const;
+  float getHigh() const;
+  int getChannels() const;
+
+  Float_t ParameterToAxis (Float_t fParameter);
+  Float_t AxisToParameter (UInt_t nAxisValue)   ;
   
 };
-
-
-
-
-
-
-
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CAxis</classname> incorporates an axis description
+            as well as a set of methods to do transforms from parameter
+            space to bin space on an axis and back.  A parameter is defined
+            as an interval in parameter coordinates that is divided up into
+            a number of equal-sized bins.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>
+            METHODS
+        </title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CAxis</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::string </type><parameter>sUnits </parameter>
+                            <initializer>std::string("")</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Initializes an axis for a simple integer parameter.
+                        The axis is a 1:1 mapping over the range:
+                        <literal>[0, <parameter>nChannels</parameter>)</literal>
+                    </para>
+                    <para>
+                        The optional <parameter>sUnits</parameter> parameter
+                        provides the axis units of measure and defaults to an
+                        empty string.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CAxis</methodname>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter> nChannels</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::string </type><parameter>sUnits </parameter>
+                            <initializer>std::string("")</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates an axis for a floating point parameter.
+                        The axis covers the range
+                        <literal>[<parameter>fLow</parameter>, <parameter>fHigh</parameter>)</literal>
+                        and has <parameter>nChannels</parameter> bins.
+                    </para>
+                    <para>
+                        The optional parameter <parameter>sUnits</parameter>
+                        is the axis units of measure and defaults to an
+                        empty string if not supplied
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>float </type>
+                        <methodname>getLow</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Return the axis low limit.   The axis range is
+                        inclusive of this value.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>float </type>
+                        <methodname>getHigh</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the axis high limit.  The axis range
+                        is exclusive of this value.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>int </type>
+                        <methodname>getChannels</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of bins on the axis. In SpecTcl,
+                        all bins are equal sized.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>ParameterToAxis</methodname>
+                        <methodparam>
+                            <type>Float_t </type><parameter>fParameter</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a parameter value, converts it to an axis value
+                        (bins).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type> Float_t </type>
+                        <methodname>AxisToParameter</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nAxisValue</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given an axis bin number converts the value to
+                        a parameter value.
                     </para>
                 </listitem>
             </varlistentry>
@@ -26534,24 +26801,697 @@ protected:
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CGate</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CGate</refname>
+        <refpurpose>SpecTcl gate classes</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Gate.h&gt;
+
+class CGate      
+{
+public:
+  CGate ();
+  Bool_t getChecked();
+  Bool_t getCachedValue();
+  void Set (Bool_t fValue);
+  void Reset ();
+  virtual void RecursiveReset(); 
+  Bool_t wasChecked ();
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CConstituentIterator Begin ()   = 0;
+  virtual   CConstituentIterator End ()   = 0;
+  virtual   UInt_t Size ()   = 0;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)   = 0;
+  virtual   CGate* clone ()   = 0;
+  virtual   std::string Type () const   = 0;
+  virtual   Bool_t inGate (CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params) = 0;
+  virtual   Bool_t inGate (CEvent&amp; rEvent) = 0;
+  virtual   Bool_t caches();
+};
+<beginpage />
+#include &lt;Cut.h&gt;
+
+class CCut  : public CGate        
+{
+  
+public:
+  CCut (  Float_t am_nLow,  Float_t am_nHigh,  UInt_t am_nId  ) ;
+  Float_t getLow() const;
+  Float_t getHigh() const;
+  UInt_t getId() const;
+  virtual std::vector&lt;std::string&gt; getSpecs() const;
+  virtual   Bool_t operator()(CEvent&amp; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate (CEvent&amp; rEvent);
+  virtual   Bool_t inGate (Float_t x);
+};
+
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CGate</classname> class provides base class services
+            and an API definition for SpecTcl's gate classes.  SpecTcl has
+            a rich set of gate types ranging from primitive gates to compound
+            gates.  A primitive gate is one that does not depend on other gates.
+            A compound gate is one that depends on one or more other gates.
+        </para>
+        <para>
+            As the same gate may be checked more than once per event, gates can
+            rememer if they've been checkedand, if they have been, the result of
+            the most recent check.
+            For most gates, therefore, the actual computation of the gate is
+            only done once per event with the cached value of that
+            check being used in subsequent attempts to evaluate the gate.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>CGate METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGate</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs the base class.  The gate is set with the
+                        cache invalid.  The state of the cached value is therefore
+                        meaningless.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>getChecked</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>wasChecked</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the gate has a valid cached value returns
+                        <literal>kfTRUE</literal>.  Otherwise returns
+                        <literal>kfFALSE</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>getCachedValue</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the gate has a cached value (<methodname>getChecked</methodname>
+                        returns <literal>kfTRUE</literal>) returns the cached value
+                        for that gate.  <literal>kfTRUE</literal> means the
+                        gate was satisifed by its last check.
+                        <literal>kfFALSE</literal> means the gate was not
+                        satisfied.  If
+                        <methodname>getChecked</methodname> returns
+                        <literal>kfFalse</literal>, the return value
+                        from this method has no meaning.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>Set </methodname>
+                        <methodparam>
+                            <type>Bool_t </type><parameter>fValue</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the new value for the gate.   If called after
+                        this method call, <methodname>getChecked</methodname>
+                        will return <literal>kfTRUE</literal> until the
+                        cache is reset via a call to <methodname>Reset</methodname>
+                        is called on this gate or <methodname>RecursiveReste</methodname>
+                        is called on this gate  or a gate that contains this gate
+                        either directly or indirectly.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>Reset</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Resets the cache on this gate.  Any constituent gates
+                        will not be reset.  Therefore, it is preferable
+                        to call <methodname>RecursiveReset</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>RecursiveReset</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Resets the cached status of this break.  For every
+                        constituent gate this method also does a recursive
+                        reset on it.  Thus this method is expected to
+                        Reset all the gates that contribute to this gate
+                        as well as this gate itself.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp;</type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the gate has a valid cached value, that value is returned.
+                        If not, the gate is checked (normally using <methodname>inGate</methodname>).
+                        The result is then cached and returned.
+                    </para>
+                    <para>
+                        This might be implemented as:
+                    </para>
+                    <programlisting>
+if (!wasChecked()) {
+    Set(inGate(rEvent));   // Sets the gate status and cachce.
+}
+return getCachedValue();
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator</type>
+                        <methodname> Begin </methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Compound gates are gates that depend on other
+                        gates.  You can think of them as a container for
+                        other gates (some may be compound as wel) and a
+                        logical relationship required among those gates.  For
+                        example, an <literal>And</literal> gate requires all
+                        constituent gates to be satisfied if it is to be
+                        satisifed for an event.
+                        The gates a compound gate depends on are called
+                        <firstterm>constituents</firstterm>.
+                    </para>
+                    <para>
+                        If the gate has constituents, this method should return
+                        an iterator to the first item of the container of
+                        constituents  If the gate has no constitutents, the value
+                        returned by <methodname>End</methodname> is returned.
+                    </para>
+                    <para>
+                        This method is pure virtual to allow each
+                        gate type to use the container of constituents appropriate
+                        to it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>End</methodname>
+                        <void />
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the end of iteration iterator for the
+                        consitutents of this gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>GetConstituent</methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp;</type><parameter> rIterator</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a stringified version of the gate 'pointed to'
+                        by the constituent iterator.  The form of this string
+                        may vary from gate type to gate type.  Therefore,
+                        this method will be documented completely for each
+                        concrete gate class so you know what to expect.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CGate* </type>
+                        <methodname>clone</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a dynamically created gate that is
+                        identical in state to this gate.  Note that dynamically
+                        created means that when the client is done with this
+                        gate they must <literal>delete</literal> it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>Type</methodname>
+                        <void />
+                        <modifier>const   = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a text string that identifies the gate type.
+                        This method will be documented for each concrete
+                        gate type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>inGate </methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is used mostly by non gamma gates.  That
+                        is gates with only one set of possible parameters.
+                        It returns <literal>kfTrue</literal> if the event
+                        satisfies the gate and <literal>kfFalse</literal>
+                        if not. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual   </modifier>
+                    <type>Bool_t </type>
+                    <methodname>inGate</methodname>
+                    <methodparam>
+                        <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                    </methodparam>
+                    <methodparam>
+                        <modifier>const </modifier>
+                        <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>Params</parameter>
+                    </methodparam>
+                    <modifier>= 0</modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        This is normally used by gamma gates.  If the parameter
+                        ids in <parameter>Params</parameter> select a set of
+                        parameters in <parameter>rEvent</parameter> that make
+                        this gate true, the method returns <literal>kfTrue</literal>
+                        otherwise <literal>kfFalse</literal>.
+                    </para>
+                    <para>
+                        Gamma gates can be used as cuts by trying all legal
+                        combinations of parmeter ids in the
+                        <parameter>Params</parameter> vector.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>caches</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTrue</literal> if the gate caches.
+                        This can be used to restrict the set of gates that
+                        are reset to only those that have a cache.
+                    </para>
+                </listitem>
+            </varlistentry>
+         </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>CCut Methods</title>
+        <para>
+            <classname>CCut</classname> gates represent an interval in parameter
+            space for some parameter.  If an event has that parameter and that
+            parameter lies in that interval, the gate is satisfied.  As with
+            other intervals in SpecTcl, the interval is inclusive of the low
+            limit but exclusive of the high limit.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CCut </methodname>
+                        <methodparam>
+                            <type>Float_t</type><parameter> am_nLow</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>am_nHigh</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>am_nId </parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs a gate that is satisfied when the
+                        parameter with id <parameter>am_nId</parameter> is in
+                        the interval
+                        <literal>[<parameter>am_nLow</parameter>, <parameter>am_nHigh</parameter>)</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>getLow</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the value of the low end of the interval
+                        that defines the cut.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Float_t </type>
+                        <methodname>getHigh</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the value of the high end of the
+                        interval that defines the cut.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>UInt_t </type>
+                        <methodname>getId</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the id of the parameter this gate will test.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::vector&lt;std::string&gt; </type>
+                        <methodname>getSpecs</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector of spectrum names involved with the
+                        gate.  For a cut, no spectra are involved so an
+                        empty vector is returned.  This is used mainly by
+                        gamma gates.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>Begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        A cut is a gate with a single constituent - itself.
+                        This method returns an iterator that, once incremented
+                        is at the end of iteration.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator</type>
+                        <methodname> End </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator that points to nothing, and is
+                        off the end of constiuents.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>UInt_t </type>
+                        <methodname>Size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>1</literal> indicating there is only
+                        one constituent, the gate itself.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> std::string </type>
+                        <methodname>GetConstituent </methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp;</type>
+                            <parameter> rIterator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the iterator is not at end returns a string consisting
+                        of three space separated values.  The first value is
+                        the parameter id.  The second and third are the low and
+                        high limits of the cut's interval.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>Type</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>s</literal> for slice.
+                        This is the type of gate.  Note that
+                        <literal>c</literal> is used for the type of
+                        contour gates.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type>   Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>Float_t </type><parameter>x</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTRUE</literal> if
+                        <parameter>x</parameter> is in the cut's interval.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the event does not have the parameter whose id was
+                        used to construct the cut, returns <literal>kfFalse</literal>.
+                        If it does, the value of that parameter is passed to
+                        the previous method and the result of that method
+                        is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp;</type><parameter> rEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier><type>std::vector&lt;UInt_t&gt;&amp; </type>
+                            <parameter>Params</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Same as the previous method, howver instead of using
+                        the id of the parameter used to construct this
+                        object, the parameter id <parameter>Params[0]</parameter>
+                        is used.
+                    </para>
+                </listitem>
+            </varlistentry>
+            
+ 
+        </variablelist>
+    </refsect1>
+</refentry>
         <chapter>
             <title>Stuff to do</title>
-        <itemizedlist>
-            <listitem>
-                <para>
-
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    CFold
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    CAxis
-                </para>
-            </listitem>
+            <itemizedlist>
             <listitem>
                 <para>
                     Gate Classes, and CGateContainer, Gate observer
