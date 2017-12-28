@@ -26919,6 +26919,20 @@ public:
   virtual   Bool_t inGate(CEvent&amp; rEvent);
 };
 
+#include &lt;MaskEqualGate.h&gt;
+class CMaskEqualGate : public CMaskGate  
+{  
+public:
+  CMaskEqualGate ( UInt_t am_nId, UInt_t  am_lCompare ) ;
+ 
+ long getCompare() const;
+ UInt_t getId() const;
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+};
 
 
 
@@ -28089,6 +28103,87 @@ return cached value
                         </para>
                     </listitem>
                 </varlistentry>
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title>Mask Equal gates</title>
+            <para>
+                These just test for bitwise equality of the integerized parameter
+                with the specified comparison bitmask.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CMaskEqualGate </methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>am_nId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t  </type><parameter>am_lCompare </parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Provides a parameter id and a comparison mask on which
+                            the object (gate) is constructed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>long </type>
+                            <methodname>getCompare</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the comparison value for the gate.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>UInt_t </type>
+                            <methodname>getId</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the Id of the parameter on which the
+                            gate was constructed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual</modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp;</type><parameter> rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Compares the specified parameter to the mask.
+                            If bitwise equal the gate is satisfied.
+                        </para>
+                    </listitem>
+                </varlistentry>
+
             </variablelist>
         </refsect2>
     </refsect1>
