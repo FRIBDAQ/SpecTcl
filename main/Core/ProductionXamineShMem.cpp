@@ -57,6 +57,7 @@
 #include <iostream>
 #include <assert.h>
 
+
 using namespace std;
 
 //
@@ -118,7 +119,9 @@ void CProductionXamineShMem::attach()
 
 void CProductionXamineShMem::detach()
 {
+    Xamine_KillSharedMemory();
     Xamine_DetachSharedMemory();
+    m_pMemory = nullptr;               // No longer attached.
 }
 
 //

@@ -136,6 +136,10 @@ void killmem()
 
   }
 }
+void Xamine_KillSharedMemory()
+{
+  killmem();
+}
 #endif
 /*
 ** Functional Description:
