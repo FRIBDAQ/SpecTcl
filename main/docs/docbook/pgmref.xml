@@ -26859,6 +26859,68 @@ public:
   virtual   Bool_t inGate (Float_t x);
 };
 
+<beginpage />
+#include &lt;FalseGate.h&gt;
+
+class CFalseGate {
+  CFalseGate ();
+                       
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type () const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+  virtual   Bool_t caches();
+};
+
+<beginpage />
+#include &lt;TrueGate.h&gt;
+class CTrueGate  : public CGate        
+{
+
+  CTrueGate () : CGate();
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+  virtual   Bool_t caches();
+};
+
+<beginpage />
+class CMaskGate  : public CGate        
+{  
+public:
+  CMaskGate (UInt_t mask);
+  long getCompare() const;
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   UInt_t Size ()  ;
+};
+
+class CMaskAndGate : public CMaskGate  
+{  
+public:
+
+  CMaskAndGate ( UInt_t am_nId, UInt_t  am_lCompare );
+  long getCompare() const;     
+  UInt_t getId() const;
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+};
+
+
+
 
         </synopsis>
     </refsynopsisdiv>
@@ -27487,6 +27549,548 @@ return getCachedValue();
             
  
         </variablelist>
+    </refsect1>
+    <refsect1>
+        <title><classname>CFalseGate methods</classname></title>
+        <para>
+            <classname>CFalseGate</classname> is a gate that is never satisfied.
+            When gates are deleted, they are actually replaced by false gates,
+            gates are never actually deleted.
+        </para>
+        <variablelist>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As the gate name implies, regardless of the content
+                        of <parameter>rEvent</parameter>, this always
+                        returns <literal>kfFALSE</literal>.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>Begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator at end (same value as
+                        <methodname>End</methodname>).  False gates have no
+                        components.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator</type>
+                        <methodname> End</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>UInt_t </type>
+                        <methodname>Size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>0</literal>
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>GetConstituent </methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp; </type><parameter>rIterator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Regardless of the value of
+                        <parameter>rIterator</parameter>; returns an empty string.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>  virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>Type </methodname>
+                        <void />
+                        <modifier>const;</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>F</literal> which represents
+                        a False gate.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>ids</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Both of these return <literal>kfFalse</literal>
+                        regardless of the parameters passed in.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>caches</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfFalse</literal> as there's no need
+                        for a hard coded gate like <classname>CFalseGate</classname>
+                        to cache its answers.
+                    </para>
+                </listitem>
+             </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title><classname>CTrueGate methods</classname></title>
+        <para>
+            <classname>CTrueGate</classname> is a gate that is never satisfied.
+            When a spectrum is created it is initially gated on a true gate.
+            True gates can also be used as place holders for gate to be defined
+            later.
+        </para>
+        <variablelist>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        As the gate name implies, regardless of the content
+                        of <parameter>rEvent</parameter>, this always
+                        returns <literal>kfTRUE</literal>.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>Begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator at end (same value as
+                        <methodname>End</methodname>).  False gates have no
+                        components.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator</type>
+                        <methodname> End</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>UInt_t </type>
+                        <methodname>Size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>0</literal>
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>GetConstituent </methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp; </type><parameter>rIterator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Regardless of the value of
+                        <parameter>rIterator</parameter>; returns an empty string.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>  virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>Type </methodname>
+                        <void />
+                        <modifier>const;</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>T</literal> which represents
+                        a True gate.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>ids</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Both of these return <literal>kfTrue</literal>
+                        regardless of the parameters passed in.
+                    </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>caches</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfFalse</literal> as there's no need
+                        for a hard coded gate like <classname>CFalseGate</classname>
+                        to cache its answers.
+                    </para>
+                </listitem>
+             </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Mask gate methods</title>
+        <para>
+            Bit mask gates treat a parameter like a bitmask (integer) and
+            perform various bit logic mask and compare operations.
+            An abstract base class; <classname>CMaskGate</classname>
+            Provides storage for the constant bit mask  and the following
+            meaningful methods:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CMaskGate</methodname>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> mask</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This base class constructor stores the
+                        <parameter>mask</parameter> as an object attribute.
+                        Derived classes can use <methodname>getCompare</methodname>
+                        to retrieve this value.  Gates derived from this
+                        method normally perform some bitwise operation between
+                        the parameter and the mask and then a comparison.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>long </type>
+                        <methodname>getCompare</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the mask that used to instantiate this base class.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>operator() </methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This just determine is the actual class's
+                        <methodname>inGate</methodname> method has to be invoked.
+                        If not the cached value for the gate is returned.
+                        Psuedo code for this is:
+                    </para>
+                    <programlisting>
+
+if cache is not valid
+   Set cached value from Actual Class's inGate(rEvent)
+endif
+return cached value
+
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <refsect2>
+            <title>MaskAnd gates</title>
+            <para>
+                These gates check to see if all bits in a mask are present
+                in the parameter.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CMaskAndGate </methodname>
+                            <methodparam>
+                                <type>UInt_t</type><parameter> am_nId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t  </type><parameter>am_lCompare</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            <parameter>am_nId</parameter> is the parameter id
+                            of the parameter to test.
+                        </para>
+                        <para>
+                            <parameter>am_lCompare</parameter> is the bit
+                            mask used inthe compare.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>long </type>
+                            <methodname>getCompare</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the bit mask used in the test.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>UInt_t</type>
+                            <methodname>getId</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the id of the parameter that is checked
+                            by this gate.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>Type</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns <literal>am</literal> for
+                            <firstterm>And Mask</firstterm>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual  </modifier>
+                            <type> Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>Params</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Check for the parameter to satisfy the gate.
+                            Unfortunately the implementation of both of these
+                            methods are the same (<parameter>Params</parameter> is
+                            totally ignored and the first method just calls
+                            the second.
+                        </para>
+                        <para>
+                            The Mask used to construct the gate is bitwise
+                            anded with the parameter.  If the result is
+                            equal to the mask, the gate is satisfied, otherwise
+                            not.
+                        </para>
+                        <para>
+                            If the gate is satisfied, the method returns
+                            <literal>kfTRUE</literal> otherwise
+                            <literal>kfFALSE</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
     </refsect1>
 </refentry>
         <chapter>
