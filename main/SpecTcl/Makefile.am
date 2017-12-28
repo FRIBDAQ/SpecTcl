@@ -6,21 +6,23 @@ bin_PROGRAMS = SpecTcl
 SpecTcl_SOURCES = MySpecTclApp.cpp  MySpecTclApp.h
 
 SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
-									 -I@top_srcdir@/Utility \
-									 @LIBTCLPLUS_CFLAGS@ \
-									 @TCL_CPPFLAGS@
+		 -I@top_srcdir@/Utility \
+		 @LIBTCLPLUS_CFLAGS@ \
+		 @TCL_CPPFLAGS@
 
 SpecTcl_CPPFLAGS = -g
 
 # Remove:	@top_builddir@/Tape/libtape.la
 
-SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
-								@top_builddir@/Display/libXamine.la \
-								-lXt -lX11 -lgsl -lgslcblas
-
-SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	@LIBTCLPLUS_LDFLAGS@	\
-	-Wl,"-rpath=$(libdir)" @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+
+SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
+		@top_builddir@/Display/libXamine.la \
+		-lXt -lX11 -lgsl -lgslcblas $(LDFLAGS)
+
+SpecTcl_LDFLAGS = -Wl,"-rpath=$(libdir)"
 
 
 
