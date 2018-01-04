@@ -126,7 +126,7 @@ Bool_t
 CBand::operator()(CEvent& rEvent)
 {
   if(!wasChecked()) {
-    Set(inGate(rEvent));
+    Set(CPointListGate::inGate(rEvent));
   }
   
   return getCachedValue();
@@ -160,40 +160,10 @@ CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   //          Refers to the vector of parameters in the gate (empty)
 {
 
-  return inGate(rEvent);
+  return CPointListGate::inGate(rEvent);
 }
 
-/*!
-   Determines if an event is within the gate.  A band gate is treated like a
-   contour as follows:
-    The first and last limit points produce a vertical line that is dropped
-    to negative infinity. Inisdedness is handled essentially the same way
-    as it is for contours other than that, however we don't do the bounding
-    box check since in  most cases bands span
-    much of the vertical/horizontal extent of the data.
 
-    \param rEvent - the event to check against the gate.
-    \return kfTRUE if the event falls in the band, kfFALSE if not.
-*/
-Bool_t
-CBand::inGate(CEvent& rEvent)
-{
-  UInt_t xPar = getxId();
-  UInt_t yPar = getyId();
-  if( (xPar >= rEvent.size()) || (yPar >= rEvent.size())) {
-    return kfFALSE;
-  }
-  if(!rEvent[xPar].isValid() || !rEvent[yPar].isValid()) {
-    return kfFALSE;		// A parameter not supplied.
-  }
-  else {
-    Float_t x = rEvent[xPar];	// Pull the point out of the event array.
-    Float_t y = rEvent[yPar];
-
-    return Interior(x,y);
-
-  }
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

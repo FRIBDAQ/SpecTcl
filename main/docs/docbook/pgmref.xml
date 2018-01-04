@@ -26934,7 +26934,54 @@ public:
   virtual   Bool_t inGate(CEvent&amp; rEvent);
 };
 
+#include &lt;MaskEqualGate.h&gt;
 
+class CMaskNotGate : public CMaskGate  
+{  
+public:
+
+  CMaskNotGate ( UInt_t am_nId, UInt_t  am_lCompare );
+  long getCompare() const;      
+  UInt_t getId() const;
+
+public:            
+  virtual   Bool_t operator() (CEvent&amp; rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+
+};
+<beginpage />
+
+#include &lt;Point.h&gt;               // Defines FPoint used below.
+#include &lt;PointlistGate.h&gt;
+
+class CPointListGate  : public CGate        
+{ 
+public:
+ CPointListGate (UInt_t nXId, UInt_t nYId,
+		  const std::vector&lt;FPoint&gt;&amp; Points);
+  CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
+		 Float_t *xCoords, Float_t *yCoords);
+  CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
+		 FPoint* pPoints);
+
+  UInt_t getxId() const;
+  UInt_t getyId() const;
+  std::vector&lt;FPoint&gt; getPoints() const;
+
+  std::vector&lt;FPoint&gt;::iterator getBegin();
+  std::vector&lt;FPoint&gt;::iterator getEnd() ;
+
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)  ;
+  virtual  Bool_t inGate(CEvent&amp; rEvent);
+  virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
+
+};
 
         </synopsis>
     </refsynopsisdiv>
@@ -28184,6 +28231,493 @@ return cached value
                     </listitem>
                 </varlistentry>
 
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title><classname>CMaskNotGate</classname> METHODS</title>
+            <para>
+                This gate tests for bits that are not in a mask.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CMaskNotGate </methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>am_nId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t  </type><parameter>am_lCompare</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            As with all of these mask gate classes,
+                            a parameter id (<parameter>am_nId</parameter>) and
+                            a mask (<parameter>am_lCompare</parameter>) are required
+                            by the constructor.  The actual gate pseudo code
+                            will be shown in the <methodname>inGate</methodname>
+                            method.  However, this gate will be satisfied if
+                            the parameter contains all of the bits that are not
+                            set in the mask.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>long </type>
+                            <methodname>getCompare</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the value of the mask used in the
+                            <methodname>inGate</methodname> operation.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>UInt_t </type>
+                            <methodname>getId</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the id of the parameter checked in the
+                            <methodname>inGate</methodname> method.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type>
+                                <parameter>rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Determines if the parameter associated with the
+                            gate satisfies it for the event <parameter>rEvent</parameter>.
+                            The psuedo code for this is:
+                        </para>
+                        <programlisting>
+id = getId()
+if rEvent[id].isValid() then
+   mask = ~getCompare()                   // Note bitwise complement.
+   return (mask &amp; rEvent[id])  == mask
+endif
+return kfFALSE
+                        </programlisting>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+	    <para>
+
+	    </para>
+        </refsect2>
+        <refsect2>
+            <title><classname>CPointListGate</classname> methods</title>
+            <para>
+                2-d gates are normally figures draw in a 2-d space defined by
+                a pair of parameters.  These figures are defined by an array
+                of points in parameter space.
+                <classname>CPointListGate</classname> is an abstract
+                base class for simple
+                2-d gates which stores the ids of both X and Y parameters and
+                the list of points that define the figure.
+            </para>
+            <para>
+                While the figure points can be abstracted, the concept of
+                inside-ness of a point in parameter space must be defined
+                by a concrete derived class.  It's easy to see that this is
+                the case by considering the difference in the definition
+                of inside-ness for a contour (closed figure) and a band (polyline).
+            </para>
+            <variablelist>
+                  <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CPointListGate</methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nXId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type> UInt_t </type><parameter>nYId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>const std::vector&lt;FPoint&gt;&amp; </type><parameter>Points</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CPointListGate</methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nXId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nYId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nPts</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>*xCoords</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>*yCoords</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CPointListGate</methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nXId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type> UInt_t </type><parameter>nYId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nPts</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>FPoint* </type><parameter>pPoints</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            All constrcutors provide <parameter>nXId</parameter>,
+                            the id of the X parameter for the gate and
+                            <parameter>nYId</parameter>, the
+                            id of the Y parameter for the gate.  Constructors
+                            only differ in how the points that define the gate
+                            shape are passed.
+                        </para>
+                        <para>
+                            In the first constructor, points are passsed in as
+                            <parameter>Points</parameter>, a vector of type
+                            <classname>FPoint</classname>.  This type is
+                            defined in the <filename>Point.h</filename> header.
+                            It is an object that encapsulates an X,Y coordinate
+                            pair that represents one point fo the gate shape.
+                        </para>
+                        <para>
+                            The last two constructors require that the
+                            number of points in the gate shape,
+                            <parameter>nPts</parameter>, be passed to the
+                            constructor.
+                        </para>
+                        <para>
+                            In the first of those two, the parameters
+                            <parameter>xCoords</parameter> and
+                            <parameter>yCoords</parameter> point to
+                            simple C arrays containing the X aqnd Y coordinates
+                            of each point
+                            respectively.  Clearly <parameter>xCoords</parameter>
+                            and <parameter>yCoords</parameter> must both have
+                            <parameter>nPts</parameter> elements.
+                        </para>
+                        <para>
+                            In the final constructor, the parameter
+                            <parameter>pPoints</parameter> points to a C array
+                            of <classname>FPoint</classname> objects.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>UInt_t </type>
+                            <methodname>getxId</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>UInt_t </type>
+                            <methodname>getyId</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            These two methods get the ids of the parameters
+                            on the X and Y axes of the gate shape.  An event
+                            that has both of these ids defines a point in
+                            parameter space where the parameter whose id is
+                            returned by <methodname>getxId</methodname> is
+                            on the X axis and that returned by
+                            <methodname>getyId</methodname> is on the Y
+                            axis.  Gate points define a figure in this
+                            space whose meaning depends on the actual,
+                            concrete gate type.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::vector&lt;FPoint&gt; </type>
+                            <methodname>getPoints</methodname>
+                            <void />
+                            <modifier> const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns a copy of the points vector.  This may result
+                            in copying a significatn number of
+                            <classname>FPoint</classname> objects and should
+                            not be userd to obtain gate points in order to
+                            check gates.  Better to iterate or, if appropriate,
+                            use the <methodname>Crosses</methodname>
+                            utility method.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::vector&lt;FPoint&gt;::iterator </type>
+                            <methodname>getBegin</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::vector&lt;FPoint&gt;::iterator </type>
+                            <methodname>getEnd</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            These methods provide support for iteration over
+                            the set of points that define the gate.  The
+                            <methodname>getBegin</methodname> returns an iterator
+                            to the beginning of the container of
+                            <classname>FPoint</classname> objects defining the
+                            gate points while
+                            <methodname>getEnd</methodname> returns an
+                            end of iteration iterator.
+                        </para>
+                        <para>
+                            If you are not sure what all this means; look up
+                            how iterators work in the C++ Standard Template
+                            library.  These iterators work the same way.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual</modifier>
+                            <type>   CConstituentIterator </type>
+                            <methodname>Begin</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>CConstituentIterator </type>
+                            <methodname>End </methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>UInt_t </type>
+                            <methodname>Size</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            The constituents of point list gates are the points
+                            of the gate.  <methodname>Begin</methodname>
+                            and <methodname>End</methodname> provide for
+                            iteration over the constituents (see
+                            <methodname>GetConstituent</methodname> below).
+                            <methodname>Size</methodname> returns the number
+                             of constituents, in this case, the number of
+                             points in the gate figure.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>GetConstituent</methodname>
+                            <methodparam>
+                                <type>CConstituentIterator&amp; </type><parameter>rIterator</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Return the text string corresponsding to the
+                            constituent iterator <parameter>rIterator</parameter>.
+                            This will be a string consisting of two space
+                            separated floating point number strings
+                            (<literal>%f</literal> conversion).  The first number
+                            is the X coordinate value of the point corresponding
+                            to the iterator while the second the Y coordinate
+                            of the same point.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier> virtual  </modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Performs common code required to check if a gate
+                            is satisfied by an event. The geometry sensitive
+                            part of the check is done by the pure virtual
+                            method <methodname>Inside</methodname> defined
+                            below.  Thwe psuedo code for this
+                            method is:
+                        </para>
+                        <programlisting>
+xid = getxId()
+yid = getyid()
+if (rEvent[xid].isValid() and rEvent[yid].isValid()) then
+    return Inside(rEvent[xid], rEvent[yid])
+endif
+
+return kfFalse
+                        </programlisting>
+                        <para>
+                            Thus this method only checks that both parameters
+                            are defined.  If so <methodname>Inside</methodname>
+                            is invoked to see if the point defined by the
+                            event satisfies the gate and otherwise,
+                            <literal>kfFalse</literal> is returned.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier> virtual  </modifier>
+                            <type>Bool_t </type>
+                            <methodname>Inside</methodname>
+                            <methodparam>
+                                <type>Float_t </type><parameter>x</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>y</parameter>
+                            </methodparam>
+                            <modifier>=0</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Pure virtual method that has to be implemented by
+                            concrete sub-classes.  <parameter>x</parameter> and
+                            <parameter>y</parameter> are a point in the parameter
+                            coordinate space in which the gate is drawn.  The
+                            method should return <literal>kfTRUE</literal> if this
+                            point is 'inside' that gate or
+                            <literal>kfFALSE</literal> if not.
+                        </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>protected</modifier>
+                            <type>int</type>
+                            <methodname>Crosses</methodname>
+                            <methodparam>
+                                <type>Float_t </type><parameter>x</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>y</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;FPoint&gt;::iterator</type>
+                                <parameter> f</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;FPoint&gt;::iterator </type>
+                                <parameter>s</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            This utility method  is useful for determining
+                            inside-edness.  The parameters
+                            <parameter>x</parameter> and <parameter>y</parameter>
+                            define a point in the parameter space of a gate.
+                            <parameter>f</parameter> and <parameter>s</parameter>
+                            are two iterators that indicate two consecutive points
+                            in the figure that defines the gate.
+                            
+                        </para>
+                        <para>
+                            Those two points define a line segment in the gate
+                            parameter space.  The method 'draws' a horizontal
+                            ray that extends left from (<parameter>x</parameter>, <parameter>y</parameter>).
+                            The method returns <literal>1</literal> if this
+                            line would intersect (cross) the line segment
+                            defined by <parameter>f</parameter> and
+                            <parameter>s</parameter>.  If not,
+                            <literal>0</literal> is returned.
+                        </para>
+                        <para>
+                            Special cases that can speed up the determination
+                            are mercilessly  exploited.
+                        </para>
+                    </listitem>
+                  </varlistentry>
             </variablelist>
         </refsect2>
     </refsect1>

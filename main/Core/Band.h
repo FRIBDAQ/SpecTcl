@@ -420,7 +420,9 @@ public:
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
   virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
+#ifdef MYINGATE
   virtual   Bool_t inGate(CEvent& rEvent);
+#endif
   virtual   Bool_t Inside(Float_t x, Float_t y) {
     return Interior(x, y);
   }
