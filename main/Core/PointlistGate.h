@@ -465,9 +465,10 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params) 
-    { }
   virtual  Bool_t inGate(CEvent& rEvent);
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params) 
+    {return inGate(rEvent); }
+  
   virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
 protected:
   int       Crosses(Float_t x, Float_t y, 

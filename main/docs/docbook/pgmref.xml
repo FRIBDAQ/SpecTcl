@@ -26983,6 +26983,63 @@ public:
 
 };
 
+#include &lt;Band.h&gt;
+
+class CBand  : public CPointListGate        
+{
+public:
+			//Default constructor
+
+  CBand (UInt_t nXid, UInt_t nYid,
+	 const std::vector&lt;FPoint&gt;&amp; points);
+  CBand (UInt_t nXid, UInt_t nYid,
+	 UInt_t nPts, FPoint* pPoints);
+  CBand (UInt_t nXid, UInt_t nYid,
+	 UInt_t nPts, Float_t* pX, Float_t* pY);
+  virtual   Bool_t operator()(CEvent&amp; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+
+  virtual   Bool_t Inside(Float_t x, Float_t y) ;
+protected:
+  Bool_t Interior(Float_t x, Float_t y);
+
+};
+
+#include &lt;Contour.h&gt;
+
+
+class CContour  : public CPointListGate        
+{
+public:
+			//Default constructor
+
+  CContour (UInt_t nXId, UInt_t nYId, 
+	    const std::vector&lt;FPoint&gt;&amp; Points);
+  CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
+	    Float_t *xCoords, Float_t *yCoords);
+  CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
+	    FPoint* pPonts);
+
+	
+  FPoint getLowerLeft() const;
+  FPoint getUpperRight() const;
+  virtual   Bool_t operator()(CEvent&amp; rEvent);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+  virtual   Bool_t Inside(Float_t x, Float_t y);
+
+  //
+  // Utility functions:
+  //
+ protected:
+  virtual void GenerateInterior();
+
+};
+
+
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -28718,6 +28775,122 @@ return kfFalse
                         </para>
                     </listitem>
                   </varlistentry>
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title><classname>CBand</classname> methods</title>
+            <para>
+                A Band is a polyline drawn in a two dimensional space defined
+                by two SpecTcl parameters.  Inside-ness is defined as being
+                inside a region of the plane defined by the polyline and
+                vertical lines from the left and right points extending infinitely
+                down.
+                A point is inside this region if a horizontal ray drawn
+                leftward from the point crosses an odd number of line segments
+                that make up the boundaries of the region.   The vertical
+                lines described above are included in that count.
+            </para>
+            <para>
+                This definition provides well defined behavior for bands that
+                are multivalued in y (polylines for which the x coordinate
+                of points is not monotonic).  This definition is also
+                consistent withe the definition of inside-ness used by
+                contour gates.
+            </para>
+            <para>
+                The constructors are not documented below as there are three
+                of them that have all the same parameterizations as the
+                three constructors of the <methodname>PointListGate</methodname>
+                base class from which <classname>CBand</classname> is defined.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>Type </methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the gate type which is
+                            <literal>b</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                       <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>Bool_t </type>
+                        <methodname>Inside</methodname>
+                        <methodparam>
+                            <type>Float_t </type><parameter>x</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>Float_t </type><parameter>y</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                       </methodsynopsis> 
+                    </term>
+                    <listitem>
+                        <para>
+                            Just invokes <methodname>Interior</methodname>,
+                            see below.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>protected</modifier>
+                            <type>Bool_t</type>
+                            <methodname> Interior</methodname>
+                            <methodparam>
+                                <type>Float_t </type><parameter>x</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>y</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Determines if a point is inside the band region.
+                            A boundary crossing algorithm similar to what is used
+                            in flood fill operations is used to define
+                            interior points consistently and predictably regardless
+                            of any pathologies of the boundary.
+                        </para>
+                        <para>
+                            The software counts boundary crossings, including
+                            the crossings of rays extending from the left and
+                            right most points to negative infinity.  An odd
+                            number of crossings means the point is inside the
+                            figure. An even number (zero is even) means the
+                            point is outside.
+                        </para>
+                        <para>
+                            Here is pseudo code:
+                        </para>
+                        <programlisting>
+crossings = 0
+if point is to the right and below the left most point crossings = crossings + 1
+if point is to the right and below the righ tmost point crossings = crossings + 1
+
+for each line segment in the polyline:
+    if Crosses(point, segment) then     // Crosses from base class
+        crossings = crossings + 1
+    endif
+end for
+return (crosses &amp; 1) == 1
+                        </programlisting>
+                    </listitem>
+                </varlistentry>
             </variablelist>
         </refsect2>
     </refsect1>

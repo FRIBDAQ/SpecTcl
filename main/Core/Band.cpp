@@ -132,37 +132,6 @@ CBand::operator()(CEvent& rEvent)
   return getCachedValue();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Bool_t inGate ( CEvent& rEvent )
-//  Operation Type:
-//     Evaulator
-//
-Bool_t
-CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
-  // Determines if the parameter space point
-  //  ( rEvent[m_nxId], rEvent[m_nyId])
-  //  is under the gate defined by m_aLimits.
-  //  In essence whether or not rEvent[m_nyId) < m_aLimits[m_nxId].
-  //
-  //  Implemented so that if a cached result is available
-  //  it will be used, and if not, will be created.
-  //  
-  //   If for some reason, m_nXid >= m_aLimits.size(),
-  //   or either parameter index does not fall into the current
-  //   parameter array, the gate is assumed to have failed.
-  //
-  // Formal Parameters:
-  //      CEvent& rEvent:
-  //          Refers to the event to check.
-  //      vector<UInt_t>& Params
-  //          Refers to the vector of parameters in the gate (empty)
-{
-
-  return CPointListGate::inGate(rEvent);
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 //
