@@ -27027,15 +27027,8 @@ public:
   virtual   Bool_t operator()(CEvent&amp; rEvent);
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
-  virtual   Bool_t inGate(CEvent&amp; rEvent);
   virtual   Bool_t Inside(Float_t x, Float_t y);
 
-  //
-  // Utility functions:
-  //
- protected:
-  virtual void GenerateInterior();
 
 };
 
@@ -28892,6 +28885,146 @@ return (crosses &amp; 1) == 1
                     </listitem>
                 </varlistentry>
             </variablelist>
+        </refsect2>
+        <refsect2>
+            <title><classname>CContour</classname> methods</title>
+            <para>
+                Contour gates are closed figures that are drawn on a 2-d parameter
+                space. A contour is satisified if the parameters are both defined
+                and lie within the figure.  <classname>CContour</classname>
+                implements contour gates and is derived from
+                <classname>CPointListGate</classname>.
+            </para>
+            <para>
+                As with bands, pathalogical figures are possible.  Contours
+                use a definition of inside-ness that is similar to that of
+                bands, with the exception that there's no need to draw
+                rays from a left and right point to negative infinity to
+                complete a semi-infinite closed figure.  For a contour a
+                final line segment is drawn from the last point to the first
+                point.
+            </para>
+            <para>
+                An optimization is performed when the gate is constructed.
+                A bounding rectangle is computed from the points of the figure.
+                When checking the gate; the point is first tested against this
+                rectangle and the gate is not satisifed if the point is outside
+                the rectangle.  If the point is inside the rectangle, then
+                a horizontal ray is 'drawn' from the point towards the left.
+                The number of times this ray crosses a segment of the
+                figure is computed and the point is considered inside the
+                figure if this number is odd.
+            </para>
+            <para>
+                Psuedo code for this will be presented in the description
+                of the methods below.  Note that the constructors for
+                <classname>CContour</classname> are identical
+                to those for <classname>CPointListGate</classname>.  They
+                will not be documented below.  Refer to
+                <classname>CPointListGate</classname> for a description of
+                the constructor signatures.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>FPoint </type>
+                            <methodname>getLowerLeft</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            This method returns the point at the lower left
+                            of the rectangle that bounds the contour.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>FPoint </type>
+                            <methodname>getUpperRight</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            This method returns the point at the upper
+                            right of the rectangle that bounds the contour.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>Type </methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the string <literal>c</literal> indicating
+                            this is a contour gate.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>Bool_t </type>
+                            <methodname>Inside</methodname>
+                            <methodparam>
+                                <type>Float_t </type><parameter>x</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>Float_t </type><parameter>y</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns <literal>kfTrue</literal> if
+                            <parameter>x</parameter>, <parameter>y</parameter>
+                            define a point inside the contour figure.
+                            For a conceptual description of the definition
+                            of inside (in the presence of pathalogical shapes),
+                            see the description at the top of this section.
+                        </para>
+                        <para>
+                            Psuedo code for the check is shown below:
+                        </para>
+                        <programlisting>
+If (x,y) is inside the bounding rectangle then
+   crossings = 0
+   for each segment in the figure        // Note the last point is connected to first.
+        if Crosses(x,y, segment)  then   // From <classname>CPointListGate</classname>
+            crossings = crossings + 1
+        endif
+    end for
+    return (crossings &amp; 1) == 1      //  true if odd.
+endif
+return kfFALSE                           // Outside bounding rectangle.
+        
+                        </programlisting>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+  
+  ;
+  ;
+
+            </para>
         </refsect2>
     </refsect1>
 </refentry>
