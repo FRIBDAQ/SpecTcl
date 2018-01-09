@@ -27032,7 +27032,87 @@ public:
 
 };
 
+#include &lt;C2Bands&gt;
 
+class C2Bands  : public CContour        
+{                       
+public:
+
+
+  C2Bands (UInt_t nXId, UInt_t nYId,
+	   std::vector&lt;FPoint&gt;&amp; rLowBand, 
+	   std::vector&lt;FPoint&gt;&amp; rHiBand); 
+ virtual   std::string Type ()    ;
+
+};
+
+<beginpage />
+
+#include &lt;CompoundGate.h&gt;
+
+class CCompoundGate  : public CGate        
+{
+public:
+  CCompoundGate () {}
+  CCompoundGate(std::list&lt;CGateContainer*&gt; pGates);
+  CCompoundGate(std::vector&lt;CGateContainer*&gt; pGates);
+  CCompoundGate(UInt_t nGates, CGateContainer** ppGates);
+  std::list&lt;CGateContainer*&gt;&amp; GetConstituents();
+  virtual void RecursiveReset(); 
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rIterator)  ;
+  void      AddGateFront(CGateContainer&amp; rGate);
+  void      AddGateBack(CGateContainer&amp; rGate);
+  void      AddGate(CConstituentIterator&amp; rSpot, CGateContainer&amp; rGate);
+
+};
+
+#include &lt;AndGate.h&gt;
+
+class CAndGate  : public CCompoundGate        
+{  
+public
+  CAndGate () : CCompoundGate() ;
+  CAndGate(std::list&lt;CGateContainer*&gt;amp; rGates); 
+  CAndGate(std::vector&lt;CGateContainer*&gt;amp; rGates);
+  
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params );
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+
+};
+
+#include &lt;OrGate&gt;
+
+class COrGate  : public CCompoundGate        
+{
+  COrGate ();
+  COrGate(std::list&lt;CGateContainer*&gt;&amp; rGates);
+  COrGate(std::vector&lt;CGateContainer*&gt;&amp; rGates);
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const; 
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+};
+<beginpage />
+
+#include &lt;Not.h&gt;
+
+class CNot : public CGate
+{
+  CNot (CGateContainer&amp; rGate);
+  const CGateContainer* getGate();
+  virtual   CConstituentIterator Begin ()  ;
+  virtual   CConstituentIterator End ()  ;
+  virtual   UInt_t Size ()  ;
+  virtual   std::string GetConstituent (CConstituentIterator&amp; rp)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent&amp; rEvent, const std::vector&lt;UInt_t&gt;&amp; Params);
+  virtual   Bool_t inGate(CEvent&amp; rEvent);
+};
         </synopsis>
     </refsynopsisdiv>
     <refsect1>
@@ -28378,11 +28458,9 @@ return kfFALSE
                     </listitem>
                 </varlistentry>
             </variablelist>
-	    <para>
-
-	    </para>
         </refsect2>
-        <refsect2>
+    </refsect1>
+        <refsect1>
             <title><classname>CPointListGate</classname> methods</title>
             <para>
                 2-d gates are normally figures draw in a 2-d space defined by
@@ -28769,7 +28847,6 @@ return kfFalse
                     </listitem>
                   </varlistentry>
             </variablelist>
-        </refsect2>
         <refsect2>
             <title><classname>CBand</classname> methods</title>
             <para>
@@ -29019,21 +29096,891 @@ return kfFALSE                           // Outside bounding rectangle.
                     </listitem>
                 </varlistentry>
             </variablelist>
+        </refsect2>
+        <refsect2>
+            <title><classname>C2Bands</classname> Methods.</title>
             <para>
-  
-  ;
-  ;
-
+                This gate is essentially two bands that are made into
+                a countour by joining their left and rightmost points
+                to close the figure defined by the two bands.
             </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>C2Bands</methodname>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nXId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>UInt_t </type><parameter>nYId</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;FPoint&gt;&amp;</type><parameter> rLowBand</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>std::vector&lt;FPoint&gt;&amp; </type><parameter>rHiBand</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructs a contour from two bands whose
+                            parameters are specified by
+                            <parameter>nXId</parameter> and
+                            <parameter>nYId</parameter>.  The points that define
+                            the first band are <parameter>rLowBand</parameter>
+                            and those of the second,
+                            <parameter>rHiBand</parameter>.
+                        </para>
+                        <para>
+                            The constructor simply marshalls these points
+                            for the <classname>CContour</classname>
+                            constructor.  Once that's done, the methods of
+                            <classname>CContour</classname> class
+                            provides all of the functionality.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string</type>
+                            <methodname> Type</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the string
+                            <literal>cb2</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+
+            </variablelist>
         </refsect2>
     </refsect1>
+    <refsect1>
+        <title><classname>CCompoundGate</classname> Methods</title>
+        <para>
+            Compound gates are gates that are composed of one or more
+            other <firstterm>constituent</firstterm>
+            gates.  The compound gate is satisfied if a logical
+            function of its constituent gates is satisfied.
+        </para>
+        <para>
+            <classname>CCompoundGate</classname> is an abstract base
+            class for compound gates.  This section will describe that
+            gate and the gates that are derived from this class.
+        </para>
+        <para>
+            <classname>CCompoundGate</classname> provides storage of and
+            access to the constituent gates.  The constituents can either
+            be provided at construction time or built up incrementally..
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname> CCompoundGate</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor creates the base class without
+                        any contituent gates.   Method such as
+                        <methodname>AddGateBack</methodname> must be used
+                        to add constituents to the gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CCompoundGate</methodname>
+                        <methodparam>
+                            <type>std::list&lt;CGateContainer*&gt; </type><parameter>pGates</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CCompoundGate</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;CGateContainer*&gt; </type><parameter>pGates</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CCompoundGate</methodname>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nGates</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer** </type><parameter>ppGates</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These constructors create the object with an initial
+                        set of gates.  Gates are stored as pointers to a
+                        gate container.  This allows SpecTcl ot modify
+                        what the gate container "points to" without having
+                        to locate and fix up all references to an underlying
+                        gate.  
+                    </para>
+                    <para>
+                        The constructors only differ in the wa in which the
+                        constituent gates are passed to the constuctor.
+                        The first two use the
+                        <classname>std::vector</classname> and
+                        <classname>std::list</classname> container for the
+                        constituent gates while the last uses a counted
+                        C array of pointers to <classname>GateContainer</classname>
+                        pointers.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>std::list&lt;CGateContainer*&gt;&amp; </type>
+                    <methodname>GetConstituents</methodname>
+                    <void />
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Returns the list of pointers to the gate containers that
+                        make up this gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>RecursiveReset</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Resets the cache of this gate and all
+                        constituent gates.  The next time this, or any
+                        constituent gate is asked for its value vai
+                        <methodname>operator()</methodname> it must
+                        re-evaluate the gate with respect to the event.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> CConstituentIterator</type>
+                        <methodname> Begin </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>End</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>UInt_t </type>
+                        <methodname>Size </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides the usual constituent iterator interface
+                       for the compound gate.  <methodname>Begin</methodname>
+                       produces an iterator at the start of the container
+                       and <methodname>End</methodname> one that is off
+                       the end of the container.  Finally
+                       <methodname>Size</methodname> returns the number
+                       of times the iterator returned by
+                       <methodname>Begin</methodname> can be incremented
+                       before it becomes equal to the iterator returned
+                       by <methodname>End</methodname>.   
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>GetConstituent</methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp; </type><parameter>rIterator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the name of a constituent gate.
+                        For compound gates, the
+                        <classname>ConstituentIterator</classname> can be
+                        thought of as an object that retrieves
+                        constituent gate names.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void      </type>
+                        <methodname>AddGateFront</methodname>
+                        <methodparam>
+                            <type>CGateContainer&amp; </type><parameter>rGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a new constituent gate at the beginning of
+                        the constituents for the gate. Normally it's too hard
+                        to predicts the effect of constituent order on gates.
+                        If these can be predicted, however for
+                        And gates, the gates are most efficiently ordered in
+                        order of decreasing probability they'll fail, while
+                        for OR gates, gates are most efficiently ordered
+                        in decreasing probability they willl be satisfied.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                <methodsynopsis>
+                    <modifier></modifier>
+                    <type>void      </type>
+                    <methodname>AddGateBack</methodname>
+                    <methodparam>
+                        <type>CGateContainer&amp; </type><parameter>rGate</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Adds the gate container <parameter>rGate</parameter>
+                        at the end of all of the existing constituents.
+                        See above for notes on ordering gates.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void     </type>
+                        <methodname> AddGate</methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp; </type><parameter>rSpot</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> CGateContainer&amp; </type><parameter>rGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds the gate container <parameter>rGate</parameter>
+                        in the constituent list just prior to <parameter>rSpot</parameter>.
+                        Thus <code>AddGateFront(rGate)</code> is
+                        identical to <code>AddGate(Begin(), rGate)</code>.
+                        Similarly, <code>AddGateBack(rGate)</code> is
+                        identical to <code>AddGate(End(), rGate)</code>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <refsect2>
+            <title><classname>CAndGate</classname> methods</title>
+            <para>
+                An And gate is a compound gate that is satisfied only if all of
+                its constituent gates are satisfied.  Short ciruit evaluation
+                improves the efficiency of evaluating this gate.  Gates in
+                the constituent list only get evaluated until the first
+                gate fails at  which time the gate is determined not to have
+                been satisifed.   If all gates are satisified, the and
+                gate is satisfied.
+            </para>
+            <para>
+                The constructors for this class mirror those of
+                <classname>CCompoundGate</classname> and therefore will not be
+                documented below.  Refer to the documentation of the
+                constructors for <classname>CCompoundGate</classname> for more
+                information about the constructors for this class.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname> Type</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the string <literal>*</literal>.  This is the
+                            symbol for an and gate because the logical and
+                            operation is normally called the logical product.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>Params </parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Determines if the gate is satisfied.  Since this is
+                            not a gamma gate, the first of these methods
+                            simply calls the second.  The second method
+                            evaluates the gate by recursively evaluating
+                            the minimum set of constituents needed to determine if the
+                            gate is satisfied.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title><classname>COrGate</classname> methods</title>
+            <para>
+                The Or gate is satisfied if any of its consituents is satisfied.
+                As with <classname>CAndGate</classname>, short circuit evaluation
+                is used to minimize the computation required to evaluate this
+                gate.  Constituent gates are evaluated until the first satisfied
+                gate at which point, the gate is deemed satisified.  If no
+                gates in the list of consitutents are satisfied, the gate is
+                deemed to have not been satisfied.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>Type</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the string <literal>+</literal>.  This is the
+                            type for a an or gate because the logical OR operation
+                            is often called the logical sum of its product
+                            terms.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual  </modifier>
+                            <type> Bool_t</type>
+                            <methodname> inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp;</type><parameter> rEvent</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>std::vector&lt;UInt_t&gt;&amp;</type><parameter> Params</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual </modifier>
+                            <type>  Bool_t </type>
+                            <methodname>inGate</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Recursively evaluates the constituent gates.  As soon
+                            as a constituent gate is determined to  be satisfied,
+                            this method returns <literal>kfTRUE</literal>,
+                            if no constituent gates are satisfied, the method
+                            return <literal>kfFALSE</literal>
+                        </para>
+                        <para>
+                            As the gate does not have fold/gamma gate
+                            semantics, the first of these methods simply
+                            calls the second.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>            
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title><classname>CNot</classname> Methods</title>
+        <para>
+            A Not gate is a gate that is true if its single constituent
+            gate is false.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CNot</methodname>
+                        <methodparam>
+                            <type>CGatContainer&amp; </type><parameter>rGate</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The <parameter>rGate</parameter> is the single constituent
+                        gate.  This gate will
+                        only be true for events that satisfy
+                        this constituent.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>const </modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>getGate</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the gate container of the
+                        gate whose logical sense is  inverted by this gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>Begin </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual   </modifier>
+                        <type>CConstituentIterator </type>
+                        <methodname>End</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>UInt_t </type>
+                        <methodname>Size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Supplies the constituent iteration interface for
+                        this gate type.  <methodname>Begin</methodname> and
+                        <methodname>End</methodname> provide iterators for
+                        the start of iteration and the end respectively.
+                        <methodname>Size</methodname> returns the number
+                        of constituents (<literal>1</literal>).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>GetConstituent</methodname>
+                        <methodparam>
+                            <type>CConstituentIterator&amp; </type><parameter>rp</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the constituent pointed at the iterator
+                        <parameter>rp</parameter>.  For the iterator
+                        returned by <methodname>Begin</methodname>, this returns
+                        the name of the constituent gate. Otherwise an empty string
+                        is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>std::string </type>
+                        <methodname>Type</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>-</literal> which is the
+                        type strig for a not gate. The string indicates negation
+                        of the constituent gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type>Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::vector&lt;UInt_t&gt;&amp; </type><parameter>Params</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type> Bool_t </type>
+                        <methodname>inGate</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Rturns <literal>kfTRUE</literal> if
+                        <parameter>rEvent</parameter> satisfies the gate
+                        (does not satisfy the constituent gate).
+                        Otherwise returns <literal>kfFALSE</literal>.
+                        The gate is not a gamma gate so the first overload of
+                        this method just invokes the second.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CGateContainer</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CGateContainer</refname>
+        <refpurpose>Pointer like class for Gates.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;GateContainer.h&gt;
+class CGateContainer : public CNamedItem {
+ public:
+
+  CGateContainer() ;
+  CGateContainer (const std::string&amp; sName, UInt_t nNumber, 
+		  CGate&amp; rGate);  
+  CGate* getGate() const;   
+  void setGate (CGate* am_pGate);
+  CGate&amp; operator* () ;
+
+  CGate* operator-> () ;
+  Bool_t operator() (CEvent&amp; rEvent);
+};
+
+        </synopsis>        
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            SpecTcl gates are mutable.  Not only can the constituents be modified,
+            but the gate type can also be changed.  If objects depending on
+            gates held a pointer or reference to that gate, SpecTcl would need
+            to update all references to a gate whenever the gate was modified,
+            a potentially costly and error prone process.
+        </para>
+        <para>
+            It would be possible for gate clients to have a pointer to a pointer.
+            That would work.  Changing a gate would change the underlying pointer
+            and the pointer to that pointer could remain valid.  That would lead
+            to notational abominations like <code>(*pGate)->operator()</code>.
+        </para>
+        <para>
+            Instead of this, SpecTcl employes a pointer like object called a
+            gate container.  The gate container contains a gate and wraps it
+            with pointer like semantics.   Gate containers are derived from
+            <classname>CNamedItem</classname> so it is the container that
+            holds the name of a gate, not the gate itself.  Clients of the
+            gate can hold either a reference to the gate container (if the
+            gate they are clients of won't change names) or a pointer to the
+            gate container if, like spectra, they can.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGateContainer</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Default constructors must be defined for objects that
+                        will be inserted into STL container classes (such
+                        as <classname>std::Map</classname>).  The default
+                        constructor constructs a gate container that will
+                        segfault when attempts are made to access the underlying
+                        gate.
+                    </para>
+                    <para>
+                        Once constructed, assignment can be used to give the
+                        container and id, name and gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGateContainer </methodname>
+                        <methodparam>
+                            <type>const std::string&amp; </type><parameter>sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>UInt_t </type><parameter>nNumber</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGate&amp; </type><parameter>rGate</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs with a gate; <parameter>rGate</parameter>,
+                        an id;
+                        <parameter>nNumber</parameter> and a gate instance
+                        <parameter>rGate</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGate* </type>
+                        <methodname>getGate</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the gate that is encapsulated
+                        by the gate container.  Normally you won't need to
+                        call this as you can manipulate the gate via the
+                        methods supplied by the container.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setGate</methodname>
+                        <methodparam>
+                            <type>CGate* </type><parameter>am_pGate</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Used by SpecTcl to replace the gate in the container.
+                        Note that when a gate is constructed into a gate
+                        container, containers are assigned or this method is
+                        called, the pointer passed in is not stored.  Instead a
+                        clone of the gate is made and <emphasis>that</emphasis>
+                        is what's stored in the container.
+                    </para>
+                    <para>
+                        Note that destroying the container also implicitly
+                        destroys the cloned gate.    All of this means
+                        it's perfectly safe to have code like:
+                    </para>
+                    <programlisting>
+{
+    Float_t xcoords[4] = {0.0, 100.0, 100.0, 0.0};
+    Float_t ycoords[4] = {0.0, 0.0, 100.100, 100.100};
+    CContour square(1, 2, 4, xcoords, ycoords);
+    CGateContainer gc = new CGateContainer("rectangle", 100, square);
+    
+    return gc;
+}                     // square object was destroyed here but gc's clone lives.
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGate&amp;</type>
+                        <methodname> operator*</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Implements the first part of pointer semantics;
+                        plain dereference.
+                        This returns a reference to the encapsulated gate.
+                        This allows code like:
+                    </para>
+                    <programlisting>
+CGateContainer gc;
+...                       // Gate/name etc. set here.
+CGate& gate(*gc);
+std::string t = gate.Type();
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGate*</type>
+                        <methodname>operator-></methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the gate.  This implements
+                        the second part of pointer semantics, member dereference.
+                        The method allows operations like:
+                    </para>
+                    <programlisting>
+CGateContainer gc;
+...                      // Gate name etc. set here.
+
+std::string t = gc->Type();       // Fetch gate type.
+
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier></modifier>
+                    <type>Bool_t</type>
+                    <methodname> operator()</methodname>
+                    <methodparam>
+                        <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        This is a convenience method that evaluates the underlying
+                        gate for the event <parameter>rEvent</parameter>.
+                        Since the gate is encapsulated as a pointer, the
+                        actual gate's <methodname>operator()</methodname> is
+                        invoked.  This allows code like:
+                    </para>
+                    <programlisting>
+// Assume spec is a CSpectrum reference and rEvent a CEvent reference.
+
+Bool_t gateMade = (*spec.getGate())(rEvent);          // Evaluate the gate
+
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
 </refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
             <listitem>
                 <para>
-                    Gate Classes, and CGateContainer, Gate observer
+                      Gate observer
                 </para>
             </listitem>
             <listitem>
