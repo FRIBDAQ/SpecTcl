@@ -29975,14 +29975,198 @@ Bool_t gateMade = (*spec.getGate())(rEvent);          // Evaluate the gate
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CGateObserver</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CGateObserver</refname>
+        <refpurpose>Observe changes in the gate dictionary.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;Histogrammer.h&gt;
+
+template &lt;class T&gt;
+class DictionaryObserver 
+{
+public:
+  virtual void onAdd(std::string   name,   T&amp; item) {}
+  virtual void onRemove( std::string name,    T&amp; item) {}
+
+};
+typedef CDictionary&lt;CGateContainer&gt;             CGateDictionary;
+typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
+typedef DictionaryObserver&lt;CGateContainer&gt;      GateDictionaryObserver;
+
+class CGateObserver : public GateDictionaryObserver {
+public:
+  virtual void onChange(std::string name, CGateContainer&amp; gateContainer) = 0;
+};
+
+#include &lt;SpecTcl.h&gt;
+class SpecTcl
+{
+public:
+...
+    void addGateDictionaryObserver(GateObserver* observer);
+    void remove GateDictionaryObserver(Gateobservr* observer);
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Before looking at the documentation for the gate observer;
+            if you are not familiar with the <firstterm>Observer</firstterm>
+            software pattern, it's worth taking some time to udnerstand it.
+            On introduction is available at the wikipedia at:
+            <ulink url='https://en.wikipedia.org/wiki/Observer_pattern' />.
+        </para>
+        <para>
+            Gate dictionary observers allow you to become aware of changes made
+            to the gate dictionary. The changes you can observer are:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Insertions of gate containers into the dictionary.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Changes to existing gate containers already in the
+                    dictionary (usually this means the gate contained by
+                    that observer is being changed for a new one).
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Removals of gate containers from the dictionary
+                    (this is never done at this time).
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            As the synopsis shows, gate containers are added and removed
+            fromt he gate dictionary via the SpecTcl API class
+            <classname>SpecTcl</classname>.  Observers consitute an ordered list
+            of objects attached to the gate dictionary.  When an observable
+            change occurs, each of these observers is invoked in the order
+            in which they were added
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            The <classname>CGateObserver</classname> is derived from
+            the more general templated base class
+            <classname>DictionaryObserver</classname>.  This section documents, not only the methods
+            defined in <classname>CGateObserver</classname> but the
+             methods of <classname>CDictionaryObserver</classname>
+            a concrete class can override.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>onAdd</methodname>
+                        <methodparam>
+                            <type>std::string   </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer&amp; </type><parameter>item</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a new gate container is added to the
+                        dictionary.  <parameter>name</parameter> is the name
+                        of the item in the dictionary (this need not be
+                        but currently always is the same as the name of the
+                        gate container).
+                    </para>
+                    <para>
+                        <parameter>item</parameter> is a reference to the gate container
+                        being added to the dictionary.  The base class
+                        implements this as an empty method.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>onRemove</methodname>
+                        <methodparam>
+                            <type> std::string </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> CGateContainer&amp; </type><parameter>item</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an item is removed from the dictionary.
+                        At present this does not happen as gate deletion
+                        simply replaces the gate with a False gate.
+                        The <parameter>name</parameter> of the
+                        gate and the gate container <parameter>item</parameter>
+                        are passed in as parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>onChange</methodname>
+                        <methodparam>
+                            <type>std::string</type><parameter> name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer&amp;</type><parameter> gateContainer</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when an item in the dictionary is changed.
+                        For the gate dictionary.  This means a gate container
+                        is encapsulating a new gate object because the
+                        gate has been modified.
+                    </para>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>EXAMPLE</title>
+        <para>
+            This toy example just prints out some text when for each
+            gate observation.  The example includes the class definition
+            for the gate dictionary observer as well as a snippet of code
+            that registers an instance of that observer with the SpecTcl
+            gate dictionary.
+        </para>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
-            <listitem>
-                <para>
-                      Gate observer
-                </para>
-            </listitem>
             <listitem>
                 <para>
                     Fitting subsystem
