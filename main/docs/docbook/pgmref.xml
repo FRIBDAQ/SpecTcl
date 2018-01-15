@@ -30960,6 +30960,332 @@ y = mx  + b
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CSpectrumFit</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CSpectrumFit</refname>
+        <refpurpose>Fit of spectrum channels.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CSpectrumFit.h&gt;
+
+class CSpectrumFit : public CNamedItem
+{
+public:
+  CSpectrumFit(std::string spectrumName, int myId,
+	       int low, int high, 
+	       CFit&    fit);
+
+  CFit::PointIterator begin();
+  CFit::PointIterator end();
+  size_t              size();
+  CFit::FitState      GetState(); 
+  double              operator()(double x);
+  CFit::FitParameterList getParameters();
+  std::string         fitType();
+  std::string         makeTclFitScript();
+  std::string         fitName();
+  CSpectrumFit*       clone();	// Clone self.
+  void                update();
+  int                 low() const;
+  int                 high() const;
+  
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Joins together a spectrum and a fit performed over some region of
+            interest.  The fit is performed when an object is constructed
+            and when requested via its <methodname>update</methodname> method.
+            This fit should always be in the <literal>CFit::Performed</literal>
+            state.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            Note that several of these methods delegate to the underlying
+            fit object.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CSpectrumFit(</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>spectrumName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>myId</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>low</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>high</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CFit&    </type><parameter>fit</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        <parameter>spectrumName</parameter> is the name of
+                        a spectrum in the SpecTcl spectrum dictionary.
+                        An exception is thrown if the name is not valid.
+                        The name is also used to provide a name for the Spectrum
+                        Fit object (see, however <classname>CFitDictionary</classname>).
+                    </para>
+                    <para>
+                        <parameter>myId</parameter> is the id used to construct
+                        the base class named item.
+                    </para>
+                    <para>
+                        <parameter>low</parameter> and <parameter>high</parameter>
+                        specify a region of interest (ROI), in channels, in the spectrum.  If either
+                        limit is outside of the spectrum channel limits an exception
+                        is thrown.  If there are not sufficient channels in the ROI,
+                        an exception will be thrown.
+                    </para>
+                    <para>
+                        <parameter>fit</parameter> is a fit object in the
+                        <literal>CFit::Accepting</literal> state.  On
+                        construction, among other things, the spectrum channels
+                        in the ROI are entered as points into this fit and the
+                        and the fit is performed.  The fit must stay in scope
+                        for the duration of the lifetime of this object.
+                        The fit's destruction is, however the responsibility
+                        of client code.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CFit::PointIterator </type>
+                        <methodname>begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CFit::PointIterator </type>
+                        <methodname>end</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>size_t  </type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods delegate to the underlying fit object's
+                        methods of the same name.  They support iteration through
+                        the fit points.  The X coordinate of each point is a
+                        channel number.  The Y coordinate is the counts in that
+                        channel as of the last time a fit was performed.
+                    </para>
+                    <para>
+                        Fits are performed at construction time and when the
+                        <methodname>update</methodname> method is invoked.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>  CFit::FitState      </type>
+                        <methodname>GetState</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the underlying fit's state. This should
+                        always be <literal>CFit::Performed</literal>.  If it is
+                        not, some external actor must be playing with the
+                        encapsulated fit.  Something that should not be done.
+                    </para>
+                    <para>
+                        This method delegates to the underlying fit.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>double              </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>double </type><parameter>x</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Delegates to the underlying fit's <methodname>operator()</methodname>
+                        which evaluates the fitted function at <parameter>x</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> </modifier>
+                        <type>CFit::FitParameterListx</type>
+                        <methodname>CFit::FitParameterList</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Delegates to <classname>CFit::</classname><methodname>FitParameterList</methodname>.
+                        Returns the fit parameters from the current fit.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string         </type>
+                        <methodname>fitType</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        in the underlying fit.
+                        Delegates to <classname>CFit::</classname><methodname>Type</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string</type>
+                        <methodname>makeTclFitScript</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Delegates to the underlying fit's
+                        <methodname>makeTclFitScript</methodname> method
+                        to get a proc that can be used by scripts to operate on
+                        the fit.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string         </type>
+                        <methodname>fitName</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Name of the underlying fit.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CSpectrumFit*</type>
+                        <methodname>clone</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a dynamically allocated clone of this object.
+                        Note that the fit is cloned as well.  Objects with cloned
+                        fits will destroy the fit when they themselves are
+                        destroyed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void                </type>
+                        <methodname>update</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Fetches the new points from the fit's ROI and performs
+                        the fit using them.
+                    </para>
+                </listitem>
+ 
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>int                 </type>
+                        <methodname>low</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>int                 </type>
+                        <methodname>high</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Return the limits of the ROI over hich the fit
+                        is computed.
+                    </para>
+                </listitem>
+            </varlistentry>    
+        </variablelist>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
