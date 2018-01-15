@@ -30164,6 +30164,802 @@ public:
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFit</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFit</refname>
+        <refpurpose>Base class for spectrum fitting subsystem.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+
+#include &lt;CFit.h&gt;
+class CFit : public  CNamedItem     
+{
+public:
+  struct Point {		
+    double x;
+    double y;
+    int operator==(const Point&amp; rhs) const;
+    int operator!=(const Point&amp; rhs) const;
+  };
+  
+  typedef std::vector&lt;Point&gt; PointArray; 
+  typedef PointArray::iterator PointIterator;
+
+  typedef std::pair&lt;std::string, double&gt; FitParameter;
+  typedef std::vector&lt;FitParameter&gt; FitParameterList;
+  typedef FitParameterList::iterator FitParameterIterator;
+
+  typedef enum {
+    Accepting,
+    Performed
+  } FitState;			//!< State of the fit.
+
+  
+
+  void AddPoint (Point p)   ; 
+  PointIterator begin ()   ; 
+  PointIterator end ()   ; 
+  size_t size ()   ; 
+  FitState GetState ()  const ; 
+
+  virtual CFit* clone() = 0;
+  virtual   void Perform ()   = 0 ; 
+  virtual  double operator() (double x)  =0 ; 
+  virtual  FitParameterList GetParameters () =0  ; 
+  virtual  std::string Type() const  = 0;
+ 
+protected:
+  void SetFitState(FitState state) ;
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            SpecTcl has an extensible fitting program.  Fits can be
+            created and updated based on the current data.  SpecTcl
+            also interacts with the display program to display any fits
+            on appropriate spectra, if that display program is capable of that.
+        </para>
+        <para>
+            The core of the fitting subsystem is the <classname>CFit</classname>
+            abstract base class.  Each object that performs a fit must be a
+            concrete class derived from <classname>CFit</classname>
+        </para>
+        <para>
+            Fits are stateful objects.   There are two states a fit can
+            be in.  The <literal>Accepting</literal> state means that the
+            fit has had at least one point added without a call to
+            <methodname>Perform</methodname>.  In this state the fit parameters
+            cannot be retrieved.  Once <methodname>Perform</methodname> is called,
+            the fit is in the <literal>Performed</literal> state and the fit
+            parameters can be extracted from the object.
+        </para>
+        <para>
+            Note that since <classname>CFit</classname> is a
+            <classname>CNamedItem</classname>, it inherits a constructor
+            that have name and id as parameters.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            The class defines a few contained data types.  By contained,
+            we mean a data type that is defined inside the class definition.
+            Contained data type names must be resolved in the scope of the
+            class.  E.g. <code>PointArray a;</code> will cause a compiler
+            error but <code>CFit::PointArray a;</code> will not.
+        </para>
+        <refsect2>
+            <title><structname>Point</structname> a data point.</title>
+            <para>
+                The <structname>Point</structname> struct represents a point
+                of data that needs to be fitted.  For spectrum fits, each
+                point is a channel coordinate (<structfield>x</structfield>)
+                and the counts in that channel (<structfield>y</structfield>).
+                At present, SpecTcl fits are restricted to 1-d data sets.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>double </type><structfield>x</structfield></term>
+                    <listitem>
+                        <para>
+                            The X coordinate of the point. Normally this
+                            represents a channel number in the spectrum
+                            being fitted.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>double</type> <structfield> y</structfield></term>
+                    <listitem>
+                        <para>
+                            The Y coordinate of the point. Normally this is the
+                            number of points in the channel selected by
+                            <structfield>x</structfield>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>int </type>
+                            <methodname>operator==</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> Point&amp; </type><parameter>rhs</parameter>
+                            </methodparam>
+                            <modifier> const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns non zero (<literal>1</literal>) if
+                            the <structfield>x</structfield> and
+                            <structfield>y</structfield> fields of the
+                            <structname>Point</structname> referred to by
+                            <parameter>rhs</parameter> are equal to that of this
+                            object.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>int </type>
+                            <methodname>operator!=</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> Point&</type><parameter> rhs</parameter>
+                            </methodparam>
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Inverse of <methodname>operator==</methodname>.
+                        </para>
+                    </listitem>
+                </varlistentry> 
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title>Typedefs related to <structname>Point</structname></title>
+            <variablelist>
+                <varlistentry>
+                    <term><code>typedef std::vector&lt;Point&gt; PointArray</code></term>
+                    <listitem>
+                        <para>
+                            <type>PointArray</type> objects maintain the set
+                            of points gathered for a fit. 
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><code>typedef PointArray::iterator PointIterator</code></term>
+                    <listitem>
+                        <para>
+                            Support iteration in the container that
+                            defines <type>PointArray</type>.  Using iterators
+                            rather than indexing allows software to be written
+                            independent of the actual underlying container that
+                            is <type>PointArray</type>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title>Fit parameter data types.</title>
+            <para>
+                Fit parameters are a bit tricky.  Each fit type will have its
+                own set of parameters.  Thus a fit parameter is defined not
+                just by its value but by its meaning in the context of the
+                fit type.
+            </para>
+            <para>
+                <code>typedef std::pair&lt;std::string, double&gt; FitParameter</code>
+                represents a single fit parameter.  The first part of the pair
+                is a name that identifies the meaning of the parameter.
+                The second part of the pair is the value itself.  For example,
+                for a linear fit, the first item of the pair might be the string
+                <literal>slope</literal> and the second part the fitted
+                slope.
+            </para>
+            <para>
+                Most fits have more than one parameter.   Therefore:
+                <code>typedef std::vector&lt;FitParameter&gt; FitParameterList</code>
+                is a container of fit parameters.  
+            </para>
+            <para>
+                In order to allow the container type to change later;
+                <type>FitParameterList</type> instances should not be indexed.
+                Instead, use iterators defined by
+                <code>typedef FitParameterList::iterator FitParameterIterator</code>.
+                <type>FitParameterList</type> instances have the standard
+                iterator support methods <methodname>begin</methodname>
+                and <methodname>end</methodname> to support this.
+            </para>
+        </refsect2>
+        <refsect2>
+            <title>FitState</title>
+            <para>
+                Fit objects are stateful.  They distinguish between accepting
+                points and having fit those points.  The fit state is captured
+                by <type>FitState</type> which is an enumerated type
+                with the following values:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal> Accepting</literal></term>
+                    <listitem>
+                        <para>
+                            The fit is in the process of accepting points.
+                            If it has sufficient points;
+                            <methodname>Perform</methodname> can be invoked.
+                            In this state, the fit is not able to deliver fit parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>Performed</literal></term>
+                    <listitem>
+                        <para>
+                            The fit has been performed and can deliver
+                            parameters.  This is the state right after a call
+                            to <methodname>Perform</methodname> and before the
+                            fit is invalidated by adding more points.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>AddPoint </methodname>
+                        <methodparam>
+                            <type>Point </type><parameter>p</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a point to the internal list of points.  This
+                        places the object in the <literal>Accepting</literal>
+                        state, if it's not already in that state.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>PointIterator</type>
+                        <methodname> begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>PointIterator </type>
+                        <methodname>end</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>size_t </type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These three methods support iteration over the internal
+                        <type>PointArray</type>.  Iteration is supported in the
+                        same sense as for C++ container types.  At present,
+                        the iterator returned is a pointer like object that
+                        points to a <structname>Point</structname> struct.
+                    </para>
+                    <para>
+                        <methodname>begin</methodname> returns an iterator that
+                        'points' to the beginning of the
+                        <type>PointArray</type>.  <methodname>end</methodname>
+                        returns an iterator pointing just off the end of the
+                        <type>PointArray</type>.  <methodname>size</methodname>
+                        returns the number of points in that container.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>FitState </type>
+                        <methodname>GetState </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the current fit state.  This has been
+                        previously described.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>CFit* </type>
+                        <methodname>clone</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Pure virtual method that is supposed to dynamically
+                        create a copy of this object.  If the object
+                        supports copy construction, this is like a virtual
+                        copy constructor and can be implemented like this:
+                    </para>
+                    <programlisting>
+CFit*
+CMyFitType::clone()
+{
+    return new CMyFitType(*this);
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual   </modifier>
+                        <type>void </type>
+                        <methodname>Perform</methodname>
+                        <void />
+                        <modifier> = 0 </modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Performs the fit with the set of points that
+                        have been added to the object.  An exception
+                        should be thrown if there are not sufficient points to
+                        determine the fit.
+                    </para>
+                    <para>
+                        If the fit is successfully performed, this method
+                        should invoke <methodname>SetFitState</methodname>
+                        to set the new fit state to <literal>Performed</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type> double </type>
+                        <methodname>operator() </methodname>
+                        <methodparam>
+                            <type>double </type><parameter>x</parameter>
+                        </methodparam>
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the fit is not in the <literal>Performed</literal>
+                        state this method should throw an exception.  If the
+                        fit has been performed, this method should return the
+                        value of the fit function evaluated at
+                        <parameter>x</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier> virtual  </modifier>
+                        <type>FitParameterList </type>
+                        <methodname>GetParameters</methodname>
+                        <void />
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        If the fit is not in the <literal>Performed</literal>
+                        state this should throw an exception.  Otherwise it
+                        should return the fit specific list of fit parameters.
+                        Note that one of them should always be (regardless
+                        of fit type) <literal>chisquare</literal>, the Chi Square
+                        goodness of fit.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual  </modifier>
+                        <type>std::string </type>
+                        <methodname>Type</methodname>
+                        <void />
+                        <modifier>const  = 0;</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a textual fit type.   This should be
+                        a string descriptive of the fit; e.g.
+                        <literal>gaussian</literal> is returned by
+                        <classname>CGaussianFit</classname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>void </type>
+                        <methodname>SetFitState</methodname>
+                        <methodparam>
+                            <type>FitState </type><parameter>state</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Allows concrete subclasses to set the fit state.
+                        In all cases, this should be used by
+                        <methodname>Perform</methodname> to set the state to
+                        <literal>Performed</literal> once the fit is actually
+                        computed.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>Predefined CFit classes</refentrytitle>
+        <manvolnum></manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CGaussianFit</refname>
+        <refname>CLinearFit</refname>
+        <refpurpose>3SpecTcl</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CGaussianFit.h&gt;
+
+class CGaussianFit : public CFit
+{
+public:
+  CGaussianFit(std::string name, int id = 0);
+
+  virtual void Perform();
+  virtual double operator()(double x);
+  virtual CFit::FitParameterList GetParameters();
+  virtual std::string Type() const;
+  virtual std::string makeTclFitScript();
+  virtual CFit* clone();
+
+};
+
+<beginpage />
+
+#include &lt;CLinearFit.h&gt;
+
+class CLinearFit  : public CFit        
+{
+
+public:
+  CLinearFit ();		 //!< Constructor.
+
+  virtual   void Perform ()   ; 
+  virtual   double operator() (double x)   ; 
+  virtual   CFit::FitParameterList GetParameters ()   ; 
+  virtual   std::string Type() const;
+  virtual CFit* clone();
+
+
+};
+
+
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            SpecTcl provides two simple fit functions.  The programming manual
+            describes how to add additional fit types to the fit subsystem.
+            The fit functions provided are classes that implement a Gaussian
+            fit on a constant background and a linear fit.  
+        </para>
+        <para>
+            The linear fit class is mostly provided as an example while the
+            gaussian fit has some actual usefulness.
+        </para>
+        <para>
+            The fit classes SpecTcl predefines use the GSL (GNU Scientific
+            Library) to perform their fits.  It is easy enough to extend
+            SpecTcl's fitting subsystem with fits performed by Root.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title><classname>CGaussianFit</classname> METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGaussianFit</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>int </type><parameter>id </parameter>
+                            <initializer> 0</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The constructor initializes the base class
+                        <classname>CNamedObject</classname> providing a name
+                        and an ID.  This is not strictly speaking needed for
+                        the SpecTcl fitting system, but was used in another
+                        application of this class not relevant to current
+                        SpecTcls.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Perform</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Performs the fit using the available points.
+                        At least 5 points must  have been accepted to support
+                        performing the gaussian fit.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>double </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>double</type><parameter> x</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the value of the fitted function at the point
+                        <parameter>x</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>CFit::FitParameterList </type>
+                        <methodname>GetParameters</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the fit parameters.  The fit
+                        performed is of the form:
+                    </para>
+                    <informalexample>
+                        <literallayout>
+y  = b + he<superscript>-((x-x0)/&#x03c3;)<superscript>2</superscript>/2</superscript>
+                        </literallayout>
+                    </informalexample>
+                    <para>
+                        In this equation, the parameters returned are:
+                        <literal>baseline</literal> for <literal>b</literal>.
+                        <literal>height</literal> for <literal>h</literal>.
+                        <literal>centroid</literal> for <literal>x0</literal>.
+                        <literal>sigma</literal> for <literal>&#x03c3;</literal>.
+                    </para>
+                    <para>
+                        In addition the parameter <literal>chisquare</literal>
+                        contains the chi square of the fit.
+                    </para>
+                    <para>
+                        This method throws an exception if the fit is not in the
+                        <literal>Performed</literal> state.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>Type</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>gaussian</literal>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string</type>
+                        <methodname> makeTclFitScript</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Throws an exception if the fit is not
+                        <literal>Performed</literal>.   Returns a string that
+                        defines a tcl proc named <literal>fitline</literal>.
+                        The proc accepts a single double parameter and returns
+                        the fit value at the point passed in.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>CLinearFit</title>
+        <para>
+            Linear fit is intended just to be a sample.  It performs a fit to the
+            function:
+        </para>
+        <informalexample>
+            <literallayout>
+y = mx  + b
+            </literallayout>
+            <para>
+                Where the fit parameters are the slope, <varname>m</varname>
+                and Y axis intercept; <varname>b</varname>.  The important
+                methods for this class are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual  </modifier>
+                            <type>void </type>
+                            <methodname>Perform</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Performs the fit.   If at least two points have not
+                            been accepted; an exception is thrown.  If the fit
+                            has two points and they are on a vertical line,
+                            an exception is thrown since the slope is not defined.
+                        </para>
+                        <para>
+                            The Gnu Scientific Library function
+                            <function>gsl_fit_linear</function> is used
+                            to perform the fit.  If successful, the state of the
+                            fit is set to <literal>CFit::Performed</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>double </type>
+                            <methodname>operator()</methodname>
+                            <methodparam>
+                                <type>double </type><parameter>x</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            If the fit is not in the <literal>CFit::Performed</literal>
+                            state an exception is thrown.  Otherwise, the value
+                            of the fit function at <parameter>x</parameter> is
+                            returned.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>CFit::FitParameterList</type>
+                            <methodname> GetParameters</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            If the fit is not <literal>CFit::Performed</literal>
+                            an exception is thrown.  If it has been,
+                            the fit parameters are returned.  The fit parameters
+                            are named <literal>slope</literal> and
+                            <literal>offset</literal> with obvious meanings and
+                            the fit provides the required
+                            <literal>chisquare</literal> "parameter".
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual   </modifier>
+                            <type>std::string </type>
+                            <methodname>Type</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the text <literal>linear</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </informalexample>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
