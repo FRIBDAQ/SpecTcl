@@ -31286,6 +31286,567 @@ public:
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFitFactory</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFitFactory</refname>
+        <refname>CFitCreator</refname>
+        <refname>CGaussianFitCreator</refname>
+        <refname>CLinearFitCreator</refname>
+        <refpurpose>Creating fit objects by name</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFitFactory.h&gt;
+
+class CFitFactory 
+{
+  // Public data types:
+public:
+  typedef std::map&lt;std::string, CFitCreator*&gt; FitCreatorMap;
+  typedef FitCreatorMap::iterator  FitCreatorIterator;
+
+  typedef std::map&lt;std::string, CFit*&gt;        FitMap;
+  typedef FitMap::iterator          FitIterator;
+
+public:
+
+
+  static void AddFitType (const std::string&amp; rType, CFitCreator* pCreator)   ; 
+  static CFit* Create (std::string sFitType, std::string sFitName)   ; 
+  static bool Delete (std::string sName)   ; 
+  static bool Perform (std::string sName)   ; 
+  static bool AddPoints (std::string sName,
+			 std::vector&lt;FPoint&gt; vPoints)   ; 
+  static double Evaluate (std::string sName, double x)   ; 
+  static FitCreatorIterator beginCreators();
+  static FitCreatorIterator endCreators();
+  static int    sizeCreators();
+  static FitCreatorIterator FindFitCreator (std::string sType)   ; 
+  static int size ()   ; 
+  static FitIterator begin ()   ; 
+  static FitIterator end ()   ; 
+  static FitIterator FindFit (std::string sName) ; 
+
+
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CFitFactory</classname> is both a factory for
+            fits and a registry/dictionary
+            of the fits it creates.  Note that this is
+            an extensible factory.  Extensible factories are not standalone
+            entities.  They rely on objects called <firstterm>Creators</firstterm>
+            to recognize specific type specifiers and to create the specific
+            type on behalf of the factory.
+        </para>
+        <para>
+            Associated with the fit factory is a class hierarhcy of
+            <classname>CFitCreator</classname>s.  This hierarchy exactly
+            mirrors the <classname>CFit</classname> class hierarchy.  Concrete
+            classes of the <classname>CFitCreator</classname> are instantiated
+            and registered with the factory to create the corresponding fits.
+        </para>
+        <para>
+            The remainder of this man page will describe the data types
+            introduced by this class, the methods this class exports and
+            the fit creator hierarchy and pre-defined concrete
+            creator classes.
+        </para>
+        <para>
+            Note that all methods of this class are static.  It's therefore
+            not necessary to create an instance of this class.  Furthermore,
+            this implies that the factory containers are application wide.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>Data types</title>
+        <para>
+            The class defines several nested data types.  These
+            define a keyed container and iterator for the creators,
+            and a keyed container and iterator for the fits themselves.
+            Note that iterators 'point' to an
+            <type>std::pair&lt;std::string, T*&gt;</type>  where
+            <classname>T</classname> represents the type of itemin the
+            container (e.g. a <classname>CFitCreator</classname>
+            or <classname>CFit</classname>).
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <literal>
+typedef std::map&lt;std::string, CFitCreator*&gt; FitCreatorMap;
+                    </literal>
+                </term>
+                <listitem>
+                    <para>
+                        <classname>CFitFactory</classname>::<type>FitCreatorMap</type>
+                        is the keyed container that holds fit creators.  Fit creators,
+                        recall are objects that will create a fit that corresponds
+                        to the key at which they live in the container.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <literal>
+ typedef FitCreatorMap::iterator  FitCreatorIterator;                       
+                    </literal>
+                </term>
+                <listitem>
+                    <para>
+                        Iterator into the <type>FitCreator</type> container.
+                        See <literal>DESCRIPTION</literal> for information
+                        about this.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <literal>
+typedef std::map&lt;std::string, CFit*&gt;        FitMap
+                    </literal>
+                </term>
+                <listitem>
+                    <para>
+                        <classname>CFitFactory</classname>::<type>FitMap</type>
+                        defines the container for the fits themselves.  This is
+                        a container that is indexed by a string that names
+                        the fit.  This name need not be the same as the name of the
+                        fit itself.  See, e.g. <methodname>Create</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <literal>
+typedef FitMap::iterator          FitIterator;
+                    </literal>
+                </term>
+                <listitem>
+                    <para>
+                        Iterator into the fit container
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            All methods are class level (static) methods.  They do not require an
+            object to invoke e.g.
+            <code>FitFactory::sizeCreators()</code> returns the number of fit
+            creators registered.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>void</type>
+                        <methodname> AddFitType </methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>rType</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CFitCreator* </type><parameter>pCreator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Registers a new fit type with the factory.
+                        <parameter>rType</parameter> will be the name of the
+                        fit type.  This value, when passed to
+                        <methodname>Create</methodname> will cause the
+                        creator passed in as <parameter>pCreator</parameter>
+                        to be asked to produce a fit object.
+                    </para>
+                    <para>
+                        If a fit of the same type as
+                        <parameter>rType</parameter> has already been
+                        registered, an exception is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>CFit* </type>
+                        <methodname>Create </methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sFitType</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::string </type><parameter>sFitName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Asks the factory to crate a new fit of the type
+                        <parameter>sFitType</parameter> and to give it the name
+                        <parameter>sFitName</parameter>.  The resulting fit
+                        is returned.  The resulting fit is also registered
+                        with the factory.
+                    </para>
+                    <para>
+                        If a fit of the name <parameter>sFitName</parameter>
+                        already exists, an exception is thrown.  If not
+                        creator matches the fit type; <parameter>sFitType</parameter>,
+                        a null pointer is returned.
+                    </para>
+                    <para>
+                        The fit is dynamically created by <literal>new</literal>,
+                        however you should not directly <literal>delete</literal>
+                        it.  See the <methodname>Delete</methodname> method
+                        below.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>bool </type>
+                        <methodname>Delete </methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Deletes the fit named <parameter>sName</parameter> from
+                        the fit dictionary.   If the fit existed (and had to be
+                        deleted) <literal>true</literal> is returned.  If the
+                        fit did not exist <literal>false</literal> is
+                        returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>bool </type>
+                        <methodname>Perform</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Requests that the fit named
+                        <parameter>sName</parameter> be performed with the
+                        current set of points,  This locates the fit in the
+                        fit dictionary and just delegates to that fit's
+                        <methodname>Perform</methodname> method.
+                    </para>
+                    <para>
+                        If the fit exists, and canbe performed successfully,
+                        <literal>true</literal> is returned.  If the
+                        fit does not exist or exists but fails,
+                        <literal>false</literal> is returned instead.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>bool </type>
+                        <methodname>AddPoints</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;FPoint&gt; </type><parameter>vPoints</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a vector of points to the fit.  See
+                        <filename>Point.h</filename> for the definition of a
+                        <type>FPoint</type> object.  This call puts the underlying
+                        fit in the <literal>CFit::Accepting</literal> state.
+                    </para>
+                    <para>
+                        If the fit named by <parameter>sName</parameter> was
+                        found the the points in
+                        <parameter>vPoints </parameter>are added via successive callse to
+                        the underlying fit's <methodname>AddPoint</methodname>
+                        method and
+                         <literal>true</literal> is returned.  If the
+                         fit is not found; <literal>false</literal> is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>double </type>
+                        <methodname>Evaluate</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sName</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> double </type><parameter>x</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Evaluates the fit <parameter>sName</parameter> at
+                        the X coordinate <parameter>x</parameter>.  The
+                        value of the fit function at that point is returned.
+                        Note that the fit must be in the
+                        <literal>CFit::Performed</literal> state.
+                    </para>
+                    <para>
+                        An exception is thrown if the fit does not exist.
+                        If the fit is not in the
+                        <literal>CFit::Performed</literal> state, an exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitCreatorIterator </type>
+                        <methodname>beginCreators</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitCreatorIterator </type>
+                        <methodname>endCreators</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods support iteration of the container of
+                        fit creators.  They both return pointer like objects that
+                        point to an <classname>std::pair&lt;std::string, CFitCreator*&gt;</classname>.
+                    </para>
+                    <para>
+                        <methodname>beginCreators</methodname> returns an iterator
+                        to the "first" item of the container.  Successive increments
+                        will step the  iterator through all items until
+                        the increment results in a iterator that is equal to that
+                        returned by <methodname>endCreators</methodname> which
+                        points just past the end of the container.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>int    </type>
+                        <methodname>sizeCreators</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of fit creators that have been
+                        registered with the factory.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitCreatorIterator </type>
+                        <methodname>FindFitCreator </methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sType</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator to the container item that has
+                        the fit for the fit type <parameter>sType</parameter>.
+                        If there is no matching fit creator, an iterator equal
+                        to that returned by
+                        <methodname>endCreators</methodname> is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitIterator</type>
+                        <methodname> begin </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitIterator</type>
+                        <methodname> end </methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Supports iteration over the container that is the
+                        dictionary of fits.  These methods return
+                        iterators that are pointer like objects.  Each
+                        iterator points to an object of the type:
+                        <classname>std::pair&lt;std::string, CFit*&gt;</classname>.
+                    </para>
+                    <para>
+                        <methodname>begin</methodname> points to the first object
+                        in the container.  Incrementing it will step sequentially
+                        through the items in the container.  When all items
+                        have been visited, the increment will result in an
+                        iterator equal to that returned by <methodname>end</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>int </type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of fits in the fit dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>FitIterator </type>
+                        <methodname>FindFit </methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>sName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator that points to the object in the
+                        fit dictionary that matches the name <parameter>sName</parameter>.
+                        If there is no matching fit, an object equal to that
+                        returned by <methodname>end</methodname> is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Fit Creators</title>
+        <para>
+            This section describes the abstract base class the defines
+            the fit creator interface.  SpecTcl defines two concrete fit
+            creator classes.  The first of these; <classname>CGaussianFitCreator</classname>
+            creates <classname>CGaussianFit</classname> objects.  The second;
+            <classname>CLinearFitCreator</classname>  creates <classname>CLinearFit</classname>
+            objects
+        </para>
+        <synopsis>
+#include &lt;CFitCreator.h&gt;
+#include &lt;CGaussianFitCreator.h&gt;
+#include &lt;CLinearFitCreator.h&gt;
+
+class CFitCreator      
+{
+
+public:
+  CFitCreator ();
+  
+  virtual   CFit* operator() ()   = 0; 
+  virtual   std::string DescribeFit()  = 0;
+};
+        </synopsis>
+        <para>
+            The methods that must be implemented by concrete classes are:
+        </para>
+            
+        <variablelist>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual   </modifier>
+                    <type>CFit* </type>
+                    <methodname>operator() </methodname>
+                    <void />
+                    <modifier>= 0</modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Must create the fit of the appropriate type and return it.
+                        The fit should be dynamically created.  It will be
+                        the client's responsibility to destroy it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual   </modifier>
+                    <type>std::string </type>
+                    <methodname>DescribeFit</methodname>
+                    <void />
+                    <modifier>= 0</modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Returns some brief text to describe the type of fit object
+                        produced by the creator.  SpecTcl's
+                        <command>fit</command> command iterates through the
+                        fit creators and uses these texts when constructing
+                        the command help.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
