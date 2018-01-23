@@ -32200,28 +32200,190 @@ if (p != pDict->end()) {
     <refsect1>
         <title>Nested Types and Classes</title>
         <para>
-  typedef std::map&lt;std::string, CSpectrumFit*&gt; FitMap;
-  typedef FitMap::iterator      iterator;
-
-  class CObserver {
-  public:
-    virtual void Add(CSpectrumFit&amp; fit) =0;
-    virtual void Delete(CSpectrumFit&amp; fit) = 0;
-    virtual void Update(CSpectrumFit&amp; fit) = 0;
-
-  };            
+            <classname>CFitDictionary</classname> defines two types and a
+            an abstract base class. The types are used to support dictionary
+            iterastion and the class to support the observer pattern.
         </para>
+        <para>
+            <classname>CSpectrumDictionary::FitMap</classname> is the type of
+            the container used to store the fit dictionary. While this is
+            currently an <classname>std::map</classname>, the only thing you should
+            assume is that this object is an associative container of
+            <classname>CSpectrumFit*</classname> with keys that are
+            <classname>std::string</classname> objects.   The keys are the
+            name of the fit.
+        </para>
+        <para>
+            <classname>CSpectrumDictionary::iterator</classname> is an interator
+            into the fit container.  As with all iterators for STL associative
+            containers it is a pointer-like object.  Dereferencing a
+            <classname>::CSpectrumDictionary::iterator</classname> provides
+            a reference to a <classname>std::pair&lt;std::string, CSpectrumFit*&gt;</classname>.
+            This is also consistent with STL iterators into associative containers.
+        </para>
+        <para>
+            Incrementing an instance of <classname>CSpectrumDictionary::iterator</classname>
+            produces a pointer-like object that points to the "next" item in the
+            dictionary.  The special iterator value returned by
+            <methodname>end</methodname> can be thought of as pointing just
+            off the end of the container.  <methodname>begin</methodname>
+            can be thought of pointing at the first item in the container.
+        </para>
+        <para>
+            Therefore typical dictionary iteration follows the pattern below:
+        </para>
+        
+        <informalexample>
+            <programlisting>
+CFitDictionary* pDict = CFitDictionary::getInstance();
+for (auto p = pDict->begin(); p != pDict->end(); p++) {
+    std::string fitname = p->first;
+    CSpectrumfit* pFit  = p->second;
+    
+    doSomethingWithTheFitAndOrName(fitname, pFit);
+}
+            </programlisting>
+
+        </informalexample>
+        <para>
+            Note that this sort of iteration is also perfectly compatible
+            with standard library generic algorithms like
+            <function>std::for_each</function>.
+        </para>
+        <para>
+            The <classname>CFitDictionary</classname> supports the observer pattern.
+            The observer pattern (see <ulink url='https://en.wikipedia.org/wiki/Observer_pattern' />)
+            provides a mechanism that allows other objects to be informed
+            when important state changes occur in <classname>CFitDictionary</classname>.
+            Observers are objects in an ordered list that are derived from the
+            abstract base class <classname>CFitDictionary::CObserver</classname>.
+            This abstract base class provides a set of method definitions that
+            define the set of events that will be observed.
+        </para>
+        <para>
+            The definition of the class is shown below (note this is defined
+            within the definition of <classname>CFitDictionary</classname>):
+        </para>
+        <informalexample>
+            <programlisting>
+class CObserver {
+public:
+  virtual void Add(CSpectrumFit&amp; fit) =0;
+  virtual void Delete(CSpectrumFit&amp; fit) = 0;
+  virtual void Update(CSpectrumFit&amp; fit) = 0;
+
+};            
+                
+            </programlisting>
+        </informalexample>
+        <para>
+            You can observe the <classname>CFitDictionary</classname> by
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    Deriving a class from <classname>CFitDictionary::CObserver</classname>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Creating an instance of that class that lives for as long
+                    as you want the observation to continue.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Using <methodname>addObserver</methodname> to add that object
+                    to the ordered list of observers.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    If the observer is ever no longer needed, use
+                    <methodname>removeObserver</methodname> to remove it
+                    after which, if appropriate you should ensure
+                    the observer's destruction.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            The methods you must implement in your observer are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname> Add</methodname>
+                        <methodparam>
+                            <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                        </methodparam>
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is invoked when a fit as been successfully added
+                        to the dictionary.  <parameter>fit</parameter> is a
+                        referenceto the fit just added.  Note that since
+                        <parameter>fit</parameter> is a <classname>NamedObject</classname>;
+                        <methodname>getName</methodname> can be used to get
+                        the fit's name if needed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Delete</methodname>
+                        <methodparam>
+                            <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is called when
+                        <parameter>fit</parameter> is about to be erased
+                        from the fit dictionary.  When called, the fit is still
+                        in the dictionary.   Once all observers are run,
+                        the fit is erased from the dictionary.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>Update</methodname>
+                        <methodparam>
+                            <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is invoked when <parameter>fit</parameter>
+                        has been updated.  By update we mean that
+                        <parameter>fit</parameter> has been recomputed in light
+                        of the current spectrum data.  The observer is invoked
+                        <emphasis>after</emphasis> the update.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
     </refsect1>
 
 </refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
-            <listitem>
-                <para>
-                    Fitting subsystem
-                </para>
-            </listitem>
             <listitem>
                 <para>
                     Filter subsystem
