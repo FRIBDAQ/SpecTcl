@@ -31847,6 +31847,373 @@ public:
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFitDictionary</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFitDictionary</refname>
+        <refpurpose>Fitting subsystem dictionary.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFitDictionary.h&gt;
+
+class CFitDictionary {
+
+public:
+  typedef std::map&lt;std::string, CSpectrumFit*&gt; FitMap;
+  typedef FitMap::iterator      iterator;
+
+  class CObserver {
+  public:
+    virtual void Add(CSpectrumFit&amp; fit) =0;
+    virtual void Delete(CSpectrumFit&amp; fit) = 0;
+    virtual void Update(CSpectrumFit&amp; fit) = 0;
+
+  };
+
+public:
+  static CFitDictionary&amp; getInstance();
+  void add(CSpectrumFit&amp; fit);
+  void addOrReplace(CSpectrumFit&amp; fit);
+  void Delete(std::string name);
+
+  iterator begin();
+  iterator end();
+  size_t   size();
+  iterator find(std::string name);
+  void     erase(iterator here);
+  void     erase(iterator first, iterator last);
+
+  void updateFits(std::string name=std::string(&quot;*&quot;)); 
+
+  void addObserver(CObserver&amp; obs);
+  void removeObserver(CObserver&amp; obs);
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CFitDictionary</classname> defines a singleton
+            class.  The provides a dictionary of fits derived from
+            <classname>CSpectrumFit</classname> and is the dictionary SpecTcl
+            uses to store its fits.  In addition to supporting addition
+            and removal operations, the iterator, oberver and search operations
+            are supported.  It is also possible to request the dictionary
+            update fits that match some pattern.
+        </para>
+        <para>
+            Note that the SpecTcl <classname>CHistogrammer</classname> class
+            establishes an observer so that it can ensure that Xamine
+            can display any fits that have been defined on displayed spectra.
+            Note that the Spectra displayer does not yet support the display
+            of fit lines.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>
+            METHODS
+        </title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>CFitDictionary&amp; </type>
+                        <methodname>getInstance</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Gets a  pointer to the singleton instance of the
+                        fit dictionary.  This singleton uses lazy creation in
+                        that the first invocation of <methodname>getInstance</methodname>
+                        is what actually creates the fit dictionary singleton
+                        instance.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type> void </type>
+                        <methodname>add</methodname>
+                        <methodparam>
+                            <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds a new fit to the dictionary.  The fit must live for
+                        the life of its existence in the dictionary as it's not
+                        cloned.  The name of the fit is taken from the fit itself.
+                    </para>
+                    <para>
+                        If a fit by this name already exists, an exception is
+                        thrown.  If the fit is successfully added, all observers
+                        are informed of this via their <methodname>Add</methodname>
+                        method.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addOrReplace</methodname>
+                        <methodparam>
+                            <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds the fit <parameter>fit</parameter> to the fit dictionary.
+                        The name assigned to the fit comes from the fit itself.
+                        If the fit already exists, the previous fit is replaced
+                        in the dictionary wih <parameter>fit</parameter>.
+                    </para>
+                    <para>
+                        This is treated as an addition and therefore the
+                        observers are notified via their <methodname>Add</methodname>
+                        methods.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>Delete</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the fit named <parameter>name</parameter> from
+                        the dictinoary  It's still up to the clients of the
+                        dictionary to manage the storage for this fit.
+                        If fits are dynamically allocated, removal/deletion should
+                        take the form of using <methodname>find</methodname>
+                        to get a pointer to the fit, deleting the fit from
+                        the dictionary (either with <methodname>erase</methodname>
+                        or <methodname>Delete</methodname>), and then
+                        using <code>delete</code> to delete the actual fit
+                        object.
+                    </para>
+                    <para>
+                        If there is no fit named <parameter>name</parameter> in
+                        the dictionary, 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>iterator </type>
+                        <methodname>begin</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>iterator </type>
+                        <methodname>end</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>size_t</type>
+                        <methodname>size</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        These methods implement an interation interface
+                        for the fits.  The iterators return pointer like
+                        objects to objects of the type:
+                        <classname>std::pair&lt;std:;string, CSpectrumFit&gt;</classname>
+                    </para>
+                    <para>
+                        <methodname>begin</methodname> returns an interator that
+                        points to the first item in the fit dictionary container.
+                        Incrementing this object steps sequentially through the
+                        container until the object is equal to the value
+                        returned by <methodname>end</methodname>.  At that point
+                        the iteration over the container is complete.
+                    </para>
+                    <para>
+                        <methodname>size</methodname> returns the number of
+                        objects in the container.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>iterator </type>
+                        <methodname>find</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator to the item in the gate dictionary
+                        container that has a name; <parameter>name</parameter>.
+                        If there is no matching item in the gate dictionary
+                        container, an iterator that is equal to the one
+                        returned by <methodname>end</methodname> is returned.
+                        See <methodname>begin</methodname> above for a description
+                        of the iterator object.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void     </type>
+                        <methodname>erase</methodname>
+                        <methodparam>
+                            <type>iterator </type><parameter>here</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given an iterator into the gate container dictionary,
+                        removes that entry from the dictionary.  Note that the
+                        gate is not deleted.  If the gate was dynamically created
+                        the client must delete it.   Suppose we want to delete
+                        the gate named <literal>deleteme</literal> and free
+                        its storage.  This can be done as follows:
+                    </para>
+                    <informalexample>
+                        <programlisting>
+CFitDictionary* pDict = CFitDictionary::getInstance();
+CFitDictionary::iterator p = pDict->find("deleteme");
+if (p != pDict->end()) {
+    CSpectrumFit* pFit = p->second;
+    pDict->erase(p);
+    delete pFit;
+} else {
+   // Action to take when the fit does not exist.
+}
+                        </programlisting>
+                    </informalexample>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>updateFits</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>name</parameter>
+                            <initializer>std::string(&quot;*&quot;)</initializer>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Updates the fits that have names matching the
+                        glob pattern <parameter>name</parameter>.  Note that this
+                        defaults to <literal>*</literal> which matches all fits.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addObserver</methodname>
+                        <methodparam>
+                            <type>CObserver&amp; </type><parameter>obs</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Adds an observer to the dictionary.  The observer object
+                        methods will be invoked as a result of specific actions
+                        performed by the dictionary.  See
+                        <literal>Nested Types and Classes</literal> for
+                        a description of observers and their  methods.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeObserver</methodname>
+                        <methodparam>
+                            <type>CObserver&amp; </type><parameter>obs</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the observer <parameter>obs</parameter> from the
+                        dictionary.  Once done, <parameter>obs</parameter> will
+                        no longer receive method calls from the dictionary.
+                        Removing the observer does not destroy it.  That is the
+                        responsibility of the dictionary client software.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>Nested Types and Classes</title>
+        <para>
+  typedef std::map&lt;std::string, CSpectrumFit*&gt; FitMap;
+  typedef FitMap::iterator      iterator;
+
+  class CObserver {
+  public:
+    virtual void Add(CSpectrumFit&amp; fit) =0;
+    virtual void Delete(CSpectrumFit&amp; fit) = 0;
+    virtual void Update(CSpectrumFit&amp; fit) = 0;
+
+  };            
+        </para>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
