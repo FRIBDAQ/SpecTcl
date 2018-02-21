@@ -340,6 +340,34 @@ proc madc args {
     }
 }
 #---------------------------------------------------------------
+# The mtdc command processes the creation and configuration of
+# Mesytec 32 channel TDC modules.
+#
+proc mtdc args {
+    set subcommand [lindex $args 0]
+    set name       [lindex $args 1]
+
+    set ::readoutDeviceType($name) $::typeMTDC32
+
+    # The config or create subcommand have the
+    # -id config which sets the 'vsn' for this module.
+
+    if {($subcommand eq "create") || ($subcommand eq "config")} {
+	set ididx [lsearch -exact $args "-id"]
+	if {$ididx != -1} {
+	    incr ididx
+	    set ::adcConfiguration($name) [lindex $args $ididx]
+	}
+	# Save the -resolution parameter in mtdcResolutions(name)
+
+	set residx [lsearch -exact $args "-resolution"]
+	if {$residx != -1} {
+	    incr residx
+	    set ::mtdcResolutions($name) [lindex $args $residx]
+	}
+    }
+}
+#---------------------------------------------------------------
 #
 #  The tdc1x90 command processes the creation and
 #  configuration of CAEN V1x90 modules.

@@ -27,6 +27,7 @@
 #include "CHINP.h"
 #include "CPSD.h"
 #include "CV1729Unpacker.h"
+#include "CMTDC32Unpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -57,6 +58,7 @@ static CMASE              unpackMase;
 static CHINP              unpackHINP;
 static CPSD               unpackPSD;
 static CV1729Unpacker     unpackV1729;
+static CMTDC32Unpacker    unpackMTDC32;
 
 // table of unpackers for each type of module.
 
@@ -71,7 +73,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpack785,			// CAEN Dual range placeholder
     &unpackHINP,
     &unpackPSD,
-    &unpackV1729
+    &unpackV1729,
+    &unpackMTDC32
 };
 
 //////////////////////////////////////////////////////////////////////////////////
