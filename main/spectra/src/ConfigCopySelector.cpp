@@ -88,7 +88,7 @@ QGridLayout* ConfigCopySelector::createDummyDisplay(QButtonGroup& group,
 
             // Create the pixmaps of each canvas
             QPixmap pixmap;
-            if (gVirtualX->WriteGIF(".spectra_temp.gif")) {
+            if (gVirtualX->WriteGIF(const_cast<char*>(".spectra_temp.gif"))) {
                 pixmap.load(".spectra_temp.gif");
                 std::remove(".spectra_temp.gif");
             } else {

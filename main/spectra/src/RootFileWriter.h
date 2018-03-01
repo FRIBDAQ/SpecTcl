@@ -1,6 +1,6 @@
 #ifndef ROOTFILEWRITER_H
 #define ROOTFILEWRITER_H
-
+#include <vector>
 #include <QString>
 
 #include <memory>
