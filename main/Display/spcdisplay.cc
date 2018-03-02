@@ -112,7 +112,7 @@ void Xamine_DisplayPane (int row, int col, int specid)
 
   /* Construct the proper display attributes */
 
-  win_attributed *attribs;
+  win_attributed *attribs(0);
   win_1d         attr1;
   win_2d         attr2;
 
