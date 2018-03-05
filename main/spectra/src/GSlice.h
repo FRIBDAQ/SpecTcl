@@ -22,7 +22,7 @@
 
 #ifndef GSLICE_H
 #define GSLICE_H
-
+#include <vector>
 #include <QObject>
 #include <QString>
 #include <QMetaType>
