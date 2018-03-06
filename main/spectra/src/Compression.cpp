@@ -68,7 +68,7 @@ namespace Compression
     }
 
     return ucBuffer;
-  };
+  }
 
 
 } // end of Compression namespace
