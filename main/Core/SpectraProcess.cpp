@@ -33,6 +33,7 @@
 #include <signal.h>
 
 
+
 namespace Spectra
 {
 
@@ -45,7 +46,6 @@ CSpectraProcess::~CSpectraProcess() {
         kill();
     }
 }
-
 void CSpectraProcess::exec()
 {
     // a little bit of code to ensure that stdin, stdout, and stderr are
@@ -63,11 +63,14 @@ void CSpectraProcess::exec()
     if (m_pid == 0) {
         m_pid = fork();
         if (m_pid == 0) {
-            close(STDOUT_FILENO);
-            close(STDERR_FILENO);
-
+	  //close(STDOUT_FILENO);
+	  // close(STDERR_FILENO);
+	  close(STDIN_FILENO);
+	    std::string path = generatePath();
+	    char* const argv[2] = {const_cast<char*>(path.c_str()), nullptr};
+	    
             // child process
-            execv(generatePath().c_str(), nullptr);
+            execvpe(path.c_str(), argv, environ);
             return;
         } else {
             fcntl(0, F_SETFD, inflg);
