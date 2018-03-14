@@ -203,7 +203,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
-	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp
+	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
+	CPipelineCommand.cpp CPipelineManager.cpp
 
 # TapeCommand.h removed
 
@@ -221,8 +222,8 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
-	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h
-
+	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
+	CPipelineCommand.h CPipelineManager.h
 
 # TapeCommand.h removed
 
@@ -332,7 +333,8 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 # Removed -I@top_srcdir@/Tape
 
 libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
-												 -I@top_srcdir@/Display \
+			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
+				-I@top_srcdir@/Display \
 												 -I@top_srcdir@/factories \
 												 -I@top_srcdir@/Tape \
 												 @LIBTCLPLUS_CFLAGS@ \

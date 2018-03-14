@@ -74,6 +74,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SharedMemoryKeyCommand.h"
 #include "SharedMemorySizeCommand.h"
 
+#include "CPipelineCommand.h"
+
 #include "ProductionXamineShMem.h"
 
 #include <histotypes.h>
@@ -294,10 +296,10 @@ CTclGrammerApp::~CTclGrammerApp() {
 */
 void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
 					    const char* name) {
-
+  
   SpecTcl* api = SpecTcl::getInstance();
-  api->AddEventProcessor(rEventProcessor, name);
-
+  api->AddEventProcessor("", rEventProcessor, name);
+  
 }  
 
 //  Function:
@@ -766,6 +768,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   new CSharedMemorySizeCommand(rInterp);
   cerr << "shmemsize - shared memory size command (c) 2016 Written by Jeromy Tompkins\n";
 
+  new CPipelineCommand(rInterp);
+  cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
+  
   cerr.flush();
 }
 

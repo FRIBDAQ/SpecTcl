@@ -136,8 +136,10 @@ CRateCommand::createRate(CTCLInterpreter& interp,
   // prepend to the pipeline.
 
   CRateProcessor* processor = new CRateProcessor(*pSpec);
-  api->InsertEventProcessor(*processor,
-			    api->ProcessingPipelineBegin(),
+  std::string name_pipe = api->GetCurrentPipeline();
+  api->InsertEventProcessor(name_pipe,
+			    *processor,
+			    api->ProcessingPipelineBegin(name_pipe),
 			    spectrumName.c_str());
   // Add to the rate list.
 
@@ -186,8 +188,9 @@ CRateCommand::deleteRate(CTCLInterpreter& interp,
   //
 
   SpecTcl* api = SpecTcl::getInstance();
-  CTclAnalyzer::EventProcessorIterator i = api->FindEventProcessor(spectrumName);
-  if (i == api->ProcessingPipelineEnd()) {
+  std::string name_pipe = api->GetCurrentPipeline();
+  CTclAnalyzer::EventProcessorIterator i = api->FindEventProcessor(name_pipe, spectrumName);
+  if (i == api->ProcessingPipelineEnd(name_pipe)) {
     string result = "Spectrum ";
     result       += spectrumName;
     result       += " does not have a rate event processor\n";
@@ -218,7 +221,7 @@ CRateCommand::deleteRate(CTCLInterpreter& interp,
 
   // Now evertying has worked out:
 
-  api->RemoveEventProcessor(i);
+  api->RemoveEventProcessor(name_pipe, i);
   pRates->deleteProcessor(*pRate);
   delete pRate;
 

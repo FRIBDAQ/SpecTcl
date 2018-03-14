@@ -41,7 +41,6 @@
 #include <EventSinkPipeline.h>
 #include <AttachCommand.h>
 
-
 // Forward class definitions
 
 class CParameter;
@@ -98,7 +97,6 @@ public:
   //! Call this to get the singleton  instance of the SpecTcl API class
 
   static SpecTcl* getInstance();
-
 
   // Allow the definition of a new buffer decoder.
   // This requires that the analyzer is already defined.
@@ -319,18 +317,26 @@ public:
 
   // Manipulating the event processor pipeline.
 
-  void AddEventProcessor(CEventProcessor& eventProcessor, 
-			 const char* name = 0);
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
-  void InsertEventProcessor(CEventProcessor& processor,
+  void CreatePipeline(std::string name);
+  void ListPipelineList();
+  void ListCurrentPipeline();  
+  void ListAll();
+  void GetPipeline(std::string name);
+  void AddEventProcessor(std::string name_pipe, CEventProcessor& eventProcessor, const char* name_proc = 0);  
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name_pipe, std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name_pipe, CEventProcessor& processor);
+  void InsertEventProcessor(std::string name_pipe, CEventProcessor& processor,
 			    CTclAnalyzer::EventProcessorIterator where, 
 			    const char*  name = 0);
-  void RemoveEventProcessor(std::string name);
-  void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
-  UInt_t ProcessingPipelineSize();
-  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
-  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+  void RemoveEventProcessor(std::string name_pipe, std::string name);
+  void RemoveEventProcessor(std::string name_pipe, CTclAnalyzer::EventProcessorIterator here);
+  void RemovePipeline(std::string name_pipe);
+  void ClearPipeline(std::string name_pipe);
+  void RestorePipeline(std::string name_pipe);    
+  std::string GetCurrentPipeline();
+  UInt_t ProcessingPipelineSize(std::string name_pipe);
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin(std::string name_pipe);
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd(std::string name_pipe);
 
   // Spectrum I/O formatting control:
 
