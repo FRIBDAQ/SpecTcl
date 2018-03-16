@@ -319,7 +319,7 @@ DAMAGES.
 
 #ifndef __MTYPES_H	
 #define __MTYPES_H
-#include <daqtypes.h>
+#include <daqdatatypes.h>
 /*		Absolute time:		*/
 
 struct bftime
