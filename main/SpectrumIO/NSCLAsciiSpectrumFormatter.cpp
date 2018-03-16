@@ -65,6 +65,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <vector>
 #include <Sstream.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -80,10 +81,10 @@ static const char* HeaderEnding= "--------------------------------------------\n
 // various data types.
 //
 
-static ULong_t Maxima[] = {
+static uint64_t Maxima[] = {
   UCHAR_MAX,			// Largest UChar_t
   USHRT_MAX,			// Largest UShort_t
-  ULONG_MAX,			// Largest ULong_t
+  UINT_MAX,			// Largest ULong_t
   ULONG_MAX,			// For now largest UFloat_t
   ULONG_MAX,			// For now largest DFloat_t
   0
