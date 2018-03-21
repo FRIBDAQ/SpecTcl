@@ -14,8 +14,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CMTDC32UNPACKER_H
-#define __CMTDC32UNPACKER_H
+#ifndef __CMQDC32UNPACKER_H
+#define __CMQDC32UNPACKER_H
 
 #ifndef __CMODULEUNPACKER_H
 #include "CModuleUnpacker.h"
@@ -23,7 +23,7 @@
 
 
 /*!
-   This module is responsible for unpacking the Mesytec MADC-32 32 channel ADC.
+   This module is responsible for unpacking the Mesytec MQDC-32 32 channel QDC.
    These modules have a virtual slot number.  It is therefore possible to 
    to do perfect matching on the data stream.. and to deal with complete supression
    of the module in the data stream.
@@ -35,12 +35,12 @@
    this allows the user to create strip charts of something vs time (e.g. counts of
    hits in some place)
 */
-class CMTDC32Unpacker : public CModuleUnpacker
+class CMQDC32Unpacker : public CModuleUnpacker
 {
   // canonicals:
 public:
-  CMTDC32Unpacker();
-  virtual ~CMTDC32Unpacker();
+  CMQDC32Unpacker();
+  virtual ~CMQDC32Unpacker();
 
   // The unpacker entry:
 
@@ -50,7 +50,7 @@ public:
 				  unsigned int                   offset,
 				  CParamMapCommand::AdcMapping*  pMap);
 
-  
+
   
 };
 

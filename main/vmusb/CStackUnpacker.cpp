@@ -28,6 +28,7 @@
 #include "CPSD.h"
 #include "CV1729Unpacker.h"
 #include "CMTDC32Unpacker.h"
+#include "CMQDC32Unpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -59,6 +60,7 @@ static CHINP              unpackHINP;
 static CPSD               unpackPSD;
 static CV1729Unpacker     unpackV1729;
 static CMTDC32Unpacker    unpackMTDC32;
+static CMQDC32Unpacker    unpackMQDC32;
 
 // table of unpackers for each type of module.
 
@@ -74,7 +76,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackHINP,
     &unpackPSD,
     &unpackV1729,
-    &unpackMTDC32
+    &unpackMTDC32,
+    &unpackMQDC32    
 };
 
 //////////////////////////////////////////////////////////////////////////////////

@@ -438,6 +438,28 @@ proc buildMTDC32Map {param name} {
     }
     return [makeParamsSpectraAndMap $param $name $::typeMTDC32 $::adcChannels($name)  $resolution ]
 }
+#--------------------------------------------------------------------------
+#
+#  build spectra and channel maps for MQDC32's the only hink here is that
+#  if it's set the mqdcResolutions($name) array element overrides
+#  channelCount($typeMQDC32).
+#
+# Parameters:
+#   param  - First free parameter.
+#   name   - module name.
+# Returns:
+#   next available parameter.
+#
+proc buildMQDC32Map {param name} {
+    array set resolutions [list 2k 2048 4k 4096 4khires 4096 \
+			       8k 8192 8khires 8192]
+    set resolution $::channelCount($::typeMQDC32); # default resolution.
+
+    if {[array names ::mqdcResolutions $name] ne ""} {
+	set resolution $resolutions($::mqdcResolutions($name))
+    }
+    return [makeParamsSpectraAndMap $param $name $::typeMQDC32 $::adcChannels($name)  $resolution ]
+}
 #------------------------------------------------------------------
 #
 # Build a simple parameter/spectrum set and channel maps:
@@ -501,6 +523,10 @@ proc buildChannelMaps param {
 	    set param [buildPSDMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
 	    set param [buildMADC32Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMTDC32} {
+	    set param [buildMTDC32Map $param $module]	    
+	} elseif {$::readoutDeviceType($module) eq $::typeMQDC32} {
+	    set param [buildMQDC32Map $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
 	    set param [buildV1729Map $param $module]
 	    createFreezeButton

@@ -13,6 +13,7 @@ set typeHINP     7;			# HINP XLM module.
 set typePSD      8;			# PSD XLM module.
 set typeV1729    9;			# CAEN V1729 FADC.
 set typeMTDC32  10;                     # Mesytec MTDC 32.
+set typeMTDC32  11;                     # Mesytec MQDC 32.
 set typeVMUSB    null;                  # Used to flag this makes no data.
 
 set channelCount($typeCAEN)   4096
@@ -25,3 +26,4 @@ set channelCount($typeHINP)    16384;	# Num channels in a default HINP spectrum.
 set channelCount($typePSD)     8192;	# Num channels in a default PSD spectrum.
 set channelCount($typeV1729)   8192;	# Waveform count.
 set channelCount($typeMTDC32)  16384;   # MTDC32 default resolution
+set channelCount($typeMQDC32)  4096;	# Currently only 12 chans.

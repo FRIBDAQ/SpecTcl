@@ -20,6 +20,7 @@ CV1729Unpacker.cpp \
 CV1x90Unpacker.cpp \
 CV977Unpacker.cpp \
 CMTDC32Unpacker.cpp \
+CMQDC32Unpacker.cpp \
 LICENCE.cpp \
 MySpecTclApp.cpp 
 
@@ -45,6 +46,7 @@ CV1729Unpacker.h \
 CV1x90Unpacker.h \
 CV977Unpacker.h \
 CMTDC32Unpacker.h \
+CMQDC32Unpacker.h \
 MySpecTclApp.h
 
 # Removed: 	-I@top_srcdir@/Tape 
