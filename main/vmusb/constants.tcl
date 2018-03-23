@@ -13,7 +13,7 @@ set typeHINP     7;			# HINP XLM module.
 set typePSD      8;			# PSD XLM module.
 set typeV1729    9;			# CAEN V1729 FADC.
 set typeMTDC32  10;                     # Mesytec MTDC 32.
-set typeMTDC32  11;                     # Mesytec MQDC 32.
+set typeMQDC32  11;                     # Mesytec MQDC 32.
 set typeVMUSB    null;                  # Used to flag this makes no data.
 
 set channelCount($typeCAEN)   4096
