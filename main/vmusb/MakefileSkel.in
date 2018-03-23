@@ -6,7 +6,7 @@ include $(INSTDIR)/etc/SpecTcl_Makefile.include
 #  If you have any switches that need to be added to the default c++ compilation
 # rules, add them to the definition below:
 
-USERCXXFLAGS=
+USERCXXFLAGS= -std=c++11
 
 #  If you have any switches you need to add to the default c compilation rules,
 #  add them to the defintion below:
@@ -25,6 +25,8 @@ OBJECTS= C785Unpacker.o \
 CFitButton.o \
 CHINP.o \
 CMADC32Unpacker.o \
+CMTDC32Unpacker.o \
+CMQDC32Unpacker.o \
 CMASE.o \
 CModuleUnpacker.o \
 CNADC2530Unpacker.o \
