@@ -2,6 +2,7 @@
 
 AC_INIT(SpecTcl,4.0-005, fox@nscl.msu.edu)
 AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
+
 AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE

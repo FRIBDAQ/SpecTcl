@@ -121,12 +121,6 @@ CFilterEventProcessor::OnOther(UInt_t nType,
 
     CHistogrammer* pHistogrammer = (CHistogrammer*)gpEventSink;
 
-    // If we have an existing parameter map trash it:
-    
-    if(!m_ParameterMap.empty()) {
-      m_ParameterMap.erase(m_ParameterMap.begin(), 
-			   m_ParameterMap.end());
-    }
     // Retrieve the number of parameters:
 
     int numParams;
@@ -140,9 +134,9 @@ CFilterEventProcessor::OnOther(UInt_t nType,
       pBuffer = GetString(pBuffer, name);
       CParameter* pParam = pHistogrammer->FindParameter(name);
       if(pParam) {
-	m_ParameterMap.push_back(pParam->getNumber());
+        m_ParameterMap.push_back(pParam->getNumber());
       } else {
-	m_ParameterMap.push_back(-1);
+        m_ParameterMap.push_back(-1);
       }
     }
   }
@@ -189,8 +183,8 @@ CFilterEventProcessor::operator()(const Address_t pEvent,
 				  CAnalyzer& rAnalyzer,
 				  CBufferDecoder& rDecoder)
 {
-  Address_t pHere(pEvent);	// Retain starting pointer.
-
+  Address_t pHere = pEvent;	// Retain starting pointer.
+    
   // Convert the analyzer to a CTclAnalyzer in order to be able
   // to set the event size later:
 
@@ -268,6 +262,17 @@ CFilterEventProcessor::operator()(const Address_t pEvent,
 
   return kfTRUE;
   
+}
+/**
+ * OnEventSourceOpen
+ *    Need to empty the parameter map as it will be reloaeded with a new
+ *    set of parameter header records:
+ */
+Bool_t
+CFilterEventProcessor::OnEventSourceOpen(std::string name)
+{
+    m_ParameterMap.clear();
+    return kfTRUE;
 }
 /*!
    Pull a string out of a buffer and update the pointer to the
