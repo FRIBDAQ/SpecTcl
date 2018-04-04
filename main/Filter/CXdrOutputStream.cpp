@@ -34,6 +34,7 @@
 using namespace std;
 #endif
 
+
 /*!
    Construct a closed CXdrOutputStream.  This function does
    not open the file.  That must be done by calling the
@@ -211,17 +212,34 @@ CXdrOutputStream::Flush()
 
 
 }
-/*!
+/**
+ * Test
+ *    See if the requested number of bytes will fit in the output buffer
+ *    or require a flush prior to insertion:
+ *
+ *  @param nBytes - number of bytes to test
+ *  @return bool  - True if the bytes will fit, false otherwise.
+ */
+bool
+CXdrOutputStream::Test(int nBytes)
+{
+    unsigned int pos = xdr_getpos(&m_Xdr);           // Current position.
+    return (pos + (nBytes*2)) < m_nBuffersize;   // fits if so.
+}
+
+/**
    Require a specific amount of free space else flush:
-   \param nBytes (int in):
-     Number of bytes requried.
+   @param[in] nBytes - Number of bytes requried.
+   @return bool - true of a flush was not required.
 */
-void
+bool
 CXdrOutputStream::Require(int nBytes)
 {
-  int pos = xdr_getpos(&m_Xdr);
-  if (pos + (nBytes*2) >= m_nBuffersize) { // Seems to be a factor of 2.
+  if (!Test(nBytes)) {
     Flush();
+    return false;
+  } else {
+    return true;
   }
 }
 /*!

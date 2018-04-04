@@ -91,10 +91,12 @@ public:
 
   // Class operations.
 
-  void Open(const STD(string)& rName) throw (STD(string)&);
-  void Close() throw (STD(string)&);
-  void Put(void* object, xdrproc_t converter) throw (STD(string)&);
-  void Require(int nBytes);
+  void Open(const std::string& rName) throw (std::string&);
+  void Close() throw (std::string&);
+  void Put(void* object, xdrproc_t converter) throw (std::string&);
+  bool Require(int nBytes);
+  bool Test(int nBytes);
+
 
   // Sizers (sizeof is no good in xdr as it does not have to match
   // the native size need not match the xdr size:
@@ -128,9 +130,7 @@ public:
   CXdrOutputStream& operator<<(unsigned int n);
   CXdrOutputStream& operator<<(unsigned long n);
 
-  // Utilities:
 
-private:
 
   void Flush();
 
