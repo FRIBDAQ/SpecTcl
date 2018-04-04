@@ -114,12 +114,53 @@ CXdrFilterOutputStage::DescribeEvent(vector<string> parameterNames,
   // Now format the header and write it out.
 
   int parameterCount = parameterNames.size();
+  int totalParameterCount = parameterCount;
 
-  (*m_pOutputEventStream) << "header";
-  (*m_pOutputEventStream) << parameterCount;
-  for (int i= 0; i < parameterCount; i++) {
-    (*m_pOutputEventStream) << (parameterNames[i]);
+  // See how many parameters we can fit in a block:
+  // Output successive "header" records in blocks until all parameters
+  // have been output.
+  
+  int offset(0);
+  int idx(0);
+  int nFit;
+  while (parameterCount) {
+    
+    int nBytes = sizeof(int) + strlen("header");
+    nFit = 0;
+    
+    // See how many parameters will fit in the next "header" record/block.
+    
+    while(m_pOutputEventStream->Test(nBytes) && (idx < totalParameterCount)) {
+        nBytes += parameterNames[idx].size();
+        idx++;
+        nFit++;
+    }
+    // We got here either beause we ran out of parameters or because
+    // we ran out of space.  If we ran out of space we need to back-up
+    // one parameter:
+    
+    if (!m_pOutputEventStream->Test(nBytes)) {
+        // We ran out of space -- remove the last one...
+        
+        --idx;         // index of the one that didn't fit.
+        --nFit;        // Number that do fit.
+        nBytes -= parameterNames[idx].size();
+    }
+    // It's also possible that we hit the end and there's nothing to output;
+    
+    if (nFit) {
+        (*m_pOutputEventStream) << "header";
+        (*m_pOutputEventStream) << nFit;
+        for (int i = offset; i < idx; i++) {
+            (*m_pOutputEventStream) << (parameterNames[i]);
+        }
+        m_pOutputEventStream->Flush();
+    }
+    offset = idx;            // Next one to do.
+    parameterCount -= nFit;  // The number of parameters that are left.
+    
   }
+  
 }
 
 /*!
