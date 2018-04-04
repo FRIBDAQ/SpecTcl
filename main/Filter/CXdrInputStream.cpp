@@ -293,6 +293,7 @@ CXdrInputStream&
 CXdrInputStream::operator>>(char* c)
 {
   xdr_string(&m_Xdr, &c, m_nBuffersize);
+  ConditionalRead();
   return *this;
 }
 /*!

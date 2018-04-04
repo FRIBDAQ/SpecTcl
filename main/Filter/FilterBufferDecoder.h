@@ -82,6 +82,8 @@ class CXdrInputStream;
    +--------------------------+
 
    \endverbatim
+   
+   Note that each header record is in a block by itself(?)
 
    event:
 
@@ -149,6 +151,7 @@ public:
 			  Address_t pBuffer,
 			  CAnalyzer& rAnalyzer);
   virtual BufferTranslator* getBufferTranslator();
+  virtual void OnSourceAttach();  // When source is attached this is called.
 private:
   // Utility functions:
   
