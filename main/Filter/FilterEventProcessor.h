@@ -87,6 +87,8 @@ public:
 
   // Utility functions:
 
+    virtual Bool_t OnEventSourceOpen(std::string name);
+  
 public:				// These may be generally useful:
   static void* GetString(void* p, 
 			 STD(string)& result); //!< retrieve string.

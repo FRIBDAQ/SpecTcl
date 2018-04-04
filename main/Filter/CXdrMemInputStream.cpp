@@ -65,7 +65,7 @@ CXdrMemInputStream::Disconnect() throw (string)
 }
 /*!
    Read a buffer from the stream.
-   If the m_fHaveRead flag is true, then m_pBuffer is copied
+   If the m_fHaveRead flag is false, then m_pBuffer is copied
    where we've been told to put it.  Otherwise, 0 is returned
    indicating an end file condition.
 */
