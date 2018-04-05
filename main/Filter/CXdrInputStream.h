@@ -59,7 +59,7 @@ private:
   int    m_nBuffersize;		//!< Read Unit size.
   char  *m_pBuffer;		//!< The actual buffer.
   XDR    m_Xdr;			//!< XDR conversion data structs.
-  STD(string) m_sConnectionId;	//!< Identifies data source.
+  std::string m_sConnectionId;	//!< Identifies data source.
   bool   m_fIsOpen;		//!< True when input stream open.
   int    m_nFid;		//!< Base class is a file!!.
   int    m_nSize;		//!< # bytes used in buffer.
@@ -67,7 +67,7 @@ public:
   // Constructors and other canonical functions:
 
   CXdrInputStream(int nBuffersize = 8192);
-  CXdrInputStream(const STD(string)& connection, 
+  CXdrInputStream(const std::string& connection, 
 		  int nBuffersize = 8192);
   ~CXdrInputStream();
 private:
@@ -88,7 +88,7 @@ public:
   bool isOpen() const {
     return m_fIsOpen;
   }
-  STD(string) getConnectionId() const {
+  std::string getConnectionId() const {
     return m_sConnectionId;
   }
   /*! Get file id: note this may be meaningless in derived classes */
@@ -109,14 +109,14 @@ protected:
 
    //!  Give name and connect.
 public:
-  void Connect(const STD(string)& rName) throw (STD(string)) {
+  void Connect(const std::string& rName) throw (std::string) {
     m_sConnectionId = rName;
     Connect();
   }
 
   //! Get an arbitrarily typed item from the buffer:
 
-  void Get(void* item, xdrproc_t cvt) throw (STD(string));
+  void Get(void* item, xdrproc_t cvt) throw (std::string);
 
   //  Stream-like operations:
 
@@ -124,15 +124,15 @@ public:
   CXdrInputStream& operator>>(float& n); //!< Get float.
   CXdrInputStream& operator>>(double& n); //!< Get double.
   CXdrInputStream& operator>>(char& c); //!< Get single char.
-  CXdrInputStream& operator>>(char* c); //!< Get czSTD(string)
-  CXdrInputStream& operator>>(STD(string)& s); //!< Get stl STD(string)
+  CXdrInputStream& operator>>(char* c); //!< Get czstd::string
+  CXdrInputStream& operator>>(std::string& s); //!< Get stl std::string
   CXdrInputStream& operator>>(bool& b); //!< Get a bool.
 
 
   // overrides:
 
-  virtual void Connect() throw (STD(string));
-  virtual void Disconnect() throw(STD(string));
+  virtual void Connect() throw (std::string);
+  virtual void Disconnect() throw(std::string);
 
 protected:
   virtual int  Read(void* pBuffer);
@@ -141,8 +141,8 @@ protected:
 protected:
   // Utility functions.
 
-  void DoRead() throw(STD(string));	//!< Drive a read and all book-keeping
-  void ConditionalRead() throw (STD(string)); //!< Read if buffer done.
+  void DoRead() throw(std::string);	//!< Drive a read and all book-keeping
+  void ConditionalRead() throw (std::string); //!< Read if buffer done.
 
 };
    
