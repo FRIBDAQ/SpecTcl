@@ -51,7 +51,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <limits.h>
 #include <string.h>
 #include <vector>
-#include <Sstream.h>
+#include <sstream>
 #include <ctype.h>
 #include <Histogrammer.h>
 

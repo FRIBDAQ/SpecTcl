@@ -125,7 +125,7 @@ public:
   virtual UInt_t getBufferType() = 0;
   virtual void getByteOrder(Short_t& Signature16,
 			    Int_t& Signature32) = 0;
-  virtual STD(string) getTitle() = 0;
+  virtual std::string getTitle() = 0;
   //
   // Default behavior for this operation can be supplied in terms of
   // the virtual selectors.

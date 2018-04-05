@@ -116,7 +116,7 @@ private:
   // member data:
 private:
   UnpackState         m_state;	      // Current state of unpacker.
-  STD(list)<uint16_t> m_event;	      // Super event data.
+  std::list<uint16_t> m_event;	      // Super event data.
   UInt_t              m_size;	      // Full size of superevent (words).
 
 

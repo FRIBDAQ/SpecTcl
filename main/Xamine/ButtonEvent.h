@@ -63,7 +63,7 @@ private:
   Int_t       m_nCurrentSpectrum;  // Xamine's selected spectrum.
   Bool_t      m_fToggleState;	   // State of toggle if button is toggle.
   Int_t       m_nPromptedSpectrum; // Spectrum ID chosen from prompter
-  STD(string) m_sPromptedString;   // Text from filename or Text prompter.
+  std::string m_sPromptedString;   // Text from filename or Text prompter.
   PointArray  m_vPoints;	   // Array of accepted points.
   
 public:
@@ -145,7 +145,7 @@ public:
   {
     return m_nPromptedSpectrum;
   }
-  STD(string) getm_sPromptedString() const
+  std::string getm_sPromptedString() const
   {
     return m_sPromptedString;
   }
@@ -173,7 +173,7 @@ protected:
   { 
     m_nPromptedSpectrum = am_nPromptedSpectrum;
   }
-  void setPromptedString (STD(string) am_sPromptedString)
+  void setPromptedString (std::string am_sPromptedString)
   { 
     m_sPromptedString = am_sPromptedString;
   }

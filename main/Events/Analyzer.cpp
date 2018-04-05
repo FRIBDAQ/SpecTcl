@@ -36,8 +36,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //
 
 #include <config.h>
-#include <Iostream.h>
-
+#include <iostream>
+#include <stdint.h>
 #include "Exception.h"
 #include "EventFormatError.h"
 #include "Globals.h"
@@ -176,7 +176,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  }
 	  if ((nEventSize == 0) && !(m_fPartialEntity)) { // If we didn't throw now we'd hang here.
 	    throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
-				    STD(string)("Packer returned event size = 0"),
+				    std::string("Packer returned event size = 0"),
 				    (UInt_t*)pData, 16, 0,0);
 	  }
 	}
@@ -192,7 +192,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	if (!m_fPartialEntity) {
 	  nEvents--;
 	}
-	pData     = (Address_t)((ULong_t)pData + nEventSize);
+	pData     = (Address_t)((uint8_t*)pData + nEventSize);
 	nOffset  += nEventSize;
 	if(nEventNo >= m_nEventThreshold) {
 	  if(m_pSink) {		// Flush the event list to the sink.

@@ -51,11 +51,11 @@ class CDictionaryException  : public CException
 {
 private:
   Int_t      m_nReason;		// Code describing reason for exception
-  STD(string) m_sName;		// Name of item being looked up.
+  std::string m_sName;		// Name of item being looked up.
   UInt_t      m_nId;		// Id of item being looked up.
   Bool_t      m_fIdValid;	// kfTRUE if m_nId is valid.
   Bool_t      m_fNameValid;	// kfTRUE if m_sName is valid.
-  STD(string) m_sReasonText;	// Most recent reason text.
+  std::string m_sReasonText;	// Most recent reason text.
 public:
   enum {			// Possible values for m_nReason:
     knDuplicateKey,		// Insert to dictionary was duplicate key.
@@ -79,7 +79,7 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
   CDictionaryException(Int_t nReason, const char* pDoing, 
-		       const STD(string)& rName) :
+		       const std::string& rName) :
     CException(pDoing),
     m_nReason(nReason),
     m_sName(rName),
@@ -88,7 +88,7 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
 
-  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
+  CDictionaryException(Int_t nReason, const std::string& rDoing,
 		       const char* pName) :
     CException(rDoing),
     m_nReason(nReason),
@@ -98,8 +98,8 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
 
-  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
-		       const STD(string)& rName) :
+  CDictionaryException(Int_t nReason, const std::string& rDoing,
+		       const std::string& rName) :
     CException(rDoing),
     m_nReason(nReason),
     m_sName(rName),
@@ -119,7 +119,7 @@ public:
     m_fIdValid(kfTRUE),
     m_fNameValid(kfFALSE)
   { UpdateReasonText(); }
-  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
+  CDictionaryException(Int_t nReason, const std::string& rDoing,
 		       UInt_t nId) :
     CException(rDoing),
     m_nReason(nReason),
@@ -182,7 +182,7 @@ public:
   {
     return m_nReason;
   }
-  STD(string) getm_sName() const
+  std::string getm_sName() const
   {
     return m_sName;
   }
@@ -221,7 +221,7 @@ protected:
   // Mutators: Others are available to the public:
   //
 public:
-  void setName (STD(string) am_sName)
+  void setName (std::string am_sName)
   { 
     m_sName = am_sName;
     m_fNameValid = kfTRUE;

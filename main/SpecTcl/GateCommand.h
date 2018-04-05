@@ -147,9 +147,9 @@ public:
 
  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			   int nArgs, char* pArgs[])    ;
-  void   invokeAddScript(STD(string) name);
-  void   invokeDeleteScript(STD(string) name);
-  void   invokeChangedScript(STD(string) name);
+  void   invokeAddScript(std::string name);
+  void   invokeDeleteScript(std::string name);
+  void   invokeChangedScript(std::string name);
 
 
 protected:
@@ -170,10 +170,10 @@ protected:
 		    UInt_t           nArgs,
 		    char*            pArgs[]);
   void   invokeAScript(CTCLObject* pScript,
-		       STD(string) parameter);
+		       std::string parameter);
 
   static Switches MatchSwitches(char* pKey);
-  static STD(string)   Usage();
+  static std::string   Usage();
   static GateFactoryTable* MatchGateType(const char* pGateType);
 
 };

@@ -375,7 +375,7 @@ public:
 			//Default constructor
 
   CBand (UInt_t nXid, UInt_t nYid,
-	 const STD(vector)<FPoint>& points);
+	 const std::vector<FPoint>& points);
   CBand (UInt_t nXid, UInt_t nYid,
 	 UInt_t nPts, FPoint* pPoints);
   CBand (UInt_t nXid, UInt_t nYid,
@@ -418,8 +418,8 @@ public:
 public:                   
   virtual   Bool_t operator()(CEvent& rEvent);
   virtual   CGate* clone ()  ;
-  virtual   STD(string) Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual   Bool_t inGate(CEvent& rEvent);
   virtual   Bool_t Inside(Float_t x, Float_t y) {
     return Interior(x, y);

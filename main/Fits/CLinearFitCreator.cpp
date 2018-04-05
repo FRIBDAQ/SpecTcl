@@ -100,7 +100,7 @@ Parameters:
 
 */
 CFit* 
-CLinearFitCreator::operator()(STD(string) name, int id)  
+CLinearFitCreator::operator()(std::string name, int id)  
 { 
   return new CLinearFit(name, id);
 }

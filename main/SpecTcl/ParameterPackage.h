@@ -375,10 +375,10 @@ public:
   CTCLString getParameterInfoListString (CParameter& rParameter)  ;
 
   Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
-		  STD(vector)<STD(string)>& rDependents, const char* pBody);
-  Int_t DescribePseudo(const STD(string)& rName, STD(string)& rDescription);
-  Int_t DeletePseudo(const STD(string)& rName, STD(string)& rResult);
-  void  GetPseudoNames(STD(list)<STD(string)>& rNames);
+		  std::vector<std::string>& rDependents, const char* pBody);
+  Int_t DescribePseudo(const std::string& rName, std::string& rDescription);
+  Int_t DeletePseudo(const std::string& rName, std::string& rResult);
+  void  GetPseudoNames(STD(list)<std::string>& rNames);
   
 };
 

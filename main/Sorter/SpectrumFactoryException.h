@@ -71,16 +71,16 @@ public:
 private:
   DataType_t            m_eType;          // Type of data held in spectrum 
   SpectrumType_t        m_eSpectrumType;  // Type of spectrum being created.
-  STD(string)           m_sName;          // Name of the spectrum.
+  std::string           m_sName;          // Name of the spectrum.
   SpectrumErrorReason_t m_eReason;        // Reason for the exception
   char*                 m_pMessage;
 public:
 			//Constructor with arguments
   CSpectrumFactoryException (  DataType_t            am_eType,  
 			       SpectrumType_t        am_eSpectrumType,  
-			       const STD(string)           am_sName,  
+			       const std::string           am_sName,  
 			       SpectrumErrorReason_t am_eReason,  
-			       const STD(string)&          rDoing);
+			       const std::string&          rDoing);
   ~ CSpectrumFactoryException ( ) { delete []m_pMessage; }       //Destructor
 	
 			//Copy constructor
@@ -130,7 +130,7 @@ public:
   }
 
                        //Get accessor function for attribute
-  STD(string) getName() const
+  std::string getName() const
   {return m_sName;
   }
 
@@ -157,7 +157,7 @@ protected:
   }
 
                        //Set accessor function for attribute
-  void setName (STD(string) am_sName)
+  void setName (std::string am_sName)
   { 
     m_sName = am_sName;
     UpdateMessage();

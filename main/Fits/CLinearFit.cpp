@@ -36,7 +36,7 @@ static const char* pFitTemplate=
 /*!
     Create an object of type CLinearFit
 */
-CLinearFit::CLinearFit (STD(string) name, int id)
+CLinearFit::CLinearFit (std::string name, int id)
    :
   CFit(name, id),
   m_fSlope(0),

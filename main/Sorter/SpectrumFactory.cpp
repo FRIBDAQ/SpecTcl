@@ -442,15 +442,15 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
 
 */
 CSpectrum*
-CSpectrumFactory::CreateSpectrum(const STD(string)& rName,
+CSpectrumFactory::CreateSpectrum(const std::string& rName,
 				 SpectrumType_t eSpecType,
 				 DataType_t     eDataType,
-				 STD(vector)<STD(string)>   xParameters,
-				 STD(vector)<STD(string)>   yParameters,
+				 std::vector<std::string>   xParameters,
+				 std::vector<std::string>   yParameters,
 				 UInt_t                     xChannels,
 				 UInt_t                     yChannels,
-				 STD(vector)<Float_t>*      pLows,
-				 STD(vector)<Float_t>*      pHighs)
+				 std::vector<Float_t>*      pLows,
+				 std::vector<Float_t>*      pHighs)
 {
   // Require the spectrum type be a 2d or g2dd.  else
   // it's an error:
@@ -1277,8 +1277,8 @@ CSpectrumFactory::CreateSummary(const std::string& rName,
      Limits for the y axis.
 */
 CSpectrum*
-CSpectrumFactory::Create2DMultiple(STD(string) name, DataType_t eType,
-			      STD(vector)<CParameter>& parameters, 
+CSpectrumFactory::Create2DMultiple(std::string name, DataType_t eType,
+			      std::vector<CParameter>& parameters, 
 			      UInt_t  xChans,
 			      Float_t xLow, Float_t xHigh,
 			      UInt_t  yChans,
@@ -1562,8 +1562,8 @@ CSpectrumFactory::DefaultAxisLength(UInt_t nChannels, CParameter& rParam)
 CSpectrum*
 CSpectrumFactory::CreateG2dDeluxe(string name,
 				  DataType_t        eType,
-			     STD(vector)<CParameter>& rxParameters,
-			     STD(vector)<CParameter>& ryParameters,
+			     std::vector<CParameter>& rxParameters,
+			     std::vector<CParameter>& ryParameters,
 			     UInt_t  xChannels, 
 			     Float_t xLow, Float_t xHigh,
 			     UInt_t  yChannels,

@@ -74,7 +74,7 @@ class CTCLResult;
 class CTreeParameterCommand : public CTCLProcessor
 {
 private:
-  static STD(map)<STD(string), STD(string)> m_createdParameters;
+  static std::map<std::string, std::string> m_createdParameters;
 
 public:
   virtual ~CTreeParameterCommand();
@@ -83,7 +83,7 @@ public:
 			 int argc, char** argv);
 protected:
   friend class TreeCommandTest;
-  STD(string) Usage();
+  std::string Usage();
   int List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 	   char argc, char** argv);
   int SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResult, 
@@ -110,7 +110,7 @@ protected:
 	// Utility functions.
 private:
 	int TypeSafeParseFailed(CTCLResult& rResult,
-				STD(string) parameter, STD(string) expectedType);
+				std::string parameter, std::string expectedType);
 
 };
 

@@ -585,6 +585,39 @@ CXamine::FreeSpectrum(UInt_t nSpectrum)
   Xamine_FreeSpectrum(nSpectrum+1);       // Definition slot. 
 
 }
+/**
+ * setOverflows
+ *    Set overflow statistics for a spectrum.
+ * @param slot - Which slot in Xamine.
+ * @param x    - X overflow counts.
+ * @param y    - Y overflow couts.
+ */
+void
+CXamine::setOverflows(unsigned slot, unsigned x, unsigned y)
+{
+    Xamine_setOverflow(slot+1, 0, x);
+    Xamine_setOverflow(slot+1, 1, y);
+}
+/**
+ * setUnderflows
+ *    Same as above but the underflow counters get set.
+ */
+void
+CXamine::setUnderflows(unsigned slot, unsigned x, unsigned y)
+{
+    Xamine_setUnderflow(slot+1, 0, x);
+    Xamine_setUnderflow(slot+1, 1, y);
+}
+/**
+ * clearStatistics
+ *    Clear the over/underflow statistics associated witha bound spectrum.
+ */
+void
+CXamine::clearStatistics(unsigned slot)
+{
+    Xamine_clearStatistics(slot+1);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

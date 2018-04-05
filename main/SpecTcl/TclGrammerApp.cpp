@@ -42,6 +42,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GatePackage.h"
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
+#include "CSpectrumStatsCommand.h"
 
 
 #include "TCLAnalyzer.h"
@@ -67,7 +68,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
-#include <Iostream.h>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -79,7 +80,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <tcl.h>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -104,6 +104,9 @@ static const char* printVersionScript =
    puts [exec cat [file join $SpecTclHome VERSION]]           \
 }";
 
+static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome TclLibs]\n";
+
+
 
 
 // File scoped unbound variables:
@@ -115,6 +118,7 @@ static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
 static const char* kpAppInitSubDir = "/etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
+
 
 static const char* ProtectedVariables[] = {
   "DisplayMegabytes",
@@ -130,7 +134,6 @@ static const char* ProtectedVariables[] = {
 };
 
 // Static attribute storage and initialization for CTclGrammerApp
-
 
 // Local classes:
 
@@ -210,6 +213,7 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
     }
   }
 }
+
 // Constructors, destructors and other replacements for compiler cannonicals:
 /*!
    Constructing a CTclGrammerApp is what glues the library called SpecTcl
@@ -234,7 +238,8 @@ CTclGrammerApp::CTclGrammerApp() :
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
-  m_pMultiTestSource((CMultiTestSource*)kpNULL)
+  m_pMultiTestSource((CMultiTestSource*)kpNULL),
+  m_nUpdateRate(1000)                              // Seconds between periodic events.
 {
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
@@ -321,6 +326,10 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
+  
+  // Append TclLibs to the auto_path:
+  
+  rInterp.GlobalEval(tclLibScript);
 }
 
 //  Function:
@@ -403,6 +412,7 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
     protectVariable(getInterpreter(), *pVarName);
   }
 }  
+  
 
 //  Function:
 //    void SetLimits()
@@ -656,6 +666,10 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CSContentsCommand* pContents = new CSContentsCommand(rInterp);
   
   cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  
+  new CSpectrumStatsCommand(rInterp);
+  
+  cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
 
   cerr.flush();
 }
@@ -742,6 +756,7 @@ int CTclGrammerApp::operator()() {
 
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
+  
 
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
@@ -790,6 +805,10 @@ int CTclGrammerApp::operator()() {
   SpecTcl*      pApi      = SpecTcl::getInstance();
   CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
   pAnalyzer->OnInitialize();
+  
+  // Set up the first incantaion of TimedUpdates.
+  
+  Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
 
   // Additional credits.
 
@@ -908,6 +927,25 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
   }
   
 }
+/**
+ * TimedUpdate  [static]
+ *    Called as a timer event
+ *    - Update Xamine spectrum statistics
+ *    - Reschedule execution
+ *
+ * @param d - actually a pointer to the object that scheduled us.
+ */
+void
+CTclGrammerApp::TimedUpdates(ClientData d)
+{
+    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
+    
+    CHistogrammer* pHistogrammer = pObject->m_pHistogrammer;
+    pHistogrammer->updateStatistics();
+    
+    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
+}
+
 /**
  * protectVariable
  *    Called to protect a global variable.

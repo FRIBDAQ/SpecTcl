@@ -63,7 +63,7 @@ class CGatedEventFilter : public CEventFilter {
  public:
   // Constructors.
    CGatedEventFilter(CGateContainer*  pGate=(CGateContainer*)kpNULL);
-   CGatedEventFilter(STD(string)&,
+   CGatedEventFilter(std::string&,
 						 CGateContainer*  pGate=(CGateContainer*)kpNULL);
    virtual ~CGatedEventFilter();
 
@@ -86,7 +86,7 @@ public:
 
 public:
    void setGateContainer(CGateContainer&);
-   STD(string) getGateName();
+   std::string getGateName();
    Int_t getGateID();
  protected:
    Bool_t CheckCondition(CEvent&);

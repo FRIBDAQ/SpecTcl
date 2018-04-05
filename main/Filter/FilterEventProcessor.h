@@ -59,7 +59,7 @@ class CFilterEventProcessor : public CEventProcessor
 private:
   // Member data:
 
-  STD(vector)<Int_t>  m_ParameterMap; //!< Maps Filter parameters -> spectcl.
+  std::vector<Int_t>  m_ParameterMap; //!< Maps Filter parameters -> spectcl.
 public:
   // Constructors and other cannonical operations.
 
@@ -89,7 +89,7 @@ public:
 
 public:				// These may be generally useful:
   static void* GetString(void* p, 
-			 STD(string)& result); //!< retrieve string.
+			 std::string& result); //!< retrieve string.
   static void* GetInt(void* p,
 		      Int_t&  i);         //!< Retrieve an int.
   static void* GetFloat(void* p,

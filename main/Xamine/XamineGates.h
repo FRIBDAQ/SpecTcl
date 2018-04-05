@@ -45,7 +45,7 @@
 #endif
 
 
-typedef STD(vector)<CDisplayGate> CXamineGateVector;
+typedef std::vector<CDisplayGate> CXamineGateVector;
 typedef CXamineGateVector::iterator CDisplayGateVectorIterator;
  
 class CXamineGates      

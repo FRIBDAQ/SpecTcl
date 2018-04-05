@@ -392,15 +392,15 @@ public:
   virtual   UInt_t Dimensionality ()  const;
   virtual   Float_t GetLow(UInt_t nDimension) const;
   virtual   Float_t GetHigh(UInt_t nDimension) const;
-  virtual   STD(string)  GetUnits(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
   virtual   ULong_t operator[] (const UInt_t* pIndices)  const;
   virtual   Size_t StorageNeeded () const;
   virtual   void Increment (const CEvent& rEvent) ;
   virtual   SpectrumType_t getSpectrumType() ;
   virtual   Bool_t UsesParameter(UInt_t nId) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
-  virtual   void GetParameterIds(STD(vector)<UInt_t>& rvIds);
-  virtual   void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  virtual   void GetParameterIds(std::vector<UInt_t>& rvIds);
+  virtual   void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual   SpectrumDefinition& GetDefinition();
 
   Bool_t    SetOwnership(Bool_t fNewOwnership) {

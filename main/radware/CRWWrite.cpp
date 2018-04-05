@@ -63,7 +63,7 @@ CRWWrite::~CRWWrite()
 */
 int
 CRWWrite::operator()(CTCLInterpreter& interp,
-		     STD(vector)<CTCLObject>& objv)
+		     std::vector<CTCLObject>& objv)
 {
   // Must have 2 parameters (vector size 3).
 

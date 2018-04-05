@@ -55,11 +55,11 @@ private:
 	/**
 	 * New Units string.
 	 */
-	STD(string) m_Units;
+	std::string m_Units;
 
 public:
 	virtual ~SetUnitsVisitor();
-	SetUnitsVisitor(STD(string) pattern, STD(string) units);
+	SetUnitsVisitor(std::string pattern, std::string units);
 	virtual void OnMatch(CTreeParameter* pParameter);
 
 

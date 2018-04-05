@@ -364,8 +364,8 @@ public:
    //Default constructor alternative to compiler provided default constructor
 
   C2Bands (UInt_t nXId, UInt_t nYId,
-	   STD(vector)<FPoint>& rLowBand, 
-	   STD(vector)<FPoint>& rHiBand); 
+	   std::vector<FPoint>& rLowBand, 
+	   std::vector<FPoint>& rHiBand); 
 
   virtual  ~ C2Bands ( ) { }  //Destructor 
 
@@ -400,12 +400,12 @@ public:
 
 public:
 
- virtual   STD(string) Type ()    ;
+ virtual   std::string Type ()    ;
  
 protected:
 
-  STD(vector)<FPoint> MarshallPoints(STD(vector)<FPoint>& rLow,
-				    STD(vector)<FPoint>& rHi);
+  std::vector<FPoint> MarshallPoints(std::vector<FPoint>& rLow,
+				    std::vector<FPoint>& rHi);
 
 };
 

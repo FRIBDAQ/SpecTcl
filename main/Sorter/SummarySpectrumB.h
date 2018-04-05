@@ -98,16 +98,16 @@ class CSummarySpectrumB  : public CSpectrum
 {
   UInt_t              m_nYScale;     //!< Number of Y channels. 
   UInt_t              m_nXChannels;  //!< Number of X chanels.  
-  STD(vector)<UInt_t>      m_vParameters; //!< STD(Vector) of parameter id's.
+  std::vector<UInt_t>      m_vParameters; //!< std::vector of parameter id's.
 public:
 
 			//Constructor(s) with arguments
 
-  CSummarySpectrumB(const STD(string)& rName, UInt_t nId,
-		    STD(vector)<CParameter> rrParameters,
+  CSummarySpectrumB(const std::string& rName, UInt_t nId,
+		    std::vector<CParameter> rrParameters,
 		    UInt_t nYScale); //!< axis represents [0,nYScale-1]
-  CSummarySpectrumB(const STD(string)& rName, UInt_t nId,
-		    STD(vector)<CParameter> rrParameters,
+  CSummarySpectrumB(const std::string& rName, UInt_t nId,
+		    std::vector<CParameter> rrParameters,
 		    UInt_t nYScale,
 		    Float_t fYLow,
 		    Float_t fYHigh); //!< Axis represents [fYlow, fYHigh].
@@ -172,16 +172,16 @@ public:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
-  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
+  virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
 
   virtual Bool_t needParameter() const;
   // Utility functions.
 protected:
   void CreateStorage();
-  void FillParameterArray(STD(vector)<CParameter> Params);
-  CSpectrum::Axes CreateAxes(STD(vector)<CParameter> Parameters,
+  void FillParameterArray(std::vector<CParameter> Params);
+  CSpectrum::Axes CreateAxes(std::vector<CParameter> Parameters,
 			     UInt_t             nChannels,
 			     Float_t fyLow, Float_t fyHigh);
   

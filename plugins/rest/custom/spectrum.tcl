@@ -9,6 +9,7 @@ namespace eval ::SpecTcl {};	#  for local procs.
 Direct_Url /spectcl/spectrum  SpecTcl_Spectrum
 
 
+
 ##
 # List the spectra that match the specified pattern
 # in Json format.  The return format is the usual object
@@ -62,7 +63,7 @@ proc SpecTcl_Spectrum/list {{filter *}} {
 					 
 					 
     }
-    return [::SpecTcl::_returnObject OK [json::write array {*}$spectrumDefinitionArray] ]
+    return [deflateResponse [::SpecTcl::_returnObject OK [json::write array {*}$spectrumDefinitionArray] ]]
 }
 ##
 #  Delete an existing spectrum.
@@ -140,7 +141,9 @@ proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {axes ""} {cha
 #    - missing parameter - name is not supplied.
 #
 
-proc SpecTcl_Spectrum/contents {{name ""}} {
+proc SpecTcl_Spectrum/contents {
+    {name ""} {xlow ""} {xhigh ""} {ylow ""} {yhigh ""} {xstride ""} {ystride ""}
+    } {
     set ::SpecTcl_Spectrum/contents application/json
 
     if {$name eq ""} {
@@ -160,6 +163,17 @@ proc SpecTcl_Spectrum/contents {{name ""}} {
     set type   [lindex $def 2]
     set params [lindex $def 3]
     set axes   [lindex $def 4]
+    
+    # Construct a dict of parameters that control the options to the scontents
+    # command:
+    
+    set scontentsParams [dict create]
+    foreach dictname {-xlow -xhigh -ylow -yhigh -xstride -ystride} \
+	parname {xlow xhigh ylow yhigh xstride ystride} {
+	set value [set $parname]
+	dict set scontentsParams $dictname $value
+    }
+    
 
     
     if {([llength $axes] == 2) || ($type eq "s")} {
@@ -177,7 +191,7 @@ proc SpecTcl_Spectrum/contents {{name ""}} {
 
     # Return the appropriate guy:
     
-    return [::SpecTcl::_getSpectrum$dims $name $axes]
+    return [::SpecTcl::_getSpectrum$dims $name $axes $scontentsParams]
     
 }
 ##
@@ -199,22 +213,40 @@ proc SpecTcl_Spectrum/zero {{pattern *}} {
 #  Return the contents of a 1-d spectrum as JSON with good status
 #   @param name - spectrum name.
 #   @param axes - axis specifications.
-#
+#   @param options - Specifies the scontents options.
 #  @return - array of non zero channels, see SpecTcl_Spectrum/contents.
 #
-proc ::SpecTcl::_getSpectrum1 {name axes} {
+proc ::SpecTcl::_getSpectrum1 {name axes options} {
     set channels [lindex [lindex $axes 0] 2]
-    set nonZeroChannels [list]
-    for {set c 0} {$c < $channels} {incr c} {
-	set value [channel -get $name $c]
-	if {$value != 0} {
-	    lappend nonZeroChannels [json::write object \
-				  x $c \
-				  v $value]
+    
+    if {[info command scontents] ne ""} {
+	# Figure out the scontents command:
+	
+	set scontentsCmd [list scontents -json]
+	foreach dictname [list -xlow -xhigh -xstride] {
+	    set value [dict get $options $dictname]
+	    if {$value ne ""} {
+		lappend scontentsCmd $dictname $value
+	    }
 	}
-
+	lappend scontentsCmd $name
+	
+	# The data comes directl from the scontents command.
+	
+	set detail [{*}$scontentsCmd]
+    } else {    
+	set nonZeroChannels [list]
+	for {set c 0} {$c < $channels} {incr c} {
+	    set value [channel -get $name $c]
+	    if {$value != 0} {
+		lappend nonZeroChannels [json::write object \
+				      x $c \
+				      v $value]
+	    }
+    
+	}
+	set detail [json::write array {*}$nonZeroChannels]
     }
-    set detail [json::write array {*}$nonZeroChannels]
     if {[info command version] ne ""} {
 	set v [version]
 	set major [lindex [split $v .] 0]
@@ -233,7 +265,7 @@ proc ::SpecTcl::_getSpectrum1 {name axes} {
 	}
 
     }
-    return [::SpecTcl::_returnObject OK $detail]
+    return [deflateResponse [::SpecTcl::_returnObject OK $detail]]
 }
 
 
@@ -242,10 +274,11 @@ proc ::SpecTcl::_getSpectrum1 {name axes} {
 #
 # @param name -spectrum name
 # @param axes  spectrum axes
+# @param options - options for scontents if that command is available.
 #
 #  See SpecTcl_Spectrurm/contents
 #
-proc ::SpecTcl::_getSpectrum2 {name axes} {
+proc ::SpecTcl::_getSpectrum2 {name axes options} {
     set xchans [lindex [lindex $axes 0 ] 2]
     set ychans [lindex [lindex $axes 1] 2]
 
@@ -270,16 +303,24 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
         return [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
     } else {
         # Note that we also have inflate/deflate:
-        package require compress
         
-        set data [scontents -json $name]
+	set scontentsCmd [list scontents -json]
+	foreach key [list -xlow -xhigh -ylow -yhigh -xstride -ystride] {
+	    set value [dict get $options $key]
+	    if {$value ne ""} {
+		lappend scontentsCmd $key $value
+	    }
+	}
+	lappend scontentsCmd $name
+	
+        set data [{*}$scontentsCmd]
 
 	if {[info command version] ne ""} {
 	    set v [version]
 
 	    set major [lindex [split $v .] 0]
 
-	    if {$major != 3} {
+	    if {$major > 3} {
 
 		# 4.0 or later includes statistics. detail divided into channels and statistics.
 		
@@ -301,14 +342,7 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
         set json [::SpecTcl::_returnObject OK  $data]
 	json::write indented 1
 	json::write aligned 1
-        set jsonGzip [deflate $json]
-        
-        #  Force content encoding -> gzip.
-        #
-        set sock [Httpd_CurrentSocket]
-        Httpd_AddHeaders $sock Content-Encoding deflate  \
-	    Uncompressed-Length [string length $json]
-        return $jsonGzip
+	return [deflateResponse $json]
     
     }
         

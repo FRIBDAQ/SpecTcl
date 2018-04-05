@@ -38,7 +38,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <TCLException.h>
 #include <tcl.h>
 #include <tk.h>
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

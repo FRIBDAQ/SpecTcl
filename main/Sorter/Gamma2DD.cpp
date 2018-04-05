@@ -54,9 +54,9 @@ using namespace std;
    \param yChannels   - Number of y channel bins.
 */
 template<class T>
-CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
-			   STD(vector)<CParameter>&  xParameters,
-			   STD(vector)<CParameter>&  yParameters,
+CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
+			   std::vector<CParameter>&  xParameters,
+			   std::vector<CParameter>&  yParameters,
 			   UInt_t xChannels, UInt_t yChannels) :
   CGammaSpectrum(rName, nId,
 		 CreateAxisVector(xParameters, yParameters,
@@ -91,9 +91,9 @@ CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
 
 */
 template <class T>
-CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
-			   STD(vector)<CParameter>& xParameters,
-			   STD(vector)<CParameter>& yParameters,
+CGamma2DD<T>::CGamma2DD(const std::string& rName, UInt_t nId,
+			   std::vector<CParameter>& xParameters,
+			   std::vector<CParameter>& yParameters,
 			   UInt_t nXChannels, UInt_t nYChannels,
 			   Float_t xLow, Float_t xHigh,
 			   Float_t yLow, Float_t yHigh) :
@@ -215,7 +215,7 @@ CGamma2DD<T>::set(const UInt_t* pIndices, ULong_t value)
 */
 template<class T>
 void
-CGamma2DD<T>::GetResolutions(STD(vector)<UInt_t>& rvResolutions)
+CGamma2DD<T>::GetResolutions(std::vector<UInt_t>& rvResolutions)
 {
   rvResolutions.push_back(m_nXscale);
   rvResolutions.push_back(m_nYscale);
@@ -257,7 +257,7 @@ CGamma2DD<T>::Dimensionality() const
 */
 template<class T>
 void
-CGamma2DD<T>::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters)
+CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters)
 {
   throw CException("Attempted a 'non-deluxe' increment of a gamma deluxe spectrum");
 }
@@ -270,8 +270,8 @@ CGamma2DD<T>::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters)
 */
 template<class T>
 void
-CGamma2DD<T>::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rXParameters,
-			STD(vector)<STD(pair)<UInt_t, Float_t> >& rYParameters)
+CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
+			std::vector<std::pair<UInt_t, Float_t> >& rYParameters)
 {
   if ((rXParameters.size() > 0) && (rYParameters.size() > 0)) {
     for (int i =0; i < rXParameters.size(); i++) {
@@ -281,14 +281,13 @@ CGamma2DD<T>::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rXParameters,
 
 	// Transform x/yval -> Spectrum channel coordinates:
 
-	UInt_t x  = (UInt_t)ParameterToAxis(0, xval);
-	UInt_t y  = (UInt_t)ParameterToAxis(1, yval);
-
-	// If the point is in the spectrum bounds, increment:
-
-	if ((x < m_nXscale) && (y < m_nYscale)) {
-	  T* pStorage = static_cast<T*>(getStorage());
-
+	Int_t x = (Int_t)ParameterToAxis(0, xval);
+	Int_t y = (Int_t)ParameterToAxis(1, yval);
+	
+        bool xok = checkRange(x, m_nXscale, 0);
+        bool yok = checkRange(y, m_nYscale, 1);
+	if (xok && yok) {
+	  T* pStorage =(T*)getStorage();
 	  pStorage[x + y*m_nXscale]++;
 	}
       }
@@ -376,6 +375,7 @@ CGamma2DD<T>::CreateStorage()
 
   ReplaceStorage(pStorage);
   Clear();
+  createStatArrays(2);
 }
 
 // Create the axis vector for the spectrum given the parameters.
@@ -384,8 +384,8 @@ CGamma2DD<T>::CreateStorage()
 //
 template<class T>
 CSpectrum::Axes
-CGamma2DD<T>::CreateAxisVector(STD(vector)<CParameter> xParams,
-			       STD(vector)<CParameter> yParams,
+CGamma2DD<T>::CreateAxisVector(std::vector<CParameter> xParams,
+			       std::vector<CParameter> yParams,
 			       UInt_t nXchan, UInt_t nYchan,
 			       Float_t xLow,  Float_t xHigh,
 			       Float_t yLow,  Float_t yHigh)

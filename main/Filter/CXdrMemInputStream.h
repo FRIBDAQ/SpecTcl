@@ -67,8 +67,8 @@ public:
 
   // Overrides of the base class.
 
-  virtual void Connect()     throw (STD(string));
-  virtual void Disconnect()  throw (STD(string));
+  virtual void Connect()     throw (std::string);
+  virtual void Disconnect()  throw (std::string);
 protected:
   virtual int Read(void* pBuffer);
 

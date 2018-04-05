@@ -358,7 +358,7 @@ public:
 			//Default constructor
 
   CContour (UInt_t nXId, UInt_t nYId, 
-	    const STD(vector)<FPoint>& Points);
+	    const std::vector<FPoint>& Points);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
 	    Float_t *xCoords, Float_t *yCoords);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
@@ -433,7 +433,7 @@ public:
   virtual   Bool_t operator()(CEvent& rEvent);
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual   Bool_t inGate(CEvent& rEvent);
   virtual   Bool_t Inside(Float_t x, Float_t y);
 

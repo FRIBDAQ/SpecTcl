@@ -18,7 +18,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 #include <config.h>
 #include "TapeFile.h"
 #include "Exception.h"
-#include <Iostream.h>
+#include <iostream>
 #include <errno.h>
 #include <stdio.h>
 #include <string>

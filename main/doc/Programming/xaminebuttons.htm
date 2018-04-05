@@ -529,7 +529,7 @@ public:
   Int_t getCurrentSpectrum() const; // Get Xamine id of selected spectrum.
   Bool_t getToggleState() const;    // Get state of toggle if toggle button.
   Int_t getPromptedSpectrum() const; // Get Xamine id of spectrum selected by user
-  STD(string) getm_sPromptedString() const; // Get String user typed in prompter.
+  std::string getm_sPromptedString() const; // Get String user typed in prompter.
   const PointArray&amp; getPoints() const; // Get points picked by user
 
   PointIterator begin ();           // Iterator to first user picked point.
@@ -607,8 +607,8 @@ public:
 private:
   virtual Bool_t operator()(CButtonEvent&amp; event);
 
-  STD(string) spectrumName(CButtonEvent&amp; event);
-  void        invokeScript(STD(string) script);
+  std::string spectrumName(CButtonEvent&amp; event);
+  void        invokeScript(std::string script);
 
 };
 </pre>

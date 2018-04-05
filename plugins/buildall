@@ -1,6 +1,7 @@
 #!/bin/bash
 
 target=$1
+
 if [ x$ROOTSYS = x ]
 then
     ROOTSYS=/mnt/misc/sw/x86_64/Debian/7/root/gnu/5.34.09
@@ -13,6 +14,7 @@ fi
 (cd radwareio; autoreconf -i; ./configure -prefix=$target; make clean all install)
 (cd rootFilterFormat;mkdir m4; autoreconf -i; \
     ./configure -prefix=$target --with-rootsys=$ROOTSYS; make clean all install)
+
 
 #
 #  Don't have a good installer for rest...tar the whole damned thing over to TclLibs/rest

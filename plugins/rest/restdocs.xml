@@ -747,8 +747,8 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                     Returns the contents of the a spectrum.  The contents of a
                     spectrum are sufficient to reconstruct the spectrum channels
                     and overflow statistics.
-                    The only parameter is the mandatory <literal>name</literal>
-                    parameter which is the name of the spectrum to return.
+                    The mandatory parameter <parameter>name</parameter> selects
+                    the spectrum to be returned.
                 </para>
                 <para>
                     There are some significant differences in what can be returned.
@@ -844,12 +844,61 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                 </variablelist>
                 <para>
                     Two optimizations are performed.  Channel objects are only
-                    present for non-zerof channels.  2d spectra may be emitted with
+                    present for non-zero channels.  Spectra may be emitted with
                     the <literal>Content-encoding deflate</literal>.  In that
                     case the special header <literal>Uncompressed-Length</literal>
                     provides the number of bytes required to hold the uncompressed
                     JSON after defation.
                 </para>
+                <para>
+                    In addition to the <parameter>name</parameter> query parameters
+                    starting with version 4.0, the following parameters are
+                    accepted:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>xlow</literal></term>
+                        <listitem>
+                            <para>
+                                The lowest channel  in the x direction that
+                                will be scanned for contents.  Note that for
+                                1-d spectra use this value to set the low channel
+                                limit.  This defaults to 0.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>xhigh</literal></term>
+                        <listitem>
+                            <para>
+                                The highest channel in the x direction that will
+                                be scanned fo contents. Note that for 1-d spectra
+                                use this value to set a high channel limit. Defaults
+                                to the last channel on the x axis.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>xstride</literal></term>
+                        <listitem>
+                            <para>
+                                Sets the stride along the x axis that will be
+                                sampled for channel values. e.g. a value of
+                                <literal>2</literal> only provides values for every
+                                other channel.  The default value is 1.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>ylow</literal>, <literal>yhigh</literal>, <literal>ystride</literal></term>
+                        <listitem>
+                            <para>
+                                These parameters have the same meaning but apply
+                                to the y axis of 2-d spectra.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
             </section>
             
         </section>

@@ -328,14 +328,14 @@ DAMAGES.
 class CCompoundGate  : public CGate        
 {
   
-  STD(list)<CGateContainer*> m_vConstituents;
+  std::list<CGateContainer*> m_vConstituents;
   
 public:
 			//Default constructor
 
   CCompoundGate () {}
-  CCompoundGate(STD(list)<CGateContainer*> pGates);
-  CCompoundGate(STD(vector)<CGateContainer*> pGates);
+  CCompoundGate(std::list<CGateContainer*> pGates);
+  CCompoundGate(std::vector<CGateContainer*> pGates);
   CCompoundGate(UInt_t nGates, CGateContainer** ppGates);
   ~ CCompoundGate ( ) { }       //Destructor
 
@@ -365,12 +365,12 @@ public:
   //
   //  Selectors:
   //
-  STD(list)<CGateContainer*>& GetConstituents()  {
+  std::list<CGateContainer*>& GetConstituents()  {
     return m_vConstituents;
   }
   //  Mutators:
 protected:
-  void SetConstituents(STD(list)<CGateContainer*> gates) {
+  void SetConstituents(std::list<CGateContainer*> gates) {
     m_vConstituents = gates;
   }
   // Class operations:
@@ -380,8 +380,8 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-//  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params) {
+  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
+//  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params) {
 //         return kfFALSE; }
 //  virtual   Bool_t inGate(CEvent& rEvent) { return kfFALSE; }
   // Support for incrementally built up compound gates.
@@ -393,7 +393,7 @@ public:
   // Utilities.
   //
 protected:
-  STD(list)<CGateContainer*>::iterator 
+  std::list<CGateContainer*>::iterator 
                          ConvertIterator(CConstituentIterator& rIterator);
 };
 

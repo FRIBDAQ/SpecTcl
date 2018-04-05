@@ -346,19 +346,18 @@ typedef    uint16_t    UINT16;
 typedef    int32_t     INT32;
 typedef    uint32_t    UINT32;
 
-
 /*
 ** Below are more traditional type definitions:
 */
 
-typedef  char              byte;
-typedef  unsigned char     ubyte;
-typedef  short             word;
-typedef  unsigned short    uword;
-typedef  unsigned long     ulong;
+typedef  INT8      byte;
+typedef  UINT8     ubyte;
+typedef  INT16     word;
+typedef  UINT16    uword;
+typedef  unsigned long   ulong;
 
 #if OS != LINUX
-typedef  byte *caddr_t;
+typedef  char *caddr_t;
 #endif
 typedef  word *waddr_t;
 typedef  long *laddr_t;

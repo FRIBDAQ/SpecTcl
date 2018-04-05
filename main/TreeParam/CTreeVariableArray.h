@@ -93,15 +93,15 @@ private:
   /**
    * Contains the parameters that we care about.
    */
-  STD(vector)<CTreeVariable*> m_TreeVariables;
+  std::vector<CTreeVariable*> m_TreeVariables;
 public:
   CTreeVariableArray();
-  CTreeVariableArray(STD(string) baseName, double initialValue, 
-		     STD(string) units, UInt_t size, int firstIndex = 0);
+  CTreeVariableArray(std::string baseName, double initialValue, 
+		     std::string units, UInt_t size, int firstIndex = 0);
   CTreeVariableArray(const CTreeVariableArray& rhs);
   ~CTreeVariableArray();
-  void Initialize(STD(string) baseName, double initialValue, 
-		  STD(string) units, UInt_t size, Int_t firstElement);
+  void Initialize(std::string baseName, double initialValue, 
+		  std::string units, UInt_t size, Int_t firstElement);
   CTreeVariable& operator[](Int_t index);
   CTreeVariableArray& operator=(const CTreeVariableArray& rhs);
   
@@ -109,7 +109,7 @@ public:
   Int_t  firstIndex();
 
 protected:
-  void BuildArray(STD(string) basename, unsigned int size, 
+  void BuildArray(std::string basename, unsigned int size, 
 		  const CTreeVariableProperties& example);
   void CopyArray(const CTreeVariableArray&  rhs);
   

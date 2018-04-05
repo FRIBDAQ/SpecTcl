@@ -64,7 +64,7 @@ private:
 public:
   CGammaCut();
   virtual ~CGammaCut();
-  CGammaCut(Float_t low, Float_t high, const STD(vector)<UInt_t> rParameters);
+  CGammaCut(Float_t low, Float_t high, const std::vector<UInt_t> rParameters);
   CGammaCut(const CGammaCut& rhs);
   const CGammaCut& operator=(const CGammaCut& rhs);
   int operator==(const CGammaCut& rhs) const;

@@ -143,7 +143,7 @@ public:
   virtual UInt_t getBufferType();
   virtual void   getByteOrder(Short_t& Sig16,
 			  Int_t& Sig32);
-  virtual STD(string) getTitle();
+  virtual std::string getTitle();
   
   virtual void operator()(UInt_t nBytes,
 			  Address_t pBuffer,

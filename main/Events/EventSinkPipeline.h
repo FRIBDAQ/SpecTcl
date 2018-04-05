@@ -48,8 +48,8 @@ class CEventSinkPipeline : public CEventSink {
   // Data types exported to the outside world:
 
 public:
-  typedef STD(pair)<STD(string), CEventSink*>   PipelineEntry;
-  typedef STD(list)<PipelineEntry> EventSinks;
+  typedef std::pair<std::string, CEventSink*>   PipelineEntry;
+  typedef std::list<PipelineEntry> EventSinks;
   typedef EventSinks::iterator       EventSinkIterator;
 
   // Private member data.
@@ -73,7 +73,7 @@ public:
 		  const char* name = 0);                //!< Insert sink at posn. 
 
   void RemoveEventSink(CEventSink&);                    //!< Remove given the sink 
-  CEventSink* RemoveEventSink(STD(string) name);        //!< Remove given name.
+  CEventSink* RemoveEventSink(std::string name);        //!< Remove given name.
   CEventSink* RemoveEventSink(EventSinkIterator entry);	//!< Remove given iterator.
   EventSinkIterator FindSink(std::string name);	        //!< Find sink by  name. 
   EventSinkIterator FindSink(CEventSink& sink);	        //!< Find iterator given sink
@@ -101,9 +101,9 @@ protected:
   {
   private:
     CEventSink* m_pLastMatch;
-    STD(string) m_sName;
+    std::string m_sName;
   public:
-    NameMatch(STD(string) name);
+    NameMatch(std::string name);
     bool operator()(PipelineEntry& entry);
     CEventSink* getMatch() const;
   };

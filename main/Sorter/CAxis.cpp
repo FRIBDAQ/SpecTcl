@@ -26,7 +26,7 @@ using namespace std;
 /*!
    Construct an axis from just its length.
    - The low limit will be 0.0
-   - The high limit will be nChannels - 1.
+   - The high limit will be nChannels exclusive
    - The ParameterSpecification will be unmapped.
     
      \param nChannels (UInt_t [in]): Number of channels on the
@@ -36,7 +36,7 @@ using namespace std;
 */
 CAxis::CAxis(UInt_t nChannels, string sUnits) :
   m_fLow(0.0),
-  m_fHigh((float)(nChannels -1)),
+  m_fHigh((float)(nChannels)),
   m_nChannels(nChannels),
   m_ParameterSpecification(sUnits)	// Defaults to unmapped.
 {
@@ -47,8 +47,7 @@ CAxis::CAxis(UInt_t nChannels, string sUnits) :
   a range within that parameter.
   \param fLow (Float_t [in]) The floating point value represented
       by the axis origin.
-  \param fHigh (Float_t [in]) The floating point value
-     represented by the last channel on the axis.
+  \param fHigh (Float_t [in]) Upper limit of the axis (exclusive).
   \param nChannels (UInt_t [in]) The number of channels in the
      axis.
    \param sUnits (string [in] default = string(""))
@@ -72,8 +71,8 @@ CAxis::CAxis(Float_t fLow,
 
     \param fLow  (Float_t [in]): Mapped parameter value
         represented by the axis origin.
-    \param fHigh (Float_t [in]): Mapped parameter value
-        represented by the end of the axis.
+    \param fHigh (Float_t [in]): Upper limit (exclusive)
+        of the axis.
     \param nChannels (UInt_t [in]): Granularity (number of
       of channels) of the axis.
     \param Mapping (CParamterMapping [in]): Describes the mapping
@@ -209,26 +208,11 @@ CAxis::ComputeScale()
 
   // The scale factor is the reciprocal of the channel width:
 
-  m_fScaleFactor = ((float)(m_nChannels-1)/range);
+  m_fScaleFactor = ((float)(m_nChannels)/range);
 
   return;
 
-#ifdef OLDSCALEFACTOR
 
-
-  // This is a bit nasty..and I'm not really sure this is right.
-  // For a very very small range you want to be about exact.
-  // for a larger range, you need to allow all of that last channel
-  // to display.
-
-  Float_t range = (m_fHigh - m_fLow);
-  if (range < (m_nChannels-1)) {	// Channel size < 1.0
-    m_fScaleFactor = (float)m_nChannels/(range);
-  } 
-  else {			// Channel size >= 1.0
-    m_fScaleFactor = (float)m_nChannels/(range +1.0);
-  }
-#endif
 
 }
 

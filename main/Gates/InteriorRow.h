@@ -317,7 +317,7 @@ DAMAGES.
                                                                
 class CInteriorRow      
 {
-  STD(vector)<UInt_t> m_vRow;  // Contains the scanline interior flags.
+  std::vector<UInt_t> m_vRow;  // Contains the scanline interior flags.
   
 public:
 			// 'normal' constructor.
@@ -325,13 +325,13 @@ public:
 
   CInteriorRow() {}
   CInteriorRow (UInt_t nSize) {
-    m_vRow.reserve(nSize);	// Size the STD(vector) appropriately...
+    m_vRow.reserve(nSize);	// Size the std::vector appropriately...
     fill(m_vRow.begin(), m_vRow.end(), 0); // And init to zero.
   }
   virtual ~ CInteriorRow ( ) { }       //Destructor
 			//Constructor with pre-existing row.
 
-  CInteriorRow (  STD(vector)<UInt_t> am_vRow  )       
+  CInteriorRow (  std::vector<UInt_t> am_vRow  )       
   :   m_vRow (am_vRow)  { }        
 	
 			//Copy constructor
@@ -365,7 +365,7 @@ public:
   // Selectors:
 
 public:
-  STD(vector)<UInt_t> getRow() const
+  std::vector<UInt_t> getRow() const
   {
     return m_vRow;
   }
@@ -373,7 +373,7 @@ public:
 
 protected:                   
                        //Set accessor function for attribute
-  void setRow (STD(vector)<UInt_t> am_vRow)
+  void setRow (std::vector<UInt_t> am_vRow)
   { 
     m_vRow = am_vRow;
   }
@@ -386,8 +386,8 @@ public:
 
 public:                   
     UInt_t Size ()  ;
-    STD(vector)<UInt_t>::iterator Begin ()  ;
-    STD(vector)<UInt_t>::iterator End ()  ;
+    std::vector<UInt_t>::iterator Begin ()  ;
+    std::vector<UInt_t>::iterator End ()  ;
     UInt_t& operator[] (UInt_t i)  ;
 
 };

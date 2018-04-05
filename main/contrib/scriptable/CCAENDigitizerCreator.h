@@ -42,7 +42,7 @@ class CCAENDigitizerCreator  : public CModuleCreator
 
 public:
 	// Constructors and other cannonical operatios.
-    CCAENDigitizerCreator (const STD(string)& name, CModuleCommand* pCreator);
+    CCAENDigitizerCreator (const std::string& name, CModuleCommand* pCreator);
     ~ CCAENDigitizerCreator ( );  
     CCAENDigitizerCreator (const CCAENDigitizerCreator& rhs );
     CCAENDigitizerCreator& operator= (const CCAENDigitizerCreator& rhs);
@@ -53,8 +53,8 @@ public:
 
 public:
 
-    virtual  CSegmentUnpacker* Create  (CTCLInterpreter& rInterp, const STD(string)& rName);
-    virtual STD(string)   TypeInfo() const;
+    virtual  CSegmentUnpacker* Create  (CTCLInterpreter& rInterp, const std::string& rName);
+    virtual std::string   TypeInfo() const;
 };
 
 #endif

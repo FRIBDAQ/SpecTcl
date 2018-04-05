@@ -249,7 +249,7 @@ CGamma1DL::CreateStorage()
   UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
   ReplaceStorage(pStorage);
   Clear();
-
+  createStatArrays(1);
 }
 
 /*!
@@ -294,8 +294,8 @@ CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
   for(int i =0; i < rParams.size(); i++) {
     UInt_t   nParameter = rParams[i].first;
     Float_t  fValue     = rParams[i].second;
-    UInt_t   y          = (UInt_t)ParameterToAxis(0, fValue);
-    if (y < m_nScale) {
+    Int_t   y          = (Int_t)ParameterToAxis(0, fValue);
+    if(checkRange(y, m_nScale, 0)) {
       pStorage[y]++;
     }
     
@@ -307,8 +307,8 @@ CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
 
 */
 void
-CGamma1DL::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma1DL::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("Invalid gamma 2d deluxe increment call in CGamma1DL");
 }

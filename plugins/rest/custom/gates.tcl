@@ -103,7 +103,7 @@ proc SpecTcl_Gate/list {{pattern *}} {
 
 
 
-    return [::SpecTcl::_returnObject "OK" [json::write array {*}$gateObjects]]
+    return [deflateResponse [::SpecTcl::_returnObject "OK" [json::write array {*}$gateObjects]]]
 
 }
 ##

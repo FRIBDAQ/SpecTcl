@@ -1,4 +1,20 @@
-   
+/*
+     This software is Copyright by the Board of Trustees of Michigan
+     State University (c) Copyright 2014.
+ 
+     You may use this software under the terms of the GNU public license
+     (GPL).  The terms of this license are described at:
+ 
+      http://www.gnu.org/licenses/gpl.txt
+ 
+      Authors:
+              Ron Fox
+              Jeromy Tompkins
+              NSCL
+              Michigan State University
+              East Lansing, MI 48824-1321
+ 
+ */
 /*!
   \class CPacketCreator
   \file  CPacketCreator.h
@@ -64,7 +80,7 @@ private:
 public:
     //  Constructors and other canonical operations.
 
-  CPacketCreator (const STD(string)& rName,
+  CPacketCreator (const std::string& rName,
 		  CModuleCommand* pModuleCreator); //!< Constructor.
   virtual  ~ CPacketCreator ( ); //!< Destructor.
   CPacketCreator (const CPacketCreator& rSource ); //!< Copy construction.
@@ -77,8 +93,8 @@ public:
 public:
 
   virtual   CSegmentUnpacker* Create (CTCLInterpreter& rInterp,
-				      const STD(string)& rName)   ; 
-  virtual   STD(string) TypeInfo ()  const ; 
+				      const std::string& rName)   ; 
+  virtual   std::string TypeInfo ()  const ; 
   
   friend class CreatorTest;	/* for test purposes only. */
 };

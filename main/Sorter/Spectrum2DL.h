@@ -76,12 +76,12 @@ public:
 
 			//Constructor(s) with arguments
 
-  CSpectrum2DL(const STD(string)& rName, UInt_t nId,
+  CSpectrum2DL(const std::string& rName, UInt_t nId,
 	       const CParameter& rXParameter,
 	       const CParameter& rYParameter,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CSpectrum2DL(const STD(string)& rName, UInt_t nId,
+  CSpectrum2DL(const std::string& rName, UInt_t nId,
 	       const CParameter& rXParameter,
 	       const CParameter& rYParameter,
 	       UInt_t nXChannels, Float_t fxLow, Float_t fxHigh,
@@ -166,8 +166,8 @@ public:
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
-  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
-  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
+  virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
 
   // Utility functions:
 protected:

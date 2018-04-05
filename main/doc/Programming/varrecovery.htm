@@ -104,10 +104,10 @@ in your MySpecTclApp.cpp file:
 <PRE>
 class CDocumentationCallback {
 public:
-  STD(string) getValue(STD(string) name) const;
-  STD(string) getElementValue(STD(string) name, STD(string) element) const;
-  void addChangeHandler(STD(string) name, CVariableTraceCallback& callback);
-  void removeChangeHandler(STD(string) name, CVariableTraceCallback& callback);
+  std::string getValue(std::string name) const;
+  std::string getElementValue(std::string name, std::string element) const;
+  void addChangeHandler(std::string name, CVariableTraceCallback& callback);
+  void removeChangeHandler(std::string name, CVariableTraceCallback& callback);
 
 };
 </PRE>

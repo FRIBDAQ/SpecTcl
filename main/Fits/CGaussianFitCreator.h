@@ -42,8 +42,8 @@ public:
 
   // Virtual function implementations/overrides
 
-  virtual CFit* operator()(STD(string) name, int id=0);
-  virtual STD(string) DescribeFit();
+  virtual CFit* operator()(std::string name, int id=0);
+  virtual std::string DescribeFit();
 };
 
 

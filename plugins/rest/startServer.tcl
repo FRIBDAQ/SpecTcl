@@ -15,7 +15,42 @@ package require httpd::utils
 package require httpd::counter
 package require httpd::config
 
+catch {package require compress};           # If supported pull in compression pkg
 
+##
+#  deflateResponse
+#    - Take input json and deflate it.
+#    - Set the http headers to indicate this was done
+#    - return the deflated result
+#
+#   Normal use is to do e.g.
+#    [return deflate json-stuff]
+#
+# @param data  data to deflate (doesn't actually have to be json I suppose).
+# @return deflated data
+# @note as a side effect the Content-Encoding header is set to deflate.
+# @note as a help to the decoder, the custom header Uncompressed-Length is set
+#       to the number of bytes in the uncompressed data.
+# @note if SpecTcl version is not capable of this, this is just a no-op.
+#
+proc deflateResponse  data {
+    #
+    #  We can do as requested if the version command exists:
+    #
+    if {[info command version] ne ""} {
+        set jsonGzip [deflate $data]
+        
+        #  Force content encoding -> gzip.
+        #
+        set sock [Httpd_CurrentSocket]
+        Httpd_AddHeaders $sock \
+	    Content-Encoding deflate  \
+	    Uncompressed-Length [string length $data]
+        return $jsonGzip	
+    } else  {
+	return $data
+    }
+}
 
 ## 
 # Init and start the server:

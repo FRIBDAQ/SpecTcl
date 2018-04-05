@@ -51,8 +51,8 @@
 #endif
 #endif
   
-typedef STD(list)<CPseudoScript>                   PseudoParameters;
-typedef STD(list)<CPseudoScript>::iterator         PseudoParameterIterator;
+typedef std::list<CPseudoScript>                   PseudoParameters;
+typedef std::list<CPseudoScript>::iterator         PseudoParameterIterator;
                                                            
 class CTCLHistogrammer  : public CHistogrammer        
 {                       
@@ -116,8 +116,8 @@ public:
   virtual   void operator() (const  CEvent& rEvent);
 
   void AddPseudo (CPseudoScript& rScript)    ;
-  void RemovePseudo (const STD(string)& rPseudoName)    ;
-  CPseudoScript& FindPseudo (const STD(string)& rPsuedoName)    ;
+  void RemovePseudo (const std::string& rPseudoName)    ;
+  CPseudoScript& FindPseudo (const std::string& rPsuedoName)    ;
   PseudoParameterIterator PseudoBegin ()    ;
   PseudoParameterIterator PseudoEnd ()    ;
   UInt_t PseudoSize ()    ;

@@ -56,8 +56,8 @@ template <class T>
 class DictionaryObserver 
 {
 public:
-  virtual void onAdd(STD(string)   name,   T& item) {}
-  virtual void onRemove( STD(string) name,    T& item) {}
+  virtual void onAdd(std::string   name,   T& item) {}
+  virtual void onRemove( std::string name,    T& item) {}
 
 };
 
@@ -70,7 +70,7 @@ class CDictionaryObserverManager
   // Need to do a bit of dirty work in due to 
   // stl and C++'s template limitations:
 
-  typedef STD(list)<void*>        ObserverList;
+  typedef std::list<void*>        ObserverList;
   typedef ObserverList::iterator  ObserverIterator;
 
   ObserverList      m_observers;
@@ -89,7 +89,7 @@ public:
       i++;
     }
   }
-  void invokeAdd(const STD(string) name, T& item) {
+  void invokeAdd(const std::string name, T& item) {
     ObserverIterator i = m_observers.begin();
     while (i  != m_observers.end()) {
       DictionaryObserver<T>* obs = static_cast<DictionaryObserver<T>*>(*i);
@@ -97,7 +97,7 @@ public:
       i++;
     }
   }
-  void invokeRemove(const STD(string) name, T& item) {
+  void invokeRemove(const std::string name, T& item) {
     ObserverIterator i = m_observers.begin();
     while (i  != m_observers.end()) {
       DictionaryObserver<T>* obs = static_cast<DictionaryObserver<T>*>(*i);
@@ -118,7 +118,7 @@ template <class T>
 class CDictionary      
 {
  public:
-  typedef  STD(map)<STD(string),  T> Dictionary;
+  typedef  std::map<std::string,  T> Dictionary;
   typedef typename  Dictionary::iterator DictionaryIterator;
 
  private:
@@ -145,7 +145,7 @@ class CDictionary
   }
 
   // Operations:
-  DictionaryIterator Lookup(STD(string) sName) {
+  DictionaryIterator Lookup(std::string sName) {
     return m_Map.find(sName);
   }
 
@@ -155,12 +155,12 @@ class CDictionary
   }
 
   // Note: Enter will overwrite any existing with key sName.
-  void Enter(STD(string) sName, T& Item) {
+  void Enter(std::string sName, T& Item) {
     m_Map[sName] = Item;
     m_observers.invokeAdd(sName, Item);
   }
 
-  void Remove(STD(string) rsName) {
+  void Remove(std::string rsName) {
     DictionaryIterator i = m_Map.find(rsName);
     if(i != m_Map.end()) 
       m_observers.invokeRemove(rsName, i->second);

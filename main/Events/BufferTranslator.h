@@ -37,7 +37,7 @@
 #endif
 #endif
 
-#include <Iostream.h>
+#include <iostream>
 
 /*-----------------------------------------------------------------------------
   Definition of class BufferTranslator

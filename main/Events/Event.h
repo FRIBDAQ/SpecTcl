@@ -48,7 +48,7 @@
 #endif
 
 typedef DFloat_t ParamType;
-typedef STD(vector)<DopedValidValue<ParamType> > CParameterVector;
+typedef std::vector<DopedValidValue<ParamType> > CParameterVector;
 typedef DopedValidValue<ParamType>               CParameterValue;
 typedef CParameterVector::iterator               CEventIterator;
 

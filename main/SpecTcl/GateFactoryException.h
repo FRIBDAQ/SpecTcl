@@ -328,14 +328,14 @@ private:
   GateFactoryExceptionReason m_eReason; //Enum containing reason of exception.
   CGateFactory::GateType m_eGateType; //Type of gate being constructed        
   static const char**  m_svReasonTexts; //Pointer to mappings between reason 
-				// enumerator and textual STD(string)s.
+				// enumerator and textual std::strings.
   static const char**  m_svGateTypeStrings;
 
 
 public:
   CGateFactoryException(GateFactoryExceptionReason eReason,
 			CGateFactory::GateType     eType,
-			const STD(string)&              rDoing) :
+			const std::string&              rDoing) :
     CException(rDoing),
     m_eReason(eReason),
     m_eGateType(eType)

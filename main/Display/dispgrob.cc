@@ -55,7 +55,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "chanplot.h"
 #include "colormgr.h"
 
-#include <Iostream.h>
+#include <iostream>
 
 #include <math.h>
 

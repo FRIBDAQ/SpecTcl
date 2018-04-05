@@ -87,7 +87,7 @@ public:
 protected:
   
   virtual int operator()(CTCLInterpreter& interp,
-			 STD(vector)<CTCLObject>& objv);
+			 std::vector<CTCLObject>& objv);
 
 
   // Utilities:

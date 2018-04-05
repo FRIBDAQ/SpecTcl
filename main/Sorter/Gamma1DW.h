@@ -99,19 +99,19 @@ class CGamma1DW : public CGammaSpectrum
 
   //Constructors
 
-  CGamma1DW(const STD(string)& rName, UInt_t nId,
-	    STD(vector)<CParameter>& rrParameters,
+  CGamma1DW(const std::string& rName, UInt_t nId,
+	    std::vector<CParameter>& rrParameters,
 	    UInt_t nScale);	//!< Axis from [0,nScale)
 
-  CGamma1DW(const STD(string)& rName, UInt_t nId,
-	    STD(vector)<CParameter>& rrParameters,
+  CGamma1DW(const std::string& rName, UInt_t nId,
+	    std::vector<CParameter>& rrParameters,
 	    UInt_t nChannels,
 	    Float_t fLow, Float_t fHigh); //!< axis is [fLow,fHigh]
 
 
   // Constructor for use by derived classes
-  // CGamma1DW(const STD(string)& rName, UInt_t nId,
-  //	    STD(vector)<CParameter> rrParameters);
+  // CGamma1DW(const std::string& rName, UInt_t nId,
+  //	    std::vector<CParameter> rrParameters);
 
   virtual ~CGamma1DW( ) { }      //Destructor
 
@@ -151,18 +151,18 @@ class CGamma1DW : public CGammaSpectrum
   virtual ULong_t operator[] (const UInt_t* pIndices) const;
   virtual void set (const UInt_t* pIndices, ULong_t nValue);
 
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters);
 
 
-  virtual void GetResolutions(STD(vector)<UInt_t>& rvResolutions);
+  virtual void GetResolutions(std::vector<UInt_t>& rvResolutions);
 
   // Utility functions:
 
 protected:
-  void   FillParameterArray(STD(vector)<CParameter> Params);
-  static CSpectrum::Axes MakeAxesVector(STD(vector)<CParameter> Params,
+  void   FillParameterArray(std::vector<CParameter> Params);
+  static CSpectrum::Axes MakeAxesVector(std::vector<CParameter> Params,
 					UInt_t             nChannels,
 					Float_t fLow, Float_t fHigh);
   void   CreateStorage();

@@ -52,7 +52,7 @@ public:
 
   virtual const char* ReasonText() const;
   virtual Int_t ReasonCode() const;
-  static STD(string) ReasonToText(int code);
+  static std::string ReasonToText(int code);
   static ExceptionReason CodeToReason(int code);
 
 };

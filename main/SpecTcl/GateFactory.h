@@ -183,55 +183,55 @@ protected:
 public:
 
    CGate* CreateGate (GateType nGateType, 
-		      const STD(vector)<STD(string)>& rGates);
+		      const std::vector<std::string>& rGates);
    CGate* CreateGate (GateType eType, 
-		      const STD(vector)<STD(string)>& rParameters, 
-		      const STD(vector)<FPoint>& rPoints);
+		      const std::vector<std::string>& rParameters, 
+		      const std::vector<FPoint>& rPoints);
    CGate* CreateGate (GateType eType, 
-		      const STD(vector)<FPoint>& rPoints, 
-		      const STD(vector)<UInt_t>& rParameters);
+		      const std::vector<FPoint>& rPoints, 
+		      const std::vector<UInt_t>& rParameters);
   CGate* CreateGate(GateType eType,
-                    const STD(vector)<STD(string)>& rParameters, 
+                    const std::vector<std::string>& rParameters, 
 		    long comparison);
   
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
    CDeletedGate* CreateDeletedGate ();
-   CBand* CreateBand (const STD(vector)<STD(string)>& rParameters, 
-		     const STD(vector)<FPoint>& rPoints);
-   CContour* CreateContour (const STD(vector)<STD(string)>& rParameters, 
-			    const STD(vector)<FPoint>& rPoints);
-   C2Bands* CreateBandContour (const STD(vector)<STD(string)>& rBands);
-   CNot* CreateNotGate (const STD(string)& rGateNames);
-   CAndGate* CreateAndGate (const STD(vector)<STD(string)>& rGateNames);
-   COrGate* CreateOrGate (const STD(vector)<STD(string)>& rGateNames)    ;
-   CCut* CreateCut (const STD(string)& rParameterName, 
+   CBand* CreateBand (const std::vector<std::string>& rParameters, 
+		     const std::vector<FPoint>& rPoints);
+   CContour* CreateContour (const std::vector<std::string>& rParameters, 
+			    const std::vector<FPoint>& rPoints);
+   C2Bands* CreateBandContour (const std::vector<std::string>& rBands);
+   CNot* CreateNotGate (const std::string& rGateNames);
+   CAndGate* CreateAndGate (const std::vector<std::string>& rGateNames);
+   COrGate* CreateOrGate (const std::vector<std::string>& rGateNames)    ;
+   CCut* CreateCut (const std::string& rParameterName, 
 		    Float_t nLow, Float_t nHigh);
    CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,
-			      const STD(vector)<UInt_t>& rParameters);
-   CGammaBand* CreateGammaBand (const STD(vector)<FPoint>& rPoints,
-				const STD(vector)<UInt_t>& rParameters);
-   CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
-				      const STD(vector)<UInt_t>& rParameters);
-  CMaskEqualGate* CreateMaskEqualGate(const STD(vector<STD(string)>)& rParameter,
+			      const std::vector<UInt_t>& rParameters);
+   CGammaBand* CreateGammaBand (const std::vector<FPoint>& rPoints,
+				const std::vector<UInt_t>& rParameters);
+   CGammaContour* CreateGammaContour (const std::vector<FPoint>& rPoints,
+				      const std::vector<UInt_t>& rParameters);
+  CMaskEqualGate* CreateMaskEqualGate(const STD(vector<std::string>)& rParameter,
                                       long Compare);
-  CMaskAndGate* CreateMaskAndGate(const STD(vector<STD(string)>)& rParameter,
+  CMaskAndGate* CreateMaskAndGate(const STD(vector<std::string>)& rParameter,
 				  long Compare);
-  CMaskNotGate* CreateMaskNotGate(const STD(vector<STD(string)>)& rParameter,
+  CMaskNotGate* CreateMaskNotGate(const STD(vector<std::string>)& rParameter,
 				  long Compare);
   
   static UInt_t  AssignId();
  
 protected:
-  UInt_t ParameterToId(const STD(string)& rName, GateType eType, 
+  UInt_t ParameterToId(const std::string& rName, GateType eType, 
 		       const char* pWhich) const;
-  CSpectrum* NameToSpec(const STD(string)& rName, GateType eType,
+  CSpectrum* NameToSpec(const std::string& rName, GateType eType,
 			const char* pWhich) const;
-  CGateContainer& NameToGate(const STD(string)& rName, GateType eType,
+  CGateContainer& NameToGate(const std::string& rName, GateType eType,
 			     const char* pWhich)const;
   void CreateGateList(STD(list)<CGateContainer*>& Gates,
-		      const STD(vector)<STD(string)>& rNames,
+		      const std::vector<std::string>& rNames,
 		      GateType eType, const char* pWhich) const;
 };
 

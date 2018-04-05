@@ -472,24 +472,24 @@ protected:
 public:
 
    Bool_t AddGate (CTCLResult& rResult,
-                   const STD(string)& rGateName, 
+                   const std::string& rGateName, 
 		   const CGate* pGate);
    CTCLString ListGates(const char* pattern);
    CTCLString ListGatesById(const char* pattern);
    Bool_t DeleteGates (CTCLResult& rResult, 
-		       const STD(vector)<STD(string)>& rGateNames);
+		       const std::vector<std::string>& rGateNames);
    Bool_t DeleteGates (CTCLResult& rResult, 
-                       const STD(vector)<UInt_t>& rIds)    ;
-   Bool_t ApplyGate (CTCLString& rResult, const STD(string)& rGateName, 
-		     const STD(string)& rSpectrumName);
+                       const std::vector<UInt_t>& rIds)    ;
+   Bool_t ApplyGate (CTCLString& rResult, const std::string& rGateName, 
+		     const std::string& rSpectrumName);
    Bool_t ListAppliedGate (CTCLString& rApplication, 
-                           const STD(string)& rName)    ;
-   Bool_t  Ungate(CTCLString& rResult, const STD(string) & rName);
+                           const std::string& rName)    ;
+   Bool_t  Ungate(CTCLString& rResult, const std::string & rName);
 
-   STD(string) GateToString (CGateContainer* pGate);
+   std::string GateToString (CGateContainer* pGate);
    static  UInt_t AssignId();
 protected:
-   static  void SortGateListById (STD(vector)<CGateContainer*>& rpGates);
+   static  void SortGateListById (std::vector<CGateContainer*>& rpGates);
 private:
 
 };

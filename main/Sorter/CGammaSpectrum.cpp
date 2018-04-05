@@ -62,9 +62,9 @@ CGammaSpectrum::~CGammaSpectrum()
  *
  *
  */
-CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,  
+CGammaSpectrum::CGammaSpectrum(const std::string& rName, UInt_t nId,  
 			       CSpectrum::Axes Maps,
-			       STD(vector)<CParameter>& Parameters,
+			       std::vector<CParameter>& Parameters,
 			       CGateContainer* pGate) :
   CSpectrum(rName, nId, Maps, pGate),
   m_pFold(new CFold(pDefaultGate))
@@ -88,8 +88,8 @@ CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,
  *     The initial gate on the spectrum, defaults to a true gate.
  *
  */
-CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId, 
-			       STD(vector)<CParameter>& Parameters,
+CGammaSpectrum::CGammaSpectrum(const std::string& rName, UInt_t nId, 
+			       std::vector<CParameter>& Parameters,
 			       CGateContainer* pGate) :
   CSpectrum(rName, nId, pGate),
   m_pFold(new CFold(pDefaultGate))
@@ -119,9 +119,9 @@ CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,
  *
  *
  */
-CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,  CSpectrum::Axes Maps,
-			       STD(vector)<CParameter>& xParameters,
-			       STD(vector)<CParameter>& yParameters,
+CGammaSpectrum::CGammaSpectrum(const std::string& rName, UInt_t nId,  CSpectrum::Axes Maps,
+			       std::vector<CParameter>& xParameters,
+			       std::vector<CParameter>& yParameters,
 			       CGateContainer* pGate) :
   CSpectrum(rName, nId, Maps, pGate),
   m_pFold(new CFold(pDefaultGate))
@@ -148,9 +148,9 @@ CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,  CSpectrum:
  *     The initial gate on the spectrum, defaults to a true gate.
  *
  */
-CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,
-		 STD(vector)<CParameter>& xParameters,
-		 STD(vector)<CParameter>& yParameters,
+CGammaSpectrum::CGammaSpectrum(const std::string& rName, UInt_t nId,
+		 std::vector<CParameter>& xParameters,
+		 std::vector<CParameter>& yParameters,
 			       CGateContainer* pGate) :
   CSpectrum(rName, nId, pGate),
   m_pFold(new CFold(pDefaultGate))
@@ -318,7 +318,7 @@ CGammaSpectrum::CreateYParameterVector(vector<CParameter>& Parameters)
    - May not be uniquified.
 */
 void
-CGammaSpectrum::GetParameterIds(STD(vector)<UInt_t>& rvIds)
+CGammaSpectrum::GetParameterIds(std::vector<UInt_t>& rvIds)
 {
   for (UInt_t i = 0; i < m_Parameters.size(); i++)
     rvIds.push_back(m_Parameters[i]);

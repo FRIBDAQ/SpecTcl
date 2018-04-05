@@ -745,7 +745,7 @@ makeEdgePoints(vector<Edge*> edges, int y)
 int 
 CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
 			       CSpectrum&          spectrum,
-			       STD(vector)<CPoint> points)
+			       std::vector<CPoint> points)
 {
   // generate the edge tables:
 

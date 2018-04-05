@@ -213,14 +213,15 @@ CSpectrum1DW::Increment(const CEvent& rE)
 
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-      Int_t nChannel = Randomize(ParameterToAxis(0, 
+        Int_t nChannel = Randomize(ParameterToAxis(0, 
 						 rEvent[m_nParameter]));
-      if((nChannel < (m_nChannels)) &&
-	 (nChannel >= 0)) {  // 
-      UShort_t* p = (UShort_t*)getStorage();
-      assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!
-      p[nChannel]++;		      // Increment the histogram.
-      }
+        
+        if(checkRange(nChannel, m_nChannels, 0)) {
+            
+          UShort_t* p = (UShort_t*)getStorage();
+          assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!
+          p[nChannel]++;		      // Increment the histogram.
+        }
     }
   }
 }
@@ -343,4 +344,5 @@ CSpectrum1DW::CreateChannels()
   UShort_t* pStorage = new UShort_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  createStatArrays(1);
 }

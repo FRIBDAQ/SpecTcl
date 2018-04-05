@@ -54,8 +54,8 @@
 #include <CSpectrumByParameter.h>
 
 
-#include <Iostream.h>
-#include <Sstream.h>
+#include <iostream>
+#include <sstream>
 
 #include <stdio.h>
 #ifdef HAVE_STD_NAMESPACE
@@ -685,7 +685,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
   //  supported by Xamine.
   UInt_t nSpectrum;       
   CSpectrum*       pSpectrum = (*iSpectrum).second;
-  CXamineSpectrum* pXSpectrum;
+  CXamineSpectrum* pXSpectrum(0);
   try {
     switch(pSpectrum->Dimensionality()) {
     case 1:			// 1-d spectrum.
@@ -714,7 +714,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 	case keByte:		// 2db
 	  dataType = 1;
 	  break;
-	case 2:			// 2dL
+	case keLong:			// (was 2).  2dL
 	  dataType = 2;
 	  break;
 	default:
@@ -752,12 +752,15 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     m_pDisplayer->setInfo(createTitle(pSpectrum, 
 				      m_pDisplayer->getTitleSize()), nSpectrum);
     pSpectrum->ReplaceStorage(pStorage, kfFALSE);
-    while(m_DisplayBindings.size() <= nSpectrum) 
+    while(m_DisplayBindings.size() <= nSpectrum) {
       m_DisplayBindings.push_back("");
+      m_boundSpectra.push_back(0);
+    }
     m_DisplayBindings[nSpectrum] = pSpectrum->getName();
+    m_boundSpectra[nSpectrum]    = pSpectrum;
     delete pXSpectrum;		// Destroy the XamineSpectrum.
   }
-  catch (...) {		// In case DefineSpectrum throws e.g.
+  catch (...) {		// In case of throw after CXamine2D created.
     delete pXSpectrum;
     throw;
   }
@@ -840,6 +843,7 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
     pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
 			      kfTRUE);
     m_DisplayBindings[nSpec] = "";
+    m_boundSpectra[nSpec]    = 0;
     m_pDisplayer->FreeSpectrum(nSpec);
 
   }
@@ -1170,7 +1174,7 @@ CSpectrum* CHistogrammer::DisplayBinding(UInt_t xid) {
   if(xid >= DisplayBindingsSize()) 
     return (CSpectrum*)kpNULL;
 
-  return FindSpectrum(m_DisplayBindings[xid]);
+  return m_boundSpectra[xid];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1591,6 +1595,24 @@ CHistogrammer::deleteFit(CSpectrumFit& fit)
     // Falling through here means no matching fit lines...which is a no-op.
     
   }
+}
+
+/**
+ * updateStatistics
+ *    Update the Xamine statistics for each bound spectrum.
+ */
+void
+CHistogrammer::updateStatistics()
+{
+    for (int i =0; i < m_boundSpectra.size(); i++) {
+        CSpectrum* pSpec = m_boundSpectra[i];
+        if (pSpec) {
+            std::vector<unsigned> stats = pSpec->getUnderflows();
+            m_pDisplayer->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            stats = pSpec->getOverflows();
+            m_pDisplayer->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////

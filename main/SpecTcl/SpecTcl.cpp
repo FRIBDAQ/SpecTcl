@@ -422,14 +422,14 @@ SpecTcl::CreateSpectrum(string Name,
       at some level or else SpecTcl will exit.
 */
 CSpectrum*
-SpecTcl::CreateSpectrum(STD(string) Name,
+SpecTcl::CreateSpectrum(std::string Name,
 			SpectrumType_t type,
 			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs)
+			std::vector<std::string> xParameters,
+			std::vector<std::string> yParameters,
+			std::vector<UInt_t>      channels,
+			std::vector<Float_t>*    pLows,
+			std::vector<Float_t>*    pHighs)
 {
   if (type == keG2DD) {
     return CreateG2DDeluxe(Name, dataType, 
@@ -534,13 +534,13 @@ SpecTcl::CreateGammaSummary(std::string                      Name,
 */
 
 CSpectrum*
-SpecTcl::CreateG2DDeluxe(STD(string) Name,
+SpecTcl::CreateG2DDeluxe(std::string Name,
 			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs)
+			std::vector<std::string> xParameters,
+			std::vector<std::string> yParameters,
+			std::vector<UInt_t>      channels,
+			std::vector<Float_t>*    pLows,
+			std::vector<Float_t>*    pHighs)
 {
   if (channels.size() != 2) {
     throw CSpectrumFactoryException(dataType, keG2DD,
@@ -1358,8 +1358,8 @@ SpecTcl::CreateGate(CGateFactory::GateType gateType,
   
 */
 CGate*
-SpecTcl::CreateGate(CGateFactory::GateType   gateType, STD(vector)<FPoint> points,
-		    STD(vector)<UInt_t> parameters)
+SpecTcl::CreateGate(CGateFactory::GateType   gateType, std::vector<FPoint> points,
+		    std::vector<UInt_t> parameters)
 {
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateGate(gateType, points, parameters);

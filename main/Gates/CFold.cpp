@@ -250,8 +250,8 @@ CFold::operator()(vector<pair<UInt_t, Float_t> >& rEvent, CGammaSpectrum* pSpect
    the parameters in both the x/y vectors.
 */
 void
-CFold::operator()(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParams,
-		  STD(vector)<STD(pair)<UInt_t, Float_t> >& yParams,
+CFold::operator()(std::vector<std::pair<UInt_t, Float_t> >& xParams,
+		  std::vector<std::pair<UInt_t, Float_t> >& yParams,
 		  CGammaSpectrum* pSpectrum)
 {
   string gateType = (*m_pGate)->Type();

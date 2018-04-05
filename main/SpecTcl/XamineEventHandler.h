@@ -85,8 +85,8 @@ public:
   public:
     virtual void  operator()() = 0;
   };
-  typedef STD(list)<CButtonHandler*> ButtonHandlerList;
-  typedef STD(list)<CRestartHandler*> RestartHandlerList;
+  typedef std::list<CButtonHandler*> ButtonHandlerList;
+  typedef std::list<CRestartHandler*> RestartHandlerList;
 private:                       
   CTCLInterpreter*   m_pInterp;
   CHistogrammer*     m_pHistogrammer; //1:1 association object data member      
@@ -178,22 +178,22 @@ public:
 protected:
  virtual   void OnGate (CDisplayGate& rXamineGate)    ;
  virtual   void OnButton (CButtonEvent& rButton)    ;
- virtual   UInt_t FindDisplayBinding (const STD(string)& rName);
+ virtual   UInt_t FindDisplayBinding (const std::string& rName);
 
  static void CallbackRelay(ClientData pObject);
   // Utilities:
 private:
 
-  void make2dSumgate(STD(string)            gateName,
+  void make2dSumgate(std::string            gateName,
 		     CGateFactory::GateType componentGateType,
 		     CSpectrum*             pSpectrum,
-		     STD(vector)<CPoint>    rawPoints);
-  STD(string) createComponentGateName(STD(string) baseName,
+		     std::vector<CPoint>    rawPoints);
+  std::string createComponentGateName(std::string baseName,
 				      UInt_t      p1,
 				      UInt_t      p2);
-  STD(vector)<FPoint> scaleSumSpectrumPoints(CSpectrum*          pSpectrum,
+  std::vector<FPoint> scaleSumSpectrumPoints(CSpectrum*          pSpectrum,
 					     UInt_t              firstAxis,
-					     STD(vector)<CPoint> rawPoints);
+					     std::vector<CPoint> rawPoints);
 		     
 };
 

@@ -3,7 +3,7 @@
 using namespace std;
 #endif
 
-#include <Iostream.h>
+#include <iostream>
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>

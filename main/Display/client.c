@@ -1063,7 +1063,7 @@ caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int type)
   /* Allocate the spectrum storage: */
 
   if(type==0) s_amount = s_amount * sizeof(short); /* Number of bytes of storage. */
-  if(type==2) s_amount = s_amount * sizeof(int);
+  if(type==2) s_amount = s_amount * sizeof(long);
 
   storage = Xamine_AllocMemory(s_amount);
   if(storage == NULL) return NULL;
@@ -1126,4 +1126,47 @@ long f77xamine_allocate2d_(int *spno, int *xdim, int *ydim, char *title,
   if(!*byte) offset = offset / sizeof(short); /* Word offset. */
 
   return offset;
+}
+/**
+ * Xamine_setOverflow
+ *    Set the overflow counter of an axis of a spectrum.
+ *
+ *  @param nSpectrum -id of spetrum to set.
+ *  @param axis      - 0 xaxis, 1 y axis.
+ *  @param value     - Value to which to set the overflow.
+ */
+void
+Xamine_setOverflow(unsigned nSpectrum, int axis, unsigned value)
+{
+    nSpectrum--;
+    Xamine_memory->dsp_statistics[nSpectrum].overflows[axis] = value;
+}
+/**
+ * Xamine_setUnderflow
+ *    Same as Xamine_setOverflow but set an underflow counter.
+ *
+ *  @param nSpectrum -id of spetrum to set.
+ *  @param axis      - 0 xaxis, 1 y axis.
+ *  @param value     - Value to which to set the overflow.
+ */
+void
+Xamine_setUnderflow(unsigned nSpectrum, int axis, unsigned value)
+{
+    nSpectrum--;
+    Xamine_memory->dsp_statistics[nSpectrum].underflows[axis] = value;
+}
+/**
+ *  Xamine_clearStatitics
+ *     Clear the under/overflow statistics for a spectrum
+ *
+ *  @param nSpectrum - spectrum to clear.
+ */
+void
+Xamine_clearStatistics(unsigned nSpectrum)
+{
+    nSpectrum--;
+    Xamine_setOverflow(nSpectrum, 0, 0);
+    Xamine_setOverflow(nSpectrum, 1, 0);
+    Xamine_setUnderflow(nSpectrum, 0, 0);
+    Xamine_setUnderflow(nSpectrum, 1, 0);
 }

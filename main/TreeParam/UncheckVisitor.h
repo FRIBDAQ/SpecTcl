@@ -60,7 +60,7 @@ class UncheckVisitor : public CMatchingVisitor
 
 public:
 	virtual ~UncheckVisitor();
-	UncheckVisitor(STD(string) pattern);
+	UncheckVisitor(std::string pattern);
 	void OnMatch(CTreeParameter* pParam);
 
 };

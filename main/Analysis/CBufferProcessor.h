@@ -77,7 +77,7 @@ typedef _SRunContext SRunContext;
 class CBufferProcessor
 {
 private:
-  typedef STD(vector)<CBufferCallbackList> CallbackVector;
+  typedef std::vector<CBufferCallbackList> CallbackVector;
   CallbackVector           m_Callbacks;
   SRunContext*             m_pRunContext;
   CBufferCallback*         m_pControlCallback;
@@ -109,10 +109,10 @@ public:
   float         Total(unsigned int channel) const;
   unsigned long lastIntervalStart() const;
   unsigned long lastIntervalEnd() const;
-  STD(string)   Title() const;
+  std::string Title() const;
   int           runNumber() const;
-  STD(string)   runStartTime() const;
-  STD(string)   runEndTime() const;
+  std::string   runStartTime() const;
+  std::string   runEndTime() const;
   
 
   // Class functions that manipulate callbacks:

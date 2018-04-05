@@ -326,7 +326,7 @@ class CMGamma2DB : public CGamma2DB
     UInt_t nScale;
     Float_t nLow;
     Float_t nHigh;
-    STD(STD(string)) sUnits;
+    std::string sUnits;
     int operator==(const MParameterDef& r) const {
       return ((nParameter == r.nParameter) && (nScale == r.nScale) &&
 	      (nLow == r.nLow) && (nHigh == r.nHigh) && (sUnits == r.sUnits));
@@ -343,7 +343,7 @@ class CMGamma2DB : public CGamma2DB
 public:
 
   //Constructor(s) with arguments
-  CMGamma2DB(const STD(STD(string))& rName, UInt_t nId,
+  CMGamma2DB(const std::string& rName, UInt_t nId,
 	     vector<CParameter>& rParameters,
 	     Float_t nXLow, Float_t nYLow, Float_t nXHigh, Float_t nYHigh,
 	     UInt_t nXChans, UInt_t nYChans);
@@ -393,10 +393,10 @@ public:
   UInt_t getYChannels() const {
     return m_nYChannels;
   }
-  STD(STD(string)) getXUnits() const {
+  std::string getXUnits() const {
     return m_vParameters[0].sUnits;
   }
-  STD(STD(string)) getYUnits() const {
+  std::string getYUnits() const {
     return m_vParameters[1].sUnits;
   }
   UInt_t getnParams() const {
@@ -433,7 +433,7 @@ protected:
   //   
 public:                 
   virtual  void Increment(const CEvent& rEvent)  ;
-  virtual  void GammaGateIncrement(const CEvent& Event, STD(STD(string)) sGateType);
+  virtual  void GammaGateIncrement(const CEvent& Event, std::string sGateType);
   UInt_t        Dimension(UInt_t n) const;
   UInt_t        Randomize(Float_t nChannel);
   UInt_t        GatePointToSpec(UInt_t nPoint, UInt_t nIndex);

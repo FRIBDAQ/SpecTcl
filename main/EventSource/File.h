@@ -109,7 +109,7 @@ public:
 
   virtual   Int_t Read (Address_t pBuffer, UInt_t nSize)  ;
   virtual   Int_t Write (const Address_t pBuffer, UInt_t nBytes)  ;
-  virtual   void Open (const STD(string)& rsFilename, UInt_t nAccess,
+  virtual   void Open (const std::string& rsFilename, UInt_t nAccess,
 		       bool fullBlocks = true)  ;
   virtual   void Open(UInt_t nFd);
   virtual   void Close ()  ;

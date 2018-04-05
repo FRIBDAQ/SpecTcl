@@ -332,21 +332,21 @@ public:
   // Constructor:
 
   CXamine1D(volatile Xamine_shared*     pXamine,
-	    const STD(string)& rName,
+	    const std::string& rName,
 	    UInt_t             nChannels,
 	    Bool_t             fWord = kfFALSE) :
     CXamineSpectrum(pXamine, rName),
     m_fWord(fWord),
     m_nChannels(nChannels),
-    m_XamineMap(0.0,0.0,STD(string)(""))
+    m_XamineMap(0.0,0.0,std::string(""))
   { }
 
   CXamine1D(volatile Xamine_shared* pXamine,
-	    const STD(string)& rName,
+	    const std::string& rName,
 	    UInt_t             nChannels,
 	    Float_t            nLow,
 	    Float_t            nHigh,
-	    const STD(string)& rUnits,
+	    const std::string& rUnits,
 	    Bool_t             fWord = kfFALSE) :
     CXamineSpectrum(pXamine, rName),
     m_fWord(fWord),

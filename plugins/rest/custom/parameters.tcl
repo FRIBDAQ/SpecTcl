@@ -54,7 +54,7 @@ proc SpecTcl_Parameter/list {{filter *}} {
 	lappend jsonArray [json::write object  {*}$itemList]
 	
     }
-    return [::SpecTcl::_returnObject "OK" [json::write array  {*}$jsonArray]]
+    return [deflateResponse [::SpecTcl::_returnObject "OK" [json::write array  {*}$jsonArray]]]
 
 }
 ##

@@ -1,3 +1,20 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
 // Class: CNSCLAsciiSpectrumFormatter                     //ANSI C++
 //
 // does I/O to spectrum in a simple ASCII format.
@@ -60,10 +77,10 @@
 #endif
 
 #ifndef __OSTREAM_DAQH
-#include <Ostream.h>
+#include <ostream>
 #endif
 #ifndef __ISTREAM_DAQH
-#include <Istream.h>
+#include <istream>
 #endif
 
 
@@ -133,14 +150,14 @@ public:
        
 public:
 
- virtual   CSpectrum* Read (STD(istream)& rStream, 
+ virtual   CSpectrum* Read (std::istream& rStream, 
 			    ParameterDictionary& rDict)    ;
- virtual   void Write (STD(ostream)& rStream, CSpectrum& rSpectrum,
+ virtual   void Write (std::ostream& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict)    ;
 
 protected:
-  static void     WriteValues(STD(ostream)& rStream, CSpectrum& rSpectrum);
-  static void     WriteLine(STD(ostream)& rStream,
+  static void     WriteValues(std::ostream& rStream, CSpectrum& rSpectrum);
+  static void     WriteLine(std::ostream& rStream,
 		     UInt_t  nCoordinates,
 		     UInt_t* pCoordinates,
 		     ULong_t nValue);
@@ -149,35 +166,35 @@ protected:
 			    UInt_t* pHiLimits,
 			    UInt_t* pIndexes);
 
-  static void     ReadHeader(STD(istream)&        rStream,
-			     STD(string)&         rName,
-			     STD(string)&         rDate,
+  static void     ReadHeader(std::istream&        rStream,
+			     std::string&         rName,
+			     std::string&         rDate,
 			     Float_t&         rRevisionLevel,
 			     SpectrumType_t& rSpecType,
 			     DataType_t&     rDataType,
-			     STD(vector)<UInt_t>& rDimensions,
-			     STD(vector)<STD(string)>& rParameters,
-			     STD(vector)<STD(string)>& ryParameters,
-			     STD(vector)<Float_t>& rLows,
-			     STD(vector)<Float_t>& rHighs);
-  static STD(string)   ReadLine(STD(istream)&    rStream);
+			     std::vector<UInt_t>& rDimensions,
+			     std::vector<std::string>& rParameters,
+			     std::vector<std::string>& ryParameters,
+			     std::vector<Float_t>& rLows,
+			     std::vector<Float_t>& rHighs);
+  static std::string   ReadLine(std::istream&    rStream);
   static Bool_t   CompatibleFormat(Float_t nFormat);
-  static void     ReadBody(STD(istream)&   rStream,       
-			   STD(vector)<UInt_t>& rvDimensions, 
+  static void     ReadBody(std::istream&   rStream,       
+			   std::vector<UInt_t>& rvDimensions, 
 			   CSpectrum* pSpectrum);
-  static void     ThrowStreamError(STD(istream)& rStream,
+  static void     ThrowStreamError(std::istream& rStream,
 				   const char*    pDoing,
 				   Bool_t IgnoreEof=kfFALSE);
-  static void     DecodeParenList(STD(istream)& rStream, 
-				  STD(vector)<STD(string)>& rList);
-  static void     DecodeListOfParenLists(STD(istream)& rStream,
-					 STD(vector)<STD(string)>& rList);
-  static void     CheckIndices(STD(vector)<UInt_t>& Dimensions, 
-			       STD(vector)<UInt_t>& Indices);
+  static void     DecodeParenList(std::istream& rStream, 
+				  std::vector<std::string>& rList);
+  static void     DecodeListOfParenLists(std::istream& rStream,
+					 std::vector<std::string>& rList);
+  static void     CheckIndices(std::vector<UInt_t>& Dimensions, 
+			       std::vector<UInt_t>& Indices);
   static void     CheckDataSize(ULong_t data, DataType_t type);
-  static void     ReadDelimited(STD(istream)& rStream, STD(string)& STDString,
+  static void     ReadDelimited(std::istream& rStream, std::string& STDString,
 				char start, char end);
-  static STD(string)   ParenListElement(STD(istream)& rStream);
+  static std::string   ParenListElement(std::istream& rStream);
   static bool     LimitCountOk(SpectrumType_t type, size_t limits, size_t dimensions);
 };
 

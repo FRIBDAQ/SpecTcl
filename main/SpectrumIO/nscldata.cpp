@@ -17,8 +17,9 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2009, All rights reserved";
 #include <config.h>
-#include <Iomanip.h>
-#include <Iostream.h>
+#include <iomanip>
+#include <iostream>
+
 #include <errno.h>
 #include <string.h>
 #include <nscldata.h>

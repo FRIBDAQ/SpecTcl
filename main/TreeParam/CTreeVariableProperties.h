@@ -56,12 +56,12 @@ private:
   /**
    * Name of the tcl variable that we are bound to.  Only settable on construction.
    */
-  STD(string) m_sName;
+  std::string m_sName;
   /**
    * Units associated with a Tree variable.  This is common between all tree
    * variables that are bound to this variable.
    */
-  STD(string) m_sUnits;
+  std::string m_sUnits;
   /**
    * A value that will be linked to the underlying Tcl variable.
    */
@@ -78,9 +78,9 @@ private:
   
 public:
   virtual ~CTreeVariableProperties();
-  CTreeVariableProperties(STD(string) name, double value = 0.0, 
-			  STD(string) units = STD(string)(""));
-  CTreeVariableProperties(STD(string) name, 
+  CTreeVariableProperties(std::string name, double value = 0.0, 
+			  std::string units = std::string(""));
+  CTreeVariableProperties(std::string name, 
 			  const CTreeVariableProperties& example);
   CTreeVariableProperties& operator=(double value);
   CTreeVariableProperties& operator=(const CTreeVariableProperties& rhs);
@@ -88,9 +88,9 @@ public:
   operator double();
   bool    definitionChanged();
   void    resetDefinitionChanged();
-  STD(string)  getName();
-  void    setUnits(STD(string) units);
-  STD(string)  getUnits();
+  std::string  getName();
+  void    setUnits(std::string units);
+  std::string  getUnits();
   bool    valueChanged();
   void    fireTraces();
   void    Link(CTCLInterpreter& rInterp);
