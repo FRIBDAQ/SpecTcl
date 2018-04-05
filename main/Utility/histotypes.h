@@ -42,7 +42,7 @@
 #define __CRT_MATH_H
 #endif
 
-#ifndef _DAQTYPES_H
+#ifndef DAQDATATYPES_H
 #include <daqdatatypes.h>
 #endif
 
