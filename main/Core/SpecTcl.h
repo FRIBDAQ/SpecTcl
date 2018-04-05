@@ -338,6 +338,23 @@ public:
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin(std::string name_pipe);
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd(std::string name_pipe);
 
+  // These methods are provided for compatibility with pipeline manipulation prior to the
+  // pipeline manager.  They manipulate the current pipeline:
+
+  void AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
+  void InsertEventProcessor(CEventProcessor& processor,
+			    CTclAnalyzer::EventProcessorIterator where, 
+			    const char*  name = 0);
+  void RemoveEventProcessor(std::string name);
+  void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
+  UInt_t ProcessingPipelineSize();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+
+  
+  
   // Spectrum I/O formatting control:
 
   void AddSpectrumFormatter(std::string name, CSpectrumFormatter& formatter);
