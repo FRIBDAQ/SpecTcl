@@ -354,7 +354,7 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
          m_isSingle = dataWidth(nBytes, xdr.getBuffer());
         ProcessEvents(xdr, rAnalyzer);  
     } else {
-        // Case 3. above:
+        // Case 2. above:
         
         xdr >> itemtype;
         if (itemtype != "event") {
@@ -480,7 +480,7 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
 
     // Copy the identifier:
 
-    nItemSize = sizeof("event"); // sizeof counts the null, strlen won't.
+    nItemSize = std::string("event ").size();
     memcpy (pCursor, "event", nItemSize);
     nSize   += nItemSize;
     pCursor += nItemSize;
@@ -502,7 +502,7 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
     // Bits has the number of parameters that's present.
     // There's one float for each parameter.
 			
-    int nItemSize = sizeof(double);
+    nItemSize = sizeof(double);
     for (int i =0; i < bits; i++) {
       double item;
       float fitem;
@@ -636,8 +636,9 @@ CFilterBufferDecoder::dataWidth(UInt_t nBytes, void* pBuffer)
   // Flip through the bit masks counting then number of parameters
   // to expect:
 
+  int mask;
   for (int i=0; i < nBitmasks; i++) {
-    int mask;
+    
     xdr >> mask;
     bits += CountBits(mask);
   }
@@ -647,11 +648,11 @@ CFilterBufferDecoder::dataWidth(UInt_t nBytes, void* pBuffer)
     float param;
     xdr >> param;
   }
-  // If it's single precision we are at an 'event' header except for
+  // If it's single precision we are at an 'event' header except for 
   // the very pathological case of a single output event.. in that case
   // alles ist verloren.
 
-
+  type.clear();
   xdr >> type;
   return type == "event";
 }
