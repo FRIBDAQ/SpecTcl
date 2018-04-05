@@ -312,6 +312,7 @@ CXdrInputStream&
 CXdrInputStream::operator>>(string& s) 
 {
   char* strbuf =  new char[m_nBuffersize];
+  strbuf[0] = 0;    // In case strbuf is not modified below.
   (*this) >> strbuf;
   s = strbuf;
   delete []strbuf;
