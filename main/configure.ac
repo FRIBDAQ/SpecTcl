@@ -49,7 +49,14 @@ AC_PATH_PROG(HTMLDOCBOOK, docbook2html, echo)
 AC_PATH_PROG(DVIPDF,      dvipdf,       echo)
 AC_PATH_PROG(MANDOCBOOK,  xmlto,        echo)
 
+#   Starting with SpecTcl 5.0 we have a new style startup.
+#   Let's let the compiler know so that people can
+#   conditionalize their MySpecTclApp.cpp's accordingly.
 
+
+AH_TEMPLATE([SPECTCL_5_INIT],
+	[Let the compiler know that SpecTcl 5 style initialization is in evfect])
+AC_DEFINE(SPECTCL_5_INIT)
 
 # Checks for header files.
 AC_HEADER_STDC

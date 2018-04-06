@@ -554,6 +554,22 @@ void CTclGrammerApp::SelectDisplayer()
         throw std::runtime_error(error);
     }
 }
+/**
+ *  SelectDisplayer
+ *     Provided for compatibility with 4.0 and earlier.  Warns that this
+ *     is obsolete and calls the above.
+ */
+void CTclGrammerApp::SelectDisplayer(UInt_t n, CHistogrammer& rh)
+{
+  std::cerr << "---------------------------------------------------\n";
+  std::cerr << "    Warning - Deprecated method used               \n\n";
+  std::cerr << "  Your application class calls SelectDisplayer     \n";
+  std::cerr << "  Providing two parameters (size and histogrammer  \n";
+  std::cerr << "  This method is obsolete and may be removed laster \n";
+  std::cerr << "  replace it with 'SelectDisplayer();'              \n";
+  std::cerr << "  This most likely is in CMySpecTclApp::SelectDisplayer \n";
+  std::cerr << "----------------------------------------------------\n";
+}
 
 /*!
  * \brief CTclGrammerApp::SetUpDisplay

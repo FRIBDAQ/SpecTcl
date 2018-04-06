@@ -60,6 +60,7 @@ class CNSCLBufferDecoder;
 class CMultiTestSource;
 class CDisplayInterface;
 class CGatingDisplayObserver;
+class CTCLApplication;
 
 /*!
  * \brief The CTclGrammerApp class
@@ -296,6 +297,10 @@ private:
   void SetupRunControl(); // 
   virtual void SourceFunctionalScripts(CTCLInterpreter& rInterp); // Do functional Tcl initialization.
   virtual int operator()(); // SpecTcl entry point.
+
+  // Compatibility with 4.0 and earlier -- these warn and call the version with no parameters.
+
+  virtual void SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer);
 
   /*!
    * \brief run

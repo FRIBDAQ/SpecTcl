@@ -314,6 +314,13 @@ CMySpecTclApp::operator()()
 }
 
 CMySpecTclApp   myApp;
-CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;	// Create an instance of me.
-int gpTCLApplication(0);  // Satisfy the build by defining this
 
+
+#ifdef SPECTCL_5_INIT
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
+CTCLApplication* gpTCLApplication(0);
+
+#else
+CTclGrammerApp& app(myApp);	// Create an instance of me.
+CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+#endif
