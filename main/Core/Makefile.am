@@ -317,29 +317,29 @@ Xamine_INCLUDES = ButtonEvent.h XamineGate.h Point.h Xamine1D.h Xamine2D.h \
 
 
 libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
-												$(DecoderRing_SRC) \
-												$(DisplayInterface_SRC) \
-												$(Events_SRC) \
-												$(EventSource_SRC) \
-												$(Filter_SRC) \
-												$(Fits_SRC) \
-												$(Gates_SRC) \
-												$(Sorter_SRC) \
-												$(TclGrammerApp_SRC) \
-												$(Spectra_SRC) \
-												$(SpectrumIO_SRC) \
-												$(TreeParam_SRC) \
-												$(Xamine_SRC)
+				$(DecoderRing_SRC) \
+				$(DisplayInterface_SRC) \
+				$(Events_SRC) \
+				$(EventSource_SRC) \
+				$(Filter_SRC) \
+				$(Fits_SRC) \
+				$(Gates_SRC) \
+				$(Sorter_SRC) \
+				$(TclGrammerApp_SRC) \
+				$(Spectra_SRC) \
+				$(SpectrumIO_SRC) \
+				$(TreeParam_SRC) \
+				$(Xamine_SRC)
 
 # Removed -I@top_srcdir@/Tape
 
 libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
-												 -I@top_srcdir@/factories \
-												 -I@top_srcdir@/Tape \
-												 @LIBTCLPLUS_CFLAGS@ \
-												 @TCL_CPPFLAGS@
+				 -I@top_srcdir@/factories \
+				 -I@top_srcdir@/Tape \
+				 @LIBTCLPLUS_CFLAGS@ \
+				 @TCL_CPPFLAGS@
 # Removed @top_builddir@/libntape.la
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
@@ -350,19 +350,19 @@ libTclGrammerApp_la_LDFLAGS = -version-info $(SOVERSION):0 -lgsl -lgslcblas -lm
 
 
 include_HEADERS = $(Analysis_INCLUDES) \
-												$(DecoderRing_INCLUDES) \
-												$(DisplayInterface_INCLUDES) \
-												$(Events_INCLUDES) \
-												$(EventSource_INCLUDES) \
-												$(Filter_INCLUDES) \
-												$(Fits_INCLUDES) \
-												$(Gates_INCLUDES) \
-												$(Sorter_INCLUDES) \
-												$(Spectra_INCLUDES) \
-												$(TclGrammerApp_INCLUDES) \
-												$(SpectrumIO_INCLUDES) \
-												$(TreeParam_INCLUDES) \
-												$(Xamine_INCLUDES)
+				$(DecoderRing_INCLUDES) \
+				$(DisplayInterface_INCLUDES) \
+				$(Events_INCLUDES) \
+				$(EventSource_INCLUDES) \
+				$(Filter_INCLUDES) \
+				$(Fits_INCLUDES) \
+				$(Gates_INCLUDES) \
+				$(Sorter_INCLUDES) \
+				$(Spectra_INCLUDES) \
+				$(TclGrammerApp_INCLUDES) \
+				$(SpectrumIO_INCLUDES) \
+				$(TreeParam_INCLUDES) \
+				$(Xamine_INCLUDES)
 
 noinst_HEADERS = $(DecoderRing_noinst_INCLUDES)
 
