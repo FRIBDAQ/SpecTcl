@@ -79,7 +79,8 @@ extern "C" {
     CCalibratedParameterManager* pCalibrationEventProcessor = 
                                       new CCalibratedParameterManager;
     SpecTcl* pApi = SpecTcl::getInstance();
-    pApi->AddEventProcessor(*pCalibrationEventProcessor,
+    std::string name_pipe = pApi->GetCurrentPipeline();
+    pApi->AddEventProcessor(name_pipe, *pCalibrationEventProcessor,
 			    "CalibratedParameters");
 
     // Register the fit types:

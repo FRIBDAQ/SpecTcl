@@ -184,11 +184,11 @@ CFold::operator()(vector<pair<UInt_t, Float_t> >& rEvent, CGammaSpectrum* pSpect
     CGammaCut* pGate = static_cast<CGammaCut*>(m_pGate->getGate());
     for (int i = 0; i < rEvent.size(); i++) {
       if(pGate->inGate(rEvent[i].second)) {
-	vector<pair<UInt_t, Float_t> > parameterlist;
-	CutDownParameters(parameterlist, rEvent, rEvent[i].first);
-	if (parameterlist.size()) {
-	  pSpectrum->Increment(parameterlist);
-	}
+        vector<pair<UInt_t, Float_t> > parameterlist;
+        CutDownParameters(parameterlist, rEvent, rEvent[i].first);
+        if (parameterlist.size()) {
+          pSpectrum->Increment(parameterlist);
+        }
       }
     }
   }

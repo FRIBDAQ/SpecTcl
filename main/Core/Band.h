@@ -419,8 +419,7 @@ public:
   virtual   Bool_t operator()(CEvent& rEvent);
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
-  virtual   Bool_t inGate(CEvent& rEvent);
+
   virtual   Bool_t Inside(Float_t x, Float_t y) {
     return Interior(x, y);
   }

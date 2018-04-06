@@ -1,6 +1,5 @@
 lib_LTLIBRARIES=libfirstof.la
 
-
 ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
@@ -13,8 +12,9 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 			CBiggestOfEventProcessor.h
 
 AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW) $(ROOT_CFLAGS)
-libfirsto_la_LDFALGS = $(ROOT_LDFLAGS)
 
+
+libfirstof_la_LDFLAGS=$(ROOT_LDFLAGS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs

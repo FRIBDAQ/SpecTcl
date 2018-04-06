@@ -95,10 +95,16 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
       // user is starting fresh, use the histogram bundle to access what
       // parameters are to be by the cut... we also default to beginning this
       // as a band
-      auto xParam = m_histPkg.getInfo().s_params.at(0);
-      auto yParam = m_histPkg.getInfo().s_params.at(1);
-
+      //   Note that the actual gate type depends on the spectrum type.
+      //
+      if (m_histPkg.getInfo().s_type == "2") {
+        auto xParam = m_histPkg.getInfo().s_params.at(0);
+        auto yParam = m_histPkg.getInfo().s_params.at(1);
+  
         m_pEditCut->setInfo(SpJs::Band("__gate_in_progress", xParam, yParam, {}));
+      } else {                          // first order anything else is gamma:
+        m_pEditCut->setInfo(SpJs::GammaBand("__gate_in_progress", m_histPkg.getInfo().s_params));
+      }
     }
 
     m_canvas.cd();
@@ -154,7 +160,11 @@ void GateBuilderDialog::accept()
     }
 
     if (m_pOldCut == nullptr) {
-        m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
+        if (m_histPkg.getInfo().s_type == "2") {
+            m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
+        } else {
+            m_pOldCut = new GGate(SpJs::GammaBand());
+        }
     }
 
     // we have edited the MyCutG but not the SpJs::GateInfo2D object...
@@ -327,14 +337,22 @@ void GateBuilderDialog::onTypeChanged(int id)
           this, SLOT(valueChanged(int, int)));
 
     SpJs::GateType type;
-    if (id==0) {
-        type = SpJs::BandGate;
+    if (m_histPkg.getInfo().s_type == "2") {
+        if (id==0) {
+            type = SpJs::BandGate;
+        } else {
+            type = SpJs::ContourGate;
+        }
     } else {
-        type = SpJs::ContourGate;
+        if (id == 0) {
+            type = SpJs::GammaBandGate;
+        } else {
+            type = SpJs::GammaContourGate;
+        }
     }
 
     m_pEditCut->setType(type);
-    if (type == SpJs::BandGate) {
+    if (id == 0) {
         ensureLastPointDiffersFromFirst();
         m_matchLast = false;
     } else {

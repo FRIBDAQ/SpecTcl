@@ -335,9 +335,10 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
 
   SpecTcl* api = SpecTcl::getInstance();
-  CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin();
+  std::string name_pipe = api->GetCurrentPipeline();
+  CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin(name_pipe);
 
-  while (p != api->ProcessingPipelineEnd()) {
+  while (p != api->ProcessingPipelineEnd(name_pipe)) {
     CEventProcessor *pProcessor = p->second;
     if (!pProcessor->OnEventSourceOpen(m_AttachedTo)) break;
     p++;

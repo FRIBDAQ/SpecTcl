@@ -30,6 +30,8 @@ class GateCmdParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseList_3 );
   
   CPPUNIT_TEST(parseGammaSlice_0);
+  CPPUNIT_TEST(parseGammaContour_0);
+  CPPUNIT_TEST(parseGammaBand_0);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,10 +46,34 @@ protected:
   void parseList_2();
   void parseList_3();
   
-  void parseGammaSlice_0(); 
+  void parseGammaSlice_0();
+  void parseGammaContour_0();
+  void parseGammaBand_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
+
+// Utilities to output stuff.   Elements must have << for output:
+
+// Pairs where elements have an outputter.
+
+template<class c, class d>
+ostream& operator<<(ostream& os, const std::pair<c,d>& p)
+{
+  os << "[" << p.first << ", " << p.second << "] ";
+  return os;
+}
+
+// Vectors where c has an outputter.
+
+template<class c>
+ostream& operator<<(ostream& os, const std::vector<c>& v)
+{
+  for (auto i =0; i < v.size(); i++) {
+    os << v[i] << " ";
+  }
+  return os;
+}
 
 void GateCmdParserTest::parseList_0()
 {
@@ -186,4 +212,66 @@ void GateCmdParserTest::parseGammaSlice_0()
   
   
   CPPUNIT_ASSERT(gs == *p);
+}
+void GateCmdParserTest::parseGammaContour_0()
+{
+  std::stringstream ss;
+  ss << JSON_TEST_DIR << "/gammacontour.json";
+  std::ifstream file(ss.str().c_str());
+  
+  Json::Value value;
+  file >> value;
+  file.close();
+  
+  vector<unique_ptr<SpJs::GateInfo> >  result;
+  CPPUNIT_ASSERT_NO_THROW(result = SpJs::GateCmdParser().parseList(value));
+  CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
+  
+  SpJs::GateInfo* pGate = result[0].get();
+  CPPUNIT_ASSERT_EQUAL(SpJs::GammaContourGate, pGate->getType());
+  CPPUNIT_ASSERT_EQUAL(std::string("contour_002"), pGate->getName());
+  
+  SpJs::Gamma2DGate* pGamma = dynamic_cast<SpJs::Gamma2DGate*>(pGate);
+  CPPUNIT_ASSERT(pGamma);
+  
+  std::vector<std::string> params = {"event.raw.00","event.raw.01", "event.raw.02"};
+  std::vector<std::pair<double, double> > points = {
+    { 324.000000, 577.000000},
+    { 635.000000,  619.000000},
+    { 659.000000, 387.000000},
+    {419.000000, 323.000000}
+  };
+  CPPUNIT_ASSERT_EQUAL(params, pGamma->getParameters());
+  CPPUNIT_ASSERT_EQUAL(points, pGamma->getPoints()); 
+}
+void GateCmdParserTest::parseGammaBand_0()
+{
+  std::stringstream ss;
+  ss << JSON_TEST_DIR << "/gammaband.json";
+  std::ifstream file(ss.str().c_str());
+  
+  Json::Value value;
+  file >> value;
+  file.close();
+  
+  vector<unique_ptr<SpJs::GateInfo> >  result;
+  CPPUNIT_ASSERT_NO_THROW(result = SpJs::GateCmdParser().parseList(value));
+  CPPUNIT_ASSERT_EQUAL(size_t(1), result.size());
+  
+  SpJs::GateInfo* pGate = result[0].get();
+  CPPUNIT_ASSERT_EQUAL(SpJs::GammaBandGate, pGate->getType());
+  CPPUNIT_ASSERT_EQUAL(std::string("contour_002"), pGate->getName());
+  
+  SpJs::Gamma2DGate* pGamma = dynamic_cast<SpJs::Gamma2DGate*>(pGate);
+  CPPUNIT_ASSERT(pGamma);
+  
+  std::vector<std::string> params = {"event.raw.00","event.raw.01", "event.raw.02"};
+  std::vector<std::pair<double, double> > points = {
+    { 324.000000, 577.000000},
+    { 635.000000,  619.000000},
+    { 659.000000, 387.000000},
+    {419.000000, 323.000000}
+  };
+  CPPUNIT_ASSERT_EQUAL(params, pGamma->getParameters());
+  CPPUNIT_ASSERT_EQUAL(points, pGamma->getPoints());
 }

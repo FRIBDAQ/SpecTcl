@@ -369,7 +369,6 @@ CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
   if (rParameters.size() > 0) {
     for(int i = 0; i < rParameters.size() - 1; i++) {
       for(int j = i+1; j < rParameters.size(); j++ ) {
-        
         Double_t xval = rParameters[i].second;
         Double_t yval = rParameters[j].second;
         

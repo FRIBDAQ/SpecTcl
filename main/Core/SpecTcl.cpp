@@ -1973,19 +1973,70 @@ SpecTcl::ApplyGate(string gateName, string spectrumName)
     Name of the event processor to add.
   
  */
-void 
-SpecTcl::AddEventProcessor(CEventProcessor& eventProcessor, const char* name)
+
+void
+SpecTcl::CreatePipeline(std::string name)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  pAnalyzer->AddEventProcessor(eventProcessor, name);
+  pAnalyzer->CreatePipeline(name);
 }
 
+void
+SpecTcl::ListPipelineList(){
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->ListPipelineList();
+}
+
+void
+SpecTcl::ListCurrentPipeline(){
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->ListCurrentPipeline();
+}
+
+void
+SpecTcl::ListAll(){
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->ListAll();
+}
+
+void
+SpecTcl::GetPipeline(std::string name)
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->GetPipeline(name);
+}
+/**
+ * AddEventProcessor
+ *  Adds a new event processor to a named pipeline:
+ * 
+ * @param name_pipe   - Name of the pipeline
+ * @param eventProcessor - Event Processor to add.
+ * @param name_proc - Optional name of the pipeline element.  Null assigns a name.
+ */
+void 
+SpecTcl::AddEventProcessor(std::string name_pipe, CEventProcessor& eventProcessor, const char* name_proc)
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->AddEventProcessor(name_pipe, eventProcessor, name_proc);
+}
+
+/*
+ * AddEventProcessor
+ *   Same as above but adds the event processor to the default pipeline.
+ */
+void
+SpecTcl::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
+{
+   AddEventProcessor(GetAnalyzer()->GetCurrentPipeline(), eventProcessor, name_proc);
+}
 
 /*!
  Locates an event processor in the pipeline.  EventProcessorIterator is a
   pointer like object that 'points' to a pair consisting of the name of the event
   processor and a pointer to the event processor. If this event procesor does not
   exist, you will receive the same value returned by ProcessingPipelineEnd().
+
+  @param name_pipe - name of the pipeline in which to look for the processor.
   @param name
     Name of the event processor.
   
@@ -1995,18 +2046,27 @@ SpecTcl::AddEventProcessor(CEventProcessor& eventProcessor, const char* name)
    \retval EventProcessorPipelineEnd()  - If the processor could not be found.
  */
 CTclAnalyzer::EventProcessorIterator 
-SpecTcl::FindEventProcessor(string name)
+SpecTcl::FindEventProcessor(std::string name_pipe, string name)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  return pAnalyzer->FindEventProcessor(name);
+  return pAnalyzer->FindEventProcessor(name_pipe, name);
 }
-
+/**
+ * Same as above, but searches the current (default) pipeline
+ */
+CTclAnalyzer::EventProcessorIterator
+SpecTcl:: FindEventProcessor(std::string name)
+{
+  return FindEventProcessor(GetAnalyzer()->GetCurrentPipeline(), name);
+}
 
 /*!
   Returns an iterator into the event processing pipeline given that you hold a
   pointer/reference to the event processor already.  If you are managing the
   event processor, often you already know where it is, but need to get an
   iterator to it.
+
+  @param name_pipe -name of the pipeline to search.
   @param processor
     Reference to the processor to locate.
   
@@ -2017,10 +2077,18 @@ SpecTcl::FindEventProcessor(string name)
    \retval EventProcessorPipelineEnd()  - If the processor could not be found.  
 */
 CTclAnalyzer::EventProcessorIterator 
-SpecTcl::FindEventProcessor(CEventProcessor& processor)
+SpecTcl::FindEventProcessor(std::string name_pipe, CEventProcessor& processor)
 {
   CTclAnalyzer* pAnalyzer  = GetAnalyzer();
-  return        pAnalyzer->FindEventProcessor(processor);
+  return        pAnalyzer->FindEventProcessor(name_pipe, processor);
+}
+/**
+ *  Same as above but searches the current event processor pipeline
+ */
+CTclAnalyzer::EventProcessorIterator
+SpecTcl::FindEventProcessor(CEventProcessor& processor)
+{
+   return FindEventProcessor(GetAnalyzer()->GetCurrentPipeline(), processor);
 }
 
 
@@ -2028,6 +2096,8 @@ SpecTcl::FindEventProcessor(CEventProcessor& processor)
   Inserts an event processor in the pipeline at an arbitrary position.  The event
   processor is added to the pipeline just prior to the processor 'pointed to' by
   the iterator.  
+
+  @param name_pipe - name of the pipeline to insert in.
   @param processor
     The new ewvent processor to add.
   @param where
@@ -2037,85 +2107,172 @@ SpecTcl::FindEventProcessor(CEventProcessor& processor)
     Name of the new event processor.
   
 */
+
 void 
-SpecTcl::InsertEventProcessor(CEventProcessor& processor, 
+SpecTcl::InsertEventProcessor(std::string name_pipe,
+			      CEventProcessor& processor, 
 			      CTclAnalyzer::EventProcessorIterator where, 
 			      const char*  name)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  pAnalyzer->InsertEventProcessor(processor, where, name);
+  pAnalyzer->InsertEventProcessor(name_pipe, processor, where, name);
+}
+/**
+ * Same as above but inserts into the current event processor pipeline
+ */
+void
+SpecTcl::InsertEventProcessor(CEventProcessor& processor,
+			    CTclAnalyzer::EventProcessorIterator where, 
+			    const char*  name)
+{
+   InsertEventProcessor(GetAnalyzer()->GetCurrentPipeline(), processor, where, name);
 }
 
 
 /*!
   Removes the event processor 'pointed to' by the iterator.  Removing the end
   iterator is a no-op.
+   
+  @param name_pipe - Name of the event processing pipeline to remove from.
   @param here
     'Points' to the event processor to remove.
   
 */
 void 
-SpecTcl::RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here)
+SpecTcl::RemoveEventProcessor(std::string name_pipe, CTclAnalyzer::EventProcessorIterator here)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  pAnalyzer->RemoveEventProcessor(here);
+  pAnalyzer->RemoveEventProcessor(name_pipe, here);
+}
+/**
+ * Same as above but removes from the current pipeline.
+ */
+void
+SpecTcl::RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here)
+{
+   RemoveEventProcessor(GetAnalyzer()->GetCurrentPipeline(), here);
 }
 
 /*!
    Remove an event processor given its name
+
+   \param name_pipe - Name of the pipeline.
    \param name 
        Name of the procesor to remove.
 */
 void
-SpecTcl::RemoveEventProcessor(string name)
+SpecTcl::RemoveEventProcessor(std::string name_pipe, std::string name)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  pAnalyzer->RemoveEventProcessor(name);
-
+  pAnalyzer->RemoveEventProcessor(name_pipe, name);
 }
+/**
+ * Same as above but from the current event processing pipeline.
+ */
+void
+SpecTcl::RemoveEventProcessor(std::string name)
+{
+   RemoveEventProcessor(GetAnalyzer()->GetCurrentPipeline(), name);
+}
+
+
+void
+SpecTcl::RemovePipeline(std::string name_pipe)
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->RemovePipeline(name_pipe);  
+}
+
+void
+SpecTcl::ClearPipeline(std::string name_pipe)
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->ClearPipeline(name_pipe);  
+}
+
+void
+SpecTcl::RestorePipeline(std::string name_pipe)
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  pAnalyzer->RestorePipeline(name_pipe);  
+}
+
+std::string
+SpecTcl::GetCurrentPipeline()
+{
+  CTclAnalyzer* pAnalyzer = GetAnalyzer();
+  std::string name = pAnalyzer->GetCurrentPipeline();  
+  return name;
+}
+
 /*!
   Returns the number of elements in the event processing pipeline.
+
+   @param name_pipe -name of the pipeline
 */
 UInt_t 
-SpecTcl::ProcessingPipelineSize()
+SpecTcl::ProcessingPipelineSize(std::string name_pipe)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  return pAnalyzer->size();
-
+  return pAnalyzer->size(name_pipe);
 }
-
-
+/**
+ *  Same as above but for the current pipeline.
+ */
+UInt_t
+SpecTcl::ProcessingPipelineSize()
+{
+   return ProcessingPipelineSize(GetAnalyzer()->GetCurrentPipeline());
+}
 /*!
   Returns a begin iterator into the event processing pipeline.
+
+  @param name_pipe -name of the pipe to get an iterator from.
   \return EventProcessorIterator - 'pointer' like object to a 
             pair<string, CEventProcessor*>
   \retval  The iterator 'points' to the first stage of the pipeline. 
           
 */
 CTclAnalyzer::EventProcessorIterator 
-SpecTcl::ProcessingPipelineBegin()
+SpecTcl::ProcessingPipelineBegin(std::string name_pipe)
 {
   CTclAnalyzer*  pAnalyzer = GetAnalyzer();
-
-  return pAnalyzer->begin();
-
+  return pAnalyzer->begin(name_pipe);
+}
+/**
+ * Same as above but returns the iterator from the current pipeline.
+ */
+CTclAnalyzer::EventProcessorIterator
+SpecTcl::ProcessingPipelineBegin()
+{
+   return ProcessingPipelineBegin(GetAnalyzer()->GetCurrentPipeline());
 }
 
 
 /*!
   Returns an end of iteration iterator to the event procesing pipeline.
+
+  @param name_pipe - name of the pipeline.
   \return EventProcessorIterator - 'pointer' like object to a 
             pair<string, CEventProcessor*>
   \retval  The iterator 'points' just past the last stage in the pipeline.
 
 */
 CTclAnalyzer::EventProcessorIterator 
-SpecTcl::ProcessingPipelineEnd()
+SpecTcl::ProcessingPipelineEnd(std::string name_pipe)
 {
   CTclAnalyzer* pAnalyzer = GetAnalyzer();
-  return pAnalyzer->end();
+  return pAnalyzer->end(name_pipe);
 }
 
+/**
+ *  Same as above but returns the iterator from the current processing pipeline.
+ */
+CTclAnalyzer::EventProcessorIterator 
+SpecTcl::ProcessingPipelineEnd()
+{
+   return ProcessingPipelineEnd(GetAnalyzer()->GetCurrentPipeline());
+}
 
 /*!
   Adds a new sread/swrite spectrum formatter. Spectrum formatters extend the

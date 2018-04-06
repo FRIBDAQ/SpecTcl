@@ -673,7 +673,35 @@ int defaultfilewrap()
 {
   return 1;
 }
+
+/**
+ * win_definition::operator= 
+ *   Implement assignment.
+ */
+win_definition&
+win_definition::operator=(const win_definition& rhs)
+{
+  win_spnum      = rhs.win_spnum;
+  spectrum_name = rhs.spectrum_name;
+  m_pParent     = rhs.m_pParent; // Hopefully not risky?!?!?
+
+  return *this;
+}
+
+
 
+/**
+ * win_attributed::operator=
+ *   Implement assignment.
+ */
+win_attributed&
+win_attributed::operator=(const win_attributed& rhs)
+{
+  win_definition::operator=(rhs);   // base class.
+  setall(rhs);                      // our stuff.
+
+  return *this;
+}
 /*
 ** Method Description:
 **   win_attributed::setall:
@@ -686,8 +714,9 @@ int defaultfilewrap()
 **   win_attributred &that:
 **     Source for new attributes.
 */
-void  win_attributed::setall(win_attributed &that)
+void  win_attributed::setall(const win_attributed &rhs)
 {
+  win_attributed& that(const_cast<win_attributed&>(rhs));  // clean this up later.
   /*  Copy win_definition attributes: */
 
   win_spnum = that.spectrum();
@@ -716,7 +745,8 @@ void  win_attributed::setall(win_attributed &that)
   auto_update = that.autoupdate_enabled();
   if(auto_update)
     update_period = that.update_interval();
-
+  user_mapping = that.user_mapping;
+  
 }
 void win_attributed::setattribs(win_attributed &that)
 {
@@ -759,6 +789,7 @@ void win_attributed::setattribs(win_attributed &that)
 */
 void win_1d::RemoveSuperposition(int spno)
 {
+
   /* additional_spectra is the superposition list of superimposed spectra */
 
   SuperpositionListIterator i(additional_spectra);
@@ -770,4 +801,39 @@ void win_1d::RemoveSuperposition(int spno)
       return;			// Return to caller
     }
   }
+
+}
+/** 
+ *  win_1d::operator=
+ *    Implement assignment
+ */
+win_1d&
+win_1d::operator=(const win_1d& rhs)
+{
+  win_attributed::operator=(rhs);
+  expanded = rhs.expanded;
+  xlow     = rhs.xlow;
+  xhigh    = rhs.xhigh;
+  rendition = rhs.rendition;
+  additional_spectra = rhs.additional_spectra;  // SuperpositionList has operator=.
+
+  return *this;
+}
+
+/**
+ * win_2d::operator=  - implement assignment
+ */
+win_2d&
+win_2d::operator=(const win_2d& rhs)
+{
+  win_attributed::operator=(rhs);
+  expanded      = rhs.expanded;
+  expandedfirst = rhs.expandedfirst;
+  xlow          = rhs.xlow;
+  xhigh         = rhs.xhigh;
+  ylow          = rhs.ylow;
+  yhigh         = rhs.yhigh;
+  rendition      = rhs.rendition;
+  
+  return *this;
 }

@@ -126,74 +126,13 @@ Bool_t
 CBand::operator()(CEvent& rEvent)
 {
   if(!wasChecked()) {
-    Set(inGate(rEvent));
+    Set(CPointListGate::inGate(rEvent));
   }
   
   return getCachedValue();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Bool_t inGate ( CEvent& rEvent )
-//  Operation Type:
-//     Evaulator
-//
-Bool_t
-CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
-  // Determines if the parameter space point
-  //  ( rEvent[m_nxId], rEvent[m_nyId])
-  //  is under the gate defined by m_aLimits.
-  //  In essence whether or not rEvent[m_nyId) < m_aLimits[m_nxId].
-  //
-  //  Implemented so that if a cached result is available
-  //  it will be used, and if not, will be created.
-  //  
-  //   If for some reason, m_nXid >= m_aLimits.size(),
-  //   or either parameter index does not fall into the current
-  //   parameter array, the gate is assumed to have failed.
-  //
-  // Formal Parameters:
-  //      CEvent& rEvent:
-  //          Refers to the event to check.
-  //      vector<UInt_t>& Params
-  //          Refers to the vector of parameters in the gate (empty)
-{
 
-  return inGate(rEvent);
-}
-
-/*!
-   Determines if an event is within the gate.  A band gate is treated like a
-   contour as follows:
-    The first and last limit points produce a vertical line that is dropped
-    to negative infinity. Inisdedness is handled essentially the same way
-    as it is for contours other than that, however we don't do the bounding
-    box check since in  most cases bands span
-    much of the vertical/horizontal extent of the data.
-
-    \param rEvent - the event to check against the gate.
-    \return kfTRUE if the event falls in the band, kfFALSE if not.
-*/
-Bool_t
-CBand::inGate(CEvent& rEvent)
-{
-  UInt_t xPar = getxId();
-  UInt_t yPar = getyId();
-  if( (xPar >= rEvent.size()) || (yPar >= rEvent.size())) {
-    return kfFALSE;
-  }
-  if(!rEvent[xPar].isValid() || !rEvent[yPar].isValid()) {
-    return kfFALSE;		// A parameter not supplied.
-  }
-  else {
-    Float_t x = rEvent[xPar];	// Pull the point out of the event array.
-    Float_t y = rEvent[yPar];
-
-    return Interior(x,y);
-
-  }
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

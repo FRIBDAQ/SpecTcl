@@ -26,9 +26,6 @@ namespace SpJs
 
     virtual ~GateInfo();
 
-    virtual GateType getType() const {          // Reasonable default impls.
-      return m_type;
-    }
     virtual std::unique_ptr<GateInfo> clone() const {
       return std::move(std::unique_ptr<GateInfo>(new GateInfo(*this)));
     };
@@ -38,15 +35,19 @@ namespace SpJs
 
     virtual bool operator==(const GateInfo& rhs) const;
     virtual bool operator!=(const GateInfo& rhs) const;
+    GateType getType() const { return m_type;}
 
   protected:
 
     void setType(GateType type) { m_type = type; }
+    
   }; // end of GateInfo class
 
 
   struct GateInfo2D : public GateInfo
   {
+    protected:
+      std::vector<std::pair<double, double> > m_points;
     public:
       GateInfo2D(const std::string& name, GateType type);
       GateInfo2D(const GateInfo2D& rhs);
@@ -54,17 +55,19 @@ namespace SpJs
       bool operator==(const GateInfo2D& rhs) const;
       bool operator!=(const GateInfo2D& rhs) const;
 
-      virtual GateType getType() const = 0;
-      virtual std::unique_ptr<GateInfo> clone() const = 0;
-
-      virtual std::vector<std::pair<double, double> > getPoints() const = 0;
-      virtual std::vector<std::pair<double, double> >& getPoints() = 0;
-      virtual std::pair<double, double> getPoint(size_t index) const = 0;
-      virtual void setPoints(const std::vector<std::pair<double, double> >& points) = 0;
-      virtual void setPoint(size_t index, double x, double y) = 0;
+      std::vector<std::pair<double, double> > getPoints() const { return m_points; }
+      std::vector<std::pair<double, double> >& getPoints() { return m_points; }
+      std::pair<double, double> getPoint(size_t index) const
+      { return m_points.at(index); }
+  
+      void setPoints(const std::vector<std::pair<double, double> >& points) {
+          m_points = points;
+      }
+      void setPoint(size_t index, double x, double y);
 
       virtual std::string getParameter0() const = 0;
       virtual std::string getParameter1() const = 0;
+      virtual std::vector<std::string> getParameters() const = 0;
   };
 
   // Forward declarations of classes
@@ -156,28 +159,28 @@ namespace SpJs
     virtual bool operator!=(const GammaSlice& rhs) const;
 };                  // end class GammaSlice.
     
-
-  /**! \brief Bands are 2d gates on two parameter (open)
-   *
+  /**
+   * Ordinary2D gates are 2d gates with only an X/Y parameter.
+   * (as opposed to gamma gates which have vectors of parameters).
    */
-  struct Band : public GateInfo2D
-  {
-  private:
+  
+  struct Ordinary2DGate : public GateInfo2D {
+  protected:
     std::string m_param0;
     std::string m_param1;
-    std::vector<std::pair<double, double> > m_points;
-
+    
   public:
-    Band();
-    Band(const std::string& name,
+    Ordinary2DGate();
+    Ordinary2DGate(const std::string& name,
             const std::string& param0,
             const std::string& param1,
-            const std::vector<std::pair<double,double> >& points);
-    Band(const GateInfo2D& contour);
-    Band(const Band& rhs);
-    virtual ~Band();
-
-    GateType getType() const { return m_type; }
+            GateType type);
+    Ordinary2DGate(const GateInfo2D& base);
+    Ordinary2DGate(const Ordinary2DGate& rhs);
+    virtual ~Ordinary2DGate();
+    
+    // Base class services.
+    
     std::unique_ptr<GateInfo> clone() const;
 
     void setParameter0(const std::string& paramName) { m_param0 = paramName; }
@@ -185,16 +188,37 @@ namespace SpJs
 
     void setParameter1(const std::string& paramName) { m_param1 = paramName; }
     std::string getParameter1() const { return m_param1; }
-
-    std::vector<std::pair<double, double> > getPoints() const { return m_points; }
-    std::vector<std::pair<double, double> >& getPoints() { return m_points; }
-    std::pair<double, double> getPoint(size_t index) const
-    { return m_points.at(index); }
-
-    void setPoints(const std::vector<std::pair<double, double> >& points) {
-        m_points = points;
+    
+    std::vector<std::string> getParameters() const {
+      std::vector<std::string> result = {m_param0, m_param1};
+      return result;
     }
-    void setPoint(size_t index, double x, double y);
+    virtual bool operator==(const Ordinary2DGate& rhs) const;
+    virtual bool operator!=(const Ordinary2DGate& rhs) const;
+    
+  };
+  
+  /**! \brief Bands are 2d gates on two parameter (open)
+   *
+   */
+  struct Band : public Ordinary2DGate
+  {
+  private:
+
+
+  public:
+    Band();
+    Band(const std::string& name,
+            const std::string& param0,
+            const std::string& param1,
+            const std::vector<std::pair<double,double> >& points);
+    Band(const Ordinary2DGate& contour);
+    Band(const Band& rhs);
+    virtual ~Band();
+
+    std::unique_ptr<GateInfo> clone() const;
+
+ 
 
     virtual bool operator==(const Band& rhs) const;
     virtual bool operator!=(const Band& rhs) const;
@@ -204,11 +228,9 @@ namespace SpJs
   /**! \brief Contours are 2d gates on a two parameters (closed areas)
    *
    */
-  struct Contour : public GateInfo2D
+  struct Contour : public Ordinary2DGate
   {
   private:
-    std::string m_param0;
-    std::string m_param1;
     std::vector<std::pair<double,double> > m_points;
 
   public:
@@ -217,34 +239,84 @@ namespace SpJs
             const std::string& param0,
             const std::string& param1,
             const std::vector<std::pair<double,double> >& points);
-    Contour(const GateInfo2D& band);
+    Contour(const Ordinary2DGate& band);
     Contour(const Contour& rhs);
     virtual ~Contour();
 
-    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
-
-    void setParameter0(const std::string& paramName) { m_param0 = paramName; }
-    std::string getParameter0() const { return m_param0; }
-
-    void setParameter1(const std::string& paramName) { m_param1 = paramName; }
-    std::string getParameter1() const { return m_param1; }
-
-    std::vector<std::pair<double, double> > getPoints() const { return m_points; }
-    std::vector<std::pair<double, double> >& getPoints() { return m_points; }
-    std::pair<double, double> getPoint(size_t index) const
-    { return m_points.at(index); }
-
-    void setPoints(const std::vector<std::pair<double, double> >& points) {
-        m_points = points;
-    }
-    void setPoint(size_t index, double x, double y);
+    
 
     virtual bool operator==(const Contour& rhs) const;
     virtual bool operator!=(const Contour& rhs) const;
   }; // end of class
 
+/**
+ *  Gamma2DGate 
+ *    This is a base class for all 2-d gamma gates.  It's a GateInfo2D with an arbitrarily
+ *    long vector of parameters.
+ */
+
+struct Gamma2DGate : public GateInfo2D {
+protected:
+  std::vector<std::string> m_parameters;
+public:
+  Gamma2DGate();
+  Gamma2DGate(const std::string& name,
+	      const std::vector<std::string>& params,
+	      GateType type);
+  Gamma2DGate(const GateInfo2D& base);
+  Gamma2DGate(const Gamma2DGate& rhs);
+  virtual ~Gamma2DGate();
+  
+  std::unique_ptr<GateInfo> clone() const;
+  void setParameter0(const std::string& paramName);
+  void setParameter1(const std::string& paramName);
+  void setParameter(unsigned offset, const std::string& paramName);
+  void setParameters(const std::vector<std::string>& parameters);
+
+  std::string getParameter0() const;
+  std::string getParameter1() const;
+  std::string getParameter(unsigned n) const;
+  std::vector<std::string> getParameters() const;
+
+  virtual bool operator==(const Gamma2DGate& rhs) const;
+  virtual bool operator!=(const Gamma2DGate& rhs) const {
+    return !(*this == rhs);
+  }
+  
+};
+
+struct GammaContour : public Gamma2DGate
+{
+public:
+  GammaContour();
+  GammaContour(
+    const std::string& name, const std::vector<std::string>& params
+  );
+  GammaContour(const GateInfo2D& base);
+  GammaContour(const GammaContour& rhs);
+  virtual ~GammaContour();
+  
+  std::unique_ptr<GateInfo> clone() const;
+  
+  // base class comparisons work since we have no data.
+};
+
+struct GammaBand : public Gamma2DGate
+{
+  GammaBand();
+  GammaBand(
+    const std::string& name, const std::vector<std::string>& params
+  );
+  GammaBand(const GateInfo2D& base);
+  GammaBand(const GammaBand& rhs);
+  virtual ~GammaBand();
+  
+  std::unique_ptr<GateInfo> clone() const;
+};
 } // end of namespace
+
+
 
 extern std::ostream& operator<<(std::ostream& stream,  const SpJs::Contour& cont);
 

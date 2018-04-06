@@ -83,18 +83,37 @@ TwoDimGateEdit::TwoDimGateEdit(QRootCanvas& rCanvas,
 
         fillTableWithData(*m_pEditCut);
 
+        // Figure out which button should be checked:
+        
+        if((m_pEditCut->getType() == SpJs::ContourGate) || (m_pEditCut->getType() == SpJs::GammaContourGate)) {
+            ui->bandButton->setChecked(false);
+            ui->contourButton->setChecked(true);
+            m_matchLast = true;
+        } else {
+            ui->bandButton->setChecked(true);
+            ui->contourButton->setChecked(false);
+            m_matchLast = false;
+        }
         // User's cannot change the type once created
         ui->bandButton->setDisabled(true);
         ui->contourButton->setDisabled(true);
+        
+
 
     } else {
       // user is starting fresh, use the histogram bundle to access what
       // parameters are to be by the cut... we also default to beginning this
       // as a band
-      auto xParam = m_histPkg.getInfo().s_params.at(0);
-      auto yParam = m_histPkg.getInfo().s_params.at(1);
+      // Note that the histogram type figures into this as well:
+      
+      if (m_histPkg.getInfo().s_type == "2") {
+        auto xParam = m_histPkg.getInfo().s_params.at(0);
+        auto yParam = m_histPkg.getInfo().s_params.at(1);
 
         m_pEditCut->setInfo(SpJs::Contour("__gate_in_progress", xParam, yParam, {}));
+      } else {
+        m_pEditCut->setInfo(SpJs::GammaContour("__gate_in_progress", m_histPkg.getInfo().s_params));
+      }
     }
 
     m_canvas.cd();
@@ -157,7 +176,11 @@ void TwoDimGateEdit::accept()
 
     bool isNewGate = false;
     if (m_pOldCut == nullptr) {
-        m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
+        if (m_histPkg.getInfo().s_type == "2") {
+            m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
+        } else {
+            m_pOldCut= new GGate(SpJs::GammaBand());
+        }
         isNewGate = true;
     }
 
@@ -333,14 +356,23 @@ void TwoDimGateEdit::onTypeChanged(int id)
           this, SLOT(valueChanged(int, int)));
 
     SpJs::GateType type;
-    if (id==0) {
-        type = SpJs::BandGate;
+    if (m_histPkg.getInfo().s_type == "2") {
+        if (id==0) {
+            type = SpJs::BandGate;
+            
+        } else {
+            type = SpJs::ContourGate;
+        }
     } else {
-        type = SpJs::ContourGate;
+        if (id==0) {
+            type = SpJs::GammaBandGate;
+        } else {
+            type = SpJs::GammaContourGate;
+        }
     }
 
     m_pEditCut->setType(type);
-    if (type == SpJs::BandGate) {
+    if (id == 0) {
         ensureLastPointDiffersFromFirst();
         m_matchLast = false;
     } else {

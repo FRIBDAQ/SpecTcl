@@ -1684,6 +1684,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   // is returned for the function value.
   //
   rResult = pSpectrum->getName();
+  pSpectrum->createStatArrays(pSpectrum->Dimensionality());
   return TCL_OK;
 
 

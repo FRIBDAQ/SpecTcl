@@ -51,6 +51,7 @@ extern "C" {
 int Xamine_CreateSharedMemory(int specbytes, volatile Xamine_shared **ptr);
 int f77xamine_createsharedmemory_(int *specbytes, Xamine_shared **ptr);
 int Xamine_DetachSharedMemory();
+void Xamine_KillSharedMemory();
 
 /* Start -- Starts up the Xamine process  */
 

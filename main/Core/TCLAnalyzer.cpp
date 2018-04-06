@@ -183,7 +183,7 @@ void CTclAnalyzer::SetVariable(CTCLVariable& rVar, int newval) {
 UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
   IncrementCounter(EventsAnalyzed);
   IncrementCounter(EventsAnalyzedThisRun);
-  EventProcessorIterator p = begin();
+  EventProcessorIterator p = begin(current);
   const CBufferDecoder* cpDecoder(getDecoder());
   CBufferDecoder* pDecoder((CBufferDecoder*)cpDecoder);
 
@@ -191,7 +191,7 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
 
   CTreeParameter::setEvent(anEvent);
 
-  while(p != end()) {
+  while(p != end(current)) {
     CEventProcessor* pProcessor(p->second);
     Bool_t success;
     try {
@@ -254,8 +254,8 @@ void CTclAnalyzer::OnBegin(CBufferDecoder* pDecoder) {
   // Iterate through the pipeline's OnBegin() members.
   // The loop is broken on the first false return from a processor.
   //
-  EventProcessorIterator p = begin();
-  while(p != end()) {
+  EventProcessorIterator p = begin(current);
+  while(p != end(current)) {
     CEventProcessor *pProcessor(p->second);
     if(!(pProcessor->OnBegin(*this, *pDecoder))) break;
     p++;
@@ -280,8 +280,8 @@ void CTclAnalyzer::OnEnd(CBufferDecoder* rDecoder) {
   // Iterate through the pipeline's OnEnd() members.
   // The loop is broken on the first false return from a processor.
   //
-  EventProcessorIterator p = begin();
-  while(p != end()) {
+  EventProcessorIterator p = begin(current);
+  while(p != end(current)) {
     CEventProcessor *pProcessor(p->second);
     if(!(pProcessor->OnEnd(*this, *rDecoder))) break;
     p++;
@@ -304,8 +304,8 @@ void CTclAnalyzer::OnPause(CBufferDecoder* rDecoder) {
   // Iterate through the pipeline's OnPause() members.
   // The loop is broken on the first false return from a processor.
   //
-  EventProcessorIterator p = begin();
-  while(p != end()) {
+  EventProcessorIterator p = begin(current);
+  while(p != end(current)) {
     CEventProcessor *pProcessor(p->second);
     if(!(pProcessor->OnPause(*this, *rDecoder))) break;
     p++;
@@ -328,8 +328,8 @@ void CTclAnalyzer::OnResume(CBufferDecoder* rDecoder) {
   // Iterate through the pipeline's OnResume() members.
   // The loop is broken on the first false return from a processor.
   //
-  EventProcessorIterator p = begin();
-  while(p != end()) {
+  EventProcessorIterator p = begin(current);
+  while(p != end(current)) {
     CEventProcessor *pProcessor(p->second);
     if(!(pProcessor->OnResume(*this, *rDecoder))) break;
     p++;
@@ -360,14 +360,57 @@ void CTclAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
   
 */
 
-void 
-CTclAnalyzer::AddEventProcessor(CEventProcessor& rProcessor,
-				const char* name) 
-{
-
-  InsertEventProcessor(rProcessor, end(), name);
-
+void
+CTclAnalyzer::CreatePipeline(std::string name_pipe){
+  EventProcessingPipeline tmp_lAnalysisPipeline;
+  m_lAnalysisPipelineList[name_pipe] = tmp_lAnalysisPipeline;
 }
+
+void
+CTclAnalyzer::ListPipelineList(){
+  std::cout << "Pipelines: " << std::endl;
+  for (auto &p : m_lAnalysisPipelineList) {
+    std::cout << "\t" << p.first << std::endl;
+  }
+}
+void
+CTclAnalyzer::ListCurrentPipeline(){
+  std::cout << "Pipeline: " << current << std::endl;
+    if (m_lAnalysisPipelineList[current].size() == 0)
+      std::cout << "\t-- empty --" << std::endl;
+  for (auto const& p : m_lAnalysisPipelineList[current]) {
+    std::cout << "\t" << p.first.c_str() << std::endl;
+  }
+}
+
+void
+CTclAnalyzer::ListAll(){
+  for (auto &p : m_lAnalysisPipelineList) {
+    std::cout << "Pipeline: " << p.first << std::endl;
+    auto tmp = p.second;
+    if (tmp.size() == 0)
+      std::cout << "\t-- empty --" << std::endl;
+    for (auto const& q : tmp) {
+      std::cout << "\t" << q.first.c_str() << std::endl;
+    }
+  }
+}
+
+void
+CTclAnalyzer::GetPipeline(std::string name_pipe){
+  current = name_pipe;
+}
+
+void 
+CTclAnalyzer::AddEventProcessor(std::string name_pipe,
+			      CEventProcessor& rProcessor,  
+			      const char* name) 
+{
+  if (name_pipe == "")
+    name_pipe = "Default";
+  InsertEventProcessor(name_pipe, rProcessor, end(name_pipe), name);
+}
+
 /*!
   Return an iterator (or end()) corresponding to the event processor requested by
   name.
@@ -376,10 +419,10 @@ CTclAnalyzer::AddEventProcessor(CEventProcessor& rProcessor,
   
 */
 CTclAnalyzer::EventProcessorIterator 
-CTclAnalyzer::FindEventProcessor(string name)
+CTclAnalyzer::FindEventProcessor(std::string name_pipe, string name)
 {
   MatchName predicate(name);
-  return find_if(begin(), end(), predicate);
+  return find_if(begin(name_pipe), end(name_pipe), predicate);
 }
 /*!
   Find the event processor pipeline iterator 'pointing' to a specific event
@@ -388,10 +431,10 @@ CTclAnalyzer::FindEventProcessor(string name)
     Reference to the event processor to match.  
 */
 CTclAnalyzer::EventProcessorIterator 
-CTclAnalyzer::FindEventProcessor(CEventProcessor& processor)
+CTclAnalyzer::FindEventProcessor(std::string name_pipe, CEventProcessor& processor)
 {
   MatchAddress predicate(processor);
-  return find_if(begin(), end(), predicate);
+  return find_if(begin(name_pipe), end(name_pipe), predicate);
 }
 
 /*!
@@ -406,12 +449,13 @@ CTclAnalyzer::FindEventProcessor(CEventProcessor& processor)
   
 */
 void 
-CTclAnalyzer::InsertEventProcessor(CEventProcessor& processor, 
+CTclAnalyzer::InsertEventProcessor(std::string name_pipe, 
+				   CEventProcessor& processor,
 				   EventProcessorIterator here, 
 				   const char* name)
 {
-  // Assign the event processor name:
-
+  // Assign the event processor name to the pipe
+  current = name_pipe;
   string sName;
   if(name) {
     sName = name;
@@ -419,18 +463,33 @@ CTclAnalyzer::InsertEventProcessor(CEventProcessor& processor,
   else {
     sName = AssignName();
   }
-  // Now create and insert the element:
-
-  PipelineElement element(sName, &processor);
-  m_lAnalysisPipeline.insert(here, element);
-
+  
+  PipelineElement element;    
+  // Now create and insert the element in the correct spot;
+  if (current == "Default")
+    element = std::make_pair(sName, &processor);
+  else {
+    EventProcessorIterator pIter = FindEventProcessor("Default", sName); //GetProcessor(sName);
+    if (pIter != end("Default")){
+      CEventProcessor& processor = *pIter->second;
+      element = std::make_pair(sName, &processor);      
+    }
+    else {
+      std::cout << "The processor " << sName << " doesn't exist. Try again!" << std::endl;
+    }
+  }
+  
+  m_lAnalysisPipelineList[current].insert(here, element);
+  if (current == "Default")
+    m_lAnalysisPipeline=m_lAnalysisPipelineList[current];
+  
   processor.OnAttach(*this);	// Notify the processor it was attached.
   
   // If we're already initialized, init the event processor too:
+  if (m_initialized) processor.OnInitialize();      	
   
-  if (m_initialized) processor.OnInitialize();
-
 }
+
 /*!
   Removes an event processof from the event processing pipeline by name.
   Returns a pointer to the removed processor.
@@ -441,13 +500,28 @@ CTclAnalyzer::InsertEventProcessor(CEventProcessor& processor,
   \retval pointer to the last event processor removed with that name.
 
 */
+void
+CTclAnalyzer::RemovePipeline(std::string name_pipe){
+  m_lAnalysisPipelineList.erase(name_pipe);
+  current = "Default";
+}
+
+void
+CTclAnalyzer::ClearPipeline(std::string name_pipe){
+  m_lAnalysisPipelineList[name_pipe].clear();
+}
+
+void
+CTclAnalyzer::RestorePipeline(std::string name_pipe){
+  m_lAnalysisPipelineList[name_pipe] = m_lAnalysisPipeline;
+}
+
 CEventProcessor* 
-CTclAnalyzer::RemoveEventProcessor(string name)
+CTclAnalyzer::RemoveEventProcessor(std::string name_pipe, std::string name)
 {
   MatchName predicate(name);
-  m_lAnalysisPipeline.remove_if(predicate);
+  m_lAnalysisPipelineList[name_pipe].remove_if(predicate);
   return predicate.getLastMatch();
-
 }
 
 /*!
@@ -457,43 +531,44 @@ CTclAnalyzer::RemoveEventProcessor(string name)
   
 */
 CEventProcessor* 
-CTclAnalyzer::RemoveEventProcessor(EventProcessorIterator here)
+CTclAnalyzer::RemoveEventProcessor(std::string name_pipe, EventProcessorIterator here)
 {
   CEventProcessor* pProcessor = here->second;
-  m_lAnalysisPipeline.erase(here);
-
+  m_lAnalysisPipelineList[name_pipe].erase(here);
   return pProcessor;
+}
+
+std::string
+CTclAnalyzer::GetCurrentPipeline()
+{
+  return current;
 }
 
 /*!
   Returns the number of event processing pipeline elements.
 */
 UInt_t 
-CTclAnalyzer::size(){
-
-  return m_lAnalysisPipeline.size();
+CTclAnalyzer::size(std::string name_pipe)
+{
+  return m_lAnalysisPipelineList[name_pipe].size();
 }
 
 /*!
   Returns a begin of iteration iterator.
- */
+*/
 CTclAnalyzer::EventProcessorIterator 
-CTclAnalyzer::begin(){
-
-  return m_lAnalysisPipeline.begin();
-
-
+CTclAnalyzer::begin(std::string name_pipe)
+{
+  return m_lAnalysisPipelineList[name_pipe].begin();
 }
 /*!
   Returns an end of iteration iterator.
 */
 CTclAnalyzer::EventProcessorIterator 
-CTclAnalyzer::end()
+CTclAnalyzer::end(std::string name_pipe)
 {
-  return m_lAnalysisPipeline.end();
+  return m_lAnalysisPipelineList[name_pipe].end();
 }
-
-
 
 //////////////////////////////////////////////////////////////
 //
@@ -536,10 +611,10 @@ void CTclAnalyzer::ClearCounter(Counter eSelect) {
 */
 void CTclAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
 
-  EventProcessorIterator p = begin();
+  EventProcessorIterator p = begin(current);
 
   int i = 0;
-  while(p != end()) {
+  while(p != end(current)) {
     CEventProcessor* pProcessor(p->second);
     if(!pProcessor->OnOther(nType, *this, rDecoder)) {
       break ;
@@ -567,11 +642,10 @@ void
 CTclAnalyzer::OnInitialize()
 {
     SpecTcl* api = SpecTcl::getInstance();
-    
-    CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin();
+    CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin(current);
     m_initialized = true;
     
-    while (p != api->ProcessingPipelineEnd()) {
+    while (p != api->ProcessingPipelineEnd(current)) {
         CEventProcessor* pProcessor = p->second;
         if (!pProcessor->OnInitialize()) break;
         
@@ -589,9 +663,9 @@ void
 CTclAnalyzer::OnEndFile()
 {
   SpecTcl* api = SpecTcl::getInstance();
-  CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin(current);
 
-  while (p != api->ProcessingPipelineEnd()) {
+  while (p != api->ProcessingPipelineEnd(current)) {
     CEventProcessor *pProcessor = p->second;
     if (!pProcessor->OnEventSourceEOF()) break;
     p++;
@@ -618,7 +692,7 @@ CTclAnalyzer::AssignName()
     m_nSequence++;
     name += buffer;
 
-    if(FindEventProcessor(buffer) == end()) {
+    if(FindEventProcessor(current, buffer) == end(current)) {
       break;
     }
   }
@@ -685,3 +759,4 @@ CTclAnalyzer::MatchAddress::getLastMatch() const
 {
   return m_pLastMatch;
 }
+

@@ -10,6 +10,10 @@ AM_CPPFLAGS = -I. 						\
 
 lib_LTLIBRARIES=libMapValues.la
 
+
+libMapValues_la_CXXFLAGS=$(ROOT_CFLAGS)
+
+
 libMapValues_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" $(ROOT_LDFLAGS)
 
 libMapValues_la_SOURCES =	CMapValueCommand.cpp	\

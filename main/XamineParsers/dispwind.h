@@ -118,6 +118,7 @@ public:
 
     void setParent(win_geometry* pParent) { m_pParent = pParent; }
     win_geometry* getParent() const { return m_pParent; }
+    win_definition& operator=(const win_definition& rhs);
 
 
 };
@@ -181,6 +182,7 @@ public:
     {
         set_defaults();
     }
+    win_attributed& operator=(const win_attributed& rhs);
 
     // Set/Get axis attributes
     void axeson()   { axis = TRUE; }
@@ -295,7 +297,7 @@ public:
     int hasceiling() { return has_ceiling; }
     unsigned int getfloor()   { return floor; }
     unsigned int getceiling() { return ceiling; }
-    void setall(win_attributed &that);
+    void setall(const win_attributed &that);
     void setattribs(win_attributed &that);
 
     void markupdate()  // Indicate update time
@@ -372,6 +374,7 @@ public:
         set_defaults();
         win_attributed::setall(generics);
     }
+    win_1d& operator=(const win_1d& rhs);
     //
     // Set/get expansion data
     //
@@ -451,6 +454,7 @@ public:
     win_2d(int spnum) : win_attributed(spnum) { set_defaults(); }
     win_2d(win_attributed &generic) { set_defaults();
                                       win_attributed::setall(generic); }
+    win_2d& operator=(const win_2d& rhs);
     //
     //   Get/Set expansion of the window
     //

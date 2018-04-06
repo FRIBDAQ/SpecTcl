@@ -22,8 +22,16 @@ namespace SpJs
   private:
       std::unique_ptr<GateInfo> parseSlice(const Json::Value& value);
       std::unique_ptr<GateInfo> parseGammaSlice(const Json::Value& value);
-      std::unique_ptr<GateInfo> parseBand(const Json::Value& value);
+      
+      std::unique_ptr<GateInfo> parseBand(const Json::Value& value); 
       std::unique_ptr<GateInfo> parseContour(const Json::Value& value);
+      
+      void                      parse2DGammaGate(Gamma2DGate& gate, const Json::Value& value);
+      std::unique_ptr<GateInfo> parseGammaBand(const Json::Value& value);    
+      std::unique_ptr<GateInfo> parseGammaContour(const Json::Value& value);
+      
+      
+      //std::unique_ptr<GateInfo> parserC2Band(const Json::Value& value); //New ?
       
 
   };

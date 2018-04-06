@@ -215,7 +215,7 @@ string
 CGaussianFit::makeTclFitScript()
 {
   REQUIRE(GetState() == CFit::Performed,
-	  "Fit notyet performed");
+	  "Fit not yet performed");
   char scriptBuffer[1000];
   sprintf(scriptBuffer, pFitTemplate, 
 	  m_baseline, m_peakHeight, m_centroid, m_sigma);

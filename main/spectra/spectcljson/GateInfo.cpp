@@ -36,7 +36,8 @@ GateInfo2D::GateInfo2D(const string &name, GateType type)
 {}
 
 GateInfo2D::GateInfo2D(const GateInfo2D &rhs)
-    : GateInfo(rhs)
+    : GateInfo(rhs),
+    m_points(rhs.m_points)
 {}
 
 GateInfo2D::~GateInfo2D()
@@ -44,12 +45,25 @@ GateInfo2D::~GateInfo2D()
 
 bool GateInfo2D::operator==(const GateInfo2D& rhs) const
 {
-    return GateInfo::operator==(rhs);
+    return GateInfo::operator==(rhs) && (m_points == rhs.m_points);
 }
 
 bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
 {
     return !(GateInfo2D::operator==(rhs));
+}
+
+void GateInfo2D::setPoint(size_t index, double x, double y)
+{
+    if (index >= m_points.size()) {
+        string msg("GateInfo2D::setPoint(size_t, x, y) ::");
+        msg += "Cannot set a point that does not exist";
+        throw out_of_range(msg);
+    } else {
+        auto& point = m_points.at(index);
+        point.first = x;
+        point.second = y;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -286,6 +300,53 @@ GammaSlice::operator!=(const GammaSlice& rhs) const
 }
 //////////////////////////////////////////////////////////////////////////////
 
+Ordinary2DGate::Ordinary2DGate() :
+    Ordinary2DGate("", "", "", ContourGate)  // just guessing the type.
+{}                                           // hopefully it gets overridden.
+
+Ordinary2DGate::Ordinary2DGate(
+    const std::string& name,
+    const std::string& param0,
+    const std::string& param1,
+    GateType type
+) :
+    GateInfo2D(name, type),
+    m_param0(param0), m_param1(param1)
+{
+}
+Ordinary2DGate::Ordinary2DGate(const GateInfo2D& base) :
+    GateInfo2D(base),
+    m_param0(base.getParameter0()),
+    m_param1(base.getParameter1())
+{}
+Ordinary2DGate::Ordinary2DGate(const Ordinary2DGate& rhs) :
+    GateInfo2D(rhs),
+    m_param0(rhs.getParameter0()),
+    m_param1(rhs.getParameter1())
+{}
+Ordinary2DGate::~Ordinary2DGate() {}
+
+bool
+Ordinary2DGate::operator==(const Ordinary2DGate& rhs) const
+{
+    return  (m_param0 == rhs.m_param0)  &&
+            (m_param1 == rhs.m_param1)  &&
+            (GateInfo2D::operator==(rhs));
+}
+bool
+Ordinary2DGate::operator!=(const Ordinary2DGate& rhs) const
+{
+    return !(operator==(rhs));
+}
+
+std::unique_ptr<GateInfo>
+Ordinary2DGate::clone() const
+{
+    return std::unique_ptr<GateInfo>(new Ordinary2DGate(*this));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 Contour::Contour() : Contour( "", "", "", {{}})
 {}
 
@@ -293,54 +354,34 @@ Contour::Contour(const string &name,
                  const string &parameter0,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
-    : GateInfo2D(name, ContourGate),
-      m_param0(parameter0),
-      m_param1(parameter1),
-      m_points(points)
-{}
+    : Ordinary2DGate(name, parameter0, parameter1, ContourGate)
+{
+    setPoints(points);        
+}
 
 Contour::Contour(const Contour& rhs)
-    : GateInfo2D(rhs),
-      m_param0(rhs.m_param0),
-      m_param1(rhs.m_param1),
-      m_points(rhs.m_points)
-{}
+    : Ordinary2DGate(rhs)
+{     
+}
 
-Contour::Contour(const GateInfo2D& rhs)
-    : GateInfo2D(rhs.getName(), ContourGate),
-      m_param0(rhs.getParameter0()),
-      m_param1(rhs.getParameter1()),
-      m_points(rhs.getPoints())
-{}
+Contour::Contour(const Ordinary2DGate& rhs)
+    : Ordinary2DGate(
+        rhs.getName(), rhs.getParameter0(), rhs.getParameter1(), ContourGate
+      )
+{
+    setPoints(rhs.getPoints());
+}
 
 Contour::~Contour() {}
 
 bool Contour::operator==(const Contour& rhs) const {
 
-    // honor thy parents
-    bool same = GateInfo2D::operator==(rhs);
+    // honor thy parents b/c they have all the data.
+    
+    bool same = Ordinary2DGate::operator==(rhs);
 
-    // how about high and low
-    same &= (m_param0 == rhs.m_param0);
-    same &= (m_param1 == rhs.m_param1);
-
-    // are the params the same
-    same &= equal(m_points.begin(), m_points.end(), rhs.m_points.begin());
 
     return same;
-}
-
-void Contour::setPoint(size_t index, double x, double y)
-{
-    if (index >= m_points.size()) {
-        string msg("Contour::setPoint(size_t, x, y) ::");
-        msg += "Cannot set a point that does not exist";
-        throw out_of_range(msg);
-    } else {
-        auto& point = m_points.at(index);
-        point.first = x;
-        point.second = y;
-    }
 }
 
 bool Contour::operator!=(const Contour& rhs) const {
@@ -360,55 +401,36 @@ Band::Band(const string &name,
                  const string &parameter0,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
-    : GateInfo2D(name, BandGate),
-      m_param0(parameter0),
-      m_param1(parameter1),
-      m_points(points)
-{}
+    : Ordinary2DGate(name, parameter0, parameter1,  BandGate)
+      
+{
+    setPoints(points);    
+}
 
 Band::Band(const Band& rhs)
-    : GateInfo2D(rhs),
-      m_param0(rhs.m_param0),
-      m_param1(rhs.m_param1),
-      m_points(rhs.m_points)
-{}
+    : Ordinary2DGate(rhs)
+{
+        
+    setPoints(rhs.m_points);        
+}
 
-Band::Band(const GateInfo2D& rhs)
-    : GateInfo2D(rhs.getName(), BandGate),
-      m_param0(rhs.getParameter0()),
-      m_param1(rhs.getParameter1()),
-      m_points(rhs.getPoints())
-{}
+Band::Band(const Ordinary2DGate& rhs)
+    : Ordinary2DGate(
+        rhs.getName(), rhs.getParameter0(), rhs.getParameter1(), BandGate
+      )
+{
+    setPoints(rhs.getPoints());        
+}
 
 Band::~Band() {}
 
 bool Band::operator==(const Band& rhs) const {
 
-    // honor thy parents
-    bool same = GateInfo2D::operator==(rhs);
-
-    // how about high and low
-    same &= (m_param0 == rhs.m_param0);
-    same &= (m_param1 == rhs.m_param1);
-
-    // are the params the same
-    same &= equal(m_points.begin(), m_points.end(), rhs.m_points.begin());
-
-    return same;
+    // honor thy parents -- they actually have all the data.
+    
+    return Ordinary2DGate::operator==(rhs);
 }
 
-void Band::setPoint(size_t index, double x, double y)
-{
-    if (index >= m_points.size()) {
-        string msg("Contour::setPoint(size_t, x, y) ::");
-        msg += "Cannot set a point that does not exist";
-        throw out_of_range(msg);
-    } else {
-        auto& point = m_points.at(index);
-        point.first = x;
-        point.second = y;
-    }
-}
 
 bool Band::operator!=(const Band& rhs) const {
     return !(*this == rhs);
@@ -417,8 +439,176 @@ bool Band::operator!=(const Band& rhs) const {
 unique_ptr<GateInfo> Band::clone() const {
     return unique_ptr<GateInfo>(new Band(*this));
 }
+  ///////////////////////////////////////////////////////////////////////
+
+  Gamma2DGate::Gamma2DGate() :
+    Gamma2DGate("", {}, GammaContourGate) {} // Default gate type is most common.
+  Gamma2DGate::Gamma2DGate(const std::string& name,
+			   const std::vector<std::string>& params,
+			   GateType type) :
+    GateInfo2D(name, type),
+    m_parameters(params) {}
+  Gamma2DGate::Gamma2DGate(const GateInfo2D& base) :
+    GateInfo2D(base),
+    m_parameters(base.getParameters())
+  {}
+  Gamma2DGate::Gamma2DGate(const Gamma2DGate& rhs) :
+    GateInfo2D(rhs),
+    m_parameters(rhs.getParameters())
+  {}
+  Gamma2DGate::~Gamma2DGate() {}
+
+  std::unique_ptr<GateInfo>
+  Gamma2DGate::clone() const
+  {
+    return std::unique_ptr<GateInfo>(new Gamma2DGate(*this));
+  }
+
+  void
+  Gamma2DGate::setParameter0(const std::string& paramName)
+  {
+    if (m_parameters.size() > 0) {
+      m_parameters[0] = paramName;
+    } else {
+      m_parameters.push_back(paramName);
+    }
+  }
+  void
+  Gamma2DGate::setParameter1(const std::string& paramName)
+  {
+    if (m_parameters.size() > 1) {
+      m_parameters[1] = paramName;
+    } else {
+      if (m_parameters.size() == 0) {
+	m_parameters.push_back("");
+      }
+      m_parameters.push_back(paramName);
+    }
+  }
+  void
+  Gamma2DGate::setParameter(unsigned offset, const std::string& paramName)
+  {
+    if (m_parameters.size() > offset) {
+      m_parameters[offset] = paramName;
+    } else {
+      throw std::out_of_range("Parameter index out of range (Gamma2DGate::setParameter)");
+    }
+  }
+  void
+  Gamma2DGate::setParameters(const std::vector<std::string>& parameters)
+  {
+    m_parameters = parameters;
+  }
+
+  std::string
+  Gamma2DGate::getParameter0() const
+  {
+    if (m_parameters.size() > 0) {
+      return m_parameters[0];
+    } else {
+      return "";                    // Consistent with regular.
+    }
+  }
+  std::string
+  Gamma2DGate::getParameter1() const
+  {
+    if (m_parameters.size() > 1) {
+      return m_parameters[1];
+    } else {
+      return "";
+    }
+  }
+
+  std::string
+  Gamma2DGate::getParameter(unsigned n ) const
+  {
+    if (m_parameters.size() > n) {
+      return m_parameters[n];
+    } else {
+      throw std::out_of_range("No such parameter offset (Gamma2DGate::getParameter");
+    }
+  }
+  std::vector<std::string>
+  Gamma2DGate::getParameters() const
+  {
+    return m_parameters;
+  }
+  bool
+  Gamma2DGate::operator==(const Gamma2DGate& rhs) const
+  {
+    return (GateInfo2D::operator==(rhs)) &&
+    (m_parameters == rhs.m_parameters);
+  }
+  
+
+
+/**
+ * Gamma contour - a contour for gamma spectroscopy - can also be a fold.
+ */
+
+GammaContour::GammaContour() :
+    GammaContour("", {})
+{}
+
+GammaContour::GammaContour(
+    const std::string& name, const std::vector<std::string>& params
+)  :
+    Gamma2DGate(name, params, GammaContourGate)
+{}
+
+GammaContour::GammaContour(const GateInfo2D& base) :
+    Gamma2DGate(base)
+{
+    setType(GammaContourGate);          // In case this is a metamorphosis.        
+}
+
+GammaContour::GammaContour(const GammaContour& base) :
+    Gamma2DGate(base)
+{}
+
+GammaContour::~GammaContour() {}
+
+std::unique_ptr<GateInfo>
+GammaContour::clone() const
+{
+    return std::unique_ptr<GateInfo>(new GammaContour(*this));
+}
+
+
+/**
+ * GammaBand - Band on a set of parameters in gamma spectroscopy.
+ */
+
+GammaBand::GammaBand() :
+    GammaBand("", {})
+{}
+GammaBand::GammaBand(
+    const std::string& name, const std::vector<std::string>& params
+) :
+    Gamma2DGate(name, params, GammaBandGate)
+{}
+
+GammaBand::GammaBand(const GateInfo2D& base) :
+    Gamma2DGate(base)
+{
+        setType(GammaBandGate);               // in case this is a morph
+}
+
+GammaBand::GammaBand(const GammaBand& rhs) :
+    Gamma2DGate(rhs)
+{}
+
+GammaBand::~GammaBand() {}
+
+std::unique_ptr<GateInfo>
+GammaBand::clone() const
+{
+    return std::unique_ptr<GateInfo>(new GammaBand(*this));
+}
 
 } // end of namespace
+//////////////////////////////////////////////////////////////////////////////
+//  Out of namespace helper functions.
 
 std::ostream& operator<<(std::ostream& stream,  const SpJs::Contour& cont)
 {

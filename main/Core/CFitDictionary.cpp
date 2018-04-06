@@ -292,8 +292,8 @@ CFitDictionary::updateFits(string pattern)
       // to trigger the observers for it:
 
       try {
-	i->second->update();
-	observeUpdate(*(i->second));
+        i->second->update();
+        observeUpdate(*(i->second));
       }
       catch(...) {
       }

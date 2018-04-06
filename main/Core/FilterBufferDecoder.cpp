@@ -223,6 +223,23 @@ CFilterBufferDecoder::getBufferTranslator()
   return m_pTranslator;
 
 }
+/**
+ * OnSourceAttach
+ *     Called when a data source is attached to the decoder.
+ *     We have to re-initialize all our data.
+ */
+void
+CFilterBufferDecoder::OnSourceAttach()
+{
+    m_nParamCount = 0;               // Going to get a new set of 'header's.
+    m_fSeenHeader = false;
+    
+    delete m_pTranslator;
+    m_pTranslator = 0;
+    
+    delete [] m_pTranslated;
+    m_pTranslated = 0;
+}
 /*!
     Function call operator is called when a new buffer
     becomes available.  What we do is:
@@ -247,6 +264,7 @@ CFilterBufferDecoder::operator()(UInt_t     nBytes,
 				 CAnalyzer& rAnalyzer)
 {
   try {
+
     CXdrMemInputStream xdr(nBytes, pBuffer); // This can decode xdr->
     xdr.Connect();
     
@@ -261,7 +279,7 @@ CFilterBufferDecoder::operator()(UInt_t     nBytes,
     cerr << p << endl;
   }
   catch (...) {
-    cerr << "Some other exceptoin in buffer decoder.\n";
+    cerr << "Some other exception in buffer decoder.\n";
   }
 }
 /*!
@@ -306,17 +324,8 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
 
   xdr >> itemtype;
   if(itemtype == string("header")) {
-    m_isSingle = dataWidth(nBytes, xdr.getBuffer());
     ProcessHeader(xdr, rAnalyzer);
-    xdr >> itemtype;		// Setup for what's to come...
-    if (itemtype != string("event")) {
-      gpRunControl->OnEnd();
-      cerr << "Event source does not appear to be a filter file!! ending\n";
-      return;
-    }
-
-    
-  }
+  } 
 
   // The following attempt to detect unsuitable buffer types:
 
@@ -330,10 +339,33 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
   }
 
 
-  // Now deal with the rest of the buffer, itemtype must be
-  // processed into the destination buffer.
-
-  ProcessEvents(xdr, rAnalyzer);
+    //  We have the following possibilities:
+    // 1. This was actually an "event" item (first item in block).
+    //    in that case just ProcessEvents.
+    // 2.  We had a "header" but there's more data in the block.
+    //     The next item must be "event" else it's a bad file.
+    //     if it is, process the events.
+    // 3.  xdr is not open (this was a "header" only block) in which case
+    //     return.
+  
+    if (!xdr.isOpen()) return;           // Case 3. above.
+    
+    if (itemtype == "event") {             // Case 1. above
+         m_isSingle = dataWidth(nBytes, xdr.getBuffer());
+        ProcessEvents(xdr, rAnalyzer);  
+    } else {
+        // Case 3. above:
+        
+        xdr >> itemtype;
+        if (itemtype != "event") {
+            std::cerr << "Expected an 'event' item but got " << itemtype << std::endl;
+            std::cerr << "file is not a filter file (I think) \n";
+            return;
+        } else {
+            m_isSingle = dataWidth(nBytes, xdr.getBuffer());
+            ProcessEvents(xdr, rAnalyzer);   
+        }
+    }
   
 }
 /*!
@@ -345,6 +377,7 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
        Input stream that has the data.
     \param rAnalyzer    (CAnalyzer& rAnalyzer [in]):
        The anlyzer we are calling back to.
+       Note this is null if we're not actually going to process the header, just skip it.,
 
     \note  There's an implicit assumption that the header
     will fit in a buffer.   This is part of the filter spec.
@@ -355,6 +388,7 @@ void
 CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
 				    CAnalyzer&       rAnalyzer)
 {
+
   m_nBytes = 0;			// Current size of buffer is 0.
  
   int      nItemSize;
@@ -377,17 +411,19 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
   // data set, we need this in order to be able to 
   // know how to figure out how many items are in a physics event:
 
-  xdr >> m_nParamCount;
+  int nParams;                // params in the header.
+  xdr >> nParams;
+  
   nItemSize = sizeof(int);
   if (!testing) {
-    memcpy(pCursor, &m_nParamCount, nItemSize);
+    memcpy(pCursor, &nParams, nItemSize);
     m_nBytes += nItemSize;
     pCursor  += nItemSize;
   }
 
   // Now there will be m_nParamCount strings:
 
-  for(int i =0; i < m_nParamCount; i++) {
+  for(int i =0; i < nParams; i++) {
     string name;
     xdr >> name;		// Pull the name from the buffer
     if (!testing) {
@@ -401,10 +437,13 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
 
   // Set up for and call the OnOther member of the analyzer.
   
-  m_nEntities    = m_nParamCount; // Each parameter is an entity.
-  m_nCurrentType = PARAMDESCRIP; // Parameter description 'buffer'.
+  
   if (!testing) {
+    m_nEntities    = m_nParamCount; // Each parameter is an entity.
+    m_nCurrentType = PARAMDESCRIP; // Parameter description 'buffer'.
+    m_nParamCount += nParams;   // Total number of parameters.    rAnalyzer.OnOther(m_nCurrentType, *this);
     rAnalyzer.OnOther(m_nCurrentType, *this);
+    
   }
   
 }
@@ -468,11 +507,11 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
       double item;
       float fitem;
       if (m_isSingle) {
-	xdr >> fitem;
-	item = fitem;
+        xdr >> fitem;
+        item = fitem;
       } 
       else {
-	xdr >> item;
+        xdr >> item;
       }
       memcpy(pCursor, &item, nItemSize);
       pCursor += nItemSize;
@@ -487,9 +526,12 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
     if(xdr.isOpen()) {
       xdr >> header;
       if (header != string("event")) {
-	gpRunControl->OnEnd();
-	cerr << "Event file does not appear to be a filter file!!! ending\n";
-	return;
+        m_nBytes = nSize;
+        m_nCurrentType = DATABF;
+        rAnalyzer.OnPhysics(*this);             // Any partial buffer.
+        gpRunControl->OnEnd();
+        cerr << "Event file does not appear to be a filter file!!! ending\n";
+        return;
       }
     }
     
@@ -581,8 +623,12 @@ CFilterBufferDecoder::dataWidth(UInt_t nBytes, void* pBuffer)
 
   string type;
   xdr >> type;			// 'header'
-  ProcessHeader(xdr, *(reinterpret_cast<CAnalyzer*>(NULL)));	// Skip the header. legal null deref.
-  xdr >> type;                  // 'event'
+
+  if (type == "header") {
+    ProcessHeader(xdr, *(reinterpret_cast<CAnalyzer*>(NULL)));	// Skip the header. legal null deref.
+    xdr >> type;                  // 'event'
+  }
+  
   int nBitmasks = numBitmasks(m_nParamCount);
 
   int bits=0;

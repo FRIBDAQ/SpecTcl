@@ -293,6 +293,7 @@ CXdrInputStream&
 CXdrInputStream::operator>>(char* c)
 {
   xdr_string(&m_Xdr, &c, m_nBuffersize);
+  ConditionalRead();
   return *this;
 }
 /*!
@@ -311,6 +312,7 @@ CXdrInputStream&
 CXdrInputStream::operator>>(string& s) 
 {
   char* strbuf =  new char[m_nBuffersize];
+  strbuf[0] = 0;    // In case nothing's put in strbuf.
   (*this) >> strbuf;
   s = strbuf;
   delete []strbuf;
