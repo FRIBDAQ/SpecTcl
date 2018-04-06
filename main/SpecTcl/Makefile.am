@@ -10,6 +10,7 @@ SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 		 @LIBTCLPLUS_CFLAGS@ \
 		 @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
+
 SpecTcl_CPPFLAGS = -g
 
 # Remove:	@top_builddir@/Tape/libtape.la

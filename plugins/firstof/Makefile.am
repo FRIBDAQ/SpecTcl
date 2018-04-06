@@ -18,6 +18,8 @@ libfirsto_la_LDFLAGS = $(ROOT_LDFLAGS)
 
 libfirstof_la_LDFLAGS=$(ROOT_LDFLAGS)
 
+libfirstof_la_LDFLAGS=$(ROOT_LDFLAGS)
+
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
