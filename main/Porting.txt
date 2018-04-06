@@ -1,0 +1,32 @@
+Porting applications from SpecTcl 4.0 and earlier
+should be relatively simple though you will need to
+make a slight adjustment to your MySpecTclApp.cpp
+file (or equivalent).
+
+At the bottom of this file, in 4.0 and earlier
+you'll see something like:
+
+CMySpecTclApp   myApp;
+CTclGrammerApp& app(myApp);	// Create an instance of me.
+CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+
+
+Please change this to look like:
+
+
+CMySpecTclApp   myApp;
+
+#ifdef SPECTCL_5_INIT
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
+CTCLApplication* gpTCLApplication(0);
+
+#else
+CTclGrammerApp& app(myApp);	// Create an instance of me.
+CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+#endif
+
+
+This change results in a MySpecTclApp.cpp that is compatible
+with SpecTcl 5 and all earlier versions of SpecTcl by only
+changing the INSTDIR definition of the Makefile.
+

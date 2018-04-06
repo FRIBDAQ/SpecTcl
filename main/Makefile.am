@@ -85,6 +85,7 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/docs/man
+	$(INSTALL_DATA) Porting.txt  @prefix@
 
 #check-TESTS:
 #	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
