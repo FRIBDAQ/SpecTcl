@@ -42,38 +42,6 @@ using namespace std;
 #endif
 
 
-// Create the appliation:
-CMySpecTclApp   myApp;
-
-#ifdef SPECTCL_5_INIT
-CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
-CTCLApplication* gpTCLApplication(0);
-
-#else
-CTclGrammerApp& app(myApp);	// Create an instance of me.
-CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
-#endif
-
-
-// Local class that is responsible for setting up our application
-// specific button box.
-//
-
-class CButtonBoxSetup : public CXamineEventHandler::CRestartHandler
-{
-private:
-  CFitButton* m_pButtons;
-public:
-  CButtonBoxSetup() : m_pButtons(0) {}
-  virtual void operator()() {
-    delete m_pButtons;
-    Xamine_DefineButtonBox(4,4);
-    m_pButtons = new CFitButton(myApp.getXamineEvents());
-  }
-};
-
-
-
 
 
 //  Function: 	
@@ -367,3 +335,39 @@ CMySpecTclApp::operator()()
 }
 
 
+
+
+// Create the appliation:
+CMySpecTclApp   myApp;
+
+#ifdef SPECTCL_5_INIT
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
+CTCLApplication* gpTCLApplication;
+
+#else
+CTclGrammerApp& app(myApp);	// Create an instance of me.
+CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+#endif
+
+
+#ifdef USE_BUTTON_BOX
+
+
+// Local class that is responsible for setting up our application
+// specific button box.
+//
+
+class CButtonBoxSetup : public CXamineEventHandler::CRestartHandler
+{
+private:
+  CFitButton* m_pButtons;
+public:
+  CButtonBoxSetup() : m_pButtons(0) {}
+  virtual void operator()() {
+    delete m_pButtons;
+    Xamine_DefineButtonBox(4,4);
+    m_pButtons = new CFitButton(myApp.getXamineEvents());
+  }
+};
+
+#endif

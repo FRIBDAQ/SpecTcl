@@ -173,7 +173,7 @@ extern "C" {
 // discover and start our TCL application.
 //
    CTclGrammerApp   app;
-   CTCLApplication* gpTCLApplication = &app;
+   extern CTCLApplication* gpTCLApplication __attribute__ ((used)) = &app;
 
    CTCLVariable Rcfile(string("tcl_rcFileName"),
                      kfFALSE);

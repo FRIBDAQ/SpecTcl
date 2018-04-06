@@ -318,7 +318,7 @@ CMySpecTclApp   myApp;
 
 #ifdef SPECTCL_5_INIT
 CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;
-CTCLApplication* gpTCLApplication(0);
+CTCLApplication* gpTCLApplication;
 
 #else
 CTclGrammerApp& app(myApp);	// Create an instance of me.
