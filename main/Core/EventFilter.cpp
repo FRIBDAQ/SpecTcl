@@ -185,6 +185,16 @@ CEventFilter::setOutputFormat(CFilterOutputStage* format)
   m_pOutput->onAttach(*this);
 
 }
+/**
+ *  setOutputStream:
+ *  
+ *  Alias for setOutputFormat:
+ */
+void
+CEventFilter::setOutputStream(CFilterOutputStage* str)
+{
+     setOutputFormat(str);
+}
 /*!
   Return the output format .. if non is attached, the value "--" is returned.
 */
