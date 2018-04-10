@@ -1,10 +1,11 @@
+
 SUBDIRS =  Replace Scripts Utility factories Display \
 	 Xamine Tape EventSource \
 	 Events Gates Sorter SpectrumIO Filter Analysis\
 	DecoderRing  TreeParam \
 	Fits SpecTcl \
 	contrib TestFiles Gui splash filtsplit calibratedparams treegui \
-	ccusb vmusb tkcon compress
+	ccusb vmusb tkcon compress ddas
 
 ACLOCAL_AMFLAGS=-I m4
 

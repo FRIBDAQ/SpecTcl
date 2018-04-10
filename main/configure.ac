@@ -1,5 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,3.5-007, scientificsoftware@nscl.msu.edu)
+
+AC_INIT(SpecTcl,3.5-008, scientificsoftware@nscl.msu.edu)
 AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 
 AC_CONFIG_AUX_DIR(config)
@@ -812,4 +813,8 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 calibratedparams/Makefile \
 	 ccusb/Makefile ccusb/MakefileSkel \
 	 vmusb/Makefile vmusb/MakefileSkel \
-	 tkcon/Makefile compress/Makefile )
+	 tkcon/Makefile compress/Makefile
+	 ddas/Makefile
+	  ddas/src/Makefile
+	  ddas/src/Makefile_user
+)
