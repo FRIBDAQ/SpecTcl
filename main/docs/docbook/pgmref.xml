@@ -1341,7 +1341,7 @@ public:
                             Creates a gamma-1d spectrum.  The spectrum
                             increments for all <parameter>parameters</parameter>
                             present in the event.  This method creates a
-                            spectrum with a unit mapping between paramter
+                            spectrum with a unit mapping between parameter
                             and X axis channel space.  Thus values from
                             <literal>[0, <parameter>channels</parameter>)</literal>
                             are histogrammed.
@@ -5442,7 +5442,7 @@ Int_t lowIndex();
                 <para>
                     The <classname>CTreeParameterArray</classname> provides
                     support for creating arrays of tree parameters.
-                    <classname>CTreeParamterArray</classname> objects can
+                    <classname>CTreeParameterArray</classname> objects can
                     be treated like arrays programmatically but, in parameter
                     space, create a subtree of parameters.
                 </para>
@@ -25268,7 +25268,7 @@ public:
                     <para>
                         The Gamma 2d spectrum does not know about separate
                         X and Y parameters but increments for all ordered pairs
-                        of paramters in the spectrum following psuedo code like:
+                        of parameters in the spectrum following psuedo code like:
                     </para>
                     <programlisting>
 for i in 0 - rParameters.size() -1 
@@ -25406,7 +25406,7 @@ end for
                 <listitem>
                     <para>
                         Constructors for G2DD spectra.  Both constructors
-                        provide paramters to identify the spectrum.
+                        provide parameters to identify the spectrum.
                         <parameter>rName</parameter> is the spectrum's name
                         and <parameter>nID</parameter> its identifier.
                         Both provide a pair of vector parameters;
@@ -32624,42 +32624,1101 @@ protected:
                     </para>
                 </listitem>
             </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;std::string&gt;</type>
+                        <methodname>getParameterNames</methodname>
+                        <void />
+                        <modifier> const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector containing the names of the parameters
+                        that will be output by this filter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;UInt_t&gt; </type>
+                        <methodname>getParameterIds</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector that contains the ids of the parameters
+                        that will be output by the filter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Bool_t </type>
+                        <methodname>CheckEnabled</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns <literal>kfTRUE</literal> if the filter is
+                        currently enabled else <literal>kfFALSE</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string</type>
+                        <methodname>getFileName</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the name of the output file associated with
+                        this filter.   At construction time, the default
+                        filter filename is associated with the filter:
+                        <filename>$HOME/filter.flt</filename>.  Normally
+                        thsi is overridden by a call to 
+                        <methodname>setFilename</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CFilterOutputStage* getOutputStream()</type>
+                        <methodname>getOutputStream</methodname>
+                        <void />
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the output stream object
+                        associated with this filter.  The output stream
+                        is responsible for actually opening, and writing filter
+                        data to the filter file.   If this has not yet been set
+                        then <literal>nullptr</literal> is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setParameterNames</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::vector&lt;std::string&gt;&amp; </type>
+                            <parameter>names</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the names of the filter parameters.  Note that
+                        this does not populate the parameter id vector
+                        of the filter.  To do that, one must first
+                        invoke <methodname>IdsToNames</methodname>.
+                        This functional separation is done to allow the filter
+                        to account for changes in parameter definitions between
+                        selecting which parameters to output and actually
+                        applying the filter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier></modifier>
+                    <type>void </type>
+                    <methodname>setOutputStream</methodname>
+                    <methodparam>
+                        <type>CFilterOutputStage* </type><parameter>str</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Sets the output stage for the filter.  The output
+                        stage is what is actually responsible for connecting
+                        to the filter file and outputting data to it.
+                        Note that this is an alias for and delegates to
+                        <methodname>setOutputFormat</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>Enable</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>Disable</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Enable or disable the filter respectively.  Only enabled
+                        filters will check and output data.  Disabled filters
+                        do nothing.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setFileName</methodname>
+                        <methodparam>
+                            <type>std::string&amp;</type><parameter>filename</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets a new filename for the filter.  It's up to the
+                        filter output stage to understand what to do with this
+                        filename.  When the filter is enabled,
+                        the output stage will be asked to open the current
+                        filename and to describe the parameter names and
+                        ids to the filter file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setOutputFormat</methodname>
+                        <methodparam>
+                            <type>CFilterOutputStage* </type><parameter>format</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Sets the new <classname>CFilterOutpuStage</classname>
+                        object associated with the filter to
+                        <parameter>format</parameter>.  Note that if
+                        the filter is enabled, this method throws a
+                        <classname>CStateException</classname> because
+                        it's  not legal to switch format types in the middle
+                        of filtering the data.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>outputFormat</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Asks the current output stream to return a description
+                        of itself.  If there is no current output stream
+                        the string <literal>--</literal> is returned to indicate
+                        the filter output format has not been selected.
+                        Note that SpecTcl's command interface to filters
+                        will never create a filter that does not have an
+                        output format defined.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEventList&amp; </type><parameter>rEvents</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Asks the filter to process the events
+                        <parameter>rEvents</parameter>.  If the filters is
+                        not enabled, this method does nothing.  If it is,
+                        then for each item in <parameter>rEvents</parameter> the
+                        overload for <methodname>operator()</methodname> described
+                        below is invoked for that item.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        The filter is processed for the single event
+                        <parameter>rEvent</parameter>. The pure virtual method
+                        <methodname>CheckCondition</methodname> is invoked.
+                        If that returns <literal>kfTRUE</literal>, the
+                        output stream is handed the event and directed to
+                        output it in its format to the filter output file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected virtual</modifier>
+                        <type> Bool_t </type>
+                        <methodname>CheckCondition</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This pure virtual method must be implemented by
+                        concrete filter classes.  It provides a predicate that
+                        is called for every event passed to an enabled filter to
+                        determine if the event should be output.  For example,
+                        for the <classname>CGateEventFilter</classname> class,
+                        the implementation of this method evaluates the gate
+                        associated with that filter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected static </modifier>
+                        <type>std::string </type>
+                        <methodname>DefaultFilterFilename</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the full default path of the filter output
+                        file.  It is strongly recommended that this file
+                        not be used as you could imagine the chaos that
+                        would result if multiple instances of the filter
+                        used the default output file.
+                    </para>
+                    <para>
+                        The method returns <filename>$HOME/filter.flt</filename>
+                        where, <literal>$HOME</literal> is the translation
+                        of the <literal>HOME</literal> environment variable.
+                        At login, this variable is set to the user's home directory
+                        path.  Note that there's no guarantee it points there
+                        at the time this method is called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected </modifier>
+                        <type>void </type>
+                        <methodname>NamesToIds</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Populates the parameter id vector held internally
+                        from the parameter names vector.  Each parameter name
+                        is looked up in the parameter dictionary.  If a name
+                        has a matching parameter definition, it's id is added
+                        to the array.  Any parameters that do not have a
+                        definition are silently omitted from the array.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>protected</modifier>
+                        <type>std::vector&lt;std::string&gt;</type>
+                        <methodname>IdsToNames</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given the object's vector of parameter ids, returns
+                        a vector containing the names of all parameters
+                        in corresponding positions of that vector.  If
+                        a parameter does not exist in the dictionary any more,
+                        a <classname>CDictictionaryException</classname>
+                        is thrown.  
+                    </para>
+                    <para>
+                        Note that a call to <methodname>NamesToIds</methodname>
+                        followed by a call to this method returns the filter
+                        parameter names with nonexistent parameters removed.
+                    </para>
+                </listitem>
+            </varlistentry>
         </variablelist>
-        <para>
-  );
-  std::vector&lt;std::string&gt; getParameterNames() const;
-  std::vector&lt;UInt_t&gt; getParameterIds() const;
-  Bool_t CheckEnabled() const;
-  std::string getFileName() const;
-  CFilterOutputStage* getOutputStream();
-
-  void setParameterNames(const std::vector&lt;std::string&gt;&amp; names);
-  void setOutputStream(CFilterOutputStage* str);
-  
-  void Enable();
-  void Disable();
-  void setFileName(std::string&amp;);
-  void setOutputFormat(CFilterOutputStage* format);
-  std::string outputFormat() const;
-  virtual void operator()(CEventList&amp; rEvents);
-  virtual void operator()(CEvent&amp; rEvent);      
-
-protected:
-   virtual Bool_t CheckCondition(CEvent&amp; rEvent) = 0;
-   static std::string DefaultFilterFilename();   
-   void NamesToIds();                       
-   std::vector&lt;std::string&gt; IdsToNames() 
-            </para>
     </refsect1>
     <refsect1>
         <title>Data Available to subclasses</title>
         <para>
-   Bool_t m_fEnabled;                           
-   std::string              m_sFileName;        
-   std::vector&lt;std::string&gt; m_vParameterNames; 
-   std::vector&lt;UInt_t&gt;      m_vParameterIds;   
-   CFilterOutputStage*      m_pOutput;         
+            Several data members are <literal>protected</literal> and hence
+            available to subclasses directly.  Subclasses can also use
+            the getters and setters for these members rather than
+            accessing them directly.
         </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>Bool_t </type><varname>m_fEnabled</varname></term>
+                <listitem>
+                    <para>
+                        Enable flag for the filter <literal>kfTRUE</literal>
+                        if the filter is enabled or <literal>kfFALSE</literal>
+                        if not.  This is the value returned by
+                        <methodname>CheckEnabled</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>std::string </type><varname>m_sFileName</varname></term>
+                <listitem>
+                    <para>
+                        Name of the file associated withthe filter.  This
+                        is the value returned by
+                        <methodname>getFileName</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>std::vector&lt;std::string&gt; </type><varname>m_vParameterNames</varname></term>
+                <listitem>
+                    <para>
+                        Vector of the names of the parameters to be output
+                        to the filter file for events that should be written.
+                        This is the value returned by
+                        <methodname>getParameterNames</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>std::vector&lt;UInt_t&gt;</type> <varname>m_vParameterIds</varname></term>
+                <listitem>
+                    <para>
+                        Vector of parameter ids produced by
+                        <methodname>NamesToIdes</methodname>.    This is
+                        the value returned by
+                        <methodname>getParameterIds</methodname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>CFilterOutputStage* </type><varname>m_pOutput;</varname></term>
+                <listitem>
+                    <para>
+                        Pointer to the output stream used by the filter
+                        to write events.  This is the value returned by
+                        <methodname>getOutputStream</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CGatedEventFilter</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CGatedEventFilter</refname>
+        <refpurpose>Filter with output conditionalized on a gate check.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;GatedEventFilter.h&gt;
+
+class CGatedEventFilter : public CEventFilter {
+ public:
+   CGatedEventFilter(CGateContainer*  pGate=(CGateContainer*)kpNULL);
+   CGatedEventFilter(std::string&,
+       CGateContainer*  pGate=(CGateContainer*)kpNULL);
+       
+   CGateContainer* getGateContainer();
+
+   void setGateContainer(CGateContainer&amp; container);
+   std::string getGateName();
+   Int_t getGateID();
+protected:
+   Bool_t CheckCondition(CEvent&amp; event);
+
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The concrete filter class provided by SpecTcl is
+            <classname>CGatedEventFilter</classname>.   This class contains
+            a gate container and an implementation of
+            <methodname>CheckCondition</methodname> that returns the
+            evaluation of the gate represented by that container on the
+            event.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGatedEventFilter</methodname>
+                        <methodparam>
+                            <type>CGateContainer* </type><parameter> pGate</parameter>
+                            <initializer>(CGateContainer*)kpNULL</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs a filter given the gate container
+                        <parameter>pGate</parameter>.  The filter is
+                        constructed without an output file spefication or, for
+                        that matter, an output streamer.
+                    </para>
+                    <para>
+                        <parameter>pGate</parameter> can be omitted in which case,
+                        the filter will not output any events, if enabled.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CGatedEventFilter</methodname>
+                        <methodparam>
+                            <type>std::string& </type><parameter>outputFile</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CGateContainer*  </type><parameter>pGate</parameter>
+                            <initializer>=(CGateContainer*)kpNULL</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This constructor supplies <parameter>outputFile</parameter>
+                        as the file associated with the filter.  Note, however,
+                        no output streamer has been defined.  The <parameter>pGate</parameter>
+                        parameter, as before, is the pointer to the gate container
+                        whose gate must be satisfied for events to be written
+                        to the output.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CGateContainer* </type>
+                        <methodname>getGateContainer</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the gate container pointer.  Note that this
+                        can be <literal>nullptr</literal> if, for example,
+                        the constructor defaulted the gate container parameter
+                        and <methodname>setGateContainer</methodname> was
+                        never called.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier></modifier>
+                    <type>void </type>
+                    <methodname>setGateContainer</methodname>
+                    <methodparam>
+                        <type>CGateContainer&amp; </type><parameter>container</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Sets a new gate for the filter to be the one
+                        encapsulated by <parameter>container.</parameter>.
+                        The old gate is unmodified.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname>getGateName</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the name of the current gate container.
+                        If no gate container has been set, the method returns:
+                        <literal>
+                            -not yet defined-
+                        </literal>
+                        .
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>Int_t </type>
+                        <methodname>getGateID</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the id of the current gate container.  If
+                        none have been established, returns
+                        <literal>-1</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>proteced virtual</modifier>
+                    <type>Bool_t </type>
+                    <methodname>CheckCondition</methodname>
+                    <methodparam>
+                        <type>CEvent&amp; </type><parameter>event</parameter>
+                    </methodparam>
+                    <modifier></modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        Returns the value of the gate container evaluated on the
+                        event <parameter>event</parameter>.  If no gate container
+                        is associated with the filter; <literal>false</literal>
+                        is returned.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFilterOutputStage</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFilterOutputStage</refname>
+        <refpurpose>Abstract base class for filter output streamers.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFilterOutputStage.h&gt;
+
+class CFilterOutputStage
+{
+
+public:
+virtual void open(std::string filename) = 0;
+virtual void close() = 0;
+virtual void onAttach(CEventFilter&amp; filter);
+virtual void DescribeEvent(std::vector&lt;std::string&gt; parameterNames,
+                         std::vector&lt;UInt_t&gt;      parameterIds) =0;
+virtual void operator()(CEvent&amp; event) = 0;
+virtual std::string  type() const = 0;
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Filter output is managed by output streamers.  These
+            are concrete subclasses of <classname>CFilterOutputStage</classname>.
+            <classname>CFilterOutputStage</classname> provides the interface
+            between a filter an its output streamer.  The output streamer
+            knows the format for the filter file and is expected to output
+            filter data tothe filter file in that format.
+        </para>
+        <para>
+            Currently SpecTcl has a built in filter output stage that
+            understands how to write data in a simple XDR format.  A
+            plugin also provides for filters to be written as
+            <classname>TNtuples</classname> objects into Root files.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>open</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>filename</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Concrete filter classes must implement this to
+                        establish a writable connection to the filter file
+                        <parameter>filename</parameter>.   Any file connection
+                        information must be kept by the class.
+                    </para>
+                    <para>
+                        Any errors
+                        should be reported as exceptions.
+                        The preferred exception type is
+                        <classname>CErrnoException</classname>.  If that's not
+                        possible (e.g. some library that does not set
+                        <varname>errno</varname> was used to make the connection)
+                        an exception derived from <classname>CException</classname>
+                        should be used, even if it's necessary to create
+                        a new exception type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>close</methodname>
+                        <void />
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Concrete classes should implement this method to
+                        shutdown any connection to the filter output file.
+                        While errors are, theoretically, not possible,
+                        they should nonetheless be caught and handled:
+                    </para>
+                    <para>
+                        Any errors
+                        should be reported as exceptions.
+                        The preferred exception type is
+                        <classname>CErrnoException</classname>.  If that's not
+                        possible (e.g. some library that does not set
+                        <varname>errno</varname> was used to make the connection)
+                        an exception derived from <classname>CException</classname>
+                        should be used, even if it's necessary to create
+                        a new exception type.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>onAttach</methodname>
+                        <methodparam>
+                            <type>CEventFilter&amp; </type><parameter>filter</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is called when the output stage is attached
+                        to a filter. <parameter>filter</parameter>
+                        is a reference to the filter to which this object
+                        has just been attached.  Since many filters don't
+                        actually have to take any action on this event,
+                        the base class provides an implementation for
+                        <methodname>onAttach</methodname> that does
+                        nothing.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>DescribeEvent</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::string&gt; </type><parameter>parameterNames</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;UInt_t&gt; </type><parameter>parameterIds</parameter>
+                        </methodparam>
+                        <modifier>=0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the filter when it's unambiguously known
+                        which parameters will be output by the filter.
+                        <parameter>parameterNames</parameter> are the
+                        requested parameter names.
+                        <parameter>parameterIds</parameter> are the
+                        ids of the parameters that actually exist.
+                    </para>
+                    <para>
+                        The filter should act on the parameters
+                        in <parameter>parameterIds</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>event</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the filter to write an event to the
+                        output stream.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string  </type>
+                        <methodname>type</methodname>
+                        <void />
+                        <modifier>const = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method should be implemented to return a
+                         string that describes the filter's function
+                         and format.  For example,
+                         <classname>CXdrFilterOutputStage</classname>::<methodname>type</methodname>()
+                         retuns <literal>xdr</literal>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CXdrFilterOutputStage</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CXdrFilterOutputStage</refname>
+        <refpurpose>Filter output stage for writing Xdr filters.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CXdrFilterOutputStage.h&gt;
+
+class CXdrFilterOutputStage : public CFilterOutputStage
+
+public:
+  CXdrFilterOutputStage();
+
+  virtual void open(std::string filename) ;
+  virtual void close() ;
+  virtual void DescribeEvent(std::vector&lt;std::string&gt; parameterNames,
+                             std::vector&lt;UInt_t&gt;      parameterIds);
+
+  virtual void operator()(CEvent&amp; event);
+  virtual std::string type() const;
+
+
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This concrete output stage uses XDR (EXternal Data Represntation)
+            to write a system independent form of filter output data.  See the
+            section <literal>File Format</literal> below for a description of
+            the file format.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <constructorsynopsis>
+                        <methodname>CXdrFilterOutputStage</methodname>
+                        <void />
+                    </constructorsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Constructs an Xdr Filter. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>open</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>filename</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called to open the file.  This creates a
+                        <classname>CXdrOutputStream</classname>
+                        object that is open on the <parameter>filename</parameter>.
+                        That object is used to perform action serializations
+                        of primitive items to file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>close</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Closes the output file.  The
+                        <classname>CXdrOutputStream</classname> object
+                        created in <methodname>open</methodname>
+                        is destroyed.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void</type>
+                        <methodname> DescribeEvent</methodname>
+                        <methodparam>
+                            <type>std::vector&lt;std::string&gt;</type><parameter>parameterNames</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>std::vector&lt;UInt_t&gt; </type><parameter>parameterIds</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when the filter knows what parameters will be output
+                        to the file. <parameter>parameterNames</parameter>
+                        is a vector of the names of the parameters while
+                        <parameter>parameterIds</parameter> are the ids
+                        of the parameters that are actually in the SpecTcl
+                        parameter dictionary.
+                    </para>
+                    <para>
+                        A series of <literal>header</literal> records are
+                        written via the <classname>CXdrOutputStream</classname>.
+                        These records are described in
+                        <literal>File Format</literal> below and describe the
+                        set of parameters that will be written to the filter
+                        file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>void </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>event</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called to write an event to the filter files.
+                        An <literal>event</literal> record is written to file.
+                        See <literal>File Format</literal> for the
+                        contents of this record.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>type</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the string <literal>xdr</literal> to signify
+                        that this output stage produces XDR formatted
+                        data.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>File Format</title>
+        <para>
+            The file produed by <classname>CXdrOutputStage</classname> objects
+            consists of a set of records.  Each record is identified by
+            a string record type.  At present, two record types are defined:
+            <literal>header</literal> which contains a set of parameter names
+            and <literal>event</literal> which contains an event.
+        </para>
+        <para>
+            The file consists first of one or more <literal>header</literal>
+            items followed by a sequence of <literal>event</literal> items.
+            Items are written into fixed length 8192 byte blocks.  Each
+            <literal>header</literal> item is in a block by iteself.
+            Several <literal>event</literal> items will be packed into
+            a single block.
+        </para>
+        <refsect2>
+            <title>header items</title>
+            <para>
+                A header block consits of an XDR string with the value
+                <literal>header</literal>.   This is then followed by a count
+                of strings to follow.  The count is an xdr integer.
+                The strings that follow are each the name of a parameter
+                that is written to the filter file.  
+            </para>
+            <para>
+                It is important to
+                maintain the order in which the parameters appear as this
+                will be needed to decode the following
+                <literal>event</literal> items.  There can be several
+                <literal>header</literal> items.  They cumulatively
+                describe the set of parameters written to the file.
+            </para>
+        </refsect2>
+        <refsect2>
+            <title>event items</title>
+            <para>
+                Event items each have a compressed event.  The compression
+                scheme takes advantage of the fact that in most cases,
+                the occupancy of parameter space is sparse for an event.
+            </para>
+            <para>
+                Each event begins with a bitmask.  The set bits in this bitmask
+                determine the number of parameters that follow.  Each element
+                of the bitmask is an XDR integer and the number of bitmasks is
+                determined by the number of 32 bit integers (XDR integers
+                are 32 bits wide) required to provide one bit for each parameter.
+            </para>
+            <para>
+                Bitmasks are ordered by parameters as they appear in the
+                <literal>header</literal> records.  The first bitmask has a bit for
+                each of the first 32 parameters and so on.  Within each 32 bit
+                bitmask, bits are assigned from low order to high order within
+                the 32 parameter group.
+            </para>
+            <para>
+                Following the bitmasks are a set of XDR double precision
+                values.  Each of those values represents a parameter value for
+                one of the parameters corresponding to the bits set in the
+                bitmask.  The first parameter is for the lowest order bit set in the
+                first nonzero bitmask, and so on.
+            </para>
+            <para>
+                Suppose, for example, we have an event with 48 parameters.
+                This requires two bitmasks.  All bits in the first bitmask
+                are used and the lower 16 bits in the second one are used.
+                Suppose the value of the first bitmask is
+                <literal>0x0000000a</literal> and that of the second one is <literal>0x00000001</literal>.
+                Three parameter values will follow.  
+            </para>
+            <para>
+                If we number the parameters from zero;  The first value will
+                be for parameter 1, the second for parameter 2 and the last
+                for parameter 32.
+            </para>
+        </refsect2>
     </refsect1>
 </refentry>
         <chapter>
@@ -32669,11 +33728,10 @@ protected:
                 <para>
                     Filter subsystem:
 
-CFilterOutputStage.h
-GatedEventFilter.h
+CXdrFilterOutputStage.h
 CFilterOutputStageFactory.h
 CFilterOutputStageCreator.h
-CXdrFilterOutputStage.h
+
 CXdrFilterOutputStageCreator.h
 
 FilterEventProcessor.h
