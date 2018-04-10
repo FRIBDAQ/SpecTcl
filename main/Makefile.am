@@ -21,7 +21,8 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					spectra
+					spectra \
+					ddas
 
 ACLOCAL_AMFLAGS=-I m4
 

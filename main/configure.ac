@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,5.0-004, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.0-005, scientificsoftware@nscl.msu.edu)
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 
@@ -952,5 +952,9 @@ AC_OUTPUT(Makefile
           spectra/src/Makefile
           spectra/test/Makefile
           spectra/spectcljson/Makefile
-          spectra/Xamine2Root/Makefile)
+          spectra/Xamine2Root/Makefile
+	  ddas/Makefile
+	  ddas/src/Makefile
+	  ddas/src/Makefile_user
+	  )
           

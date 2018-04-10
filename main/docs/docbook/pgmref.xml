@@ -33710,7 +33710,8 @@ public:
                 This requires two bitmasks.  All bits in the first bitmask
                 are used and the lower 16 bits in the second one are used.
                 Suppose the value of the first bitmask is
-                <literal>0x0000000a</literal> and that of the second one is <literal>0x00000001</literal>.
+                <literal>0x0000000a</literal> and that of the second one is
+                <literal>0x00000001</literal>.
                 Three parameter values will follow.  
             </para>
             <para>
