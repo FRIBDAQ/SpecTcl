@@ -1,6 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,3.3-019,scientificsoftware@nscl.msu.edu)
+
+AC_INIT(SpecTcl,3.3-020,scientificsoftware@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
@@ -963,4 +964,10 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 filtsplit/Makefile doc/Makefile \
 	 calibratedparams/Makefile \
 	 ccusb/Makefile ccusb/MakefileSkel \
-	 vmusb/Makefile vmusb/MakefileSkel)
+	 vmusb/Makefile vmusb/MakefileSkel
+	 ddas/Makefile
+	  ddas/src/Makefile
+	  ddas/src/Makefile_user
+
+	 )
+
