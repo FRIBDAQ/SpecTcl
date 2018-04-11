@@ -791,7 +791,6 @@ AC_SUBST(MANDOCBOOK)
 
 
 # create output files.
-<<<<<<< HEAD
 
 
 AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
