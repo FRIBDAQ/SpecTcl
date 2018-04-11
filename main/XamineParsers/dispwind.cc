@@ -472,7 +472,33 @@ void win_db::define1d(int x, int y, const std::string& spectrumName)
   windows[x][y]->setSpectrumName(spectrumName);
   windows[x][y]->setParent(this);
 }
-
+/**
+ * use
+ *    Set the spectrum number to be used in a cell.  This is used after
+ *    define1d by name.
+ *
+ *  @param x,y   - Cell coordinates.
+ *  @param spnum - Number of the spectrum to use.
+ */
+void win_db::use(int x, int y, int spnum)
+{
+    
+    assert(exists(x,y));               // must be in the gemoetry.
+    assert(defined(x,y));              // A bug if done on an undefined cell.
+    windows[x][y]->use(spnum);
+}
+/**
+ * setSpectrumTitle
+ *    Set the title of a spectrum cell. used after define1d by number
+ * @param x,y - cell coordinates.
+ * @param title - New title.
+ */
+void win_db::setSpectrumTitle(int x, int y, const char* title)
+{
+    assert(exists(x,y));
+    assert(defined(x,y));
+    windows[x][y]->setSpectrumName(title);
+}
 /*
 ** Method description:
 **   win_db::define2d  - Puts a 2-d spectrum into a window.

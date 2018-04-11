@@ -44,6 +44,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#include <string>
+
 
 struct spec_shared : Xamine_shared 
 {
@@ -124,6 +126,7 @@ struct spec_shared : Xamine_shared
 void Xamine_initspectra();
 int Xamine_GetSpectrumList(char ***list);
 int Xamine_GetSpectrumId(char *name);
+int Xamine_GetSpectrumId(std::string name);
 spec_type Xamine_SpectrumType(int id);
 char *Xamine_MemoryTop();
 #endif

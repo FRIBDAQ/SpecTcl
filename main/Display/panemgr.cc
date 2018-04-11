@@ -1330,6 +1330,7 @@ void Xamine_SetDisplayAttributes(int row, int col, win_attributed *attribs)
       return;
     } 
     def->setattribs(*attribs);
+    def->setSpectrumName(attribs->getSpectrumName());
     if(def->is1d()) {
       win_1d *def1 = (win_1d *)def;
       win_1d *at1  = (win_1d *)attribs;

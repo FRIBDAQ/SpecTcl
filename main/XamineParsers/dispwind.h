@@ -95,12 +95,20 @@ protected:
 public:
     win_definition()
     { }
+    win_definition(const win_definition& rhs) :
+        win_spnum(rhs.win_spnum),
+        spectrum_name(rhs.spectrum_name),
+        m_pParent(rhs.m_pParent) {}
+        
     win_definition(int spnum)
     { win_spnum = spnum; }
     void use(int spnum)
     { win_spnum = spnum; }
     void operator=(win_definition &win)
-    { *this = win; }
+    {  win_spnum = win.win_spnum;
+        spectrum_name = win.spectrum_name;
+        m_pParent = win.m_pParent;
+    }
     void operator=(int spec)
     { win_spnum = spec; }
     int spectrum()  { return win_spnum; }
@@ -613,6 +621,8 @@ public:
     void define2d(int x, int y,int specnum);
     void define1d(int x, int y,const std::string& specname);
     void define2d(int x, int y,const std::string& specname);
+    void use(int x, int y, int specnum);
+    void setSpectrumTitle(int x, int y, const char* title);
     win_attributed *getdef(int x, int y)
     {
         win_attributed* pAttr = nullptr;

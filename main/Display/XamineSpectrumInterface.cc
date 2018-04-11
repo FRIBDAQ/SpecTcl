@@ -31,7 +31,7 @@ extern volatile  spec_shared *xamine_shared;
 Win::SpectrumQueryResults
 XamineSpectrumQuerier::getSpectrumInfo(int slot)
 {
-  Win::SpectrumQueryResults results = {false, 0, 0, 0, std::string()};
+  Win::SpectrumQueryResults results = {false, 0, 0, 0, std::string(), slot};
   if (xamine_shared) {
     spec_type type = xamine_shared->gettype(slot);
     if (type != undefined) {
@@ -55,7 +55,7 @@ XamineSpectrumQuerier::getSpectrumInfo(int slot)
 Win::SpectrumQueryResults
 XamineSpectrumQuerier::getSpectrumInfo(const std::string& name)
 {
-  int slot = Xamine_GetSpectrumId(const_cast<char*>(name.c_str()));
+  int slot = Xamine_GetSpectrumId(name);
   return getSpectrumInfo(slot);
 }
 

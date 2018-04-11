@@ -15,6 +15,7 @@ struct SpectrumQueryResults
   int  s_nBinsX;
   int  s_nBinsY;
   std::string  s_name;
+  int  s_spno;
 };
 
 class SpectrumQuerier {

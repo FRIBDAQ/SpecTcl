@@ -47,6 +47,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "buttonsetup.h"
 #include <iostream>
 
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -132,6 +133,9 @@ void Xamine_DisplayPane (int row, int col, int specid)
     /* Should we raise an error? */
     break;
   }
+  // figure out the name of the spectrum an put it in the attribute block.
+  
+  attribs->setSpectrumName(std::string((const char*)xamine_shared->dsp_titles[specid-1]));
 
 #define TF(log) ((log) ? "True" : "False")
 

@@ -711,13 +711,35 @@ int Xamine_GetSpectrumId(char *name)
     return -1;			/* there is no spectrum 0 or less.. */
   return id;
 }
-
-
+/**
+ * Xamine_GetSpectrumId
+ *     This overload gets the id of a spectrum given just its title string.
+ *
+ *  @param name - the title string for the spectrum.
+ *  @return int - Slot for the spectrum else -1 if there's no match.
+ */
+int
+Xamine_GetSpectrumId(std::string name)
+{
+    
+    for (int i = 0; i < XAMINE_MAXSPEC; i++) {
+        int index = i+1;
+        if (xamine_shared->gettype(index) != undefined)  {
+            spec_title aname;
+            xamine_shared->getname(aname, index);
+            if (strcasecmp(aname, name.c_str()) == 0) {
+                return index;
+            }
+        }
+    }
+    return -1;
+}
 /*
 ** Functional Description:
 **   Xamine_GetSpectrumList:
 **     This function retrieves a sorted list of defined spectra in the shared
 **     memory region.  The purpose is to support chooser lists.
+**     
 ** Formal Parameters:
 **     char ***list:
 **       Pointer to list pointer buffer.
