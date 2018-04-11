@@ -60,6 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <libgen.h>
 #include <exception>
 
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -338,46 +339,52 @@ static Boolean read_windows(char *filename)
 
   /* First read in the windows file: */
 
-  if(!windows.read(filename)) return False;
-
-
-  /* Set the geometry from the current windows  file: */
-
+  try {
+    if(!windows.read(filename)) return False;
   
-  int nx = windows.nx();
-  int ny = windows.ny();
-  Xamine_CancelUpdates();	// Kill off any pending updates.. since they 
-                                // refer to dead drawables probably.
-  Xamine_SetPaneGeometry(nx,ny);
-  /* For each window define the spectrum and attributes: */
-  /* We also schedule an update in order to make the spectrum visible */
-    for(int col = 0; col < nx; col++) {
-     for( int row = 0; row < ny; row++) {
-      if(windows.defined(col, row) && (windows.getdef(col,row) != NULL)) {
-	win_attributed *def = windows.getdef(col, row);
-	Xamine_SetDisplay(row, col, def->spectrum()); 
-	Xamine_SetDisplayAttributes(row, col, def);
-	Xamine_RedrawPane(col, row);                
-	
-	/* If the pane is on timed update, then schedule that too. */
-
-	if(def->update_interval() != 0) {
-	  Xamine_ScheduleTimedUpdate(Xamine_GetDrawingArea(row, col),
-				     col, row,
-				     def->update_interval());
-	}
+  
+    /* Set the geometry from the current windows  file: */
+  
+    
+    int nx = windows.nx();
+    int ny = windows.ny();
+    Xamine_CancelUpdates();	// Kill off any pending updates.. since they 
+                                  // refer to dead drawables probably.
+    Xamine_SetPaneGeometry(nx,ny);
+    /* For each window define the spectrum and attributes: */
+    /* We also schedule an update in order to make the spectrum visible */
+      for(int col = 0; col < nx; col++) {
+       for( int row = 0; row < ny; row++) {
+        if(windows.defined(col, row) && (windows.getdef(col,row) != NULL)) {
+            win_attributed *def = windows.getdef(col, row);
+            Xamine_SetDisplay(row, col, def->spectrum()); 
+            Xamine_SetDisplayAttributes(row, col, def);
+            Xamine_RedrawPane(col, row);                
+            
+            /* If the pane is on timed update, then schedule that too. */
+        
+            if(def->update_interval() != 0) {
+              Xamine_ScheduleTimedUpdate(Xamine_GetDrawingArea(row, col),
+                             col, row,
+                             def->update_interval());
+            }
+        }
       }
-    }
-  } 
-  /* The zoom toggle state must now be set to match the zoom state of the
-  ** window file since the window file can be zoomed in too.
-  */
+    } 
+    /* The zoom toggle state must now be set to match the zoom state of the
+    ** window file since the window file can be zoomed in too.
+    */
+  
+    Xamine_SelectPane(0,0);		// Select the upper left pane.
+    Xamine_SetButtonBarZoom(windows.iszoomed());
+    Xamine_SetZoomToggleButtonState(windows.iszoomed());
 
-  Xamine_SelectPane(0,0);		// Select the upper left pane.
-  Xamine_SetButtonBarZoom(windows.iszoomed());
-  Xamine_SetZoomToggleButtonState(windows.iszoomed());
-
-  return True;
+    return True;
+  }
+  catch (std::exception& e) {
+    Xamine_error_msg(Xamine_Getpanemgr(), e.what());
+    return false;
+  }
 }
 
 /**
