@@ -9,7 +9,8 @@ include_HEADERS = DDASUnpacker.h \
 	DDASBuiltUnpacker.h \
 	ParameterMapper.h \
 	DDASHit.h DDASHitUnpacker.h \
-	FragmentIndex.h
+	FragmentIndex.h DDASBitMasks.h \
+	fragment.h 
 
 
 
