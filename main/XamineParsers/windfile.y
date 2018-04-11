@@ -706,6 +706,7 @@ void setUpDbEntry(int value, int x, int y)
       database->define2d(x,y, value);
     }
   }
+  database->setSpectrumTitle(x,y, info.s_name.c_str());
 }
 
 void setUpDbEntry(const std::string& value, int x, int y) 
@@ -721,6 +722,7 @@ void setUpDbEntry(const std::string& value, int x, int y)
       database->define2d(x,y, value);
     }
   }
+  database->use(x, y, info.s_spno);
 }
 
 int specis1d(int slot) {
