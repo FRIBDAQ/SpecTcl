@@ -53,7 +53,7 @@ public:
     It is necessary to ensure that the destructor is appropriately polymorphic
     and chains through the hierarchy>
   */
-  ~CFilterOutputStageCreator() {}
+  virtual ~CFilterOutputStageCreator() {}
 
 
   /*!
