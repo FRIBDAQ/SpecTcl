@@ -33722,29 +33722,461 @@ public:
         </refsect2>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFilterOutputStageCreator</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFilterOutputStageCreator</refname>
+        <refpurpose>Create filter output stages for
+            <classname>CFilterOutputStageFactory</classname></refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFilterOutputStageCreator.h&gt;
+
+class CFilterOutputStageCreator
+{
+public:
+  virtual CFilterOutputStage*  operator()(std::string type) = 0;
+  virtual std::string document() const = 0;
+  virtual CFilterOutputStageCreator* clone() = 0;
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This is an abstract base class that creates objects on behalf of the
+            <classname>CFilterOutputStageFactory</classname> extensible
+            factory.  Concrete classes of this type create specific output
+            stage objects.  This is one of the keys to providing an extensible
+            Filter subsystsem.  To add a new filter output stage type only
+            requires that you write a filter output stage, a creator for that
+            output stage and register that creator with the Filter output
+            stage factcory singleton.
+        </para>
+        <para>
+            This class defines the interface that is required of a concrete
+            filter output stage creator.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>CFilterOutputStage*  </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>type</parameter>
+                        </methodparam>
+                        <modifier>= 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Concrete classes must implement this to respond to their
+                        filter type by returning a pointer to a newly created
+                        instance of a filter output stage.  If the
+                        <parameter>type</parameter> is not recognized, the
+                        creator should return a <literal>nullptr</literal>.
+                    </para>
+                    <para>
+                        Naturally care must be taken by authors of  filter
+                        output stage creators not to recognize strings that are
+                        already recognized by other formatters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>std::string </type>
+                        <methodname>document</methodname>
+                        <void />
+                        <modifier>const = 0</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a string that documents the type of output stage
+                        created by this creator.  This is used by
+                        the <command>filter</command> command to provide a list
+                        of available filter formats.
+                    </para>
+                    <para>
+                        To line up properly, the string returned should be of the form:
+                    </para>
+                    <informalexample>
+                        <programlisting>
+                1         2         3
+      col:  0123456789012345678901234567890
+            type      - description
+                        </programlisting>
+                    </informalexample>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><methodsynopsis>
+                    <modifier>virtual </modifier>
+                    <type>CFilterOutputStageCreator* </type>
+                    <methodname>clone</methodname>
+                    <void />
+                    <modifier>= 0</modifier>
+                </methodsynopsis></term>
+                <listitem>
+                    <para>
+                        There are situations when the filter output
+                        stage factor must create a copy  of an existing creator
+                        given a pointer to it with type
+                        <classname>CFilterOutputStageCreator*</classname>.
+                        The <methodname>clone</methodname> method provides
+                        support for it.  The method should return a pointer to
+                        a new instance of a duplicate of the object it is called on.
+                    </para>
+                    <para>
+                        If a creator implements copy construction, the simplest
+                        way to do this is:
+                    </para>
+                    <informalexample>
+                        <programlisting>
+CFilterOutputStageCreator*
+CMyOutputStageCreator::clone()
+{
+   return new CMyOutputStageCreator(*this);
+}
+                        </programlisting>
+                    </informalexample>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CFilterOutputStageFactory</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CFilterOutputStageFactory</refname>
+        <refpurpose>Create filter output stage objects.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CFilterOutputStageFactory.h&gt;
+
+class CFilterOutputStageFactory {
+public:
+  static CFilterOutputStageFactory&amp; getInstance();
+  
+  CFilterOutputStage* create(std::string type) const;
+  void                Register(CFilterOutputStageCreator&amp; creator);
+  std::string         document() const;
+
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CFilterOutputStageFactory</classname>  singleton
+            is used to create filter filter output stages to associate with
+            filters once their <option>-format</option> is known.
+        </para>
+        <para>
+            The filter output stage is then responsible for actually writing
+            filtered events to the output file.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static</modifier>
+                        <type> CFilterOutputStageFactory&amp; </type>
+                        <methodname>getInstance</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the singleton instance of this
+                        class.   Note that if necessary the object is constructed.
+                        Constructors for this class are <literal>private</literal>
+                        to enforce the singleton nature of this object.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CFilterOutputStage* </type>
+                        <methodname>create</methodname>
+                        <methodparam>
+                            <type>std::string </type><parameter>type</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Iterates over the registered filter output stage creators
+                        asking them to create a new output stage for the
+                        format specified by <parameter>type</parameter>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void</type>
+                        <methodname>Register</methodname>
+                        <methodparam>
+                            <type>CFilterOutputStageCreator&amp; </type>
+                            <parameter>creator</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Provides a new output stage creator to the factory.
+                        Output stage creators are the objects that actually
+                        create filter output stages. 
+                    </para>
+                    <para>
+                        See <classname>CFilterOutputStagereator</classname>
+                        for information about filter output stage creators
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type> std::string </type>
+                        <methodname>document</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Collects all of the documentation strings from
+                        the registered creators separated by newlines.
+                        This is used by the <command>filter</command> command
+                        to generate help text that describes the available
+                        output formats.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CXdrFilterOutputStageCreator</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CXdrFilterOutputStageCreator.h</refname>
+        <refpurpose>
+            Create <classname>CXrFilterOutputStage</classname> objects
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CXdrFilterOutputStageCreator.h&gt;
+
+class CXdrFilterOutputStageCreator : public CFilterOutputStageCreator
+{
+public:
+
+  virtual CFilterOutputStage*  operator()(std::string type);
+  virtual std::string document() const;
+  virtual CFilterOutputStageCreator* clone();
+};
+
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Creates output stages for the XDR filter format.  See
+            <classname>CFilterOutputStageCreator</classname> for documentation
+            of the methods implemented by this class.
+        </para>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>FilterEventProcessor</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>FilterEventProcessor</refname>
+        <refpurpose>
+            Decodes events from a filter file into parameters.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;FilterEventProcessor.h&gt;
+
+class CFilterEventProcessor : public CEventProcessor
+{
+
+public:
+  virtual Bool_t OnOther(UInt_t nType,
+                         CAnalyzer&amp; rAnalyzer,
+                         CBufferDecoder&amp; rDecoder);
+
+  virtual Bool_t operator()(const Address_t pEvent,
+                            CEvent&amp; rEvent,
+                            CAnalyzer&amp; rAnalyzer,
+                            CBufferDecoder&amp; rDecoder);
+
+  virtual Bool_t OnEventSourceOpen(std::string name);
+
+};
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            XDR Filter files are read in through the normal SpecTcl input system.
+            The Filter buffer decoder (<classname>CFilterBufferDecoder</classname>)
+            dispatches each item to the event processing pipeline.
+            <classname>CFilterEventProcessor</classname> knows how to
+            take data from the decoded XDR blocks and store them into
+            SpecTcl parameters.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>Bool_t </type>
+                        <methodname>OnOther</methodname>
+                        <methodparam>
+                            <type>UInt_t</type><parameter> nType</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>
+                         CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This is called by the filter buffer decoder for a header
+                        record.  Header records contain information about the
+                        paramters that are present in the events in the filter
+                        file.
+                    </para>
+                    <para>
+                        The parameter names are pulled from the header record.
+                        If SpecTcl currently has a parameter defined with a
+                        matching name, a correspondence is made between that name
+                        and the id of the SpecTcl parameter.  If there is no
+                        such correspondence, that is noted as well.
+                    </para>
+                    <para>
+                        The end result of processing the header records in an
+                        XDR filter file is a mapping between parameter numbers
+                        in the filter file and parameter numbers ids in SpecTcl.
+                        This map is used to drive placement of parameters in
+                        events into SpecTcl parameters.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual</modifier>
+                        <type> Bool_t </type>
+                        <methodname>operator()</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> Address_t </type><parameter>pEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CAnalyzer&amp;</type><parameter> rAnalyzer</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CBufferDecoder&amp; rDecoder</type><parameter></parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called by the filter buffer decoder for each
+                        <literal>event</literal> item.  The bitmap is analyzed and
+                        using that the set of parameters provided by the event
+                        are placed in corresponding SpecTcl parameters where
+                        there are correspondences and ignored where ther aren't
+                        correspondences.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>virtual </modifier>
+                        <type>Bool_t </type>
+                        <methodname>OnEventSourceOpen</methodname>
+                        <methodparam>
+                            <type>std::string</type><parameter> name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Called when a filter file is attached.  The
+                        parameter correspondence mapping is cleared in
+                        anticipation of a new set of <literal>header</literal>
+                        items from the newly opened filter file.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
             <listitem>
                 <para>
-                    Filter subsystem:
-
-CXdrFilterOutputStage.h
-CFilterOutputStageFactory.h
-CFilterOutputStageCreator.h
-
-CXdrFilterOutputStageCreator.h
-
-FilterEventProcessor.h
-
-FilterBufferDecoder.h
-FilterDictionary.h
-
-
-                </para>
-            </listitem><listitem>
-                <para>
-                    Root interface classes.
+                    Root interface classes:
                 </para>
             </listitem>
         </itemizedlist>
