@@ -346,15 +346,16 @@ itcl::class spectrumTabActions {
 	    set xbins [niceDisplay [lindex $xaxis 2]]
 
 	    set yaxis [lindex $axes 1]
+
 	    if {[llength $yaxis] > 0 && [is2DSpectrum $type] && ($type ne "g2")} {
-		set ylow [niceDisplay [lindex $yaxis 0]]
-		set yhi  [niceDisplay [lindex $yaxis 1]]
-		set ybins [niceDisplay [lindex $yaxis 2]]
+            set ylow [niceDisplay [lindex $yaxis 0]]
+            set yhi  [niceDisplay [lindex $yaxis 1]]
+            set ybins [niceDisplay [lindex $yaxis 2]]
 		
 	    } else {
-		set ylow ""
-		set yhi  ""
-		set ybins ""
+            set ylow ""
+            set yhi  ""
+            set ybins ""
 	    }
 
 	    # If there's a mapping from spectrum type to something more readable
@@ -524,7 +525,7 @@ itcl::class spectrumTabActions {
     # @retval true if a y parameter should be displayed/loaded.
     #
     private method is2DSpectrum type {
-	return [expr {$type in [list 2 S m2 gd]}]
+        return [expr {[lindex $type 0] in [list 2 S m2 gd]}]
     }
 
     ##

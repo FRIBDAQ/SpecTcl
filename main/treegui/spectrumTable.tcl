@@ -116,7 +116,7 @@ snit::widget spectrumTable {
     #
     typeconstructor {
 
-	set updateScheduleTime 2
+	set updateScheduleTime 10;    # 1 second update time is fine.
 	set resampleFactor 40
 
 	set dirname $spectrumTable::dirname
