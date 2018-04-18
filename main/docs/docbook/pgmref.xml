@@ -40675,6 +40675,485 @@ protected:
         </para>
     </refsect1>
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>Root tree building</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>Root tree building</refname>
+        <refpurpose>Classes to build root trees.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;TreeBuilder.h&gt;
+
+class TreeItemBaseClass {
+public:
+    TreeItemBaseClass(const char* name);
+    std::string getName() const;
+    virtual bool isFolder() const = 0;     // True if item is a container.
+};
+
+class TreeFolder : public TreeItemBaseClass
+{
+public:
+    TreeFolder(const char* name);
+    void addItem(TreeItemBaseClass* pItem);
+    const Contents&amp; getContents()    const;
+    Contents::const_iterator begin() const;
+    Contents::const_iterator end()   const;
+    size_t size()                    const;
+    void freeStorage(bool yesno);
+    virtual bool isFolder() const ;
+
+};
+
+class TreeTerminal : public TreeItemBaseClass
+{
+public:
+    TreeTerminal(const char* name, unsigned parameterId);    
+    unsigned id() const;
+    virtual bool isFolder() const;
+    
+};
+
+class ParameterTree : public TreeFolder
+{
+public:
+    typedef struct _ParameterDef {
+        std::string s_name;
+        unsigned    s_id;
+        _ParameterDef(const char* name, unsigned id) :
+            s_name(name), s_id(id) {}
+            
+    } ParameterDef, *pParameterDef;
+    ParameterTree();
+    ParameterTree(const std::vector&lt;ParameterDef&gt;&amp; params);
+    
+    void buildTree(const std::vector&lt;ParameterDef&gt;&amp; params);
+    void clearTree();
+};
+
+
+class ParameterMarshaller
+{
+public:
+    ParameterMarshaller(std::size_t numParameters);    
+    void marshall(CEvent&amp; event);
+    void reset(CEvent&amp; event);
+    Double_t* pointer();
+    unsigned* mapping();
+};
+
+class SpecTclRootTree
+{
+public:
+    SpecTclRootTree(
+        std::string treeName,
+        const std::vector&lt;ParameterTree::ParameterDef&gt;&amp; params
+    );
+    void Fill(CEvent&amp; event);
+};
+
+
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This set of classes provides support for turning the SpecTcl
+            parameter space into a true hierarchy. This hierarchy can then
+            be mapped onto the branches and leaves of a CERN Root tree.
+        </para>
+        <para>
+            Subsequent sections of this document will describe each class and its
+            methods.  To orient, however, there are two main sets of
+            classes defined in this header.
+        </para>
+        <para>
+            The first set capture the
+            parameter hierarchy as a top level folder with contents that
+            can consist recursively of folders and terminal nodes.
+            Each terminal node is a parameter.
+        </para>
+        <para>
+            The second set of classes provide support for building a
+            ROOT Tree from the folders and terminals of the first set of
+            classes and for marshalling parameters from a SpecTcl
+            <classname>CEvent</classname> object into the flattened array
+            expected by Root.  Note that while Root Trees are dense, SpecTcl
+            <classname>CEvent</classname> objects, in general are
+            sparse.  Unset slots in a <classname>CEvent</classname> object
+            result in corresponding leaves that have the value
+            <literal>NaN</literal>.  The standard C function
+            <function>isnan</function> (C++ <methodname>std::isnana</methodname>),
+            can determine if a leaf value is a NaN for a specific event.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>TreeItemBaseClass</title>
+        <para>
+            The <classname>TreeItemBaseClass</classname> is the root of the
+            folder/terminal class hierarhcy.  It supplies a generic object
+            that can appear in a parameter tree and services that must
+            be provided by all such object.
+        </para>
+        <para>
+            <classname>TreeItemBaseClass</classname> is an abstract base class.
+        </para>
+        <refsec2>
+            <title>METDHOS</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>TreeItemBaseClass</methodname>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>char* </type><parameter>name</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Base class constructor.  All items in the parameter
+                            tree have names.  The name is either the terminal name
+                            of the parameter or it is the name of a folder
+                            containing other <classname>CTreeItemBaseClass</classname>
+                            objects.
+                        </para>
+                        <para>
+                            The base class holds the object name for all derived
+                            classes.  The constructor parameter <parmaeter>name</parmaeter>
+                            is given to the object.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::string </type>
+                            <methodname>getName</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the name of the objecst.  This is the
+                            value of the <parameter>name</parameter>
+                            parameter passed to the constructor.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual </modifier>
+                            <type>bool </type>
+                            <methodname>isFolder</methodname>
+                            <void />
+                            <modifier>const = 0</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Objects in the tree are either containers of
+                            other objects (folders) or they are terminals
+                            (parameters).  Concrete classes must implement this
+                            method to return <literal>true</literal> if they
+                            contain other items or <literal>false</literal>
+                            if not.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsec2>
+    </refsect1>
+    <refsect1>
+        <title>TreeFolder</title>
+        <para>
+            The <classname>TreeFolder</classname> class defines a type of object
+            that can hold an unordered set of other objects.  The objects held
+            are pointers to <classname>TreeItemBaseClass</classname> which
+            means <classname>TreeFolder</classname> objects can recursively
+            contain other <classname>TreeFolder</classname> objects.
+        </para>
+        <para>
+            This allows a hierarchy of folders to be created much like the
+            folder hierarchy of a filesystem (or root file for that matter).
+        </para>
+        <refsect2>
+            <title>METHODS</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>TreeFolder</methodname>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>char* </type><parameter>name</parameter>
+                               
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Tree folders are derived from
+                            <classname>TreeItemBaseClass</classname>.  Thus they
+                            must provide a <parameter>name</parameter>
+                            to their base class constructor to give themselves
+                            a name.  <parameter>name</parameter> will be the
+                            name of the folder constructed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>addItem</methodname>
+                            <methodparam>
+                                <type>TreeItemBaseClass* </type><parameter>pItem</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Adds a new item, <parameter>pItem</parameter>
+                            to the container.  Note that the order of additions
+                            does not imply an ordering within the container.
+                        </para>
+                        <para>
+                            Note that <parameter>pItem</parameter>s are all
+                            assumed to be dynamically allocated (via
+                            <literal>new</literal>) and ownership of
+                            the objects are transferred to the container
+                            (delete is called for each contained item on
+                            destruction).  This behavior can be modified
+                            by calling <methodname>freeStorage</methodname>
+                            below.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>const Contents&amp; </type>
+                            <methodname>getContents</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns a reference to the container of the
+                            objects the folder has.  Note that the container
+                            is indexed by the names of the objects
+                            added to the container.
+                        </para>
+                        
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>Contents::const_iterator </type>
+                            <methodname>begin</methodname>
+                            <void />
+                            <modifier> const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>Contents::const_iterator </type>
+                            <methodname>end</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Supports iteration over the container of
+                            <classname>TreeItemBaseClass</classname>
+                            objects managed by this folder object.
+                            Note that <classname>Contents::const_iterator</classname>
+                            objects are pointer-like objects that point to
+                            a <classname>std::pair&lt;std::string, TreeItemBaseClass*&gt;</classname>
+                            objects.  The first element of each pair is the name
+                            of the object.  The second, is a pointer to the object
+                            contained.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>size_t </type>
+                            <methodname>size</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the number of items in the container.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>freeStorage</methodname>
+                            <methodparam>
+                                <type>bool </type><parameter>yesno</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Modifies the ownershp of the items contained
+                            (see <methodname>addItem</methodname>).
+                            if <parmaeter>yesno</parmaeter> is
+                            <literal>true</literal>, the object
+                            will destroy all contained items when it is
+                            itself destroyed.  If <literal>false</literal>,
+                            the object will not destroy those objectds.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual </modifier>
+                            <type>bool </type>
+                            <methodname>isFolder</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns <literal>true</literal> as this
+                            class implements a container.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                    
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title>Data Types</title>
+            <para>
+                The <classname>TreeFolder::Contents</classname>  type
+                defines a name indexed container of
+                <classname>TreeItemBaseClass</classname> pointers.
+                This is implemented currently as:
+                <classname>std::map&lt;std::string, TreeItemBaseClass*&gt;</classname>.
+            </para>
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title>TreeTerminal</title>
+        <para>
+            <classname>TreeTerminal</classname> objects represent terminal
+            nodes of a tree.  For parameter trees in SpecTcl, parameters
+            are represented by the parameter id of the parameter name.
+        </para>
+        <refsect2>
+            <title>
+                METHODS
+            </title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>TreeTerminal</methodname>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>char* </type><parameter>name</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>unsigned</type><parameter> parameterId</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructing a terminal requires the parameter
+                            <parameter>name</parameter> and its
+                            <parameter>parameterId</parameter>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>unsigned </type>
+                            <methodname>id</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the id of the parameter supplied when it was
+                            constructed.  For SpecTcl this represents a
+                            slot in a <classname>CEvent</classname> object.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>virtual</modifier>
+                            <type> bool </type>
+                            <methodname>isFolder</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns <literal>false</literal> as terminals are
+                            not containers.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title>ParameterTree</title>
+        <para>
+            A <classname>ParameterTree</classname> is a hierarchy of parameters.
+            In SpecTcl, hierarchy is implied by <literal>.</literal> path separators,
+            for example, a parameter named <literal>s800.fp.e1up</literal>
+            would be the terminal <literal>e1up</literal> in the folder
+            <literal>fp</literal> in turn inside the folder <literal>s800</literal>.
+        </para>
+        <para>
+            You can imagine, therefore a top level (root) folder with contents.
+            The root folder does not have a name in SpecTcl.
+            <classname>ParameterTree</classname> represents the root level
+            folder and further supplies methods to allow you to
+            build the complete folder/terminal hierarhcy given a flat
+            description of a set of parameters.
+        </para>
+    </refsect1>
+</refentry>
         <chapter>
             <title>Stuff to do</title>
             <itemizedlist>
@@ -40682,6 +41161,8 @@ protected:
 
                 <para>
                     Root interface classes.
+RootTreeSink.h
+RootEventProcessor.cpp
                 </para>
             </listitem>
         </itemizedlist>

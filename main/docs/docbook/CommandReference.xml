@@ -6438,6 +6438,90 @@ void Browser() {
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>roottree</refentrytitle>
+        <manvolnum>1SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>roottree</refname>
+        <refpurpose>Write CERN ROOT Trees.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+            <command>
+roottree create <replaceable>tree-name parameter-pattern-list ?gate?</replaceable>
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+roottree delete <replaceable>tree-name</replaceable>
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+roottree list <replaceable>?tree-name-pattern?</replaceable>
+            </command>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            This command allows SpecTcl to write  root trees from the
+            unpacked parameters.  Root Tree writers act as a
+            Event sink, but are linked to an event processor so that they
+            are aware when run start/stop records are encountered.
+        </para>
+        <para>
+            The <literal>create</literal> subcommand creates a new
+            tree named <parameter>tree-name</parameter> the parameters
+            that match any of the list of glob patterns in
+            <parameter>parameter-pattern-list</parameter> will be written to the
+            tree.  If <parameter>gate</parameter> is supplied, branches will
+            only be written to the tree for events that satisfy that
+            gate name.
+        </para>
+        <para>
+            The <literal>delete</literal> subcommand deletes the root
+            tree named by <parameter>tree-name</parameter>.  Deleting the
+            tree does not remove it from any open Root file.  All it does is
+            prevent that tree from having any further branches written in any open
+            root file and from existing in any future root file.
+        </para>
+        <para>
+            The <literal>list</literal> subcommand produces a Tcl list
+            of trees that are currently defined.  If the glob-pattern
+            <parameter>tree-name-pattern</parameter> is supplied, only those
+            trees whose names match that pattern will be listed.  If
+            <parameter>tree-name-pattern</parameter> is omitted, the default
+            glob pattern, <literal>*</literal>, matches all trees.
+        </para>
+        <para>
+            The output of the <literal>list</literal> subcommand is
+            a Tcl list of tree descriptions.  Each description consists of a
+            three element sublist.  The elements of that sublist are, in order,
+            The tree name, the list of parameter patterns defining the
+            written parameters and the name of the gate that conditionalizes
+            branch creation in the tree.  If no gate was selected, this will
+            be the string <literal>-T-</literal> indicating a True gate is
+            used.
+        </para>
+        <para>
+            The name of the root file written is
+            <filename>run-<replaceable>runnumber</replaceable>.root</filename>
+            in the current working directory of the login.  If it's necessary to
+            write trees but no begin run item has been seen, the trees will be
+            written to the file <filename>SpecTcl-<replaceable>seq</replaceable>.root</filename>
+            where <replaceable>seq</replaceable> is the number of times we've been
+            asked to start writing tree data without seeing a start.
+        </para>
+        <para>
+            Typically the case of not seeing a start occurs when attachingh to
+            an online data source.
+        </para>
+    </refsect1>
+
+</refentry>
 </reference>
 
 </book>
