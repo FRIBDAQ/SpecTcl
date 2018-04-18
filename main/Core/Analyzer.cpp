@@ -222,6 +222,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
       
     }
     catch(CException& rError) {
+      delete pEvent;		// Kill hanging event.      
       cerr << "---------------------------------------------------------\n";
       cerr << "Unexpected exception caught while analyzing events.\n";
       cerr << rError.ReasonText() << endl;
