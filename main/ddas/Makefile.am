@@ -17,11 +17,12 @@ include_HEADERS = DDASUnpacker.h \
 libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core \
 	-I@top_srcdir@/Utility	\
 	@LIBTCLPLUS_CFLAGS@	\
-	@TCL_CPPFLAGS@
+	@TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
 
 
 libDDASUnpacker_la_LIBADD = @top_builddir@/Core/libTclGrammerApp.la \
+	@ROOT_LDFLAGS@						\
 	@LIBEXCEPTION_LDFLAGS@  @TCL_LIBS@ 
 
 
@@ -35,8 +36,8 @@ unittests_SOURCES = TestRunner.cpp \
 		DDASUnpackerTest500.cpp \
 		Asserts.h
 
-unittests_CXXFLAGS = @CPPUNIT_CFLAGS@
-unittests_LDADD = @builddir@/libDDASUnpacker.la  @CPPUNIT_LIBS@
+unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@
+unittests_LDADD = @builddir@/libDDASUnpacker.la @ROOT_LDFLAGS@  @CPPUNIT_LIBS@
 
 TESTS = ./unittests
 

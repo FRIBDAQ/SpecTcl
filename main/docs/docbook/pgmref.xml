@@ -21666,7 +21666,7 @@ class CRingFormatHelper11;
                             <type> BufferTranslator* </type><parameter>pTranslator</parameter>
                         </methodparam>
                         <modifier>= 0</modifier>
-.
+			
                     </methodsynopsis>
                 </term>
                 <listitem>
@@ -22091,7 +22091,7 @@ class CParameter : public CNamedItem {
                 </listitem>
             </varlistentry>
             <varlistentry>
-            <varlistentry>
+
                 <term>
                     <constructorsynopsis>
                         <methodname>CParameter</methodname>
@@ -22160,6 +22160,7 @@ class CParameter : public CNamedItem {
                         is the parameter's id.  <parameter>am_sUnits</parameter>
                         are the units of measure string.  If this makes no sense,
                         simply provide an empty string.
+		    </para>
                     <para>
                         This constructor was used to provide the capability
                         of mapping parameters with fixed bit width to some
@@ -22664,8 +22665,7 @@ for (auto p = e.begin(); p != e.end(); p++) {
     <refnamediv>
         <refname>CSpectrum</refname>
         <refpurpose>Classes implementing SpecTcl spectra</refpurpose>
-        <manvolnum>3SpecTcl</manvolnum>
-    </refnamdiv>
+    </refnamediv>
 
     <refsynopsisdiv>
         <synopsis>
@@ -34393,6 +34393,8 @@ public:
             take data from the decoded XDR blocks and store them into
             SpecTcl parameters.
         </para>
+    </refsect1>
+</refentry>
 <refentry>
     <refmeta>
         <refentrytitle>CFold</refentrytitle>
@@ -40383,7 +40385,6 @@ public:
                 </listitem>
             </varlistentry>
         </variablelist>
->>>>>>> Mere with master - this also catches changes to the filter.
     </refsect1>
 
 </refentry>
@@ -40802,8 +40803,8 @@ public:
         <para>
             <classname>TreeItemBaseClass</classname> is an abstract base class.
         </para>
-        <refsec2>
-            <title>METDHOS</title>
+        <refsect2>
+            <title>METHODS</title>
             <variablelist>
                 <varlistentry>
                     <term>
@@ -40825,7 +40826,7 @@ public:
                         </para>
                         <para>
                             The base class holds the object name for all derived
-                            classes.  The constructor parameter <parmaeter>name</parmaeter>
+                            classes.  The constructor parameter <parameter>name</parameter>
                             is given to the object.
                         </para>
                     </listitem>
@@ -40870,7 +40871,7 @@ public:
                     </listitem>
                 </varlistentry>
             </variablelist>
-        </refsec2>
+        </refsect2>
     </refsect1>
     <refsect1>
         <title>TreeFolder</title>
@@ -41025,7 +41026,7 @@ public:
                         <para>
                             Modifies the ownershp of the items contained
                             (see <methodname>addItem</methodname>).
-                            if <parmaeter>yesno</parmaeter> is
+                            if <parameter>yesno</parameter> is
                             <literal>true</literal>, the object
                             will destroy all contained items when it is
                             itself destroyed.  If <literal>false</literal>,
