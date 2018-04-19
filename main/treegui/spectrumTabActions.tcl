@@ -420,12 +420,15 @@ itcl::class spectrumTabActions {
     #
     private method UngateSpectra {} {
 	set spectra [getSelectedSpectra]
-	if {[llength $spectra] != 0} {
-	    ungate {*}$spectra
-	    LoadSpectra [$widget cget -mask]
-
-	}
-	[autoSave::getInstance]  failsafeSave
+        if {[llength $spectra] != 0} {
+            ungate {*}$spectra
+            LoadSpectra [$widget cget -mask]
+            [autoSave::getInstance]  failsafeSave
+        } else {
+            tk_messageBox -title {Nothing selected} -icon info -parent $widget -type ok \
+                -message {Select spectra from the list below to be ungated.}
+        }
+	
 
     }
     ## 
@@ -498,21 +501,27 @@ itcl::class spectrumTabActions {
     # @param name - full name of the gate.
     #
     private method Selectgate name {
-	$widget configure -gate $name
-	ApplyGates;		# Apply gates to selected spectra.
+        $widget configure -gate $name
+        if {[llength [getSelectedSpectra]] != 0} {
+            ApplyGates;		# Apply gates to selected spectra.
+        }
     }
     
     ##
     #  Apply gates to spectra.
     #
     private method ApplyGates {} {
-	set spectra [getSelectedSpectra]
-	set gate    [$widget cget -gate]
-	if {[llength $spectra] != 0} {
-	    apply $gate {*}$spectra
-	}
-	LoadSpectra [$widget cget -mask]
-	[autoSave::getInstance]  failsafeSave
+        set spectra [getSelectedSpectra]
+        set gate    [$widget cget -gate]
+        if {[llength $spectra] != 0} {
+            apply $gate {*}$spectra
+            LoadSpectra [$widget cget -mask];     # Show who's gated.
+            [autoSave::getInstance]  failsafeSave; # Make a new failsafe.
+        } else {
+            tk_messageBox -icon info -parent $widget -title {Nothing selected} -type ok \
+                -message {You must select the spectra to apply this gate to in the spectrum table below}
+        }
+        
 
     }
     ##
