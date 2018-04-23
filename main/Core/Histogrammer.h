@@ -132,12 +132,17 @@ class CHistogrammer : public CEventSink {
   typedef std::list<CGateObserver*>   GateObserverList;
   typedef std::list<CGatingObserver*> GatingObserverList;
 
+
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
+  
+  
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   GateObserverList    m_gateObservers;       // Observers of gate dict
   GatingObserverList  m_gatingObservers;     // Observers of applyGate/ungate
 
+  
+  
   // For maintaining the flattened lists.
 
   CFlattenedGateList*   m_pGateList;
@@ -235,6 +240,10 @@ class CHistogrammer : public CEventSink {
 
   void addGatingObserver(CGatingObserver* observer);
   void removeGatingObserver(CGatingObserver* observer);
+  
+  void addParameterObserver(ParameterDictionaryObserver* pObserver);
+  void removeParameterObserver(ParameterDictionaryObserver* pObsevrer);
+  
 
   
   // Utility Functions:
@@ -244,7 +253,6 @@ class CHistogrammer : public CEventSink {
   void createListObservers();
   
   void observeApplyGate(CGateContainer& rGate, CSpectrum& rSpectrum);
-
 		
 };
 

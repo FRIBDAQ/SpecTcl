@@ -1084,7 +1084,33 @@ CHistogrammer::removeGatingObserver(CGatingObserver* observer)
     p++;
   }
 }
+/**
+ * addParameterObserver
+ *    Adds a new parameter observer to the parameter dictinoary.
+ *
+ * @param pObserver - pointer to the new parameter observer.
+ */
+void
+CHistogrammer::addParameterObserver(ParameterDictionaryObserver* pObserver)
+{
+    m_ParameterDictionary.addObserver(pObserver);
+}
 
+/**
+ * removeParameterObserver
+ *    Get rid of a parameter observer.
+ *
+ *  @param pObserver - the observer to remove.
+ *  @note it is not an error to remove a nonexistent observer.
+ */
+void
+CHistogrammer::removeParameterObserver(ParameterDictionaryObserver* pObserver)
+{
+    m_ParameterDictionary.removeObserver(pObserver);
+}
+/*----------------------------------------------------------------------------
+ *   Private utility implementations.
+ */
 //  Invoke the gate observers when a gate has changed.
 // Parameters:
 //   name   - name of the gate that's changing.

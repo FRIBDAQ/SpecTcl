@@ -83,8 +83,8 @@ public:
     ObserverIterator i = m_observers.begin();
     while(i != m_observers.end()) {
       if (*i == (void*)observer) {
-	m_observers.erase(i);
-	return;
+        m_observers.erase(i);
+        return;
       }
       i++;
     }
