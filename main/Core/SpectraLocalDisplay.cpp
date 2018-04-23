@@ -28,6 +28,8 @@
 #include "Spectrum.h"
 #include "SpecTcl.h"
 #include "TCLInterpreter.h"
+#include <Exception.h>
+#include <tcl.h>
 
 #include <memory>
 
@@ -93,10 +95,30 @@ CSpectraLocalDisplay* CSpectraLocalDisplay::clone() const
 //
 void CSpectraLocalDisplay::start()
 {
-
-    startRESTServer();
-    m_pMemory->attach();
-    m_pProcess->exec();
+    try {
+        startRESTServer();
+        m_pMemory->attach();
+        m_pProcess->exec();
+    }
+    catch (CException& e) {
+        // Failed to start the local server... most likely
+        // REST package plugin was not installed.
+        // Declare a background error and return.
+        
+        SpecTcl* api = SpecTcl::getInstance();
+        CTCLInterpreter* pInterp = api->getInterpreter();
+        Tcl_Interp*      pRawInterp = pInterp->getInterpreter();
+        
+        Tcl_AppendResult(
+            pRawInterp,
+            "\nUnable to start SpecTclHttpdServer. \nCheck that the SpecTcl REST plugin was installed.\n",
+            "The errror messages above this should tell if you if not.\n",
+            "If that's the case, either use the Xamine displayer or \n",
+            "get your SpecTcl installer/manager to install the REST plugin\n",
+            "SpecTcl will run headless.",  nullptr
+        );
+        Tcl_BackgroundError(pRawInterp);
+    }
 
 }
 
