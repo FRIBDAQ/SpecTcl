@@ -41,6 +41,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLCommandPackage.h"
 #include "TCLList.h"
 #include "TCLString.h"
+#include "SpecTcl.h"
+#include "TCLVariable.h"
+#include "TCLObject.h"
+#include <Exception.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -55,7 +59,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <map>
 #include <stdio.h>
-
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -74,11 +78,40 @@ static LookupTableEntry LookupTable[] = {
   { "-list",    CParameterCommand::ListSw   },
   { "-delete",  CParameterCommand::DeleteSw },
   { "-id",      CParameterCommand::IdSw     },
-  { "-byid",    CParameterCommand::ByIdSw   }
+  { "-byid",    CParameterCommand::ByIdSw   },
+  { "-trace",   CParameterCommand::AddTrace },
+  { "-untrace", CParameterCommand::RmTrace  }
 };
 static UInt_t nLookupTableSize = sizeof(LookupTable)/sizeof(LookupTableEntry);
 
 // Functions for class CParameterCommand
+
+
+/**
+ * Constructor
+ *
+ * @param pInterp - pointer to the interpreter.
+ * @param rPackage - reference to our enclosing package.
+ */
+CParameterCommand::CParameterCommand(
+    CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage
+)  :
+     CTCLPackagedCommand("parameter", pInterp, rPackage),
+     m_Observer(pInterp)
+{
+    SpecTcl* api = SpecTcl::getInstance();
+    api->GetHistogrammer()->addParameterObserver(&m_Observer);
+}
+
+/**
+ * destructor
+ *    Remove the observer.
+ */
+CParameterCommand::~CParameterCommand()
+{
+    SpecTcl* pApi = SpecTcl::getInstance();
+    pApi->GetHistogrammer()->removeParameterObserver(&m_Observer);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -142,6 +175,13 @@ CParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     pTail++;			
     return Create(rInterp, rResult,
 		  nTail, pTail);
+  case CParameterCommand::AddTrace:
+    nTail -= 2; pTail += 2;
+    return addTrace(rInterp, rResult, nTail, pTail);
+ case CParameterCommand::RmTrace:
+    nTail -= 2; pTail += 2;
+    return removeTrace(rInterp, rResult, nTail, pTail);
+
   default:			// Some other switch invalid in context:
     Usage(rInterp, rResult);
     return TCL_ERROR;
@@ -506,6 +546,56 @@ CParameterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
   }
 }
+/**
+ * addTrace
+ *    Add a new trace script to the parameter dictionary.  There should only
+ *    be one parameter present, the script.
+ *
+ * @param interp - the interpreter.
+ * @param result - the result.
+ * @param npars  - Number of remaining command line parameters.
+ * @param pars   - array of pointers to those parameters.
+ * @return UInt_t - TCL_OK for success and TCL_ERROR for failures.
+ * */
+UInt_t
+CParameterCommand::addTrace(
+    CTCLInterpreter& rInterp, CTCLResult& rResult,
+    UInt_t nParas, Char_t* pPars[]
+)
+{
+    if (nParas > 1) {
+        rResult = "Incorrect number of command parameters";
+        Usage(rInterp, rResult);
+        return TCL_ERROR;
+    }
+    
+    m_Observer.addTrace(pPars[0]);
+    return TCL_OK;
+}
+/**
+ * removeTrace
+ *    Remove an existing(?) trace from the parameter dict.
+ *    The only parameter is the script.
+ * @param interp - the interpreter.
+ * @param result - the result.
+ * @param npars  - Number of remaining command line parameters.
+ * @param pars   - array of pointers to those parameters.
+ * @return UInt_t - TCL_OK for success and TCL_ERROR for failures.
+ * */
+UInt_t
+CParameterCommand::removeTrace(
+    CTCLInterpreter& rInterp, CTCLResult& rResult,
+    UInt_t nParas, Char_t* pPars[]
+)
+{
+    if (nParas > 1) {
+        rResult = "Incorrect number of command parameters";
+        Usage(rInterp, rResult);
+        return TCL_ERROR;
+    }
+    m_Observer.removeTrace(pPars[0]);
+    return TCL_OK;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -535,7 +625,9 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, CTCLResult& rResult)
   rResult += "   parameter -list  [pattern]\n";
   rResult += "   parameter -list  -id nId\n";
   rResult += "   parameter -delete name\n";
-  rResult += "   parameter -delete -id n\n";
+  rResult += "   parameter -delete -id \n";
+  rResult += "   parameter -trace script \n";
+  rResult += "   parameter -untrace script \n\n";
    
 
 }
@@ -678,4 +770,98 @@ CParameterCommand::ListParametersById(CTCLResult& rResult, const char* pattern)
 
   rResult = (const char*)SortedList; 
   return TCL_OK;
+}
+/*-----------------------------------------------------------------------------
+ *  Implement the nested TraceDispatcher observer class:
+ */
+
+/**
+ * constructor
+ *    @param pInterp  - pointer to the interpreter to use to execute the scripts.
+ */
+CParameterCommand::TraceDispatcher::TraceDispatcher(CTCLInterpreter* pInterp) :
+    m_pInterp(pInterp)
+{}
+
+/**
+ * addTrace
+ *    Adds a new trace script to the observer, the observer is a
+ *    container of Tcl scripts to execute when parameters are added/deleted.
+ *
+ * @param script - pointer to the script text.
+ */
+void
+CParameterCommand::TraceDispatcher::addTrace(const char* script)
+{
+    m_scripts.push_back(script);
+}
+/**
+ * removeTrace
+ *    Remove the first (if any) trace that matches the script.
+ *
+ *  @param script - script to remove from tracing.
+ */
+void
+CParameterCommand::TraceDispatcher::removeTrace(const char* script)
+{
+    for (auto p = m_scripts.begin(); p != m_scripts.end(); p++) {
+        if (*p == script) {
+            m_scripts.erase(p);
+            break;                   // Only kill off one.
+        }
+    }
+}
+/**
+ * onAdd
+ *    Invoked when a parameter has been added to the dict.  We'll dispatch
+ *    (at the global level) the scrips with the text "add" and the name of
+ *    the parameter appended as parameters.
+ *
+ *  @param name - the name of the parameter added.
+ *  @param param - Reference to the CParameter object for that parameter.
+ */
+void
+CParameterCommand::TraceDispatcher::onAdd(std::string name, CParameter& param)
+{
+    for (auto p = m_scripts.begin() ; p != m_scripts.end(); p++) {
+        CTCLObject command;
+        command.Bind(*m_pInterp);
+        command += *p;
+        command += "add";
+        command += name;
+        
+        try {
+            command();            // Evals at global level.
+        }
+        catch (CException& e) {
+            Tcl_BackgroundError(m_pInterp->getInterpreter());
+        }
+    }
+}
+/**
+ * onRemove
+ *    Invoked when a parameter has been deleted from the dict.  Dispatch
+ *    the trace script with delete and the name of the parameter added.
+ *
+ *  @param name - the name of the parameter removed.
+ *  @param param - References the CParameter object about to be removed.
+ */
+void
+CParameterCommand::TraceDispatcher::onRemove(std::string name, CParameter& param)
+{
+    for (auto p = m_scripts.begin() ; p != m_scripts.end(); p++) {
+        CTCLObject command;
+        command.Bind(*m_pInterp);
+        command += *p;
+        command += "delete";
+        command += name;
+        
+        try {
+            command();            // Evals at global level.
+        }
+        catch (CException& e) {
+            Tcl_BackgroundError(m_pInterp->getInterpreter());
+
+        }
+    }
 }
