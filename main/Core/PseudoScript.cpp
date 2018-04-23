@@ -61,12 +61,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLString.h>
 #include <Exception.h>
 #include <TCLException.h>
+#include <TCLVariable.h>
+#include <tcl.h>
 
 #include <stdlib.h>
 #include <list>
 
 #include <iostream>
 #include <stdio.h>
+#include <sstream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -232,41 +235,52 @@ void CPseudoScript::operator()(CEvent& rEvent)
     pId++;
 
   }
-  // The Pseudo is ready to be evaluated:
-
+  /*
+   * The Pseudo is ready to be evaluated;  Any exceptions thrown by the script
+   * execution are converted to Tcl Rersults which are reported via
+   * Tcl_BackgroundError.   This is suitable because the scripts are disabled
+   * if they toss an error so we're not going to get too big a pile of them.
+   */
+  std::stringstream Result;      // Error messages get built here.
+  CTCLObject result;
   try {
-    CTCLObject Result;
-    Result = m_pInterpreter->GlobalEval(Pseudo).c_str();
-    Result.Bind(m_pInterpreter);
-    rEvent[getNumber()] = (double)(Result);	// Set the result.
+    result = m_pInterpreter->GlobalEval(Pseudo).c_str();
+    result.Bind(m_pInterpreter);
+    rEvent[getNumber()] = (double)(result);	// Set the result.
+    return;
   }
-  catch (CTCLException& rException) {
-    string Result;
-    Result = rException.ReasonText();
-
-    cerr << "Evaluation of script: " << getName() << " failed\n";
-    cerr << "Result was: " << Result << endl;
-    cerr << rException.WasDoing() << endl;
-    cerr << "Disabling pseudo - fix it please" << endl;
-    setEnabled(kfFALSE);
-    cerr.flush();
+  catch (CTCLException& rException) {   
+    CTCLVariable traceback(m_pInterpreter, "errorInfo", false);
+    
+    Result << "Evaluation of script for pseudo parameter: " << getName() << " failed:\n";
+    Result << rException.ReasonText() << std::endl;
+    const char* trace = traceback.Get();
+    if (trace) {
+        Result << trace << std::endl;
+    }
+    Result << rException.WasDoing() << endl;
+    Result << "Disabling pseudo - fix it please" << endl;
+    
   }
   catch (CException& rException) { // Throw on script execution error.
-    cerr << "Evaulation of script: " << getName() << " failed\n";
-    cerr << rException.WasDoing() << endl;
-    cerr << "Disabling pseudo - fix it please" << endl;
-    setEnabled(kfFALSE);
-    cerr.flush();
+    Result << "Evaulation of script for pseudo parameter: " << getName() << " failed\n";
+    Result << rException.WasDoing() << endl;
+    Result << "Disabling pseudo - fix it please" << endl;
+    
 
   }
   catch (...) {
-    cerr << " Evaluation of script: " << getName() << " faild\n";
-    cerr << " Unanticipated exception thrown \n";
-    cerr << "Disabling pseudo - fix it please" << endl;
-    setEnabled(kfFALSE);
-    cerr.flush();
+    Result << " Evaluation of script for pseudo parameter: " << getName() << " faild\n";
+    Result << " Unanticipated exception thrown \n";
+    Result << "Disabling pseudo - fix it please" << endl;
+    
   }
+  // Because the return is in the try block we only get here if an exception
+  // was handled.  
   
+  m_pInterpreter->setResult(Result.str());
+  setEnabled(false);   // disable the script
+  Tcl_BackgroundError(m_pInterpreter->getInterpreter());
   
 }
 //////////////////////////////////////////////////////////////////////////////
