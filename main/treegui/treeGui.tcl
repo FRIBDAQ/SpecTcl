@@ -27,6 +27,24 @@ package require parametersTabActions
 package require gateTabActions
 package require spectrumTabActions
 package require SpecTclGui
+package require treeUtilities
+
+##
+# updateParameterMenus
+#
+#    Trace called when there's a change to the parameter list:
+#
+# @param op -- operation performed, add or delete - don't care
+# @param which -- parameter added or deleted.
+#
+proc updateParameterMenus {op which} {
+    set params [::treeutility::parameterList]
+    $::treenotebook.parameters configure -parameters $params;      # refresh tree parameter tab.
+    $::treenotebook.spectra configure -parameters $params;         # Spectra menubuttons too.
+}
+
+#-----------------------------------------------------------------------------
+#  Package entry point
 
 if {![winfo exists .treegui]}  {	# Don't do it twice!
     #
@@ -47,8 +65,8 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     $treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
 
     set time [time {
-	parametersTabActions parameters -widget $treenotebook.parameters} 1
-	     ]
+        parametersTabActions parameters -widget $treenotebook.parameters} 1
+	]
 
     $treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
     
@@ -78,4 +96,8 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     grid columnconfigure .treegui all -weight 1
     grid rowconfigure    .treegui  0   -weight 1
     grid rowconfigure    .treegui  1   -weight 0
+    
+    #   Set traces on parameter changes so that we can  update their menus:
+    
+    parameter -trace [list updateParameterMenus]
 }
