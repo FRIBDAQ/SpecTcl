@@ -14,10 +14,12 @@
 #include <GateContainer.h>
 #include <Contour.h>
 #include <CGammaContour.h>
+#include <OrGate.h>
 
 #include <Spectrum.h>
 #include <Spectrum1DL.h>
 #include <Gamma1DL.h>
+#include <CSpectrum2Dm.h>
 #include <SnapshotSpectrum.h>
 #include <TrueGate.h>
 #include <SpecTcl.h>
@@ -30,7 +32,7 @@
 
 
 #include <vector>
-
+#include <set>
 #include <string.h>
 
 #define DESIGN_BY_CONTRACT
@@ -211,7 +213,7 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
     GateTarget(pSource, pDest, pContainer);
     if (pSource->getSpectrumType() == keG2D) {
       FoldTarget(pSource, pDest);
-    }
+    } 
   }
 
   // Enter the spectrum in spectcl:
@@ -292,7 +294,7 @@ CProjectionCommand::getValidatedSourceSpectrum(const char* name)
 
   if(pSource) {
     SpectrumType_t sType = pSource->getSpectrumType();
-    if ( (sType != ke2D)  && (sType != keG2D)) {
+    if ( (sType != ke2D)  && (sType != keG2D) && (sType != ke2Dm)) {
       throw string("Invalid source spectrum type must be 2d or gamma 2d");
     }
   }
@@ -356,7 +358,7 @@ CProjectionCommand::getValidatedDirection(const char* pDirection)
 
  *
  * Note: The new spectrum is not entered into the SpecTcl spectrum list.   This
- * allows it to be generated and possibly rapped into a Snapshot spectrum.
+ * allows it to be generated and possibly wrapped into a Snapshot spectrum.
  *
  * @param name    Pointer to the command line word that should be containing the
  * name of the target spectrum.
@@ -417,9 +419,21 @@ CProjectionCommand::getValidatedTargetSpectrum(const char* name,
 			  nChannels, Low, High);
     
   }
-  else {			            // gamma 2d. -> g1d.
+  else  {			            // gamma 2d, or m2-> g1d.
+    
+    // The parameters we use depend on the spectrum type.
+    // for gamma spectra we use all parameters.  For m2 we use
+    // every other starting with an index that depends on the projection
+    // direction.
+    
+    int start = 0;            // These are right for gamma spectra.
+    int step  = 1;
+    if (def.eType = ke2Dm) {
+        step = 2;             // Only every other parameter...
+        start = which == x ? 0 : 1; // Start depends on projection direction.
+    }
     vector<CParameter> parameters;
-    for (int i = 0; i < def.vParameters.size(); i++) {
+    for (int i = start; i < def.vParameters.size(); i += step) {
       CParameter* pParam = api->FindParameter(def.vParameters[i]);
       REQUIRE(pParam, "Parameter lookup failed");
       parameters.push_back(*pParam);
@@ -486,8 +500,8 @@ CProjectionCommand::getProjectionGate(const char* pGateName,
     if ((*pGateContainer)->Type() == "c") {
       CContour* pGate = dynamic_cast<CContour*>(pGateContainer->getGate());
       if (pSourceSpectrum->UsesParameter(pGate->getxId())   && 
-	  pSourceSpectrum->UsesParameter(pGate->getyId())) {
-	return pGateContainer;
+        pSourceSpectrum->UsesParameter(pGate->getyId())) {
+        return pGateContainer;
       }
       else {
 	return (CGateContainer*)kpNULL;	// wrong parameters.
@@ -496,24 +510,32 @@ CProjectionCommand::getProjectionGate(const char* pGateName,
     else {
       return (CGateContainer*)kpNULL; // 2d gates must be contours.
     }
-  } 
-  else {			// Gamma -2d.
+  }  else if (pSourceSpectrum->getSpectrumType() == keG2D) {			// Gamma -2d.
     if ((*pGateContainer)->Type() == "gc") {
       CGammaContour*  pGate = dynamic_cast<CGammaContour*>(pGateContainer->getGate());
       CGammaSpectrum* pSrc  = (CGammaSpectrum*)pSourceSpectrum;
       vector<UInt_t> parameterIds;
       pSrc->GetParameterIds(parameterIds);
       for(int i =0; i < parameterIds.size(); i++) {
-	if (!pGate->UsesParameter(parameterIds[i])) {
-	  return (CGateContainer*)kpNULL;
-	}
+        if (!pGate->UsesParameter(parameterIds[i])) {
+            return (CGateContainer*)kpNULL;
+          }
       }
       return pGateContainer;
-    } 
-    else {
+    } else {
       return (CGateContainer*)kpNULL; // Gamma contours only for gamma 2d.
     }
-  }
+  } else if (pSourceSpectrum->getSpectrumType() == ke2Dm) {
+    // 2dm spectra will have an OR gate whose constituents are all contours
+    // with the same points.  Validate it and return the compound gate
+    // The projection code will need to pull out one of the contours to do the
+    // channel value copies in a bit.
+    
+    return isValid2DmGate(pSourceSpectrum, pGateContainer);
+    
+  } else {
+		return (CGateContainer*)kpNULL;
+	}
 }
 
 
@@ -553,10 +575,10 @@ CProjectionCommand::projectX(CSpectrum* sourceSpectrum,
   // Now we can project correctly:
 
   targetSpectrum->Clear();
-  Size_t xSize = sourceSpectrum->Dimension(0);
-  Size_t ySize = sourceSpectrum->Dimension(1);
+  Size_t xSize = sourceSpectrum->Dimension(0) - 2;   // -2 because of root.
+  Size_t ySize = sourceSpectrum->Dimension(1) - 2;
 
-  for (UInt_t x = 0; x < xSize; x++) {
+  for (UInt_t x = 0; x < xSize ; x++) {  
     ULong_t sum = 0;
     for (UInt_t y = 0; y < ySize; y++) {
       UInt_t indices[2];
@@ -601,8 +623,8 @@ CGateContainer* gate)
   // Now do the projection 
   
   targetSpectrum->Clear();
-  Size_t xSize = sourceSpectrum->Dimension(0);
-  Size_t ySize = sourceSpectrum->Dimension(1);
+  Size_t xSize = sourceSpectrum->Dimension(0) - 2;
+  Size_t ySize = sourceSpectrum->Dimension(1) - 2;
 
   for (UInt_t y =0; y < ySize; y++) {
     ULong_t sum = 0;
@@ -654,7 +676,11 @@ CROI*
 CProjectionCommand::selectROI(CSpectrum*      pSource, 
 			      CGateContainer* pGate)
 {
-  CSpectrum::Axes maps = pSource->getAxisMaps();
+  
+	CSpectrum::Axes maps = pSource->getAxisMaps();
+	
+	// Ordinary contour type gates....
+	
   if ( ((*pGate)->Type() == "c") || ((*pGate)->Type() == "gc")) {
     // Need to figure out the map order as the source spectrum
     // axes may be reversed relative to the gate:
@@ -665,8 +691,23 @@ CProjectionCommand::selectROI(CSpectrum*      pSource,
     return new CContourROI(pGate, 
 			   maps[order[0]], 
 			   maps[order[1]]);
-  }
-  else {
+  } else if ((*pGate)->Type() == "+") {
+		// Or gate of contours for m2:....
+		
+		int order[2];
+		parameterOrder(order, pSource, pGate);     // figure out how to order params.
+		CCompoundGate* pActualGate = reinterpret_cast<CCompoundGate*>(pGate->getGate());
+		
+		// Use the first gate to define the ROI
+		
+		CGateContainer* pFirstGate = pActualGate->GetConstituents().front();;
+		
+		return new CContourROI(pFirstGate, maps[order[0]], maps[order[1]]);
+		
+	} else {
+		
+		// No ROI (so true everywhere)
+		
     return new CEverywhereROI(maps[0], maps[1]);
   }
   return (CROI*)NULL;			// This is actually a bug.
@@ -693,16 +734,47 @@ CProjectionCommand::parameterOrder(int* orderArray, CSpectrum* pSource,
   orderArray[0] = 0;		// Assume no flip required.
   orderArray[1] = 1;
 
-  vector <UInt_t> params;
-  pSource->GetParameterIds(params);
-  if ((*pGate)->Type() == "c") {
-    CContour* Gate = dynamic_cast<CContour*>(pGate->getGate());
-    int gatex       = Gate->getxId();
-    if(params[0] != gatex) {	// The order is reversed.
-      orderArray[0] = 1;
-      orderArray[1] = 0;
-    }
-  }
+	// It's all straightforward if not a 2m spectrum:
+	
+	if (pSource->getSpectrumType() != ke2Dm) {	
+		vector <UInt_t> params;
+		pSource->GetParameterIds(params);
+		if ((*pGate)->Type() == "c") {
+			CContour* Gate = dynamic_cast<CContour*>(pGate->getGate());
+			int gatex       = Gate->getxId();
+			if(params[0] != gatex) {	// The order is reversed.
+				orderArray[0] = 1;
+				orderArray[1] = 0;
+			}
+		}
+	} else {
+		// For m2, we need to look at the first constituent of the gate, and
+		// see if its parameters are x/y or y/x of some pair of parameters in the spectrum.
+		// at this point we can assume the gate is valid for a m2
+		
+		std::vector<UInt_t> allparameters;
+		std::set<UInt_t>    xparams;
+		std::set<UInt_t>     yparams;
+		CSpectrum2Dm* pSpec = reinterpret_cast<CSpectrum2Dm*>(pSource);
+		pSpec->GetParameterIds(allparameters);
+		for (int i =0; i < allparameters.size(); i += 2) {
+			xparams.insert(allparameters[i]);
+			yparams.insert(allparameters[i+1]);
+		}
+		CCompoundGate* pActualGate = reinterpret_cast<CCompoundGate*>(pGate->getGate());
+		CGateContainer* pFirstGate = pActualGate->GetConstituents().front();
+		CPointListGate *pActFirstGate =
+			reinterpret_cast<CPointListGate*>(pFirstGate->getGate());
+		
+		// If the xid is in xparams we guessed the order right, otherwise,
+		// reverse:
+		
+		if (xparams.count(pActFirstGate->getxId()) == 0) {
+			orderArray[0] = 1;
+			orderArray[1] = 0;             // flip.
+		}
+		
+	}
 }
 /*!
    Figure out how to gate the target spectum.
@@ -763,4 +835,64 @@ CProjectionCommand::FoldTarget(CSpectrum* pSource, CSpectrum* pTarget)
       pD->Fold(pFoldGate);
     }
   }
+}
+/**
+ * isValid2DmGate
+ *    Determines if the gate in a gate container is a valid gate for
+ *    projecting a 2dm spectrum.  The gate must be a contour that was drawn
+ *    on the 2dm spectrum.  This means the gate must satisfy the following conditions:
+ *    -  The gate must be an OR gate.
+ *    -  The constituents must all be contours.
+ *    -  The parameters of each contour must be a valid x and y parameter of the
+ *       spectrum.
+ *    -  All points on the contour must be  the same.
+ *
+ * @param[in] pSource - spectrum being projected.
+ * @param[in] pGate - Gate container of the gate.
+ * @return CGateContainer*
+ *    @retval pGate - the gate is valid for projection.
+ *    @retval nullptr - the gate is not valid for projection.
+ */
+CGateContainer*
+CProjectionCommand::isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate)
+{
+	CSpectrum2Dm* pSpectrum = reinterpret_cast<CSpectrum2Dm*>(pSource);
+	if ((*pGate)->Type() == "+") {
+			COrGate* pActualGate = reinterpret_cast<COrGate*>(pGate->getGate());
+			std::vector<UInt_t> allparameters;
+			std::set<UInt_t>    xparams;           // Only the x parameters.
+			std::set<UInt_t>    yparams;           // Only the y parameters.
+			
+			pSpectrum->GetParameterIds(allparameters);
+			for (int i = 0; i < allparameters.size(); i += 2) {
+				xparams.insert(allparameters[i]);
+				yparams.insert(allparameters[i+1]);
+			}
+			std::vector<FPoint> points;
+			std::list<CGateContainer*>& gates(pActualGate->GetConstituents());
+			for (auto p = gates.begin(); p != gates.end(); p++) {
+				CGateContainer* pConstituent = *p;
+				if ((*pConstituent)->Type() == "c") {
+					CPointListGate* pCActual =
+						reinterpret_cast<CPointListGate*>(pConstituent->getGate());
+					if ( (xparams.count(pCActual->getxId()) + yparams.count(pCActual->getyId())) != 2) {
+						break;                         // one or more parameters isn't right
+					}
+					std::vector<FPoint> gatePoints = pCActual->getPoints();
+					if (points.empty()) {
+						points = gatePoints;
+					} else {
+						// need to compre...
+						if (gatePoints != points) break;   // not matching points.
+					}
+				} else {
+					break;                             // Not a valid constituent type.
+				}
+			}
+			return pGate;                          // All conditions met.
+	}
+	
+	// If we got here we didn't satisfy one of the criteria above.
+	
+	return nullptr;
 }

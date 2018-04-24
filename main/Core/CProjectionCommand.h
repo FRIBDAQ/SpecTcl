@@ -101,6 +101,7 @@ protected:
   static void  GateTarget(CSpectrum* pSource, CSpectrum* pTarget, 
 			  CGateContainer* pROI);
   static void FoldTarget(CSpectrum* pSource, CSpectrum* pTarget);
+  static CGateContainer* isValid2DmGate(CSpectrum* pSource, CGateContainer* pGate);
 };
 
 
