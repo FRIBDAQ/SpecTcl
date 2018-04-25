@@ -66,7 +66,9 @@ public:
     keBadResolutionCount,
     keBadTransformCount,
     keBadChannelCount,
-    keNoMappingInformation
+    keNoMappingInformation,
+    keConstructionFailed,
+    keBadGateType
   };
 private:
   DataType_t            m_eType;          // Type of data held in spectrum 
