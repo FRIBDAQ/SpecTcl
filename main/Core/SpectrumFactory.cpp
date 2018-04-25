@@ -1467,8 +1467,7 @@ CSpectrumFactory::CreateM2ProjectionSpectrum(
     } else {
         units = params[1].getUnits();   // units of first y param.
     }
-    // Gates.  roi must be an OR gate and must have as many constituents
-    //         as parameter pairs.  We'll let the constructor do further
+    // Gates.  roi must be an OR gate  We'll let the constructor do further
     //         validation.
     
     if ((*roi)->Type() != "+") {
