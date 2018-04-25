@@ -186,7 +186,7 @@ Bool_t
 CM2Projection<T,R>::UsesParameter(UInt_t id) const
 {
     for (int i = 0; i < m_XYParameterPairs.size(); i++) {
-        std::pair<UInt_t, UInt_t>& xy(m_XYParameterPairs[i]);
+        const std::pair<UInt_t, UInt_t>& xy(m_XYParameterPairs[i]);
         if ((id == xy.first) || (id == xy.second)) return kfTRUE;
     }
     return kfFALSE;
@@ -273,7 +273,8 @@ CM2Projection<T,R>::GetDefinition()
     
     m_def.sName = getName();
     m_def.nId   = getNumber();
-    m_def.eDataType = ke2DmProj;
+    m_def.eType =  getSpectrumType();
+    m_def.eDataType = StorageType();
     
     for (int i = 0; i < m_XYParameterPairs.size(); i++) {
         std::pair<UInt_t, UInt_t>& xy(m_XYParameterPairs[i]);
@@ -392,7 +393,7 @@ CM2Projection<T,R>::CreateStorage()
      }
      
      T* pStorage = new T[m_nChannels];
-     replaceStorage(pStorage);
+     ReplaceStorage(pStorage);
      Clear();
      createStatArrays(1);            // Actually obsolete but...
 }
