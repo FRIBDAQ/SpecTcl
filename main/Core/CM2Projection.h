@@ -57,20 +57,24 @@ class CGateContainer;
  *      - There are typedefs for L, W and B spectra.
  *      -  We include the implementation (CM2Projection.hpp).
  */
-template <class T, class R>
+template<typename T, typename R>
 class CM2Projection : public CSpectrum
 {
 private:
     std::vector<std::pair<UInt_t, UInt_t> > m_XYParameterPairs;
     std::vector<CGateContainer*>            m_Gates;
-
+    UInt_t                                  m_nChannels;
+    Bool_t                                  m_x;
+    CSpectrum::SpectrumDefinition           m_def;
+    
     // Canonicals:
 public:
     CM2Projection(
         const std::string name, UInt_t nId,
-        const std::vector<UInt_t>& xParams; const std::vector<UInt_t>& yParams,
-        UInt_t nChannels, FLoat_t fLow, FLoat_t fHigh,
-        std::string units=std::string("")
+        const std::vector<UInt_t>& xParams, const std::vector<UInt_t>& yParams,
+        const std::vector<CGateContainer*> roiGates,
+        UInt_t nChannels, Float_t fLow, Float_t fHigh,
+        std::string units=std::string(""), Bool_t x = kfTRUE
     );
     virtual ~CM2Projection();
     
@@ -98,18 +102,19 @@ public:
   virtual Bool_t needParameter() const;
 
   virtual SpectrumType_t getSpectrumType();
-
-  virtual Float_t GetLow(UInt_t n) const;
-  virtual Float_t GetHigh(UInt_t n) const;
-  virtual std::string GetUnits(UInt_t n) const;
-  
   virtual void setStorage(Address_t pStorage);
   virtual Size_t StorageNeeded() const;
+  
+  // methods specific to this spectrum type:
+  
+  Bool_t isXprojection() const;
+  std::vector<CGateContainer*> getRoiGates() const;
   
   // Utility methods
 
 private:
     void CreateStorage();
+    void OrderGateContainers(const std::vector<CGateContainer*>& gates);
 };
 
 // Specific 1d spectrum types.

@@ -170,7 +170,7 @@ Sorter_SRC =  DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
 	CGammaSummarySpectrum.cpp \
-	GatingObserver.cpp
+	GatingObserver.cpp 
 
 Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
@@ -184,7 +184,7 @@ Sorter_INCLUDES = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
 	Gamma2DD.h DynamicList.h DynamicList.cpp \
 	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
-	GatingObserver.h
+	GatingObserver.h CM2Projection.h CM2Projection.hpp
 
 # TapeCommand.cc removed.
 
@@ -422,7 +422,9 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 					  TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
 					  TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
 						CParameterMappingTest.cpp CAxisTests.cpp \
-						CParameterMappingTest.h CAxisTests.h
+						CParameterMappingTest.h CAxisTests.h \
+						m2projtest.cpp Asserts.h
+
 treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
