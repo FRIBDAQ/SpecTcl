@@ -90,7 +90,9 @@
 // Forward class definitions:
 
 class CSpectrum;
-                                                               
+class CGateContainer;
+
+
 class CSpectrumFactory      
 {
   static UInt_t m_nNextId;  // Next Spectrum ID to assign.
@@ -279,7 +281,11 @@ public:
 				Float_t     yLow,
 				Float_t     yHigh);
 
-
+  CSpectrum* CreateM2ProjectionSpectrum(
+    std::string name, DataType_t dtype, const std::vector<CParameter>& params,
+    CGateContainer* roi, Bool_t xproj,
+    UInt_t nChannels, Float_t low, Float_t high
+  );
   UInt_t NextId ()  ;
   Bool_t ExceptionMode() const { return m_fExceptions; }
   Bool_t ExceptionMode(Bool_t fNewMode) {

@@ -71,6 +71,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CSpectrum2DmB.h"
 #include "Gamma2DD.h"
 #include "CGammaSummarySpectrum.h"
+#include "CM2Projection.h"
+
+#include "GateContainer.h"
+#include "CompoundGate.h"
 
 #include "Histogrammer.h"
 #include <TH2I.h>
@@ -1307,6 +1311,70 @@ CSpectrumFactory::Create2DMultiple(std::string name, DataType_t eType,
   }
   return (CSpectrum*)kpNULL;	// Acutally a bad error.
 }
+/*!
+   Create a gamma 2d deluxe spectrum.
+   \param name    - The name of the spectrum.
+   \param eType   - The data type of the spectrum.
+   \param rxParameters - Reference to the parameters on the x axis.
+   \param ryParameters - Reference to the parameters on the y axis.
+   \param xChannels    - Number of channels on the x axis.
+   \param xLow         - Low limit in real coordinates of x axis.
+   \param xHigh        - High limit in real coordinates of the x axis.
+   \param yChannels    - Number of channels on the y axis.
+   \param yLow         - Low limit in real coordinates of the y axis.
+   \param yHigh        - High limit in real coordinates of the y axis.
+
+   \return CSpectrum*
+   \retval a pointer to the spectrum that has been created.  Exceptions get
+           thrown in if there are errors unless exceptions have been turned off
+	   via ExceptioMode(false)
+*/
+CSpectrum*
+CSpectrumFactory::CreateG2dDeluxe(string name,
+				  DataType_t        eType,
+			     std::vector<CParameter>& rxParameters,
+			     std::vector<CParameter>& ryParameters,
+			     UInt_t  xChannels, 
+			     Float_t xLow, Float_t xHigh,
+			     UInt_t  yChannels,
+			     Float_t yLow, Float_t yHigh)
+{
+  switch (eType) {
+  case keByte:
+    return new CGamma2DDB(name,
+				  NextId(),
+				  rxParameters, ryParameters,
+				  xChannels, yChannels,
+				  xLow, xHigh,
+				  yLow, yHigh);
+  case keWord:
+    return new CGamma2DDW(name,
+				   NextId(),
+				   rxParameters, ryParameters,
+				   xChannels, yChannels,
+				   xLow, xHigh,
+				   yLow, yHigh);
+  case keLong:
+    return new CGamma2DDL(name,
+				  NextId(),
+				  rxParameters, ryParameters,
+				  xChannels, yChannels,
+				  xLow, xHigh,
+				  yLow, yHigh);
+  default:
+    if (m_fExceptions) {
+      throw CSpectrumFactoryException(eType,
+				      keG2DD,
+				      name,
+				      CSpectrumFactoryException::keBadDataType,
+				      "Creating Gamma 2d deluxe spectrum");
+    }
+    else {
+      return static_cast<CSpectrum*>(kpNULL);
+    }
+  }
+}
+
 
 /*!
    Create a gamma summary spectrum.
@@ -1336,14 +1404,124 @@ CSpectrumFactory::CreateGammaSummary(string name, DataType_t eType,
   case keLong:
     return new CGammaSummarySpectrumL(name, id, &parameters, yChannels, yLow, yHigh);
   default:
-    throw CSpectrumFactoryException(eType, 
+    if (m_fExceptions) {
+        throw CSpectrumFactoryException(eType, 
 				    keGSummary,
 				    name,
 				    CSpectrumFactoryException::keBadDataType,
 				    "Creating gamma summary spectrum");
+    } else {
+        return nullptr;
+    }
   }
 }
 
+/**
+ *  createM2ProjectionSpectrum
+ *
+ *  @param name - name of the new spectrum.
+ *  @param dtype- Channel data type.
+ *  @param params- Parameter vector (alternating x/y parameters must be even number).
+ *  @param roi   - Gate container of the or gate that determines the ROI
+ *  @param xproj - True if the spectrum is an x projection, false if Y.
+ *  @param nChannels - Number of channels on the spectrum (X)  axis.
+ *  @#param low, high - Low and high parameter limits on the axis.
+ *  @return pointer to a dynamically created spectrum.  If an error either an
+ *                Exvception is thrown or nullptr is returned depending on
+ *                m_fExceptions.
+ */
+CSpectrum*
+CSpectrumFactory::CreateM2ProjectionSpectrum(
+    std::string name, DataType_t dtype, const std::vector<CParameter>& params,
+    CGateContainer* roi, Bool_t xproj,
+    UInt_t nChannels, Float_t low, Float_t high
+)
+{
+    // must be an even number of parameters:
+    
+    if (params.size() % 2) {
+        if (m_fExceptions) {
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name,
+                CSpectrumFactoryException::keBadParameterCount,
+                "Checking that there are an even number of parametrs"
+            );
+        } else {
+            return nullptr;
+        }
+    }
+    // Marshall the x/y parameter arrays.
+    
+    std::vector<UInt_t> xparamIds;
+    std::vector<UInt_t> yparamIds;
+    
+    for (int i = 0; i < params.size(); i += 2) {
+        xparamIds.push_back(params[i].getNumber());
+        yparamIds.push_back(params[i+1].getNumber());
+    }
+    // Units depends on the x/y direction:
+    
+    std::string units;
+    if (xproj) {
+        units = params[0].getUnits();   // Units of first x param
+    } else {
+        units = params[1].getUnits();   // units of first y param.
+    }
+    // Gates.  roi must be an OR gate and must have as many constituents
+    //         as parameter pairs.  We'll let the constructor do further
+    //         validation.
+    
+    if ((*roi)->Type() != "+") {
+        if (m_fExceptions)  {
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name, CSpectrumFactoryException::keBadGateType,
+                "M2 projection spectra, ROI gate must be a + gate and is not."
+            );
+        } else {
+            return nullptr;
+        }
+    }
+    // Get the constituents into a vector:
+    
+    CCompoundGate* pGate = reinterpret_cast<CCompoundGate*>(roi->getGate());
+    std::vector<CGateContainer*>
+        gates(pGate->GetConstituents().begin(), pGate->GetConstituents().end());
+    
+    try {
+        switch (dtype) {
+        case keByte:
+            return new CM2Projection<Char_t, TH1C>(
+                name, NextId(), xparamIds, yparamIds, gates,
+                nChannels,  low, high, units, xproj);
+        case keWord:
+             return new CM2ProjectionW(
+                name, NextId(), xparamIds, yparamIds, gates,
+                nChannels,  low, high, units, xproj);
+        case keLong:
+             return new CM2ProjectionL(
+                name, NextId(), xparamIds, yparamIds, gates,
+                nChannels,  low, high, units, xproj);
+        default:
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name, CSpectrumFactoryException::keBadDataType,
+                "Invalid spectrum data type code"
+            );
+        }
+    }
+    catch (CSpectrumFactoryException& e) {
+        if (m_fExceptions) throw;
+        
+    } catch(...) {
+        if (m_fExceptions) {
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name,
+                CSpectrumFactoryException::keConstructionFailed,
+                "Exception caught creating an m2 projection spectrum"
+            );
+        }
+    }
+    return nullptr;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1544,68 +1722,4 @@ CSpectrumFactory::DefaultAxisLength(UInt_t nChannels, CParameter& rParam)
   }
 }
 
-
-/*!
-   Create a gamma 2d deluxe spectrum.
-   \param name    - The name of the spectrum.
-   \param eType   - The data type of the spectrum.
-   \param rxParameters - Reference to the parameters on the x axis.
-   \param ryParameters - Reference to the parameters on the y axis.
-   \param xChannels    - Number of channels on the x axis.
-   \param xLow         - Low limit in real coordinates of x axis.
-   \param xHigh        - High limit in real coordinates of the x axis.
-   \param yChannels    - Number of channels on the y axis.
-   \param yLow         - Low limit in real coordinates of the y axis.
-   \param yHigh        - High limit in real coordinates of the y axis.
-
-   \return CSpectrum*
-   \retval a pointer to the spectrum that has been created.  Exceptions get
-           thrown in if there are errors unless exceptions have been turned off
-	   via ExceptioMode(false)
-*/
-CSpectrum*
-CSpectrumFactory::CreateG2dDeluxe(string name,
-				  DataType_t        eType,
-			     std::vector<CParameter>& rxParameters,
-			     std::vector<CParameter>& ryParameters,
-			     UInt_t  xChannels, 
-			     Float_t xLow, Float_t xHigh,
-			     UInt_t  yChannels,
-			     Float_t yLow, Float_t yHigh)
-{
-  switch (eType) {
-  case keByte:
-    return new CGamma2DDB(name,
-				  NextId(),
-				  rxParameters, ryParameters,
-				  xChannels, yChannels,
-				  xLow, xHigh,
-				  yLow, yHigh);
-  case keWord:
-    return new CGamma2DDW(name,
-				   NextId(),
-				   rxParameters, ryParameters,
-				   xChannels, yChannels,
-				   xLow, xHigh,
-				   yLow, yHigh);
-  case keLong:
-    return new CGamma2DDL(name,
-				  NextId(),
-				  rxParameters, ryParameters,
-				  xChannels, yChannels,
-				  xLow, xHigh,
-				  yLow, yHigh);
-  default:
-    if (m_fExceptions) {
-      throw CSpectrumFactoryException(eType,
-				      keG2DD,
-				      name,
-				      CSpectrumFactoryException::keBadDataType,
-				      "Creating Gamma 2d deluxe spectrum");
-    }
-    else {
-      return static_cast<CSpectrum*>(kpNULL);
-    }
-  }
-}
 
