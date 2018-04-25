@@ -56,6 +56,7 @@
 #include <TH2I.h>
 #include <TH2S.h>
 #include <TH2C.h>
+#include <TDirectory.h>
 
 using namespace std;
 
@@ -89,12 +90,15 @@ CGammaSummarySpectrum<T,R>::CGammaSummarySpectrum(string              name,
 	     nXChannels,
 	     nYChannels,
 	     0, nYChannels - 1);
-  
+
+  std::string olddir = gDirectory->GetPath();
+  gDirectory->Cd("/");  
   R* pRootSpectrum = new R(
     name.c_str(), name.c_str(),
     nXChannels, static_cast<Double_t>(0), static_cast<Double_t>(nXChannels),
     nYChannels, static_cast<Double_t>(0.0), static_cast<Double_t>(nYChannels)
   );
+  gDirectory->Cd(olddir.c_str());
   pRootSpectrum->Adopt(0, nullptr);
   setRootSpectrum(pRootSpectrum);
   CreateStorage();
