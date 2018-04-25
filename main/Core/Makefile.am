@@ -418,12 +418,12 @@ displayInterfaceTests_SOURCES = TestRunner.cpp \
 sorterTests_CXXFLAGS = $(commonCXXFLAGS)
 sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
-					  Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
-					  TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
-					  TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
-						CParameterMappingTest.cpp CAxisTests.cpp \
-						CParameterMappingTest.h CAxisTests.h \
-						m2projtest.cpp Asserts.h
+					Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
+					TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
+					TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
+					CParameterMappingTest.cpp CAxisTests.cpp \
+					CParameterMappingTest.h CAxisTests.h \
+					m2projtest.cpp factoryTests.cpp
 
 treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
