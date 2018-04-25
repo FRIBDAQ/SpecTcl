@@ -1116,7 +1116,33 @@ SpecTcl::CreateStripChart(string name, DataType_t dataType,
 				       channels, xLow, xHigh);
 }
 
-
+/**
+ * CreateM2Projection
+ *    Creates a projection spectrum for m2 spectra.
+ *
+ *  @param name - name of the spectrum.
+ *  @param dataType - Spectrum data type (e.g. keLong).
+ *  @param parameters - the parameters of the original m2 spectrum (x1,y1, x2,y2...)
+ *  @param roi        - OR gate that defines the region of interest parameter pairs
+ *                      must be in to increment the spectrum.
+ *  @param xproj      - kfTRUE if this is an x projection, kfFALSE if y.
+ *  @param nChannels  - Number of channels on the X axis.
+ *  @param low,high   - Xaxis channel limits.
+ *  @return CSpectrum* - pointer to the newly created spectrum.
+ *  @throw CSpectrumFactoryException on error.
+ */
+CSpectrum*
+SpecTcl::CreateM2Projection(
+  std::string name, DataType_t dataType,
+  const std::vector<CParameter>& parameters, CGateContainer* roi,
+  Bool_t xproj, UInt_t nChannels, Float_t low, Float_t high
+)
+{
+  CSpectrumFactory fact;
+  return fact.CreateM2ProjectionSpectrum(
+    name,  dataType, parameters, roi, xproj, nChannels, low, high   
+  );
+}
 /*!
   Adds a spectrum to the spectrum dictionary.  The spectrum
   dictionary does not manage the spectrum object.  If the spectrum

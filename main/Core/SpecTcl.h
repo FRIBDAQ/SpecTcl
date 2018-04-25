@@ -241,7 +241,12 @@ public:
 			      CParameter  counts,
 			      CParameter  time,
 			      UInt_t      channels, Float_t xLow, Float_t xHigh);
-			 
+    CSpectrum* CreateM2Projection(
+        std::string name, DataType_t dataType,
+        const std::vector<CParameter>& parameters, CGateContainer* roi,
+        Bool_t xproj, UInt_t nChannels, Float_t low, Float_t high
+    );
+    
 
   // Manipulate the spectrum dictionary:
 
