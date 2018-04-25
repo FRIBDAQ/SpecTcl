@@ -139,7 +139,8 @@ typedef enum _SpectrumType_t {
   keStrip,
   ke2Dm,
   keG2DD,
-  keGSummary
+  keGSummary,
+  ke2DmProj                  // M2 projection spectrum type.
 } SpectrumType_t;
 
 
