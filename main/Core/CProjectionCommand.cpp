@@ -29,6 +29,7 @@
 #include "CEverywhereROI.h"
 #include <CGammaSpectrum.h>
 #include <CFold.h>
+#include <Exception.h>
 
 
 #include <vector>
@@ -151,41 +152,56 @@ CProjectionCommand::operator()(CTCLInterpreter& rInterp,  CTCLResult& rResult,
   const char* pDestName   = argv[1];
   const char* pDirection  = argv[2];
 
+  argc -= 3;			// We have processed 3 parameters.
+  argv += 3;
+  
+
+
+
   // Create the source spectrum, evaluate the direction and get the dest. spectrum
   // too.
 
   CSpectrum* pSource;
   CSpectrum* pDest;
   direction  Direction;
+  CGateContainer*  pContainer(&truecontainer);
   try {
     pSource   = getValidatedSourceSpectrum(pSourceName);
+    // There can be at most one more parameter, the name of the gate.
+    // If it is missing, we will use a True gate for the projection.    
+    if (argc) {
+      pContainer = getProjectionGate(*argv, pSource);
+      
+      if(!pContainer) {
+        rResult   = "Invalid gate for projection\n";
+        rResult  += Usage();
+        return TCL_ERROR;
+      }
+      argc--; argv++;
+    }
+  
     Direction = getValidatedDirection(pDirection);
-    pDest     = getValidatedTargetSpectrum(pDestName, pSource, Direction);
+    pDest     = getValidatedTargetSpectrum(pDestName, pSource, Direction, pContainer);
   }
   catch (string msg) {
     rResult  = msg;
     rResult += "\n";
+
     rResult += Usage();
     return TCL_ERROR;
+  } catch(CException& e) {
+    rResult = e.ReasonText();
+    rResult += "\n";
+    rResult += Usage();
+    return TCL_ERROR;
+    
+  } catch (...) {
+    rResult = "Unexpected exception type caught\n";
+    rResult += Usage();
+    return TCL_ERROR;
+    
   }
-  argc -= 3;			// We have processed 3 parameters.
-  argv += 3;
   
-  // There can be at most one more parameter, the name of the gate.
-  // If it is missing, we will use a True gate for the projection.
-
-  CGateContainer*  pContainer(&truecontainer);
-  if (argc) {
-    pContainer = getProjectionGate(*argv, pSource);
-    argc--;
-    argv++;
-    if(!pContainer) {
-      rResult   = "Invalid gate for projection\n";
-      rResult  += Usage();
-      return TCL_ERROR;
-    }
-
-  }
   // We've gotten everything we need, there had better not be any more parametres:
 
   if (argc) {
@@ -365,6 +381,7 @@ CProjectionCommand::getValidatedDirection(const char* pDirection)
  * @param pSource    Pointer to the source spectrum.
  * @param which    Projection direction (used to compute the axis characteristics
  * of the target spectrum).
+ * @param gate     Needed for projections of m2 spectra to set the ROI spectra.
  * 
  * \return CSpectrum*
  * \retval Pointer to the spectrum that  was created.
@@ -374,7 +391,7 @@ CProjectionCommand::getValidatedDirection(const char* pDirection)
 CSpectrum* 
 CProjectionCommand::getValidatedTargetSpectrum(const char* name, 
 					       CSpectrum* pSource, 
-					       direction which)
+					       direction which, CGateContainer* gate)
 {
   // Ensure the spectrum does not yet exist:
 
@@ -426,21 +443,27 @@ CProjectionCommand::getValidatedTargetSpectrum(const char* name,
     // every other starting with an index that depends on the projection
     // direction.
     
-    int start = 0;            // These are right for gamma spectra.
-    int step  = 1;
-    if (def.eType = ke2Dm) {
-        step = 2;             // Only every other parameter...
-        start = which == x ? 0 : 1; // Start depends on projection direction.
-    }
+    
     vector<CParameter> parameters;
-    for (int i = start; i < def.vParameters.size(); i += step) {
+    for (int i = 0; i < def.vParameters.size(); i ++) {
       CParameter* pParam = api->FindParameter(def.vParameters[i]);
       REQUIRE(pParam, "Parameter lookup failed");
       parameters.push_back(*pParam);
     }
-    pDest = api->CreateG1D(string(name), keLong, 
-			   parameters,
-			   nChannels, Low, High);
+    // If the type is ke2Dm and the gate container is not the true container
+    // we need tomake an m2 projection spectrum.   Otherwise a g1d is just fine.
+    
+    if ((def.eType == ke2Dm) && gate != &truecontainer) {
+        pDest =api->CreateM2Projection(
+            std::string(name), keLong, parameters, gate,
+            which == x ? kfTRUE : kfFALSE,
+            nChannels, Low, High
+        );
+    } else {
+        pDest = api->CreateG1D(string(name), keLong, 
+                   parameters,
+                   nChannels, Low, High);
+    }
   }
   if(!pDest) {
     throw string("Could not create target spectrum");
@@ -788,11 +811,13 @@ CProjectionCommand::GateTarget(CSpectrum*      pSource,
 
   // If the region of interest is a T gate, just gate with
   // the source spectrum gate.
-  //
+  //  If the resulting spectrum is a ke2DmProj, then also use a T gate
+
   if ((*pROI)->Type() == "T") {
     pTarget->ApplyGate(pSourceGate);
-  }
-  else if ((*pSourceGate)->Type() == "T") { // Source gate T, use ROI.
+  } else if (pTarget->getSpectrumType() == ke2DmProj) {
+    ;                     // Use the default gate (-T-).
+  } else if ((*pSourceGate)->Type() == "T") { // Source gate T, use ROI.
     pTarget->ApplyGate(pROI);
   }
   else {	   		         // Must make and of source and ROI

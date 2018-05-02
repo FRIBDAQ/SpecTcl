@@ -246,6 +246,12 @@ public:
         const std::vector<CParameter>& parameters, CGateContainer* roi,
         Bool_t xproj, UInt_t nChannels, Float_t low, Float_t high
     );
+    CSpectrum* CreateM2Projection(
+      std::string name, DataType_t dataType,
+        const std::vector<CParameter>& parameters,
+        const std::vector<CGateContainer*>& roi,
+        Bool_t xproj, UInt_t nChannels, Float_t low, Float_t high
+    );
     
 
   // Manipulate the spectrum dictionary:

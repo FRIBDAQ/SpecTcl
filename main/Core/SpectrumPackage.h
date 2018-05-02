@@ -172,6 +172,14 @@ public:
 		     std::vector<Float_t>                   fHighs,
 		     const char*                            pDataType);
 
+  int CreateSpectrum(
+    CTCLResult& result, const char* pName, const char* pType,
+    const std::vector<std::string>& parameters, bool inX,
+    const std::vector<CGateContainer*>& roi,
+    const std::vector<UInt_t>&  nchans,
+    const std::vector<Float_t>&  lows, const std::vector<Float_t>& highs,
+    const char* pDataType
+  );
   // List Spectra
 
   void ListSpectra (std::vector<std::string>& rvProperties, const char* pattern,

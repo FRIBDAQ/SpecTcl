@@ -86,7 +86,7 @@ protected:
   CSpectrum* getValidatedSourceSpectrum(const char* name);
   direction  getValidatedDirection(const char* pDirection);
   CSpectrum* getValidatedTargetSpectrum(const char* name, CSpectrum* pSource, 
-					direction which);
+					direction which, CGateContainer* pGate);
   CGateContainer* getProjectionGate(const char* pGateName, 
 				    CSpectrum* pSourceSpectrum);
   void projectX(CSpectrum* sourceSpectrum, CSpectrum* targetSpectrum, 

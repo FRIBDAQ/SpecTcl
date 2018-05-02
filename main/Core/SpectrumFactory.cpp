@@ -1437,28 +1437,19 @@ CSpectrumFactory::CreateM2ProjectionSpectrum(
     UInt_t nChannels, Float_t low, Float_t high
 )
 {
-    // must be an even number of parameters:
-    
-    if (params.size() % 2) {
-        if (m_fExceptions) {
-            throw CSpectrumFactoryException(
-                dtype,  ke2DmProj, name,
-                CSpectrumFactoryException::keBadParameterCount,
-                "Checking that there are an even number of parametrs"
-            );
-        } else {
-            return nullptr;
-        }
-    }
-    // Marshall the x/y parameter arrays.
+
     
     std::vector<UInt_t> xparamIds;
     std::vector<UInt_t> yparamIds;
     
-    for (int i = 0; i < params.size(); i += 2) {
-        xparamIds.push_back(params[i].getNumber());
-        yparamIds.push_back(params[i+1].getNumber());
+    try {
+        marshallXYParameterIds(xparamIds, yparamIds, name, params, dtype, ke2DmProj);
     }
+    catch (...) {
+        if (m_fExceptions) throw;
+        return nullptr;
+    }
+    
     // Units depends on the x/y direction:
     
     std::string units;
@@ -1506,8 +1497,78 @@ CSpectrumFactory::CreateM2ProjectionSpectrum(
                 "Invalid spectrum data type code"
             );
         }
+    } catch (CSpectrumFactoryException& e) {
+        if (m_fExceptions) throw;
+        
+    } catch(...) {
+        if (m_fExceptions) {
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name,
+                CSpectrumFactoryException::keConstructionFailed,
+                "Exception caught creating an m2 projection spectrum"
+            );
+        }
     }
-    catch (CSpectrumFactoryException& e) {
+    return nullptr;
+}
+/**
+ *  CreateM2ProjectionSpectrum
+ *      Creates an M2 projection spectrum when the ROI is a collection of
+ *      gates.
+ *
+ * @param name  - Name of the new spectrum.
+ * @param dtype - data type of the channels.
+ * @param params - vector of parameters (x1, y1, x2, y2...).
+ * @param roi    - Gates that make up the region of interest.
+ * @param xproj  - True if this is an x projection, else false.
+ * @param nChannels -Number of axis channels.
+ * @param low, high - axis limits.
+ * @return CSpectrum* Pointer to the new spectrum.  nullptr if failure and
+ *               m_fException is not true.
+ */
+CSpectrum*
+CSpectrumFactory::CreateM2ProjectionSpectrum(
+    std::string name, DataType_t dtype, const std::vector<CParameter>& params,
+    const std::vector<CGateContainer*>& roi, Bool_t xproj,
+    UInt_t nChannels, Float_t low, Float_t high
+)
+{
+    std::vector<UInt_t> xparams, yparams;
+    std::string units;
+    if (xproj) {
+        units = params[0].getUnits();   // Units of first x param
+    } else {
+        units = params[1].getUnits();   // units of first y param.
+    }
+    
+    try {
+        marshallXYParameterIds(xparams, yparams, name, params, dtype, ke2DmProj);
+    }
+    catch (...) {
+        if (m_fExceptions) throw;
+        return nullptr;
+    }
+    try {
+        switch (dtype) {
+        case keByte:
+            return new CM2Projection<Char_t, TH1C>(
+                name, NextId(), xparams, yparams, roi,
+                nChannels,  low, high, units, xproj);
+        case keWord:
+             return new CM2ProjectionW(
+                name, NextId(), xparams, yparams, roi,
+                nChannels,  low, high, units, xproj);
+        case keLong:
+             return new CM2ProjectionL(
+                name, NextId(), xparams, yparams, roi,
+                nChannels,  low, high, units, xproj);
+        default:
+            throw CSpectrumFactoryException(
+                dtype,  ke2DmProj, name, CSpectrumFactoryException::keBadDataType,
+                "Invalid spectrum data type code"
+            );
+        }
+    } catch (CSpectrumFactoryException& e) {
         if (m_fExceptions) throw;
         
     } catch(...) {
@@ -1721,4 +1782,42 @@ CSpectrumFactory::DefaultAxisLength(UInt_t nChannels, CParameter& rParam)
   }
 }
 
-
+/**
+ * marshallXYParameterIds
+ *    Given a vector of parameter definitions that are supposed to be
+ *    x/y pairs, marshall the x,y parameter ids:
+ *
+ * @param[out]  x  - Vector of x parameter ids.
+ * @param[out]  y  - Vector of y parameter ids.
+ * @param[in]  name - spectrum name (for exceptions)
+ * @param[in]  params - The parameter definitions to marshall.
+ * @param[in]  dtype  - Spectrum channel data types (for exceptions).
+ * @param[in]  stype  - Spectrum type (for exceptions).
+ * @note This method unconditionally throws exceptions.. .It's up to the
+ *       caller to convert those into something else if exceptions are disabled.
+ */
+void
+CSpectrumFactory::marshallXYParameterIds(
+      std::vector<UInt_t>& x, std::vector<UInt_t>& y,
+      const std::string& name,
+      const std::vector<CParameter>& params, DataType_t dtype, SpectrumType_t stype
+)
+{
+    // must be an even number of parameters:
+    
+    if (params.size() % 2) {
+        throw CSpectrumFactoryException(
+            dtype,  ke2DmProj, name,
+            CSpectrumFactoryException::keBadParameterCount,
+            "Checking that there are an even number of parametrs"
+        );
+    }
+    // Marshall the x/y parameter arrays.
+    
+    
+    for (int i = 0; i < params.size(); i += 2) {
+        x.push_back(params[i].getNumber());
+        y.push_back(params[i+1].getNumber());
+    }
+    
+}

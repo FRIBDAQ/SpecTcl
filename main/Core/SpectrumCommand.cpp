@@ -27,12 +27,14 @@
 #include "TCLCommandPackage.h"
 #include "TCLList.h"
 #include "TCLString.h"
+#include "TCLObject.h"
 #include <RangeError.h>
 #include <Exception.h>
 #include "SpecTcl.h"
 #include <Histogrammer.h>
 #include <iostream>
-
+#include "GateContainer.h"
+#include "CompoundGate.h"
 
 #include <tcl.h>
 #include <string.h>
@@ -309,7 +311,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 
   // Figure out if there's a data type parameter on the line.
 
-  char* pDataType = (char*)kpNULL;
+  const char* pDataType = (char*)kpNULL;
   if(nArgs == 5) pDataType = pArgs[4];
   
   // The only parameters which need pre-processing before calling the package's
@@ -323,6 +325,8 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   vector<string> vParameters;
   vector<string> vyParameters;
   vector<vector<string> > vGSParameters; // gamma summary parameters.
+  vector<CGateContainer*> m2projGates;   // Gates used to maintain the ROI for m2 proj.
+  bool                    xproj;         // true for m2 proj is x.
 
   CTCLList lParameters(&rInterpreter, pArgs[2]);
   lParameters.Split(nListElements, &ppListElements);
@@ -371,6 +375,66 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
       vGSParameters.push_back(column);
       
     }
+  } else if (string(pType) == "2dmproj") {
+    /*
+     * Well 2dmproj spectra are even stranger.  The spectrum 'parameters'
+     * element must consist of three elements.  The first of these is a list
+     * of parameters that increment the specctrum as x1 y1 x2 y2 -- must be
+     * an even number of them.  The second parameter must be the text "x" or
+     * "y" indicating the projection direction.  We're going to be nice and
+     * make this case insensitive.   The third parameter must be either a single
+     * gate name...of an OR gate of contours or a list of contours.
+     */
+    
+    if (nListElements == 3) {   // Parameters, direction and gate(s)
+        std::string parameters = ppListElements[0];
+        std::string direction  = ppListElements[1];
+        std::string projectionGate = ppListElements[2];
+        
+        if (!pDataType) {
+            pDataType = "long";          // Default data type.
+        }
+        
+        // Unpack the parameters into vParameters
+        
+        CTCLObject params;
+        params.Bind(rInterpreter);
+        params = parameters;
+        for (int i =0; i < params.llength(); i++) {
+            vParameters.push_back(params.lindex(i));
+        }
+        // Get the projection direction.
+        
+        xproj = (direction== "x") || (direction == "X");
+        if (!xproj && ((direction != "Y") && (direction != "y"))) {
+            rResult =
+                std::string("Invalid projection direction must be 'x' or 'y'");
+            return TCL_ERROR;
+        }
+        // Get the Gate(s).  Assume that gate names can't have spaces or it's just
+        // far too ugly a proposition.  If the gate is a single OR gate,
+        // It's decomposed into its constituents.
+        
+        CTCLObject gates;
+        gates.Bind(rInterpreter);
+        gates = projectionGate;
+        if (gates.llength() == 1) {
+            m2projGates = getConstituents(rResult, projectionGate);
+        } else {
+            m2projGates = getGates(rResult, gates);
+        }
+        // Errors leave a message in result and return an empty vector.
+        
+        if (m2projGates.empty()) {
+            return TCL_ERROR;    
+        }
+        
+        
+    }  else{
+        rResult =
+            std::string("M2 projection spectra must have parameters, direction and ROI gate in their definition");
+        return TCL_ERROR;
+    }
   }
   else {
     rPack.GetNameList(vParameters, nListElements, ppListElements);
@@ -418,38 +482,38 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
       Int_t   nBits;		   // Axis element is bits. 
       UInt_t  nChannels;	   // which are converted to chans.
       try {
-	nBits = (Int_t)rInterpreter.ExprLong(ppAxisElements[0]);
-	//
-	// Just because the bits are an integer doesn't mean they are a good
-	// integer.  Let's limit spectra to MAXRESBITS channels and positive
-	// resolutions!!
-	//
-	if((nBits < 0) || (nBits > MAXRESBITS)) {
-	  throw CRangeError(0, MAXRESBITS, nBits, 
-			    "Selecting channel resolution");
-	}
-	nChannels = 1 << nBits;
-
-	// Let's fix this right here and now.
-	// rather than having a special case later in the code
-	// The axis range represented by this is (while the integerists hold sway)
-	// [0, nChannels-1] with nChannels bins:
-
-	
-	vChannels.push_back((UInt_t)nChannels);
-	vLows.push_back(0.0);	// Indicate there is no high/low for this axis.
-	vHighs.push_back(static_cast<float>(nChannels-1));
-      }
+        nBits = (Int_t)rInterpreter.ExprLong(ppAxisElements[0]);
+        //
+        // Just because the bits are an integer doesn't mean they are a good
+        // integer.  Let's limit spectra to MAXRESBITS channels and positive
+        // resolutions!!
+        //
+        if((nBits < 0) || (nBits > MAXRESBITS)) {
+          throw CRangeError(0, MAXRESBITS, nBits, 
+                    "Selecting channel resolution");
+        }
+        nChannels = 1 << nBits;
+    
+        // Let's fix this right here and now.
+        // rather than having a special case later in the code
+        // The axis range represented by this is (while the integerists hold sway)
+        // [0, nChannels-1] with nChannels bins:
+    
+        
+        vChannels.push_back((UInt_t)nChannels);
+        vLows.push_back(0.0);	// Indicate there is no high/low for this axis.
+        vHighs.push_back(static_cast<float>(nChannels-1));
+       }
       catch (CException& rExcept) { // Spectrum size invalid.
-	rResult = "Spectrum size "; // Note that TCL Exceptions set Reason!!
-	rResult += ppAxisElements[0];
-	rResult += " must evaluate to an integer\n";
-	rResult += rExcept.ReasonText();
-	rResult += "\n";
-	Usage(rResult);
+        rResult = "Spectrum size "; // Note that TCL Exceptions set Reason!!
+        rResult += ppAxisElements[0];
+        rResult += " must evaluate to an integer\n";
+        rResult += rExcept.ReasonText();
+        rResult += "\n";
+        Usage(rResult);
 	
-	if (*ppAxisElements) Tcl_Free((char*)ppAxisElements);
-	if (*ppListElements) Tcl_Free((char*)ppListElements);
+        if (*ppAxisElements) Tcl_Free((char*)ppAxisElements);
+        if (*ppListElements) Tcl_Free((char*)ppListElements);
 	return TCL_ERROR;		       
 	
       }
@@ -461,31 +525,31 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
       Float_t fHigh;
       Int_t   element;		// Element of list being processed.
       try {
-	element = 0;
-	fLow       = (Float_t)
-	                rInterpreter.ExprDouble(ppAxisElements[0]);
-	element++;
-	fHigh      = (Float_t)
-	                rInterpreter.ExprDouble(ppAxisElements[1]);
-	element++;
-	nChannels  = (Int_t)rInterpreter.ExprLong(ppAxisElements[2]);
-
-	vChannels.push_back((UInt_t)nChannels);
-	vLows.push_back(fLow);
-	vHighs.push_back(fHigh);
-	
+        element = 0;
+        fLow       = (Float_t)
+                        rInterpreter.ExprDouble(ppAxisElements[0]);
+        element++;
+        fHigh      = (Float_t)
+                        rInterpreter.ExprDouble(ppAxisElements[1]);
+        element++;
+        nChannels  = (Int_t)rInterpreter.ExprLong(ppAxisElements[2]);
+    
+        vChannels.push_back((UInt_t)nChannels);
+        vLows.push_back(fLow);
+        vHighs.push_back(fHigh);
+        
 
       }
       catch (CException& rExcept) {
-	rResult += " Axis definition: ";
-	rResult += ppListElements[i];
-	rResult += " contains an invalid element: ";
-	rResult += ppAxisElements[element];
-	rResult += "\n";
-	Usage(rResult);
-
-	Tcl_Free((char*)ppAxisElements);
-	Tcl_Free((char*)ppListElements);
+        rResult += " Axis definition: ";
+        rResult += ppListElements[i];
+        rResult += " contains an invalid element: ";
+        rResult += ppAxisElements[element];
+        rResult += "\n";
+        Usage(rResult);
+    
+        Tcl_Free((char*)ppAxisElements);
+        Tcl_Free((char*)ppListElements);
 	return TCL_ERROR;
       }
     }
@@ -507,6 +571,11 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 
     return rPack.CreateSpectrum(rResult, pName, pType, vGSParameters,
 			 vChannels, vLows, vHighs, pDataType);
+  } else if (string(pType) == "2dmproj") {
+    return rPack.CreateSpectrum(
+            rResult, pName, pType, vParameters, xproj, m2projGates,
+            vChannels, vLows, vHighs, pDataType                                        
+        );
   }
   else if (vyParameters.size() == 0) {
     
@@ -1032,3 +1101,99 @@ CSpectrumCommand::traceRemove(const string& name,
   }
 }
 
+/**
+ * getConstituents
+ *    Given a gate name, returns the gate constituents.
+ *    - It is an error for the gate not to exist.
+ *    - It is an error for the gate not to be an OR gate.
+ *    
+ * @param res - Result used to store any error message.
+ * @param gateName - the parent gate name.
+ * @return std::vector<CGateContainer*> - the containers for the constituents.
+ * @retval - empty vector if there was an error.
+ */
+std::vector<CGateContainer*>
+CSpectrumCommand::getConstituents(CTCLResult& res, std::string gateName)
+{
+    SpecTcl& api(*SpecTcl::getInstance());
+    std::vector<CGateContainer*> result;
+    // Find the parent's gate container.
+    
+    CGateContainer* pParent = api.FindGate(gateName);
+    if (!pParent) {
+        std::string message = "No such gate: ";
+        message += gateName;
+        res = message;
+        return result;
+    }
+    // Must be an or gate:
+    
+    if((*pParent)->Type() != "+") {
+        std::string message = "For m2dproj - single gate must be a + gate ";
+        message += gateName;
+        message += "'s gate type is ";
+        message += (*pParent)->Type();
+        res = message;
+        return result;
+    }
+    // Get the constituent gates; We'll let the creation determine that these are
+    // all contours of the appropriate type:
+    
+    CCompoundGate* pParentGate = reinterpret_cast<CCompoundGate*>(pParent->getGate());
+    std::list<CGateContainer*>& contours(pParentGate->GetConstituents());
+    result.insert(result.begin(), contours.begin(), contours.end());
+    return result;
+}
+/**
+ *  getGates
+ *      Given a string that is a valid Tcl List of gates, returns a vector
+ *      of the gate containers that make up the gate.
+ *      - It is an error for any gate not to exist.
+ *      - It is an error for any gate not to be a "c" gate.
+ *      There are other restrictions, but we'll let the gate construction
+ *      throw errors for those.
+ *
+ * @param @res  - Tcl result - on correct operation, this is empty.
+ * @param gates - CTCLObject reference for a Tcl list of gate names.
+ * @return std::vector<CGateContainer*> - vector of pointers to gate containers for
+ *       the gates.
+ * @retval empty - error and res has the error message.
+ * @note it is an error for the gate list to be empty as well.
+ */
+std::vector<CGateContainer*>
+CSpectrumCommand::getGates(CTCLResult& res, CTCLObject& gates)
+{
+    SpecTcl& api(*SpecTcl::getInstance());
+    std::vector<CGateContainer*> result;
+    std::vector<CGateContainer*> errorResult;   // for reporting errors as result is accumulating
+    // Get the gate list as separate objercts:
+    
+    std::vector<CTCLObject> gateNames = gates.getListElements();
+    if (gateNames.size() == 0) {
+        res = "Region of interest gate list cannot be empty";
+        return result;
+    }
+    
+    for (int i =0; i < gateNames.size(); i++) {
+        gateNames[i].Bind(gates.getInterpreter());
+        std::string aName = std::string(gateNames[i]);
+        CGateContainer* pGate = api.FindGate(aName);
+        if (!pGate) {
+            std::string message = "Gate: ";
+            message += aName;
+            message += " does not exist";
+            res = message;
+            return errorResult;
+        }
+        if ((*pGate)->Type() != "c") {
+            std::string message("Gate: ");
+            message += aName;
+            message += " is not a contour but all ROI gates must be";
+            res = message;
+            return errorResult;
+        }
+        result.push_back(pGate);
+    }
+    return result;
+    
+}

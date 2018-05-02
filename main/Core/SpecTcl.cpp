@@ -1143,6 +1143,25 @@ SpecTcl::CreateM2Projection(
     name,  dataType, parameters, roi, xproj, nChannels, low, high   
   );
 }
+/**
+ * CreateM2Projection
+ *   Creates a projection spectrum for an M2 around a region of interest.
+ *
+ *
+ */
+CSpectrum*
+SpecTcl::CreateM2Projection(
+    std::string name, DataType_t dtype,
+    const std::vector<CParameter>& params,
+    const std::vector<CGateContainer*>& roi, Bool_t xproj,
+    UInt_t nChannels, Float_t low, Float_t high
+)
+{
+    CSpectrumFactory fact;
+    return fact.CreateM2ProjectionSpectrum(
+        name, dtype, params, roi, xproj, nChannels, low, high
+    );
+}
 /*!
   Adds a spectrum to the spectrum dictionary.  The spectrum
   dictionary does not manage the spectrum object.  If the spectrum

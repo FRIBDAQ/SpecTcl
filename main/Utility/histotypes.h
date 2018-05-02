@@ -46,6 +46,7 @@
 #include <daqdatatypes.h>
 #endif
 
+#include <string>
 
 
 
@@ -180,6 +181,9 @@ operator<<(std::ostream& out, SpectrumType_t t)
   case ke2Dm:
     out << "m2";
     break;
+  case ke2DmProj:
+    out << "2dmproj";
+    break;
   case keUnknown:
   default:
     out << '?';
@@ -199,7 +203,17 @@ operator>>(std::istream& in, SpectrumType_t& t)
     t = ke1D;
     break;
   case '2':
-    t = ke2D;
+    {
+      std::string rest;
+      in >> rest;
+      if (rest == "") {
+        t = ke2D;
+      } else if (rest == "dmproj") {
+        t = ke2DmProj;
+      } else {
+        t = keUnknown;
+      }
+    }
     break;
   case 'b':
     t = keBitmask;
@@ -239,6 +253,7 @@ operator>>(std::istream& in, SpectrumType_t& t)
       t= keUnknown;
     }
     break;
+
   case '?':
   default:
     t = keUnknown;

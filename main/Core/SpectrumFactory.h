@@ -286,6 +286,11 @@ public:
     CGateContainer* roi, Bool_t xproj,
     UInt_t nChannels, Float_t low, Float_t high
   );
+  CSpectrum* CreateM2ProjectionSpectrum(
+    std::string name, DataType_t dtype, const std::vector<CParameter>& params,
+    const std::vector<CGateContainer*>& roi, Bool_t xproj,
+    UInt_t nChannels, Float_t low, Float_t high
+  );
   UInt_t NextId ()  ;
   Bool_t ExceptionMode() const { return m_fExceptions; }
   Bool_t ExceptionMode(Bool_t fNewMode) {
@@ -313,6 +318,11 @@ protected:
 			    UInt_t             nChans);
   static Float_t  DefaultAxisLength(UInt_t nChannels, 
 				    CParameter& rParam);
+  void marshallXYParameterIds(
+      std::vector<UInt_t>& x, std::vector<UInt_t>& y,
+      const std::string& name,
+      const std::vector<CParameter>& params, DataType_t dtype, SpectrumType_t stype
+    );
 };
 
 #endif

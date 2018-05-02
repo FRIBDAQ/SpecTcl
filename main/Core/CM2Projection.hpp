@@ -282,7 +282,7 @@ CM2Projection<T,R>::GetDefinition()
         m_def.vyParameters.push_back(xy.second);
     }
     
-    m_def.nChannels.push_back(m_nChannels);
+    m_def.nChannels.push_back(m_nChannels-2);   // I am (g)root
     m_def.fLows.push_back(GetLow(0));
     m_def.fHighs.push_back(GetHigh(0));
     

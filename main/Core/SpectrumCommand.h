@@ -62,7 +62,9 @@ class CTCLInterpreter;
 class CTCLResult;
 class CTCLCommandPackage;   
 class SpectrumTraceObserver;      
-class CSpectrum;         
+class CSpectrum;
+class CGateContainer;
+class CTCLObject;
                                
 class CSpectrumCommand  : public CTCLPackagedCommand        
 {
@@ -132,6 +134,8 @@ public:
 		const CSpectrum* pSpectrum);
   void traceRemove(const std::string& name,
 		   const CSpectrum* pSpectrum);
+  std::vector<CGateContainer*> getConstituents(CTCLResult& res, std::string gateName);
+  std::vector<CGateContainer*> getGates(CTCLResult& res, CTCLObject& gates);
 
 };
 

@@ -47,6 +47,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpectrumFactoryException.h"
 #include "WriteCommand.h"
 #include "ReadCommand.h"
+#include "CM2Projection.h"
 
 #include <Exception.h>
 #include <RangeError.h>
@@ -75,6 +76,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <sstream>
 
 #include <string>
+#include <stdexcept>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -108,7 +110,8 @@ static const SpecTypes aSpecTypes[] = {
   {"bitmask", keBitmask},
   {"m2",   ke2Dm},
   {"gd",   keG2DD},
-  {"gs",   keGSummary}
+  {"gs",   keGSummary},
+  {"2dmproj", ke2DmProj }
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
@@ -376,6 +379,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
 						nChannels, &fLows, &fHighs);
     pApi->AddSpectrum(*pSpec);
     rResult = pSpec->getName();
+    
 
     return TCL_OK;
   }
@@ -396,7 +400,106 @@ CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult,
     return TCL_ERROR;
   }
 }
+/**
+ * CreateSpectrum
+ *     Creates an m2dprojection.
+ *
+ * @param[out] result - a TCL result used to report errors.
+ * @param[in]  pName  - Name of the new spectrum.
+ * @param[in]  pType  - Spectrum type.   Must be ke2DmProj
+ * @param[in]  parameters - Names of the parameters (x1 y1 x2 y2...).
+ * @param[in]  inX        - True if projection is in X or false otherwise.
+ * @param[in]  roi        - Vector of gate containers that define the ROI.
+ * @param[in]  nchans     - only one element - number of channels on the x axis.
+ * @param[in]  lows,highs - only one element each - the low/high limit of the axis.
+ * @param[in]  Data Type  - Data type selector.
+ * @return  int - TCL_OK or TCL_ERROR
+ */
+int
+CSpectrumPackage::CreateSpectrum(
+    CTCLResult& result, const char* pName, const char* pType,
+    const std::vector<std::string>& parameters, bool inX,
+    const std::vector<CGateContainer*>& roi,
+    const std::vector<UInt_t>&  nchans,
+    const std::vector<Float_t>&  lows, const std::vector<Float_t>& highs,
+    const char* pDataType
+)
+{
+    SpecTcl& api(*SpecTcl::getInstance());
+    try {
+        // Convert spectrum and channel types to their enums.
+        
+        SpectrumType_t type;
+        DataType_t     dType;
+        
+        std::stringstream typeString(pType);
+        typeString >> type;
+        
+        std::stringstream dTypeString(pDataType);
+        dTypeString >> dType;
+    
+        if (type != ke2DmProj) {
+            throw std::logic_error(
+                "2dm projection spectrum creator invoked with wrong spectrum type"
+            );
+        }
+        // Look up all the parameters and make a vector of parameter defs:
+        
+        std::vector<CParameter> params;
+        for (int i = 0; i < parameters.size(); i++) {
+            CParameter* pParam = api.FindParameter(parameters[i]);
+            if (!pParam) {
+                throw CDictionaryException(
+                    CDictionaryException::knNoSuchKey, "Looking up parameter ",
+                    parameters[i].c_str()
+                );
+            }
+            params.push_back(*pParam);
+        }
+        // Pull out the channels, low, high specs.. throwing an error
+        // if there are not the right number of them.
+        
+        int chans;
+        float low;
+        float high;
+        
+        if ((nchans.size() != 1) || (lows.size() != 1) || (highs.size() != 1)) {
+            throw std::string("Should only be one axis for 2dmproj");
+        }
+        chans = nchans[0];
+        low   = lows[0];
+        high  = highs[0];
+        
+        CSpectrum* pSpec = api.CreateM2Projection(
+            pName, dType, params, roi, inX, chans, low, high
+        );
+        api.AddSpectrum(*pSpec);
+        
+        result = pName;
+        return TCL_OK;
 
+    } 
+    catch (const char* msg) {
+        result = std::string(msg);
+    }
+    catch (std::string msg) {
+        result = msg;
+    }
+    catch (CException& re) {
+        result = re.ReasonText();
+    }
+    catch (std::exception& e) {
+        result = e.what();
+    }
+    catch (...) {
+        result = std::string(
+            "Unanticipated exception type caught in CSpectrumPackage::CreateSpectrum for m2dproj"
+        );    
+    }
+    // TCL_OK returns are done inside the try block:
+    
+    return TCL_ERROR;
+}
 
 /*!
  Returns the set of spectrum definitions.  Each
@@ -478,6 +581,7 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
                                        contains the property list.
        \retval TCL_ERROR If there was a problem and then
                                          rResult provides the details.
+
 */
 Int_t 
 CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId,
@@ -1708,6 +1812,13 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
 	    spectrum type.
     - datatype - the type of each channel of the spectrum (e.g. word).
     
+    @note:  For the ke2DmProj spectrum parms consists of a three element list.
+            The first element of the list is the list of X/Y parameters
+            x/y interleaved.  The second element is either x or y indicating
+            the projection direction.  The last element is the list of gates
+            that make up the projection ROI.  Yep  it's wierd but so is this
+            spectrum.
+    
     Note from the above, that even if a spectrum was defined with 
    one or more axis definitions in the simplified nbits format,
    the axis will be described in the full low, hi, channels format.
@@ -1771,20 +1882,60 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     bool newSublist = true;
     for (p = Def.vParameters.begin(); p != Def.vParameters.end(); p++) {
       if(newSublist) {
-	newSublist = false;
-	Description.StartSublist();
+        newSublist = false;
+        Description.StartSublist();
       }
       UInt_t id = *p;
       if (id == UINT_MAX) {
-	Description.EndSublist();
-	newSublist = true;
-      }
-      else {
-	CParameter* pPar = m_pHistogrammer->FindParameter(*p);
-	Description.AppendElement(pPar ? pPar->getName() :
+        Description.EndSublist();
+        newSublist = true;
+      } else {
+        CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+        Description.AppendElement(pPar ? pPar->getName() :
 				  std::string("--Deleted Parameter--"));
       }
     }
+  }
+  else if (Def.eType == ke2DmProj) {
+    bool x;
+    std::vector<CGateContainer*> roiGates;
+    if (Def.eDataType == keLong) {
+        CM2ProjectionL *pSpec = reinterpret_cast<CM2ProjectionL*>(&rSpectrum);
+        x = pSpec->isXprojection();
+        roiGates = pSpec->getRoiGates();
+    } else {
+        CM2ProjectionW* pSpec = reinterpret_cast<CM2ProjectionW*>(&rSpectrum);
+        x = pSpec->isXprojection();
+        roiGates = pSpec->getRoiGates();
+    }
+    
+    // List of parameters.
+    
+    Description.StartSublist();
+    for (int i = 0; i < Def.vParameters.size(); i++) {
+        CParameter* xpar = m_pHistogrammer->FindParameter(Def.vParameters[i]);
+        CParameter* ypar = m_pHistogrammer->FindParameter(Def.vyParameters[i]);
+        
+        Description.AppendElement(
+            xpar ? xpar->getName() : std::string("--Deleted Parameter--")
+        );
+        Description.AppendElement(
+            ypar ? ypar->getName() : std::string("--Deleted Parameter--")
+        );
+    }
+    Description.EndSublist();
+    
+    // X/Y direction.
+    
+    Description.AppendElement(x ? "x" : "y");
+    
+    // List of gates in the ROI.
+    
+    Description.StartSublist();
+    for (int i = 0; i < roiGates.size(); i++) {
+        Description.AppendElement(roiGates[i]->getName());
+    }
+    Description.EndSublist();
   }
   else {
     std::vector<UInt_t>::iterator p = Def.vParameters.begin();
