@@ -26,7 +26,9 @@ namespace SpJs
     std::string s_type;
     std::vector<std::string> s_params;
     std::vector<AxisInfo> s_axes;
-    ChanType s_chanType; 
+    ChanType s_chanType;
+    bool s_direction;                 // m2 proj - has projection direction.  
+    std::vector<std::string> s_roi;  // m2 proj - has ROI defining gates.
   };
 
 
@@ -50,7 +52,7 @@ inline std::ostream& operator<<(std::ostream& stream, SpJs::AxisInfo& info)
 bool operator==(const SpJs::HistInfo& lhs, const SpJs::HistInfo& rhs);
 bool operator!=(const SpJs::HistInfo& lhs, const SpJs::HistInfo& rhs);
 
-// Extraction operator
+// stream insertion operator
 //std::ostream& operator<<(std::ostream& stream, const SpJs::HistInfo& info);
 inline std::ostream& operator<<(std::ostream& stream, const SpJs::HistInfo& info) {
 

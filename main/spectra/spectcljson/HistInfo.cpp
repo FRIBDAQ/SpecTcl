@@ -35,6 +35,13 @@ bool operator==(const SpJs::HistInfo& lhs, const SpJs::HistInfo& rhs)
   }
   flag &= (lhs.s_chanType == rhs.s_chanType);
 
+  // If the type is 2dmproj the gate roi and projection directions must also match
+  
+  if (lhs.s_type == "2dmproj") {
+    flag &= (lhs.s_direction == rhs.s_direction);
+    flag &= (lhs.s_roi       == rhs.s_roi);
+  }
+  
   return flag;
 }
 

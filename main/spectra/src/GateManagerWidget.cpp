@@ -294,7 +294,7 @@ void GateManagerWidget::updateGateList()
             setGateList(pHistBundle->getCut2Ds());
         }
     }
-    std::cout << "completed" << std::endl;
+    //std::cout << "completed" << std::endl;
 }
 
 } // end Viewer namespace

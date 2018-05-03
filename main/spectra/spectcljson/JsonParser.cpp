@@ -59,6 +59,16 @@ namespace SpJs
       axInfo.s_nbins = (*axis)["bins"].asInt();
       info.s_axes.push_back(axInfo);
     }
+    // But wait there's more.  If the spectrum is an 2dmproj type,
+    // there's a projection direction and an array of ROI gates.
+    
+    if (info.s_type == "2dmproj") {
+      info.s_direction = (item["projection"].asString() == "x");
+      const Value& roiGates = item["roigates"];
+      for (int i =0; i < roiGates.size(); i++) {
+        info.s_roi.push_back(roiGates[i].asString());
+      }
+    }
 
     return info;
   }

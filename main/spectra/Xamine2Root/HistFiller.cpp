@@ -67,7 +67,7 @@ namespace Xamine2Root
         if (id == -1) {
             throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
         }
-        int nx = xamine_shared->getxdim(id);
+        int nx = xamine_shared->getxdim(id) - 2;   // +2 -- root!!!
 
         if (nx != rHist.GetNbinsX()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
@@ -76,7 +76,7 @@ namespace Xamine2Root
         TAxis* pXaxis = rHist.GetXaxis();
 
         for (int xbin=1; xbin<=pXaxis->GetNbins(); xbin++) {
-                unsigned int content = xamine_shared->getchannel(id, xbin-1);
+                unsigned int content = xamine_shared->getchannel(id, xbin);
                 rHist.SetBinContent(xbin, content);
         }
     }
@@ -86,8 +86,8 @@ namespace Xamine2Root
         if (id == -1) {
             throw std::runtime_error("This spectrum has not been placed in shared memory use SpecTcl's sbind command to do so");
         }
-        int nx = xamine_shared->getxdim(id);
-        int ny = xamine_shared->getydim(id);
+        int nx = xamine_shared->getxdim(id) - 2;
+        int ny = xamine_shared->getydim(id) - 2;
 
         if (nx != rHist.GetNbinsX() || ny != rHist.GetNbinsY()) {
             throw std::runtime_error("HistFiller::fill() Axis dimensions do not match.");
@@ -98,7 +98,7 @@ namespace Xamine2Root
 
         for (int ybin=1; ybin<=pYaxis->GetNbins(); ybin++) {
             for (int xbin=1; xbin<=pXaxis->GetNbins(); xbin++) {
-                unsigned int content = xamine_shared->getchannel(id, xbin-1, ybin-1);
+                unsigned int content = xamine_shared->getchannel(id, xbin, ybin);
                 rHist.SetBinContent(xbin, ybin, content);
             }
         }
