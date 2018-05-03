@@ -32,33 +32,52 @@ proc SpecTcl_Spectrum/list {{filter *}} {
     set spectrumDefinitionArray [list]
 
     foreach spectrum $spectra {
-	set name [lindex $spectrum 1]
-	set type [lindex $spectrum 2]
-	set params [lindex $spectrum 3]
-	set axes  [lindex $spectrum 4]
-	set chantype [lindex $spectrum  5]
-
-
-	## The axes are an array of 
-	#   low, high, bins objects
-	#
-	set axisArray [list]
-	foreach axis $axes {
-	    lappend axisArray [json::write object \
-				   low [lindex $axis 0] \
-				   high [lindex $axis 1] \
-				   bins [lindex $axis 2]]
-	}
-	##
-	# Parameters are an array of strings:
-	#
-	set parameterArray [::SpecTcl::_jsonStringArray $params]
-	lappend spectrumDefinitionArray [json::write object \
-					     name [json::write string $name] \
-					     type [json::write string $type] \
-					     parameters $parameterArray      \
-					     axes [json::write array {*}$axisArray] \
-					     chantype [json::write string $chantype]]
+        set name [lindex $spectrum 1]
+        set type [lindex $spectrum 2]
+        set params [lindex $spectrum 3]
+        set axes  [lindex $spectrum 4]
+        set chantype [lindex $spectrum  5]
+    
+    
+        ## The axes are an array of 
+        #   low, high, bins objects
+        #
+        set axisArray [list]
+        foreach axis $axes {
+            lappend axisArray [json::write object \
+                       low [lindex $axis 0] \
+                       high [lindex $axis 1] \
+                       bins [lindex $axis 2]]
+        }
+        ##
+        # Parameters are an array of strings:
+        #
+        if {$type ne "2dmproj"} {
+            set parameterArray [::SpecTcl::_jsonStringArray $params]
+            lappend spectrumDefinitionArray [json::write object \
+                name [json::write string $name] \
+                type [json::write string $type] \
+                parameters $parameterArray      \
+                axes [json::write array {*}$axisArray] \
+                chantype [json::write string $chantype]]
+                
+        } else {
+            set parameterList [lindex $params 0]
+            set direction     [lindex $params 1]
+            set gateList      [lindex $params 2]
+            set parameterArray [::SpecTcl::_jsonStringArray $parameterList]
+            set gateArray     [::SpecTcl::_jsonStringArray $gateList]
+            
+            lappend spectrumDefinitionArray [json::write object \
+                name [json::write string $name]                 \
+                type [json::write string $type]                 \
+                parameters $parameterArray                       \
+                axes [json::write array {*}$axisArray]          \
+                chantype [json::write string $chantype]         \
+                projection [json::write string $direction]      \
+                roigates $gateArray                             \
+            ]
+        }
 					 
 					 
     }
@@ -109,18 +128,31 @@ proc SpecTcl_Spectrum/delete {{name ""}} {
 #   - command failed    -  the spectrum creation command failed.
 #   - missing parameter -  a mandatory parameter is missing.
 #
-proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {axes ""} {chantype long}} {
+proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {direction ""} {roigate ""} {axes ""} {chantype long}} {
     set ::SpecTcl_Spectrum/create application/json
 
     # Check mandatory parameters:
 
     foreach mandatory [list name type parameters axes] {
-	if {[set $mandatory] eq ""} {
-	    return [::SpecTcl::_returnObject "missing parameter"  [json::write string $mandatory]]
-	}
+        if {[set $mandatory] eq ""} {
+            return [::SpecTcl::_returnObject "missing parameter"  [json::write string $mandatory]]
+        }
     }
-    if {[catch {spectrum $name $type $parameters  $axes $chantype} msg]} {
-	return [::SpecTcl::_returnObject "command failed" [json::write string $msg] ]
+    if {$type ne "2dmproj"} {
+        if {[catch {spectrum $name $type $parameters  $axes $chantype} msg]} {
+            return [::SpecTcl::_returnObject "command failed" [json::write string $msg] ]
+        }
+    } else  {
+        foreach mandatory [list direction roigate] {
+            if {[set $mandatory] eq ""} {
+                return [::SpecTcl::_returnObject "Missing parameter" [json::write string $mandatory]]
+            } 
+            
+        }
+        set command "spectrum $name $type [list [list $parameters $direction $roigate]] $axes $chantype"
+                if {[catch {{*}$command} msg]} {
+                    return [::SpecTcl::_returnObject "command failed" [json::write string $msg":"$command]]
+        }
     }
     catch {sbind $name};		# Bind to displayer if needed.
     return [::SpecTcl::_returnObject]

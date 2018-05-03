@@ -32,6 +32,7 @@
 #include <tcl.h>
 
 #include <memory>
+#include <iostream>
 
 namespace Spectra
 {
@@ -159,6 +160,7 @@ void CSpectraLocalDisplay::startRESTServer()
     auto resultStr = pInterp->GlobalEval(cmd.c_str());
     resultStr = pInterp->GlobalEval("package require SpecTclHttpdServer");
     resultStr = pInterp->GlobalEval("startSpecTclHttpdServer [::SpecTcl::findFreePort 8080]");
+    std::cout << resultStr << std::endl;
 }
 
 //
