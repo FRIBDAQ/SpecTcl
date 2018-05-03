@@ -599,6 +599,9 @@ image create photo ::browser::foldericon   -format png \
             gs {
                 $self setGammaSummarySubInfo $id $parameters $axes
             }
+        2dmproj {
+            $self setM2ProjectionInfo $id $parameters $axes
+        }
 	    default {}
         }
     }
@@ -687,10 +690,10 @@ image create photo ::browser::foldericon   -format png \
     # @param axes       - list of axes.
     method setg2SubInfo {id parameters axes} {
         set axisid [$self addAxis $id X [lindex $parameters 0] [lindex $axes 0]]
-	$tree item $axisid -text X
+        $tree item $axisid -text X
 
         set axisid [$self addAxis $id Y [lindex $parameters 0] [lindex $axes 1]]
-	$tree item $axisid -text Y
+        $tree item $axisid -text Y
 
         $self setFold $id
 
@@ -700,6 +703,66 @@ image create photo ::browser::foldericon   -format png \
             incr paramno
         }
 
+    }
+    ##
+    # setM2ProjectionInfo $id $parameters $axes
+    #   Set the sub information for an m2 projection spectrum.
+    #   This will have two axes, x and y.  The projection axis will be indicatedd.
+    #   The parameters for each axis will be listed under the axis.  There will
+    #   also be a list of gates that define the ROI of the projection.
+    #
+    # @param id - the id of the parent node (under which all this is put.)
+    # @param parameters - actually a three element list containing, in order
+    #                  *  The list of parameters as x1 y1 x2 y2 ...
+    #                  *  x | y giving the projection direction,.
+    #                  *  list of gates used to define the projection ROI.
+    # @param axes - A list of axes.  There will be exactly one axis definition
+    #               because this is a projection.
+    #
+    method setM2ProjectionInfo {id parameters axes} {
+        set params [lindex $parameters 0]
+        set direction [lindex $parameters 1]
+        set roiGates [lindex $parameters 2]
+        set axis [lindex $axes 0]
+        
+        #  We're going to create an x and y axis under id.  The parameters
+        #  will then be listed under the appropirate axis.  The
+        #  Axis parameters will be the definitions for the projected axis
+        #  and empty for the other.
+        
+        if {$direction eq "x"} {
+            set xaxisId [$self addAxis $id X "" $axis]
+            set yaxisId [$self addAxis $id Y "" ""]
+        } else {
+            if {$direction eq "y"} {
+                set xaxisId [$self addAxis $id X "" ""]
+                set yaxisId [$self addAxis $id Y "" $axis]
+            }
+        }
+        #  Add the parameter definitions under the appropriate axis:
+        
+        for {set i 0} {$i < [llength $params]} {} {
+            set xname [lindex $params $i]
+            incr i
+            set yname [lindex $params $i]
+            incr i
+            
+            $self addParameter $xaxisId $xname [parameter -list $xname]
+            $self addParameter $yaxisId $yname [parameter -list $yname]
+        }
+        #  Next we'll add the gates that define the ROI:
+        
+        foreach gateName $roiGates {
+            set fullDescription [lindex [gate -list $gateName] 0]
+            set type [lindex $fullDescription 2]
+            
+            set gateid \
+                [$tree insert $id end -text $gateName \
+                 -image ::browser::gateicon -value $type -tags gate]
+            $self setGateSubInfo $gateid $type [lindex $fullDescription 3]
+        }
+        
+        
     }
     ##
     #  setgdSubInfo id parameters axes
@@ -887,9 +950,15 @@ image create photo ::browser::foldericon   -format png \
 
 
         set data [$tree item $id -values]
-        set low   [format %.2f [lindex $specification 0]]
-        set high  [format %.2f [lindex $specification 1]]
-        set bins  [lindex $specification 2]
+        if {[llength $specification] == 3} {
+            set low   [format %.2f [lindex $specification 0]]
+            set high  [format %.2f [lindex $specification 1]]
+            set bins  [lindex $specification 2]
+        } else {
+            set low ""
+            set high ""
+            set bins ""
+        }
         set units ""
         set info [treeparameter -list $parameter]
         if {$info != ""} {

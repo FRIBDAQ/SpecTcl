@@ -330,6 +330,7 @@ itcl::class spectrumTabActions {
 	    set dtype     [string range [lindex $spectrum 5] 0 0]
 	    set gate       [lindex $spectrum 6]
 	    
+        set stype $type;                # raw spectrum type.
 	    append type " $dtype"
 	    
 	    # Ungated true gate -> ""
@@ -357,12 +358,18 @@ itcl::class spectrumTabActions {
             set yhi  ""
             set ybins ""
 	    }
-
+        #   2dmproj spectra are a bit odd:
+        
+        if {$stype eq "2dmproj"} {
+            set xparam [lindex [lindex $parameters 0] 0]
+            set yparam ""
+        }
+        
 	    # If there's a mapping from spectrum type to something more readable
 	    #  in spectrumTypeNames use it instead of the type:
 
 	    if {[array names spectrumTypeNames $type] ne ""} {
-		set type $spectrumTypeNames($type)
+            set type $spectrumTypeNames($type)
 	    }
 
 	    lappend spectrumList [list $name $type              \

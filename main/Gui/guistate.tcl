@@ -592,10 +592,10 @@ proc writeAll fd {
     writeTreeVariables       $fd
     }]
     set time [time {
-    writeSpectrumDefinitions $fd
+    writeGateDefinitions     $fd
     }]
     set time [time {
-    writeGateDefinitions     $fd
+    writeSpectrumDefinitions $fd
     }]
     set time [time {
     writeGateApplications    $fd
