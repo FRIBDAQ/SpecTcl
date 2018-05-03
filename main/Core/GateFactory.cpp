@@ -105,6 +105,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <list>
 #include <algorithm>
+#include <SpecTcl.h>
+#include <sstream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -641,6 +643,47 @@ COrGate* CGateFactory::CreateOrGate(const vector<string>& rG)
   CreateGateList(Gates, rGateNames, Or , "Constructing or gate list");
   return new COrGate(Gates);
 
+}
+/**
+ * CreateOrGate
+ *    This version is used to create an OR gate that is the or of several cuts.
+ *    The individual cuts must be created as will be the final or gate.
+ *    The gate is assumed to have been accepted on a m2dproj spectrum.
+ *    
+ *
+ * @param name of the final or gate.  This is just used to create the component gates
+ *             component gates will have names like name_param where param
+ *             is the name of the parameter that cut is on.
+ * @param x   - True if we are creating the subgates on the x [ara,s. false otherwise.]
+ * @param params - The names of the parameters on which the subgates are set.
+ * @param points - The scaled points.
+ * @param paramIds - Parameter ids.
+ * @return COrGate* the resulting or gate.
+ */
+CGate*
+CGateFactory::CreateOrGate(
+    std::string finalGateName,  bool x,
+    const std::vector<std::string>& paramNames, std::vector<FPoint> points,
+    const std::vector<UInt_t>& paramIds
+)
+{
+  std::vector <std::string> componentGateNames;
+  SpecTcl& api(*SpecTcl::getInstance());
+  
+  int start = x  ? 0 : 1;                // Proj direction defines which param to start with.
+  
+  for (int i = start; i < paramNames.size(); i += 2) {
+    CGate* pGate = CreateCut(paramNames[i], points[0].X(), points[1].X());
+    std::stringstream gateName;
+    gateName << finalGateName << "_" << paramNames[i];
+    
+    api.AddGate(gateName.str(), pGate);
+    componentGateNames.push_back(gateName.str());
+  }
+  // Now that the component gates have been  made we can create the
+  // or gate:
+  
+  return CreateOrGate(componentGateNames);
 }
 ///////////////////////////////////////////////////////////////////////////
 //

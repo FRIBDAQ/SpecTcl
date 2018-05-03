@@ -43,6 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CSpectrum2Dm.h>
 #include <SpecTcl.h>
 #include <XamineEvent.h>
+#include <CM2Projection.h>
 
 #include <Gamma2DW.h>
 
@@ -233,12 +234,14 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   }
 
   CSpectrum* pSpec = spectra[nSpec];
+  bool xproj;
   if(!pSpec) {
     cerr << "Spectrum in Xamine not defined in SpecTcl, ignoring gate\n";
     return;
   }
 
   SpectrumType_t spType = pSpec->getSpectrumType();
+  DataType_t     dType  = pSpec->StorageType();
 
   vector<CPoint>          GatePoints;
   vector<FPoint>          ScaledPoints;
@@ -254,7 +257,23 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
       gType = CGateFactory::cut;
     else if((spType == keG1D))	// Gamma spectrum -> Gamma cut.
       gType = CGateFactory::gammacut;
-    else {
+    else if (spType == ke2DmProj) {
+      gType = CGateFactory::Or;
+      if (dType == keLong) {
+        CM2ProjectionL* proj = reinterpret_cast<CM2ProjectionL*>(pSpec);
+        xproj = proj->isXprojection();  
+      } else if (dType == keWord) {
+        CM2ProjectionW* proj = reinterpret_cast<CM2ProjectionW*>(pSpec);
+        xproj = proj->isXprojection();
+        
+      } else {
+        cerr << "Invalid data type for m2 projection spectrum accepting gate: "
+        << dType << endl;
+        return;
+      }
+      
+      
+    } else {
       cerr << "Cut gate received on a spectrum type that doesn't know about"
            << " cut gates.\n Consider updating SpecTcl??"
 	   << endl;
@@ -338,6 +357,11 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
       return;
     }
     break;
+  case ke2DmProj:
+    if (gType != CGateFactory::Or) {
+        std::cerr << "Bad gate type (not cut/or) accepted on ke2DmProj spectrum";
+    }
+    break;
   default:
     cerr << "Gates must only be accepted on simple 1-d or 2-d spectra\n";
     return;
@@ -350,6 +374,7 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   switch(spType) {
   case ke1D:
   case keG1D:
+  case ke2DmProj:             // These are also 1-d gates.
     {
       // Only allowed 2 points, and the right point must be 
       // set so that it is on the right side of its channel.
@@ -357,9 +382,9 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
       int low   = GatePoints[0].X();
       int high  = GatePoints[1].X();
       if (low > high) {
-	int temp = low;
-	low  = high;
-	high = temp;
+      int temp = low;
+      low  = high;
+      high = temp;
       }
       //  Note that high is offset by 1 channel to put it on the right side
       // of our channel:
@@ -391,16 +416,15 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
       
       vector<CPoint>::iterator p = GatePoints.begin();
       for(; p != GatePoints.end(); p++) {
-	CPoint& rp(*p);
-	x = pSpec->AxisToParameter(0, rp.X());
-	if(pSpec->Dimensionality() > 1) 
-	  y = pSpec->AxisToParameter(yIndex, rp.Y());
-	ScaledPoints.push_back(FPoint(x,y));
-
+        CPoint& rp(*p);
+        x = pSpec->AxisToParameter(0, rp.X());
+        if(pSpec->Dimensionality() > 1) 
+          y = pSpec->AxisToParameter(yIndex, rp.Y());
+        ScaledPoints.push_back(FPoint(x,y));
       }
       break;
     }
-    
+
   default:
     cerr << "Gates must only be accepted on simple 1-d or 2-d spectra\n";
     return;
@@ -417,19 +441,21 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   vector<string> Names;  // vector to hold spectrum name which is passed to
                          // GateFactory on gamma gates
 
-
+  for(pid = pIds.begin(); pid != pIds.end(); pid++) {
+    CParameter* pParam = m_pSorter->FindParameter(*pid);
+    if(!pParam) {
+      cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
+      return;
+    }
+    Parameters.push_back(pParam->getName());   
+  }
+   
   try {
     switch(spType) {
     case ke1D:
     case ke2D:
-      for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pSorter->FindParameter(*pid);
-	if(!pParam) {
-	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
-	  return;
-	}
-	Parameters.push_back(pParam->getName());    
-      }
+      
+      
       // Use the gate factory creation mechanism to produce a dynamically
       // allocated SpecTcl gate:
       pSpecTclGate = Factory.CreateGate(gType, Parameters, ScaledPoints);
@@ -437,15 +463,14 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
     case keG1D:
     case keG2D:
     case keG2DD:
-      for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pSorter->FindParameter(*pid);
-	if(!pParam) {
-	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
-	  return;
-	}
-      }
       pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, pIds);
       break;
+    case ke2DmProj:
+        
+        pSpecTclGate = Factory.CreateOrGate(
+            strGateName, xproj, Parameters, ScaledPoints, pIds
+        );
+        break;
     default:
       cerr << "Spectrum type cannot accept a gate!!\n";
       return;

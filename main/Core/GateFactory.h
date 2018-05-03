@@ -197,6 +197,8 @@ public:
 		    long comparison);
   
 
+            
+
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
    CDeletedGate* CreateDeletedGate ();
@@ -208,6 +210,11 @@ public:
    CNot* CreateNotGate (const std::string& rGateNames);
    CAndGate* CreateAndGate (const std::vector<std::string>& rGateNames);
    COrGate* CreateOrGate (const std::vector<std::string>& rGateNames)    ;
+   CGate* CreateOrGate(
+        std::string finalGateName,  bool x,
+        const std::vector<std::string>& paramNames, std::vector<FPoint> points,
+        const std::vector<UInt_t>& paramIds
+    );
    CCut* CreateCut (const std::string& rParameterName, 
 		    Float_t nLow, Float_t nHigh);
    CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,

@@ -412,14 +412,23 @@ CSpectrum::GammaGateIncrement(const CEvent& rEvent)
    \param nAxisValue (UInt_t [in]): The axis value to convert.
    \return Float_t  The parameter value corresponding to the axis value.
    \throw CRangeError if nAxis is out of range.
+   @note if axis mappings have been defined they are used to perform the conversion
+         if not, the range and channel vectors are used.
+
 */
 Float_t 
 CSpectrum::AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue)
 {
   if(nAxis < m_AxisMappings.size()) {
     return m_AxisMappings[nAxis].AxisToParameter(nAxisValue);
-  }
-  else {
+  } else if (nAxis < m_nChannels.size()) {
+    Float_t l = m_fLows[nAxis];       // The assumption these are all equi-sized
+    Float_t h = m_fHighs[nAxis];      // holds as these were added via AddAxis.
+    UInt_t  n = m_nChannels[nAxis];
+    
+    return (l + (nAxisValue * (h - l) / n));
+    
+  }  else {
     throw CRangeError(0, m_AxisMappings.size() -1 , nAxis,
 		      string("CSpectrum::AxisToParameter"));
   }
@@ -430,16 +439,16 @@ CSpectrum::AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue)
    \param fParameterValue (Float_t [in]): The parameter value to convert.
    \return UInt_t  The axis coordinate corresponding to fParamterValue.
    \throw CRangeError if nAxis is out of range.
+   
 */
 Float_t  
 CSpectrum::MappedToAxis(UInt_t nAxis, Float_t fParameterValue)
 {
   if(nAxis < m_AxisMappings.size()) {
     return m_AxisMappings[nAxis].MappedParameterToAxis(fParameterValue);
-  }
-  else {
+  } else {
     throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
-		      string("CSpecrrumParameterToAxis"));
+		      string("CSpectrumParameterToAxis"));
   }
   
 }
