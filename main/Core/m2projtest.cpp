@@ -295,7 +295,7 @@ void m2projtest::getdef()
     }
     
     EQ(size_t(1), d.nChannels.size());
-    EQ(UInt_t(128 + 2), d.nChannels[0]);
+    EQ(UInt_t(128), d.nChannels[0]); // This gets corrected for roots +2.
     
     EQ(size_t(1), d.fLows.size());
     EQ(Float_t(0.0), d.fLows[0]);
