@@ -127,10 +127,10 @@ class HistFillerTest : public CppUnit::TestFixture
 
     template<class T>
     void create1DSpectrum() {
-        T* pData = reinterpret_cast<T*>(Xamine_Allocate1d(&m_spec1d, 4, "test spectrum", spec1dtype<T>())); // 32bit word
+        T* pData = reinterpret_cast<T*>(Xamine_Allocate1d(&m_spec1d, 6, "test spectrum", spec1dtype<T>())); // 32bit word
         if (pData) {
 
-            vector<T> data = {1, 2, 3, 4};
+	  vector<T> data = {0, 1, 2, 3, 4, 0};
             copy(begin(data), end(data), pData);
 
             Xamine_SetMap1d(m_spec1d, 0, 3, "asdf");
@@ -141,10 +141,10 @@ class HistFillerTest : public CppUnit::TestFixture
 
     template<class T>
     void create2DSpectrum() {
-        T* pData = reinterpret_cast<T*>(Xamine_Allocate2d(&m_spec2d, 3, 3, "spectrum2d", spec2dtype<T>())); // 0 = 32bit word
+        T* pData = reinterpret_cast<T*>(Xamine_Allocate2d(&m_spec2d, 5, 5, "spectrum2d", spec2dtype<T>())); // 0 = 32bit word
         if (pData) {
 
-            vector<T> data = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	  vector<T> data = {0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0,  4, 5, 6, 0, 0,  7, 8, 9, 0, 0,0,0,0,0};
             copy(begin(data), end(data), pData);
 
             Xamine_SetMap2d(m_spec2d, 0, 2, "x", 0, 2, "y");
