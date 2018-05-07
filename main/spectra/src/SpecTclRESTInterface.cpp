@@ -132,6 +132,67 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 
 }
 
+/*-----------------------------------------------------------------------------
+ *  This set of methods edits/creates compound gates:
+ */
+
+/*
+ * addOrGate
+ *    Adds an or gate -- see editOrGate as we delegate to it.
+ */
+ void
+ SpecTclRESTInterface::addOrGate(
+      const std::string& name, const std::vector<std::string>& components
+)
+{
+    editOrGate(name, components);
+}
+/**
+ * editOrGate
+ *    Edits an or gate. Or gates  have component gates and are satsified when at
+ *    least one of those is satisfied.
+ *
+ *  @param name -name of the gate to edit
+ *  @param components - components of the OR gate.
+ */
+void
+SpecTclRESTInterface::editOrGate(
+     const std::string& name, const std::vector<std::string>& components
+)
+{
+    GateEditRequest req(name, "+", components);
+    m_pCommonHandler->makeRequest(req.toUrl());
+}
+/**
+ * addAndGHate
+ *    Adds an and gate -- see editAndGate as we delegate to it.
+ */
+void
+SpecTclRESTInterface::addAndGate(
+      const std::string& name, const std::vector<std::string>& components
+)
+{
+    editAndGate(name, components);
+}
+/**
+ * editAndGate
+ *     Edits an and gate.  And gates have component gates.  They are satisfied
+ *     only if _all_ component gates are satisfied.
+ *
+ *  @param name of the gate being made.
+ *  @param compoments - The component gate names of the gate.
+ */
+void
+SpecTclRESTInterface::editAndGate(
+    const std::string& name, const std::vector<std::string>& components
+)
+{
+    GateEditRequest req(name, "*", components);
+    m_pCommonHandler->makeRequest(req.toUrl());
+}
+
+ 
+ /*----------------------------------------------------------------------------*/
 
 void SpecTclRESTInterface::listGates() 
 {

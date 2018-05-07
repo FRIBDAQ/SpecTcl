@@ -114,6 +114,22 @@ public:
      */
     void deleteGate(const QString& name);
 
+    // Compound gates.
+    
+    virtual void addOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) ;
+    virtual void editOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) ;
+    virtual void editAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) ;
+    virtual void addAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) ;
+    
+    
     /*!
      * \brief enableGatePolling
      *

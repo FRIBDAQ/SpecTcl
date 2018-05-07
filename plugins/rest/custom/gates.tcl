@@ -176,6 +176,11 @@ proc SpecTcl_Gate/edit {args} {
     }
     set name [dict get $queryParams name]
     set type [dict get $queryParams type]
+    
+    # Type could be + which is a wonky html escape not well handled by any
+    # of our stack:
+    
+    if {$type eq "%2B"} { set type +}
 
     # Should only be one name, and type:
 
@@ -200,22 +205,22 @@ proc SpecTcl_Gate/edit {args} {
     ## Compound gates:
 
     } elseif {$type in [list * + - c2band]} {
-	set missingKey [::SpecTcl::_missingKey $queryParams [list gate]]
-	if {$missingKey ne ""} {
-	    return [::SpecTcl::_returnObject  "missing parameter" [json::write string $missingKey]]
-
-	}
-	set gates [dict get $queryParams gate]
-	if {($type eq "-") && ([llength $gates] > 1)} {
-	    return [::SpecTcl::_returnObject "bad parameter" \
-			[json::write string "- gate can only take one gate: [join $gates \", \"]"]]
-	}
-	if {($type eq "c2band") && ([llength $gates] != 2)} {
-	    return [::SpecTcl::_returnObject "bad parameter" \
-			[json::write string "c2band gate must have two contours [join $gates \", \"]"]]
-	}
-	set command [list gate $name $type $gates]
+        set missingKey [::SpecTcl::_missingKey $queryParams [list gate]]
+        if {$missingKey ne ""} {
+            return [::SpecTcl::_returnObject  "missing parameter" [json::write string $missingKey]]
     
+        }
+        set gates [dict get $queryParams gate]
+        if {($type eq "-") && ([llength $gates] > 1)} {
+            return [::SpecTcl::_returnObject "bad parameter" \
+                [json::write string "- gate can only take one gate: [join $gates \", \"]"]]
+        }
+        if {($type eq "c2band") && ([llength $gates] != 2)} {
+            return [::SpecTcl::_returnObject "bad parameter" \
+                [json::write string "c2band gate must have two contours [join $gates \", \"]"]]
+        }
+        set command [list gate $name $type {*}$gates]
+        
     # bands and contours.
 
     } elseif {$type in [list b c]} {
@@ -292,11 +297,10 @@ proc SpecTcl_Gate/edit {args} {
     # Unrecognized gate type:
 
     } else {
-	return [::SpecTcl::_returnObject "bad parameter" [json::write string "Invalid gate type: $type"]]
+        return [::SpecTcl::_returnObject "bad parameter" [json::write string "Invalid gate type: $type"]]
     }
-
     if {[catch {{*}$command} msg]} {
-	return [::SpecTcl::_returnObject "command failed" [json::write string $msg]]
+        return [::SpecTcl::_returnObject "command failed" [json::write string $msg]]
     }
  
     return [::SpecTcl::_returnObject ]
@@ -364,7 +368,7 @@ proc ::SpecTcl::_missingKey {dictionary list} {
 proc ::SpecTcl::_marshallDict list {
     set result [dict create]
     foreach [list key value] $list {
-	dict lappend result $key $value
+        dict lappend result $key $value
     }
     return $result
 }

@@ -25,7 +25,8 @@
 
 #include <QObject>
 
-#include <vector> 
+#include <vector>
+#include <string>
 
 class QString;
 
@@ -62,6 +63,7 @@ public:
     SpecTclInterface();
     virtual ~SpecTclInterface() {}
 
+    
     virtual void addGate(const GSlice& slice) = 0;
     virtual void editGate(const GSlice& slice) = 0;
     virtual void deleteGate(const GSlice& slice) = 0;
@@ -72,6 +74,24 @@ public:
 
     virtual void deleteGate(const QString& name) = 0;
 
+    // Compound gates.
+    
+    virtual void addOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) = 0;
+    virtual void editOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) = 0;
+    virtual void editAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) = 0;
+    virtual void addAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) = 0;
+    
+    
+    // Misc methods.
+    
     virtual void enableGatePolling(bool enable) = 0;
     virtual bool gatePollingEnabled() const = 0;
 

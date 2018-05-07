@@ -36,7 +36,18 @@ public:
     virtual void deleteGate(const GGate& slice);
 
     virtual void deleteGate(const QString& name);
-
+    virtual void addOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) {}
+    virtual void editOrGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) {}
+    virtual void editAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) {}
+    virtual void addAndGate(
+      const std::string& name, const std::vector<std::string>& components
+    ) {}   
     virtual void enableGatePolling(bool enable);
     virtual bool gatePollingEnabled() const;
 

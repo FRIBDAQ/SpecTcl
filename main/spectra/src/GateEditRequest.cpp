@@ -27,6 +27,7 @@
 #include "GGate.h"
 
 #include <iostream>
+#include <sstream>
 
 namespace Viewer
 {
@@ -113,6 +114,46 @@ GateEditRequest::GateEditRequest(const GSlice &slice)
 
 }
 
+/**
+ * constructor (compound gates).
+ *
+ *   This construtor builds a URL to create a compound gate.  The form
+ *   of that url is /spectcl/gate/edit?name=name&type=whatevber&gates={gate1 ... gaten}
+ *
+ *   Where whatever is one of +, * or - (or, and, negation).  Gate1..gaten are
+ *   the component gates.
+ *
+ *   @note For - gates, no effort is made here to ensure there's only one
+ *         component gate.
+ *
+ * @param name - Name of the gate.
+ * @param type - Type of compound gate (no validity checking is done here).
+ * @param components - vector of component gates.
+ */
+GateEditRequest::GateEditRequest(
+    const std::string& name, const char* compoundType,
+    const std::vector<std::string> components
+)
+{
+    std::string t = compoundType;
+    // + has to be encoded as it's otherwise treated as a space by URL decoders:
+    
+    if (t == "+") {
+        t = "%2B";
+    }
+    
+    std::stringstream urlStream;
+    urlStream << GlobalSettings::getServer().toStdString()  << "/spectcl/gate/edit?name=" << name
+                <<  "&type=" << t << "&gate=";
+    for (int i = 0; i < components.size(); i++) {
+        urlStream << components[i] << " ";
+    }
+    std::string urlString = urlStream.str();
+    m_reqStr = urlString.c_str();
+}
+/**
+ * Convert a gate edit request to a valid URL (% encodes the raw URL string as needed).
+ */
 QUrl GateEditRequest::toUrl()
 {
     return QUrl(m_reqStr);

@@ -184,7 +184,6 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
         somethingChanged = true;
       }
     } else {
-      cout << "about to remove " << name.toStdString() << endl;
       removeCut2D(name);
       somethingChanged = true;
     }

@@ -7,6 +7,8 @@
 #include "GSlice.h"
 #include <utility>
 #include <memory>
+#include <vector>
+#include <HistogramBundle.h>
 
 class TPad;
 
@@ -24,7 +26,7 @@ namespace Viewer
 
 class SpecTclInterface;
 class QRootCanvas;
-class HistogramBundle;
+
 
 
 /*! Dialog for editing 1D gates (aka slices)
@@ -75,7 +77,20 @@ public slots:
     void onHighChanged(double x1, double y1, double x2, double y2);
 
 private:
-
+    // Projection gates demand special handling for creation
+    // and editing:
+    
+    GSlice* duplicateSlice(
+        const std::string& newName, const std::string& newParam,
+        const GSlice& source 
+    );
+    std::vector<std::pair<std::string, GSlice*> >
+    createProjectionComponents(
+        SpJs::HistInfo& hInfo, GSlice* pSource
+    );
+    void createProjectionGate(SpJs::HistInfo& hInfo, GSlice* pSource);
+    void editProjectionGate(SpJs::HistInfo& hInfo, GSlice* pSource);
+    
     // Update lines and text
     void updateLow(double x);
     void updateHigh(double x);

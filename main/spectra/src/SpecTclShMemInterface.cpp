@@ -98,6 +98,30 @@ void SpecTclShMemInterface::deleteGate(const QString &name)
     m_pRESTInterface->deleteGate(name);
 }
 
+void SpecTclShMemInterface::addOrGate(
+    const std::string& name, const std::vector<std::string>& components
+)
+{
+    m_pRESTInterface->addOrGate(name, components);
+}
+void SpecTclShMemInterface::addAndGate(
+    const std::string& name, const std::vector<std::string>& components
+) {
+    m_pRESTInterface->addAndGate(name, components);
+}
+
+void SpecTclShMemInterface::editOrGate(
+    const std::string& name, const std::vector<std::string>& components
+) {
+    m_pRESTInterface->editOrGate(name, components);
+}
+void SpecTclShMemInterface::editAndGate(
+    const std::string& name, const std::vector<std::string>& components
+) {
+    m_pRESTInterface->editAndGate(name, components);
+}
+
+
 void SpecTclShMemInterface::enableGatePolling(bool enable)
 {
     m_pRESTInterface->enableGatePolling(enable);

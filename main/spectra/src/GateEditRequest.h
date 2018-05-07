@@ -25,6 +25,8 @@
 
 #include <QString>
 #include <QUrl>
+#include<vector>
+#include<string>
 
 namespace Viewer
 {
@@ -43,6 +45,10 @@ class GateEditRequest
 public:
     GateEditRequest(const GGate &cut);
     GateEditRequest(const GSlice& cut);
+    GateEditRequest(
+        const std::string& name, const char* compoundType,
+        const std::vector<std::string> components
+    );
 
     /*!
      * \brief Retrieve the url

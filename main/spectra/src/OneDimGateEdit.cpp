@@ -200,10 +200,22 @@ void OneDimGateEdit::registerSlice(GSlice *pSlice)
 {
   Q_ASSERT( pSlice != nullptr );
 
+  // In most cases, all we need to do is enter the right slice type.
+  // for 
     pSlice->setEditable(false);
 
+    // That for the 2dm projection spectra, we need to make
+    // a bunch of slices, one for each of the x parameters and
+    // an OR gate tying them together.
+    
     if (m_pSpecTcl) {
-        m_pSpecTcl->addGate(*pSlice);
+        SpJs::HistInfo hInfo = m_histPkg.getInfo();
+        
+        if (hInfo.s_type != "2dmproj") {
+            m_pSpecTcl->addGate(*pSlice);
+        } else {
+            createProjectionGate(hInfo, pSlice);
+        }
         m_pSpecTcl->enableGatePolling(true);
     }
 
@@ -223,7 +235,12 @@ void OneDimGateEdit::editSlice(GSlice *pSlice)
 
     // Update the
     if (m_pSpecTcl) {
-        m_pSpecTcl->editGate(*pSlice);
+        SpJs::HistInfo hInfo = m_histPkg.getInfo();
+        if (hInfo.s_type != "2dmproj") {
+            m_pSpecTcl->editGate(*pSlice);
+        } else {
+            editProjectionGate(hInfo, pSlice);
+        }
         m_pSpecTcl->enableGatePolling(true);
     }
 
@@ -385,6 +402,134 @@ void OneDimGateEdit::connectSignals()
 
   connect(ui->pApplyButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(ui->pCancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+}
+/*--------------------------------------------------------------------------
+ *  Special gate handling for projection gates.  These methods assume
+ *  that the SpecTcl interface has been created and so on.
+ */
+
+ /**
+  * duplicateSlice
+  *    Create a copy of a slice with different parameters and names.
+  *    The low/high values of the slice, the parent.  The canvas is our
+  *    canvas and there's no parent given.
+  *
+  * @param newName - name of the object slice
+  * @param newParam -name of the object slice's xparameter
+  * @param source   - Slice that's getting copied.
+  * @return GSlice* - Dynamically created slice...must be deleted by caller.
+  */
+ GSlice*
+ OneDimGateEdit::duplicateSlice(
+    const std::string& newName, const std::string& newParam,
+    const GSlice& source
+ )
+ {
+    QString name(newName.c_str());
+    QString param(newParam.c_str());
+    
+    return  new GSlice(
+        nullptr, name, param, source.getXLow(), source.getXHigh(), &m_canvas
+    );
+    
+ }
+ /**
+  * createProjectionComponents
+  *    projection spectrum slices get turned into a number of slices
+  *    and an Or gate of all of those slices.  This method produces
+  *    the component gates that are ore-d together to create the final gate.
+  *
+  * @param hInfo - for convenience, this is the histogram information
+  *                extracted from our histogram bundle.
+  * @param pSource - pointer to the slice that was accepted on the
+  *                display.  This is used to supply the base names for the components
+  *                and the low/high cut values.
+  * @return std::vector<std::pair<std::string, GSlice> -
+  *         Vector of the resulting gate names and slices
+  */
+ std::vector<std::pair<std::string, GSlice*> >
+ OneDimGateEdit::createProjectionComponents(
+        SpJs::HistInfo& hInfo, GSlice* pSource
+)
+{
+    std::vector<std::pair<std::string, GSlice*> > result;
+    std::string baseName = pSource->getName().toStdString();
+    
+    int start = hInfo.s_direction ? 0 : 1;   // X or Y parameter projection.
+    
+    for (int  i =start; i < hInfo.s_params.size(); i += 2) {
+        std::string paramName = hInfo.s_params[i];
+        std::string gateName(baseName);
+        gateName += ".";
+        gateName += paramName;
+        
+        GSlice* s = duplicateSlice(gateName, paramName, *pSource);
+        result.push_back(std::make_pair(gateName, s));
+    }
+    return result;
+}   
+/**
+ * createProjectionGate
+ *    Creates the component gates, the OR gate and enters it into SpecTcl.
+ *    m_pSpecTcl must be non null to call this method.
+ *
+ *  @param hInfo   - Histogram bundle on which the gate was drawn.
+ *  @param pSource - source slice for the component gates.
+ */
+void
+OneDimGateEdit::createProjectionGate(SpJs::HistInfo& hInfo, GSlice* pSource)
+{
+    std::vector<std::pair<std::string, GSlice*> > components =
+        createProjectionComponents(hInfo, pSource);
+    
+    // First create the component gates...
+    
+    std::vector<std::string> componentNames;;
+    for (int i =0; i < components.size(); i++) {
+        m_pSpecTcl->addGate(*components[i].second);
+        delete components[i].second;
+        componentNames.push_back(components[i].first);
+    }
+    // Then create the OR gate:
+    
+    std::string gateName =  pSource->getName().toStdString();
+    
+    m_pSpecTcl->addOrGate(gateName, componentNames);
+}
+
+/**
+ * editProjectionGate
+ *    This is the same as createProjection gate, but existing gates are presumed
+ *    to exist and are edited.  An astute reader of code will note that at present,
+ *    the REST interface does not differentiate between editing and creation.
+ *    An even more astute reader will note that if it ever did, this method
+ *    would become a bit more complicated as some of the components might need
+ *    creation, while others might only need to be edited -- for now we'll
+ *    ignore that potential complexity, since a the level of SpecTcl gate
+ *    creation and modification are not differentiated either.
+ *
+ *  @param hInfo   - Histogram bundle on which the gate was drawn.
+ *  @param pSource - The gate that was drawn.
+ */
+void
+OneDimGateEdit::editProjectionGate(SpJs::HistInfo& hInfo, GSlice* pSource)
+{
+    std::vector<std::pair<std::string, GSlice*> > components =
+        createProjectionComponents(hInfo, pSource);
+    
+    // First create the component gates...
+    
+    std::vector<std::string> componentNames;;
+    for (int i =0; i < components.size(); i++) {
+        m_pSpecTcl->editGate(*components[i].second);
+        delete components[i].second;
+        componentNames.push_back(components[i].first);
+    }
+    // Then create the OR gate:
+    
+    std::string gateName =  pSource->getName().toStdString();
+    
+    m_pSpecTcl->editOrGate(gateName, componentNames);    
 }
 
 } // end of namespace
