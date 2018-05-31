@@ -819,6 +819,8 @@ AC_SUBST(MOC)
 AC_SUBST(UIC)
 AC_SUBST(RCC)
 
+######################################## Checks for ZMQ
+AX_ZMQ
 
 ######################################## Checks for Root 
 
