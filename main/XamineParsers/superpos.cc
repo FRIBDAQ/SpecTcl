@@ -22,6 +22,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <assert.h>
 
 #include "superpos.h"
+#include "SpectrumQueryInterface.h"
+
+extern Win::SpectrumQueryInterface gSpectrumInterface;
 
 /*
 ** Functional Description:
@@ -69,6 +72,8 @@ void SuperpositionList::Add(const std::string& name)
 
   /* Set the list value: */
 
+  Win::SpectrumQueryResults spinfo = gSpectrumInterface.getSpectrumInfo(name);
+  list[num].Spectrum(spinfo.s_spno);
   list[num].SpectrumName(name);
   list[num].Representation(lastrep);
   num++;
