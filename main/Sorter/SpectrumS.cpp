@@ -112,6 +112,7 @@ CSpectrumS::CSpectrumS(const std::string&     rName,
   AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
   CreateChannels();
+
 }
 /*!
     Construct a StripChart.   In this constructor,
@@ -304,6 +305,8 @@ CSpectrumS::CreateChannels()
   UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  createStatArrays(1);
+  
 }
 
 
