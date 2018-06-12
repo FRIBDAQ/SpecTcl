@@ -39,7 +39,7 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	build.cygwin Directories.include CompilationRules.include \
 	libtcl \
-	CHANGELOG m4 Porting.txt
+	CHANGELOG m4 Porting.txt rest
 
 dist-hook:
 	mkdir -p $(distdir)/config
@@ -59,6 +59,7 @@ install-exec-local:
 	install -d   -m 0775 $(prefix)/Skel
 	install  -d   -m 0775 $(prefix)/contrib $(prefix)/doc $(prefix)/share
 	install -m 0664 config.h $(prefix)/include
+	(cd @top_srcdir@/rest; ./installer @prefix@)
 	rm -f $(prefix)/Bin
 	rm -f $(prefix)/Lib
 	rm -f $(prefix)/Include

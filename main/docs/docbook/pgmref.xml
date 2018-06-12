@@ -41153,6 +41153,280 @@ public:
             build the complete folder/terminal hierarhcy given a flat
             description of a set of parameters.
         </para>
+        <refsect2>
+            <title>METHODS</title>
+            <para>
+                Note that this derives from <classname>TreeFolder</classname>.
+                When the tree is built, the object becomes the top level folder
+                of that tree.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>ParameterTree</methodname>
+                            <void />
+                        </constructorsynopsis>
+                    </term>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>ParameterTree</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> std::vector&lt;ParameterDef&gt;&amp; </type>
+                                <parameter>params</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            The second form of the constructor is like the first
+                            form followed by a call to
+                            <methodname>buildTree</methodname>.  See below.
+                            <parameter>params</parameter> are the parameters to be
+                            built into the tree.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>buildTree</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> std::vector&lt;ParameterDef&gt;&amp; </type>
+                                <parameter>params</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructs the parameter tree from the
+                            parameter definitions given by
+                            <parameter>params</parameter>.  The
+                            <literal>.</literal> character is used
+                            as a path separator when building this tree.
+                        </para>
+                        <para>
+                            Any previously existing parameter this object
+                            holds is destroyed before building the new tree.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>clearTree</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Clears the tree. Once this is complete, the object
+                            is an empty folder.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect2>
+        <refsect2>
+            <title>DATA TYPES</title>
+            <para>
+                The <classname>ParameterDef</classname> contains
+                the name of a parameter and its parameter id:
+            </para>
+            <programlisting>
+typedef struct _ParameterDef {
+    std::string s_name;
+    unsigned    s_id;
+    _ParameterDef(const char* name, unsigned id) :
+        s_name(name), s_id(id) {}
+        
+} ParameterDef, *pParameterDef;                
+            </programlisting>
+            <para>
+                A constructor is provided so that you can initialize the
+                type without needing to know the order of its members.
+            </para>
+
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title>ParameterMarshaller</title>
+        <para>
+            Root expects you to marshall all values that need to be put into a tree
+            either into an object that Root's interpreter knows about or into
+            an array of values.   This class is provided to take a
+            <classname>CEvent</classname>
+            object and marshall its set values into an array that has been
+            initialized to <literal>NaN</literal>.
+        </para>
+        <para>
+            The
+            <classname>CEvent</classname>'s dope vector is used both to minimize the work required
+            to marshall the data and the work required to reset the array
+            to contain only <literal>NaN</literal>.
+        </para>
+        <refsect2>
+            <title>METHODS:</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>ParameterMarshaller</methodname>
+                            <methodparam>
+                                <type>std::size_t</type><parameter>numParameters</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            The constructor requires <parameter>numParameters</parameter>
+                            to let it know how large a flat array to reserve.
+                            <parameter>numParameters</parameter> should
+                            be the number of elements in the tree branch written.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>marshall</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>event</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Marshall's the parameter values in
+                            <parameter>event</parameter> into the flat storage
+                            reserved for the tree values.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>reset</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>event</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Assumed to be called after
+                            <methodname>marshall</methodname> on the same
+                            <parameter>event</parameter>.  The dope  vector of
+                            <parameter>event</parameter> is used to know which values
+                            of the flattened parameter array have been set to
+                            actual values.  Those values are reset to
+                            <literal>NaN</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>Double_t* </type>
+                            <methodname>pointer</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the pointer to the flattened parameters.
+                            This can be passed in to a
+                            <classname>TTRee::Branch</classname> method
+                            that uses this marshaller.
+                        </para>
+                    </listitem>
+                </varlistentry>            
+            </variablelist>
+        </refsect2>
+    
+    </refsect1>
+    <refsect1>
+        <title>SpecTclRootTree</title>
+        <para>
+            This class builds a Root tree from a set of SpecTcl parameters and
+            provides a mechanism to fill it from a <classname>CEvent</classname>
+            object.
+        </para>
+        <refsect2>
+            <title>methods</title>
+             <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>SpecTclRootTree</methodname>
+                            <methodparam>
+                                <type>std::string </type><parameter>treeName</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type>std::vector&lt;ParameterTree::ParameterDef&gt;&amp; </type>
+                                <parameter>params</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            <parameter>treeName</parameter> is the name
+                            that will be given to the
+                            <classname>TTree</classname> that will be created.
+                            <parameter>params</parameter> define the parameters
+                            that will put into this tree.
+                        </para>
+                        <para>
+                            Note that the constructor creates the
+                            <classname>TTree</classname> object.  This means
+                            that at construction time, the current working
+                            "directory" in root must be set to where you want
+                            that tree to be stored.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>Fill</methodname>
+                            <methodparam>
+                                <type>CEvent&amp; </type><parameter>event</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Fills the underlying tree from the parameters in
+                            <parameter>event</parameter>.  Note that the
+                            underlying marshaller that marshalls parameters into
+                            a flat array has a mapping of parameter numbers to
+                            indices so that the flat array only has to be as
+                            large as the number of parameters in the tree.
+                        </para>
+                    </listitem>
+                </varlistentry>
+             </variablelist>           
+        </refsect2>
     </refsect1>
 </refentry>
         <chapter>

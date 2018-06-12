@@ -19,4 +19,4 @@ fi
 #
 #  Don't have a good installer for rest...tar the whole damned thing over to TclLibs/rest
 
-(cd rest; ./installer $target)
+#(cd rest; ./installer $target)
