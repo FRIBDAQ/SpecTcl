@@ -35,3 +35,4 @@ unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core \
 
 
 TESTS=unittests
+
