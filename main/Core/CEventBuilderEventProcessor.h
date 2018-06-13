@@ -22,8 +22,10 @@
 #define CEVENTBUILDEREVENTPROCESSOR_H
 
 #include "EventProcessor.h"
+
 #include <map>
 #include <string>
+#include <stdint.h>
 
 class CTreeParameter;
 
@@ -59,19 +61,20 @@ private:
     typedef std::map<unsigned, TimeDifferences> TimeDifferenceMatrix;
     // Private data members:
 private:
-    double               m_ClockMhz;
+    double               m_ClockMHz;
     HandlerMap           m_sourceHandlers;
     TimeDifferenceMatrix m_timeDifferenceParams;
     CTreeParameter*      m_sourceCount;
     CTreeParameter*      m_unrecognizedSourceCount;
     CTreeParameter*      m_eventNumber;
     CTreeParameter*      m_seconds;
-    
+    std::string          m_baseName;     // Construct parametrs from this.
+    unsigned             m_nEvents;      // Number of events.
     
     // Canonicals:
     
 public:
-    CEventBuilderEventProcessor(double clockMhz, std::string baseName);
+    CEventBuilderEventProcessor(double clockMHz, std::string baseName);
     virtual ~CEventBuilderEventProcessor();
     
     // Event processor methods we need to override - all of them since we
@@ -103,15 +106,18 @@ public:
 public:
     
     // Additional public methods:
-    
-    void addEventProcessor(unsigned sourceId, CEventProcessor& pProcessor);
 
-public:
+public:    
+    void addEventProcessor(unsigned sourceId, CEventProcessor& processor);
     
     // Utilities:
     
 private:
-    
+    void computeTimestampDifferences(
+        const std::vector<std::pair<unsigned, uint64_t>& stamps
+    );
+    void addEventSourceParameters(unsigned id);
+    std::string tdiffParamName(unsigned sid1, unsigned sid1);
 };
 
 #endif
