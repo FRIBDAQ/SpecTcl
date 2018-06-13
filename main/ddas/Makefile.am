@@ -2,20 +2,20 @@
 lib_LTLIBRARIES = libDDASUnpacker.la 
 
 libDDASUnpacker_la_SOURCES = DDASUnpacker.cpp \
-	DDASBuiltUnpacker.cpp FragmentIndex.cpp  \
-	fragment.h DDASHit.cpp DDASHitUnpacker.cpp
+	DDASBuiltUnpacker.cpp  \
+	 DDASHit.cpp DDASHitUnpacker.cpp
 
 include_HEADERS = DDASUnpacker.h \
 	DDASBuiltUnpacker.h \
 	ParameterMapper.h \
 	DDASHit.h DDASHitUnpacker.h \
-	FragmentIndex.h DDASBitMasks.h \
-	fragment.h 
+	DDASBitMasks.h
 
 
 
 libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core \
 	-I@top_srcdir@/Utility	\
+	-I@top_srcdir@/Core    \
 	@LIBTCLPLUS_CFLAGS@	\
 	@TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
@@ -37,7 +37,7 @@ unittests_SOURCES = TestRunner.cpp \
 		Asserts.h
 
 unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@
-unittests_LDADD = @builddir@/libDDASUnpacker.la @ROOT_LDFLAGS@  @CPPUNIT_LIBS@
+unittests_LDADD = @builddir@/libDDASUnpacker.la @top_builddir@/Core/libTclGrammerApp.la  @ROOT_LDFLAGS@  @CPPUNIT_LIBS@
 
 TESTS = ./unittests
 

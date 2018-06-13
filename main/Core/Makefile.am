@@ -197,7 +197,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	GateFactoryException.cpp TCLHistogrammer.cpp \
 	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
 	ReadCommand.cpp 	\
-	TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
+	TCLAnalyzer.cpp EventProcessor.cpp \
+	TclGrammerApp.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
@@ -205,7 +206,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
-	CPipelineCommand.cpp CPipelineManager.cpp
+	CPipelineCommand.cpp CPipelineManager.cpp FragmentIndex.cpp \
+	CEventBuilderEventProcessor.cpp
 
 # TapeCommand.h removed
 
@@ -224,7 +226,8 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
-	CPipelineCommand.h CPipelineManager.h
+	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
+	CEventBuilderEventProcessor.h
 
 # TapeCommand.h removed
 
@@ -341,6 +344,8 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 				 @LIBTCLPLUS_CFLAGS@ \
 				 @TCL_CPPFLAGS@
 # Removed @top_builddir@/libntape.la
+
+
 
 libTclGrammerApp_la_LIBADD = @top_builddir@/Display/libXamine.la \
 			 @LIBTCLPLUS_LDFLAGS@ \

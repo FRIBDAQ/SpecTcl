@@ -53,7 +53,7 @@ private:
         CTreeParameter*   s_SourcePresent;
         CEventProcessor*  s_processor;
         
-        SourceData() : s_sourceId(0), s_SourcePresent(0), s_processor(0)
+        SourceData() : s_sourceId(0), s_SourcePresent(0), s_processor(0) {}
     };
     
     typedef std::map<unsigned, SourceData> HandlerMap;
@@ -114,10 +114,10 @@ public:
     
 private:
     void computeTimestampDifferences(
-        const std::vector<std::pair<unsigned, uint64_t>& stamps
+        const std::vector<std::pair<unsigned, uint64_t> >& stamps
     );
     void addEventSourceParameters(unsigned id);
-    std::string tdiffParamName(unsigned sid1, unsigned sid1);
+    std::string tdiffParamName(unsigned sid1, unsigned sid2);
 };
 
 #endif

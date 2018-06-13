@@ -7,6 +7,7 @@ SUBDIRS = Replace \
 					XamineParsers \
 					Display \
 					Core \
+					ddas	\
 					RootInterface \
 					SpecTcl \
 					TreeParam \
@@ -22,8 +23,8 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					spectra \
-					ddas
+					spectra 
+
 
 ACLOCAL_AMFLAGS=-I m4
 

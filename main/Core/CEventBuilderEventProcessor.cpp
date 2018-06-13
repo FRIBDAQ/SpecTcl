@@ -19,6 +19,9 @@
  *  @brief: Implement the event builder that unpacks event built data.
  *  
  */
+
+#include <config.h>
+#include "CEventBuilderEventProcessor.h"
 #include "CTreeParameter.h"
 #include "FragmentIndex.h"
 
@@ -58,7 +61,7 @@ CEventBuilderEventProcessor::CEventBuilderEventProcessor(
  * destructor
  *    Release all dynamic storage.
  */
-CEventBuilderEventProcessor::~CEventBuilderEventProcessor.cpp()
+CEventBuilderEventProcessor::~CEventBuilderEventProcessor()
 {
     // Delete the simple stuff first:
     
@@ -73,7 +76,7 @@ CEventBuilderEventProcessor::~CEventBuilderEventProcessor.cpp()
     
     std::for_each(
         m_sourceHandlers.begin(), m_sourceHandlers.end(),
-        [](std::pair<unsigned, SourceData>& item) {    // lamda function.
+        [](std::pair<const unsigned, SourceData>& item) {    // lamda function.
             delete item.second.s_SourcePresent;
         }
     );
@@ -83,14 +86,14 @@ CEventBuilderEventProcessor::~CEventBuilderEventProcessor.cpp()
     
     std::for_each(
         m_timeDifferenceParams.begin(), m_timeDifferenceParams.end(),
-        [](std::pair<unsigned, TimeDifferences>& item) {
+        [](std::pair<const unsigned, TimeDifferences>& item) {
             std::for_each(
-                item.begin(), item.end(),
-                [](std::pair<unsigned, CTreeParameter*> param) {
+                item.second.begin(), item.second.end(),
+                [](std::pair<const unsigned, CTreeParameter*>& param) {
                     delete param.second;
                 }
             );
-            item.clear();
+            item.second.clear();
         }
     );
     
@@ -124,17 +127,17 @@ CEventBuilderEventProcessor::operator()(
     CBufferDecoder& rDecoder
 )
 {
-    m_eventNumber = ++m_nEvents;
-    FragmentIndex frags(reinterpret_cast<uint16_t>(pEvent));
+    *m_eventNumber = ++m_nEvents;
+    FragmentIndex frags(reinterpret_cast<uint16_t*>(pEvent));
     
     // Source cout will be the number of fragments -- note an event is allowed
     // to have more than one fragment from the same source id....this
     // would play hob with the registered event processors.
     
-    m_sourceCount = frags.getNumberFragments();
-    m_unrecognizedSourceCount = 0;
+    *m_sourceCount = frags.getNumberFragments();
+    *m_unrecognizedSourceCount = 0;
     
-    std::vector<std::pair<unsigned, uint64_t> timestamps;  // srcid/timestamp pairs.
+    std::vector<std::pair<unsigned, uint64_t> > timestamps;  // srcid/timestamp pairs.
     try {
         for (auto pFrag = frags.begin(); pFrag != frags.end(); pFrag++) {
             // Save the timestamp/sourceid pair for the differences:
@@ -149,14 +152,15 @@ CEventBuilderEventProcessor::operator()(
             SourceData& info = m_sourceHandlers[sid];
             if (info.s_processor) {           // in case we just made an empty.
                 (*info.s_SourcePresent) = 1;
-                Bool_t ok = (*info.s_processor)()(
+                Bool_t ok = (*info.s_processor)(
                     pFrag->s_itembody, rEvent, rAnalyzer, rDecoder
                 );
                 if (!ok) throw ok;                    // Failure.
             } else {
-                m_unrecognizedSourceCount = m_unrecognizedSourceCount + 1;
+                *m_unrecognizedSourceCount = *m_unrecognizedSourceCount + 1;
             }
         }
+    }
     catch(Bool_t notOk) {
         return notOk;
     }
@@ -165,7 +169,7 @@ CEventBuilderEventProcessor::operator()(
     // counters:
     
     if (timestamps.size()) {
-        m_seconds =
+        *m_seconds =
             static_cast<double>(timestamps[0].second) / (1.0E6 * m_ClockMHz);
         computeTimestampDifferences(timestamps);
     }
@@ -188,13 +192,14 @@ CEventBuilderEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&rAnalyzer](SourceData& item) {
+            [&rAnalyzer](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnAttach(rAnalyzer);
+                    Bool_t result = item.second.s_processor->OnAttach(rAnalyzer);
                     if (!result) throw result;
                 }
             }
         );
+    }
     catch (Bool_t ok) {
         return ok;
     }
@@ -215,14 +220,15 @@ CEventBuilderEventProcessor::OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDeco
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&rAnalyzer, &rDecoder](SourceData& item) {
+            [&rAnalyzer, &rDecoder](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnBegin(rAnalyzer, rDecoder);
+                    Bool_t result = item.second.s_processor->OnBegin(rAnalyzer, rDecoder);
                     if (!result) throw result;
                 }
             }
         );
-    } catch(Bool_t ok) {
+    }
+    catch(Bool_t ok) {
         throw ok;
     }
     return kfTRUE;
@@ -237,9 +243,9 @@ CEventBuilderEventProcessor::OnEnd(CAnalyzer& rAnalyzer, CBufferDecoder& rDecode
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&rAnalyzer, &rDecoder](SourceData& item) {
+            [&rAnalyzer, &rDecoder](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnEnd(rAnalyzer, rDecoder);
+                    Bool_t result = item.second.s_processor->OnEnd(rAnalyzer, rDecoder);
                     if (!result) throw result;
                 }
             }
@@ -259,9 +265,9 @@ CEventBuilderEventProcessor::OnPause(CAnalyzer& rAnalyzer, CBufferDecoder& rDeco
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&rAnalyzer, &rDecoder](SourceData& item) {
+            [&rAnalyzer, &rDecoder](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnPause(rAnalyzer, rDecoder);
+                    Bool_t result = item.second.s_processor->OnPause(rAnalyzer, rDecoder);
                     if (!result) throw result;
                 }
             }
@@ -280,9 +286,9 @@ CEventBuilderEventProcessor::OnResume(CAnalyzer& rAnalyzer, CBufferDecoder& rDec
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&rAnalyzer, &rDecoder](SourceData& item) {
+            [&rAnalyzer, &rDecoder](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnResume(rAnalyzer, rDecoder);
+                    Bool_t result = item.second.s_processor->OnResume(rAnalyzer, rDecoder);
                     if (!result) throw result;
                 }
             }
@@ -310,9 +316,9 @@ CEventBuilderEventProcessor::OnOther(
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [nType, &rAnalyzer, &rDecoder](SourceData& item) {
+            [nType, &rAnalyzer, &rDecoder](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnOther(
+                    Bool_t result = item.second.s_processor->OnOther(
                         nType, rAnalyzer, rDecoder
                     );
                     if (!result) throw result;
@@ -346,9 +352,9 @@ CEventBuilderEventProcessor::OnEventSourceOpen(std::string name)
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [&name](SourceData& item) {
+            [&name](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnEventSourceOpen(
+                    Bool_t result = item.second.s_processor->OnEventSourceOpen(
                         name
                     );
                     if (!result) throw result;
@@ -374,11 +380,9 @@ CEventBuilderEventProcessor::OnEventSourceEOF()
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [](SourceData& item) {
+            [](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnEventSourceEOF(
-                        name
-                    );
+                    Bool_t result = item.second.s_processor->OnEventSourceEOF();
                     if (!result) throw result;
                 }
             }
@@ -402,11 +406,9 @@ CEventBuilderEventProcessor::OnInitialize()
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
-            [](SourceData& item) {
+            [](std::pair<const unsigned, SourceData>& item) {
                 if (item.second.s_processor)  {
-                    Bool_t result = (*item.second.s_processor)OnInitialize(
-                        name
-                    );
+                    Bool_t result = item.second.s_processor->OnInitialize();
                     if (!result) throw result;
                 }
             }
@@ -435,7 +437,7 @@ CEventBuilderEventProcessor::OnInitialize()
   */
 void
 CEventBuilderEventProcessor::addEventProcessor(
-    unsigned sourceId CEventProcessor& processor
+    unsigned sourceId, CEventProcessor& processor
 )
 {
     SourceData d;
@@ -472,7 +474,7 @@ CEventBuilderEventProcessor::addEventProcessor(
   */
  void
  CEventBuilderEventProcessor::computeTimestampDifferences(
-    const std::vector<std::pair<unsigned, uint64_t>& stamps
+    const std::vector<std::pair<unsigned, uint64_t> >& stamps
 )
 {
     for (int i = 0; i < stamps.size(); i++) {
@@ -494,6 +496,7 @@ CEventBuilderEventProcessor::addEventProcessor(
                 *(m_timeDifferenceParams[sid2][sid1]) = ts2 - ts1;
             }
         }
+    }
 }
 /**
  * addEventSourceParams
