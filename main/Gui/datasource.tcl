@@ -29,7 +29,7 @@ package require segmentedrun
 namespace eval datasource {
     variable daqroot         [list $::daqdefs::daqroot /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
-    variable lastformat      ring10
+    variable lastformat      ring11
     variable lasteventfile   {}
     variable lastpipecommand {}
     variable lastpipeargs    {}
@@ -40,6 +40,7 @@ namespace eval datasource {
     variable actualSpecTclDaq {}
     variable lastring      $::tcl_platform(user)
     variable clustersize   8192
+    variable defaultFileBuffer [expr 128*1024];    # Better performance for files.
 }
 
 
@@ -57,7 +58,7 @@ namespace eval datasource {
 proc defaultFormat {} {
     
     if {$::datasource::lastformat eq "ring"} {
-        set ::datasource::lastformat ring10
+        set ::datasource::lastformat ring11
     }
     return $::datasource::lastformat
 }
@@ -166,6 +167,7 @@ proc attachOnline {} {
 	-format [defaultFormat]                          \
 	-buffersize $::GuiPrefs::preferences(defaultBuffersize)  \
 	-ringname   $::datasource::lastring
+    #after 1 .hostprompt configure -format [defaultFormat]
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
@@ -200,7 +202,7 @@ proc attachFile {} {
 	-defaultextension .evt                                       \
 	-initialfile  $::datasource::lasteventfile                   \
 	-initialdir   [file dirname $::datasource::lasteventfile]   \
-	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)   \
+	-buffersize   $::datasource::defaultFileBuffer   \
 	-format [defaultFormat]
     .prompt modal
     set file [.prompt cget -initialfile]
@@ -245,6 +247,7 @@ proc attachPipe {} {
                            -initialargs $::datasource::lastpipeargs 
     .attachpipe configure \
 	                   -buffersize $::GuiPrefs::preferences(defaultBuffersize)
+    .attachpipe configure -format [defaultFormat]
     .attachpipe modal
 
     if {[winfo exists .attachpipe]} {
@@ -443,7 +446,7 @@ proc detach {} {
 
 snit::widget formatChooser {
     variable formats {nscl jumbo ring10 ring11};     # Valid options
-    option   -format ring10;        # Default option.
+    option   -format ring11;        # Default option.
     option   -command [list];	  # Command to call if format changes.
 
     constructor args {
@@ -664,24 +667,24 @@ snit::widget hostprompt {
     constructor args {
         label $win.hostlabel -text Host:
         entry $win.host
-	label $win.ringlabel -text {Ring:}
-	entry $win.ring
+        label $win.ringlabel -text {Ring:}
+        entry $win.ring
 
-	spinbox $win.buffersize -values {512 1024 2048 4096 8192 16384 32768 65536}
-	label   $win.buflabel   -text {Buffer size in bytes: }
-	$win.buffersize set $options(-buffersize)
-
-	label         $win.fmtlabel -text {Data format}
-	install format using formatChooser $win.fmt -command [mymethod formatChanged] -format ring10
+        spinbox $win.buffersize -values {512 1024 2048 4096 8192 16384 32768 65536}
+        label   $win.buflabel   -text {Buffer size in bytes: }
+        $win.buffersize set $options(-buffersize)
+    
+        label         $win.fmtlabel -text {Data format}
+        install format using formatChooser $win.fmt -command [mymethod formatChanged]
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic  hostPrompt]
 	
         grid $win.hostlabel $win.host
-	grid $win.ringlabel $win.ring
-	grid $win.buflabel  $win.buffersize
-	grid $win.fmtlabel
-	grid $win.fmt
+        grid $win.ringlabel $win.ring
+        grid $win.buflabel  $win.buffersize
+        grid $win.fmtlabel
+        grid $win.fmt
         grid $win.ok        $win.cancel  $win.help
 
 
@@ -820,19 +823,19 @@ snit::widget attachpipe {
         setEntry $win.args $options(-initialargs)
 
 
-	label   $win.sizelbl -text {Buffer Size: }
-	spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
-	$win.size set $options(-buffersize)
+        label   $win.sizelbl -text {Buffer Size: }
+        spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
+        $win.size set $options(-buffersize)
 
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic attachPipe]
         
-        install format using formatChooser $win.format -format ring10
+        install format using formatChooser $win.format 
 
         grid $win.fsb           -
         grid $win.argslabel  $win.args
-	grid $win.sizelbl    $win.size
+        grid $win.sizelbl    $win.size
         grid $win.format  -columnspan 2
         grid $win.ok         $win.cancel  $win.help
 
@@ -931,7 +934,7 @@ snit::widget attachfile {
     option -defaultextension  {.evt}
     option -initialfile       {}
     option -initialdir        {.}
-    option -buffersize        8192
+    option -buffersize        [expr 128*1024]
     option -command           {}
     option -cancel            {}
 
@@ -947,7 +950,8 @@ snit::widget attachfile {
 	$self setSelectedFile $options(-initialfile)
 
 	label $win.sizelabel -text {Buffer size: }
-	spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
+	spinbox $win.size    -values      \
+        {8192 16384 32768 65536 131072 262144 524288 1048576 2097152 4124304 8388608}
 	$win.size set $options(-buffersize)
 
 	label $win.formatlabel -text {Format:}
@@ -962,6 +966,7 @@ snit::widget attachfile {
 	grid $win.ok        $win.cancel
 	                                    
 	$self configurelist $args
+    
     }
     # modal:
     #   Turns this into a modal dialog.
