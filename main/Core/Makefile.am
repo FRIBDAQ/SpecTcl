@@ -369,14 +369,14 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(TreeParam_INCLUDES) \
 				$(Xamine_INCLUDES)
 
-noinst_HEADERS = $(DecoderRing_noinst_INCLUDES)
+noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) Asserts.h
 
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
-					spectclCmdTests
+					spectclCmdTests evbProcessorTests 
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -462,8 +462,12 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 							SharedMemoryKeyCommandTest.cpp \
 							SharedMemorySizeCommandTest.cpp
 
+evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
+evbProcessorTests_LDADD = $(commonTestLdFlags)
+evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp
+
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 		sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
-		spectclCmdTests
+		spectclCmdTests evbProcessorTests
 
 
