@@ -32,8 +32,20 @@ class EvbTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(dispatch2);
   CPPUNIT_TEST(dispatch3);
   
-  CPPUNIT_TEST(begin1);
+  CPPUNIT_TEST(begin1);           // Boring and repetetive but so is the code.
   CPPUNIT_TEST(begin2);
+  
+  CPPUNIT_TEST(attach1);
+  CPPUNIT_TEST(attach2);
+  
+  CPPUNIT_TEST(end1);
+  CPPUNIT_TEST(end2);
+  
+  CPPUNIT_TEST(pause1);
+  CPPUNIT_TEST(pause2);
+  
+  CPPUNIT_TEST(resume1);
+  CPPUNIT_TEST(resume2);
   CPPUNIT_TEST_SUITE_END();
   
 protected:
@@ -48,6 +60,18 @@ protected:
     
   void begin1();
   void begin2();
+  
+  void attach1();
+  void attach2();
+  
+  void end1();
+  void end2();
+  
+  void pause1();
+  void pause2();
+  
+  void resume1();
+  void resume2();
 private:
     CHistogrammer*               m_pHistogrammer;
     CEventBuilderEventProcessor* m_processor;    
@@ -93,7 +117,28 @@ public:
         m_calls++;
         return kfTRUE;
     }
-    
+    Bool_t OnAttach(CAnalyzer& a) {
+        m_calls++;
+        return kfTRUE;
+    }
+     Bool_t OnEnd(CAnalyzer& rAnalyzer,
+                         CBufferDecoder& rBuffer)
+     {
+        m_calls++;
+        return kfTRUE;
+     }
+    Bool_t OnPause(CAnalyzer& rAnalyzer,
+                           CBufferDecoder& rDecoder)
+    {
+        m_calls++;
+        return kfTRUE;
+    }
+     Bool_t OnResume(CAnalyzer& rAnalyzer,
+                            CBufferDecoder& rDecoder)
+     {
+        m_calls++;
+        return kfTRUE;
+     }
 };
 
 
@@ -109,6 +154,24 @@ public:
     virtual Bool_t OnBegin(CAnalyzer& rAnalyzer,
                            CBufferDecoder& rDecoder)
     { return kfFALSE; }
+    Bool_t OnAttach(CAnalyzer& a) {
+        return kfFALSE;
+    }
+     Bool_t OnEnd(CAnalyzer& rAnalyzer,
+                         CBufferDecoder& rBuffer)
+     {
+        return kfFALSE;
+     }
+     Bool_t OnPause(CAnalyzer& rAnalyzer,
+                           CBufferDecoder& rDecoder)
+     {
+        return kfFALSE;
+     }
+      Bool_t OnResume(CAnalyzer& rAnalyzer,
+                            CBufferDecoder& rDecoder)
+      {
+        return kfFALSE;
+      }
 };
 // Event body generators.
 
@@ -514,6 +577,7 @@ void EvbTest::begin1()
     countevents h2;
     m_processor->addEventProcessor(1, h1);
     m_processor->addEventProcessor(2, h2);
+    CTreeParameter::BindParameters();
     
     CAnalyzer* a(nullptr);
     CBufferDecoder* b(nullptr);
@@ -537,6 +601,7 @@ void EvbTest::begin2()
     countevents h2;
     m_processor->addEventProcessor(1, h1);
     m_processor->addEventProcessor(2, h2);
+    CTreeParameter::BindParameters();
     
     CAnalyzer* a(nullptr);
     CBufferDecoder* b(nullptr);
@@ -544,5 +609,136 @@ void EvbTest::begin2()
     Bool_t result = m_processor->OnBegin(*a, *b);
     ASSERT(!result);
     
+    EQ(unsigned(0), h2.m_calls);
+}
+/* On attach dispatches to all handlers.
+ */
+
+void EvbTest::attach1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    CTreeParameter::BindParameters();
+    
+    CAnalyzer* a(nullptr);
+    Bool_t result = m_processor->OnAttach(*a);
+    
+    ASSERT(result);             // Should be success.
+    EQ(unsigned(1), h1.m_calls);
+    EQ(unsigned(1), h2.m_calls);  // both got called.
+}
+/*  On attach aborts processing if an event processor returns kfFALSE.
+ */
+void EvbTest::attach2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    CTreeParameter::BindParameters();
+    
+    CAnalyzer* a(nullptr);
+    Bool_t result = m_processor->OnAttach(*a);
+    
+    ASSERT(!result);
+    
+    EQ(unsigned(0), h2.m_calls);
+}
+// Etc. etc. for end:
+
+void EvbTest::end1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEnd(*a, *b);
+    ASSERT(result);
+    EQ(unsigned(1), h1.m_calls);
+    EQ(unsigned(1), h2.m_calls);
+}
+void EvbTest::end2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEnd(*a, *b);
+    ASSERT(!result);
+    EQ(unsigned(0), h2.m_calls);
+}
+// pause1/2
+
+void EvbTest::pause1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnPause(*a, *b);
+    ASSERT(result);
+    EQ(unsigned(1), h1.m_calls);
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::pause2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnPause(*a, *b);
+    ASSERT(!result);
+    EQ(unsigned(0), h2.m_calls);
+}
+
+//Resume1/2
+
+void EvbTest::resume1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnResume(*a, *b);
+    ASSERT(result);
+    EQ(unsigned(1), h1.m_calls);
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::resume2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnResume(*a, *b);
+    ASSERT(!result);
     EQ(unsigned(0), h2.m_calls);
 }

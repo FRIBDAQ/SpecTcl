@@ -295,7 +295,7 @@ CEventBuilderEventProcessor::OnResume(CAnalyzer& rAnalyzer, CBufferDecoder& rDec
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;
 }
@@ -389,7 +389,7 @@ CEventBuilderEventProcessor::OnEventSourceEOF()
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;        
 }
