@@ -230,7 +230,7 @@ CEventBuilderEventProcessor::OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDeco
         );
     }
     catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;
 }
@@ -252,7 +252,7 @@ CEventBuilderEventProcessor::OnEnd(CAnalyzer& rAnalyzer, CBufferDecoder& rDecode
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;
 }
@@ -274,7 +274,7 @@ CEventBuilderEventProcessor::OnPause(CAnalyzer& rAnalyzer, CBufferDecoder& rDeco
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;
 }
@@ -327,7 +327,7 @@ CEventBuilderEventProcessor::OnOther(
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;    
 }
@@ -363,7 +363,7 @@ CEventBuilderEventProcessor::OnEventSourceOpen(std::string name)
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;        
 }
@@ -415,7 +415,7 @@ CEventBuilderEventProcessor::OnInitialize()
             }
         );
     } catch(Bool_t ok) {
-        throw ok;
+        return ok;
     }
     return kfTRUE;        
 }

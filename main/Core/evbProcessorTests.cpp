@@ -29,9 +29,25 @@ class EvbTest : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(dispatch0);
   CPPUNIT_TEST(dispatch1);
+  CPPUNIT_TEST(dispatch2);
+  CPPUNIT_TEST(dispatch3);
+  
+  CPPUNIT_TEST(begin1);
+  CPPUNIT_TEST(begin2);
   CPPUNIT_TEST_SUITE_END();
-
-
+  
+protected:
+  void testInit();
+  void addProcessor1();
+  void addProcessor2();
+  
+  void dispatch0();
+  void dispatch1();
+  void dispatch2();
+  void dispatch3();
+    
+  void begin1();
+  void begin2();
 private:
     CHistogrammer*               m_pHistogrammer;
     CEventBuilderEventProcessor* m_processor;    
@@ -47,13 +63,7 @@ public:
     delete m_processor;
     
   }
-protected:
-  void testInit();
-  void addProcessor1();
-  void addProcessor2();
-  
-  void dispatch0();
-  void dispatch1();
+
 };
 
 //  Dummy event processors we'll use.
@@ -79,8 +89,27 @@ public:
         m_calls++;
         return kfTRUE;
       }
+    Bool_t OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder) {
+        m_calls++;
+        return kfTRUE;
+    }
+    
 };
 
+
+class failure : public CEventProcessor  // Return kfFALSE from all entries.
+{
+public:
+    Bool_t operator()(
+        const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,
+        CBufferDecoder& rDecoder
+    ) {
+        return kfFALSE;
+    }
+    virtual Bool_t OnBegin(CAnalyzer& rAnalyzer,
+                           CBufferDecoder& rDecoder)
+    { return kfFALSE; }
+};
 // Event body generators.
 
 /*
@@ -372,4 +401,148 @@ void EvbTest::dispatch1()
         throw;
     }
     free(pEvent);
+}
+/**
+ *  If I have two event processors, and an event that has both of their
+ *  sources, Both get called.  I should also be able to get a good time
+ *  difference in addition to all the other neat stuff.
+ */
+ void EvbTest::dispatch2()
+{
+    countevents handler1;
+    countevents handler2;
+    m_processor->addEventProcessor(1, handler1);
+    m_processor->addEventProcessor(2, handler2);
+    CEvent      event;
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(event);
+    
+    // Make the event.  Use a try/catch block to ensure it's freed in the
+    // presence of assertion failures:
+    
+    
+    std::vector<std::pair<uint32_t, uint64_t>> description = {
+        {1,  200000000},            // Not us 2 seconds into the run.
+        {2,  200000002}             // Us.
+    };
+    Address_t pEvent = makeEmptyFragments(description);
+    try {
+        CAnalyzer*     a(nullptr);
+        CBufferDecoder* d(nullptr);
+        
+        (*m_processor)(pEvent, event, *a, *d);
+        
+        // both processors got called:
+        
+        EQ(unsigned(1), handler1.m_calls);
+        EQ(unsigned(1), handler2.m_calls);
+        
+        // statisticy stuff:
+        
+        EQ((double)(2.0), getParameterValue(event, "evb.sources")); 
+        EQ((double)(0.0), getParameterValue(event, "evb.unrecognized_source"));
+        EQ((double)(1.0), getParameterValue(event, "evb.event_no"));
+        EQ((double)(2.0), getParameterValue(event, "evb.run_time"));
+        
+        // Source present:
+        
+         EQ((double)(1.0), getParameterValue(event, "evb.1_present"));
+         EQ((double)(1.0), getParameterValue(event, "evb.2_present"));
+         
+        // The time difference should be -2
+        
+        EQ(double(-2.0), getParameterValue(event, "evb.tdiffs.1-2"));
+    }
+    catch (...) {
+        free(pEvent);
+        throw;
+    }
+    free(pEvent);
+}
+/**
+ * Dispatching an event processor which returns kfFalse blocks the
+ * execution of subsequent ones.
+ */
+void EvbTest::dispatch3()
+{
+    failure     handler1;
+    countevents handler2;
+    
+    m_processor->addEventProcessor(1, handler1);
+    m_processor->addEventProcessor(2, handler2);
+    
+   CEvent      event;
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(event);
+    
+    // Make the event.  Use a try/catch block to ensure it's freed in the
+    // presence of assertion failures:
+    
+    
+    std::vector<std::pair<uint32_t, uint64_t>> description = {
+        {1,  200000000},            // Not us 2 seconds into the run.
+        {2,  200000002}             // Us.
+    };
+    Address_t pEvent = makeEmptyFragments(description);
+    try {
+        CAnalyzer*     a(nullptr);
+        CBufferDecoder* d(nullptr);
+        
+        Bool_t result = (*m_processor)(pEvent, event, *a, *d);
+        
+        ASSERT(!result);
+        
+        // handler2 should not have been called.
+        
+        EQ(unsigned(0), handler2.m_calls);
+        
+    } catch(...) {
+        free(pEvent);
+        throw;
+    }
+    free(pEvent);    
+}
+/**
+ * Dispatching on Begin resets the event counter and invokes all
+ * registered event processors.
+ */
+void EvbTest::begin1()
+{
+    countevents h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result = m_processor->OnBegin(*a, *b);
+    
+    ASSERT(result);
+    // Both handlers should have been called:
+    
+    EQ(unsigned(1), h1.m_calls);
+    EQ(unsigned(1), h2.m_calls);
+    EQ(unsigned(0), m_processor->m_nEvents);   // Begin zeroes this.
+}
+/*
+ *  Failure aborts event processor processing for begin as well, but
+ *  regardless the event counter is zeroed.
+ */
+void EvbTest::begin2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result = m_processor->OnBegin(*a, *b);
+    ASSERT(!result);
+    
+    EQ(unsigned(0), h2.m_calls);
 }
