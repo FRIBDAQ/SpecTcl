@@ -106,7 +106,7 @@ public:
 
         const auto& boundSpectra = m_pShMem->boundSpectra();
         auto it = boundSpectra.find(pSpec.get());
-        ASSERTMSG("Check that adding a spectrum to the shared memory does work",
+        CPPUNIT_ASSERT_MESSAGE("Check that adding a spectrum to the shared memory does work",
                   boundSpectra.end() != it );
         EQMSG("Slot starts at 0", 0, it->second.s_slot);
 
@@ -196,7 +196,7 @@ public:
 
 //        m_pImpl->addSpectrum(*pSpec, sorter);
 
-//        ASSERTMSG("Associated gates works in a simple fashion",
+//        CPPUNIT_ASSERT_MESSAGEt("Associated gates works in a simple fashion",
 //              vector<CGateContainer>({*pGate}) == m_pImpl->getAssociatedGates("testing123", sorter));
 //    }
 

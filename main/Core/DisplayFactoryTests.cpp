@@ -111,7 +111,7 @@ public:
 
     void create_1 () {
         pFactory->addCreator("null", *pCreator);
-        ASSERTMSG("Creating type with creator succeeds",
+        CPPUNIT_ASSERT_MESSAGE("Creating type with creator succeeds",
               pFactory->create("null") != NULL);
 
         pCreator = NULL;

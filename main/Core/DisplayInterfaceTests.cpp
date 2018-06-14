@@ -84,18 +84,18 @@ public:
         pInterface->getFactory().addCreator("null", *(new CNullDisplayCreator));
 
         DI::Result result = pInterface->createDisplay("test", "null");
-        ASSERTMSG("An already created display should be gettable",
+        CPPUNIT_ASSERT_MESSAGE("An already created display should be gettable",
                   pInterface->getDisplay("test") != NULL);
     }
 
 
     void getDisplay_1 () {
-        ASSERTMSG("Getting an uncreated display should return NULL pointer",
+        CPPUNIT_ASSERT_MESSAGE("Getting an uncreated display should return NULL pointer",
                   pInterface->getDisplay("test") == NULL);
     }
 
     void getCurrentDisplay_0 () {
-        ASSERTMSG("Current display should be NULL at creation",
+        CPPUNIT_ASSERT_MESSAGE("Current display should be NULL at creation",
                   pInterface->getCurrentDisplay() == NULL);
     }
 
@@ -105,7 +105,7 @@ public:
 
         DI::Result result = pInterface->createDisplay("test", "null");
 
-        ASSERTMSG("Creating first display should cause it to become current",
+        CPPUNIT_ASSERT_MESSAGE("Creating first display should cause it to become current",
                   pInterface->getCurrentDisplay() != NULL);
     }
 
@@ -121,7 +121,7 @@ public:
         pInterface->setCurrentDisplay("test2");
         CDisplay* pSecond = pInterface->getCurrentDisplay();
 
-        ASSERTMSG("Setting current display works as it should",
+        CPPUNIT_ASSERT_MESSAGE("Setting current display works as it should",
                   pFirst != pSecond);
     }
 
