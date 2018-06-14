@@ -46,6 +46,18 @@ class EvbTest : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(resume1);
   CPPUNIT_TEST(resume2);
+  
+  CPPUNIT_TEST(other1);
+  CPPUNIT_TEST(other2);
+  
+  CPPUNIT_TEST(open1);
+  CPPUNIT_TEST(open2);
+  
+  CPPUNIT_TEST(eof1);
+  CPPUNIT_TEST(eof2);
+  
+  CPPUNIT_TEST(init1);
+  CPPUNIT_TEST(init2);
   CPPUNIT_TEST_SUITE_END();
   
 protected:
@@ -72,6 +84,18 @@ protected:
   
   void resume1();
   void resume2();
+  
+  void other1();
+  void other2();
+  
+  void open1();
+  void open2();
+  
+  void eof1();
+  void eof2();
+  
+  void init1();
+  void init2();
 private:
     CHistogrammer*               m_pHistogrammer;
     CEventBuilderEventProcessor* m_processor;    
@@ -105,7 +129,9 @@ class countevents : public CEventProcessor    // Count  operator() calls.
 {
 public:
     unsigned m_calls;
-    countevents() : m_calls(0) {}
+    UInt_t   m_type;
+    std::string m_name;
+    countevents() : m_calls(0), m_type(0) {}
     Bool_t operator()(
         const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,
         CBufferDecoder& rDecoder
@@ -135,6 +161,30 @@ public:
     }
      Bool_t OnResume(CAnalyzer& rAnalyzer,
                             CBufferDecoder& rDecoder)
+     {
+        m_calls++;
+        return kfTRUE;
+     }
+     virtual Bool_t OnOther(UInt_t nType,
+                           CAnalyzer& rAnalyzer,
+                           CBufferDecoder& rDecoder)
+     {
+        m_type = nType;
+        m_calls++;
+        return kfTRUE;
+     }
+     Bool_t OnEventSourceOpen(std::string name)
+     {
+        m_name = name;
+        m_calls++;
+        return kfTRUE;
+     }
+     Bool_t OnEventSourceEOF()
+     {
+        m_calls++;
+        return kfTRUE;
+     }
+     Bool_t OnInitialize()
      {
         m_calls++;
         return kfTRUE;
@@ -170,6 +220,22 @@ public:
       Bool_t OnResume(CAnalyzer& rAnalyzer,
                             CBufferDecoder& rDecoder)
       {
+        return kfFALSE;
+      }
+      virtual Bool_t OnOther(UInt_t nType,
+                           CAnalyzer& rAnalyzer,
+                           CBufferDecoder& rDecoder)
+      {
+        return kfFALSE;
+      }
+      Bool_t OnEventSourceOpen(std::string name)
+      {
+        return kfFALSE;
+      }
+      Bool_t OnEventSourceEOF() {
+        return kfFALSE;
+      }
+      Bool_t OnInitialize() {
         return kfFALSE;
       }
 };
@@ -740,5 +806,153 @@ void EvbTest::resume2()
     
     Bool_t result =  m_processor->OnResume(*a, *b);
     ASSERT(!result);
+    EQ(unsigned(0), h2.m_calls);
+}
+// on other:
+
+void EvbTest::other1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnOther(123, *a, *b);
+    ASSERT(result);
+    EQ(UInt_t(123), h1.m_type);
+    EQ(unsigned(1), h1.m_calls);
+    
+    EQ(UInt_t(123), h2.m_type);
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::other2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnOther(1234, *a, *b);
+    ASSERT(!result);
+    
+    EQ(UInt_t(0), h2.m_type);
+    EQ(unsigned(0), h2.m_calls);
+}
+// open
+void EvbTest::open1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEventSourceOpen("something");
+    ASSERT(result);
+    EQ(std::string("something"), h1.m_name);
+    EQ(unsigned(1), h1.m_calls);
+    
+    EQ(std::string("something"), h2.m_name);
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::open2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEventSourceOpen("Something");
+    ASSERT(!result);
+    
+    EQ(std::string(""), h2.m_name);
+    EQ(unsigned(0), h2.m_calls);
+}
+// eof
+
+void EvbTest::eof1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEventSourceEOF();
+    ASSERT(result);
+    
+    EQ(unsigned(1), h1.m_calls);
+    
+    
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::eof2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnEventSourceEOF();
+    ASSERT(!result);
+    
+    
+    EQ(unsigned(0), h2.m_calls);
+}
+
+// init
+
+void EvbTest::init1()
+{
+    countevents h1, h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnInitialize();
+    ASSERT(result);
+    
+    EQ(unsigned(1), h1.m_calls);
+    
+    
+    EQ(unsigned(1), h2.m_calls);    
+}
+void EvbTest::init2()
+{
+    failure h1;
+    countevents h2;
+    m_processor->addEventProcessor(1, h1);
+    m_processor->addEventProcessor(2, h2);
+    
+    CTreeParameter::BindParameters;
+    CAnalyzer* a(nullptr);
+    CBufferDecoder* b(nullptr);
+    
+    Bool_t result =  m_processor->OnInitialize();
+    ASSERT(!result);
+    
+    
     EQ(unsigned(0), h2.m_calls);
 }
