@@ -217,6 +217,7 @@ CEventBuilderEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
 Bool_t
 CEventBuilderEventProcessor::OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder)
 {
+    m_nEvents = 0;               // Reset event count.
     try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
