@@ -472,6 +472,8 @@ CEventBuilderEventProcessor::addEventProcessor(
   * @param stamps  - Vector of source id/timestamp pairs.
   * @note There are guarantees (and therefore no assumptions) about the ordering
   *       of the source ids
+  * @note We don't assume there are event processors registered for all source
+  *       ids we might encounter.
   */
  void
  CEventBuilderEventProcessor::computeTimestampDifferences(
@@ -489,12 +491,15 @@ CEventBuilderEventProcessor::addEventProcessor(
             // Try to find sid1 in the outer map:
             
             if (m_timeDifferenceParams.count(sid1)) {
-                *(m_timeDifferenceParams[sid1][sid2]) = ts1 - ts2;    
-            } else {
-                //  have to flip indices and difference -- we assume
-                // addEventSourceParameters has done its job however:
-                
-                *(m_timeDifferenceParams[sid2][sid1]) = ts2 - ts1;
+                if (m_timeDifferenceParams[sid1].count(sid2)) {
+                    *(m_timeDifferenceParams[sid1][sid2]) = ts1 - ts2;
+                }
+            } else {          // Could be flipped or no handler:
+                if (m_timeDifferenceParams.count(sid2)) {
+                    if (m_timeDifferenceParams[sid2].count(sid1)) {
+                        *(m_timeDifferenceParams[sid2][sid1]) = ts2 - ts1;        
+                    }
+                }
             }
         }
     }
