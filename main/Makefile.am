@@ -74,7 +74,7 @@ install-exec-local:
 	echo  X11INCLUDES=$(X11INCLUDES)       >> Directories.temp
 	echo  X11LIBS    =$(XLIBSW) $(MOTIF_LIBSW) -lXm -lXt -lX11 >> Directories.temp
 	echo ROOTCFLAGS=@ROOT_CFLAGS@ >> Directories.temp
-	echo ROOTLDFLAGS=@ROOT_LDFLAGS@ >> Directories.temp
+	echo ROOTLDFLAGS=@ROOT_LDFLAGS@ -Wl,-rpath=@ROOT_LIBRARY_DIR@ >> Directories.temp
 	cat   @srcdir@/Directories.include              >> Directories.temp
 	sed  -e 's/-lieee//g'  @builddir@/Directories.temp >Directories.edited
 	$(INSTALL_DATA) @builddir@/Directories.edited $(sysconfdir)/Directories.include
