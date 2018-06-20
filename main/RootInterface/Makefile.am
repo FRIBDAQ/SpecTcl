@@ -12,7 +12,7 @@ libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
 	-I@top_srcdir@/factories					\
 	@ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
 
-libRootInterface_la_LIBADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
+libRootInterface_la_LIBADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@
 
 include_HEADERS=TreeBuilder.h
 
