@@ -176,15 +176,9 @@ unittest_DEPENDENCIES = @builddir@/libScripted.la
 # Removed 		    @top_builddir@/Tape/libtape.la
 
 
-unittest_LDADD =   @builddir@/libScripted.la \
-		    @top_builddir@/Core/libTclGrammerApp.la \
-		    @top_builddir@/Display/libXamine.la @ROOT_LDFLAGS@
 
-unittest_LDFLAGS = \
-	@LIBTCLPLUS_LDFLAGS@ \
-	@CPPUNIT_LIBS@ \
-	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm \
-	-lgsl -lgslcblas
+unittest_LDFLAGS = $(ScriptedSpecTcl_LDFLAGS) @CPPUNIT_LIBS@
+
 
 
 #TESTS = ./unittest		#Needs Xamine to fire up :-(
