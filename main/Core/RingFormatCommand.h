@@ -97,7 +97,7 @@ public:
 private:  
     CRingBufferDecoder* getDecoder();
     std::string Usage() const;
-    RingVersion parseVersion(const char* pVersionString) const throw(std::string);
+    RingVersion parseVersion(const char* pVersionString) const;
 };
 
 #endif

@@ -34,25 +34,12 @@
 #ifndef __SPECTRUMFACTORYEXCEPTION_H  //Required for current class
 #define __SPECTRUMFACTORYEXCEPTION_H
                                //Required for base classes
-#ifndef __EXCEPTION_H
+
 #include "Exception.h"
-#endif    
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __CRT_STRING_H
 #include <string.h>
-#define __CRT_STRING_H
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
+
                            
                                
 

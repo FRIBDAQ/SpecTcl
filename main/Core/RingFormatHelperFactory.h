@@ -30,6 +30,16 @@
 #endif
 #endif
 
+// These are macros we may have  indirectly gotten:
+
+#ifdef major
+#undef major
+#endif
+
+#ifdef minor
+#undef minor
+#endif
+
 /**
  * @file RingFormatHelperFectory.h
  * @brief  Definition for format helper creator class.

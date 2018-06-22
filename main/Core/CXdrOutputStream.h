@@ -54,8 +54,7 @@ class CXdrOutputStream {
 
 public:
   CXdrOutputStream(int nBuffersize=8192);
-  CXdrOutputStream(const std::string& rName, int nBuffersize=8192)
-    throw (std::string&);
+  CXdrOutputStream(const std::string& rName, int nBuffersize=8192);
   ~CXdrOutputStream();
 private:
   CXdrOutputStream(const CXdrOutputStream& rhs);
@@ -91,9 +90,9 @@ public:
 
   // Class operations.
 
-  void Open(const std::string& rName) throw (std::string&);
-  void Close() throw (std::string&);
-  void Put(void* object, xdrproc_t converter) throw (std::string&);
+  void Open(const std::string& rName) ;
+  void Close() ;
+  void Put(void* object, xdrproc_t converter) ;
   bool Require(int nBytes);
   bool Test(int nBytes);
 

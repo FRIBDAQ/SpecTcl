@@ -142,8 +142,7 @@ protected:
 
    static std::string DefaultFilterFilename();    //!< Return default filter filename.
    void NamesToIds();                       //!< Translate param names -> ids.
-   std::vector<std::string> IdsToNames() 
-              throw (CDictionaryException); //!< and back again.
+   std::vector<std::string> IdsToNames(); //!< and back again.
 };
 
 

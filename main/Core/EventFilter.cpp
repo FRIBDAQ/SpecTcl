@@ -312,7 +312,7 @@ CEventFilter::NamesToIds()
 
 */
 vector<string>
-CEventFilter::IdsToNames() throw (CDictionaryException)
+CEventFilter::IdsToNames() 
 {
    CHistogrammer* pHistogrammer = (CHistogrammer*)gpEventSink;
    vector<string> names;
