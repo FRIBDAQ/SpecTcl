@@ -66,7 +66,7 @@ CXdrOutputStream::CXdrOutputStream(int nBuffersize) :
 
 */
 CXdrOutputStream::CXdrOutputStream(const string& rName, 
-				   int nBuffersize) throw (string&):
+				   int nBuffersize) :
   m_nBuffersize(nBuffersize),
   m_pBuffer(new char[nBuffersize]),
   m_nFd(-1),
@@ -89,7 +89,7 @@ CXdrOutputStream::~CXdrOutputStream()
   } catch (...) {
     delete []m_pBuffer;
     m_pBuffer = 0;
-    throw;
+
   }
   delete []m_pBuffer;
   m_pBuffer = 0;
@@ -105,7 +105,7 @@ CXdrOutputStream::~CXdrOutputStream()
      - Error on the open call.
 */
 void
-CXdrOutputStream::Open(const string& rName) throw (string&)
+CXdrOutputStream::Open(const string& rName) 
 {
   // Throw if output stream is open 
 
@@ -145,7 +145,7 @@ CXdrOutputStream::Open(const string& rName) throw (string&)
 
 */
 void 
-CXdrOutputStream::Close() throw (string&)
+CXdrOutputStream::Close() 
 {
   if(!m_fisOpen) {
     throw string("CXdrOutputStream::Close Stream is already closed");
@@ -177,7 +177,7 @@ CXdrOutputStream::Close() throw (string&)
 */
 void
 CXdrOutputStream::Put(void* object, xdrproc_t converter) 
-  throw(string&)
+  
 {
   int status = converter(&m_Xdr, object);
   if(!status) {

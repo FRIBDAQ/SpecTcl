@@ -193,7 +193,7 @@ CRingFormatCommand::Usage() const
  *   @throw std::string error message as described above.
  */
 CRingFormatCommand::RingVersion
-CRingFormatCommand::parseVersion(const char* pVersionString) const throw(std::string)
+CRingFormatCommand::parseVersion(const char* pVersionString) const
 {
     /*
       Simplest way to deal with this is just good ole sscanf..though that's a
