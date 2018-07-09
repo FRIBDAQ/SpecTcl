@@ -17,6 +17,9 @@
 #include "SharedMemorySizeCommand.h"
 
 #include <TCLInterpreter.h>
+#include <TclGrammerApp.h>
+#include <TCLObject.h>
+
 
 #include <vector>
 #include <iostream>
@@ -44,14 +47,13 @@ int CSharedMemorySizeCommand::operator()(CTCLInterpreter& rInterp,
     bindAll(rInterp, objv);
     requireAtMost(objv, 1, "Usage\n shmemsize");
     requireAtLeast(objv, 1, "Usage\n shmemsize");
-
+    
+    CTclGrammerApp* pApp = CTclGrammerApp::getInstance();
+    int displaySize = pApp->getDisplaySize() * 1024*1024;
     CTCLObject result;
-    std::string sizeStr = rInterp.GlobalEval("set DisplayMegabytes");
-    int size = std::atoi(sizeStr.c_str()) * 1024 * 1024;
-
-    result = std::to_string(size);
-
+    result.Bind(rInterp);
+    result = displaySize;
     rInterp.setResult(result);
-
+    
     return TCL_OK;
 }
