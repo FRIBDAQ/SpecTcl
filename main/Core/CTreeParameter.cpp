@@ -784,7 +784,14 @@ double
 CTreeParameter::getValue()
 {
   ThrowIfNoEvent(gvaluestring);
-  return (*m_pEvent)[getId()];
+  try {
+    return (*m_pEvent)[getId()];
+  } catch (std::string& msg) {
+    std::string finalmsg = getName();
+    finalmsg += " (tree parameter) : ";
+    finalmsg += msg;
+    throw finalmsg;
+  } 
 }
 
 
