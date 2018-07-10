@@ -30,9 +30,10 @@ int main(int argc, char** argv)
 // Stub stuff:
 
 CTCLApplication* gpTCLApplication(0);
+#ifdef LOCAL_SPECTCL
+
 CAnalyzer*       gpAnalyzer(0);
 CAnalyzer*       getAnalyzer() {return 0;}
-
 class SpecTcl {
     static SpecTcl* m_pInstance;
 public:
@@ -53,3 +54,4 @@ CAnalyzer* SpecTcl::GetAnalyzer() {return 0;}
 
 
 SpecTcl* SpecTcl::m_pInstance(0);
+#endif

@@ -467,7 +467,7 @@ evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp failEventProcessorTests.cpp
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
-		sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
+	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests
 
 

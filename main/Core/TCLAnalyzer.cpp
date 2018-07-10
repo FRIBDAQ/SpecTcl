@@ -491,13 +491,15 @@ CTclAnalyzer::InsertEventProcessor(std::string name_pipe,
   }
   
   // If we're already initialized, init the event processor too:
-  if (m_initialized) result = processor.OnInitialize();
-  if (!result) {
+  if (m_initialized) {
+    result = processor.OnInitialize();
+    if (!result) {
     // OnInitialize failed - complain and remove.
-    
-    std::cerr << "****ERROR*** When adding event processor: " << sName
-        << " the call to its OnInitialize returned kfFALSE. Removing the event processor\n";
-    RemoveEventProcessor(GetCurrentPipeline(), sName);
+      
+      std::cerr << "****ERROR*** When adding event processor: " << sName
+          << " the call to its OnInitialize returned kfFALSE. Removing the event processor\n";
+      RemoveEventProcessor(GetCurrentPipeline(), sName);
+    }
   }
   
 }
