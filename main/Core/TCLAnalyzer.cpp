@@ -483,15 +483,27 @@ CTclAnalyzer::InsertEventProcessor(std::string name_pipe,
   if (current == "Default")
     m_lAnalysisPipeline=m_lAnalysisPipelineList[current];
   
-  processor.OnAttach(*this);	// Notify the processor it was attached.
+  Bool_t result = processor.OnAttach(*this);	// Notify the processor it was attached.
+  if (!result) {                                // On Attach failed - complain and remove.
+    std::cerr << "***ERROR**** When adding event processor: "  << sName
+        << " the call to its OnAttach returned kfFALSE. Removing the event processor\n";
+    RemoveEventProcessor(GetCurrentPipeline(), sName);
+  }
   
   // If we're already initialized, init the event processor too:
-  if (m_initialized) processor.OnInitialize();      	
+  if (m_initialized) result = processor.OnInitialize();
+  if (!result) {
+    // OnInitialize failed - complain and remove.
+    
+    std::cerr << "****ERROR*** When adding event processor: " << sName
+        << " the call to its OnInitialize returned kfFALSE. Removing the event processor\n";
+    RemoveEventProcessor(GetCurrentPipeline(), sName);
+  }
   
 }
 
 /*!
-  Removes an event processof from the event processing pipeline by name.
+  Removes an event processor from the event processing pipeline by name.
   Returns a pointer to the removed processor.
   @param name
     Name of the item to remove.
@@ -613,14 +625,14 @@ void CTclAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
 
   EventProcessorIterator p = begin(current);
 
-  int i = 0;
+  //int i = 0;
   while(p != end(current)) {
     CEventProcessor* pProcessor(p->second);
     if(!pProcessor->OnOther(nType, *this, rDecoder)) {
       break ;
     }
     p++;
-    i++;
+    //i++;
   }
   
 }
@@ -645,11 +657,23 @@ CTclAnalyzer::OnInitialize()
     CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin(current);
     m_initialized = true;
     
+    std::vector<std::string> processorsToRemove;
+    
     while (p != api->ProcessingPipelineEnd(current)) {
         CEventProcessor* pProcessor = p->second;
-        if (!pProcessor->OnInitialize()) break;
-        
+        if (!pProcessor->OnInitialize()) {
+            // An event processor failed  OnInitialze - complain and remove.
+            
+            std::cerr << "****ERROR*****\nEvent processor " << p->first << " failed OnInitialize.";
+            std::cerr << " (returned kfFalse) will be removed\n";
+            processorsToRemove.push_back(p->first);
+        }
         p++;
+    }
+    // Now remove any failed even processors:
+    
+    for (int i=0; i < processorsToRemove.size(); i++) {
+        RemoveEventProcessor(GetCurrentPipeline(), processorsToRemove[i]);
     }
 }
 
