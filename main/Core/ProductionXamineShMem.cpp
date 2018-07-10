@@ -53,6 +53,7 @@
 #include <GateMediator.h>
 
 #include "ErrnoException.h"
+#include <string.h>
 #include <stdexcept>
 #include <iostream>
 #include <assert.h>
@@ -342,6 +343,8 @@ void CProductionXamineShMem::addGate(CXamineGate& rGate)
 
   Xamine_point  points[GROBJ_MAXPTS];
   Xamine_point* pPoints = points;
+  memset(points, 0, GROBJ_MAXPTS * sizeof(Xamine_point));
+  
   for(PointIterator p = rGate.begin(); p != rGate.end(); p++, pPoints++) {
     pPoints->x = p->X();
     pPoints->y = p->Y();
