@@ -17,7 +17,7 @@ filtsplit_CXXFLAGS =-I@top_srcdir@/Core
 
 filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		  @LIBTCLPLUS_LDFLAGS@ \
-		  @TCL_LIBS@ \
+		  @TCL_LIBS@ @ROOT_LDFLAGS@ \
 		  -lgsl -lgslcblas
 
 cmdline.c cmdline.h: @srcdir@/filtsplit.ggo
