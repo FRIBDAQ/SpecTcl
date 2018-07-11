@@ -42229,20 +42229,173 @@ public:
         <para>                
         </para>
     </refsect1>
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>RootEventProcessor</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>RootEventProcessor</refname>
+        <refpurpose>Event processor to manage root event sinks</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+class RootEventProcessor : public CEventProcessor
+{
+public:    
+    void addTreeSink(const char* name, RootTreeSink* sink);
+    RootTreeSink* removeTreeSink(const char* name);
+    
+    std::map&lt;std::string, RootTreeSink*>&gt;:const_iterator begin() const;
+    std::map&lt;std::string, RootTreeSink*&gt;::const_iterator end() const;
+
+    
+};
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>RootEventProcessor</classname> is an event processor that
+            manages <classname>RootTreeSink</classname> objects.  Its purpose is to know
+            when files need to be opened and closed and to inform all registered
+            <classname>RootTreeSink</classname> objects of those events.
+        </para>
+        <para>
+            The <command>roottree</command> command automatically creates and
+            adds a <classname>RootEventProcessor</classname> object to manage
+            the <classname>RootTreeSink</classname> objects it creates,
+            manipulates and destroys.
+        </para>
+        <para>
+            If you write subsystem that manages its own set of
+            <classname>RootTreeSink</classname> objects you may want to provide
+            your own managing event sinnk.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            The event processor interface methods are not shown.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>addTreeSink</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>char* </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>RootTreeSink*</type><parameter> sink</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Registeres a new <classname>RootTreeSink</classname> object,
+                        <parameter>sink</parameter>,
+                        with this manager associating it with the name
+                        <parameter>name</parameter>.
+                    </para>
+                    <para>
+                        If analysis of a run is ongoing, <parameter>sink</parameter>'s
+                        <methodname>OnOpen</methodname> method is called
+                        to inform it of the file into which data are being written.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>RootTreeSink*</type>
+                        <methodname> removeTreeSink</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>char* </type><parameter>name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Locates the root tree sink associated with
+                        <parameter>name</parameter>.  If a file is open,
+                        that object's <methodname>OnAboutToClose</methodname>
+                        is invoked and the object is removed from the
+                        set of managed sinks.
+                    </para>
+                    <para>
+                        If the object is not found, a
+                        <classname>std::invalid_argument</classname> exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::map&lt;std::string, RootTreeSink*>&gt;:const_iterator </type>
+                        <methodname>begin() </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator that allows the caller to iterate
+                        over the set of registered sinks and their names.
+                        See also <methodname>end</methodname>
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::map&lt;std::string, RootTreeSink*&gt;::const_iterator </type>
+                        <methodname>end() </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns an iterator that allows the caller to determine
+                        when iteration over the container containing the
+                        sinks is complete.  Typical usage pattern might be:
+                    </para>
+                    <informalexample>
+                        <programlisting>
+RootEventProcessor* pProc = getMyEventProcessor(); // to get a pointer to the proc.
+
+for (auto p = pProc-&gt;begin(); p != pProc-&gt;end(); p++) {
+    std::string name = p-&gt;first;
+    const RootTreeSink&amp; sink(p-&gt;second);
+    
+    // Do something with the sink and or name
+    
+    ...
+}
+                        </programlisting>
+                    </informalexample>
+                    <para>
+                        Naturally STL iteration patterns (e.g.
+                        <methodname>std::for_each</methodname>) can be used
+                        as well.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
 
 </refentry>
-        <chapter>
-            <title>Stuff to do</title>
-            <itemizedlist>
-            <listitem>
-
-                <para>
-                    Root interface classes.
-
-RootEventProcessor.cpp
-                </para>
-            </listitem>
-        </itemizedlist>
-        </chapter>
     </part>
 </book>
