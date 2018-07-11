@@ -22,7 +22,7 @@
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
-
+#include <stdlib.h>
 #include <QApplication>
 #include <QTimer>
 
@@ -52,5 +52,5 @@ int main( int argc, char* argv[])
     QTimer::singleShot(100, &app, SLOT(quit()));
     app.exec();
 
-    return !wasSuccessful;
+    exit( !wasSuccessful);
 }
