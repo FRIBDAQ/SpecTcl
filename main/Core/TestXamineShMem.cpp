@@ -58,6 +58,7 @@ UInt_t CTestXamineShMem::addSpectrum(CSpectrum& spec, CHistogrammer& sorter) {
     m_map[&spec] = bs;
 
     m_slotIndex++;
+    return bs.s_slot;
 }
 
 void CTestXamineShMem::removeSpectrum(UInt_t slot, CSpectrum& ) {}
