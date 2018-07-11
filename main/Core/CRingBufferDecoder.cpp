@@ -101,14 +101,26 @@ dump(ostream& o, void* p, size_t s)
 
 CRingBufferDecoder::CRingBufferDecoder() :
   m_pBuffer(0),
+  m_pBufferCursor(0),
+  m_nBufferSize(0),
+  m_nResidual(0),
   m_pPartialEvent(0),
+  m_nPartialEventSize(0),
+  m_nPartialEventBytes(0),
   m_pTranslator(0),
-  m_runNumber((UInt_t)-1),
+  m_runNumber(0),
+  m_pBody(0),
+  m_nBodySize(0),
+  m_nCurrentItemType(0),
+  m_nEntityCount(0),
+  m_nTriggerCount(0),
   m_pGluedBuffer(0),
+  m_nGlueSize(0),
+  m_pAnalyzer(0),
   m_pCurrentHelper(0),
   m_pDefaultHelper(0),
-  m_pCurrentRingItem(0),
   m_pFallbackHelper(new CRingFormatHelper10),
+  m_pCurrentRingItem(0),
   m_pFactory(new CRingFormatHelperFactory)
 {
     // Register the creators we know about:
