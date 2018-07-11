@@ -69,6 +69,8 @@ snit::widget sliceEditor {
 
 
         grid $win.limits
+        
+        bind $win.parameters <Double-1> [mymethod removeParameter]
 
     }
     # load name
@@ -189,5 +191,37 @@ snit::widget sliceEditor {
             return 1
         }
     }
-
+    # #
+    # removeParameter
+    #    Called when a parameter in the gate is double clicked.
+    #    - The selected parameter is removed from the list box.
+    #    - The selected parameter is added back to the browser.
+    #
+    method removeParameter {} {
+        
+        #  Get the list of parameters selected in the list box
+        #  ids and names.   If none are selected the double click
+        #  happened in empty space and nothing is done:
+        
+        set ids [$win.parameters curselection]
+        if {[llength $ids] == 0} {
+            return
+        }
+        #  Just in case sort the ids numerically descending so they
+        #  can be deleted from the list box without invalidating the
+        #  other indices:
+        
+        set ids [lsort -integer -decreasing $ids]
+        
+        #  Delete the list box elements 
+    
+        foreach id $ids {
+            $win.parameters delete $id
+        }
+       
+        # updateing the browser for now will show the removed params
+        # because they will no longer be filtered out:
+        
+        $win.browser  update
+    }
 }
