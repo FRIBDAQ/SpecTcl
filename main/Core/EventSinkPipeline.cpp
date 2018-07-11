@@ -151,6 +151,7 @@ CEventSink*
 CEventSinkPipeline::RemoveEventSink(string name)
 {
   NameMatch&  predicate(*(new NameMatch(name)));
+  predicate.reset();
   m_lSinks.remove_if(predicate);
   CEventSink* pSink = predicate.getMatch();
   if(pSink) {
@@ -186,6 +187,8 @@ CEventSinkPipeline::EventSinkIterator
 CEventSinkPipeline::FindSink(string name)
 {
   NameMatch predicate(name);
+  predicate.reset();
+
   EventSinkIterator temp =  find_if(m_lSinks.begin(), m_lSinks.end(), predicate);
   return temp;
 }
@@ -282,10 +285,12 @@ CEventSinkPipeline::AddressMatch::operator()(PipelineEntry& rEntry)
    a saved name.  The last match is stored for retrieval.
 */
 
+CEventSink* CEventSinkPipeline::NameMatch::m_pLastMatch;
+
+
 /*! Constructor: Save the name and null the last match pointer.
  */
 CEventSinkPipeline::NameMatch::NameMatch(string name) :
-  m_pLastMatch(0),
   m_sName(name)
 {}
 
