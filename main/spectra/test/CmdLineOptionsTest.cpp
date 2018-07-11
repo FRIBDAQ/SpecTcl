@@ -59,19 +59,19 @@ class CmdLineOptionsTest : public CppUnit::TestFixture
         const char* arg1 = "1234";
         const char* opt2 = "--host";
         const char* arg2 = "asdfasdf";
-        m_opts[0] = new char[strlen(prog)];
+        m_opts[0] = new char[strlen(prog) + 1];
         strcpy(m_opts[0], prog);
 
-        m_opts[1] = new char[strlen(opt1)];
+        m_opts[1] = new char[strlen(opt1) +  1];
         strcpy(m_opts[1], opt1);
 
-        m_opts[2] = new char[strlen(arg1)];
+        m_opts[2] = new char[strlen(arg1) + 1];
         strcpy(m_opts[2], arg1);
 
-        m_opts[3] = new char[strlen(opt2)];
+        m_opts[3] = new char[strlen(opt2) + 1];
         strcpy(m_opts[3], opt2);
 
-        m_opts[4] = new char[strlen(arg2)];
+        m_opts[4] = new char[strlen(arg2) + 1];
         strcpy(m_opts[4], arg2);
 
 
