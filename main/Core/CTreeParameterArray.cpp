@@ -535,3 +535,27 @@ CTreeParameterArray::lowIndex()
 
 
 
+/**
+ * isBound
+ * @return bool - true if all parameters in the array are bound.
+ */
+bool
+CTreeParameterArray::isBound() const
+{
+  for (int i=0; i < m_Parameters.size(); i++) {
+    if (!m_Parameters[i]->isBound()) return false;
+  }
+  return true;
+}
+/**
+ * Bind
+ *   Binds all of the parameters to their underlying
+ *   raw parameters.
+ */
+void
+CTreeParameterArray::Bind()
+{
+  for (int i = 0; i < m_Parameters.size(); i++) {
+    m_Parameters[i]->Bind();
+  }
+}

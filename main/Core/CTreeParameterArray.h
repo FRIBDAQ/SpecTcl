@@ -125,7 +125,8 @@ public:
   std::vector<CTreeParameter*>::iterator end();
   UInt_t size();
   Int_t lowIndex();
-  
+  bool isBound() const;
+  void Bind();
 protected:
   void CreateParameters(std::string baseName, 
 			UInt_t size, CTreeParameter& Template);

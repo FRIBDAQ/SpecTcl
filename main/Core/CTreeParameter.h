@@ -205,7 +205,7 @@ public:
   
   static void BindParameters();
   static void setEvent(CEvent& rEvent);
-  bool isBound();
+  bool isBound() const;
   
   // Iteration and location.
   

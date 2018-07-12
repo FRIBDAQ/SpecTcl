@@ -378,7 +378,7 @@ CTreeParameter::setEvent(CEvent& rEvent)
  *         - m_pEvent NULL - the class is not bound to a 'current event'.
  */
 bool 
-CTreeParameter::isBound()
+CTreeParameter::isBound() const
 {
 	if(!m_pParameter) {
 	   return false;
