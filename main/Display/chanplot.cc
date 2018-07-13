@@ -472,9 +472,10 @@ GC Xamine_MakeDrawingGc(Display *disp, XMWidget *win, int selector)
     /* Now make the base graphics context and then modify it with the
     ** appropriate dashes:
     */
-    modifiers.line_style = LineDoubleDash;
-    gc->SetValues(&modifiers, GCLineStyle | GCForeground | GCBackground);
-    gc->SetDashes(0, dashlist[selector], dashlen[selector]);
+    //    modifiers.line_style = LineDoubleDash;
+    // gc->SetValues(&modifiers, GCLineStyle | GCForeground | GCBackground);
+    gc->SetValues(&modifiers, GCForeground | GCBackground);
+    /// gc->SetDashes(0, dashlist[selector], dashlen[selector]);
   }
 
   return gc->gc;

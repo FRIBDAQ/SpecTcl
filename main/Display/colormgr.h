@@ -76,4 +76,5 @@ unsigned long Xamine_GetColorPlaneMask();
 FILE *Xamine_OpenColorTable(unsigned int planes);
 
 void Xamine_HtsToColor(unsigned int *hts, int full_scale, int nchan);
+void Xamine_GetVisualInfo(Display* d, Window w, XVisualInfo* vis);
 #endif

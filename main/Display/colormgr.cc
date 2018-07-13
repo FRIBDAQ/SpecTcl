@@ -42,7 +42,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <stdlib.h>
 #include "colormgr.h"
-
+#include "XMWidget.h"
 /*
 ** Local storage:
 */
@@ -115,7 +115,32 @@ static int countbits(unsigned long mask)
   }
   return nbits;
 }
-
+/**
+ getColormap
+    Return the colormap associated with a display/window/visual 
+ @param mymap - Pointer to the map to fill in.
+ @param d  - Display
+ @param w  - Window
+ @param vis  - visual
+*/
+static void
+getColorMap(XStandardColormap& mymap,
+	    Display* d,
+	    Window w,
+	    XVisualInfo* vis)
+{
+    mymap.visualid   = vis->visualid;
+    mymap.base_pixel = 0;
+    //
+    //   For each color, convert the mask into a multiplier and max field:
+    //	 
+    ConvertMask(&mymap.red_max, &mymap.red_mult, vis->red_mask);
+    ConvertMask(&mymap.blue_max, &mymap.blue_mult, vis->blue_mask);
+    ConvertMask(&mymap.green_max, &mymap.green_mult, vis->green_mask);
+    fprintf(stderr, "red_max = %lu blue_max = %lu green_max = %lu\n",
+	    mymap.red_max, mymap.blue_max, mymap.green_max);
+   
+}
 
 /*
 **++
@@ -506,7 +531,10 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
     }
     XFree((char* )result);
 }
-
+void Xamine_GetVisualInfo(Display* d, Window w, XVisualInfo* vis)
+{
+  GetWidgetVisualInfo(d, w, vis); 
+}
 
 /*
 **++
@@ -689,29 +717,8 @@ static void ReadDirectMap (XStandardColormap *mapinfo)
 */
 static void SetupDirectColors (Display *d, Window w, XVisualInfo *vis)
 {
-    XStandardColormap mymap;     // This is actually a fake.  
-    //
-    //  The mymap is really a fake StandardColormap which is used since
-    //	it provides a much more convenient way to specify the shape of the
-    //	direct color visual than the information in the XVisualInfo struct.
-    //	The main purpose of this function is to map the masks into max, mult's
-    //	and so on.
-    //	
-    //	    First fill in the no-brainer fields:
-    //	    
-    mymap.visualid   = vis->visualid;
-    mymap.base_pixel = 0;
-    //
-    //   For each color, convert the mask into a multiplier and max field:
-    //	 
-    ConvertMask(&mymap.red_max, &mymap.red_mult, vis->red_mask);
-    ConvertMask(&mymap.blue_max, &mymap.blue_mult, vis->blue_mask);
-    ConvertMask(&mymap.green_max, &mymap.green_mult, vis->green_mask);
-    fprintf(stderr, "red_max = %lu blue_max = %lu green_max = %lu\n",
-	    mymap.red_max, mymap.blue_max, mymap.green_max);
-    //
-    //   Then ReadDirectMap does the remainder of the job:
-    //
+    XStandardColormap mymap;
+    getColorMap(mymap, d, w ,vis);
     ReadDirectMap(&mymap);
     return;		    /* Falling through with no match remains bitonal */
 			    /* Breaking out with a match gives direct color  */
