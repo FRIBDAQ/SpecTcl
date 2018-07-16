@@ -186,21 +186,39 @@ void XamineGrobjGC::SetPermanent()
 //
 void XamineGrobjGC::Set2DColors(XMWidget &wid)
 {
-  if(Xamine_ColorDisplay()) {
-    SetPlaneMask(Xamine_GetColorPlaneMask());
-    SetForeground(Xamine_GetXorDrawingColor());
-  }
+  Window            w = wid.getWindow();
+  XVisualInfo       v;
+  XStandardColormap m;
+  unsigned long bg, fg;
+  
+  wid.GetAttribute(XmNbackground, &bg);
+  Xamine_GetVisualInfo(disp, w, &v);
+  Xamine_GetX11ColorMap(m, disp, w, &v);
+  fg = Xamine_ComputeDirectColor(&m, 255, 0, 0);
+  
+  SetPlaneMask(Xamine_GetColorPlaneMask());
+  SetForeground(fg ^ bg);
+
 }
 
 void XamineGrobjGC::Set1DColors(XMWidget &wid)
 {
-  long fg, bg;
-  if(Xamine_ColorDisplay()) {
+    long fg, bg;
+  
     SetPlaneMask(Xamine_GetColorPlaneMask());
-    wid.GetAttribute(XmNforeground, &fg);
+    //wid.GetAttribute(XmNforeground, &fg);
+    
+    // Get a nice visible red color for provisional drawing:
+    
+    Window            w= wid.getWindow();
+    XVisualInfo       v;
+    XStandardColormap map;
+    Xamine_GetVisualInfo(disp, w, &v);
+    Xamine_GetX11ColorMap(map, disp, w, &v);
+    fg = Xamine_ComputeDirectColor(&map, 255, 0, 0);
+    
     wid.GetAttribute(XmNbackground, &bg);
     SetForeground(fg ^ bg);
-  }
 }
 //
 // ClipToSpectrum -- This sets the clipping region to the spectrum part of
