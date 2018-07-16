@@ -53,7 +53,7 @@ static unsigned long *pixels = NULL;   /* Pointer to pixel values.           */
 static unsigned long pctpixels[101];   /* Lookup table for % of FS values.   */
 static unsigned long planemasks = 0; /* Will contain an or of the plane masks */
 static Colormap colormap_id;	/* Id of color map used by widgets.  */
-
+static bool notSlept(true);
 
 /*
 **++
@@ -137,8 +137,8 @@ getColorMap(XStandardColormap& mymap,
     ConvertMask(&mymap.red_max, &mymap.red_mult, vis->red_mask);
     ConvertMask(&mymap.blue_max, &mymap.blue_mult, vis->blue_mask);
     ConvertMask(&mymap.green_max, &mymap.green_mult, vis->green_mask);
-    fprintf(stderr, "red_max = %lu blue_max = %lu green_max = %lu\n",
-	    mymap.red_max, mymap.blue_max, mymap.green_max);
+   // fprintf(stderr, "red_max = %lu blue_max = %lu green_max = %lu\n",
+   //	    mymap.red_max, mymap.blue_max, mymap.green_max);
    
 }
 
@@ -177,7 +177,21 @@ static unsigned long ComputeDirectColor(XStandardColormap *cm,
 
     return pixel;
 }
+/**
+ * Xamine_ComputeDirectColor
+ *     Given a color map that is relevant for the drawing about to be done,
+ *     return the pixel value for a specified color:
+ *
+ *  @param map  - Pointer to a colormap gotten from Xamine_GetX11ColorMap e.g.
+ *  @param r,g,b - Red, green, blue intensities of the color desired.
+ *  @return unsigned long - the pixel value.
+ */
+unsigned long
+Xamine_ComputeDirectColor(XStandardColormap* map, int r, int g, int b)
+{
+    return ComputeDirectColor(map, r, g, b);
 
+}
 /*
 ** Functional Description:
 **   GetWidgetColorParams:
@@ -471,16 +485,13 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
     //    result            = XGetVisualInfo(d, VisualIDMask,
     //				       &template_vis, &nitem);
     result = XGetVisualInfo(d, 0, &template_vis, &nitem);
-//    if (nitem != 1)
-//    {
-//    	fprintf(stderr, 
-// 	    "XGetVisualInfo from GetWidgetVisualInfo unexpected nitem = %d\n",
-//	        nitem);
-//	exit(-1);
-//   }
 
+    // @todo  Can we get rid of this sleep?
 
-    sleep(1);			// Let the rest of the crap come out.
+    if (notSlept) {
+        sleep(1);			// Let the rest of the crap come out.
+        notSlept = false;
+    }
 
     // We need to get the 'best visual'  This is defined as:
     // 1. If there are pseudo color visuals, the one with the
@@ -509,13 +520,13 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
 	if(totalbits > besttruebits) {
 	  besttruebits = totalbits;
 	  besttrue     = i;
-	  fprintf(stderr, "Direct or true visual with %d total bits\n", besttruebits);
+	 // fprintf(stderr, "Direct or true visual with %d total bits\n", besttruebits);
 	}
       }
     }
     
     if(besttrue >= 0) {		// Got a nice true color visual.
-      fprintf(stderr, "Selected direct/true with %d bits\n", besttruebits);
+      //fprintf(stderr, "Selected direct/true with %d bits\n", besttruebits);
       memcpy(vis, &(result[besttrue]), sizeof(XVisualInfo));
     }
     else if(bestpseudo >= 0) {	// Falling back to a nice pseudo
@@ -722,6 +733,22 @@ static void SetupDirectColors (Display *d, Window w, XVisualInfo *vis)
     ReadDirectMap(&mymap);
     return;		    /* Falling through with no match remains bitonal */
 			    /* Breaking out with a match gives direct color  */
+}
+/**
+ * Xamine_GetX11ColorMap
+ *    Get a suitable colormap object for the display,window and visual
+ *
+ *  @param[out] map - Colormap.
+ *  @param[in]  d   - Pointer to the display
+ *  @param[in]  w   - Window Id,
+ *  @param[in] vis  - Pointer to the visual information.
+ */
+void
+Xamine_GetX11ColorMap(
+    XStandardColormap& map, Display* d, Window w, XVisualInfo* vis
+)
+{
+    getColorMap(map, d, w,  vis);
 }
 
 
