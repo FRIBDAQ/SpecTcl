@@ -114,6 +114,7 @@ public:
   const char *getname() const ;
 		  
   /* Get/Modify X resources: */
+  Window getWindow();
   void SetAttribute(String attribute, XtArgVal value);
   void SetAttribute(String attribute, void *value);
   void GetAttribute(String attribute, void *value);

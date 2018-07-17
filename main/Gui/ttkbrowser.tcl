@@ -369,7 +369,7 @@ image create photo ::browser::foldericon   -format png \
     #      Fills the parameter folder with the set of parameters that are now defined.
     #      Previously existing parameters in the folder are first destroyed.
     #      this is suitable for a wholesale refresh of the gui.. it is not
-    #      so useful for adding a single parameter.  See the addParameter method for that.
+    #      so useful for adding a single parameter.  See the addParameterByName method for that.
     #
     method fillParameterFolder {} {
 	# Create the top level folder for parameters
@@ -383,24 +383,24 @@ image create photo ::browser::foldericon   -format png \
 	#  This is a 2 element list of parameter name, parameter definition:
 	#
 
-        set timing [time {
+    set timing [time {
 	set parameterList [list]
-        foreach parameter [parameter -list] {
-            if {$options(-filterparameters) != ""} {
-                if {![eval $options(-filterparameters) [list $parameter]]} {
-                    continue
-                }
+    foreach parameter [parameter -list] {
+        if {$options(-filterparameters) != ""} {
+            if {![eval $options(-filterparameters) [list $parameter]]} {
+                continue
             }
-	    lappend parameterList [list [lindex $parameter 0] $parameter]
+        }
+        lappend parameterList [list [lindex $parameter 0] $parameter]
 	}
-        }]
+    }]
 
 	# Recursively stock the parameter tree algorithm is pretty much the same as
 	# for fillSpectrumSubtree
 
-        set timing [time {
-	$self fillParameterSubtree $paramFolder $parameterList
-        }]
+    set timing [time {
+        $self fillParameterSubtree $paramFolder $parameterList
+    }]
 
 
    
@@ -775,28 +775,28 @@ image create photo ::browser::foldericon   -format png \
     # @param list of axis definitions.
     #
     method setgdSubInfo {id parameters axes} {
-	set xparams [lindex $parameters 0]
-	set yparams [lindex $parameters 1]
-
-
-	set axisid [$self addAxis $id X "" [lindex $axes 0]]
-	$tree item $axisid -text X
-
-
-	set axisid [$self addAxis $id Y "" [lindex $axes 1]]
-	$tree item $axisid -text Y
-
-
-	set i 0
-
-	foreach x $xparams {
-	    $self addEntryParameter $id $i "X: $x"
-	    incr i
-	}
-	foreach y $yparams {
-	    $self addEntryParameter $id $i "Y $y"
-	    incr i
-	}
+        set xparams [lindex $parameters 0]
+        set yparams [lindex $parameters 1]
+    
+    
+        set axisid [$self addAxis $id X "" [lindex $axes 0]]
+        $tree item $axisid -text X
+    
+    
+        set axisid [$self addAxis $id Y "" [lindex $axes 1]]
+        $tree item $axisid -text Y
+    
+    
+        set i 0
+    
+        foreach x $xparams {
+            $self addEntryParameter $id $i "X: $x"
+            incr i
+        }
+        foreach y $yparams {
+            $self addEntryParameter $id $i "Y $y"
+            incr i
+        }
     }
     ##
     # setSummarySubInfo id parameters axes
@@ -816,7 +816,7 @@ image create photo ::browser::foldericon   -format png \
     method setSummarySubInfo {id parameters axes} {
         $self addAxis $id X parameters "0 [expr [llength $parameters]-1] [llength $parameters]"
         set xid [$self addAxis $id Y [lindex $parameters 0] [lindex $axes 0]]
-	$tree item $xid -text Y
+        $tree item $xid -text Y
 
         $self addAxisInfo $id [lindex $axes 0] [lindex $parameters 0]
 
@@ -1001,7 +1001,7 @@ image create photo ::browser::foldericon   -format png \
     # @return    The new node id.
     #
     method addEntryParameter {id number name} {
-	return [$tree insert $id end -text $name -image ::browser::paramicon]
+        return [$tree insert $id end -text $name -image ::browser::paramicon]
 
     }
     ##
@@ -1051,13 +1051,13 @@ image create photo ::browser::foldericon   -format png \
     # @return - the full path name of the item.
     #
     method ItemName id {
-	set nameList [list]
-	set here $id
-	while {[$tree parent $here] ne ""} {
-	    lappend nameList [$tree item $here -text]; # bottom to top list.
-	    set here [$tree parent $here]
-	}
-	set nameList [lreverse $nameList]; # Top to bottomlist. Spectra....
+        set nameList [list]
+        set here $id
+        while {[$tree parent $here] ne ""} {
+            lappend nameList [$tree item $here -text]; # bottom to top list.
+            set here [$tree parent $here]
+        }
+        set nameList [lreverse $nameList]; # Top to bottomlist. Spectra....
 
 
         return [join $nameList .]
@@ -1069,14 +1069,14 @@ image create photo ::browser::foldericon   -format png \
     #    Just like ItemName above, however the folder name is also returned.
     #
     method FullPath id {
-	set nameList [list]
-	set here $id
-	while {$here ne ""} {
-	    lappend nameList [$tree item $here -text]
-	    set here [$tree parent $here]
-	}
-	set nameList [lreverse $nameList]
-	return [join $nameList .]
+        set nameList [list]
+        set here $id
+        while {$here ne ""} {
+            lappend nameList [$tree item $here -text]
+            set here [$tree parent $here]
+        }
+        set nameList [lreverse $nameList]
+        return [join $nameList .]
 	
     }
     ##
@@ -1090,33 +1090,33 @@ image create photo ::browser::foldericon   -format png \
     #                     and the parameter definition.
     #
     method fillParameterSubtree {id parameters} {
-	array set folders [list]
-	array set terminal [list]
-
-	foreach element $parameters {
-	    set pathList [split [lindex $element 0] .]
-	    if {[llength $pathList] == 1} {
-		# Terminal node
-		
-		set terminal($pathList) [lindex $element 1];	# elements contain parameter defs.
-		
-	    } else {
-		set residualPath [join [lrange $pathList 1 end] .]
-		set element [lreplace $element 0 0 $residualPath]
-		lappend folders([lindex $pathList 0]) $element;	# List of children.
-	    }
-	}
-	# Create the folders and recurse on them to create their children:
-
-	foreach folder [lsort [array names folders]] {
-	    set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
-	    $self fillParameterSubtree $folderId $folders($folder)
-	}
-        ##
-        #  Maintain the terminals information:
-        #
-        set parameterTerminals($id) [array get terminal];   # Terminals for id.
-        return
+        array set folders [list]
+        array set terminal [list]
+    
+        foreach element $parameters {
+            set pathList [split [lindex $element 0] .]
+            if {[llength $pathList] == 1} {
+            # Terminal node
+            
+            set terminal($pathList) [lindex $element 1];	# elements contain parameter defs.
+            
+            } else {
+            set residualPath [join [lrange $pathList 1 end] .]
+            set element [lreplace $element 0 0 $residualPath]
+            lappend folders([lindex $pathList 0]) $element;	# List of children.
+            }
+        }
+        # Create the folders and recurse on them to create their children:
+    
+        foreach folder [lsort [array names folders]] {
+            set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
+            $self fillParameterSubtree $folderId $folders($folder)
+        }
+            ##
+            #  Maintain the terminals information:
+            #
+            set parameterTerminals($id) [array get terminal];   # Terminals for id.
+            return
 
 
     }
@@ -1130,43 +1130,43 @@ image create photo ::browser::foldericon   -format png \
     # @param def  - Parameter definition.
     #
     method addParameter {id name def} {
-	set fullName [lindex $def 0]; # full path name to parameter.
-
-	set pid [$self addEntryParameter $id 0 $name]
-
-	# Figure out the values we need to put..only there if tree parameter:
-
-	set treeInfo [treeparameter -list $fullName]
-	if {$treeInfo != ""} {
-	    set info [lindex $treeInfo 0]; #  tree parameter has info.
-	    set bins  [lindex $info 1]
-	    set low   [lindex $info 2]
-	    set hi    [lindex $info 3]
-	    set units [lindex $info 5]
-	} else {
-	    set bins "";	# Non tree parameter has nothing.
-	    set low  ""
-	    set hi   ""
-	    set units ""
-	}
-	$tree item $pid -tag Parameter -values [list "" "" $low $hi $bins "" $units] -tags parameter
-
-
-	# If the parameter is a pseudo, we are going put the dependent parameters as subnodes:
-
-	if {$options(-detail)} {
-	    set pseudoInfo [pseudo -list $fullName]
-	    if {$pseudoInfo != ""} {
-		$tree item $pid -image ::browser::pseudoicon
-		set pseudoInfo [lindex $pseudoInfo 0]
-		set dependencies [lindex $pseudoInfo 1]
-		set pseudonum 0
-		foreach dependentParam $dependencies {
-		    $self addEntryParameter $pid $pseudonum $dependentParam
-		    incr pseudonum
-		}
-	    }
-	}
+        set fullName [lindex $def 0]; # full path name to parameter.
+    
+        set pid [$self addEntryParameter $id 0 $name]
+    
+        # Figure out the values we need to put..only there if tree parameter:
+    
+        set treeInfo [treeparameter -list $fullName]
+        if {$treeInfo != ""} {
+            set info [lindex $treeInfo 0]; #  tree parameter has info.
+            set bins  [lindex $info 1]
+            set low   [lindex $info 2]
+            set hi    [lindex $info 3]
+            set units [lindex $info 5]
+        } else {
+            set bins "";	# Non tree parameter has nothing.
+            set low  ""
+            set hi   ""
+            set units ""
+        }
+        $tree item $pid -tag Parameter -values [list "" "" $low $hi $bins "" $units] -tags parameter
+    
+    
+        # If the parameter is a pseudo, we are going put the dependent parameters as subnodes:
+    
+        if {$options(-detail)} {
+            set pseudoInfo [pseudo -list $fullName]
+            if {$pseudoInfo != ""} {
+                $tree item $pid -image ::browser::pseudoicon
+                set pseudoInfo [lindex $pseudoInfo 0]
+                set dependencies [lindex $pseudoInfo 1]
+                set pseudonum 0
+                foreach dependentParam $dependencies {
+                        $self addEntryParameter $pid $pseudonum $dependentParam
+                        incr pseudonum
+                }
+            }
+        }
     }
     ##
     # addEntryParameter id number name
@@ -1180,7 +1180,7 @@ image create photo ::browser::foldericon   -format png \
     #     The new node id.
     #
     method addEntryParameter {id number name} {
-	set pid [$tree insert $id end -text $name -image ::browser::paramicon]
+        set pid [$tree insert $id end -text $name -image ::browser::paramicon]
 
         return $pid
     }
@@ -1197,30 +1197,30 @@ image create photo ::browser::foldericon   -format png \
     #                    the value and units currently held by the variable.
     #
     method fillVariableSubtree {id variables} {
-	array set folders [list]
-	array set terminal [list]
+        array set folders [list]
+        array set terminal [list]
+    
+        # Build up the folders and terminal arrays.
+    
+        foreach variable $variables {
+            set name [lindex $variable 0]
+            set pathList [split $name .]
+            if {[llength $pathList] == 1} {
+            set terminal($name) $variable
+            } else {
+            set residualPath [join [lrange $pathList 1 end] .]
+            set variable [lreplace $variable 0 0 $residualPath]
+            lappend folders([lindex $pathList 0]) $variable
+            }
+        }
 
-	# Build up the folders and terminal arrays.
-
-	foreach variable $variables {
-	    set name [lindex $variable 0]
-	    set pathList [split $name .]
-	    if {[llength $pathList] == 1} {
-		set terminal($name) $variable
-	    } else {
-		set residualPath [join [lrange $pathList 1 end] .]
-		set variable [lreplace $variable 0 0 $residualPath]
-		lappend folders([lindex $pathList 0]) $variable
-	    }
-	}
-
-	# Create folders and recurse:
-
-	foreach folder [lsort [array names folders]] {
-	    set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
-	    $self fillVariableSubtree $folderId $folders($folder)
-	}
-	# Enter the terminal nodes:
+        # Create folders and recurse:
+    
+        foreach folder [lsort [array names folders]] {
+            set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
+            $self fillVariableSubtree $folderId $folders($folder)
+        }
+        # Enter the terminal nodes:
 
         set variableTerminals($id) [array get terminal]
     }
@@ -1240,38 +1240,38 @@ image create photo ::browser::foldericon   -format png \
     # @param gates - List of gate descriptions that should populate this subtree.
     #
     method fillGateSubtree {id gates} {
-	array set folders [list]
-	array set terminals [list]
+        array set folders [list]
+        array set terminals [list]
 
-	foreach gate $gates {
-	    # Only show non 'F' gates -- as those are deleted gates.
-	    if {[lindex $gate 2] ne "F"} {
-		set path [split [lindex $gate 0] .]
-		if {[llength $path] == 1} {
-		    set terminals($path) $gate
-		} else {
-		    set residual [join [lrange $path 1 end] .]
-		    set gate [lreplace $gate 0 0 $residual]
-		    lappend folders([lindex $path 0]) $gate
-		}
-	    }
-	}
-	# Create folders and curse and recurse.
-
-	foreach folder [lsort [array names folders]] {
-	    set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
-	    $self fillGateSubtree $folderId $folders($folder)
-	}
-
-	# Create terminal nodes.
-
-	foreach gate [lsort [array names terminals]] {
-	    set description $terminals($gate)
-	    set type [lindex $description 2]
-	    set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
-			    -values $type -tags gate]
-	    $self setGateSubInfo $gateId $type [lindex $description 3]
-	}
+        foreach gate $gates {
+            # Only show non 'F' gates -- as those are deleted gates.
+            if {[lindex $gate 2] ne "F"} {
+                set path [split [lindex $gate 0] .]
+                if {[llength $path] == 1} {
+                    set terminals($path) $gate
+                } else {
+                    set residual [join [lrange $path 1 end] .]
+                    set gate [lreplace $gate 0 0 $residual]
+                    lappend folders([lindex $path 0]) $gate
+                }
+            }
+        }
+        # Create folders and curse and recurse.
+    
+        foreach folder [lsort [array names folders]] {
+            set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
+            $self fillGateSubtree $folderId $folders($folder)
+        }
+    
+        # Create terminal nodes.
+    
+        foreach gate [lsort [array names terminals]] {
+            set description $terminals($gate)
+            set type [lindex $description 2]
+            set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
+                    -values $type -tags gate]
+            $self setGateSubInfo $gateId $type [lindex $description 3]
+        }
     }
     #
     # setGateSubInfo id type description

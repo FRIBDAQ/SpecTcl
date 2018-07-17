@@ -100,12 +100,13 @@ protected:
   class NameMatch 
   {
   private:
-    CEventSink* m_pLastMatch;
+    static CEventSink* m_pLastMatch;
     std::string m_sName;
   public:
     NameMatch(std::string name);
     bool operator()(PipelineEntry& entry);
     CEventSink* getMatch() const;
+    void reset() {m_pLastMatch = nullptr;}
   };
 
 };

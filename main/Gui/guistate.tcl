@@ -342,6 +342,9 @@ proc writeComments fd {
 # Parameters:
 #     fd   - The return value of the [open] that opened the output file.
 #
+# @note - tree parameters only get saved if their definition has changed
+#         since C++ constructed them.
+#
 proc writeTreeParameters fd {
     
 
@@ -349,18 +352,23 @@ proc writeTreeParameters fd {
 
     set time [time {
      foreach  info [treeparameter -list] {
-	 set name [lindex $info 0]
-	 set bins [lindex $info 1]
-	 set low  [lindex $info 2]
-	 set high [lindex $info 3]
-	 set units [lindex $info 5]
-	 
-	 # Could be new could be modified....
-	 
-	 puts $fd "catch {treeparameter -create [list $name] $low $high $bins [list $units]}"
-	 puts $fd "treeparameter -setlimits [list $name] $low $high"
-	 puts $fd "treeparameter -setbins   [list $name] $bins"
-	 puts $fd "treeparameter -setunit   $name [list $units]\n"
+        set name [lindex $info 0]
+        
+        #   Only save if the parameter changed:
+        
+        if {[treeparameter -check $name]} {
+            set bins [lindex $info 1]
+            set low  [lindex $info 2]
+            set high [lindex $info 3]
+            set units [lindex $info 5]
+            
+            # Could be new could be modified....
+            
+            puts $fd "catch {treeparameter -create [list $name] $low $high $bins [list $units]}"
+            puts $fd "treeparameter -setlimits [list $name] $low $high"
+            puts $fd "treeparameter -setbins   [list $name] $bins"
+            puts $fd "treeparameter -setunit   $name [list $units]\n"
+        }
      }
     }]   
 

@@ -218,6 +218,11 @@ snit::widget applyGateToMultiple {
         grid $win.ok          $win.cancel  $win.help
 
         $win.browser update
+
+	# Bind double-1 so to the listbox so spectra can be removed
+	# from the gate list.
+
+	bind $win.spectra <Double-1> [mymethod _RemoveSpectrum]
     }
     # spectrumFilter descr
     #       Filter the spectra that appear in the browser.
@@ -317,7 +322,26 @@ snit::widget applyGateToMultiple {
     oncget   -applications {
         return [$win.spectra get 0 end]
     }
+    ##
+    # _RemoveSpectrum
+    #
+    #   Called when a double 1 is clicked in the spectrum
+    #   list.  Selected spectra are removed from the listbox
+    #   A update is done to add the spectra back to the
+    #   browser.
+    #
+    method _RemoveSpectrum {} {
 
+	# The sort below allows us to remove spectra from
+	# the list box without invalidating other ids.
+	
+	set ids [$win.spectra curselection]
+	set ids [lsort -decreasing -integer $ids]
+
+	foreach id $ids {
+	    $win.spectra delete $id
+	}
+    }
 }
 
 # selectGateApplyToMultiple

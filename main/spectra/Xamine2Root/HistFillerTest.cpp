@@ -45,6 +45,7 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/wait.h>
+#include <string.h>
 
 using namespace std;
 
@@ -111,7 +112,7 @@ class HistFillerTest : public CppUnit::TestFixture
         key_t key = 0;
 
         Xamine_GetMemoryName(name);
-        memcpy(reinterpret_cast<char*>(&key), name, sizeof(name) );
+        memcpy(reinterpret_cast<char*>(&key), name, strlen(name) );
         int id = shmget(key, 1024*1024, 0);
 
         // detach - reverse the effects of Xamine_CreateSharedMemory

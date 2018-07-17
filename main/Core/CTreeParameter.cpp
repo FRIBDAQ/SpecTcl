@@ -378,7 +378,7 @@ CTreeParameter::setEvent(CEvent& rEvent)
  *         - m_pEvent NULL - the class is not bound to a 'current event'.
  */
 bool 
-CTreeParameter::isBound()
+CTreeParameter::isBound() const
 {
 	if(!m_pParameter) {
 	   return false;
@@ -784,7 +784,14 @@ double
 CTreeParameter::getValue()
 {
   ThrowIfNoEvent(gvaluestring);
-  return (*m_pEvent)[getId()];
+  try {
+    return (*m_pEvent)[getId()];
+  } catch (std::string& msg) {
+    std::string finalmsg = getName();
+    finalmsg += " (tree parameter) : ";
+    finalmsg += msg;
+    throw finalmsg;
+  } 
 }
 
 

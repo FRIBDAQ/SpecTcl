@@ -403,10 +403,10 @@ void Xamine_DrawObjects(Xamine_RefreshContext *ctx, win_attributed *attributes)
     for(int i = 0; i < nobjects; i++) {
       grobj_type type = objects[i]->type();
       if( (type >= max1dtypes) || (onedspec != typeisoned[type])  ) {
-	Xamine_DeleteGrobj(specid, objects[i]->getid());
+        Xamine_DeleteGrobj(specid, objects[i]->getid());
       }
       else {
-	objects[i]->draw(wid, attributes, True);
+        objects[i]->draw(wid, attributes, True);
       }
     }
     delete []objects;		/* Free the object list. */

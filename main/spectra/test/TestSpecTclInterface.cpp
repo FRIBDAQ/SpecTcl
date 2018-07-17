@@ -27,12 +27,12 @@ void TestSpecTclInterface::deleteGate(const GGate& slice){}
 void TestSpecTclInterface::deleteGate(const QString& name){}
 
 void TestSpecTclInterface::enableGatePolling(bool enable){}
-bool TestSpecTclInterface::gatePollingEnabled() const{}
+  bool TestSpecTclInterface::gatePollingEnabled() const{ return true;}
 
 MasterGateList* TestSpecTclInterface::getGateList(){ return m_pGateList;}
 
 void TestSpecTclInterface::enableHistogramInfoPolling(bool enable){}
-bool TestSpecTclInterface::histogramInfoPollingEnabled() const{}
+  bool TestSpecTclInterface::histogramInfoPollingEnabled() const{ return true; }
 
 HistogramList* TestSpecTclInterface::getHistogramList(){ return m_pHistList; }
 

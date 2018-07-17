@@ -2,27 +2,30 @@
 noinst_PROGRAMS = unittests
 
 unittests_SOURCES = GGateTest.cpp \
-										GSliceTest.cpp \
-										GateDeleteRequestTest.cpp \
-										GateEditRequestTest.cpp \
-										GateListTest.cpp \
-										HistogramBundleTest.cpp \
-										HistogramListTest.cpp \
-  									QTLineTest.cpp \
-										MainWindowTest.cpp \
-										CanvasOpsTest.cpp \
-										ShMemKeyRequestHandlerTest.cpp \
-										SpecTclInterfaceFactoryTest.cpp \
-										CmdLineOptionsTest.cpp \
-										RootFileWriterTest.cpp \
-										TestSpecTclInterface.cpp \
-										TestSpecTclInterface.h \
-										PrintingSystemTests.cpp \
-										WinFileWriterTest.cpp \
-										TestRunner.cpp \
-										SubscribableH1Test.cpp \
-                                                                                MainTest.cpp \
-										TestUtils.cpp
+		TestSpecTclInterface.h \
+		TestSpecTclInterface.cpp \
+                MainTest.cpp \
+		TestRunner.cpp \
+		RootFileWriterTest.cpp 
+		GSliceTest.cpp \
+		GateDeleteRequestTest.cpp \
+		GateEditRequestTest.cpp \
+		GateListTest.cpp \
+		HistogramBundleTest.cpp \
+		HistogramListTest.cpp \
+		QTLineTest.cpp \
+		MainWindowTest.cpp \
+		CanvasOpsTest.cpp \
+		ShMemKeyRequestHandlerTest.cpp \
+		SpecTclInterfaceFactoryTest.cpp \
+		CmdLineOptionsTest.cpp \
+		PrintingSystemTests.cpp \
+		WinFileWriterTest.cpp \
+		SubscribableH1Test.cpp \
+		TestUtils.cpp
+
+
+
 
 
 noinst_HEADERS = TestUtils.h

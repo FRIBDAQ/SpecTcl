@@ -373,6 +373,16 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CGatedEventFilter* pFilter = 
     dynamic_cast<CGatedEventFilter*>(Api.RemoveEventSink(SinkName(pFilterName)));
   pFilterDictionary->Remove(pFilterName);
+  
+  // If the filter is enabled, disable it so that it flushes
+  // etc.
+  if (!pFilter) {
+    rResult = "Name is not a filter";
+    return TCL_ERROR;
+  }
+  if (pFilter->CheckEnabled()) {
+    pFilter->Disable();
+  }
   delete pFilter;
 
   return TCL_OK;

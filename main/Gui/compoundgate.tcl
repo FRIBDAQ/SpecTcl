@@ -139,7 +139,7 @@ snit::widget compoundgate {
                     # Prune back the oldest..
 
                     set loser [$win.dependencies get 0]
-                    $win.browser addGate $loser
+                   # $win.browser addGate $loser
                     $win.dependencies delete 0
                 }
             }
@@ -161,7 +161,7 @@ snit::widget compoundgate {
         foreach id $selection {
             set gatename [$win.dependencies get $id]
             $win.dependencies delete $id
-            $win.browser addGate $gatename
+           # $win.browser addGate $gatename
         }
     }
     # gateFilter descr

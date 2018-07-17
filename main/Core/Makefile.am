@@ -399,15 +399,15 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 scalertests_CXXFLAGS = $(commonCXXFLAGS)
 scalertests_LDADD    = $(commonTestLdFlags)
 scalertests_SOURCES  = TestRunner.cpp \
-											 scalercallbacktests.cpp 	\
-											 controlcallbacktests.cpp
+			 scalercallbacktests.cpp 	\
+			 controlcallbacktests.cpp
 
 
 docbuftests_CXXFLAGS = $(commonCXXFLAGS)
 docbuftests_LDADD    = $(commonTestLdFlags)
 docbuftests_SOURCES  = TestRunner.cpp \
-											docexceptiontests.cpp \
-											callbacktests.cpp
+			docexceptiontests.cpp \
+			callbacktests.cpp
 
 spectrumPkgTests_CXXFLAGS = $(commonCXXFLAGS)
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
@@ -416,19 +416,19 @@ spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp
 displayInterfaceTests_CXXFLAGS = $(commonCXXFLAGS)
 displayInterfaceTests_LDADD = $(commonTestLdFlags)
 displayInterfaceTests_SOURCES = TestRunner.cpp \
-								DisplayCollectionTests.cpp \
-								DisplayFactoryTests.cpp \
-								DisplayInterfaceTests.cpp
+				DisplayCollectionTests.cpp \
+				DisplayFactoryTests.cpp \
+				DisplayInterfaceTests.cpp
 
 sorterTests_CXXFLAGS = $(commonCXXFLAGS)
 sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
-					Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
-					TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
-					TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
-					CParameterMappingTest.cpp CAxisTests.cpp \
-					CParameterMappingTest.h CAxisTests.h \
-					m2projtest.cpp factoryTests.cpp
+				Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
+				TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
+				TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
+				CParameterMappingTest.cpp CAxisTests.cpp \
+				CParameterMappingTest.h CAxisTests.h \
+				m2projtest.cpp factoryTests.cpp
 
 treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
@@ -448,26 +448,26 @@ fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 xamineTests_CXXFLAGS = $(commonCXXFLAGS)
 xamineTests_LDADD = $(commonTestLdFlags)
 xamineTests_SOURCES = TestRunner.cpp TestXamineShMem.cpp TestXamineShMem.h \
-												XamineShMemDisplayImplTests.cpp
+					XamineShMemDisplayImplTests.cpp
 
 spectraDisplayTests_CXXFLAGS = $(commonCXXFLAGS)
 spectraDisplayTests_LDADD = $(commonTestLdFlags)
 spectraDisplayTests_SOURCES = TestRunner.cpp \
-								TestXamineShMem.cpp TestXamineShMem.h \
-								SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
+			TestXamineShMem.cpp TestXamineShMem.h \
+			SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
 
 spectclCmdTests_CXXFLAGS = $(commonCXXFLAGS)
 spectclCmdTests_LDADD    = $(commonTestLdFlags)
 spectclCmdTests_SOURCES  = TestRunner.cpp \
-							SharedMemoryKeyCommandTest.cpp \
-							SharedMemorySizeCommandTest.cpp
+			SharedMemoryKeyCommandTest.cpp \
+			SharedMemorySizeCommandTest.cpp
 
 evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
-evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp
+evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp failEventProcessorTests.cpp
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
-		sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
+	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests
 
 

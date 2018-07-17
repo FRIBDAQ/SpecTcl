@@ -765,9 +765,7 @@ Xamine_Draw1dCut(Display *d, Drawable win, GC ctx,
       xlow  = pt2->getx();
     }
   }
-  else {
-    return;	// Can't draw a cut with < 2 points
-  }
+  
   // start by assuming pt1 is left and pt2 is right, then correct
   // as needed:
 
@@ -806,7 +804,7 @@ Xamine_Draw1dCut(Display *d, Drawable win, GC ctx,
     if(flipped) {		/* Flipped -> horizontal line */
       cvt->SpecToScreen(&xpix, &ypix, pt->getx());
       XDrawLine(d,win, ctx,	/* This is a horizontal line from the axis */
-		xpix, ypix,	/* out to the right side of the picture. */
+		xpix, ypix,	/* out to the right side of the pictuFe. */
 		(int)nx, ypix);
     }
     else {			/* Unflipped -> vertical line */
