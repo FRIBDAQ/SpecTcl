@@ -40,7 +40,7 @@ static const uint32_t HDR_IDSHFT(16);
 // Fields in the data words:
 
 static const uint32_t DATA_VALUEMASK(0xffff);
-static const uint32_t DATA_CHANNELMASK(0x1f0000);
+static const uint32_t DATA_CHANNELMASK(0x3f0000);
 static const uint32_t DATA_CHANNELSHFT(16);
 
 // Fields in the trailer.
