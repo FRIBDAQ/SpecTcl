@@ -139,13 +139,13 @@ XamineGrobjGC::XamineGrobjGC() : XamineTextGC() {}
 XamineGrobjGC::XamineGrobjGC(XamineGrobjGC &src) : XamineTextGC(src) {}
 XamineGrobjGC::XamineGrobjGC(XMWidget &wid) : XamineTextGC(wid) 
 {
-  XSetFunction(disp, gc, GXxor);
-  long fg, bg;
-  wid.GetAttribute(XmNforeground , &fg);
-  wid.GetAttribute(XmNbackground, &bg);
-
-  SetForeground(fg ^ bg);
-  SetBackground(fg ^ bg);
+  XGCValues vals;
+  wid.GetAttribute(XmNbackground, &vals.background);
+  wid.GetAttribute(XmNforeground, &vals.foreground);
+  vals.line_style = LineSolid;
+  vals.function   = GXxor;
+  SetValues(&vals, GCFunction | GCForeground | GCBackground |GCLineStyle);
+  
 
 }
 XamineGrobjGC::XamineGrobjGC(Display *disp, Drawable d, GC gc) : XamineTextGC(disp, d , gc) {}
@@ -155,9 +155,10 @@ XamineGrobjGC::XamineGrobjGC(Display *disp, Drawable d, GC gc) : XamineTextGC(di
 //
 void XamineGrobjGC::SetProvisional()
 {
+  return;
   char dash_list[2] = {2, 2};
   SetDashes(0, dash_list, 2);
-  SetLineAttributes( 0, LineOnOffDash, CapButt, JoinBevel);
+  SetLineAttributes( 0, LineOnOffDash, CapButt, JoinMiter);
 }
 //
 //   SetSumRegion
@@ -165,6 +166,7 @@ void XamineGrobjGC::SetProvisional()
 //      region.
 void XamineGrobjGC::SetSumRegion()
 {
+  return;
   char dashes[] = {2, 2};
   SetDashes(0, dashes, 2);
   SetLineAttributes(1, LineOnOffDash, CapButt, JoinMiter);
@@ -177,7 +179,8 @@ void XamineGrobjGC::SetSumRegion()
 //
 void XamineGrobjGC::SetPermanent()
 {
-  SetLineAttributes(1, LineSolid, CapButt, JoinBevel);
+  return;
+  SetLineAttributes(1, LineSolid, CapButt, JoinMiter);
 
 }
 //
@@ -186,6 +189,7 @@ void XamineGrobjGC::SetPermanent()
 //
 void XamineGrobjGC::Set2DColors(XMWidget &wid)
 {
+
   Window            w = wid.getWindow();
   XVisualInfo       v;
   XStandardColormap m;
@@ -194,9 +198,10 @@ void XamineGrobjGC::Set2DColors(XMWidget &wid)
   wid.GetAttribute(XmNbackground, &bg);
   Xamine_GetVisualInfo(disp, w, &v);
   Xamine_GetX11ColorMap(m, disp, w, &v);
-  fg = Xamine_ComputeDirectColor(&m, 255, 0, 0);
+  fg = Xamine_ComputeDirectColor(&m, 100, 0, 0);
   
-  SetPlaneMask(Xamine_GetColorPlaneMask());
+ // SetPlaneMask(Xamine_GetColorPlaneMask());
+  //  SetPlaneMask(AllPlanes);
   SetForeground(fg ^ bg);
 
 }
@@ -204,18 +209,14 @@ void XamineGrobjGC::Set2DColors(XMWidget &wid)
 void XamineGrobjGC::Set1DColors(XMWidget &wid)
 {
     long fg, bg;
-  
-    SetPlaneMask(Xamine_GetColorPlaneMask());
-    //wid.GetAttribute(XmNforeground, &fg);
-    
-    // Get a nice visible red color for provisional drawing:
+
     
     Window            w= wid.getWindow();
     XVisualInfo       v;
     XStandardColormap map;
     Xamine_GetVisualInfo(disp, w, &v);
     Xamine_GetX11ColorMap(map, disp, w, &v);
-    fg = Xamine_ComputeDirectColor(&map, 255, 0, 0);
+    fg = Xamine_ComputeDirectColor(&map, 100, 0, 0);
     
     wid.GetAttribute(XmNbackground, &bg);
     SetForeground(fg ^ bg);

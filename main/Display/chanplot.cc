@@ -331,16 +331,16 @@ struct color {
 };
 
 struct color superpositionColors[MAX_SUPERPOSITIONS] = {
-    {255, 0, 0},
-    {0, 255, 0},
-    {0, 0, 255},
+    {100, 0, 0},
+    {0, 100, 0},
+    {0, 0, 100},
     
-    {255, 255, 0},
-    {0, 255, 255},
-    {255, 0, 255},
+    {100, 100, 0},
+    {0, 100, 100},
+    {100, 0, 100},
     
-    {128, 128, 0},
-    {128, 0, 128}
+    {50, 50, 0},
+    {50, 0, 50}
 };
 
 char dashlist[MAX_SUPERPOSITIONS][MAX_SUPERLEN] = { /* Dash lists.  */

@@ -430,6 +430,7 @@ void grobj_sum1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   ** as does function Set if final otherwise Xor
   */
   XamineGrobjGC *xgc = Xamine_GetGrobjGC(*pane);
+
   SetClipRegion(xgc, pane, at);
   xgc->Set1DColors(*pane);
   GC gc;
