@@ -64,14 +64,14 @@ VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 
 VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
-		    @top_builddir@/Display/libXamine.la 
-
-VMUSBSpecTcl_LDFLAGS = 	\
+		    @top_builddir@/Display/libXamine.la \
 	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ @ROOT_LDFLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
-	 -g -Wl,"-rpath=@libdir@"
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+
+
+VMUSBSpecTcl_LDFLAGS = 	 -g -Wl,"-rpath=@libdir@"
 
 
 install-exec-local:

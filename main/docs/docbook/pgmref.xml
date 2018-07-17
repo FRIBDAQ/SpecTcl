@@ -13832,6 +13832,588 @@ TypeCheckInfo       s_checker;       // Element type checker.
         </partintro>
         <refentry>
             <refmeta>
+                <refentrytitle>CEventProcessor</refentrytitle>
+                <manvolnum>3SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>CEventProcessor</refname>
+                <refpurpose>Abstract base class convering events to parameters</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+            <synopsis>
+#include &lt;EventProcessor.h&gt;
+
+class CEventProcessor {
+ public:
+  virtual Bool_t operator()(const Address_t pEvent,
+                            CEvent&amp; rEvent,
+                            CAnalyzer&amp; rAnalyzer,
+                            CBufferDecoder&amp; rDecoder); 
+  virtual Bool_t OnAttach(CAnalyzer&amp; rAnalyzer);
+  virtual Bool_t OnBegin(CAnalyzer&amp; rAnalyzer,
+                         CBufferDecoder&amp; rDecoder);
+  virtual Bool_t OnEnd(CAnalyzer&amp; rAnalyzer,
+                       CBufferDecoder&amp; rBuffer); 
+  virtual Bool_t OnPause(CAnalyzer&amp; rAnalyzer,
+                         CBufferDecoder&amp; rDecoder); 
+  virtual Bool_t OnResume(CAnalyzer&amp; rAnalyzer,
+                          CBufferDecoder&amp; rDecoder);
+  virtual Bool_t OnOther(UInt_t nType,
+                         CAnalyzer&amp; rAnalyzer,
+                         CBufferDecoder&amp; rDecoder);
+
+  virtual Bool_t OnEventSourceOpen(std::string name);
+  virtual Bool_t OnEventSourceEOF();
+  virtual Bool_t OnInitialize();
+};
+
+            </synopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    <classname>CEventProcessor</classname> Provides the abstract
+                    base class for elements of the event processing pipeline.
+                    Tailoring SpecTcl to analyze a particular dataset involves
+                    writing a set of classes derived from
+                    <classname>CEventProcessor</classname> and registering instances
+                    of those classes in
+                    <classname>MySpecTclApp::</classname><methodname>CreateAnalysisPipeline</methodname>.
+                </para>
+                <para>
+                    Each element of the pipeline normally contributes elements
+                    to the event array either directly or indirectly through
+                    tree parameters.  These elements, or parameter values, either
+                    come from decoding segments of the raw event, or by performing
+                    computations on existing parameter values.
+                </para>
+                <para>
+                    Event processors that decode sections of the raw event are
+                    often referred to as <firstterm>unpackers</firstterm>.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>METHODS</title>
+                <para>
+                    Note that the methods of <classname>CEventProcessor</classname>
+                    are all virtual methods that have default implementations
+                    that return <literal>kfTRUE</literal>.  All methods return
+                    a <type>Bool_t</type>.  A return value of <literal>kfTRUE</literal>
+                    indicates success.  A value of <literal>kfFALSE</literal>
+                    indicates failure.  A failure return aborts the event processing
+                    pipeline. This means that no more event processors will be called
+                    and, for <methodname>operator()</methodname> no histogramming
+                    will be done on that event.
+                </para>
+                <para>
+                    A common mistake for implementors of event processors
+                    is to forget to return a value.  This can result in randomly
+                    and silently dropping events as return value will be
+                    not well defined.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>operator()</methodname>
+                                <methodparam>
+                                    <modifier>const</modifier><type> Address_t </type>
+                                    <parameter>pEvent</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CEvent&amp; </type><parameter>rEvent</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This method is called for each physics event.
+                                <parameter>pEvent</parameter> points to the raw
+                                event data for this event.  <parameter>rEvent</parameter> 
+                                is the array like object that stores the parameter values
+                                created by the event processing pipeline for this event.
+                            </para>
+                            <para>
+                                The <parameter>rAnalyzer</parameter> and
+                                <parameter>rDecoder</parameter> parameters are
+                                not often used but reference the analyzer and
+                                buffer decoder objects used to manage event processing
+                                for this event data format.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnAttach</methodname>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when the event processor is registered
+                                with the event processing pipeline.
+                                <parameter>rAnalyzer</parameter> references
+                                the analyzer that controls the flow of data
+                                analysis through SpecTcl.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual</modifier>
+                                <type> Bool_t </type>
+                                <methodname>OnBegin</methodname>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when a begin run item is detected.
+                                Note that not all data acquisition systems
+                                have begin run items, however all NSCL supported
+                                data acquisition systems do.
+                            </para>
+                            <para>
+                                <parameter>rAnalyzer</parameter> and
+                                <parameter>rDecoder</parameter> refer to the
+                                analyzer and decoder respectively.  The decoder
+                                provides services (the run number and title
+                                which again may not be available in non NSCL supported
+                                data acquisition systems), that may be useful to
+                                event processors that choose to implement this
+                                method.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnEnd</methodname>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rBuffer</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when an end fo run item is encountered.
+                                See <methodname>OnBegin</methodname> for
+                                more.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnPause</methodname>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Like <methodname>OnBegin</methodname> but invoked
+                                when a  run temporarily pauses.  Note that not all
+                                NSCL Supported data acquisition systems support
+                                pausing an active run.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnResume</methodname>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when a paused run resumes.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnOther</methodname>
+                                <methodparam>
+                                    <type>UInt_t </type><parameter>nType</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CAnalyzer&amp; </type><parameter>rAnalyzer</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CBufferDecoder&amp; </type><parameter>rDecoder</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when an item type that does not neatly fit
+                                into the categories above is encountered.
+                                <parameter>nType</parameter> is an item type
+                                drawn, where possible, from
+                                <filename>buftype.h</filename>, and where not,
+                                from the underlying DAQ system that produced the
+                                data.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnEventSourceOpen</methodname>
+                                <methodparam>
+                                    <type>std::string </type><parameter>name</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when a new event source is opened.
+                                <parameter>name</parameter> is a data source type
+                                dependent parameter that identifies what the
+                                data source is connected to.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>  virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnEventSourceEOF</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Called when the event source hits the end of data.
+                                For file data sources this means that the  data
+                                in the file has been completely processed.
+                                For Pipe data sources, this means that the
+                                producer end of the pipe has closed the pipe.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier>virtual </modifier>
+                                <type>Bool_t </type>
+                                <methodname>OnInitialize</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                This is called when SpecTcl is initialized.
+                                For event processors registered in
+                                <classname>MySpecTclApp</classname>::<methodname>CreateAnalysisPipeline</methodname>,
+                                this is sometime after registration when SpecTcl
+                                has been completely intialized.  For those
+                                registered dynamically, later,
+                                <methodname>OnInitialize</methodname> is called
+                                immediately after
+                                <methodname>OnAttach</methodname>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>CEventBuilderEventProcessor</refentrytitle>
+                <manvolnum>3SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>CEventBuilderEventProcessor</refname>
+                <refpurpose>Event processor for event built data.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <synopsis>
+class CEventBuilderEventProcessor : public CEventProcessor
+{
+public:
+    CEventBuilderEventProcessor(double clockMHz, std::string baseName);
+    void addEventProcessor(unsigned sourceId, CEventProcessor&amp; processor);
+};
+
+                </synopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Increasingly, experiments are composed of several
+                    detector systems.  Each detector system has its own
+                    independent data acquisition system.  These systems
+                    run synchronized clocks that provide a timestamp for
+                    each event fragment they produce.
+                    An event builder is then used to combine
+                    event fragments into events that contains fragments that
+                    are coincident in time.
+                </para>
+                <para>
+                    The <classname>CEventBuilderEventProcessor</classname>
+                    is provided to simplify the unpacking of these events into
+                    a base set of raw parameters.  It allows the registration
+                    of event processors to handle each data source that can
+                    produce event fragments.  For each event, control is dispatched
+                    to the appropriate set of event processors.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>METHODS</title>
+                <para>
+                    Naturally, the event processor methods are implemented by
+                    this event processor.  For non physics events, each registered
+                    event processor is called.  For <methodname>operator()</methodname>,
+                    the event processor iterates over the fragments in each event
+                    extracting the source id and body of the fragment.
+                    The appropriate event processors are then dispatched to with
+                    their <parameter>pEvent</parameter> pointing at that fragment's
+                    body.
+                </para>
+                <para>
+                    Thus, if you have an event processor which can unpack
+                    data from a system in standalone  mode, you can register
+                    that event processor to use it with event built data that
+                    may contain fragments from that system.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>
+                            <constructorsynopsis>
+                                <methodname>CEventBuilderEventProcessor</methodname>
+                                <methodparam>
+                                    <type>double </type><parameter>clockMHz</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>std::string </type><parameter>baseName</parameter>
+                                </methodparam>
+                            </constructorsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                The constructor is parameterized.
+                                <parameter>clockMHz</parameter> must be the
+                                frequency of the timestamp clock in MHz.
+                                This is used to produce a parameter that is
+                                the run time in seconds.
+                            </para>
+                            <para>
+                                The event produces several parameters of its own.
+                                The <parameter>baseName</parameter> parameter
+                                allows some control over the names of those parameters.
+                                Specifically, each parameter name will be preceded by
+                                the <parameter>baseName</parameter> and a
+                                <literal>.</literal>.
+                            </para>
+                            <para>
+                                Thus a <parameter>baseName</parameter> parameter
+                                of <literal>diagnostics</literal> will
+                                produce a parameter that is the run time in
+                                seconds at which an event occured named
+                                <literal>diagnostis.run_time</literal>.
+                            </para>
+                            <para>
+                                See <literal>PARAMETERS</literal> below
+                                for information about the set of parameters
+                                this event processor produces.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>
+                            <methodsynopsis>
+                                <modifier></modifier>
+                                <type>void </type>
+                                <methodname>addEventProcessor</methodname>
+                                <methodparam>
+                                    <type>unsigned </type><parameter>sourceId</parameter>
+                                </methodparam>
+                                <methodparam>
+                                    <type>CEventProcessor&amp; </type><parameter>processor</parameter>
+                                </methodparam>
+                                <modifier></modifier>
+                            </methodsynopsis>
+                        </term>
+                        <listitem>
+                            <para>
+                                Adds an event prrocessor; <parameter>processor</parameter>
+                                to process events from the specifice source;
+                                <parameter>sourceId</parameter>.  Note that
+                                each source can only have one event processor,
+                                the last one registered for the source.
+                            </para>
+                            <para>
+                                There is, however nothing to stop you from having
+                                additional event processors registered in the
+                                event processing pipeline after (or before for
+                                that matter) the instance of
+                                <classname>CEventBuilderEventProcessor</classname>./
+                            </para>
+                            <para>
+                                There's also nothing to stop you from building event
+                                processors that, themselves manage a pipeline of processors
+                                if you need to have several event processors associated
+                                with analyzing data from a specific event source.
+                                Too much of this, however should make you  question the
+                                organization of and or your processing of it.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            <refsect1>
+                <title>PARAMETERS</title>
+                <para>
+                    This event processor creates severa parameters that are
+                    useful in creating diagnostic spectra that are  typical
+                    of a system using event built data.  In this section,
+                    we will give the part of the parameter name that follows
+                    the <parameter>basName</parameter> and following
+                    <literal>.</literal> rather than doing something clumsy
+                    to attempt to capture the entire parameter name pattern.
+                </para>
+                <para>
+                    The parameters we produce are divided into a set of
+                    fixed parameters and a set of parameters that depend on the
+                    event processors registered with us.
+                </para>
+                <para>
+                    The fixed set of parameters are:
+                    <variablelist>
+                        <varlistentry>
+                            <term><literal>sources</literal></term>
+                            <listitem>
+                                <para>
+                                    The number of sources present in the event.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>unrecognized_source</literal></term>
+                            <listitem>
+                                <para>
+                                    The number of fragments that had source ids
+                                    for which there was no registered event
+                                    processor.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>event_no</literal></term>
+                            <listitem>
+                                <para>
+                                    The event number numbered from zero.
+                                    Note that with Xamine, channel 0
+                                    of a histogram represents
+                                    the underflow counters for the Root histogram.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><literal>run_time</literal></term>
+                            <listitem>
+                                <para>
+                                    The number of seconds into the run corresponding
+                                    to the timestamp of the first fragment in the
+                                    event.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </para>
+                <para>
+                    The following parameters depend on the set of sources
+                    registered:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>sid<literal>_present</literal></term>
+                        <listitem>
+                            <para>
+                                This is 1 if  a fragment from
+                                source sid is present.  It is undefined if not.
+                                For example, for source id 2, a parameter named
+                                <literal>2_present</literal> will be created.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>tdiffs</literal></term>
+                        <listitem>
+                            <para>
+                                The subtree <literal>tdiffs</literal> will be
+                                created.   Paramters in that subtree will
+                                contain time differences between all ordered pairs
+                                of fragment source ids.  For example, if I have source Ids
+                                1, 2, and 3 registered in that order, the parameters
+                                
+                                <literal>tdiffs.1-2</literal>,
+                                <literal>tdiffs.2-3</literal> and
+                                <literal>tdiffs.1-3</literal> will be created.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+        </refentry>         
+        <refentry>
+            <refmeta>
                 <refentrytitle>CTclGrammerApp</refentrytitle>
                 <manvolnum>3SpecTcl</manvolnum>
             </refmeta>
