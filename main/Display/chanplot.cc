@@ -326,6 +326,22 @@ int dashlen[MAX_SUPERPOSITIONS] = { 2, /* Used cells in dashlists. */
 				    6,
 				    4
 				    };
+struct color {
+    int r,g,b;
+};
+
+struct color superpositionColors[MAX_SUPERPOSITIONS] = {
+    {100, 0, 0},
+    {0, 100, 0},
+    {0, 0, 100},
+    
+    {100, 100, 0},
+    {0, 100, 100},
+    {100, 0, 100},
+    
+    {50, 50, 0},
+    {50, 0, 50}
+};
 
 char dashlist[MAX_SUPERPOSITIONS][MAX_SUPERLEN] = { /* Dash lists.  */
   { 1,1, 0,0,0,0,0,0,0,0 },				/* 0 */
@@ -337,7 +353,30 @@ char dashlist[MAX_SUPERPOSITIONS][MAX_SUPERLEN] = { /* Dash lists.  */
   { 1,1,2,2,3,3, 0,0,0,0 },				/* 6 */
   { 3,2,2,3, 0,0,0,0,0,0 }				/* 7 */
 };
-
+/**
+ * getSuperpositionColor
+ *    Get the pixel color value for a superposition.
+ *
+ *  @param d  - display.
+ *  @param wid - widget object (XMWidget*)
+ *  @param n   - Superposition number - pre checked to be in range.
+ *  @return unsigned long  - Pixel color value.
+ */
+static unsigned long
+getSuperpositionColor(Display* d, XMWidget* wid, int n)
+{
+    // Get what we need to invoke Xamine_ComputeDirectColor which gives us what
+    // we need:
+    XVisualInfo       info;
+    XStandardColormap map;
+    Window            win = wid->getWindow();
+
+    Xamine_GetVisualInfo(d, win, &info);
+    Xamine_GetX11ColorMap(map, d, win, &info);
+    
+    struct color c = superpositionColors[n];
+    return Xamine_ComputeDirectColor(&map, c.r, c.g, c.b);
+}
 /*
 ** Functional Description:
 **   Xamine_getsubwindow:
@@ -461,20 +500,14 @@ GC Xamine_MakeDrawingGc(Display *disp, XMWidget *win, int selector)
     gc->SetValues(&modifiers, GCLineStyle | GCForeground | GCBackground);
   }
   else {			/* Superposition graphical contexts.  */
-    /* If color, then modify the foreground color appropriately */
+    
 
-    if(Xamine_ColorDisplay()) {
-      modifiers.foreground = 
-	Xamine_PctToPixel(100*(selector+1)/MAX_SUPERPOSITIONS);
-      modifiers.background = Xamine_PctToPixel(0);
+    modifiers.foreground = getSuperpositionColor(disp, win,selector);
 
-    }
-    /* Now make the base graphics context and then modify it with the
-    ** appropriate dashes:
-    */
-    modifiers.line_style = LineDoubleDash;
-    gc->SetValues(&modifiers, GCLineStyle | GCForeground | GCBackground);
-    gc->SetDashes(0, dashlist[selector], dashlen[selector]);
+    //    modifiers.line_style = LineDoubleDash;
+    // gc->SetValues(&modifiers, GCLineStyle | GCForeground | GCBackground);
+    gc->SetValues(&modifiers, GCForeground | GCBackground);
+    /// gc->SetDashes(0, dashlist[selector], dashlen[selector]);
   }
 
   return gc->gc;
