@@ -149,6 +149,9 @@ XMWidget::getname() const
 { 
    return name; 
 }
+Window XMWidget::getWindow() {
+  return XtWindow(id);
+}
 
 void
 XMWidget::SetAttribute(String attribute, XtArgVal value) 
