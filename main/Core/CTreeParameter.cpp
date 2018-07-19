@@ -66,7 +66,8 @@ CTreeParameter::CTreeParameter() :
   m_dHighLimit(100.0),          // have to choose something.
   m_nChannels(100),
   m_fDefinitionChanged(false),
-  m_pParameter(0)
+  m_pParameter(0),
+  m_initialized(false)
 {
 
 }
@@ -81,9 +82,10 @@ CTreeParameter::CTreeParameter() :
  * 
  */
 CTreeParameter::CTreeParameter(string name) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
   Initialize(name);
+  
 
 }
 
@@ -97,7 +99,7 @@ CTreeParameter::CTreeParameter(string name) :
  * 
  */
 CTreeParameter::CTreeParameter(string name, string units) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
   Initialize(name, units);
 }
@@ -123,7 +125,7 @@ CTreeParameter::CTreeParameter(string name, string units) :
 CTreeParameter::CTreeParameter(string name, 
 			       double lowLimit, double highLimit, 
 			       string units) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
   Initialize(name, 100, lowLimit, highLimit, units);
 }
@@ -147,7 +149,7 @@ CTreeParameter::CTreeParameter(string name,
 CTreeParameter::CTreeParameter(string name, UInt_t channels, 
 			       double lowLimit, double highLimit, 
 			       string units) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
 
   Initialize(name, channels, lowLimit, highLimit, units);
@@ -166,7 +168,7 @@ CTreeParameter::CTreeParameter(string name, UInt_t channels,
  * 
  */
 CTreeParameter::CTreeParameter(string name, UInt_t resolution) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
   Initialize(name, resolution);
 }
@@ -196,7 +198,7 @@ CTreeParameter::CTreeParameter(string name, UInt_t resolution) :
 CTreeParameter::CTreeParameter(string name, UInt_t resolution, 
 			       double lowLimit, double widthOrHigh, 
 			       string units, bool widthOrHighGiven) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
 
   Initialize(name, resolution, lowLimit, widthOrHigh, units, widthOrHighGiven);
@@ -216,7 +218,7 @@ CTreeParameter::CTreeParameter(string name, UInt_t resolution,
  * 
  */
 CTreeParameter::CTreeParameter(string name, const CTreeParameter& Template) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
 
   Initialize(name, Template.m_nChannels, Template.m_dLowLimit, 
@@ -234,7 +236,7 @@ CTreeParameter::CTreeParameter(string name, const CTreeParameter& Template) :
  * 
  */
 CTreeParameter::CTreeParameter(const CTreeParameter& rhs) :
-  m_pParameter(0)
+  m_pParameter(0), m_initialized(false)
 {
   Initialize(rhs.m_sName, rhs.m_nChannels, rhs.m_dLowLimit, rhs.m_dHighLimit,
 	     rhs.m_sUnits);
@@ -407,7 +409,7 @@ CTreeParameter::isBound() const
 void 
 CTreeParameter::Initialize(string name, UInt_t resolution)
 {
-
+  throwIfDoubleInit(name.c_str());
   Initialize(name);
   // This registers me.
   // Override the defaults with our defaults where different.
@@ -417,7 +419,7 @@ CTreeParameter::Initialize(string name, UInt_t resolution)
   m_dHighLimit         = (float)(m_nChannels); // This is an exclusive limit
   m_fDefinitionChanged = false;
   
-  
+  m_initialized = true;
 
 }
 
@@ -451,6 +453,7 @@ CTreeParameter::Initialize(string name, UInt_t resolution,
 			   double lowLimit, double highOrWidth, 
 			   string units, bool highOrWidthGiven)
 {
+  throwIfDoubleInit(name.c_str());  
   // Compute the number of channels, and the high limit and then
   // delegate to yet another initialize:
     
@@ -464,6 +467,8 @@ CTreeParameter::Initialize(string name, UInt_t resolution,
     highLimit = lowLimit + (nChannels) * highOrWidth;
   }
   Initialize(name, nChannels, lowLimit, highLimit, units);
+  
+  m_initialized = true;
 }
 
 
@@ -479,6 +484,7 @@ void
 CTreeParameter::Initialize(string name)
 {
 
+  throwIfDoubleInit(name.c_str());
   if(m_pParameter) {
      throw CTreeException(CTreeException::Bound, 
 			  "CTreeParameter::Initialize(string)");
@@ -491,6 +497,7 @@ CTreeParameter::Initialize(string name)
   m_fDefinitionChanged = false;
   Register();
 
+  m_initialized = true;
 }
 
 
@@ -508,8 +515,11 @@ CTreeParameter::Initialize(string name)
 void 
 CTreeParameter::Initialize(string name, string units)
 {
+  throwIfDoubleInit(name.c_str());  
   Initialize(name);             // This registers us.
   m_sUnits = units;		// Override the default units spec.
+  
+  m_initialized = true;
 }
 
 
@@ -537,7 +547,7 @@ void
 CTreeParameter::Initialize(string name, UInt_t channels, 
 			   double lowLimit, double highLimit, string units)
 {
-
+  throwIfDoubleInit(name.c_str());
   Initialize(name, units);
   
   // Re-use the code we can and override the defaults:
@@ -546,6 +556,7 @@ CTreeParameter::Initialize(string name, UInt_t channels,
   m_dHighLimit = highLimit;
   m_nChannels  = channels;
 
+  m_initialized = true;
 }
 
 /**
@@ -604,7 +615,7 @@ CTreeParameter::operator=(CTreeParameter& rhs)
 
     if(StrictTypeChecking) {
       if (rhs.getUnit() != getUnit()) {
-	throw CTreeException(CTreeException::UnitsMismatch,
+        throw CTreeException(CTreeException::UnitsMismatch,
 			     "CTreeParameter::operator=(const CTreeParameter&)");
       }
     }
@@ -1176,4 +1187,24 @@ CTreeParameter::dumpmap()
     cerr << "-----------\n";
     p++;
   }
+}
+/**
+ * throwIfDoubleInit
+ *    Part of daqdev/SpecTcl#229  This should be called as the first statement
+ *    in all Initialize methods.  If we've already been initizlized but the
+ *    name of the parameter is being changed...well that's an error.
+ *
+ *
+ * @param newName - new name being used to initialze the parameter.
+ */
+void
+CTreeParameter::throwIfDoubleInit(const char* newName)
+{
+    if (m_initialized && (m_sName != newName)) {
+        std::string msg = "Initialization where current name is: ";
+        msg += m_sName;
+        msg += " New name would be: ";
+        msg += newName;
+        throw CTreeException(CTreeException::DoubleInit, msg);
+    }
 }

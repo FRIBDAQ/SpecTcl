@@ -122,6 +122,8 @@ private:
    */
   static CEvent *m_pEvent;
   
+  bool m_initialized;
+  
 public:
   /**
    * Version of the software.
@@ -238,6 +240,7 @@ private:
   // form (form at program startup).
 
   static void testClearMap();
+  void throwIfDoubleInit(const char* newName);
 public:
   static void dumpmap();
 };

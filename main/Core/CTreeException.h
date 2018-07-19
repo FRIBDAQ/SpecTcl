@@ -72,6 +72,7 @@ public:
     HaveParam,
     InvalidIndex,
     UnitsMismatch,
+    DoubleInit,
     Invalid			// It's important that this be the last value.
   } TreeErrorReason;
 private:

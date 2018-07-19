@@ -178,6 +178,8 @@ CTreeException::ReasonValueToText(CTreeException::TreeErrorReason eReason) const
     return "Tree Parameter index is outside the valid range of indices.";
   case UnitsMismatch:
     return "Units mismatch in Tree Parameter assignment";
+  case DoubleInit:
+    return "Attempted second initialization with a changed parameter name";
   case Invalid:
   default:
     return "Unrecognized exception reason code";
