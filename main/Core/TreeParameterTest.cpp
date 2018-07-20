@@ -28,6 +28,7 @@
 #include "Asserts.h"
 
 #include "CTreeParameter.h"
+#include "CTreeException.h"
 #include <Event.h>
 #include <Parameter.h>
 
@@ -58,8 +59,20 @@ class TreeParamTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(Validity);	// Test the whole isvalid thing.
   CPPUNIT_TEST(ChangeManagement); // Test management of m_f
   CPPUNIT_TEST(Throws);		// Check the throwif utilities.
+  CPPUNIT_TEST(DoubleInit1); // Check double initialization throws.
+  CPPUNIT_TEST(DoubleInit2); // Check double init throws.
+  CPPUNIT_TEST(DoubleInit3);
+  CPPUNIT_TEST(DoubleInit4);
+  CPPUNIT_TEST(DoubleInit5);
+  CPPUNIT_TEST(DoubleInit6);
+  CPPUNIT_TEST(DoubleInit7);
+  CPPUNIT_TEST(DoubleInit8);
+  CPPUNIT_TEST(DoubleInit9);
+  CPPUNIT_TEST(DoubleInit10);
+  CPPUNIT_TEST(DoubleInit11);
+  CPPUNIT_TEST(DoubleInit12);
+  CPPUNIT_TEST(DoubleInit13);
   CPPUNIT_TEST_SUITE_END();
-
 
 private:
 
@@ -87,8 +100,23 @@ protected:
   void Validity();
   void ChangeManagement();
   void Throws();
+  
+  void DoubleInit1();
+  void DoubleInit2();
+  void DoubleInit3();
+  void DoubleInit4();
+  void DoubleInit5();
+  void DoubleInit6();
+  void DoubleInit7();
+  void DoubleInit8();
+  void DoubleInit9();
+  void DoubleInit10();
+  void DoubleInit11();
+  void DoubleInit12();
+  void DoubleInit13();
 private:
   static void CheckProperlyBound(CTreeParameter& pParam);
+  void CheckDoubleInit(CTreeParameter& param);
 };
 
 
@@ -582,4 +610,140 @@ TreeParamTests::Throws()
   // This is already known to work.
 
 
+}
+
+
+
+/**
+ * DoubleInit1
+ *    If construction sets a name, any post initialization that changes
+ *    the name will throw a CTreeException.
+ *      This is done with first named constructor.
+ */
+
+void TreeParamTests::CheckDoubleInit(CTreeParameter& p1)  // assume named param1
+{
+  CPPUNIT_ASSERT_THROW(
+    p1.Initialize("param2", 12), CTreeException      // Throw on name change.
+  );
+  CPPUNIT_ASSERT_NO_THROW(
+    p1.Initialize("param1", 12)                       // No name change so ok.
+  );
+  CPPUNIT_ASSERT_THROW(
+    p1.Initialize("param2", 1222, 0, 100, "junk", true),  CTreeException
+  );
+  CPPUNIT_ASSERT_THROW(
+    p1.Initialize("param2"), CTreeException
+  );
+  CPPUNIT_ASSERT_THROW(
+    p1.Initialize("param2", "fulongs"), CTreeException
+  );
+  CPPUNIT_ASSERT_THROW(
+    p1.Initialize("param2", 128, 0, 127, "furlongs"), CTreeException
+  );
+  
+}
+
+void
+TreeParamTests::DoubleInit1()
+{
+  CTreeParameter p1("param1");
+  CheckDoubleInit(p1);  
+  
+  
+}
+
+void
+TreeParamTests::DoubleInit2()
+{
+  CTreeParameter p1("param1", "furlongs");   // Second named constructor
+  CheckDoubleInit(p1);  
+
+}
+void TreeParamTests::DoubleInit3()
+{
+  CTreeParameter p1("param1", 0.0, 128.0, "furlongs");
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit4()
+{
+  CTreeParameter p1("param1", 256, 0, 255, "furlong");
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit5()
+{
+  CTreeParameter p1("param1", 12);
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit6()
+{
+  CTreeParameter p1("param1", 12, 0, 1024, "furlongs", true);
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit7()
+{
+  CTreeParameter p2("param2");
+  CTreeParameter p1("param1", p2);
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit8()
+{
+  CTreeParameter p1;           // Double init allowed.
+  CPPUNIT_ASSERT_NO_THROW(
+    p1.Initialize("param2", 12)
+  );
+
+  CTreeParameter p2;
+  CPPUNIT_ASSERT_NO_THROW(
+    p2.Initialize("param2", 1222, 0, 100, "junk", true)
+  );
+  
+  CTreeParameter p3;
+  CPPUNIT_ASSERT_NO_THROW(
+    p3.Initialize("param2")
+  );
+  
+  CTreeParameter p4;
+  CPPUNIT_ASSERT_NO_THROW(
+    p4.Initialize("param2", "fulongs")
+  );
+  
+  CTreeParameter p5;
+  CPPUNIT_ASSERT_NO_THROW(
+    p5.Initialize("param2", 128, 0, 127, "furlongs")
+  );
+    
+}
+
+// These are default constructions followed by inits.
+
+void TreeParamTests::DoubleInit9()
+{
+  CTreeParameter p1;
+  p1.Initialize("param1", 12);
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit10()
+{
+  CTreeParameter p1;
+  p1.Initialize("param1", 12, 0, 1024, "furlong", true);
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit11()
+{
+  CTreeParameter p1;
+  p1.Initialize("param1");
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit12()
+{
+  CTreeParameter p1;
+  p1.Initialize("param1", "furlongs");
+  CheckDoubleInit(p1);
+}
+void TreeParamTests::DoubleInit13()
+{
+  CTreeParameter p1;
+  p1.Initialize("param1", 1024, 0, 1023, "furlongs");
+  CheckDoubleInit(p1);
 }
