@@ -144,6 +144,7 @@ snit::widget compoundgate {
                 }
             }
         }
+        $win.browser update
     }
     # removeFromListbox
     #     Called in respones to a click on the left arrow button.
@@ -163,6 +164,7 @@ snit::widget compoundgate {
             $win.dependencies delete $id
            # $win.browser addGate $gatename
         }
+        $win.browser update;         # Update the gates.
     }
     # gateFilter descr
     #       Determins if a gate should be displayed in the
