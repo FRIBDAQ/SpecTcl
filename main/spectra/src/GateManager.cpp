@@ -124,6 +124,14 @@ void GateManager::setGateList(std::vector<QString> gateNames)
 
 
     // add new entries to create the union of the two lists
+    // This is a rather complex concept.
+    //  - If a gate does not yet exist, it must be appended to the gates in the
+    //    list of gates on the spectsrum.
+    //  - If a gate has changed spectra, it must be removed from the old and added
+    //    to the new.
+    //  - If a gate has changed type (on the same spectrum) it also must be removed
+    //    and re-added in the new gate type.
+    
     for (auto& name : gateNames) {
         if (! std::binary_search(existingNames.begin(), existingNames.end(), name)) {
 

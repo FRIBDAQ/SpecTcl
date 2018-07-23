@@ -78,11 +78,15 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     // Note that this business of finding/fixing existing gates:  That's
     // going to fail if a gate changes from a 1-d to a 2-d gate.
     // TODO: Fix that.  For now that's a low probability event.
+    //       Worse than that - changes from Contour <-> Band cause errors
+    //       if done by "add gate".
+
     
     SpJs::GateType type = pGate->getType();
+    QString gateName = QString::fromStdString(pGate->getName());
     if ((type == SpJs::GammaSliceGate) || (type == SpJs::SliceGate)) {
 
-        auto it = find1D(QString::fromStdString(pGate->getName()));
+        auto it = find1D(gateName);
 
         // if we did not find it, then add it
         if ( it == end1d() ) {
@@ -109,13 +113,21 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
                 somethingChanged = true;
             }
         }
+        //  If the gate existed as A 2D gate, we need to get rid of it:
+        
+        auto p = find2D(gateName);
+        if (p != end2d()) {
+          // Just remove the gate as it's been changed in type:
+          
+          removeCut2D(gateName);
+        }
 
     } else if (
       (type == SpJs::BandGate) || (type == SpJs::ContourGate)  ||
       (type == SpJs::GammaBandGate) || (type == SpJs::GammaContourGate)
     ) {
 
-        auto it = find2D(QString::fromStdString(pGate->getName()));
+        auto it = find2D(gateName);
 
         // if we did not find it, then add it
         if (it == end2d() ) {
@@ -131,7 +143,13 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
               existingGate = newGate;
               somethingChanged = true;
             }
-          }
+        }
+        // If this gate is also a 1-d Gate, then it must be removed from that
+        // list too:
+        
+        if (find1D(gateName) != end1d()) {
+          removeCut1D(gateName);
+        }
     }
   }
 
