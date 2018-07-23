@@ -415,8 +415,36 @@ CProductionXamineShMem::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
          "Xamine::RemoveGate - Removing the gate");
 
 }
-
-
+/**
+ * removeGate
+ *    This overload searches the spectrum designayted for the gate id
+ *    specified.  If found the gate is removed via the other version
+ *    of removeGate.
+ *  @param spslot - The spectrum slot.
+ *  @param gateid - The gate id.
+ *  @note - failure to find the gate or failures from Xamine_StartSearch
+ *          just return with no  error.
+ */
+void
+CProductionXamineShMem::removeGate(UInt_t spslot, UInt_t gateid)
+{
+  int status;
+  
+  int context = Xamine_StartSearch(spslot, &status);
+  if (status) return;                       // Failed.
+  
+  int gid;
+  Xamine_gatetype gtype;
+  int  npts;
+  Xamine_point pts[GROBJ_MAXPTS];
+  while (Xamine_NextGate(context, &gid, &gtype, &npts, pts)) {
+    if (gid == gateid) {
+      Xamine_RemoveGate(spslot, gid, gtype);
+      break;                         // Only one copy per spectrum.
+    }
+  }
+  Xamine_EndSearch(context);
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:

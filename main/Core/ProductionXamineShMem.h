@@ -276,6 +276,7 @@ public:
      * is not valid.
      */
     void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+    void removeGate(UInt_t nSPectrum, UInt_t nId);
 
     /*!
      * \brief Retrieves the list of gates associated with the spectrum

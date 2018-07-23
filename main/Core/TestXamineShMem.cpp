@@ -63,6 +63,7 @@ UInt_t CTestXamineShMem::addSpectrum(CSpectrum& spec, CHistogrammer& sorter) {
 
 void CTestXamineShMem::removeSpectrum(UInt_t slot, CSpectrum& ) {}
 
+
 DisplayBindings CTestXamineShMem::getDisplayBindings() const {
 
     DisplayBindings bindings;
@@ -128,6 +129,7 @@ void CTestXamineShMem::removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
         m_gateMap.erase(it);
     }
 }
+void CTestXamineShMem::removeGate(UInt_t ns, UInt_t gid) {}
 
 CXamineGates* CTestXamineShMem::GetGates (UInt_t nSpectrum)  {
 

@@ -73,7 +73,7 @@ public:
 
     virtual UInt_t addSpectrum(CSpectrum& , CHistogrammer& );
     virtual void removeSpectrum(UInt_t slot, CSpectrum& );
-
+    
     virtual DisplayBindings getDisplayBindings() const;
 
     virtual CXamineSpectrum& operator[](UInt_t n);
@@ -94,6 +94,7 @@ public:
 
     virtual void addGate (CXamineGate& rGate);
     virtual void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType) ;
+    virtual void removeGate(UInt_t nSpectrum, UInt_t nId);
     virtual CXamineGates* GetGates (UInt_t nSpectrum) ;
 
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);

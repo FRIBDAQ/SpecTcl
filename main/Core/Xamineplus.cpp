@@ -277,14 +277,9 @@ CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
     }
 
     try {
-        GateType_t xamineGateType = mapGateType(rGate->Type());
+        
+        m_pMemory->removeGate(slot, rGate.getNumber());
 
-        // mapGateType only handles non-primitive gates... we will only care
-        // if it found one of those. if it find a primitive, it returns
-        // kgUnSpecified.
-        if (xamineGateType != kgUnSpecified) {
-            m_pMemory->removeGate(slot, rGate.getNumber(), xamineGateType);
-        }
     } catch (...) {
         // ignore errors
     }

@@ -90,6 +90,7 @@ public:
 
     virtual void addGate (CXamineGate& rGate) = 0;
     virtual void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType)  = 0;
+    virtual void removeGate(UInt_t nSPectrum, UInt_t nId) = 0;
     virtual CXamineGates* GetGates (UInt_t nSpectrum)  = 0;
 
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y) = 0;
