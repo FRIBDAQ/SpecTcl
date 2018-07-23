@@ -75,12 +75,7 @@ bool MasterGateList::synchronize(std::vector<SpJs::GateInfo*> gates)
  // make sure that we add all non existing gates to the this
  for (auto pGate : gates) {
     
-    // Note that this business of finding/fixing existing gates:  That's
-    // going to fail if a gate changes from a 1-d to a 2-d gate.
-    // TODO: Fix that.  For now that's a low probability event.
-    //       Worse than that - changes from Contour <-> Band cause errors
-    //       if done by "add gate".
-
+    
     
     SpJs::GateType type = pGate->getType();
     QString gateName = QString::fromStdString(pGate->getName());
