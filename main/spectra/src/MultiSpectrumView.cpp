@@ -425,6 +425,7 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
 
     QRootCanvas* pCurrentCanvas = m_pCurrentCanvas;
 
+    
     HistogramList* pHistList = m_pSpecTcl->getHistogramList();
 
     std::vector<TH1*> rootHists = SpectrumView::getAllHists(&canvas);
@@ -488,6 +489,8 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
 //    }
 
     m_pCurrentCanvas->cd();
+
+    m_pSpecTcl->requestHistContentUpdate(pCurrentCanvas);
 }
 
 std::vector<QRootCanvas*>
