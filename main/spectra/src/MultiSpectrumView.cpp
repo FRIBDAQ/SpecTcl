@@ -49,10 +49,16 @@
 #include <stdexcept>
 #include <tuple>
 
+#include <Utility.h>
+
 using namespace std;
+
+
 
 namespace Viewer
 {
+    
+    
 MultiSpectrumView::MultiSpectrumView(std::shared_ptr<SpecTclInterface> pSpecTcl,
                                      QWidget *parent) :
     SpectrumView(parent),
@@ -446,6 +452,7 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
 
     // do the drawing
     bool first = true;
+    bool oned  = true;                    
     for (auto drawable : drawInfo) {
         if (first) {
             first = false;
@@ -459,10 +466,19 @@ void MultiSpectrumView::redrawCanvas(QRootCanvas& canvas)
                 options.replace("same","",Qt::CaseInsensitive);
                 drawable.first->draw(options);
             }
+            // we need to figure out if this histogram is 1d or twod as
+            // we can't superimpose incompatible spectra.
+            // At this point I don't know enough about spectra to know how
+            // to remove the incompatible spectra from the list in the pane
+            // if it's not compatible so we'll just not render it for now:
+            oned = rootHistogramIs1d(drawable.first->getHist());
         }
-
-        drawable.first->draw(drawable.second);
-
+        // only draw a superposition if the histograms are compatible:
+        // >Must< be true for the first one.
+        
+        if (oned == rootHistogramIs1d(drawable.first->getHist())) {
+            drawable.first->draw(drawable.second);
+        }
     }
 
 //    // if we redrew the content of the current canvas, emit a signal saying
@@ -490,26 +506,52 @@ MultiSpectrumView::locateCanvasesWithHist(HistogramBundle &rHistPkg)
 
 }
 
-void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle, QString option)
+void MultiSpectrumView::drawHistogram(
+    HistogramBundle* pBundle, QString option
+)
 {
-    if (pBundle) {
-        getCurrentCanvas()->cd();
-        if (m_pSpecTcl) {
-            pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+    try {   
+        if (pBundle) {
+            getCurrentCanvas()->cd();
+            if (m_pSpecTcl) {
+                pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+            }
+    
+            // If the option is "same" this is a superposition attempt.
+            // That is only allowed if
+            //  - There is a base spectrum.
+            //  - The base spectrum has the same dimensionality as this new
+            //    spectrum.
+            
+            if (option.contains("same")) {
+                QRootCanvas* pCurrentCanvas = m_pCurrentCanvas;
+                std::vector<TH1*> currentHists =
+                    SpectrumView::getAllHists(pCurrentCanvas);
+                if(currentHists.size()) {         // Could be first.
+                    TH1* first = currentHists[0];
+                    TH1& superpos(pBundle->getHist());
+                    if (rootHistogramIs1d(*first) != rootHistogramIs1d(superpos))
+                    {
+                        throw std::runtime_error("Incompatible superposition attempted");
+                    }
+                }
+            }
+            pBundle->draw(option);
+    
+            // if the drawn histogram is empty, request content update for
+            // all histograms in the pad it was drawn.
+            if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
+                m_pSpecTcl->requestHistContentUpdate(gPad);
+            }
+    
+            emit canvasContentChanged(*m_pCurrentCanvas);
         }
-
-        pBundle->draw(option);
-
-        // if the drawn histogram is empty, request content update for
-        // all histograms in the pad it was drawn.
-        if (m_pSpecTcl && (pBundle->getHist().Integral() == 0)) {
-            m_pSpecTcl->requestHistContentUpdate(gPad);
-        }
-
-        emit canvasContentChanged(*m_pCurrentCanvas);
+        setFocus();
+        refreshAll();
+    } catch (std::exception& e) {
+        QMessageBox::warning(
+            m_pCurrentCanvas, "Superposition request error: ", e.what());
     }
-    setFocus();
-    refreshAll();
 
 }
 

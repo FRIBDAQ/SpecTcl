@@ -17,6 +17,7 @@
 #include <iostream>
 #include <algorithm>
 #include <exception>
+#include <Utility.h>
 
 namespace Viewer {
 
@@ -95,26 +96,40 @@ void TabFromWinFileCompositor::setUpCanvas(QRootCanvas& rCanvas, win_attributed 
         return;
     }
 
+    bool isoned;
     HistogramBundle* pHistPkg = pHistList->getHist(*itResult);
     if (pHistPkg) {
         rCanvas.cd();
         pHistPkg->draw();
+        isoned = rootHistogramIs1d(pHistPkg->getHist());
 //        rCanvas.Modified(1);
 //        rCanvas.Update();
-    }
+    } else  return;      // No base spectrum means draw nothing:
+    
+
 
     try {
-        // handle superimposed histograms
+        // handle superimposed histograms - for now we just suppress
+        // drawing incopmatible spectra.
+        
         auto& rAttr1D = dynamic_cast<win_1d&>(rAttributes);
 
         SuperpositionList& supers = rAttr1D.GetSuperpositions();
         SuperpositionListIterator iter(supers);
 
+        
         while (!iter.Last()) {
+
             QString specName = QString::fromStdString(iter->SpectrumName());
             HistogramBundle* pBundle = pHistList->getHist(specName);
             if (pBundle) {
-                pBundle->draw("same");
+                // Histogrammust be compatible to draw:
+                
+                if (isoned == rootHistogramIs1d(pBundle->getHist())) {
+                    pBundle->draw("same");    
+                }
+                
+                
             } else {
                 QString msg = "Request to superimpose histogram failed because histogram, '%1', was not found.";
                 QMessageBox::warning(0, "Failed to locate histogram",

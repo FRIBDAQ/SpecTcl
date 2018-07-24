@@ -24,9 +24,21 @@
 #define UTILITY_H
 
 #include <memory>
+#include <TH1.h>
 
 namespace Viewer
 {
+
+/**
+ * RootHistogramIs1d
+ *   @return true if no y axis exists for the histogram.
+ */
+static inline bool
+rootHistogramIs1d(TH1& hist)
+{
+    return !hist.InheritsFrom(TH2::Class());
+}
+
 
 template<class T> std::unique_ptr<T> make_unique(T* ptr) 
 {

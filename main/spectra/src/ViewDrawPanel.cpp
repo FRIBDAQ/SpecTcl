@@ -243,7 +243,8 @@ void ViewDrawPanel::initiateDraw(QListWidgetItem& item) {
     if (pHistBundle) {
 
         QString drawOption = ui->pDrawOptCombo->currentText();
-
+        
+        
         if (ui->pSuperimposeSelect->isEnabled() && ui->pSuperimposeSelect->isChecked()) {
             drawOption += " same";
         }
