@@ -140,6 +140,12 @@ snit::widget gateCreate {
 	grid columnconfigure $win 3 -weight 0
         grid columnconfigure $win 4 -weight 1
 
+    #  If the ScrollTimer global is set, then use it to set the -scrolltimer
+    #  value for the tree widget/scrolling menu widget:
+    
+    if {[info globals ScrollRate] eq "ScrollRate"} {
+        $win.gatesel.gates configure -scrolltimer $::ScrollRate
+    }
 
 	# Configure the args which in turn will configure some of the widget contents.
 

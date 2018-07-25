@@ -90,60 +90,62 @@ snit::widget treeVariableEditor {
     # @param args - list of optionname values.
 
     constructor args {
-	# Before configuring anything we need to build the top line so
-	# the menu tree exists if -variables is specified.
-
-	ttk::menubutton $win.menu -text "Variable" -menu $win.menu.variables
-	treeMenu $win.menu.variables -command [mymethod SelectVariable  %L %N]
-	ttk::label $win.name -text  Name
-	ttk::label $win.value -text Value
-	ttk::label $win.units -text Units
-	ttk::checkbutton $win.array -offvalue 0 -onvalue 1 -text Array -variable \
-	    ${selfns}::options(-array)
-
-	$self configurelist $args
-
-	grid $win.menu $win.name $win.value $win.units
-	grid $win.array -row 0  -column 5
-	# Now build the editors. -lines must be alive and happy.
-
-	for {set row 1} {$row <= $options(-lines)} {incr row} {
-	    ttk::radiobutton $win.radio$row -value $row -variable ${selfns}::options(-current)
-	    ttk::entry       $win.name$row  -width 32 -takefocus 1
-	    ttk::entry       $win.value$row -width 10 -takefocus 1
-	    ttk::entry       $win.units$row -width 10 -takefocus 1
-	    ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
-	    ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
-
-	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row \
-		-sticky new
-
-	    # Bindings for this row as well.. note that tab/shift tab normally change focus.
-
-	    foreach binding [list  <Return> ] {
-		foreach \
-		    widget [list $win.name$row $win.value$row $win.units$row] {
-			bind $widget $binding [mymethod changeFocus tk_focusNext %W]
-		    }
-	    }
-	    # Currently no left movement bindings other than the default, however
-	    # if someone suggests them they can be added to the list here.
-	    #
-	    foreach binding [list] {
-		foreach \
-		    widget [list $win.name$row $win.value$row $win.units$row] {
-			bind $widget $binding [mymethod changeFocus tk_focusPrev %W]
-		    }
-	    }
-	    # The after in this binding allows the entry to change so a get
-	    # of the value reflects the contents after the keystroke.
-	    #
-	    bind $win.name$row <Key> +[list after idle  [mymethod Keystroke $row %K]]
-	}
-	;foreach column [list 0 1 2 3 4 5] weight [list 0 20 1 1 0 0] {
-	    grid columnconfigure $win $column -weight $weight
-	}
-
+        # Before configuring anything we need to build the top line so
+        # the menu tree exists if -variables is specified.
+    
+        ttk::menubutton $win.menu -text "Variable" -menu $win.menu.variables
+        treeMenu $win.menu.variables -command [mymethod SelectVariable  %L %N]
+        ttk::label $win.name -text  Name
+        ttk::label $win.value -text Value
+        ttk::label $win.units -text Units
+        ttk::checkbutton $win.array -offvalue 0 -onvalue 1 -text Array -variable \
+            ${selfns}::options(-array)
+    
+        $self configurelist $args
+    
+        grid $win.menu $win.name $win.value $win.units
+        grid $win.array -row 0  -column 5
+        # Now build the editors. -lines must be alive and happy.
+    
+        for {set row 1} {$row <= $options(-lines)} {incr row} {
+            ttk::radiobutton $win.radio$row -value $row -variable ${selfns}::options(-current)
+            ttk::entry       $win.name$row  -width 32 -takefocus 1
+            ttk::entry       $win.value$row -width 10 -takefocus 1
+            ttk::entry       $win.units$row -width 10 -takefocus 1
+            ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
+            ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
+    
+            grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row \
+            -sticky new
+    
+            # Bindings for this row as well.. note that tab/shift tab normally change focus.
+    
+            foreach binding [list  <Return> ] {
+            foreach \
+                widget [list $win.name$row $win.value$row $win.units$row] {
+                bind $widget $binding [mymethod changeFocus tk_focusNext %W]
+                }
+            }
+            # Currently no left movement bindings other than the default, however
+            # if someone suggests them they can be added to the list here.
+            #
+            foreach binding [list] {
+            foreach \
+                widget [list $win.name$row $win.value$row $win.units$row] {
+                bind $widget $binding [mymethod changeFocus tk_focusPrev %W]
+                }
+            }
+            # The after in this binding allows the entry to change so a get
+            # of the value reflects the contents after the keystroke.
+            #
+            bind $win.name$row <Key> +[list after idle  [mymethod Keystroke $row %K]]
+        }
+        foreach column [list 0 1 2 3 4 5] weight [list 0 20 1 1 0 0] {
+            grid columnconfigure $win $column -weight $weight
+        }
+        if {[info globals ScrollRate] eq "ScrollRate"} {
+            $win.menu.variables configure -scrolltimer $::ScrollRate
+        }
     }
     #------------------------------------------------------------------------------
     #  Public methods:

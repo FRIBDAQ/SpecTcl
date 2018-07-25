@@ -103,81 +103,85 @@ snit::widgetadaptor treeMenu {
     #                 for children of prefix.
     #
     method buildSubMenus {menu names prefix} {
-	set c 0
 
-	#
-	# If the menu already has stuff in it we can just return.
-	#
-	if {[$menu index end] ne "none"} {
-	    return 
-	}
-
-	set parentLen [llength $prefix]; # 0 if this is top level.
-
-
-	# Compute indices for the prefix, the first element after the prefix
-	# and the tail.  Note that if the prefix is "" the prefix is empty:
-	#
-
-	if {$parentLen == 0} {
-	    set prefStart -1
-	    set prefEnd   -1
-	    set chStart    0
-	    set tailStart  1
-	} else {
-	    incr parentLen -1
-	    set  prefStart 0
-	    set  prefEnd   $parentLen
-	    
-	    incr parentLen
-	    set  chStart $parentLen
-
-	    set tailStart [incr parentLen]
-	}
+		set c 0
+	
+		#
+		# If the menu already has stuff in it we can just return.
+		#
+		if {[$menu index end] ne "none"} {
+			return 
+		}
+	
+		set parentLen [llength $prefix]; # 0 if this is top level.
 	
 	
-	#
-	#  Build an array whose indices are prefix immediate children
-	#  and whose contents are all children of that child.  
-	#
-
-	array set children [list]; # Empty array of children lists:
-
-	foreach path $names {
-	    set head [lrange $path $prefStart $prefEnd]
-	    if {$head eq $prefix} {
-		set child [lindex $path $chStart]
-		set tail  [lrange $path $tailStart end]
-		lappend children($child) $tail
-	    }
-	}
-	#  indices of children must have entries:
-	#  *  Those with only one element in their lists are terminal nodes
-	#  *  Those with more than one element in their lists are parents of the next level:
+		# Compute indices for the prefix, the first element after the prefix
+		# and the tail.  Note that if the prefix is "" the prefix is empty:
+		#
 	
-	set cascades     [list]
-	set cascPrefixes [list]
-	foreach child [lsort -dictionary -increasing [array names children]] {
-	    if {([llength $children($child)] == 1) && ([lindex $children($child) 0] eq "")} {
-		set path [concat $prefix $child [lindex $children($child) 0]]
-		$menu add command -label $child \
-		    -command [mymethod dispatch $child [join $path $options(-splitchar)]]		
-	    } else {
-		set cascmenu [menu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
-		$menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
-		lappend cascades $cascmenu
-		lappend cascPrefixes [concat $prefix $child]
-	    }
-	}
-	# If there are cascades we must
-	# - Bind a motion event on this menu so that it builds the contents of the submenus.
-	# - posts any cascade near the pointer.
-
-	if {([llength $cascades] > 0) && $options(-pullright)} {
-	    bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
-	    bind $menu <Motion> +[list $cascmenu postcascade @%y]
-	    
-	}
+		if {$parentLen == 0} {
+			set prefStart -1
+			set prefEnd   -1
+			set chStart    0
+			set tailStart  1
+		} else {
+			incr parentLen -1
+			set  prefStart 0
+			set  prefEnd   $parentLen
+			
+			incr parentLen
+			set  chStart $parentLen
+	
+			set tailStart [incr parentLen]
+		}
+		
+		
+		#
+		#  Build an array whose indices are prefix immediate children
+		#  and whose contents are all children of that child.  
+		#
+	
+		array set children [list]; # Empty array of children lists:
+	
+		foreach path $names {
+			set head [lrange $path $prefStart $prefEnd]
+			if {$head eq $prefix} {
+			set child [lindex $path $chStart]
+			set tail  [lrange $path $tailStart end]
+			lappend children($child) $tail
+			}
+		}
+		#  indices of children must have entries:
+		#  *  Those with only one element in their lists are terminal nodes
+		#  *  Those with more than one element in their lists are parents of the next level:
+		
+		set cascades     [list]
+		set cascPrefixes [list]
+		foreach child [lsort -dictionary -increasing [array names children]] {
+			if {([llength $children($child)] == 1) && ([lindex $children($child) 0] eq "")} {
+				set path [concat $prefix $child [lindex $children($child) 0]]
+				$menu add command -label $child \
+					-command [mymethod dispatch $child [join $path $options(-splitchar)]]		
+			} else {
+				set cascmenu [scrollingMenu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
+				$menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
+				lappend cascades $cascmenu
+				lappend cascPrefixes [concat $prefix $child]
+				if {[info globals ScrollRate] eq "ScrollRate"} {
+					$cascmenu configure -scrolltimer $::ScrollRate
+				}
+			}
+		}
+		# If there are cascades we must
+		# - Bind a motion event on this menu so that it builds the contents of the submenus.
+		# - posts any cascade near the pointer.
+	
+		if {([llength $cascades] > 0) && $options(-pullright)} {
+			bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
+			bind $menu <Motion> +[list $cascmenu postcascade @%y]
+			
+		}
 
     }
     ##

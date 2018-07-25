@@ -53,7 +53,7 @@ snit::widgetadaptor scrollingMenu  {
 
     # Our extended options:
 
-    option -scrolltimer 20;	# ms betwee successive scrolls.
+    option -scrolltimer -default 20 -configuremethod timerchanged;	# ms betwee successive scrolls.
 
     # Unless overridden, all the methods and options are passed through to the underlying
     # menu.
@@ -67,7 +67,9 @@ snit::widgetadaptor scrollingMenu  {
 
 	$self configurelist $args
     }
-
+    method timerchanged {opt val} {
+        set options($opt) $val
+    }
     #-----------------------------------------------------------------------------
     # Public methods:
     #
@@ -96,10 +98,10 @@ snit::widgetadaptor scrollingMenu  {
 	    set bottomIndex $itemCount;	# last one visible.
 
 	} else {
-
 	    $self StartScrolling
 
 	}
+    
 	# regardless store the item in the array:
 	#
 
@@ -175,38 +177,37 @@ snit::widgetadaptor scrollingMenu  {
     #  - If the scroll timer is not yet set we reschedule ourselves to go again later.
     #  - If we are in the last item and the 
     method ScrollMenu {} {
-
-	set timerId [after $options(-scrolltimer) [mymethod ScrollMenu]]
-
-
-	set activeItem [$hull index active]
-
-
-	# If the active item is 0 and topIndex != 0 we need to scroll down and insert
-	# the prior item into the menu.
-	
-	if {($activeItem == 0) && ($topIndex != 0)} {
-	    $self ScrollDown
-	}
-
-	# If the active item is the last one and the bottomIndex is not last element of the
-	# list of menu items, Scroll up:
-	
-
-	if {($activeItem == [$hull index last]) 
-	    && ($bottomIndex < ($itemCount - 1)) }  {
-	    $self ScrollUp
-	}
+        set timerId [after $options(-scrolltimer) [mymethod ScrollMenu]]
+    
+    
+        set activeItem [$hull index active]
+    
+    
+        # If the active item is 0 and topIndex != 0 we need to scroll down and insert
+        # the prior item into the menu.
+        
+        if {($activeItem == 0) && ($topIndex != 0)} {
+            $self ScrollDown
+        }
+    
+        # If the active item is the last one and the bottomIndex is not last element of the
+        # list of menu items, Scroll up:
+        
+    
+        if {($activeItem == [$hull index last]) 
+            && ($bottomIndex < ($itemCount - 1)) }  {
+            $self ScrollUp
+        }
     }
     
     ##
     # Cancel the scrolling timer if it's set:
     #
     method CancelScrollingTimer {} {
-	if {$timerId != -1} {
-	    after cancel $timerId
-	    set timerId -1
-	}
+        if {$timerId != -1} {
+            after cancel $timerId
+            set timerId -1
+        }
     }
     ##
     # Scroll the menu up

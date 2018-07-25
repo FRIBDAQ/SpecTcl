@@ -101,7 +101,12 @@ snit::widget spectrumAxis {
 	grid $win.parametermenubutton $win.lowlabel $win.highlabel $win.binslabel $win.unitslabel
 	grid $win.parameter $win.low $win.high $win.bins $win.units
 	    
-
+    # If ScrollRate global exists program it into the tree menu's -scrolltimer option.
+    
+    if {[info globals ScrollRate] eq "ScrollRate"} {
+        $win.parametermenu configure -scrolltimer $::ScrollRate
+    }
+        
 	$self configurelist $args
 
 	bind $win.parameter <Key> [list after idle [mymethod Keystroke]]
@@ -117,11 +122,15 @@ snit::widget spectrumAxis {
     # @param value  - New value for the option.
     #
     method RebuildParameters {option value} {
-	set options($option) $value
-
-	destroy $win.parametermenu
-	treeMenu        $win.parametermenu -command [mymethod Dispatch -command %L %N] \
-	    -items $value
+        set options($option) $value
+    
+        destroy $win.parametermenu
+        treeMenu        $win.parametermenu -command [mymethod Dispatch -command %L %N] \
+            -items $value
+        
+        if {[info globals ScrollRate] eq "ScrollRate"} {
+            $win.parametermenu configure -scrolltimer $::ScrollRate
+        }
     }
     ##
     # Configuration handler to process widget state changes.  We just pass the configuration
@@ -148,7 +157,7 @@ snit::widget spectrumAxis {
     # Called in response to a keystroke in the parameter name entry widget:
     #
     method Keystroke {} {
-	::treeutility::dispatch $options(-changed) [list %W %T] [list $self [$win.parameter get]]
+        ::treeutility::dispatch $options(-changed) [list %W %T] [list $self [$win.parameter get]]
     }
 
     ##
@@ -159,7 +168,7 @@ snit::widget spectrumAxis {
     # @param name  - Full path to the menu entry clicked.
     # 
     method Dispatch {option label name} {
-	::treeutility::dispatch $options($option) [list %W %L %N] [list $self [list $label] [list $name]]
+        ::treeutility::dispatch $options($option) [list %W %L %N] [list $self [list $label] [list $name]]
     }
 
     ##
@@ -173,11 +182,11 @@ snit::widget spectrumAxis {
     # @retval 1 - valid value.
     #
     method validateAxis value {
-	set value [string trim $value]
-	if {$value eq "-"} {
-	    return 1
-	}
-	return [string is double $value]
+        set value [string trim $value]
+        if {$value eq "-"} {
+            return 1
+        }
+        return [string is double $value]
     }
     
 }

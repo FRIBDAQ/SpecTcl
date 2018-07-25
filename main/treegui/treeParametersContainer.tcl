@@ -160,12 +160,16 @@ snit::widget treeParametersContainer {
     # @param value  - New value for that option, a list of the parameters to put in the menu hierarchy.
     #
     method updateParameterMenu {option value} {
-	set options($option) $value
-
-	destroy $menuButton.pulldown
-
-	treeMenu $menuButton.pulldown -items $value -splitchar . \
-	    -command [mymethod ParameterChosen %W %L %N]
+        set options($option) $value
+    
+        destroy $menuButton.pulldown
+    
+        treeMenu $menuButton.pulldown -items $value -splitchar . \
+            -command [mymethod ParameterChosen %W %L %N]
+        
+        if {[info globals ScrollRate] eq "ScrollRate"} {
+            $menuButton.pulldown configure -scrolltimer $::ScrollRate
+        }
 
     }
 
