@@ -52,7 +52,8 @@ snit::widget c2band {
 
 
     constructor {args} {
-        $self configurelist $args
+        puts "c2band constructor"
+        #  $self configurelist $args;   # If no options, configurelist not supported.
 
         label $win.xparlabel -text {X parameter}
         label $win.yparlabel -text {Y parameter}
@@ -66,9 +67,11 @@ snit::widget c2band {
         label $win.b2        -text $emptyString
 
 
-        browser $win.browser -detail 0 -restrict {parameters gates} -filtergates [mymethod filterGates] \
-                             -parameterscript [mymethod selectParameter]                                \
-                             -gatescript      [mymethod selectGate]
+        browser $win.browser -detail 0 -restrict {parameters gates} \
+            -filtergates [mymethod filterGates]                     \
+            -filterparameters [mymethod filterParams]               \
+            -parameterscript [mymethod selectParameter]             \
+            -gatescript      [mymethod selectGate]
 
         grid $win.browser $win.xparlabel $win.xparameter
         grid      ^       $win.yparlabel $win.yparameter
@@ -105,6 +108,9 @@ snit::widget c2band {
 
         bind $win.b2label     <Button-1> [mymethod setNextGate 2]
         bind $win.b2          <Button-1> [mymethod setNextGate 2]
+        
+        $win.browser update
+        puts "done constructing"
     }
     # reinit
     #     Return the gate editor to its initial state:
@@ -142,7 +148,30 @@ snit::widget c2band {
         return C2Gate
     }
     # -------------- Local methods and procs.
-
+    ##
+    # filterParams
+    #    Filter the set of visible parameters in the browser.
+    #    Parameters that are already selected for either X or Y are
+    #    omitted from the list.
+    #
+    #  @param descr desribes a parameter the browser would like to display.
+    #  @return bool - true if the browser is allowed to display it.
+    #
+    method filterParams descr {
+        puts "Filter params: $descr"
+        
+        #  Allow the parameter if its name is not in the set of
+        #  parameter names in x or y;  We assume that the empty parameter
+        #  string won't be used as a parameter name (that would be a horror).
+        #
+        
+        set xpar [$win.xparameter cget -text]
+        set ypar [$win.yparameter cget -text]
+        set pname [lindex $descr 0]
+        
+        return [expr {$pname ni [list $xpar $ypar]}]
+        return 1
+    }
     # filterGates descr
     #     Called to veto the addition of gates to the browser.
     #     Before we allow any gates to be present in the browser,
@@ -156,37 +185,47 @@ snit::widget c2band {
         #   Both parameters must be selected to allow any gates
         #   to show.
         #
+        puts "Filter gates $gate"
         set xp [$win.xparameter cget -text]
         set yp [$win.yparameter cget -text]
+        puts "xp $xp yp: $yp $emptyString"
         if {($xp == $emptyString) || ($yp == $emptyString)} {
             return 0
         }
         #
         #  Only bands are allowed to show.
         #
+        puts "made it past."
         set type [lindex $gate 2]
+        puts "Gate type: $type"
         if {$type != "b"} {
             return 0
         }
         #
         #   The gate parameters must be the
         #   x/y parameter (although order can be
-        #   flipped.
+        #   flipped...and not already a selected gate.
         #
+        set gname [lindex $gate 0]
         set descr [lindex $gate 3]
         set gpars [lindex $descr 0]
         set gx    [lindex $gpars 0]
         set gy    [lindex $gpars 1]
+        
+        set b1 [$win.b1 cget -text]
+        set b2 [$win.b2 cget -text]
 
-        if {($xp == $gx) && ($yp == $gy) } {
+        puts "Thinks the gate is a band:"
+        puts "gx $gx gy $gy"
+        if {($xp == $gx) && ($yp == $gy) && ($gname ni [list $b1 $b2])} {
             return 1
         }
-        if {($yp == $gx) && ($xp == $gy) } {
+        if {($yp == $gx) && ($xp == $gy) && ($gname ni [list $b1 $b2])} {
             return 1
         }
 
 
-        return 0;    # Stub.
+        return 0;  
     }
     # highlightNextItems
     #     Highlights the items that will be replaced the next time around.
@@ -250,8 +289,6 @@ snit::widget c2band {
             $self setCurrentParameter $name
             $win.browser update;             # Re filter gates
             $self checkCurrentGates;         # Ensure selected bands still valid.
-            $self removeUsedItems;           # Remove the items that have been selected.
-
         }
     }
     # selectGate args]
@@ -264,8 +301,8 @@ snit::widget c2band {
 
         if {[gate -list $name] != ""} {
             $self setCurrentGate $name
-            $self removeUsedItems
         }
+        $win.browser update
     }
     # setNextParameter which
     #     Sets the next parameter selected to 'which'.
@@ -315,30 +352,5 @@ snit::widget c2band {
             }
         }
     }
-    # removeUsedItems
-    #      Removes items that are currently selected as parameters
-    #      and gates from the browser.
-    #
-    method removeUsedItems {} {
-        # Parameters:
-
-        foreach i {x y} {
-            set widget $parwidgets($i)
-            set name [$widget cget -text]
-            if {$name != $emptyString} {
-                set name Parameters.$name
-                $win.browser remove $name
-            }
-        }
-        foreach i {1 2} {
-            set widget $bandwidgets($i)
-            set name [$widget cget -text]
-            if {$name != $emptyString} {
-                set name Gates.$name
-                $win.browser remove $name
-            }
-        }
-    }
-
 
 }

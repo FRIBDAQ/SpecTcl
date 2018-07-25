@@ -252,11 +252,14 @@ snit::widget gateGui {
     #
     method startC2BandEditor {} {
         $self setGateType c2band
-
+        puts "Creating c2bandeditor"
         destroy $gateEditorWidget
         set gateEditorWidget [c2band $win.editor.contents]
+        puts "Made the widget"
         pack $gateEditorWidget -expand 1 -fill x
+        puts "Packed the widget"
         set helpTopic [$gateEditorWidget getHelpTopic]
+        puts "Set the help topic."
 
     }
     # startMaskEditor type

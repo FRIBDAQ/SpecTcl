@@ -227,7 +227,6 @@ image create photo ::browser::foldericon   -format png \
     #    Destructively restock all folders;
     #
     method fillAllFolders {} {
-        
         # Unset the terminal look up tables for the unpopulated parts of the
         # tree.
         
@@ -444,6 +443,7 @@ image create photo ::browser::foldericon   -format png \
     #    subnodes are created for each gate.
     #
     method fillGateFolder {} {
+
 	set gateFolder [$tree insert {} end -text Gates \
 			    -open 0 -tags gateFolder -image ::browser::foldericon]
 	lappend topLevelIds $gateFolder
@@ -916,7 +916,6 @@ image create photo ::browser::foldericon   -format png \
       set xChannel 0
       set param 0
 
-      puts $parameters
       foreach channel $parameters {
 
       # Add a folder for a channels parameters.
