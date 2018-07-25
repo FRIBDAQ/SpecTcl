@@ -52,7 +52,7 @@ snit::widget c2band {
 
 
     constructor {args} {
-        puts "c2band constructor"
+
         #  $self configurelist $args;   # If no options, configurelist not supported.
 
         label $win.xparlabel -text {X parameter}
@@ -110,7 +110,7 @@ snit::widget c2band {
         bind $win.b2          <Button-1> [mymethod setNextGate 2]
         
         $win.browser update
-        puts "done constructing"
+
     }
     # reinit
     #     Return the gate editor to its initial state:
@@ -158,7 +158,7 @@ snit::widget c2band {
     #  @return bool - true if the browser is allowed to display it.
     #
     method filterParams descr {
-        puts "Filter params: $descr"
+
         
         #  Allow the parameter if its name is not in the set of
         #  parameter names in x or y;  We assume that the empty parameter
@@ -185,19 +185,15 @@ snit::widget c2band {
         #   Both parameters must be selected to allow any gates
         #   to show.
         #
-        puts "Filter gates $gate"
         set xp [$win.xparameter cget -text]
         set yp [$win.yparameter cget -text]
-        puts "xp $xp yp: $yp $emptyString"
         if {($xp == $emptyString) || ($yp == $emptyString)} {
             return 0
         }
         #
         #  Only bands are allowed to show.
         #
-        puts "made it past."
         set type [lindex $gate 2]
-        puts "Gate type: $type"
         if {$type != "b"} {
             return 0
         }
@@ -215,8 +211,6 @@ snit::widget c2band {
         set b1 [$win.b1 cget -text]
         set b2 [$win.b2 cget -text]
 
-        puts "Thinks the gate is a band:"
-        puts "gx $gx gy $gy"
         if {($xp == $gx) && ($yp == $gy) && ($gname ni [list $b1 $b2])} {
             return 1
         }
