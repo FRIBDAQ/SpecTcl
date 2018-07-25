@@ -184,10 +184,23 @@ void MainWindow::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterfac
 
 void MainWindow::launchAutoUpdateDialog()
 {
-    TabWorkspace& workspace = m_pView->getCurrentWorkspace();
-
-    AutoUpdateDialog dialog(workspace.getUpdater(), this);
-    dialog.exec();
+    try {
+        TabWorkspace& workspace = m_pView->getCurrentWorkspace();
+    
+        AutoUpdateDialog dialog(workspace.getUpdater(), this);
+        dialog.exec();
+    }
+    catch(std::exception& e) {
+        // Usually this happens because the workspace does not exist yet
+        // causing the dynamic cast in getCurrentWorkspace to fail.
+        // We'll pop up a dialog indicating options are not available
+        // until at least one tab is defined:
+        
+        QMessageBox::warning(
+            this, "Unable to create the auto update dialog",
+            "At least one tab must first be defined an populated."
+        );
+    }
 }
 
 //
@@ -206,90 +219,97 @@ void MainWindow::onNewHistogram()
 
 void MainWindow::onCopySpectrumAttributes()
 {
-    ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView(),
-                                m_specTclControl.getInterface());
-    selector.exec();
-
-    ConfigCopySelection selection = selector.getSelection();
-
-    ConfigCopyTarget sourceTarget = selection.s_sourceTarget;
-
-    // User cancelled operation or did not select a dest
-    if (selection.s_destTargets.size() == 0) return;
-
-    // we now have to be careful about how we apply these attributes. They
-    // correspond only the displayed histograms and NOT others.
-
-
-    for (int i=0; i<selection.s_destTargets.size(); ++i) {
-
-        ConfigCopyTarget& destTarget = selection.s_destTargets[i];
-
-        TH1& pDestHist = *(destTarget.s_pHist);
-        TH1& pSourceHist = *(sourceTarget.s_pHist);
-
-    	if (selection.s_copyXAxis) {
-            // copy x axis range
-            TAxis* pDestAxis = pDestHist.GetXaxis();
-            TAxis* pSrcAxis = pSourceHist.GetXaxis();
-
-            int lowerLimit = pSrcAxis->GetFirst();
-            int upperLimit = pSrcAxis->GetLast();
-
-            pDestAxis->SetRange(lowerLimit, upperLimit);
-    	}
-
-    	if (selection.s_copyYAxis) {
-    		// copy x axis range
-            TAxis* pDestAxis = pDestHist.GetYaxis();
-            TAxis* pSrcAxis = pSourceHist.GetYaxis();
-
-            int lowerLimit = pSrcAxis->GetFirst();
-            int upperLimit = pSrcAxis->GetLast();
-            pDestAxis->SetRange(lowerLimit, upperLimit);
-    	}
-
-        if (selection.s_copyMinimum) {
-            pDestHist.SetMinimum(pSourceHist.GetMinimum());
-        }
-
-        if (selection.s_copyMaximum) {
-            pDestHist.SetMaximum(pSourceHist.GetMaximum());
-        }
-
-        SpectrumView& view = m_pView->getCurrentWorkspace().getView();
-        QRootCanvas* pSourceCanvas = view.getCanvas(sourceTarget.s_row, sourceTarget.s_col);
-        QRootCanvas* pDestCanvas = view.getCanvas(destTarget.s_row, destTarget.s_col);
-
-    	if (selection.s_copyDrawOption) {
-
-            if (pDestCanvas && pSourceCanvas) {
-                QString sourceOpt = CanvasOps::getDrawOption(pSourceCanvas->getCanvas(), &pSourceHist);
-                CanvasOps::setDrawOption(pDestCanvas->getCanvas(), &pDestHist, sourceOpt);
+    try {
+        ConfigCopySelector selector(m_pView->getCurrentWorkspace().getView(),
+                                    m_specTclControl.getInterface());
+        selector.exec();
+    
+        ConfigCopySelection selection = selector.getSelection();
+    
+        ConfigCopyTarget sourceTarget = selection.s_sourceTarget;
+    
+        // User cancelled operation or did not select a dest
+        if (selection.s_destTargets.size() == 0) return;
+    
+        // we now have to be careful about how we apply these attributes. They
+        // correspond only the displayed histograms and NOT others.
+    
+    
+        for (int i=0; i<selection.s_destTargets.size(); ++i) {
+    
+            ConfigCopyTarget& destTarget = selection.s_destTargets[i];
+    
+            TH1& pDestHist = *(destTarget.s_pHist);
+            TH1& pSourceHist = *(sourceTarget.s_pHist);
+    
+            if (selection.s_copyXAxis) {
+                // copy x axis range
+                TAxis* pDestAxis = pDestHist.GetXaxis();
+                TAxis* pSrcAxis = pSourceHist.GetXaxis();
+    
+                int lowerLimit = pSrcAxis->GetFirst();
+                int upperLimit = pSrcAxis->GetLast();
+    
+                pDestAxis->SetRange(lowerLimit, upperLimit);
             }
-    	}
-
-        if (selection.s_copyLogx) {
-            if (pDestCanvas && pSourceCanvas) {
-                pDestCanvas->SetLogx(pSourceCanvas->GetLogx());
+    
+            if (selection.s_copyYAxis) {
+                // copy x axis range
+                TAxis* pDestAxis = pDestHist.GetYaxis();
+                TAxis* pSrcAxis = pSourceHist.GetYaxis();
+    
+                int lowerLimit = pSrcAxis->GetFirst();
+                int upperLimit = pSrcAxis->GetLast();
+                pDestAxis->SetRange(lowerLimit, upperLimit);
             }
-        }
-
-        if (selection.s_copyLogy) {
-            if (pDestCanvas && pSourceCanvas) {
-                pDestCanvas->SetLogy(pSourceCanvas->GetLogy());
+    
+            if (selection.s_copyMinimum) {
+                pDestHist.SetMinimum(pSourceHist.GetMinimum());
             }
-        }
-
-        if (selection.s_copyLogz) {
-            if (pDestCanvas && pSourceCanvas) {
-                pDestCanvas->SetLogz(pSourceCanvas->GetLogz());
+    
+            if (selection.s_copyMaximum) {
+                pDestHist.SetMaximum(pSourceHist.GetMaximum());
             }
+    
+            SpectrumView& view = m_pView->getCurrentWorkspace().getView();
+            QRootCanvas* pSourceCanvas = view.getCanvas(sourceTarget.s_row, sourceTarget.s_col);
+            QRootCanvas* pDestCanvas = view.getCanvas(destTarget.s_row, destTarget.s_col);
+    
+            if (selection.s_copyDrawOption) {
+    
+                if (pDestCanvas && pSourceCanvas) {
+                    QString sourceOpt = CanvasOps::getDrawOption(pSourceCanvas->getCanvas(), &pSourceHist);
+                    CanvasOps::setDrawOption(pDestCanvas->getCanvas(), &pDestHist, sourceOpt);
+                }
+            }
+    
+            if (selection.s_copyLogx) {
+                if (pDestCanvas && pSourceCanvas) {
+                    pDestCanvas->SetLogx(pSourceCanvas->GetLogx());
+                }
+            }
+    
+            if (selection.s_copyLogy) {
+                if (pDestCanvas && pSourceCanvas) {
+                    pDestCanvas->SetLogy(pSourceCanvas->GetLogy());
+                }
+            }
+    
+            if (selection.s_copyLogz) {
+                if (pDestCanvas && pSourceCanvas) {
+                    pDestCanvas->SetLogz(pSourceCanvas->GetLogz());
+                }
+            }
+    
         }
-
+    
+        m_pView->getCurrentWorkspace().getView().refreshAll();
+    } catch (std::exception& e) {
+        QMessageBox::warning(
+            this, "Unable to create the Copy attributes dialog",
+            "At least one tab must first be defined an populated."
+        );
     }
-
-    m_pView->getCurrentWorkspace().getView().refreshAll();
 }
 
 void MainWindow::createShortcuts()
@@ -326,8 +346,14 @@ void MainWindow::closeDialog()
 
 void MainWindow::onPrint()
 {
-    PrintDialog dialog(m_specTclControl.getInterface(), *m_pView, this);
-    dialog.exec();
+    try {
+        PrintDialog dialog(m_specTclControl.getInterface(), *m_pView, this);
+        dialog.exec();
+    } catch (std::exception & e) {
+        QMessageBox::warning(
+            this, "Unable to make print dialog at this time",
+            "At least one tab must be defined and filled with spectra");
+    }
 }
 
 } // end of namespace
