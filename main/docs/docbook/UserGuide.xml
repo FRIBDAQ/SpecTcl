@@ -2448,7 +2448,8 @@ OBJECTS=MySpecTclApp.o SimpleTree.o
                         <literal>spectra</literal> will start the Root based
                         Spectra
                         displayer while <literal>xamine</literal> will start the
-                        traditional Xamine displayer
+                        traditional Xamine displayer.  Finally <literal>none</literal>
+                        will not start any display program.  
                     </para>
                 </listitem>
             </varlistentry>
