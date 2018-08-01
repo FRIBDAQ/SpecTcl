@@ -369,7 +369,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(TreeParam_INCLUDES) \
 				$(Xamine_INCLUDES)
 
-noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) Asserts.h
+noinst_HEADERS = $(DecoderRing_noinst_INCLUDES) 
 
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
