@@ -27,7 +27,7 @@
 //
 
 
-#ifndef SETALLVISITOR_H)
+#ifndef SETALLVISITOR_H
 #define SETALLVISITOR_H
 
 #include "CMatchingVisitor.h"

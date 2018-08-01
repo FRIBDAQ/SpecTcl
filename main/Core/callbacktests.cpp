@@ -9,7 +9,7 @@
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-
+#include <histotypes.h>
 #include <TCLInterpreter.h>
 #include <TCLVariable.h>
 #include "DocumentationCallback.h"

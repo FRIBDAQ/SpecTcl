@@ -10,7 +10,7 @@
 */
 
 #ifndef SRUNCONTEXT_H
-#define SUNCONTEXT_H
+#define SRUNCONTEXT_H
 
 //  The including file must have included <config.h>!!!!
 

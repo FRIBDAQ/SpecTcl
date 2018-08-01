@@ -22,7 +22,7 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#ifdef CCONTOURROI_H
+#ifndef CCONTOURROI_H
 #define CCONTOURROI_H
 
 #include "CROI.h"

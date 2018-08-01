@@ -18,23 +18,14 @@
 // spectrum.  Note that since this is a template class,
 // it will most likely be included in the header too:
 
-#ifndef __GAMMA2DD_CXX
-#define __GAMMA2DD_CXX
+#ifndef GAMMA2DD_CXX
+#define GAMMA2DD_CXX
 
 #include <config.h>
 
-#ifndef __GAMMA2DD_H
 #include "Gamma2DD.h"		// In case not in header.
-#endif
-
-
-#ifndef __PARAMETER_H
-#include <CParameter.h>
-#endif
-
-#ifndef __RANGEERROR_H
+#include <Parameter.h>
 #include <RangeError.h>
-#endif
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

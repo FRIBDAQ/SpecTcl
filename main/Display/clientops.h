@@ -370,7 +370,7 @@ int Xamine_ReadPipe(int id, int timeout, void *buffer, int size);
 #define WritePipe Xamine_WritePipe_
 #define ReadPipe  Xamine_ReadPipe_
 
-#ifndef _GATEIO_H
+#ifndef GATEIO_H
 #define requests Xamine_requests
 #define acks     Xamine_acks
 #define newgates Xamine_newgates

@@ -87,7 +87,7 @@ install-exec-local:
 	echo LIBTCLPLUS_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ >> CompilationRules.temp
 	cat  @srcdir@/CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) @builddir@/CompilationRules.temp $(sysconfdir)/CompilationRules.include
-	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` >VERSION
+	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` by `whoami` >VERSION
 	$(INSTALL_DATA) @builddir@/VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/docs/man
