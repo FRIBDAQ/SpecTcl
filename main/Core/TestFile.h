@@ -44,39 +44,16 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TESTFILE_H  // Required for current class
-#define __TESTFILE_H
+#ifndef TESTFILE_H  // Required for current class
+#define TESTFILE_H
 
-// Required for base classes
-#ifndef __FILE_H
 #include "File.h"
-#endif                               
-                               
-// Required for 1:1 associated classes
-#ifndef __DISTRIBUTION_H
 #include "Distribution.h"
-#endif                                                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
-typedef STD(vector)<CDistribution*> CDistributionList;
+typedef std::vector<CDistribution*> CDistributionList;
 typedef CDistributionList::iterator CDistributionIterator;
 
 class CTestFile : public CFile {

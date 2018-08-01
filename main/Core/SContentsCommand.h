@@ -19,8 +19,8 @@
  * @brief Declare class to implement the scontents command.
  * @author Ron Fox <fox@nscl.msu.edu>
  */
-#ifndef __SCONTENTSCOMMAND_H
-#define __SCONTENTSCOMMAND_H
+#ifndef SCONTENTSCOMMAND_H
+#define SCONTENTSCOMMAND_H
 
 #include <TCLObjectProcessor.h>
 

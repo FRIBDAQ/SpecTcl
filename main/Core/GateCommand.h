@@ -27,28 +27,14 @@
 // (c) Copyright NSCL 1999, All rights reserved GateCommand.h
 //
 
-#ifndef __GATECOMMAND_H  //Required for current class
-#define __GATECOMMAND_H
+#ifndef GATECOMMAND_H  //Required for current class
+#define GATECOMMAND_H
 
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif
-  
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __GATEFACTORY_H
 #include "GateFactory.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CGatePackage;		// Forward class definition.
 class CTCLInterpreter;		// Forward class definition

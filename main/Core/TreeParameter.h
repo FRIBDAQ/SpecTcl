@@ -20,24 +20,13 @@
 //    East Lansing, MI 48824-1321
 //
 
-#ifndef __TREEPARAMETER_H
-#define __TREEPARAMETER_H
+#ifndef TREEPARAMETER_H
+#define TREEPARAMETER_H
 
-#ifndef __CTREEPARAMETER_H
 #include <CTreeParameter.h>
-#endif
-
-#ifndef __CTREEPARAMETERARRAY_H
 #include <CTreeParameterArray.h>
-#endif
-
-#ifndef __CTREEVARIABLE_H
 #include <CTreeVariable.h>
-#endif
-
-#ifndef __CTREEVARIABLEARRAY_H
 #include <CTreeVariableArray.h>
-#endif
 
 
 

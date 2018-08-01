@@ -21,19 +21,11 @@
 //    In SpecTcl, this is used to represent a parameter value in the CEvent
 //    array.
 //
-#ifndef __VALIDVALUE_H
-#define __VALIDVALUE_H
+#ifndef VALIDVALUE_H
+#define VALIDVALUE_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 template <class T>
 class CValidValue {

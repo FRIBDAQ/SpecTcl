@@ -33,14 +33,10 @@
 //         pipe.
 /////////////////////////////////////////////////////////////
 
-#ifndef __ATTACHCOMMAND_H //Required for current class
-#define __ATTACHCOMMAND_H
+#ifndef ATTACHCOMMAND_H //Required for current class
+#define ATTACHCOMMAND_H
 
-//Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#define __TCLPACKAGEDCOMMAND_H
-#endif
 
 // Forward class references:
 class CTCLInterpreter;

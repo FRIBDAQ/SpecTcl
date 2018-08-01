@@ -15,19 +15,16 @@
              East Lansing, MI 48824-1321
 
 */
+#ifndef NSCLBIN_H
+#define NSCLBIN_H
 
 #include <string.h>
 #include <errno.h>
 #include <nscldata.h>
 #include <nsclbinerror.h>
 
-#ifndef __ISTREAM_DAQH
 #include <istream>
-#endif
-
-#ifndef __OSTREAM_DAQH
 #include <ostream>
-#endif
 
 /*    
       nsclbin.h
@@ -39,8 +36,7 @@
   
 
 */
-#ifndef NSCLBIN_
-#define NSCLBIN_
+
 class nsclbin {
  public:
   nsclbin(std::istream*);

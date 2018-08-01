@@ -21,19 +21,10 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CPROJECTIONCOMMAND_H)
-#define      __CPROJECTIONCOMMAND_H
-
-#ifndef __TCLPROCESSOR_H
+#ifndef CPROJECTIONCOMMAND_H
+#define CPROJECTIONCOMMAND_H
 #include <TCLProcessor.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward class definitions.
 

@@ -14,19 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFITBUTTON_H
-#define __CFITBUTTON_H
+#ifndef CFITBUTTON_H
+#define CFITBUTTON_H
 
-#ifndef __XAMINEEVENTHANDLER_H
 #include <XamineEventHandler.h>	// For base class.
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CButtonEvent;
 

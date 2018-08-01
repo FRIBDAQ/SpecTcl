@@ -29,17 +29,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __POINT_H  //Required for current class
-#define __POINT_H
+#ifndef POINT_H  //Required for current class
+#define POINT_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
       
 template <class T>                         
 class Point      

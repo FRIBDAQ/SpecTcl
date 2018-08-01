@@ -29,23 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __EVENT_H //Required for current class
-#define __EVENT_H
+#ifndef EVENT_H //Required for current class
+#define EVENT_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __VALIDVALUE_H
 #include <ValidValue.h>
-#endif
 
 typedef DFloat_t ParamType;
 typedef std::vector<DopedValidValue<ParamType> > CParameterVector;

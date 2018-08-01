@@ -1,5 +1,5 @@
-#ifndef __CFLATTENEDGATELIST_H
-#define __CFLATTENEDGATELIST_H
+#ifndef CFLATTENEDGATELIST_H
+#define CFLATTENEDGATELIST_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -15,18 +15,9 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __DICTIONARY_H
 #include <Dictionary.h>
-#endif
-
-
-#ifndef __HISTOGRAMMER_H
 #include <Histogrammer.h>
-#endif
-
-#ifndef __DYNAMICLIST_H
 #include "DynamicList.h"
-#endif
 
 class CHistogrammer;
 

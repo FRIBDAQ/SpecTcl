@@ -1,5 +1,5 @@
-#ifndef __CCCUSBPACKET_H
-#define __CCCUSBPACKET_H
+#ifndef CCCUSBPACKET_H
+#define CCCUSBPACKET_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -17,13 +17,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-#ifndef __PARAMMAPCOMMAND_H
 #include "ParamMapCommand.h"
-#endif
 
 class CEvent;
 

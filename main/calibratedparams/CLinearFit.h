@@ -19,17 +19,15 @@
 
 
 
-#ifndef __CLINEARFIT_H  //Required for current class
-#define __CLINEARFIT_H
+#ifndef CLINEARFIT_H  //Required for current class
+#define CLINEARFIT_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __CFIT_H     //CFit
 #include "CFit.h"
-#endif
  
 class CLinearFit  : public CFit        
 {

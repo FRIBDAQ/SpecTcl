@@ -1,5 +1,5 @@
-#ifndef __CCONSTDATA_H
-#define __CCONSTDATA_H
+#ifndef CCONSTDATA_H
+#define CCONSTDATA_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2008
@@ -16,26 +16,9 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 class CConstProcessor;
 

@@ -15,12 +15,10 @@
 */
 
 
-#ifndef __WYSIWYGPRINT_H
-#define __WYSIWYGPRINT_H
+#ifndef WYSIWYGPRINT_H
+#define WYSIWYGPRINT_H
 
-#ifndef XMWIDGET_H
 #include <XMWidget.h>
-#endif
 
 
 extern void Xamine_printCapture(XMWidget* who, XtPointer ud, XtPointer cd);

@@ -31,30 +31,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __GATECONTAINER_H //Required for current class
-#define __GATECONTAINER_H
+#ifndef GATECONTAINER_H //Required for current class
+#define GATECONTAINER_H
 
-#ifndef __NAMEDITEM_H
 #include "NamedItem.h"
-#define __NAMEDITEM_H
-#endif
-
-#ifndef __GATE_H
 #include "Gate.h"
-#define __GATE_H
-#endif
-
-#ifndef __EVENT_H
 #include "Event.h"
-#define __EVENT_H
-#endif
-                  
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 

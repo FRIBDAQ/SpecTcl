@@ -10,24 +10,14 @@ to be compatible with the readout software.
 */
 
 
-#ifndef __CCAENDIGITIZERCREATOR_H  //Required for current class
-#define __CCAENDIGITIZERCREATOR_H
+#ifndef CCAENDIGITIZERCREATOR_H  //Required for current class
+#define CCAENDIGITIZERCREATOR_H
 
 //
 // Include files:
 //
-
-                               //Required for base classes
-#ifndef __CMODULECREATOR_H     //CModuleCreator
 #include "CModuleCreator.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // forward class definitions:
 

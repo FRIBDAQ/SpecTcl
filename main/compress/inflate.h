@@ -20,8 +20,8 @@
 # @author <fox@nscl.msu.edu>
 */
 
-#ifndef _INFLATE_H
-#define _INFLATE_H
+#ifndef INFLATE_H
+#define INFLATE_H
 #include <TCLObjectProcessor.h>
 
 class CTCLInterpreter;

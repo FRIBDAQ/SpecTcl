@@ -4,8 +4,8 @@
 // symbol HAVE_HLESS_HEADERS to distinguish
 // the difference:
 
-#ifndef  __IOMANIP_DAQH
-#define  __IOMANIP_DAQH
+#ifndef  IOMANIP_DAQH
+#define  IOMANIP_DAQH
 
 #ifdef HAVE_HLESS_IOMANIP
 #include <iomanip>

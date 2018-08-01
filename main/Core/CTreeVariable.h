@@ -27,26 +27,15 @@
 //
 
 
-#if !defined(__CTREEVARIABLE_H)
-#define __CTREEVARIABLE_H
+#ifndef CTREEVARIABLE_H
+#define CTREEVARIABLE_H
 
 
 #include "CTreeVariableProperties.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
+
 
 // Forward definitions:
 

@@ -19,8 +19,8 @@
 # @brief  Base class for user written analysis.
 # @author <fox@nscl.msu.edu>
 */
-#ifndef _CANALYSISBASE_H
-#define _CANALYSISBASE_H
+#ifndef CANALYSISBASE_H
+#define CANALYSISBASE_H
 
 #include <vector>
 #include <string>

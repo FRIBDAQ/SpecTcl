@@ -28,21 +28,15 @@
 
 
 
-#if !defined(__SETCHANNELSVISITOR_H)
-#define __SETCHANNELSVISITOR_H
+#ifndef SETCHANNELSVISITOR_H
+#define SETCHANNELSVISITOR_H
 
 #include "CMatchingVisitor.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
+
+
 // Forward defs:
 
 class CTreeParameter;

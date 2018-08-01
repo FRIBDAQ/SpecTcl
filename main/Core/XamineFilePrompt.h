@@ -30,22 +30,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEFILEPROMPT_H  //Required for current class
-#define __XAMINEFILEPROMPT_H
+#ifndef XAMINEFILEPROMPT_H  //Required for current class
+#define XAMINEFILEPROMPT_H
                                //Required for base classes
-#ifndef __XAMINEBUTTONPROMPT_H
 #include "XamineButtonPrompt.h"
-#endif               
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
                                
 class CXamineFilePrompt  : public CXamineButtonPrompt        
 {

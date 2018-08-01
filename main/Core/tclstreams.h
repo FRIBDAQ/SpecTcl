@@ -14,8 +14,8 @@
              Michigan State University
              East Lansing, MI 48824-1321
 */
-#ifndef __TCLSTREAMS_H
-#define __TCLSTREAMS_H
+#ifndef TCLSTREAMS_H
+#define TCLSTREAMS_H
 
 #include <tcl.h>
 

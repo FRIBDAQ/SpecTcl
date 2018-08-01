@@ -13,19 +13,11 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __CFIRSTOFEVENTPROCESSOR_H
-#define __CFIRSTOFEVENTPROCESSOR_H
+#ifndef CFIRSTOFEVENTPROCESSOR_H
+#define CFIRSTOFEVENTPROCESSOR_H
 
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 // Forward class definitions:

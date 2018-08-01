@@ -21,36 +21,18 @@
   software to share configuration data.
 */
 
-#ifndef __CCAENDIGITIZERMODULE_H  //Required for current class
-#define __CCAENDIGITIZERMODULE_H
+#ifndef CCAENDIGITIZERMODULE_H  //Required for current class
+#define CCAENDIGITIZERMODULE_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __CMODULE_H     //CModule
 #include "CModule.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __CRTL_STRING_H
 #include <string.h>
-#ifndef __CRTL_STRING_H
-#define __CRTL_STRING_H
-#endif
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
-#include <TranslatorPointer.h>
-#endif
- 
+#include <TranslatorPointer.h> 
 
 // Forward Class Defintions:
 

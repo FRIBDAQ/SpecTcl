@@ -1,5 +1,5 @@
-#ifndef __CRATEEVENTPROCESSOR_H
-#define __CRATEEVENTPROCESSOR_H
+#ifndef CRATEEVENTPROCESSOR_H
+#define CRATEEVENTPROCESSOR_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -18,22 +18,10 @@
 */
 
 
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-
-#ifndef __TREEPARAMETER_H
 #include <TreeParameter.h>
-#endif
-
-#ifndef __CRT_STDINT_H
 #include <stdint.h>
-#endif
 
 
 /*!

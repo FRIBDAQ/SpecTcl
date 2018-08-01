@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CV1729UNPACKER_H
-#define __CV1729UNPACKER_H
+#ifndef CV1729UNPACKER_H
+#define CV1729UNPACKER_H
 
-#ifndef __CMODULEUNPACKER_H
 #include "CModuleUnpacker.h"
-#endif
 
 
 class CSpectrum;

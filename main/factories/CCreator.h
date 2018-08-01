@@ -1,5 +1,5 @@
-#ifndef __CCREATOR_H
-#define __CCREATOR_H
+#ifndef CCREATOR_H
+#define CCREATOR_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -17,12 +17,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 /*!
    The abstract extensible factor pattern is widely enough used by

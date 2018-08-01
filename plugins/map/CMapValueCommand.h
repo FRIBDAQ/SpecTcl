@@ -13,21 +13,12 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __CMAPVALUECOMMAND_H
-#define __CMAPVALUECOMMAND_H
+#ifndef CMAPVALUECOMMAND_H
+#define CMAPVALUECOMMAND_H
 
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 /*!
   This class provides the mapvalue command.  The mapvalue command provides a mechanism

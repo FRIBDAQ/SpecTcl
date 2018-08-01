@@ -28,21 +28,13 @@
 //
 
 
-#if !defined(__UNCHECKVISITOR_H)
-#define __UNCHECKVISITOR_H
+#ifndef UNCHECKVISITOR_H
+#define UNCHECKVISITOR_H
 
-#ifndef __CMATCHINGVISITOR_H
 #include "CMatchingVisitor.h"
-#endif
-
 #include "CTreeParameter.h"
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+
 
 // forward definitions:
 

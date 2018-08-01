@@ -16,34 +16,13 @@
 // Include files:
 //
 
-#ifndef __CFIT_H  //Required for current class
-#define __CFIT_H
+#ifndef CFIT_H  //Required for current class
+#define CFIT_H
 
-#ifndef __NAMEDITEM_H
 #include <NamedItem.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_UTILITY
 #include <utility>
-#ifndef __STL_UTILITY
-#define __STL_UTILITY
-#endif
-#endif
-
 
 
 class CCalibFit : public  CNamedItem     

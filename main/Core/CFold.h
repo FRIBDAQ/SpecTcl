@@ -22,34 +22,14 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CFOLD_H)
-#define  __CFOLD_H
+#ifndef CFOLD_H
+#define  CFOLD_H
 
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_UTILITY
 #include <utility>
-#ifndef __STL_UTILITY
-#define __STL_UTILITY
-#endif
-#endif
 
 
 // Forward definitions:

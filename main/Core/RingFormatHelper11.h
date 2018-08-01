@@ -14,17 +14,15 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef _RINGFORMATHELPER11_H
-#define _RINGFORMATHELPER11_H
+#ifndef RINGFORMATHELPER11_H
+#define RINGFORMATHELPER11_H
 
 
 /**
  * @file RingFormatHelper11.h
  * @brief Defines ring format helper for NSCLDAQ verswion 11.x+ data.
  */
-#ifndef _RINGFORMATHELPER_H
 #include "RingFormatHelper.h"
-#endif
 
 /**
  * @class CRingFormatHelper11

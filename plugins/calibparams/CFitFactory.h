@@ -17,38 +17,17 @@
 */
 
 
-#ifndef __CFITFACTORY_H  //Required for current class
-#define __CFITFACTORY_H
+#ifndef CFITFACTORY_H  //Required for current class
+#define CFITFACTORY_H
 
 //
 // Include files:
 //
 
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __POINT_H
 #include <Point.h>
-#endif
 
 // Forward class definitions (convert to includes if required):
 

@@ -1,5 +1,5 @@
-#ifndef __CC1205UNPACKER_H
-#define __CC1205UNPACKER_H
+#ifndef CC1205UNPACKER_H
+#define CC1205UNPACKER_H
 
 
 /*
@@ -17,9 +17,7 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __CCCUSBPACKET_H
 #include "CCCUSBPacket.h"
-#endif
 
 class CEvent;
 

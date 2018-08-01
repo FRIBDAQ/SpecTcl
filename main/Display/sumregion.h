@@ -61,25 +61,11 @@
 #ifndef SUMREGION_H_INSTALLED
 #define SUMREGION_H_INSTALLED
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
-
-#ifndef XMLIST_H_INSTALLED
 #include "XMList.h"
-#endif
-
-#ifndef XMPushbutton_H
 #include "XMPushbutton.h"
-#endif
-
-#ifndef _XMLABEL_H
 #include "XMLabel.h"
-#endif
-
-#ifndef _XMTEXT_H
 #include "XMText.h"
-#endif
 
 #include "convert.h"
 #include "dispgrob.h"

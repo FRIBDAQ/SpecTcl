@@ -8,20 +8,12 @@
      http://www.gnu.org/licenses/gpl.txt
 
 */
-#ifndef __CSTANDARDCONTROLCALLBACK_H
-#define __CSTANDARDCONTROLCALLBACK_H
+#ifndef CSTANDARDCONTROLCALLBACK_H
+#define CSTANDARDCONTROLCALLBACK_H
 
-#ifndef __CBUFFERCALLBACK_H
 #include "CBufferCallback.h"
-#endif
-
-#ifndef __SRUNCONTEXT_H
 #include "SRunContext.h"
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
 
 /*!
   This class is registered by the buffer processor at the front of the

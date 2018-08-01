@@ -15,35 +15,13 @@
 */
 
 
-#ifndef __CV1X90UNPACKER_H
-#define __CV1X90UNPACKER_H
+#ifndef CV1X90UNPACKER_H
+#define CV1X90UNPACKER_H
 
-
-#ifndef __CMODULEUNPACKER_H
 #include <CModuleUnpacker.h>
-#endif
-
-
-#ifndef __CPARAMMAPCOMMAND_H
 #include "CParamMapCommand.h"
-#endif
-
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-
-#ifndef __CRT_STDINT_H
 #include <stdint.h>
-#ifndef __CRT_STDINT_H
-#define __CRT_STDINT_H
-#endif
-#endif
 
 // Forward definitions.
 

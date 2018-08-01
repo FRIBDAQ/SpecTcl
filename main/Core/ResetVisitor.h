@@ -20,16 +20,11 @@
 //    East Lansing, MI 48824-1321
 //
 
-#ifndef __RESETVISITOR_H
-#define __RESETVISITOR_H
+#ifndef RESETVISITOR_H
+#define RESETVISITOR_H
 
-#ifndef __CMATCHINGVISITOR_H
 #include <CMatchingVisitor.h>
-#endif
-
-#ifndef __CTREEPARAMETER_H
 #include <CTreeParameter.h>
-#endif
 
 class ResetVisitor  : public CMatchingVisitor
 {

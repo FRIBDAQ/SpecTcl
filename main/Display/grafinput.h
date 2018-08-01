@@ -32,8 +32,8 @@
 **    @(#)grafinput.h	8.1 6/23/95 
 */
 
-#ifndef _GRAFINPUT_H_INSTALLED
-#define _GRAFINPUT_H_INSTALLED
+#ifndef GRAFINPUT_H_INSTALLED
+#define GRAFINPUT_H_INSTALLED
 
 #include "XMDialogs.h"
 #include "helpmenu.h"

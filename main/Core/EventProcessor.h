@@ -39,21 +39,13 @@
 //
 // Copyright 
 
-#ifndef __EVENTPROCESSOR_H  //Required for current class
-#define __EVENTPROCESSOR_H
+#ifndef EVENTPROCESSOR_H  //Required for current class
+#define EVENTPROCESSOR_H
 
 // Include files:
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CAnalyzer;
 class CBufferDecoder;

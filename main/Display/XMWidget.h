@@ -41,12 +41,7 @@
 #include <X11/StringDefs.h>
 #include <Xm/Xm.h>
 
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 typedef char XMWidgetName[32];
 

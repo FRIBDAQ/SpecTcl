@@ -16,8 +16,8 @@
       Michigan State University
       East Lansing, MI 48824-1321
 */
-#ifndef __SCALERPROCESSOR_H
-#define __SCALERPROCESSOR_H
+#ifndef SCALERPROCESSOR_H
+#define SCALERPROCESSOR_H
 
 #include <EventProcessor.h>
 

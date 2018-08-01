@@ -1,5 +1,5 @@
-#ifndef __CROOTFILTEROUTPUTSTAGECREATOR_H
-#define __CROOTFILTEROUTPUTSTAGECREATOR_h
+#ifndef CROOTFILTEROUTPUTSTAGECREATOR_H
+#define CROOTFILTEROUTPUTSTAGECREATOR_h
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -15,9 +15,7 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __CFILTEROUTPUTSTAGECREATOR_H
 #include <CFilterOutputStageCreator.h>
-#endif
 
 
 /*!

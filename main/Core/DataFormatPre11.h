@@ -1,5 +1,5 @@
-#ifndef __DATAFORMATPRE10_H
-#define __DATAFORMATPRE10_H
+#ifndef DATAFORMATPRE10_H
+#define DATAFORMATPRE10_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -47,19 +47,8 @@ namespace NSCLDAQ10 {
 */
 
 
-#ifndef __CRT_STDINT_H
 #include <stdint.h>
-#ifndef __CRT_STDINT_H
-#define __CRT_STDINT_H
-#endif
-#endif
-
-#ifndef __CRT_TIME_H
 #include <time.h>
-#ifndef __CRT_TIME_H
-#define __CRT_TIME_H
-#endif
-#endif
 
 // state change item type codes:
 

@@ -1,5 +1,5 @@
-#ifndef __DYNAMICLIST_H
-#define __DYNAMICLIST_H
+#ifndef DYNAMICLIST_H
+#define DYNAMICLIST_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.

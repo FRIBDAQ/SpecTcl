@@ -31,13 +31,10 @@
 **   East Lansing, MI 48824-1321
 **   @(#)ptlist.h	8.1 6/23/95 
 */
-#ifndef _PTLIST_H
-#define _PTLIST_H
+#ifndef PTLIST_H
+#define PTLIST_H
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
-
 #include "dispgrob.h"
 #include "sumregion.h"
 

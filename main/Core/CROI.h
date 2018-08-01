@@ -22,12 +22,10 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CROI_H)
-#define      __CROI_H
+#ifndef CROI_H
+#define CROI_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 // Forward definitions:
 

@@ -1,5 +1,5 @@
-#ifndef __S800PACKETS_H
-#define __S800PACKETS_H
+#ifndef S800PACKETS_H
+#define S800PACKETS_H
 
 #define S800_PACKET				0x5800
 

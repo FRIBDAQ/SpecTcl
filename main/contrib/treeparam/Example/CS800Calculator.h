@@ -1,5 +1,5 @@
-#ifndef __CS800CALCULATOR_H
-#define __CS800CALCULATOR_H
+#ifndef CS800CALCULATOR_H
+#define CS800CALCULATOR_H
 
 class CS800Calculator : public  CEventProcessor
 {

@@ -30,17 +30,11 @@
 //
 ////////////////////////////////////////////////////////////////
 
-#ifndef __DISKFILE_H
-#define __DISKFILE_H
+#ifndef DISKFILE_H
+#define DISKFILE_H
 
-#ifndef __FILE_H
 #include "File.h"
-#endif
-
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 class CDiskFile : public CFile {
 public:

@@ -13,17 +13,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLPACKAGEDCOMMAND_H  //Required for current class
-#define __TCLPACKAGEDCOMMAND_H
+#ifndef TCLPACKAGEDCOMMAND_H  //Required for current class
+#define TCLPACKAGEDCOMMAND_H
                                
-                               //Required for 1:1 associated classes
-#ifndef __TCLCOMMANDPACKAGE_H
 #include "TCLCommandPackage.h"
-#endif                                                               
-
-#ifndef __TCLPROCESSOR_H
 #include "TCLProcessor.h"
-#endif                                                  
              
 class CTCLPackagedCommand   : public CTCLProcessor
 {

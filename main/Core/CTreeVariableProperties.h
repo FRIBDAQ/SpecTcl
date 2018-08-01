@@ -27,15 +27,10 @@
 //
 
 
-#if !defined(__CTREEVARIABLEPROPERTIES_H)
-#define __CTREEVARIABLEPROPERTIES_H
+#ifndef CTREEVARIABLEPROPERTIES_H
+#define CTREEVARIABLEPROPERTIES_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

@@ -29,19 +29,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __NSCLJUMBOBUFFERDECODER_H  //Required for current class
-#define __NSCLJUMBOBUFFERDECODER_H
-//Required for base classes
-#ifndef __JUMBOBUFFERDECODER_H
+#ifndef NSCLJUMBOBUFFERDECODER_H  //Required for current class
+#define NSCLJUMBOBUFFERDECODER_H
+
 #include "BufferDecoder.h"
-#endif                               
-                               
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 //
 // This is a test class for decoding buffers that
 // have version  6 or higher.  Those buffers have

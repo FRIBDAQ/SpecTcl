@@ -22,8 +22,8 @@
 **     This file contains definitions for functions that get printer default
 **     information and prompt for it.
 */
-#ifndef _PRINTER_H
-#define _PRINTER_H
+#ifndef PRINTER_H
+#define PRINTER_H
 
 #include <fstream>
 #include <dispgrob.h>

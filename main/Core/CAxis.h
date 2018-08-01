@@ -23,27 +23,15 @@
 //
 // Copyright 
 
-#ifndef __CAXIS_H  //Required for current class
-#define __CAXIS_H
+#ifndef CAXIS_H  //Required for current class
+#define CAXIS_H
 
 //
 // Include files:
 //
-#ifndef  __HISTOTYPES_H
 #include <histotypes.h>        //Required for include files  
-#endif
-
-                               //Required for 1:1 association classes
-#ifndef __CPARAMETERMAPPING_H    //CParameterMapping
 #include "CParameterMapping.h"
-#endif 
- 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 /*!
 Describes the range and granularity of an axis.  If the parameter that 

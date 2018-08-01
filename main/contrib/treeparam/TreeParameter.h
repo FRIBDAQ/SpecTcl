@@ -26,8 +26,8 @@
 
 #warning "You are including an obsolete version of Treeparameter.h"
 
-#ifndef __TREEPARAMETER_H
-#define __TREEPARAMETER_H
+#ifndef TREEPARAMETER_H
+#define TREEPARAMETER_H
 
 // Version 1.2 takes advantage of the real parameters implemented in SpecTcl 2.1
 // It is therefore only compatible with versions of SpecTcl >= 2.1

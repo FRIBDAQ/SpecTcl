@@ -30,18 +30,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEBUTTONPROMPT_H  //Required for current class
-#define __XAMINEBUTTONPROMPT_H
+#ifndef XAMINEBUTTONPROMPT_H  //Required for current class
+#define XAMINEBUTTONPROMPT_H
 
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
                                
 class CXamineButtonPrompt      
 {

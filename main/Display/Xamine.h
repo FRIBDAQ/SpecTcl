@@ -33,14 +33,9 @@
 #define XAMINE_CLIENT_H
 
 
-#ifndef __CONFIG_H
-#include <config.h>
-#define __CONFIG_H
-#endif
 
-#ifndef __XAMINEDATATYPES_H
+#include <config.h>
 #include "xamineDataTypes.h"
-#endif
 
 #if defined(__cplusplus) || defined(c_plusplus)
 extern "C" {

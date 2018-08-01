@@ -29,24 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINESPECTRUM_H  //Required for current class
-#define __XAMINESPECTRUM_H
+#ifndef XAMINESPECTRUM_H  //Required for current class
+#define XAMINESPECTRUM_H
           
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
 
 // Forward class definitions:
 

@@ -27,26 +27,12 @@
 //
 
 
-#if !defined(__CTREEPARAMETERCOMMAND_H)
-#define __CTREEPARAMETERCOMMAND_H
+#ifndef CTREEPARAMETERCOMMAND_H
+#define CTREEPARAMETERCOMMAND_H
 
-#ifndef __TCLPROCESSOR_H
 #include <TCLProcessor.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 // Forward Definitions:
 

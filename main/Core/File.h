@@ -29,19 +29,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __FILE_H  //Required for current class
-#define __FILE_H
+#ifndef FILE_H  //Required for current class
+#define FILE_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-  
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
                              
 class CFile      
 {

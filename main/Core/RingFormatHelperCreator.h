@@ -13,8 +13,8 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef _RINGFORMATHELPERCREATOR_H
-#define _RINGFORMATHELPERCREATOR_H
+#ifndef RINGFORMATHELPERCREATOR_H
+#define RINGFORMATHELPERCREATOR_H
 
 /**
  * @file RingFormatHelperCreator.h

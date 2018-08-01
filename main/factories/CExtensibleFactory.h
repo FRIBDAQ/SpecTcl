@@ -1,5 +1,5 @@
-#ifndef __CEXTENSIBLEFACTORY_H
-#define __CEXTENSIBLEFACTORY_H
+#ifndef CEXTENSIBLEFACTORY_H
+#define CEXTENSIBLEFACTORY_H
 
 
 /*
@@ -18,30 +18,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
-#ifndef __CCREATOR_H
 #include <CCreator.h>
-#endif
 
 
 /*!

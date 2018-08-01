@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CGAUSSIANFIT_H
-#define __CGAUSSIANFIT_H
+#ifndef CGAUSSIANFIT_H
+#define CGAUSSIANFIT_H
 
-#ifndef __CFIT_H
 #include "CFit.h"
-#endif
 
 
 /*!

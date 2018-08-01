@@ -14,20 +14,15 @@
 
 
 
-#ifndef __COLORSCALEDEFAULTDIALOG_H  //Required for current class
-#define __COLORSCALEDEFAULTDIALOG_H
+#ifndef COLORSCALEDEFAULTDIALOG_H  //Required for current class
+#define COLORSCALEDEFAULTDIALOG_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __XMDIALOGS_H     //XMCustomDialogBox
 #include "XMCustomDialogBox.h"
-#ifndef __XMDIALOGS_H
-#define __XMDIALOGS_H
-#endif
-#endif
  
                                //Required for 1:1 association classes
 

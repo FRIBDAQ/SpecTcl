@@ -1,4 +1,23 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
 
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins 
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+
+#ifndef DDASBITMASKS_H
+#define DDASBITMASKS_H
 
 // define bit masks to extract data from specific locations
 // of pixie16 data
@@ -27,3 +46,5 @@ static const uint32_t SIZEOFESUMS       =         4;
 // are recorded
 static const uint32_t SIZEOFQDCSUMS     =         8;
 
+
+#endif

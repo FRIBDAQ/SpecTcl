@@ -30,23 +30,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEBUTTON_H  //Required for current class
-#define __XAMINEBUTTON_H
+#ifndef XAMINEBUTTON_H  //Required for current class
+#define XAMINEBUTTON_H
                                
                                //Required for 1:1 associated classes
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
 
 class CXamineButtonPrompt;	// Forward class reference.
 class CXaminePushButton;

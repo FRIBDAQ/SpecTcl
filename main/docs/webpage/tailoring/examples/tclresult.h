@@ -13,21 +13,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLRESULT_H  //Required for current class
-#define __TCLRESULT_H
+#ifndef TCLRESULT_H  //Required for current class
+#define TCLRESULT_H
                                //Required for base classes
-#ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
-#endif                               
-
-#ifndef __TCLSTRING_H
 #include "TCLString.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
                                
 class CTCLResult  : public CTCLInterpreterObject        
 {

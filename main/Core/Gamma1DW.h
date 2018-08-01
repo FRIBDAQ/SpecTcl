@@ -58,34 +58,14 @@
 
 */
 
-#ifndef __GAMMA1DW_H  // Required for current class
-#define __GAMMA1DW_H
+#ifndef GAMMA1DW_H  // Required for current class
+#define GAMMA1DW_H
 
-#ifndef __CGAMMASPECTRUM_H
 #include "CGammaSpectrum.h"
-#endif
-
-#ifndef __SPECTRUM_H  // Required for base class
 #include "Spectrum.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 //  Foward Class definition:
 

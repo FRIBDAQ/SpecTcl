@@ -35,8 +35,8 @@
 
 
 #include <X11/Xlib.h>
-#ifndef __GC_H_
-#define __GC_H_
+#ifndef GC_H_
+#define GC_H_
 
 class XGC {
 public:

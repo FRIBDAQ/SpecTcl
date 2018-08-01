@@ -14,17 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __PARAMETERCOMMAND_H  //Required for current class
-#define __PARAMETERCOMMAND_H
+#ifndef PARAMETERCOMMAND_H  //Required for current class
+#define PARAMETERCOMMAND_H
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif  
-
-#ifndef __TCLCOMMANDPACKAGE_H
 #include "TCLCommandPackage.h"
-#endif
-
 #include "Dictionary.h"
 #include "Histogrammer.h"
 

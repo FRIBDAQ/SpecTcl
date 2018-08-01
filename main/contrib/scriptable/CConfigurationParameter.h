@@ -25,19 +25,14 @@
 //
 // Copyright 
 
-#ifndef __CCONFIGURATIONPARAMETER_H  //Required for current class
-#define __CCONFIGURATIONPARAMETER_H
+#ifndef CCONFIGURATIONPARAMETER_H  //Required for current class
+#define CCONFIGURATIONPARAMETER_H
 
 //
 // Include files:
 //
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 // Forward class defintions:

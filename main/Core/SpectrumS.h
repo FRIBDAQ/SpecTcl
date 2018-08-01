@@ -45,30 +45,13 @@
 
 */
 
-#ifndef __SPECTRUMS_H  //Required for current class
-#define __SPECTRUMS_H
+#ifndef SPECTRUMS_H  //Required for current class
+#define SPECTRUMS_H
                                //Required for base classes
-#ifndef __SPECTRUM_H
 #include "Spectrum.h"
-#endif                               
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif 
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 #include <stdint.h>
 
 

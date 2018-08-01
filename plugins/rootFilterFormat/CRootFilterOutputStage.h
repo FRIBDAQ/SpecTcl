@@ -1,5 +1,5 @@
-#ifndef __CROOTFILTEROUTPUTSTAGE_H
-#define __CROOTFILTEROUTPUTSTAGE_H
+#ifndef CROOTFILTEROUTPUTSTAGE_H
+#define CROOTFILTEROUTPUTSTAGE_H
  
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -17,9 +17,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFILTEROUTPUTSTAGE_H
 #include "CFilterOutputStage.h"
-#endif
 
 
 class CRootNtupleAccumulator;

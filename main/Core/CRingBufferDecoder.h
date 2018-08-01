@@ -15,26 +15,12 @@
 */
 
 
-#ifndef __CRINGBUFFERDECODER_H
-#define __CRINGBUFFERDECODER_H
+#ifndef CRINGBUFFERDECODER_H
+#define CRINGBUFFERDECODER_H
 
-#ifndef __BUFFERDECODER_H
 #include <BufferDecoder.h>
-#endif
-
-#ifndef __CRT_STDINT_H
 #include <stdint.h>
-#ifndef __CRT_STDINT_H
-#define __CRT_STDINT_H
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class BufferTranslator;
 class CRingFormatHelper;

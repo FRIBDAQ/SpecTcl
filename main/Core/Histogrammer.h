@@ -32,58 +32,15 @@
 #ifndef HISTOGRAMMER_H  //Required for current class
 #define HISTOGRAMMER_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
-
-#ifndef __PARAMETER_H
 #include "Parameter.h"
-#define __PARAMETER_H
-#endif
-
-#ifndef __SPECTRUM_H
 #include "Spectrum.h"
-#define __SPECTRUM_H
-#endif
-
-#ifndef __DICTIONARY_H
 #include "Dictionary.h"
-#define __DICTIONARY_H
-#endif
-
-#ifndef __EVENTSINK_H
 #include "EventSink.h"
-#define __EVENTSINK_H
-#endif
-
-#ifndef __GATECONTAINER_H
 #include <GateContainer.h>
-#define __GATECONTAINER_H
-#endif
-
 #include <GatingObserver.h>
 
 // Forward class definitions (probably should be a lot more of these).

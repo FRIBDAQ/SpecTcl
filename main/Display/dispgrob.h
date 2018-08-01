@@ -30,39 +30,23 @@
 */
 
 
-#ifndef _DISPGROB_H_INSTALLED
-#define _DISPGROB_H_INSTALLED
+#ifndef DISPGROB_H_INSTALLED
+#define DISPGROB_H_INSTALLED
 
-#ifndef __XAMINEDATATYPES_H
 #include "xamineDataTypes.h"
-#endif
-
 #include <stdio.h>
 #include <assert.h>
 #include <memory.h>
 #include <string.h>
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
 
 #include "dispwind.h"
 #include "XBatch.h"
 #include "convert.h"
 
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 

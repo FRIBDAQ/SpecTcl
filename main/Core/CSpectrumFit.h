@@ -14,24 +14,13 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CSPECTRUMFIT_H
-#define __CSPECTRUMFIT_H
+#ifndef CSPECTRUMFIT_H
+#define CSPECTRUMFIT_H
 
 
-#ifndef __NAMEDITEM_H
 #include <NamedItem.h>		// base class
-#endif
-
-#ifndef __CFIT_H
 #include "CFit.h"		// Need this for CFitParameterList.
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 

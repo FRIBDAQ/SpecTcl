@@ -14,20 +14,12 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CRATEPROCESSOR_H
-#define __CRATEPROCESSOR_H
+#ifndef CRATEPROCESSOR_H
+#define CRATEPROCESSOR_H
 
 
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __CRT_STDINT_H
 #include <stdint.h>
-#ifndef __CRT_STDINT_H
-#define __CRT_STDINT_H
-#endif
-#endif
 
 
 // forward classes:

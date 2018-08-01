@@ -31,8 +31,8 @@
 **    Michigan State University
 **    East Lansing, MI 48824-1321
 */
-#ifndef _COLORMGR_H
-#define _COLORMGR_H
+#ifndef COLORMGR_H
+#define COLORMGR_H
 #include <stdio.h>
 
 #ifndef XMWIDGET_H

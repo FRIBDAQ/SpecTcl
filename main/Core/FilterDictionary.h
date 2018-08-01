@@ -19,18 +19,11 @@
 */
 
 // Preprocessor includes, definitions.
-#ifndef __FILTERDICTIONARY_H //Required for current class
-#define __FILTERDICTIONARY_H
+#ifndef FILTERDICTIONARY_H //Required for current class
+#define FILTERDICTIONARY_H
 
-#ifndef __DICTIONARY_H
 #include "Dictionary.h"
-#define __DICTIONARY_H
-#endif
-
-#ifndef __GATEDEVENTFILTER_H
 #include <GatedEventFilter.h>
-#define __GATEDEVENTFILTER_H
-#endif
 
 // Class. (Singleton Pattern)
 class CFilterDictionary : public CDictionary<CGatedEventFilter*> {

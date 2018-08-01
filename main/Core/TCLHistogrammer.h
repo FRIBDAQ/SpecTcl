@@ -23,33 +23,14 @@
 // (c) Copyright NSCL 1999, All rights reserved TCLHistogrammer.h
 //
 
-#ifndef __TCLHISTOGRAMMER_H  //Required for current class
-#define __TCLHISTOGRAMMER_H
+#ifndef TCLHISTOGRAMMER_H  //Required for current class
+#define TCLHISTOGRAMMER_H
 
-#ifndef __PSEUDOSCRIPT_H
 #include <PseudoScript.h>
-#endif
-                               //Required for base classes
-#ifndef __HISTOGRAMMER_H
 #include "Histogrammer.h"
-#endif
-                               
-                               //Required for 1:1 association classes
-#ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
-#endif
-                                                               
-                               //Required for 1:M association classes
-#ifndef __PSUEDOSCRIPT_H
 #include "PseudoScript.h"
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
   
 typedef std::list<CPseudoScript>                   PseudoParameters;
 typedef std::list<CPseudoScript>::iterator         PseudoParameterIterator;

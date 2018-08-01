@@ -24,23 +24,15 @@
 //
 // Copyright 
 
-#ifndef __CPARAMETERMAPPING_H  //Required for current class
-#define __CPARAMETERMAPPING_H
+#ifndef CPARAMETERMAPPING_H  //Required for current class
+#define CPARAMETERMAPPING_H
 
 //
 // Include files:
 //
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>        //Required for include files  
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CParameter;
 

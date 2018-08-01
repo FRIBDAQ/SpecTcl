@@ -16,19 +16,14 @@
 */
 
 
-#ifndef __CFITCREATOR_H  //Required for current class
-#define __CFITCREATOR_H
+#ifndef CFITCREATOR_H  //Required for current class
+#define CFITCREATOR_H
 
 //
 // Include files:
 //
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 // Forward class definitions.

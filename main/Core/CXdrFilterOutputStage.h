@@ -1,5 +1,5 @@
-#ifndef __CXDRFILTEROUTPUTSTAGE_H
-#define __CXDRFILTEROUTPUTSTAGE_H
+#ifndef CXDRFILTEROUTPUTSTAGE_H
+#define CXDRFILTEROUTPUTSTAGE_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -16,9 +16,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFILTEROUTPUTSTAGE_H
 #include "CFilterOutputStage.h"
-#endif
 
 class CXdrOutputStream;
 

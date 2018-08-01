@@ -30,25 +30,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEMAP1D_H  //Required for current class
-#define __XAMINEMAP1D_H
+#ifndef XAMINEMAP1D_H  //Required for current class
+#define XAMINEMAP1D_H
                                //Required for base classes
-#ifndef __XAMINE1D_H
 #include "Xamine1D.h"
-#endif                               
-
-#ifndef __XAMINE2D_H
 #include "Xamine2D.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
 
 
 class CXamineMap1D        

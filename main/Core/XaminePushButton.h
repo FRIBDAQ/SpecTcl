@@ -30,19 +30,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEPUSHBUTTON_H  //Required for current class
-#define __XAMINEPUSHBUTTON_H
+#ifndef XAMINEPUSHBUTTON_H  //Required for current class
+#define XAMINEPUSHBUTTON_H
                                //Required for base classes
-#ifndef __XAMINEBUTTON_H
 #include "XamineButton.h"
-#endif
-                               
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CXamineToggleButton;	// forward def.
                                

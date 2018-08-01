@@ -30,23 +30,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINETOGGLEBUTTON_H  //Required for current class
-#define __XAMINETOGGLEBUTTON_H
+#ifndef XAMINETOGGLEBUTTON_H  //Required for current class
+#define XAMINETOGGLEBUTTON_H
                                //Required for base classes
-#ifndef __XAMINEBUTTON_H
 #include "XamineButton.h"
-#endif                               
-                               
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+ 
 class CXamineToggleButton  : public CXamineButton        
 {
   Bool_t m_fInitialState;  // Initial state of toggle.

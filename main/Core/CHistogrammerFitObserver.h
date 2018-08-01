@@ -17,10 +17,7 @@
 #ifndef CHISTOGRAMMERFITOBSERVER_H
 #define CHISTOGRAMMERFITOBSERVER_H
 
-
-#ifndef __CFITDICTIONARY_H
 #include <CFitDictionary.h>
-#endif
 
 
 class CSpectrumFit;

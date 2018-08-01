@@ -9,12 +9,10 @@
 
 */
 
-#ifndef __CLANGUAGECALLBACK_H
-#define __CLANGUAGECALLBACK_H
+#ifndef CLANGUAGECALLBACK_H
+#define CLANGUAGECALLBACK_H
 
-#ifndef __CBUFFERCALLABCK_H
 #include "CBufferCallback.h"
-#endif
 
 // The callback type is shown below:
 

@@ -42,21 +42,16 @@
 **   @(#)clientops.h	8.2 6/25/97 
 */
 
-#ifndef _CLIENTOPS_H
-#define _CLIENTOPS_H
+#ifndef CLIENTOPS_H
+#define CLIENTOPS_H
 
-#ifndef __XAMIENDATATYPES_H
+#ifndef XAMIENDATATYPES_H
 #include "xamineDataTypes.h"
 #endif
 
 #include <Xamine.h>
 
-#ifndef __STDINT_H
 #include <stdint.h>
-#ifndef __STDINT_H
-#define __STDINT_H
-#endif
-#endif
 
 #define BUTTON_LABELSIZE  16
 #define BUTTON_PROMPTSIZE 80

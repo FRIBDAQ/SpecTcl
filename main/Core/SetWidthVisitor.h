@@ -26,17 +26,12 @@
 //    East Lansing, MI 48824-1321
 //
 
-#if !defined(__SETWIDTHVISITOR_H)
-#define __SETWIDTHVISITOR_H
+#ifndef SETWIDTHVISITOR_H
+#define SETWIDTHVISITOR_H
 
 #include "CMatchingVisitor.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

@@ -45,29 +45,17 @@
 //
 // Copyright 
 
-#ifndef __CSEGMENTUNPACKER_H  //Required for current class
-#define __CSEGMENTUNPACKER_H
+#ifndef CSEGMENTUNPACKER_H  //Required for current class
+#define CSEGMENTUNPACKER_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __CCONFIGURABLEOBJECT_H     //CConfigurableObject
 #include "CConfigurableObject.h"
-#endif
- 
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-                               //Required for 1:1 association classes
 
 // Forward class definitions (convert to includes if required):
 

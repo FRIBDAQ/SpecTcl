@@ -28,18 +28,13 @@
 //
 
 
-#if !defined(__SETLIMITSVISITOR_H)
-#define __SETLIMITSVISITOR_H
+#ifndef SETLIMITSVISITOR_H
+#define SETLIMITSVISITOR_H
 
 
 #include "CMatchingVisitor.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward Defs:
 

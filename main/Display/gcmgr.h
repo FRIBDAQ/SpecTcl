@@ -31,8 +31,8 @@
 //
 //
 
-#ifndef _GCMGR_H
-#define _GCMGR_H
+#ifndef GCMGR_H
+#define GCMGR_H
 #include "xaminegc.h"
 
 XamineSpectrumGC *Xamine_GetSpectrumGC(XMWidget &wid);

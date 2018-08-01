@@ -19,36 +19,14 @@
 */
 
 // Preprocessor includes, definitions.
-#ifndef __EVENTFILTER_H //Required for current class
-#define __EVENTFILTER_H
+#ifndef EVENTFILTER_H //Required for current class
+#define EVENTFILTER_H
 
-#ifndef __EVENTSINK_H
 #include <EventSink.h>
-#define __EVENTSINK_H
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __DICTIONARYEXCEPTION_H
 #include <DictionaryException.h>
-#endif
 
 // forward definitions:
 

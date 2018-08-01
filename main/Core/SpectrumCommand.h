@@ -32,31 +32,12 @@
 #ifndef SPECTRUMCOMMAND_H  //Required for current class
 #define SPECTRUMCOMMAND_H
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif
-
-#ifndef __TCLOBJECT_H
 #include <TCLObject.h>
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-              
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+
 
 class CTCLInterpreter;
 class CTCLResult;

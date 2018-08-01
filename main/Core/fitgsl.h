@@ -25,8 +25,8 @@
   Tony Denault and Leilehua Maly of the NASA IRTF Telescope.
 */
 
-#ifndef __FITGSL_H_INCLUDED
-#define __FITGSL_H_INCLUDED
+#ifndef FITGSL_H_INCLUDED
+#define FITGSL_H_INCLUDED
 
 
 

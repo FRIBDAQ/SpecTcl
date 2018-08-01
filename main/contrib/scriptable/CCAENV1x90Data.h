@@ -1,5 +1,5 @@
-#ifndef __CCAENV1X90DATA_H
-#define __CCAENV1X90DATA_H
+#ifndef CCAENV1X90DATA_H
+#define CCAENV1X90DATA_H
 
  /*
   This software is Copyright by the Board of Trustees of Michigan
@@ -22,12 +22,8 @@
   functions for peeling bits and pieces of the data buffer and
   making sense of what we get.
 */
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+
 namespace CCAENV1x90Data {
 
   // Definitions of bits that appear in all data words:

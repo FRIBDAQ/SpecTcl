@@ -1,5 +1,5 @@
-#ifndef __CFILTEROUTPUTSTAGEFACTORY_H
-#define __CFILTEROUTPUTSTAGEFACTORY_H
+#ifndef CFILTEROUTPUTSTAGEFACTORY_H
+#define CFILTEROUTPUTSTAGEFACTORY_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -16,19 +16,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 class CFilterOutputStageCreator;
 class CFilterOutputStage;

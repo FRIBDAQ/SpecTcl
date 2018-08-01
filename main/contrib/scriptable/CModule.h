@@ -34,35 +34,18 @@
 //
 // Copyright 
 
-#ifndef __CMODULE_H  //Required for current class
-#define __CMODULE_H
+#ifndef CMODULE_H  //Required for current class
+#define CMODULE_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __CSEGMENTUNPACKER_H     //CSegmentUnpacker
 #include "CSegmentUnpacker.h"
-#endif
- 
-#ifndef __TCLPROCESSOR_H
 #include <TCLProcessor.h>        
-#endif
-
-#ifndef __STL_STRING
 #include <string> 
-#ifndef __STL_STRING       
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 class CModule  : public CSegmentUnpacker

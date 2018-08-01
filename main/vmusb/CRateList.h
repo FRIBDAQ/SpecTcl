@@ -14,16 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CRATELIST_H
-#define __CRATELIST_H
+#ifndef CRATELIST_H
+#define CRATELIST_H
 
 
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 
 // forward types:

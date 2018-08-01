@@ -23,15 +23,15 @@
 **      gate notification.  Gate notification is done via an  Xt  User input
 **      event.
 ** Author:
-**    Ron FOx
+**    Ron Fox
 **    NSCL
 **    Michigan State University.
 **    East Lansing, MI 48824-1321
 ** SCCS:
 **   @(#)clirequests.h	1.1 1/28/94 
 */
-#ifndef _CLIREQUESTS_H
-#define _CLIREQUESTS_H
+#ifndef CLIREQUESTS_H
+#define CLIREQUESTS_H
 
 #ifndef XMWIDGET_H
 #include "XMWidget.h"

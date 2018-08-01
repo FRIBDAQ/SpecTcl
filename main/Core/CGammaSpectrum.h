@@ -22,31 +22,13 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CGAMMASPECTRUM_H)
-#define __CGAMMASPECTRUM_H
+#ifndef CGAMMASPECTRUM_H
+#define CGAMMASPECTRUM_H
 
-#ifndef __SPECTRUM_H
 #include "Spectrum.h"
-#endif
-
-#ifndef HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

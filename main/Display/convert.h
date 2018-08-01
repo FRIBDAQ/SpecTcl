@@ -32,8 +32,8 @@
 **   @(#)convert.h	8.1 6/23/95 
 */
 
-#ifndef _CONVERT_H_INSTALLED
-#define _CONVERT_H_INSTALLED
+#ifndef CONVERT_H_INSTALLED
+#define CONVERT_H_INSTALLED
 
 #ifndef XMWIDGET_H
 #include "XMWidget.h"

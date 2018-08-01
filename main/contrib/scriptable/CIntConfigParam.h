@@ -15,26 +15,14 @@
              East Lansing, MI 48824-1321
 
 */
-#ifndef __CINTCONFIGPARAM_H  //Required for current class
-#define __CINTCONFIGPARAM_H
-
-
-#ifndef __STL_STRING
-#include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-
+#ifndef CINTCONFIGPARAM_H  //Required for current class
+#define CINTCONFIGPARAM_H
 //
 // Include files:
 //
 
-                               //Required for base classes
-#ifndef __CCONFIGURATIONPARAMETER_H     //CConfigurationParameter
+#include <string>                               //Required for base classes
 #include "CConfigurationParameter.h"
-#endif
  
 /*!
 Represents an integer configuration parameter

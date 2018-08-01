@@ -14,38 +14,13 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFITDICTIONARY_H
-#define __CFITDICTIONARY_H
+#ifndef CFITDICTIONARY_H
+#define CFITDICTIONARY_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_SRING
-#endif
-#endif
-
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __CRT_UNISTD_H
 #include <unistd.h>
-#ifndef __CRT_UNISTD_H
-#define __CRT_UNISTD_H
-#endif
-#endif
 
 class CSpectrumFit;
 

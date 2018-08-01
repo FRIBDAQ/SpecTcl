@@ -27,17 +27,12 @@
 //
 
 
-#if !defined(__SETALLVISITOR_H)
-#define __SETALLVISITOR_H
+#ifndef SETALLVISITOR_H)
+#define SETALLVISITOR_H
 
 #include "CMatchingVisitor.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

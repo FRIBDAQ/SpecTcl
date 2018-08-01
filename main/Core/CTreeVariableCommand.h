@@ -28,21 +28,11 @@
 
 
 
-#if !defined(__CTREEVARIABLECOMMAND_H)
-#define __CTREEVARIABLECOMMAND_H
+#ifndef CTREEVARIABLECOMMAND_H
+#define CTREEVARIABLECOMMAND_H
 
-#ifndef __TCLPROCESSOR_H
 #include <TCLProcessor.h>
-#endif
-
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

@@ -721,7 +721,8 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   m_pRunControlPackage->Register();
   m_pRunControlPackage->InitializeRunState();
   cerr << m_pRunControlPackage->getSignon() << endl;
-
+  cerr << "Tabbed widget (xmTabWidgetClass) used in Xamine thanks to Pralay Dakua \n";
+  
   // Tacit assumption that the event sink is a histogrammer
   m_pParameterPackage = new CParameterPackage(&rInterp, 
 					      (CTCLHistogrammer*)gpEventSink);

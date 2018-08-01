@@ -21,8 +21,8 @@
 
 
 */
-#ifndef __BUFFERANALYSIS_H
-#define __BUFFERANALYSIS_H
+#ifndef BUFFERANALYSIS_H
+#define BUFFERANALYSIS_H
 
 #ifdef __cplusplus
 extern "C" {

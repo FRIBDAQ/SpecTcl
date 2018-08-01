@@ -23,21 +23,13 @@
   It is defined in order to support a common specification script
   for SpectTcl and the Readout engine.
 */
-#ifndef __CCAENV830CREATOR_H
-#define __CCAENV830CREATOR_H
+#ifndef CCAENV830CREATOR_H
+#define CCAENV830CREATOR_H
 
 // Include files.
 
-#ifndef __CMODULECREATOR_H
 #include "CModuleCreator.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 // Forward class definitions.

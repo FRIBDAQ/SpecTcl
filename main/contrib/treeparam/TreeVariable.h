@@ -5,8 +5,8 @@
 
 #warning "You are including an obsolete version of TreeParameter.h"
 
-#ifndef __TREEVARIABLE_H
-#define __TREEVARIABLE_H
+#ifndef TREEVARIABLE_H
+#define TREEVARIABLE_H
 
 #include <stdio.h>
 #include <math.h>

@@ -1,11 +1,9 @@
-#ifndef __CAXISTESTS_H
-#define __CAXISTESTS_H
+#ifndef CAXISTESTS_H
+#define CAXISTESTS_H
 #include <cppunit/TestSuite.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#ifndef __CAXIS_H
 #include "CAxis.h"
-#endif
 
 
 #ifndef __CPARAMETERMAPPING_H

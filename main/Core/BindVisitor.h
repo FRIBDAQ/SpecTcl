@@ -20,16 +20,11 @@
 //    East Lansing, MI 48824-1321
 //
 
-#ifndef __BINDVISITOR_H
-#define __BINDVISITOR_H
+#ifndef BINDVISITOR_H
+#define BINDVISITOR_H
 
-#ifndef __CMATCHINGVISITOR_H
 #include "CMatchingVisitor.h"
-#endif
-
-#ifndef __CTREEPARAMETER_H
 #include <CTreeParameter.h>
-#endif
 
 /**
  *  for_each generic algorithm visitor class to bind

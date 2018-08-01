@@ -28,19 +28,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __NSCLBUFFERDECODER_H  //Required for current class
-#define __NSCLBUFFERDECODER_H
-//Required for base classes
-#ifndef __BUFFERDECODER_H
+#ifndef NSCLBUFFERDECODER_H  //Required for current class
+#define NSCLBUFFERDECODER_H
+
 #include "BufferDecoder.h"
-#endif                               
-                               
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CNSCLBufferDecoder : public CBufferDecoder {
   STD(string) m_sTitle;

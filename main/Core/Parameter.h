@@ -13,29 +13,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __PARAMETER_H  //Required for current class
-#define __PARAMETER_H
-// Required for base classes
-#ifndef __NAMEDITEM_H
+#ifndef PARAMETER_H  //Required for current class
+#define PARAMETER_H
+
 #include "NamedItem.h"
-#endif                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __CRT_LIMITS_H
 #include <limits.h>
-#define __CRT_LIMITS_H
-#endif
 
 /*!
   Defines the parameter class.  The parameter class represents

@@ -56,28 +56,19 @@ to delete the fit and re-create it.
 
 
 
-#ifndef __CFITCOMMAND_H  //Required for current class
-#define __CFITCOMMAND_H
+#ifndef CFITCOMMAND_H  //Required for current class
+#define CFITCOMMAND_H
 
-#ifndef __TCLPROCESSOR_H
-#include <TCLProcessor.h>
-#endif
 
 //
 // Include files:
 //
 
-#ifndef __POINT_H
+
+
+#include <TCLProcessor.h>
 #include <Point.h>
-#endif
-
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
                                //Required for 1:1 association classes
 

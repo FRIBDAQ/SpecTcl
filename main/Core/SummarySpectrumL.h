@@ -29,26 +29,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __SUMMARYSPECTRUML_H  //Required for current class
-#define __SUMMARYSPECTRUML_H
+#ifndef SUMMARYSPECTRUML_H  //Required for current class
+#define SUMMARYSPECTRUML_H
                                //Required for base classes
-#ifndef __SPECTRUM_H
 #include "Spectrum.h"
-#endif                               
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 //  Foward Class definitions:
 

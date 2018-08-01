@@ -16,8 +16,8 @@
 
 
 
-#ifndef __COLORSCALEPROPERTYSHEET_H  //Required for current class
-#define __COLORSCALEPROPERTYSHEET_H
+#ifndef COLORSCALEPROPERTYSHEET_H  //Required for current class
+#define COLORSCALEPROPERTYSHEET_H
 
 //
 // Include files:

@@ -1,12 +1,10 @@
 /*!
    Unpacker for XLM/HINP version
 */
-#ifndef __CHINP_H
-#define __CHINP_H
+#ifndef CHINP_H
+#define CHINP_H
 
-#ifndef __CMODULEUNPACKER_H
 #include "CModuleUnpacker.h"
-#endif
 
 class CTreeParameterArray;
 

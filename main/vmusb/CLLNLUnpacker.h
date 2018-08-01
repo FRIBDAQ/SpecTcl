@@ -14,32 +14,13 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CLLNLUNPACKER_H
-#define __CLLNLUNPACKER_h
+#ifndef CLLNLUNPACKER_H
+#define CLLNLUNPACKER_h
 
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-
-#ifndef __CRT_STDINT
 #include <stdint.h>
-#ifndef __CRT_STDINT
-#define __CRT_STDINT
-#endif
-#endif
 
 /*!
   This class unpacks data from the LLNL neutron data taking system

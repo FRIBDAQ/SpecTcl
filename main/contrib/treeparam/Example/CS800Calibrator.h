@@ -1,5 +1,5 @@
-#ifndef __CS800CALIBRATOR_H
-#define __CS800CALIBRATOR_H
+#ifndef CS800CALIBRATOR_H
+#define CS800CALIBRATOR_H
 
 class CS800Calibrator : public  CEventProcessor
 {

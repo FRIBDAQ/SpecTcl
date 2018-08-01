@@ -9,19 +9,11 @@
 
 */
 
-#ifndef __CBUFFERCALLBACKLIST_H
-#define __CBUFFERCALLBACKLIST_H
+#ifndef CBUFFERCALLBACKLIST_H
+#define CBUFFERCALLBACKLIST_H
 
-#ifndef __CBUFFERCALLBACK_H
 #include "CBufferCallback.h"
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 /*!
    This class encapsulates an ordered list of callbacks.

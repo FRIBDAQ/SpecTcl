@@ -1,6 +1,6 @@
 
-#ifndef __CROOTNTUPLEACCUMULATOR_H
-#define __CROOTNTUPLEACCUMULATOR_H
+#ifndef CROOTNTUPLEACCUMULATOR_H
+#define CROOTNTUPLEACCUMULATOR_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -17,20 +17,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 class TNtuple;

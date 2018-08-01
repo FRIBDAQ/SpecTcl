@@ -13,8 +13,8 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef _RINGFORMATCOMMAND_H
-#define _RINGFORMATCOMMAND_H
+#ifndef RINGFORMATCOMMAND_H
+#define RINGFORMATCOMMAND_H
 
 
 /**
@@ -23,20 +23,9 @@
  */
 
 #include "TCLPackagedCommand.h"
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_UTILITY
 #include <utility>
-#ifndef __STL_UTILITY
-#define __STL_UTILITY
-#endif
-#endif
+
 
 class CTCLInterpreter;
 class CTCLCommandPackage;

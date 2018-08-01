@@ -76,22 +76,12 @@
   Added Change log comment generated from the CVS tag.
 
 */
-#ifndef __NAMEDITEM_H  //Required for current class
-#define __NAMEDITEM_H
+#ifndef NAMEDITEM_H  //Required for current class
+#define NAMEDITEM_H
 
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __CRT_STRING_H
 #include <string.h>
-#define __CRT_STRING_H
-#endif
                                
 class CNamedItem      
 {

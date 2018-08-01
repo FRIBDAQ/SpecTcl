@@ -9,8 +9,8 @@
 
 */
 
-#ifndef __CBUFFERCALLBACK_H
-#define __CBUFFERCALLBACK_H
+#ifndef CBUFFERCALLBACK_H
+#define CBUFFERCALLBACK_H
 
 /*!
    The CBufferCallback is the abstract base class for buffer callbacks.

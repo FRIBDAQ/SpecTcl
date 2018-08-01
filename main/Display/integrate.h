@@ -33,8 +33,8 @@
 ** SCCS information:
 **   @(#)integrate.h	8.1 6/23/95 
 */
-#ifndef _INTEGRATE_H_INSTALLED
-#define _INTEGRATE_H_INSTALLED
+#ifndef INTEGRATE_H_INSTALLED
+#define INTEGRATE_H_INSTALLED
 
 #include "dispgrob.h"
 #include "dispshare.h"

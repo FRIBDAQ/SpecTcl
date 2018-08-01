@@ -5,20 +5,12 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CFOLDCOMMAND_H)
-#define __CFOLDCOMMAND_H
+#ifndef CFOLDCOMMAND_H
+#define CFOLDCOMMAND_H
 
-#ifndef __TCLPROCESSOR_H
 #include "TCLProcessor.h"
-#endif
-
-#ifndef  __GATECONTAINER_H
 #include "GateContainer.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 
 // Forward definitions:

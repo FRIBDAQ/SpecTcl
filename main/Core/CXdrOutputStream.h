@@ -1,5 +1,5 @@
-#ifndef __CXDROUTPUTSTREAM_H
-#define __CXDROUTPUTSTREAM_H
+#ifndef CXDROUTPUTSTREAM_H
+#define CXDROUTPUTSTREAM_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -17,21 +17,12 @@
 */
 
 
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __RPC_XDR_H
 #include <rpc/types.h>		/* Cygwin e.g. needs this. */
 #ifdef BROKEN_XDR_H
 #include "../Replace/xdr.h"
 #else
 #include <rpc/xdr.h>
-#endif
-#ifndef __RPC_XDR_H
-#define __RPC_XDR_H
-#endif
 #endif
 
 

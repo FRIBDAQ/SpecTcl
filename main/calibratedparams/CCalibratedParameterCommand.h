@@ -27,31 +27,16 @@
 //
 // Copyright 
 
-#ifndef __CCALIBRATEDPARAMETERCOMMAND_H  //Required for current class
-#define __CCALIBRATEDPARAMETERCOMMAND_H
+#ifndef CCALIBRATEDPARAMETERCOMMAND_H  //Required for current class
+#define CCALIBRATEDPARAMETERCOMMAND_H
 
 //
 // Include files:
 //
-#ifndef __TCLPROCESSOR_H
 #include <TCLProcessor.h>
-#endif
-
-
-#ifndef __CCALIBRATEDPARAMETERMANAGER_H
 #include <CCalibratedParameterManager.h>
-#endif
-
-#ifndef __CFITFACTORY_H
 #include <CFitFactory.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 // Forward definitions:

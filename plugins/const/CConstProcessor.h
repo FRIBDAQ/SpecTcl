@@ -1,5 +1,5 @@
-#ifndef __CCONSTPROCESSOR_H
-#define __CCONSTPROCESSOR_H
+#ifndef CCONSTPROCESSOR_H
+#define CCONSTPROCESSOR_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -16,11 +16,7 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-
 
 /*!
    This event processor performs the calculation of const parameters.

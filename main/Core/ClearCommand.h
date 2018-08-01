@@ -31,13 +31,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __CLEARCOMMAND_H  //Required for current class
-#define __CLEARCOMMAND_H
+#ifndef CLEARCOMMAND_H  //Required for current class
+#define CLEARCOMMAND_H
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif
-#include <vector>
+d#include <vector>
 #include <string>
 #include <set>
 

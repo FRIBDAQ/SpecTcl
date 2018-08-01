@@ -59,30 +59,13 @@
 
 */
 
-#ifndef __SPECTRUMFACTORY_H  //Required for current class
-#define __SPECTRUMFACTORY_H
+#ifndef SPECTRUMFACTORY_H  //Required for current class
+#define SPECTRUMFACTORY_H
           
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                     
-
-#ifndef __PARAMETER_H
 #include "Parameter.h"
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>   //Required for include files, eg <CList.h>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>   
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 //Required for include files, eg <CList.h>                               

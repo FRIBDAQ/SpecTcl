@@ -17,24 +17,17 @@
 
 
 
-#ifndef __CXDRINPUTSTREAM_H
-#define __CXDRINPUTSTREAM_H
+#ifndef CXDRINPUTSTREAM_H
+#define CXDRINPUTSTREAM_H
 
 
 
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __RPC_XDR_H
 #include <rpc/types.h>		/* Some systems (e.g. CYGWIN) need this. */
 #ifdef BROKEN_XDR_H
 #include "../Replace/xdr.h"
 #else
 #include <rpc/xdr.h>
-#endif
-#define __RPC_XDR_H
 #endif
 
 

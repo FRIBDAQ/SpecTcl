@@ -1,9 +1,7 @@
-#ifndef __CS800SPECTCLAPP_H
-#define __CS800SPECTCLAPP_H
+#ifndef CS800SPECTCLAPP_H
+#define CS800SPECTCLAPP_H
 
-#ifndef __TCLGRAMMERAPP_H
 #include "TclGrammerApp.h"
-#endif
  
 class CS800SpecTclApp  : public CTclGrammerApp        
 {

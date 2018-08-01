@@ -30,39 +30,14 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __COMPOUNDGATE_H  //Required for current class
-#define __COMPOUNDGATE_H
+#ifndef COMPOUNDGATE_H  //Required for current class
+#define COMPOUNDGATE_H
                                //Required for base classes
-#ifndef __GATE_H
 #include "Gate.h"
-#endif                               
-                               
-                               //Required for 1:M associated classes
-#ifndef __GATECONTAINER_H
 #include "GateContainer.h"
-#endif                                                               
-
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 class CCompoundGate  : public CGate        

@@ -30,30 +30,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __MGAMMA1DW_H  // Required for current class
-#define __MGAMMA1DW_H
+#ifndef MGAMMA1DW_H  // Required for current class
+#define MGAMMA1DW_H
 
-#ifndef __GAMMA1DW_H  // Required for base class
 #include "Gamma1DW.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 //  Forward class definition:
 

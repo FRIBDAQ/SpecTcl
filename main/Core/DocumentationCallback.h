@@ -14,33 +14,13 @@
       Michigan State University
       East Lansing, MI 48824-1321
 */
-#ifndef __DOCUMENTATIONCALLBACK_H
-#define __DOCUMENTATIONCALLBACK_H
+#ifndef DOCUMENTATIONCALLBACK_H
+#define DOCUMENTATIONCALLBACK_H
 
-#ifndef __CBUFFERCALLBACK_H
 #include <CBufferCallback.h>
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif 
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward declarations.
 

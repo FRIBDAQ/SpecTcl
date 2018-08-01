@@ -13,30 +13,14 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLPROCESSOR_H  //Required for current class
-#define __TCLPROCESSOR_H
+#ifndef TCLPROCESSOR_H  //Required for current class
+#define TCLPROCESSOR_H
                                //Required for base classes
-#ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
-#endif                               
-
-#ifndef __TCLINTERPRETER_H
 #include "TCLInterpreter.h"
-#endif
-
-#ifndef __TCLRESULT_H
 #include "TCLResult.h"
-#endif
-  
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
                              
 typedef vector<CTCLInterpreter*> TCLInterpreterList;
 typedef TCLInterpreterList::iterator TCLInterpreterIterator;

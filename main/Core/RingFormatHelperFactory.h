@@ -13,24 +13,11 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __RINGFORMATHELPERFACTORY_H
-#define __RINGFORMATHELPERFACTORY_H
+#ifndef RINGFORMATHELPERFACTORY_H
+#define RINGFORMATHELPERFACTORY_H
 
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
-#ifndef _CRT_STDINT_H
 #include <stdint.h>
-#ifndef _CRT_STDINT_H
-#define _CRT_STDINT_H
-#endif
-#endif
-
-// These are macros we may have  indirectly gotten:
 
 #ifdef major
 #undef major

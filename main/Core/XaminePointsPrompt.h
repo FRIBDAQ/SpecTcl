@@ -30,23 +30,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEPOINTSPROMPT_H  //Required for current class
-#define __XAMINEPOINTSPROMPT_H
+#ifndef XAMINEPOINTSPROMPT_H  //Required for current class
+#define XAMINEPOINTSPROMPT_H
                                //Required for base classes
-#ifndef __XAMINEBUTTONPROMPT_H
 #include "XamineButtonPrompt.h"
-#endif                               
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
                                
 class CXaminePointsPrompt  : public CXamineButtonPrompt        
 {

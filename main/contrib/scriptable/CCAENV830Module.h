@@ -24,23 +24,14 @@
  */
 
 
-#ifndef __CCAENV830MODULE_H
-#define __CCAENV830MODULE_H
+#ifndef CCAENV830MODULE_H
+#define CCAENV830MODULE_H
 
 //   Include files...
 
-#ifndef __CMODULE_H
 #include "CModule.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
 
 
 // Forward class definitions.

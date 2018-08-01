@@ -1,5 +1,5 @@
-#ifndef __INTEGRATECOMMAND_H
-#define __INTEGRATECOMMAND_H
+#ifndef INTEGRATECOMMAND_H
+#define INTEGRATECOMMAND_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -16,20 +16,9 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef __POINT_H
 #include <Point.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 
 class CTCLInterpreter;

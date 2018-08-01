@@ -13,17 +13,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __STOPRUN_H  //Required for current class
-#define __STOPRUN_H
+#ifndef STOPRUN_H  //Required for current class
+#define STOPRUN_H
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif                   
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif            
 
 // Forward definitions:
 //

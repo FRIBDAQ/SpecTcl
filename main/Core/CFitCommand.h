@@ -14,23 +14,12 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFITCOMMAND_H
-#define __CFITCOMMAND_H
+#ifndef CFITCOMMAND_H
+#define CFITCOMMAND_H
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef __TCLOBJECT_H
 #include <TCLObject.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 

@@ -34,8 +34,8 @@
 **   East Lansing, MI 48824-1321
 */
 
-#ifndef _MESSAGES_H_INSTALLED
-#define _MESSAGES_H_INSTALLED
+#ifndef MESSAGES_H_INSTALLED
+#define MESSAGES_H_INSTALLED
 #include <Xm/Xm.h>
 #include "dispgrob.h"
 

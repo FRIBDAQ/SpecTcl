@@ -35,12 +35,14 @@
 **  MODIFICATION HISTORY:
 **--
 **/
+#ifndef DAQDATATYPES_H
+#define DAQDATATYPES_H
 
-#ifndef __DAQTYPES_H
 
 #include <sys/types.h>
 #include <stdint.h>		/* All C headers are legal in all C++'s even c++11 */
 #include <Rtypes.h>
+
 typedef    int8_t     INT8;
 typedef    uint8_t    UINT8;
 typedef    int16_t    INT16;

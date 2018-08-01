@@ -28,17 +28,12 @@
 
 
 
-#if !defined(__LISTVISITOR_H)
-#define __LISTVISITOR_H
+#ifndef LISTVISITOR_H
+#define LISTVISITOR_H
 
 #include "CMatchingVisitor.h"
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // forward definitions:
 

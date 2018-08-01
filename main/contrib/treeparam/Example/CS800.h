@@ -1,5 +1,5 @@
-#ifndef __CS800_H
-#define __CS800_H
+#ifndef CS800_H
+#define CS800_H
 
 // The next include statements assume that the -I$(INSTDIR)/Include switch is in the Makefile
 #include <../contrib/treeparam/TreeParameter.h>

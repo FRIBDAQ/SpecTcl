@@ -21,15 +21,10 @@ ABC for creational classes that are instantiated and registered with
 the CModuleCommand.  Together with the CModuleCommand this class
 forms a recognizer/creator pattern.
 */
-#ifndef __CMODULECREATOR_H  //Required for current class
-#define __CMODULECREATOR_H
+#ifndef CMODULECREATOR_H  //Required for current class
+#define CMODULECREATOR_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward definitions:
 

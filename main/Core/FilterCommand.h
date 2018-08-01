@@ -14,33 +14,15 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __FILTERCOMMAND_H  // Required for current class.
-#define __FILTERCOMMAND_H
+#ifndef FILTERCOMMAND_H  // Required for current class.
+#define FILTERCOMMAND_H
 
 //Required for base classes.
-#ifndef __TCLPACKAGEDCOMMAND_H
+
 #include "TCLPackagedCommand.h"
-#define __TCLPACKAGEDCOMMAND_H
-#endif
-
-#ifndef __STL_STRING_H
 #include <string>
-#ifndef __STL_STRING_H
-#define __STL_STRING_H
-#endif
-#endif
-
-#ifdef  __NEEDINCLUDES__
-#ifndef __GATEDEVENTFILTER_H
 #include <GatedEventFilter.h>
-#define __GATEDEVENTFILTER_H
-#endif
-
-#ifndef __FILTERDICTIONARY_H
 #include <FilterDictionary.h>
-#define __FILTERDICTIONARY_H
-#endif
-#endif
 
 // Forward declarations.
 class CTCLCommandPackage;

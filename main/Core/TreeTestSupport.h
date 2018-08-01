@@ -5,14 +5,12 @@
 //    East Lansing, MI 48824-1321
 //
 
-#ifndef __TREETESTSUPPORT_H
-#define __TREETESTSUPPORT_H
+#ifndef TREETESTSUPPORT_H
+#define TREETESTSUPPORT_H
 
 #include <string>
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
 
 class CParameter;
 class CTreeParameter;

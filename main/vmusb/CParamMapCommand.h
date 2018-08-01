@@ -14,27 +14,12 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CPARAMMAPCOMMAND_H
-#define __CPARAMMAPCOMMAND_H
+#ifndef CPARAMMAPCOMMAND_H
+#define CPARAMMAPCOMMAND_H
 
-#ifndef __TCLOBJECTCOMMAND_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

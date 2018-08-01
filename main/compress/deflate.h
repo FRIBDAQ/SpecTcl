@@ -20,8 +20,8 @@
 # @author <fox@nscl.msu.edu>
 */
 
-#ifndef __DEFLATE_H
-#define __DEFLATE_H
+#ifndef DEFLATE_H
+#define DEFLATE_H
 
 #include <TCLObjectProcessor.h>
 

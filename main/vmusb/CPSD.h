@@ -1,12 +1,10 @@
 /*!
    Unpacker for XLM/PSD ADC version
 */
-#ifndef __CPSD_H
-#define __CPSD_H
+#ifndef CPSD_H
+#define CPSD_H
 
-#ifndef __CMODULEUNPACKER_H
 #include "CModuleUnpacker.h"
-#endif
 
 class CTreeParameterArray;
 

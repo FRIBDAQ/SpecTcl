@@ -29,13 +29,10 @@
 ** SCCS:
 **   @(#)gateio.h	1.1 1/28/94 
 */
-#ifndef _GATEIO_H
-#define _GATEIO_H
+#ifndef GATEIO_H
+#define GATEIO_H
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
-
 #include "dispgrob.h"
 #include "messages.h"
 #include "clientops.h"

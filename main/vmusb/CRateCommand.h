@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CRATECOMMAND_H
-#define __CRATECOMMAND_H
+#ifndef CRATECOMMAND_H
+#define CRATECOMMAND_H
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
 
 class CTCLInterpreter;
 class CTCLObject;

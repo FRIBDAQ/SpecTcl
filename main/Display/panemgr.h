@@ -36,8 +36,8 @@
 **   0 5/26/94 
 */
 
-#ifndef _PANEMGR_H
-#define _PANEMGR_H
+#ifndef PANEMGR_H
+#define PANEMGR_H
 #include "XMManagers.h"
 #include "dispwind.h"
 
@@ -54,15 +54,15 @@ typedef void (*panemgr_input_callback)(XMWidget *, XtPointer, XtPointer);
 typedef void (*panemgr_select_callback)(int,int,int,int, XtPointer);
 enum Xamine_refreshstate {
                           rfsh_idle,
-			  rfsh_queued,
-			  rfsh_beginning,
-			  rfsh_titles,
-			  rfsh_axes,
-			  rfsh_contents,
- 			  rfsh_grobjs,
-			  rfsh_callback,
-			  rfsh_aborting
-			  };
+                          rfsh_queued,
+                          rfsh_beginning,
+                          rfsh_titles,
+                          rfsh_axes,
+                          rfsh_contents,
+                          rfsh_grobjs,
+                          rfsh_callback,
+                          rfsh_aborting
+};
 		      
 			
 class pane_db : public win_db {

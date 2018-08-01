@@ -31,41 +31,15 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __ANDGATE_H  //Required for current class
-#define __ANDGATE_H
+#ifndef ANDGATE_H  //Required for current class
+#define ANDGATE_H
                                //Required for base classes
-#ifndef __COMPOUNDGATE_H
 #include "CompoundGate.h"
-#endif                               
-           
-#ifndef __GATECONTAINER_H
 #include "GateContainer.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
                     
 class CAndGate  : public CCompoundGate        

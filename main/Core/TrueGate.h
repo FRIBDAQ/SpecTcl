@@ -29,17 +29,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TRUEGATE_H  //Required for current class
-#define __TRUEGATE_H
+#ifndef TRUEGATE_H  //Required for current class
+#define TRUEGATE_H
                                //Required for base classes
-#ifndef __GATE_H
 #include "Gate.h"
-#endif                               
-  
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
                              
 class CTrueGate  : public CGate        
 {

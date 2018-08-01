@@ -13,23 +13,12 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __CRWWRITE_H
-#define __CRWWRITE_H
+#ifndef CRWWRITE_H
+#define CRWWRITE_H
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef __TCLOBJECT_H
 #include <TCLObject.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 // forward class defs:

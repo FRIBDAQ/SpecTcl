@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CSPECTRUM2DML_H
-#define __CSPECTRUM2DML_H
+#ifndef CSPECTRUM2DML_H
+#define CSPECTRUM2DML_H
 
-#ifndef __CSPECTRUM2DM_H
 #include "CSpectrum2Dm.h"
-#endif
 
 class CEvent;
 class TH2I;

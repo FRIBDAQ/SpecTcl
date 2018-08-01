@@ -5,33 +5,14 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CGAMMABAND_H)
-#define __CGAMMABAND_H
+#ifndef CGAMMABAND_H
+#define CGAMMABAND_H
 
-#ifndef __BAND_H
 #include "Band.h"
-#endif
-
-#ifndef _POINT_H
 #include "Point.h"
-#endif
-
-#ifdef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#endif
-#endif
 
 
 // Forward definitions:

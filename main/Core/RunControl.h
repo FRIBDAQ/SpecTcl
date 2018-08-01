@@ -29,21 +29,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __RUNCONTROL_H  //Required for current class
-#define __RUNCONTROL_H
+#ifndef RUNCONTROL_H  //Required for current class
+#define RUNCONTROL_H
                                
 //Required for 1:1 associated classes
-#ifndef __ANALYZER_H
 #include "Analyzer.h"
-#endif
-//Required for 1:1 associated classes
-#ifndef __FILE_H
 #include "File.h"
-#endif                                                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif          
                                                      
 class CRunControl {
   // Attributes:

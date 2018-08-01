@@ -29,20 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLRUNFILEHANDLER_H  //Required for current class
-#define __TCLRUNFILEHANDLER_H
+#ifndef TCLRUNFILEHANDLER_H  //Required for current class
+#define TCLRUNFILEHANDLER_H
                                //Required for base classes
-#ifndef __TCLFILEHANDLER_H
 #include <TCLIdleProcess.h>
-#endif  
-
-#ifndef __RUNCONTROL_H
 #include "RunControl.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                             
                                
 class CRunControl;		// Forward Class reference.
 class CTCLInterpreter;		// Forward Class reference.

@@ -46,8 +46,8 @@
 ** SCCS Information:
 **    @(#)grobjinput.h	8.1 6/23/95 
 */
-#ifndef _GROBJINPUT_H
-#define _GROBJINPUT_H
+#ifndef GROBJINPUT_H
+#define GROBJINPUT_H
 #include "XMManagers.h"
 #include "XMDialogs.h"
 #include "XMText.h"

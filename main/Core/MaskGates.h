@@ -34,17 +34,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __MASKGATES_H         //Required for current class
-#define __MASKGATES_H
+#ifndef MASKGATES_H         //Required for current class
+#define MASKGATES_H
                                //Required for base classes
-#ifndef __GATE_H
 #include "Gate.h"
-#endif                               
-  
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
                              
 class CMaskGate  : public CGate        
 {

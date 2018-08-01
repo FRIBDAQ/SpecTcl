@@ -4,16 +4,11 @@
     This is really done by having a single distribution and adding
     a cyclical offset to the sampled value on each sample.
 */
-#ifndef __CALIBRATIONDISTRIBUTION_H
-#define __CALIBRATIONDISTRIBUTION_H
+#ifndef CALIBRATIONDISTRIBUTION_H
+#define CALIBRATIONDISTRIBUTION_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __CDISTRIBUTION_H
 #include <Distribution.h>
-#endif
 
 class  CGaussianDistribution;
 

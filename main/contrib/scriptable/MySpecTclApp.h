@@ -23,10 +23,7 @@ the first two parameters in an event.
 // Include files:
 //
 
-                               //Required for base classes
-#ifndef __TCLGRAMMERAPP_H     //CTclGrammerApp
 #include "TclGrammerApp.h"
-#endif
 
 // Forward classes:
 

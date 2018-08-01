@@ -14,32 +14,13 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CSTACKUNPACKER_H
-#define __CSTACKUNPACKER_H
+#ifndef CSTACKUNPACKER_H
+#define CSTACKUNPACKER_H
 
-
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-
-#ifndef __CRT_STDINT
 #include <stdint.h>
-#ifndef __CRT_STDINT
-#define __CRT_STDINT
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 class CModuleUnpacker;
 class CEvent;

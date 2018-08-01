@@ -1,5 +1,5 @@
-#ifndef __CPH7XXUNPACKER_H
-#define __CPH7XXUNPACKER_H
+#ifndef CPH7XXUNPACKER_H
+#define CPH7XXUNPACKER_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -17,9 +17,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CCCUSBPACKET_H
 #include "CCCUSBPacket.h"
-#endif
 
 class CEvent;
 

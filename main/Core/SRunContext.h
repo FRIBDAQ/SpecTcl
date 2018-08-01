@@ -9,26 +9,13 @@
 
 */
 
-#ifndef __SRUNCONTEXT_H
-#define __SRUNCONTEXT_H
+#ifndef SRUNCONTEXT_H
+#define SUNCONTEXT_H
 
 //  The including file must have included <config.h>!!!!
 
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
 /*!
     The Run Context structure contains elements that maintain the context of
    the run analysis between timeouts.  It is certainly possible that the

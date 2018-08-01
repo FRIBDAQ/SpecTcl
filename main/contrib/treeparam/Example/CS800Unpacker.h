@@ -1,5 +1,5 @@
-#ifndef __CS800UNPACKER_H
-#define __CS800UNPACKER_H
+#ifndef CS800UNPACKER_H
+#define CS800UNPACKER_H
 
 class CS800Unpacker : public  CEventProcessor
 {

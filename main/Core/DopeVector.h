@@ -15,14 +15,9 @@
 */
 
 
-#ifndef __DOPEVECTOR_H
-#define __DOPEVECTOR_H
-#ifndef __STL_VECTOR
+#ifndef DOPEVECTOR_H
+#define DOPEVECTOR_H
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 

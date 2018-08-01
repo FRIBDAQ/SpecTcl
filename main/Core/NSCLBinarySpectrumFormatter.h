@@ -35,38 +35,17 @@
 // (c) Copyright NSCL 1999, All rights reserved NSCLBinarySpectrumFormatter.h
 //
 
-#ifndef __NSCLBINARYSPECTRUMFORMATTER_H  //Required for current class
-#define __NSCLBINARYSPECTRUMFORMATTER_H
+#ifndef NSCLBINARYSPECTRUMFORMATTER_H  //Required for current class
+#define NSCLBINARYSPECTRUMFORMATTER_H
 
                                //Required for base classes
-#ifndef __SPECTRUMFORMATTER_H
 #include "SpectrumFormatter.h"
-#endif
-                               
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-#ifndef __NSCLBINOBJ
 #include <nsclbin.h>
 #include <nsclbinerror.h>
-#define __NSCLBINOBJ
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VETOR
-#endif
-#endif
-
-#ifndef __ISTREAM_DAQH
 #include <istream>
-#endif
-
-#ifndef __OSTREAM_DAQH
 #include <ostream>
-#endif
 
 
 class CNSCLBinarySpectrumFormatter  : public CSpectrumFormatter        

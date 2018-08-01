@@ -15,14 +15,11 @@
 */
 
 
-#ifndef __CXDRMEMINPUTSTREAM_H
-#define __CXDRMEMINPUTSTREAM_H
+#ifndef CXDRMEMINPUTSTREAM_H
+#define CXDRMEMINPUTSTREAM_H
 #include "CXdrInputStream.h"
 
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
 
 /*!
    This class derives from CXdrInputStream to do input

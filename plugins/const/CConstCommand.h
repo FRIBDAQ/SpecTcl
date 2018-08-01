@@ -1,5 +1,5 @@
-#ifndef __CCONSTCOMMAND_H
-#define __CCONSTCOMMAND_H
+#ifndef CCONSTCOMMAND_H
+#define CCONSTCOMMAND_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -18,9 +18,7 @@
 */
 
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
 
 /*!
    Class that implements the const command.  This has the following forms:

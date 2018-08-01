@@ -1,12 +1,10 @@
-#ifndef __CPARAMETERMAPPINGTEST_H
-#define __CPARAMETERMAPPINGTEST_H
+#ifndef CPARAMETERMAPPINGTEST_H
+#define CPARAMETERMAPPINGTEST_H
 #include <cppunit/TestSuite.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 
-#ifndef __CPARAMETERMAPPING_H
 #include "CParameterMapping.h"
-#endif
 
 class CParameterMappingTest : public CppUnit::TestFixture
 {

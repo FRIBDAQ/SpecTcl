@@ -1,40 +1,35 @@
 /*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins 
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+
+/*
   EventSinkPipeline.h
 */
 
 // Preprocessor includes, definitions.
-#ifndef __EVENTSINKPIPELINE_H // Required for current class
-#define __EVENTSINKPIPELINE_H
+#ifndef EVENTSINKPIPELINE_H // Required for current class
+#define EVENTSINKPIPELINE_H
 
 
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __EVENT_H
 #include "Event.h"
-#define __EVENT_H
-#endif
-
-#ifndef __EVENTSINK_H
 #include "EventSink.h"
-#define __EVENTSINK_H
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
 
 
 /*!

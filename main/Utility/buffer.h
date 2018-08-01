@@ -40,8 +40,8 @@
 **--
 **/
 
-#ifndef __MTYPES_H	
-#define __MTYPES_H
+#ifndef MTYPES_H	
+#define MTYPES_H
 #include <daqtypes.h>
 /*		Absolute time:		*/
 

@@ -1,5 +1,5 @@
-#ifndef __CMODULECOMMAND_H  //Required for current class
-#define __CMODULECOMMAND_H
+#ifndef CMODULECOMMAND_H  //Required for current class
+#define CMODULECOMMAND_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -39,23 +39,9 @@ The command has the following switches
 //
 // Include files:
 //
-#ifndef __CTCLPROCESSOR_H
 #include <TCLProcessor.h>
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward classes:
 

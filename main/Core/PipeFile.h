@@ -29,21 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __PIPEFILE_H  //Required for current class
-#define __PIPEFILE_H
+#ifndef PIPEFILE_H  //Required for current class
+#define PIPEFILE_H
                                //Required for base classes
-#ifndef __FILE_H
 #include "File.h"
-#endif
-
-#ifndef __HISTOTYPES_H                               
 #include <histotypes.h>   //Required for include files,
-#endif
-
-#ifndef __CRTL_UNISTD_H
 #include <unistd.h>
-#define __CRTL_UNISTD_H
-#endif
                                                                
 class CPipeFile  : public CFile        
 {

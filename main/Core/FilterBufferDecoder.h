@@ -16,35 +16,17 @@
 
 
 
-#ifndef __FILTERBUFFERDECODER_H
-#define __FILTERBUFFERDECODER_H
+#ifndef FILTERBUFFERDECODER_H
+#define FILTERBUFFERDECODER_H
 
 // Headers:
 
 
-#ifndef __BUFFERDECODER_H
 #include <BufferDecoder.h>
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __BUFFERTRANSLATOR
 #include <BufferTranslator.h>
-#endif
-
-#ifndef __TRANSLATORPOINTER
 #include <TranslatorPointer.h>
-#define __TRANSLATORPOINTER
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // forward definitions:
 

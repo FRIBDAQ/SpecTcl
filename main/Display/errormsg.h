@@ -31,13 +31,8 @@
 #ifndef ERRORMSG_H
 #define ERRORMSG_H
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
-
-#ifndef XMDIALOGS_H
 #include "XMDialogs.h"
-#endif
 
 void Xamine_error_msg (XMWidget *parent, const char *msg);
 

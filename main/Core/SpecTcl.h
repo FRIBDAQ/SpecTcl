@@ -21,7 +21,7 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(SPECTCL_API_H)
+#ifndef SPECTCL_API_H
 #define SPECTCL_API_H
 
 

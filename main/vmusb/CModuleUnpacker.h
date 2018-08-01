@@ -15,22 +15,12 @@
 */
 
 
-#ifndef __CMODULEUNPACKER_H
-#define __CMODULEUNPACKER_H
+#ifndef CMODULEUNPACKER_H
+#define CMODULEUNPACKER_H
 
 
-
-#ifndef __CPARAMMAPCOMMAND_H
 #include "CParamMapCommand.h"
-#endif
-
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 // Forward definitions:

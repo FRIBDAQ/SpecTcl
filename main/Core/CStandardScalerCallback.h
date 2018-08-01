@@ -9,16 +9,11 @@
 
 */
 
-#ifndef __CSTANDARDSCALERCALLBACK_H
-#define __CSTANDARDSCALERCALLBACK_H
+#ifndef CSTANDARDSCALERCALLBACK_H
+#define CSTANDARDSCALERCALLBACK_H
 
-#ifndef __CBUFFERCALLBACK_H
 #include "CBufferCallback.h"
-#endif
-
-#ifndef __SRUNCONTEXT_H
 #include "SRunContext.h"
-#endif
 
 /*!
    This class provides standard behavior for scaler buffers.

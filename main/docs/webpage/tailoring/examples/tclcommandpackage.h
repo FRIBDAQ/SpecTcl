@@ -14,35 +14,15 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLCOMMANDPACKAGE_H  //Required for current class
-#define __TCLCOMMANDPACKAGE_H
+#ifndef TCLCOMMANDPACKAGE_H  //Required for current class
+#define TCLCOMMANDPACKAGE_H
                                //Required for base classes
-#ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
-#endif                               
-                               
-#ifndef __TCLINTERPRETER_H
 #include "TCLInterpreter.h"
-#endif
-                               //Required for 1:M associated classes
-#ifndef __TCLPROCESSOR_H
 #include "TCLProcessor.h"
-#endif                                                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#define __STL_LIST
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
 
 
 typedef std::list<CTCLProcessor*>   CommandList;

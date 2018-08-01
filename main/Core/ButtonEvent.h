@@ -29,27 +29,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __BUTTONEVENT_H  //Required for current class
-#define __BUTTONEVENT_H
+#ifndef BUTTONEVENT_H  //Required for current class
+#define BUTTONEVENT_H
                                
-                               //Required for 1:M associated classes
-#ifndef __POINT_H
 #include "Point.h"
-#endif    
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                                                           
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __XAMINE_CLIENTOPS_H
 #include <clientops.h>
-#define __XAMINE_CLIENTOPS_H
-#endif
 
 
 

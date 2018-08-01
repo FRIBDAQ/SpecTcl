@@ -14,17 +14,15 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef _RINGFORMATHELPER11CREATOR_H
-#define _RINGFORMATHELPER11CREATOR_H
+#ifndef RINGFORMATHELPER11CREATOR_H
+#define RINGFORMATHELPER11CREATOR_H
 
 /**
  * @file RingFormatHelper11Creator.h
  * @brief Define CRingFormatHelper11Creator which creates CRingFormatHelper11's.
  */
 
-#ifndef _RINGFORMATHELPERCREATOR_H
 #include "RingFormatHelperCreator.h"
-#endif
 
 
 class CRingFormatHelper;

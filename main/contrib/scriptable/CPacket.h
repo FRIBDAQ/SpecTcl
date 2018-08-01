@@ -45,33 +45,16 @@
 //
 // Copyright 
 
-#ifndef __CPACKET_H  //Required for current class
-#define __CPACKET_H
+#ifndef CPACKET_H  //Required for current class
+#define CPACKET_H
 
 //
 // Include files:
 //
 
-                               //Required for base classes
-#ifndef __CSEGMENTUNPACKER_H     //CSegmentUnpacker
 #include "CSegmentUnpacker.h"
-#endif
-
-
-
-#ifndef __STL_STRING
 #include <string>        //Required for include files  
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LSIT
-#define __STL_LIST
-#endif
-#endif
 
 // Forward class definitions.
 

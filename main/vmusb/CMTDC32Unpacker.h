@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CMTDC32UNPACKER_H
-#define __CMTDC32UNPACKER_H
+#ifndef CMTDC32UNPACKER_H
+#define CMTDC32UNPACKER_H
 
-#ifndef __CMODULEUNPACKER_H
 #include "CModuleUnpacker.h"
-#endif
 
 
 /*!

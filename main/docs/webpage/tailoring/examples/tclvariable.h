@@ -13,22 +13,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLVARIABLE_H  //Required for current class
-#define __TCLVARIABLE_H
+#ifndef TCLVARIABLE_H  //Required for current class
+#define TCLVARIABLE_H
                                //Required for base classes
-#ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
-#endif                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
                                
 class CTCLVariable  : public CTCLInterpreterObject        
 {

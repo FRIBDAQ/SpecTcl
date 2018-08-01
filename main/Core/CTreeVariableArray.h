@@ -29,27 +29,12 @@
 
 
 
-#if !defined(__CTREEVARIABLEARRAY_H)
-#define __CTREEVARIABLEARRAY_H
+#ifndef CTREEVARIABLEARRAY_H
+#define CTREEVARIABLEARRAY_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 // Forward definitions.
 

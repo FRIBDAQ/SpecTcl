@@ -29,14 +29,12 @@
 **   East Lansing, MI 48824-1321
 **   @(#)xaminegc.h	1.2 10/23/95 
 */
-#ifndef _xaminegc_h
-#define _xaminegc_h
+#ifndef xaminegc_h
+#define xaminegc_h
 #include "dispwind.h"
 #include "gc.h"
 
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
 
 //
 //  XamineSpectrumGC:

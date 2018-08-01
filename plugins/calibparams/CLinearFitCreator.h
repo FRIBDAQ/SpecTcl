@@ -15,24 +15,16 @@
 */
 
 
-#ifndef __CLINEARFITCREATOR_H  //Required for current class
-#define __CLINEARFITCREATOR_H
+#ifndef CLINEARFITCREATOR_H  //Required for current class
+#define CLINEARFITCREATOR_H
 
 //
 // Include files:
 //
 
                                //Required for base classes
-#ifndef __CFITCREATOR_H     //CFitCreator
 #include "./CFitCreator.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
  
 class CCalibLinearFitCreator  : public CCalibFitCreator        
 {

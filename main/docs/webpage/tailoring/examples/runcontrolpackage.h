@@ -13,12 +13,10 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __RUNCONTROLPACKAGE_H  //Required for current class
-#define __CRUNCONTROLPACKAGE_H
+#ifndef RUNCONTROLPACKAGE_H  //Required for current class
+#define CRUNCONTROLPACKAGE_H
                                //Required for base classes
-#ifndef __TCLCOMMANDPACKAGE_H
 #include "TCLCommandPackage.h"
-#endif                               
 
 
 class CTCLInterpreter;

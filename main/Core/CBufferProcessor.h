@@ -9,31 +9,13 @@
 
 */
 
-#ifndef __CBUFFERPROCESSOR_H
-#define __CBUFFERPROCESSOR_H
+#ifndef CBUFFERPROCESSOR_H
+#define CBUFFERPROCESSOR_H
 
-#ifndef __CBUFFERCALLBACKLIST_H
 #include "CBufferCallbackList.h"
-#endif
-
-#ifndef __TRANSLATORPOINTER_H
 #include <TranslatorPointer.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 

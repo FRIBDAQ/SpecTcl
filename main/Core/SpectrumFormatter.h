@@ -31,30 +31,14 @@
 // (c) Copyright NSCL 1999, All rights reserved SpectrumFormatter.h
 //
 
-#ifndef __SPECTRUMFORMATTER_H  //Required for current class
-#define __SPECTRUMFORMATTER_H
+#ifndef SPECTRUMFORMATTER_H  //Required for current class
+#define SPECTRUMFORMATTER_H
 
-#ifndef __PARAMETER_H
 #include <Parameter.h>
-#endif
-
-#ifndef __DICTIONARY_H
 #include <Dictionary.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>        //Required for include files
-#define __STL_STRING
-#endif
-
-#ifndef __OSTREAM_DAQH
 #include <ostream>
-#endif
-
-#ifndef __ISTREAM_DAQH
 #include <istream>
-#endif
 
 
 

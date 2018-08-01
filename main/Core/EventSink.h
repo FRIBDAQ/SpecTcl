@@ -31,8 +31,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __EVENTSINK_H  //Required for current class
-#define __EVENTSINK_H
+#ifndef EVENTSINK_H  //Required for current class
+#define EVENTSINK_H
 
 
 

@@ -26,19 +26,11 @@
 //
 // Copyright 
 
-#ifndef __CINTARRAYPARAM_H  //Required for current class
-#define __CINTARRAYPARAM_H
+#ifndef CINTARRAYPARAM_H  //Required for current class
+#define CINTARRAYPARAM_H
 
-#ifndef __CCONFIGURATIONPARAMETER_H     //CConfigurationParameter
 #include "CConfigurationParameter.h"
-#endif
- 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Forward class definitions:
 

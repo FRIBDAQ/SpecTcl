@@ -30,47 +30,17 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __SPECTRUM_H  //Required for current class
-#define __SPECTRUM_H
+#ifndef SPECTRUM_H  //Required for current class
+#define SPECTRUM_H
                                //Required for base classes
-#ifndef __NAMEDITEM_H
 #include "NamedItem.h"
-#endif      
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __PARAMETER_H
 #include "Parameter.h"
-#endif
-
-#ifndef __CAXIS_H
 #include "CAxis.h"
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __CRANGEERROR_H
 #include <RangeError.h>
-#endif
 
 // Forward class definitions:
 

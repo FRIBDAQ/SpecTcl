@@ -5,34 +5,14 @@
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
 
-#if !defined(__CGAMMACUT_H)
-#define __CGAMMACUT_H
+#ifndef CGAMMACUT_H
+#define CGAMMACUT_H
 
-#ifndef __CCUT_H
 #include "Cut.h"
-#endif
-
-#ifndef __GATE_H
 #include "Gate.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 /// Forward deefinitions.
 

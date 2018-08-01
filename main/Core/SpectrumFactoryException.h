@@ -31,8 +31,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __SPECTRUMFACTORYEXCEPTION_H  //Required for current class
-#define __SPECTRUMFACTORYEXCEPTION_H
+#ifndef SPECTRUMFACTORYEXCEPTION_H  //Required for current class
+#define SPECTRUMFACTORYEXCEPTION_H
                                //Required for base classes
 
 #include "Exception.h"

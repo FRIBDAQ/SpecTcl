@@ -15,36 +15,18 @@
              East Lansing, MI 48824-1321
 */
 
-#ifndef __HISTOTYPES_H
-#define __HISTOTYPES_H
+#ifndef HISTOTYPES_H
+#define HISTOTYPES_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef __CPP_IOSTREAM_H
 #include <iostream>
-#define __CPP_IOSTREAM_H
-#endif
-
-#ifndef __CPP_STRING_H
 #include <string.h>
-#define __CPP_STRING_H
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __CRT_MATH_H
 #include <math.h>
-#define __CRT_MATH_H
-#endif
-
-#ifndef _DAQTYPES_H
 #include <daqdatatypes.h>
-#endif
 
 #include <string>
 

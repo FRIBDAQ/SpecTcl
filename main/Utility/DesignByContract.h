@@ -1,5 +1,5 @@
-#ifndef __DESIGNBYCONTRACT_H__
-#define __DESIGNBYCONTRACT_H__
+#ifndef DESIGNBYCONTRACT_H
+#define DESIGNBYCONTRACT_H
 
 #include <string>
 #include <stdexcept>

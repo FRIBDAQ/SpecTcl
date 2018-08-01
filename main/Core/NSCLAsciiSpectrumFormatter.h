@@ -54,34 +54,15 @@
   Move to format version 2.0:  Supply mapping information about the range covered by each axis of a spectrum.  Note that reads are backwards compatible with version 1.0 and will default the range to 0 - nchans-1.
 
 */
-#ifndef __NSCLASCIISPECTRUMFORMATTER_H  //Required for current class
-#define __NSCLASCIISPECTRUMFORMATTER_H
+#ifndef NSCLASCIISPECTRUMFORMATTER_H  //Required for current class
+#define NSCLASCIISPECTRUMFORMATTER_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-                               //Required for base classes
-#ifndef __SPECTRUMFORMATTER_H
 #include "SpectrumFormatter.h"
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __STL_VECTOR_
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __OSTREAM_DAQH
 #include <ostream>
-#endif
-#ifndef __ISTREAM_DAQH
 #include <istream>
-#endif
 
 
 /*!

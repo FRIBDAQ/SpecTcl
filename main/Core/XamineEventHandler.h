@@ -16,55 +16,18 @@
 // (c) Copyright NSCL 1999, All rights reserved XamineEventHandler.h
 //
 
-#ifndef __XAMINEEVENTHANDLER_H  //Required for current class
-#define __XAMINEEVENTHANDLER_H
+#ifndef XAMINEEVENTHANDLER_H  //Required for current class
+#define XAMINEEVENTHANDLER_H
 
-#ifndef __TCLFILEHANDLER_H
 #include <TCLFileHandler.h>
-#endif                               
-
-                               //Required for 1:1 association classes
-#ifndef __HISTOGRAMMER_H
 #include <Histogrammer.h>
-#endif
-
-#ifndef __XAMINEPLUS_H
 #include <Xamineplus.h>
-#endif
-
-#ifndef __GATEFACTORY_H
 #include "GateFactory.h"
-#endif
-
-#ifndef __POINT_H
 #include <Point.h>
-#endif
-
-#ifndef _TK_H
 #include <tk.h>
-#define _TK_H
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 
 class CDisplayGate;

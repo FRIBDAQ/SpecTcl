@@ -14,19 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CFIRSTOFCOMMAND_H
-#define __CFIRSTOFCOMMAND_H
+#ifndef CFIRSTOFCOMMAND_H
+#define CFIRSTOFCOMMAND_H
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef  __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 class CTCLInterpreter;
 class CTCLObject;

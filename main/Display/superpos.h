@@ -31,8 +31,8 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-#ifndef _SUPERPOS_H_INSTALLED
-#define _SUPERPOS_H_INSTALLED
+#ifndef SUPERPOS_H_INSTALLED
+#define SUPERPOS_H_INSTALLED
 
 #include <string>
 

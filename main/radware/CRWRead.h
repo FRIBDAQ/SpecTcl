@@ -14,25 +14,14 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CRWREAD_H
-#define __CRWREAD_H
+#ifndef CRWREAD_H
+#define CRWREAD_H
 
 
 
-#ifndef __TCLOBJECTPROCESSOR_H
 #include <TCLObjectProcessor.h>
-#endif
-
-#ifndef __TCLOBJECT_H
 #include <TCLObject.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 // forward class defs:

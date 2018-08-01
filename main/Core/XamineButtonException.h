@@ -29,35 +29,15 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEBUTTONEXCEPTION_H  //Required for current class
-#define __XAMINEBUTTONEXCEPTION_H
+#ifndef XAMINEBUTTONEXCEPTION_H  //Required for current class
+#define XAMINEBUTTONEXCEPTION_H
                                //Required for base classes
-#ifndef __EXCEPTION_H
 #include "Exception.h"
-#endif    
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __XAMINE_XAMINE_H                           
 #include <Xamine.h>   //Required for include files, eg 
-#define __XAMINE_XAMINE_H
-#endif
-
-#ifndef __CXX_STRSTREAM_H
 #include <sstream>
-#define __CXX_STRSTREAM_H
-#endif
-
-#ifndef __XAMINEBUTTON_H
 #include "XamineButton.h"
-#endif
 
 
 class CXamineButtonException   : public CException

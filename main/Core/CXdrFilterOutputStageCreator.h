@@ -1,5 +1,5 @@
-#ifndef __CXDRFILTEROUTPUTSTAGECREATOR_H
-#define __CXDRFILTEROUTPUTSTAGECREATOR_H
+#ifndef CXDRFILTEROUTPUTSTAGECREATOR_H
+#define CXDRFILTEROUTPUTSTAGECREATOR_H
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -17,9 +17,7 @@
 */
 
 
-#ifndef __CFILTEROUTPUTSTAGECREATOR_H
 #include "CFilterOutputStageCreator.h"
-#endif
 
 
 /*!

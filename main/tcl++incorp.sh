@@ -11,7 +11,7 @@
 #  The idea is that libtcl/libexception could be or not be centrally
 #  installed, but if not, built from the export directory.
 #
-# Last used with libtclplus-v2.0-000
+# Last used with libtclplus-v3.0-001
 
 baseURL="https://git.nscl.msu.edu/daqdev/libtclplus.git"
 

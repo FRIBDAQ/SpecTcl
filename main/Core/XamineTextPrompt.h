@@ -30,19 +30,11 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINETEXTPROMPT_H  //Required for current class
-#define __XAMINETEXTPROMPT_H
+#ifndef XAMINETEXTPROMPT_H  //Required for current class
+#define XAMINETEXTPROMPT_H
                                //Required for base classes
-#ifndef __XAMINEBUTTONPROMPT_H
 #include "XamineButtonPrompt.h"
-#endif                               
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
                                
 class CXamineTextPrompt  : public CXamineButtonPrompt        
 {

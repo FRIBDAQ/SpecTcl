@@ -4,8 +4,8 @@
 // symbol HAVE_HLESS_HEADERS to distinguish
 // the difference:
 
-#ifndef  __IOSTREAM_DAQH
-#define  __IOSTREAM_DAQH
+#ifndef  IOSTREAM_DAQH
+#define  IOSTREAM_DAQH
 
 #ifdef HAVE_HLESS_IOSTREAM
 #include <iostream>

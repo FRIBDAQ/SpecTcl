@@ -33,8 +33,8 @@
  * Copyright (C) 1984, Sun Microsystems, Inc.
  */
 
-#ifndef _RPC_XDR_H
-#define _RPC_XDR_H 1
+#ifndef RPC_XDR_H
+#define RPC_XDR_H 1
 
 #include <sys/types.h>
 #include <rpc/types.h>

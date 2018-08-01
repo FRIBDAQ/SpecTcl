@@ -19,8 +19,8 @@
  * @brief Define a command to return the SpecTcl version.
  * @author Ron Fox<fox@nscl.msu.edu>
  */
-#ifndef __VERSIONCOMMAND_H
-#define __VERSIONCOMMAND_H
+#ifndef VERSIONCOMMAND_H
+#define VERSIONCOMMAND_H
 
 #include <TCLObjectProcessor.h>
 

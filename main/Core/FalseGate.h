@@ -29,25 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __FALSEGATE_H  //Required for current class
-#define __FALSEGATE_H
+#ifndef FALSEGATE_H  //Required for current class
+#define FALSEGATE_H
                                //Required for base classes
-#ifndef __GATE_H
 #include "Gate.h"
-#endif                               
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __STL__STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL__STRING
-#endif
-#endif
 
 // Forward class definitions:
 

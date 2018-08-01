@@ -25,34 +25,13 @@
 */
 
 
-#ifndef __CCALIBRATEDPARAMETERMANAGER_H  //Required for current class
-#define __CCALIBRATEDPARAMETERMANAGER_H
+#ifndef CCALIBRATEDPARAMETERMANAGER_H  //Required for current class
+#define CCALIBRATEDPARAMETERMANAGER_H
 
-#ifndef ___EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-//
-// Include files:
-//
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>        //Required for include files 
-#endif
-
-#ifndef __STL_STRING
 #include <string>        //Required for include files  
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 // Forward class definitions.
 

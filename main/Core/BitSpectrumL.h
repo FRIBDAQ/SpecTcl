@@ -48,34 +48,14 @@
 
 */
 
-#ifndef __BITSPECTRUML_H  //Required for current class
-#define __BITSPECTRUML_H
+#ifndef BITSPECTRUML_H  //Required for current class
+#define BITSPECTRUML_H
                                //Required for base classes
-#ifndef __SPECTRUM_H
 #include "Spectrum.h"
-#endif                               
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __PARAMETER_H
 #include "Parameter.h"
-#endif
-                
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif 
-#endif
 
 class TH1I;           // Root Spectrum to use.
 

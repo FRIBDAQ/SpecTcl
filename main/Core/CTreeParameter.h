@@ -28,27 +28,12 @@
 //
 
 
-#if !defined(__CTREEPARAMETER_H)
-#define __CTREEPARAMETER_H
+#ifndef CTREEPARAMETER_H
+#define CTREEPARAMETER_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 
 // Forward definitions:

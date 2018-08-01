@@ -15,15 +15,11 @@
       Michigan State University
       East Lansing, MI 48824-1321
 */
-#ifndef __DOCUMENTATIONEXCEPTION_H
-#define __DOCUMENTATIONEXCETPION_H
-#ifndef __HISTOTYPES_H
-#include <histotypes.h>
-#endif
+#ifndef DOCUMENTATIONEXCEPTION_H
+#define DOCUMENTATIONEXCETPION_H
 
-#ifndef __CEXCEPTION_H
+#include <histotypes.h>
 #include <Exception.h>
-#endif
 
 
 /*!

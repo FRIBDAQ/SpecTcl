@@ -1,5 +1,5 @@
-#ifndef __CFIXEDSIZEDUNPACKER_H
-#define __CFIXEDSIZEDUNPACKER_H
+#ifndef CFIXEDSIZEDUNPACKER_H
+#define CFIXEDSIZEDUNPACKER_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -17,7 +17,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CCCUSBPACKET_H
+#ifndef CCCUSBPACKET_H
 #include "CCCUSBPacket.h"
 #endif
 

@@ -22,23 +22,15 @@
 */
 
 
-#ifndef __CCALIBRATEDPARAMETER_H  //Required for current class
-#define __CCALIBRATEDPARAMETER_H
+#ifndef CCALIBRATEDPARAMETER_H  //Required for current class
+#define CCALIBRATEDPARAMETER_H
 
 //
 // Include files:
 //
 
-#ifndef __STL_STRING
 #include <string>        //Required for include files 
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>        //Required for include files  
-#endif
 
 
 // Forward class definitions (convert to includes if required):

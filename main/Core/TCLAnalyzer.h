@@ -34,50 +34,17 @@
 //
 //    
 
-#ifndef __TCLANALYZER_H
-#define __TCLANALYZER_H
+#ifndef TCLANALYZER_H
+#define TCLANALYZER_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
-
-#ifndef __ANALYZER_H
 #include <Analyzer.h>
-#define __ANALYZER_H
-#endif
-
-#ifndef __TCLINTERPRETER_H
 #include <TCLInterpreter.h>
-#define __TCLINTERPRETER_H
-#endif
-
-#ifndef __TCLVARIABLE_H
 #include <TCLVariable.h>
-#define __TCLVARIABLE_H
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#define __STL_LIST
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __STL_MAP
 #include <map>
-#define __STL_MAP
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
 // Names of the variables maintained:
 static const char* BufferCountVar    = "BuffersAnalyzed";

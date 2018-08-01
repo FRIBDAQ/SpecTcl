@@ -28,14 +28,12 @@
 **  East Lansing, MI 48824-1321
 **    @(#)scaling.h	2.1 12/22/93 
 */
-#ifndef _SCALING_H
-#define _SCALING_H
+#ifndef SCALING_H
+#define SCALING_H
 #include "dispwind.h"
 #include "dispshare.h"
-
-#ifndef XMWIDGET_H
 #include "XMWidget.h"
-#endif
+
 
 #define SMOOTH1D_PIXELS    1
 #define HISTO1D_PIXELS     1

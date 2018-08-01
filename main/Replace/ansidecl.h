@@ -111,8 +111,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
    CONST, VOLATILE, SIGNED, PROTO, EXFUN, DEFUN, DEFUN_VOID,
    AND, DOTS, NOARGS.  Don't use them.  */
 
-#ifndef	_ANSIDECL_H
-#define _ANSIDECL_H	1
+#ifndef	ANSIDECL_H
+#define ANSIDECL_H	1
 
 /* Every source file includes this file,
    so they will all get the switch for lint.  */

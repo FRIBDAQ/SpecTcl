@@ -39,14 +39,10 @@
 // (c) Copyright NSCL 1999, All rights reserved ReadCommand.h
 //
 
-#ifndef __READCOMMAND_H  //Required for current class
-#define __READCOMMAND_H
+#ifndef READCOMMAND_H  //Required for current class
+#define READCOMMAND_H
 
-                               //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif
-
 #include <fstream>
 #include <sys/stat.h>
 #include <sys/types.h>

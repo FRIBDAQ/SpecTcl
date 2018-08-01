@@ -17,37 +17,15 @@
 
 /////////////////////////////////////////////////////////////
 
-#ifndef __SPECTRUMPACKAGE_H  //Required for current class
-#define __SPECTRUMPACKAGE_H
+#ifndef SPECTRUMPACKAGE_H  //Required for current class
+#define SPECTRUMPACKAGE_H
 
                                //Required for base classes
-#ifndef __TCLCOMMANDPACKAGE_H
 #include <TCLCommandPackage.h>
-#endif                               
-                               
-                               //Required for 1:1 associated classes
-#ifndef __HISTOGRAMMER_H
 #include <Histogrammer.h>
-#endif                                                               
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
 

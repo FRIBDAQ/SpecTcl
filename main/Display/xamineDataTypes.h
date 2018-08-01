@@ -23,8 +23,8 @@
 */
 
 
-#ifndef __XAMINEDATATYPES_H
-#define __XAMINEDATATYPES_H
+#ifndef XAMINEDATATYPES_H
+#define XAMINEDATATYPES_H
 
 
 

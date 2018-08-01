@@ -29,8 +29,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __DICTIONARYEXCEPTION_H  //Required for current class
-#define __DICTIONARYEXCEPTION_H
+#ifndef DICTIONARYEXCEPTION_H  //Required for current class
+#define DICTIONARYEXCEPTION_H
                                //Required for base classes
 
 #include "Exception.h"

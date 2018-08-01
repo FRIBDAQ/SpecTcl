@@ -43,39 +43,12 @@
 
 #include <config.h>
 
-#ifndef __POINT_H
 #include <Point.h>
-#endif
-
-#ifndef __GATECONTAINER_H
 #include <GateContainer.h>
-#endif
-
-#ifndef __SPECTRUM_H
 #include <Spectrum.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_LIST
 #include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
 
 //
 //  Class forward definitions

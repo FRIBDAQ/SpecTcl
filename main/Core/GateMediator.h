@@ -14,16 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __GATEMEDIATOR_H
-#define __GATEMEDIATOR_H
+#ifndef GATEMEDIATOR_H
+#define GATEMEDIATOR_H
 
-#ifndef __GATECONTAINER_H
 #include "GateContainer.h"
-#endif
-
-#ifndef __SPECTRUM_H
 #include <Spectrum.h>
-#endif
 
 
 

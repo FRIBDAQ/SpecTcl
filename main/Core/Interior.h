@@ -29,26 +29,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __INTERIOR_H  //Required for current class
-#define __INTERIOR_H
+#ifndef INTERIOR_H  //Required for current class
+#define INTERIOR_H
           
-#ifndef __STL_VECTOR                     
 #include <vector>   //Required for include files, eg <CList.h>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __CPP__IOSTREAM_H
 #include <iostream>
-#define __CPP__IOSTREAM_H
-#endif
-
-
-                               //Required for 1:1 associated classes
-#ifndef __INTERIORROW_H
 #include "InteriorRow.h"
-#endif                                                               
                                                                
 class CInterior      
 {

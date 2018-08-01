@@ -19,27 +19,12 @@
 */
 
 // Preprocessor includes, definitions.
-#ifndef __GATEDEVENTFILTER_H //Required for current class
-#define __GATEDEVENTFILTER_H
+#ifndef GATEDEVENTFILTER_H //Required for current class
+#define GATEDEVENTFILTER_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
-
-
-#ifndef __EVENTFILTER_H
 #include <EventFilter.h>
-#define __EVENTFILTER_H
-#endif
 
 // Forward class definitions.
 

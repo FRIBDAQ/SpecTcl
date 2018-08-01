@@ -18,25 +18,12 @@
 ******************************************************************************/
 
 
-#ifndef __BUFFERTRANSLATOR_H
-#define __BUFFERTRANSLATOR_H
+#ifndef BUFFERTRANSLATOR_H
+#define BUFFERTRANSLATOR_H
 
-#ifndef __BUFFER_H
 #include <buffer.h>
-#endif
-
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STDC_STDINT_H
 #include <stdint.h>
-#ifndef __STDC_STDINT_H
-#define __STDC_STDINT_H
-#endif
-#endif
-
 #include <iostream>
 
 /*-----------------------------------------------------------------------------

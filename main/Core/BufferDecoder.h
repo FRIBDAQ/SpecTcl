@@ -30,29 +30,13 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __BUFFERDECODER_H  //Required for current class
-#define __BUFFERDECODER_H
+#ifndef BUFFERDECODER_H  //Required for current class
+#define BUFFERDECODER_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __BUFFERTRANSLATOR
 #include <BufferTranslator.h>
-#define __BUFFERTRANSLATOR
-#endif
-
-#ifndef __TRANSLATORPOINTER
 #include <TranslatorPointer.h>
-#define __TRANSLATORPOINTER
-#endif
 
 // Forward Class References:
 class CAnalyzer;

@@ -14,12 +14,10 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef __CGAUSSIANFITCREATOR_H
-#define __CGAUSSIANFITCREATOR_H
+#ifndef CGAUSSIANFITCREATOR_H
+#define CGAUSSIANFITCREATOR_H
 
-#ifndef __CFITCREATOR_H
 #include "CFitCreator.h"
-#endif
 
 /*!
    This class creates guassian fit objects for the fit factory.

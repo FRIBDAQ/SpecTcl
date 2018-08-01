@@ -19,31 +19,14 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLInterpreter_H  //Reuired for current class
-#define __TCLInterpreter_H
+#ifndef TCLInterpreter_H  //Reuired for current class
+#define TCLInterpreter_H
 
-#ifndef __TCL_H
 #include <tcl.h>
-#define __TCL_H
-#endif          
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __STL_VECTORR
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __TCLSTRING_H
 #include "TCLString.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
                      
 class CTCLInterpreter      
 {

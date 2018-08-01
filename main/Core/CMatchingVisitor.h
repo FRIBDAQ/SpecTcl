@@ -29,23 +29,12 @@
 
 
 
-#if !defined(__CMATCHINGVISITOR_H)
+#ifndef CMATCHINGVISITOR_H
 
-#define __CMATCHINGVISITOR_H
+#define CMATCHINGVISITOR_H
 
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_UTILITY
 #include <utility>
-#ifndef __STL_UTILITY
-#define __STL_UTILITY
-#endif
-#endif
 
 
 

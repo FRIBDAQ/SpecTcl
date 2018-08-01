@@ -29,16 +29,11 @@
 **     @(#)dispshare.h	2.3 5/26/94 
 */
 
-#ifndef _DISPSHARE_H_INSTALLED_
-#define _DISPSHARE_H_INSTALLED_
+#ifndef DISPSHARE_H_INSTALLED_
+#define DISPSHARE_H_INSTALLED_
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef __XAMINEDATATYPES_H
 #include "xamineDataTypes.h"
-#endif
 
 #include <string.h>
 #include <stdio.h>

@@ -17,26 +17,13 @@
 
 // Header files:
 
-#ifndef __FILTEREVENTPROCESSOR_H
-#define __FILTEREVENTPROCESSOR_H
+#ifndef FILTEREVENTPROCESSOR_H
+#define FILTEREVENTPROCESSOR_H
 
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
 
 // Forward Definitions:
 

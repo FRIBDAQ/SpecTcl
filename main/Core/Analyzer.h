@@ -35,33 +35,14 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __ANALYZER_H  //Required for current class
-#define __ANALYZER_H
+#ifndef ANALYZER_H  //Required for current class
+#define ANALYZER_H
 
-#ifndef __EVENTLIST_H
 #include "EventList.h"
-#define __EVENTLIST_H
-#endif
-
-#ifndef __BUFFERDECODER_H
 #include "BufferDecoder.h"
-#define __BUFFERDECODER_H
-#endif
-
-#ifndef __EVENTSINK_H
 #include "EventSink.h"
-#define __EVENTSINK_H
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
-#endif
 
-//#ifndef __FILTEREVENTPROCESSOR_H
-//#include <FilterEventProcessor.h>
-//#define __FILTEREVENTPROCESSOR_H
-//#endif
 
 // Forward class declaration:
 class CFilterEventProcessor;

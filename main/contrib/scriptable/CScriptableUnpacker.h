@@ -56,22 +56,14 @@
 //
 // Copyright 
 
-#ifndef __CSCRIPTABLEUNPACKER_H  //Required for current class
-#define __CSCRIPTABLEUNPACKER_H
+#ifndef CSCRIPTABLEUNPACKER_H  //Required for current class
+#define CSCRIPTABLEUNPACKER_H
 
 //
 // Include files:
 //
-#ifndef __EVENTUNPACKER_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
                                //Required for 1:1 association classes
 

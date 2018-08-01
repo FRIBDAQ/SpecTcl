@@ -81,21 +81,12 @@ Change Log:
 
 */
 
-#ifndef __TRANSLATORPOINTER_H
-#define __TRANSLATORPOINTER_H
+#ifndef TRANSLATORPOINTER_H
+#define TRANSLATORPOINTER_H
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __BUFFERTRANSLATOR_H
 #include "BufferTranslator.h"
-#endif
-
-#ifndef __RANGEERROR_H
 #include <RangeError.h>
-#endif
-
 #include <stdint.h>
 
 class BufferTranslator;  // forward class declaration

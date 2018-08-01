@@ -28,8 +28,8 @@
 //
 
 
-#if !defined(__CTREEEXCEPTION_H)
-#define __CTREEEXCEPTION_H
+#ifndef CTREEEXCEPTION_H
+#define CTREEEXCEPTION_H
 
 
 #include <Exception.h>

@@ -1,5 +1,5 @@
-#ifndef __CSPECTRUMBYPARAMETER_H
-#define __CSPECTRUMBYPARAMETER_H
+#ifndef CSPECTRUMBYPARAMETER_H
+#define CSPECTRUMBYPARAMETER_H
 
 
 /*
@@ -17,20 +17,9 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-#ifndef __HISTOGRAMMER_H
 #include <Histogrammer.h>
-#endif
-
-#ifndef __DYNAMICLIST_H
 #include "DynamicList.h"
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 // Forward type/class definitions:
 

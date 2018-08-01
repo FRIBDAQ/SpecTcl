@@ -14,22 +14,12 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef _RINGFORMATHELPER_H
-#define _RINGFORMATHELPER_H
+#ifndef RINGFORMATHELPER_H
+#define RINGFORMATHELPER_H
 
-#ifndef _STL_STRING
 #include <string>
-#ifndef _STL_STRING
-#define _STL_STRING
-#endif
-#endif
-
-#ifndef __STDINT_H
 #include <stdint.h>
-#ifndef __STDINT_H
-#define __STDINT_H
-#endif
-#endif
+
 /**
  * @file RingFormatHelper.h
  * @brief  Definition of the abstract base class for Ring Format helpers

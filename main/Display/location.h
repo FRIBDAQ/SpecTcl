@@ -31,8 +31,8 @@
 **    @(#)location.h	8.1 6/23/95 
 */
 
-#ifndef _LOCATION_H_INSTALLED
-#define _LOCATION_H_INSTALLED
+#ifndef LOCATION_H_INSTALLED
+#define LOCATION_H_INSTALLED
 #include <stdio.h>
 
 #include "XMManagers.h"
