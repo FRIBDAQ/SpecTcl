@@ -249,8 +249,9 @@ public:
   virtual   SpectrumDefinition& GetDefinition() ;
 
   virtual   Bool_t needParameter() const;
-
-
+  
+public:
+  std::pair<Float_t, Float_t> adjustedLimits(UInt_t dim);
 protected:
   static Int_t Randomize(Float_t channel);
 

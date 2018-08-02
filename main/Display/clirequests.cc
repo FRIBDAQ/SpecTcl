@@ -84,12 +84,12 @@ DrawGate(grobj_generic *object)
     for(int c = 0; c < nc; c++) {
       win_attributed *at = Xamine_GetDisplayAttributes(r,c);
       if(at != NULL) {
-	if(at->spectrum() == spec) { /* Got a pane with our spectrum. */
-	  if(db->refresh_state(r, c) == rfsh_idle) { /* Got one for drawing */
-	    XMWidget *w = Xamine_GetDrawingArea(r,c);
-	    object->draw(w, at, True);
-	  }
-	}
+        if(at->spectrum() == spec) { /* Got a pane with our spectrum. */
+          if(db->refresh_state(r, c) == rfsh_idle) { /* Got one for drawing */
+            XMWidget *w = Xamine_GetDrawingArea(r,c);
+            object->draw(w, at, True);
+          }
+        }
       }
     }
 }

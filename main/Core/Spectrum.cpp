@@ -666,6 +666,29 @@ CSpectrum::needParameter() const
 {
   return kfTRUE;
 }
+/**
+ * adjustedLimits
+ *    Return the real coordinate limits of the spectrum for a specific axis
+ *    adjusted for Xamine - this takes into account the hidden channel -1
+ *    for underflows and extra channel for overflows.
+ *
+ * @param dim - dimension (0 for x 1 for y).
+ * @return std::pair<Float_t, Float_t> low/high limits.
+ * @throw CRagneError if dim is invalid for the spectrum.
+ */
+std::pair<Float_t, Float_t>
+CSpectrum::adjustedLimits(UInt_t dim)
+{
+  Float_t low = GetLow(dim);
+  Float_t high = GetHigh(dim);
+  Size_t chans = Dimension(dim);            // Includes the fake channels.
+  
+  Float_t chanWidth = (high - low)/(chans - 2);
+  
+  low -= chanWidth;
+  high += chanWidth;
+  return std::pair<Float_t, Float_t>(low, high);
+}
 
 /*---------------------------------------------------------------------------
  * Statistics:

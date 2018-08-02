@@ -197,11 +197,13 @@ UInt_t CProductionXamineShMem::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &
           case 1:			// 1-d spectrum.
           {
               Bool_t           fWord = rSpectrum.StorageType() == keWord;
+              std::pair<Float_t, Float_t> limits = rSpectrum.adjustedLimits(0);
+               
               pXSpectrum   = new CXamine1D(getXamineMemory(),
                                            rSpectrum.getName(),
                                            rSpectrum.Dimension(0),
-                                           rSpectrum.GetLow(0),
-                                           rSpectrum.GetHigh(0),
+                                           limits.first,
+                                           limits.second,
                                            rSpectrum.GetUnits(0),
                                            fWord);
               break;
@@ -224,15 +226,16 @@ UInt_t CProductionXamineShMem::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &
               default:
                   throw string("Invalid 2d spectrum type");
               }
-
+              std::pair<Float_t, Float_t> xlimits = rSpectrum.adjustedLimits(0);
+              std::pair<Float_t, Float_t> ylimits = rSpectrum.adjustedLimits(1);
               pXSpectrum = new CXamine2D(getXamineMemory(),
                                          rSpectrum.getName(),
                                          rSpectrum.Dimension(0),
                                          rSpectrum.Dimension(1),
-                                         rSpectrum.GetLow(0),
-                                         rSpectrum.GetLow(1),
-                                         rSpectrum.GetHigh(0),
-                                         rSpectrum.GetHigh(1),
+                                         xlimits.first,
+                                         ylimits.first,
+                                         xlimits.second,
+                                         ylimits.second,
                                          rSpectrum.GetUnits(0),
                                          rSpectrum.GetUnits(1),
                                          dataType);
