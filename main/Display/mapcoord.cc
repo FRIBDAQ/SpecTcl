@@ -36,6 +36,21 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 extern volatile spec_shared *xamine_shared;
 
 
+/**
+ * channelWidth
+ *   Figure out the width of a channel in real coordinates:
+ *
+ * @param lo - low limit real coordinates of axis.
+ * @param hi - High limits of real coordinates of axis.
+ * @param chans - Number of channels allocated for the range [lo hi).
+ * @return float - width of a channel in real coordinates.
+ */
+static float
+channelWidth(float lo, float hi, float chans)
+{
+    return chans/(hi - lo);  
+}
+
 /*!
    Do an arbitrary coordinate transformation:
    \param fSourcelow, fSourceHigh (float)
@@ -82,6 +97,10 @@ int Xamine_XMappedToChan(int specno, float value)
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
   float nch = xamine_shared->getxdim(specno);
+  
+  // There's really an extra 1/2 channel xhi we need o allow for.
+  
+  xhi += (0.5) * channelWidth(xlo, xhi, nch);
 
   float x = Transform(xlo, xhi, 0.0, (float)(nch), value);
   int ix =  (int)(x + copysign(1.0, x)*0.5);
@@ -111,6 +130,8 @@ int Xamine_YMappedToChan(int specno, float value)
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
   float nch = xamine_shared->getydim(specno);
+  
+  yhi += (0.5) * channelWidth(ylo, yhi, nch);
 
   float y = Transform(ylo, yhi, 0.0, (float)(nch), value);
   int iy =  (int)(y + copysignf(1.0, y)*0.5);
@@ -138,8 +159,8 @@ float Xamine_XChanToMapped(int specno, float chan)
   float xhi = xamine_shared->getxmax_map(specno);
   int   nch = xamine_shared->getxdim(specno);
 
-  return Transform(0.0, (float)(nch-1),
-		   xlo, xhi, chan);
+  return Transform(0.0, (float)(nch),    
+		   xlo, xhi, chan);                  
 }
 
 /*
@@ -161,6 +182,6 @@ float Xamine_YChanToMapped(int specno, float chan)
   float yhi = xamine_shared->getymax_map(specno);
   int   nch = xamine_shared->getydim(specno);
 
-  return Transform(0.0, (float)(nch-1), ylo, yhi, chan);
+  return Transform(0.0, (float)(nch), ylo, yhi, chan);
 
 }

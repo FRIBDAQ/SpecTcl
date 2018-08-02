@@ -427,8 +427,8 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 
   pane->GetAttribute(XmNwidth, &nxs);
   pane->GetAttribute(XmNheight, &nys);
-  int nx = nxs - 1;
-  int ny = nys - 1;
+  int nx = nxs;
+  int ny = nys;
 
   /* Adjust these sizes figuring in the margins.  Note that the origin pixel
   ** will allow us to correct the final pixels back to the full window.
@@ -690,9 +690,9 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   }
   else {
     xl = 0;
-    xh = spectra->getxdim(spec)-1;
+    xh = spectra->getxdim(spec);
     yl = 0;			/* These are in spectrum orientation and */
-    yh = spectra->getydim(spec)-1; /* Must therefore be flipped if the  */
+    yh = spectra->getydim(spec); /* Must therefore be flipped if the  */
 				/* spectrum is in flipped orientation.  */
     if(a->isflipped()) {
       int temp;
@@ -714,9 +714,9 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   // *ypix = (int)LinearPosition(chany - yl,1, ny, (yh-yl + 1));
 
   *xpix = (int)(Transform((float)xl, (float)xh,
-			  0.0, (float)(nx-1), (float)chanx));
+			  0.0, (float)(nx), (float)chanx));
   *ypix = (int)(Transform((float)yl, (float)yh, 
-			  0.0, (float)(ny-1), (float)chany));
+			  0.0, (float)(ny), (float)chany));
 		
   /* Adjust pixel coordinates into X/Y X-11 positions: */
 
