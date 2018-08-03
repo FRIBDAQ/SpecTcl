@@ -51,12 +51,13 @@ class CGateContainer : public CNamedItem {
 		  CGate& rGate);  
   virtual ~CGateContainer();
 
+
   //Copy constructor
   CGateContainer(const CGateContainer& aCGateContainer);
 
   //Operator= Assignment Operator
   CGateContainer& operator=(const CGateContainer& aCGateContainer);
-
+public:
   //  While gates don't compare, containers compare as named items do:
   int operator== (const CGateContainer& aCGateContainer) const {
     return CNamedItem::operator==(aCGateContainer);
