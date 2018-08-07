@@ -1133,11 +1133,13 @@ image create photo ::browser::foldericon   -format png \
     # @param id   - Id of parent node.
     # @param name - Terminal part of path  name.
     # @param def  - Parameter definition.
+    # @param where - index at which to add the parameter, defaults to end.
+    # @return id - id of the parameter entry in the tree.
     #
-    method addParameter {id name def} {
+    method addParameter {id name def {where end}} {
         set fullName [lindex $def 0]; # full path name to parameter.
     
-        set pid [$self addEntryParameter $id 0 $name]
+        set pid [$self addEntryParameter $id 0 $name $where]
     
         # Figure out the values we need to put..only there if tree parameter:
     
@@ -1154,7 +1156,9 @@ image create photo ::browser::foldericon   -format png \
             set hi   ""
             set units ""
         }
-        $tree item $pid -tag Parameter -values [list "" "" $low $hi $bins "" $units] -tags parameter
+        $tree item $pid \
+            -tag Parameter -values [list "" "" $low $hi $bins "" $units] \
+            -tags parameter
     
     
         # If the parameter is a pseudo, we are going put the dependent parameters as subnodes:
@@ -1172,6 +1176,7 @@ image create photo ::browser::foldericon   -format png \
                 }
             }
         }
+        return $pid
     }
     ##
     # addEntryParameter id number name
@@ -1181,11 +1186,13 @@ image create photo ::browser::foldericon   -format png \
     #    id      - Id of the treeview node to which this is being added.
     #    number  - A parameter index numer -- ignored there for compatibility with vsn 1.0 of the pkg.
     #    name    - A parameter name used to label the node.
+    #    where   - Where to add the parameter, defaults to end.
     # Returns:
     #     The new node id.
     #
-    method addEntryParameter {id number name} {
-        set pid [$tree insert $id end -text $name -image ::browser::paramicon]
+    method addEntryParameter {id number name {where end}} {
+        set pid [$tree insert \
+            $id $where -text $name -image ::browser::paramicon]
 
         return $pid
     }
@@ -1668,6 +1675,67 @@ image create photo ::browser::foldericon   -format png \
             }
         }
     }
+    ##
+    # addNewParameter
+    #    Adds a parameter to a tree where it does not yet exist:
+    #    - find the owning folder.
+    #    - If that parameter has a terminals entry that's filled in.
+    #    - If the folder is opened, the parameter is added to the folder at
+    #      the appropriate position.
+    #
+    #  @param name - name of the parameter -- must exist.
+    #
+    method addNewParameter {name} {
+        
+        # Generate the terminal data and the folder.
+        
+        set def [parameter -list $name]
+        if {[llength $def] == 0} {
+            error "Parameter $name does not exist"
+        }
+        set def [lindex $def 0]
+        set path [split $name .]
+        set terminalName [lindex $path end]
+        
+        # Now get the folder id:
+        
+        set folderId [$self _getParent parameter $name]
+        
+        #  Two cases
+        # 1. the folder has a terminals entry - then we need
+        #    to insert this into that list.
+        # 2. the folder has been opened, in which case we need to add
+        #    this parameter at the right point in the children.
+        #
+        
+        if {[array names parameterTerminals $folderId] eq $folderId} {
+            # folder was never opened:
+            
+            set terminalList $parameterTerminals($folderId)
+            lappend terminalList [list $terminalName  $def]
+            set parameterTerminals($folderId) [lsort \
+                -ascii -increasing -index 0 $terminalList]
+            
+        } else {
+            set children [$tree children $folderId]
+            set index 0
+            set id ""
+            foreach child $children {
+                set childName [$tree item $child -text]
+                if {$childName > $terminalName} {
+                    set id [$self addParameter \
+                        $folderId $terminalName $def $index]
+                    break
+                }
+                incr index
+            }
+            # If we've still not inserted, insert at end:
+            
+            if {$id eq ""} {
+                $self addParameter $folderId $terminalName $def end
+            }
+        }
+    }
     #-------------------------------------------------------------------------
     #  Internal methods.
     
@@ -1901,6 +1969,7 @@ image create photo ::browser::foldericon   -format png \
     #    Given an object type and a fully qualified name returns the
     #    id of the folder that should hold that object.  The assumption is
     #    That this folder exists.  If not, an error is thrown.
+    #    The folder need not have the object yet.
     #
     # @param objType - object type : spectrum, gate, parameter variable
     # @param name    - fully qualified name.
