@@ -97,8 +97,9 @@ snit::widget compoundgate {
         $win.dependencies delete 0 end
         foreach gate $subgates {
             $win.dependencies insert end $gate
+            $win.browser deleteElement gate $gate
         }
-        $win.browser update
+        # $win.browser update
     }
     # reInit
     #     Reinitializes the widget to make it possible to start a new gate.
@@ -134,17 +135,19 @@ snit::widget compoundgate {
         foreach item $selection {
             set gate [::pathToName $item]
             if {([gate -list $gate] != "") && ($gate ni [$win.dependencies get 0 end])} {
-                $win.dependencies insert end $gate  
+                $win.dependencies insert end $gate
+                $win.browser deleteElement gate $gate
                 if {($atmost > 0) && ([$win.dependencies index end] > $atmost) } {
                     # Prune back the oldest..
 
                     set loser [$win.dependencies get 0]
-                   # $win.browser addGate $loser
+                    # $win.browser addGate $loser
+                    $win.browser addNewGate $loser
                     $win.dependencies delete 0
                 }
             }
         }
-        $win.browser update
+       #  $win.browser update
     }
     # removeFromListbox
     #     Called in respones to a click on the left arrow button.
@@ -162,12 +165,12 @@ snit::widget compoundgate {
         foreach id $selection {
             set gatename [$win.dependencies get $id]
             $win.dependencies delete $id
-           # $win.browser addGate $gatename
+            $win.browser addNewGate $gatename
         }
-        $win.browser update;         # Update the gates.
+        # $win.browser update;         # Update the gates.
     }
     # gateFilter descr
-    #       Determins if a gate should be displayed in the
+    #       Determines if a gate should be displayed in the
     #       browser.  Gate are displayed if they are not
     #       in the dependcy set.
     # Parameters:
@@ -175,11 +178,14 @@ snit::widget compoundgate {
     method gateFilter descr {
         set name [lindex $descr 0]
         set dependencies [$self getDescription]
+        puts "Gate filter is $name in $dependencies"
         lappend dependencies $gateName
 
         if {[lsearch -exact $dependencies $name] != -1} {
+            puts yes
             return 0
         } else {
+            pugts no
             return 1
         }
     }
