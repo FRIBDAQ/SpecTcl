@@ -168,7 +168,7 @@ snit::widget c2band {
         set xpar [$win.xparameter cget -text]
         set ypar [$win.yparameter cget -text]
         set pname [lindex $descr 0]
-        
+
         return [expr {$pname ni [list $xpar $ypar]}]
         return 1
     }
@@ -208,16 +208,13 @@ snit::widget c2band {
         set gx    [lindex $gpars 0]
         set gy    [lindex $gpars 1]
         
-        set b1 [$win.b1 cget -text]
-        set b2 [$win.b2 cget -text]
 
-        if {($xp == $gx) && ($yp == $gy) && ($gname ni [list $b1 $b2])} {
+        if {($xp == $gx) && ($yp == $gy) } {
             return 1
         }
-        if {($yp == $gx) && ($xp == $gy) && ($gname ni [list $b1 $b2])} {
+        if {($yp == $gx) && ($xp == $gy) } {
             return 1
         }
-
 
         return 0;  
     }
@@ -262,6 +259,16 @@ snit::widget c2band {
     #    name   - Name of the new parameter.
     method setCurrentParameter name {
         set label $parwidgets($currentParameter)
+        
+        # Get the old value and, if it's a real parameter, add it back
+        # to the parameter tree:
+        
+        set oldValue [$label cget -text]
+        set desc [parameter -list $oldValue]
+        if {[llength $desc] > 0} {
+            $win.browser addNewParameter $oldValue
+        }
+        
         $label configure -text $name
 
         if {$currentParameter == "x"} {
@@ -281,9 +288,11 @@ snit::widget c2band {
         set name [::pathToName $selection]
         if {[parameter -list $name] != ""} {
             $self setCurrentParameter $name
-            $win.browser update;             # Re filter gates
+            $win.browser deleteElement parameter $name;   # Remove from further selection.
             $self checkCurrentGates;         # Ensure selected bands still valid.
         }
+      
+        $win.browser refreshGateFolder
     }
     # selectGate args]
     #    Called on a double click of a gate.
@@ -296,7 +305,7 @@ snit::widget c2band {
         if {[gate -list $name] != ""} {
             $self setCurrentGate $name
         }
-        $win.browser update
+        $win.browser deleteElement gate $name
     }
     # setNextParameter which
     #     Sets the next parameter selected to 'which'.
@@ -322,6 +331,15 @@ snit::widget c2band {
     #
     method setCurrentGate name {
         set widget $bandwidgets($currentBand)
+        
+        # If there's already a good gate, add it back to the tree:
+        
+        set oldGate [$widget cget -text]
+        set desc [gate -list $oldGate]
+        if {[llength $desc] > 0} {
+            $win.browser addNewGate $oldGate
+        }
+        
         $widget configure -text $name
 
         if {$currentBand == "1"} {
@@ -340,9 +358,13 @@ snit::widget c2band {
         foreach i {1 2} {
             set widget $bandwidgets($i)
             set gate [$widget cget -text]
-            set description [lindex [gate -list $gate] 0]
-            if {![$self filterGates $description]} {
-                $widget configure -text $emptyString
+            set description [gate -list $gate]
+            if {[llength $description ] > 0} {
+                set description [lindex $description 0]
+                if {![$self filterGates $description]} {
+                    $win.browser addNewGate $gate;  # Put the gate back in the browser
+                    $widget configure -text $emptyString
+                }
             }
         }
     }

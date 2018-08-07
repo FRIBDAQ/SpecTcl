@@ -453,6 +453,22 @@ image create photo ::browser::foldericon   -format png \
 
 		      
     }
+    ##
+    # refreshGateFolder
+    #   Empty and refill the gate folder.
+    #
+    method refreshGateFolder {} {
+        set index 0
+        foreach id $topLevelIds {
+            if {[$tree item $id -text] eq "Gates"} {
+                $tree delete $id
+                set topLevelIds [lreplace $topLevelIds $index $index]
+                break
+            }
+            incr index
+        }
+        $self fillGateFolder
+    }
     # fillGateFolder
     #    Fills the gate folder with the set of gates that are now defined.
     #    The type column is filled with the gate type and gate type specific0
