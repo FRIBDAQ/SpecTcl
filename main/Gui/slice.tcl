@@ -12,7 +12,7 @@
 #            NSCL
 #            Michigan State University
 #            East Lansing, MI 48824-1321
-#
+#f
 
 package provide sliceditor 1.0
 package require snit
@@ -110,7 +110,7 @@ snit::widget sliceEditor {
         $win.parameters delete 0 end
         $win.limits.low delete 0 end
         $win.limits.high delete 0 end
-	$win.browser update
+        $win.browser update
     }
     # getDescription:
     #     Return the gate description string.
@@ -165,12 +165,15 @@ snit::widget sliceEditor {
         set atmost $options(-maxparams)
         foreach item $selection {
             set parameter [::pathToName $item]
+            $win.browser deleteElement parameter $parameter ;   #Remove from tree.
             $win.parameters insert end $parameter
             if {($atmost != 0) && ([$win.parameters index end] > $atmost)} {
+                set oldValue [$win.parameters get 0]
+                $win.browser addNewParameter $oldValue ;  # add back to tree.
                 $win.parameters delete 0
             }
         }
-        $win.browser update
+        # $win.browser update
     }
     # paramterFilter desc
     #      Determines if the parameter described should appear in the browser.
@@ -216,12 +219,14 @@ snit::widget sliceEditor {
         #  Delete the list box elements 
     
         foreach id $ids {
+            set name [$win.parameters get $id]
+            $win.browser addNewParameter $name;   # Add back to tree.
             $win.parameters delete $id
         }
        
         # updateing the browser for now will show the removed params
         # because they will no longer be filtered out:
         
-        $win.browser  update
+        # $win.browser  update
     }
 }
