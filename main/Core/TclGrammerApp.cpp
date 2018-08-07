@@ -1072,7 +1072,7 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
   }
   catch (CTCLException& e) {
     std::string reason = e.ReasonText();
-    std::string error  = "Error processing file: ;
+    std::string error  = "Error processing file: ";
     error += filename;
     error += " ";
     error += reason;
