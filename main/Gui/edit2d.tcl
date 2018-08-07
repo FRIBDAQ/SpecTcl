@@ -104,6 +104,7 @@ snit::widget edit2d {
 
             $self loadParameterInfo $axisname $parameter $low $high $bins $units
         }
+        $options(-browser) update;      # Refresh the filtered tree.
 
     }
     # getParameters
@@ -205,13 +206,17 @@ snit::widget edit2d {
         set currentParameter $axis
         $self highlightParameter
         set frame $paramFrames($axis)
+        set oldName [$frame.parameter cget -text]
+        if {[llength [parameter -list $oldName]] > 0} {
+            $options(-browser) addNewParameter $oldName;   # Put back in tree.
+        }
         $frame.parameter configure -text $emptyString
         ::setEntry $frame.low    {}
         ::setEntry $frame.high   {}
         ::setEntry $frame.bins   {}
         $frame.units configure -text {}
-
-        $options(-browser) update
+    
+        # $options(-browser) update
     }
     # highlightParameter
     #   Highlights the parameter into which the next parameter goes by
@@ -288,11 +293,11 @@ snit::widget edit2d {
         set name [::pathToName $name]
 
         set info [treeparameter -list $name]
-	if {$currentParameter eq "x"} {
-	    set index defaultXChannels
-	} else {
-	    set index defaultYChannels
-	}
+        if {$currentParameter eq "x"} {
+            set index defaultXChannels
+        } else {
+            set index defaultYChannels
+        }
         if {[llength $info] != 0} {
             set info [lindex $info 0]
             set low  [lindex $info 2]
@@ -313,7 +318,7 @@ snit::widget edit2d {
         $self loadParameterInfo $currentParameter $name \
                 $low $high $bins $units
         $self nextParameter
-        $options(-browser) update
+       # $options(-browser) update
     }
     # loadParameterInfo axis name low high bins units
     #     Loads a parameter descriptor.
@@ -329,8 +334,12 @@ snit::widget edit2d {
         ::setEntry $frame.low $low
         ::setEntry $frame.high $high
         ::setEntry $frame.bins $bins
+        set oldParam [$frame.parameter cget -text]
+        if {[llength [parameter -list $oldParam]] > 0} {
+            $options(-browser) addNewParameter $oldParam;   #Back in tree
+        }
         $frame.parameter configure -text $name
         $frame.units configure -text $units
-
+        $options(-browser) deleteElement parameter $name;  # Remove from tree.
     }
 }
