@@ -1276,13 +1276,16 @@ image create photo ::browser::foldericon   -format png \
         }
     
         # Create terminal nodes.
+        
     
         foreach gate [lsort [array names terminals]] {
             set description $terminals($gate)
-            set type [lindex $description 2]
-            set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
-                    -values $type -tags gate]
-            $self setGateSubInfo $gateId $type [lindex $description 3]
+            $self _insertGate $id end $gate $description
+            
+           # set type [lindex $description 2]
+           # set gateId [$tree insert $id end -text $gate -image ::browser::gateicon \
+           #         -values $type -tags gate]
+           # $self setGateSubInfo $gateId $type [lindex $description 3]
         }
     }
     #
@@ -1736,6 +1739,48 @@ image create photo ::browser::foldericon   -format png \
             }
         }
     }
+    ##
+    # addNewGate
+    #   Adds a new gate to the browser.
+    #   - Find the owning folder
+    #   - For gates, there tend to be few enough the entire tree was built
+    #     so we just need to figure out where to put the gate and add it.
+    #
+    # @param name - name of the gate.
+    #
+    method addNewGate name {
+        set description [gate -list $name]
+        if {[llength $description] == 0 } {
+            error "gate $name does not exist"
+        }
+        set description [lindex $description 0]
+        
+        #  Figure out the parent folder id and the terminal name:
+        
+        set folderId [$self _getParent gate $name]
+        set path [split $name .]
+        set terminalName [lindex $path end]
+        
+        # Figure out where to insert the gate and use _insertGate to do so.
+        
+        set children [$tree children $folderId]
+        set index 0
+        set id ""
+        foreach child $children {
+            set childName [$tree item $child -text]
+            if {$childName > $terminalName} {
+                set id [$self _insertGate                         \
+                    $folderId $index $terminalName $description]
+                break
+            }
+            
+            incr index
+        }
+        if {$id eq ""} {
+            $self _insertGate $folderId end $terminalName $description
+        }
+    }
+        
     #-------------------------------------------------------------------------
     #  Internal methods.
     
@@ -1965,6 +2010,24 @@ image create photo ::browser::foldericon   -format png \
         return $result 
     }
     ##
+    # _insertGate
+    #    Inserts a gate into the tree at a specific point (parent and index)
+    #
+    # @param parent - id of parent
+    # @param where  - Where to insert the gate.
+    # @param terminal - Terminal name.
+    # @param description - Full Gate Description.
+    # @return id - id of the gate element inserted.
+    #
+    method _insertGate {parent where terminal description} {
+        set type [lindex $description 2]
+        set gateId [$tree insert $parent $where -text $terminal \
+            -image ::browser::gateicon \
+            -values $type -tags gate]
+        $self setGateSubInfo $gateId $type [lindex $description 3]
+        return $gateId
+    }
+    ##
     # _getParent
     #    Given an object type and a fully qualified name returns the
     #    id of the folder that should hold that object.  The assumption is
@@ -1979,11 +2042,18 @@ image create photo ::browser::foldericon   -format png \
     method _getParent {objType name} {
         set folderId [$self _getTopFolderId $objType]
         
+        
         #  Split the name, lop off the last element to get the path to the
         #  folder we're hunting:
         
         set folderPath [split $name .]
         set folderPath [lrange $folderPath 0 end-1]
+        
+        # Special case.  empty path is a child of the ultimate parent:
+        
+        if {$folderPath eq ""} {
+            return $folderId
+        }
         
         #  _findElement can do the rest:
         
