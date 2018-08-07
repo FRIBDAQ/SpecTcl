@@ -228,8 +228,11 @@ snit::widget multipointEditor  {
     #   point x y.  Forces a browser update to adjust the set
     #   of parameters shown.
     method deleteNearestParameter {x y} {
-        $win.parameters delete @$x,$y
-        $win.browser update
+        set index [$win.parameters index @$x,$y]
+        set param [$win.parameters get $index]
+        $win.browser addNewParameter $param
+        $win.parameters delete $index
+        #$win.browser update
     }
     # parameterFilter desc
     #      Parameter filter script called by the browser
@@ -264,12 +267,15 @@ snit::widget multipointEditor  {
         set name [::pathToName $name]
 
         $win.parameters insert end $name
+        $win.browser deleteElement parameter $name
 
         if {($options(-maxparams) != 0) &&
             ([$win.parameters index end] > $options(-maxparams))} {
+            set oldParam [$win.parameters get 0]
             $win.parameters delete 0
+            $win.browser addNewParameter $oldParam
         }
-        $win.browser update
+        # $win.browser update
     }
 
 }
