@@ -29,7 +29,8 @@ snit::widget edit1d {
 
         set browser $options(-browser)
 
-        $browser configure -parameterscript  [mymethod selectParameter]
+        $browser configure -parameterscript  [mymethod selectParameter] \
+           -filterparameters [mymethod filterParams]
         # myframe has all my components.
         # browser will eventually be gridded -into $win.
         #
@@ -179,7 +180,15 @@ snit::widget edit1d {
     #      Loads the gui with parameter information.
     #
     method loadParameterInfo {name low high bins units} {
+        set browser $options(-browser)
         set myframe $win.myframe
+        set oldParam [$myframe.parameter cget -text]
+        set oldDesc [parameter -list $oldParam]
+        if {[llength $oldDesc] > 0} {
+            $browser addNewParameter $oldParam    
+        }
+        
+        $browser deleteElement parameter $name
         $myframe.parameter configure -text $name
         ::setEntry $myframe.low  $low
         ::setEntry $myframe.high $high
@@ -187,5 +196,16 @@ snit::widget edit1d {
         $myframe.units configure -text $units
 
     }
-
+    ##
+    # filterParams
+    #   Only allow the tree to have parameters that are not
+    #   the one in the spectrum.
+    #
+    # @param desc  - parameter descriptor.
+    #
+    method filterParams desc {
+        set p [lindex $desc 0]
+        set text [$win.myframe.parameter cget -text]
+        if {$p == $text} { return 0 } else { return 1 }
+    }
 }
