@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(constparam, 1.0, fox@nscl.msu.edu)
+AC_INIT(constparam, 1.0-001, fox@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER([configure.h])
 AC_CANONICAL_HOST
