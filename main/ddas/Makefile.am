@@ -3,13 +3,13 @@ lib_LTLIBRARIES = libDDASUnpacker.la
 
 libDDASUnpacker_la_SOURCES = DDASUnpacker.cpp \
 	DDASBuiltUnpacker.cpp  \
-	 DDASHit.cpp DDASHitUnpacker.cpp
+	 DDASHit.cpp DDASHitUnpacker.cpp CFileDrivenParameterMapper.cpp
 
 include_HEADERS = DDASUnpacker.h \
 	DDASBuiltUnpacker.h \
 	ParameterMapper.h \
 	DDASHit.h DDASHitUnpacker.h \
-	DDASBitMasks.h
+	DDASBitMasks.h CFileDrivenParameterMapper.h
 
 
 
@@ -33,7 +33,8 @@ unittests_SOURCES = TestRunner.cpp \
 		DDASUnpackerTest.cpp \
 		DDASUnpackerTest250.cpp \
 		DDASUnpackerTest250MSPS16Bit.cpp \
-		DDASUnpackerTest500.cpp
+		DDASUnpackerTest500.cpp	\
+		fileunpackertests.cpp
 
 
 unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Utility

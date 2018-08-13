@@ -22,7 +22,7 @@
  */
 #include "CFileDrivenParameterMapper.h"
 #include <CTreeParameter.h>
-#include <map>
+#include <set>
 #include <fstream>
 #include <sstream>
 
@@ -70,11 +70,11 @@ CFileDrivenParameterMapper::~CFileDrivenParameterMapper()
 
 void
 CFileDrivenParameterMapper::mapToParameter(
-    const std::vector<DDASHit>& hits, CEvent& rEvent
+    const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
 )
 {
     for (int h = 0; h < hits.size(); h++) {
-        DDASHit& hit(hits[h]);
+        const DAQ::DDAS::DDASHit& hit(hits[h]);
         
         // Fetch out the stuff we need:
         
@@ -87,16 +87,16 @@ CFileDrivenParameterMapper::mapToParameter(
         // a parameter:
         
         if (
-            m_map.size() < crate      &&
-            m_map[crate].size < slot  &&
-            m_map[crate][slot] < chan &&
+            m_map.size() > crate             &&
+            m_map[crate].size() > slot       &&
+            m_map[crate][slot].size() > chan &&
             m_map[crate][slot][chan]
         ) {
-            *(m[crate][slot][chan]) = energy;
+            *(m_map[crate][slot][chan]) = energy;
         } else {
             // Mapping failed:
             
-            throw formatUnpackError(crate, slot, channel);
+            throw formatUnpackError(crate, slot, chan);
         }
         
     }
@@ -124,13 +124,13 @@ CFileDrivenParameterMapper::mapToParameter(
 void
 CFileDrivenParameterMapper::makeMap()
 {
-    std::map<std::string> existingParams;
+    std::set<std::string> existingParams;
     
     // Attempt to open the file
     
-    ifstream cfg(m_configFile);
+    std::ifstream cfg(m_configFile);
     if (cfg.rdstate() & std::ifstream::failbit) {
-        formatStandardError("Open failed on configuration file");
+        formatStandardMessage("Open failed on configuration file");
     }
     
     // In order to report the file line for errors,we first read entire lines
@@ -162,13 +162,13 @@ CFileDrivenParameterMapper::makeMap()
         // expands the mapping as needed
         
         addChannelMap(crate, slot);
-        if ((m_map[crate][slot].size >= channel) && (m_map[crate][slot][channel]) {
+        if ((m_map[crate][slot].size() >= channel) && m_map[crate][slot][channel]) {
             throw formatParseError(lineNum, line, "Duplicate crate/slot/channel");
         }
         
         // Now we can add the parameter to the slot map:
         
-        existingParams[name] = 1;               // remember we've defined this.
+        existingParams.insert(name);               // remember we've defined this.
         
         addParameter(crate, slot, channel, bits, name);
         
@@ -185,11 +185,11 @@ CFileDrivenParameterMapper::makeMap()
  */
 void
 CFileDrivenParameterMapper::addParameter(
-    unsigned crate, unsigned slot, unsiged channel, unsigned bits,
+    unsigned crate, unsigned slot, unsigned channel, unsigned bits,
     std::string name
 )
 {
-    CTreeParameter* param = new CTreeParameter(name, resolution);
+    CTreeParameter* param = new CTreeParameter(name, bits);
     while (m_map[crate][slot].size() < channel) {
         m_map[crate][slot].push_back(nullptr);
     }
@@ -247,7 +247,7 @@ CFileDrivenParameterMapper::formatUnpackError(unsigned crate, unsigned slot, uns
     
     strMessage << "Unable to find a parameter that maps to crate=" << crate
         << " slot=" << slot << " channel=" << channel;
-    return formatStandardError(strMessage.str().c_str());
+    return formatStandardMessage(strMessage.str().c_str());
 }
 /**
  * formatParseError
@@ -267,9 +267,9 @@ CFileDrivenParameterMapper::formatParseError(
 )
 {
     std::stringstream strMessage;
-    strMessage << "Error decoding line: " << linNum << " :  " << msg << std::endl
+    strMessage << "Error decoding line: " << lineNum << " :  " << msg << std::endl
         << "Line in question: " << line;
-    return formatStandardMessage(strMessage.str().c_str());l
+    return formatStandardMessage(strMessage.str().c_str());
 }
 /**
  * formatStandardMessage

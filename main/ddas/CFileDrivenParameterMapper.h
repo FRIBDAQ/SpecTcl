@@ -41,11 +41,11 @@ class CTreeParameter;
  *   Note that some care must be taken to ensure the proper number of digits
  *   are supplied if this is to be mapped to someone else's tree parameter array.
  */
-class CFileDrivenParameterMapper : public CParameterMapper {
+class CFileDrivenParameterMapper : public DAQ::DDAS::CParameterMapper {
 private:
-    typedef std::vector<CTreeParameter*>   Channel;   // indices are channels
+    typedef std::vector<CTreeParameter*>   ChannelMap;   // indices are channels
     typedef std::vector<ChannelMap>        SlotMap;         // indices are slots
-    typedef std::vector<SubaddressMap>     CrateMap;        // indices are crates.
+    typedef std::vector<SlotMap>     CrateMap;        // indices are crates.
 private:
     std::string m_configFile;                              // Held until we can use it.
     CrateMap    m_map;                                     // Mapping built here.
@@ -53,8 +53,10 @@ private:
 public:        // API.
     
     CFileDrivenParameterMapper(const char* configFile);
-    viirtual ~CFileDrivenParameterMapper();
-    virtual void mapToParameter(const std::vector<DDASHit>& hits, CEvent& rEvent);
+    virtual ~CFileDrivenParameterMapper();
+    virtual void mapToParameter(
+        const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
+    );
     
 private:
     
@@ -72,8 +74,8 @@ private:
     
     std::string formatUnpackError(unsigned crate, unsigned slot, unsigned channel);
     std::string formatParseError(unsigned lineNum, std::string line, const char* msg);
-    std::string formatStandardError(const char* msg)
-public:
+    std::string formatStandardMessage(const char* msg);
+
 };
 
 
