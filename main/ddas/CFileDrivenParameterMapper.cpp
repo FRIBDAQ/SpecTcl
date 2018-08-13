@@ -69,7 +69,7 @@ CFileDrivenParameterMapper::~CFileDrivenParameterMapper()
  */
 
 void
-CFileDrivenParameterMapper::mapToParameter(
+CFileDrivenParameterMapper::mapToParameters(
     const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
 )
 {
@@ -149,29 +149,30 @@ CFileDrivenParameterMapper::makeMap()
         getline(cfg, line);
         
         std::stringstream strLine(line);
-        strLine >> crate >> slot >> channel >> bits >> name;
-        if (strLine.fail()) {
-            throw formatParseError(lineNum, line, "Failed to parse this line");
+        if (!line.empty() || (line[0] == '#')) {
+            strLine >> crate >> slot >> channel >> bits >> name;
+            if (strLine.fail()) {
+                throw formatParseError(lineNum, line, "Failed to parse this line");
+            }
+            if (existingParams.count(name) > 0) {
+                throw formatParseError(lineNum, line, "This parameter was already defined by us");
+            }
+            
+            // Next see if the parameter mapping entry already exists.. with a non-null
+            // pointer.  To save duplication, we're going to add the Subaddress map which
+            // expands the mapping as needed
+            
+            addChannelMap(crate, slot);
+            if ((m_map[crate][slot].size() > channel) && m_map.at(crate).at(slot).at(channel)) {
+                throw formatParseError(lineNum, line, "Duplicate crate/slot/channel");
+            }
+            
+            // Now we can add the parameter to the slot map:
+            
+            existingParams.insert(name);               // remember we've defined this.
+            
+            addParameter(crate, slot, channel, bits, name);
         }
-        if (existingParams.count(name) > 0) {
-            throw formatParseError(lineNum, line, "This parameter was already defined by us");
-        }
-        
-        // Next see if the parameter mapping entry already exists.. with a non-null
-        // pointer.  To save duplication, we're going to add the Subaddress map which
-        // expands the mapping as needed
-        
-        addChannelMap(crate, slot);
-        if ((m_map[crate][slot].size() >= channel) && m_map[crate][slot][channel]) {
-            throw formatParseError(lineNum, line, "Duplicate crate/slot/channel");
-        }
-        
-        // Now we can add the parameter to the slot map:
-        
-        existingParams.insert(name);               // remember we've defined this.
-        
-        addParameter(crate, slot, channel, bits, name);
-        
         lineNum++;
     }
 }
@@ -190,7 +191,7 @@ CFileDrivenParameterMapper::addParameter(
 )
 {
     CTreeParameter* param = new CTreeParameter(name, bits);
-    while (m_map[crate][slot].size() < channel) {
+    while (channel >= m_map[crate][slot].size()) {
         m_map[crate][slot].push_back(nullptr);
     }
     m_map[crate][slot][channel] = param;
@@ -204,7 +205,7 @@ CFileDrivenParameterMapper::addParameter(
 void
 CFileDrivenParameterMapper::addSlotMap(unsigned crate)
 {
-    while (m_map.size() < crate) {
+    while (crate >= m_map.size() ) {
         SlotMap smap;
         m_map.push_back(smap);
     }
@@ -221,7 +222,7 @@ CFileDrivenParameterMapper::addChannelMap(unsigned crate, unsigned slot)
 {
     addSlotMap(crate);
     ChannelMap chmap;                       // Empty channel map.
-    while (m_map[crate].size() < slot) {
+    while (slot >= m_map[crate].size() ) {
         m_map[crate].push_back(chmap);
     }
 }

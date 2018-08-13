@@ -37,7 +37,8 @@ unittests_SOURCES = TestRunner.cpp \
 		fileunpackertests.cpp
 
 
-unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Utility
+unittests_CXXFLAGS = @CPPUNIT_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Utility \
+	-I@top_srcdir@/Core
 unittests_LDADD = @builddir@/libDDASUnpacker.la @top_builddir@/Core/libTclGrammerApp.la  @ROOT_LDFLAGS@  @CPPUNIT_LIBS@
 
 TESTS = ./unittests

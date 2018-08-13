@@ -54,7 +54,7 @@ public:        // API.
     
     CFileDrivenParameterMapper(const char* configFile);
     virtual ~CFileDrivenParameterMapper();
-    virtual void mapToParameter(
+    virtual void mapToParameters(
         const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
     );
     
