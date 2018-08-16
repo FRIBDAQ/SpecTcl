@@ -6,12 +6,15 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/cmdref
 	$(mkinstalldirs) @prefix@/share/pgmguide
 	$(mkinstalldirs) @prefix@/share/pgmref
+	$(mkinstalldirs) @prefix@/share/DDAS
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
 	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @prefix@/share/cmdref
 	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
+	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
+
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml
@@ -25,5 +28,6 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/CommandReference.xml -o @builddir@/cmdref
 	@HTMLDOCBOOK@ @srcdir@/ProgrammingGuide.xml -o @builddir@/pgmguide
 	@HTMLDOCBOOK@ @srcdir@/pgmref.xml           -o @builddir@/pgmref
+	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
 
 
