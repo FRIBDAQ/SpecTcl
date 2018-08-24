@@ -134,7 +134,7 @@ public:
     CCalibratedFileDrivenParameterMapper(const char* filename);
     virtual ~CCalibratedFileDrivenParameterMapper(); 
     
-    virtual void MapToParameters(
+    virtual void mapToParameters(
         const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
     );
     

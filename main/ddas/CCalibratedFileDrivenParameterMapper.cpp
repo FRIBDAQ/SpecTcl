@@ -54,12 +54,14 @@ CCalibratedFileDrivenParameterMapper::~CCalibratedFileDrivenParameterMapper()
     for (auto  c = 0; c < m_map.size(); c++) {          // Loop over crates.
         for (auto s = 0; s < m_map[c].size(); s++) {    // Over slots
             for(auto i = 0; i < m_map[c][s].size(); i++) { // over channels.
-                delete m_map[c][s][i]->s_raw;
-                delete m_map[c][s][i]->s_calibrated;
-                delete m_map[c][s][i]->s_calibration.s_const.s_pVariable;
-                delete m_map[c][s][i]->s_calibration.s_linear.s_pVariable;
-                delete m_map[c][s][i]->s_calibration.s_quadratic.s_pVariable;
-                delete m_map[c][s][i];
+                if (m_map[c][s][i]) {
+                    delete m_map[c][s][i]->s_raw;
+                    delete m_map[c][s][i]->s_calibrated;
+                    delete m_map[c][s][i]->s_calibration.s_const.s_pVariable;
+                    delete m_map[c][s][i]->s_calibration.s_linear.s_pVariable;
+                    delete m_map[c][s][i]->s_calibration.s_quadratic.s_pVariable;
+                    delete m_map[c][s][i];
+                }
             }
         }
     }
@@ -81,7 +83,7 @@ CCalibratedFileDrivenParameterMapper::~CCalibratedFileDrivenParameterMapper()
  *  @throws std::string - on errors.
  */
 void
-CCalibratedFileDrivenParameterMapper::MapToParameters(
+CCalibratedFileDrivenParameterMapper::mapToParameters(
     const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
 )
 {
@@ -277,6 +279,7 @@ CCalibratedFileDrivenParameterMapper::addParameter(const ParameterInfo& info)
     pNewInfo->s_slot   = slot;
     pNewInfo->s_channel= chan;
     pNewInfo->s_raw    = info.s_raw;
+    pNewInfo->s_calibrated = info.s_calibrated;
     pNewInfo->s_calibration = info.s_calibration;
     
     
