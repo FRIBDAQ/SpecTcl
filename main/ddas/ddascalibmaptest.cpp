@@ -33,6 +33,7 @@ class Calibunpacktests : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(onehitOk);              // Unpacking tests
   CPPUNIT_TEST(twohitsOk);
+  CPPUNIT_TEST(missingMapError);
   
   CPPUNIT_TEST_SUITE_END();
 
@@ -72,6 +73,7 @@ protected:
 
   void onehitOk();
   void twohitsOk();
+  void missingMapError();
 private:
     void makeConfigFile(const std::vector<const char*>& cfg);
     DAQ::DDAS::DDASHit makeHit(unsigned c, unsigned s, unsigned a, double e);
@@ -400,3 +402,45 @@ void Calibunpacktests::twohitsOk()
 
 }
 
+// Processing an event with an unmapped hit is an error.
+
+void Calibunpacktests::missingMapError()
+{
+    std::vector<const char*> cfg = {
+        "0 2 0 12 crate0.slot2.raw.chan0  const lin quad 0 100 100 MeV crate0.slot2.cal.chan0",
+        "1 3 1 12 crate1.slot3.raw.chan1 0 1 0 0 100 100 MeV crate1.slot3.cal.chan1"       
+
+    };
+    makeConfigFile(cfg);
+    
+    // Set the calibration variables:
+    
+    CTreeVariable c("const", 0.0, "");
+    CTreeVariable l("lin", 1.5, "");
+    CTreeVariable q("quad", 0.0, "");
+    
+
+    // make the hits.
+    
+    std::vector<DAQ::DDAS::DDASHit> hits;
+    hits.push_back(makeHit(0, 2, 0, 100.0));
+    hits.push_back(makeHit(0, 2, 1, 123.0));   // No map for this.
+    hits.push_back(makeHit(1, 3, 1, 150.0));
+    
+    // Make the mapper and bind the parameters
+    
+    CCalibratedFileDrivenParameterMapper m(m_fileName.c_str());
+    CTreeParameter::BindParameters;
+    CTreeVariable::BindVariables(*m_pInterp);
+    
+    c = 0.0;
+    l = 1.5;         // Constructed value does nothing :-(
+    q = 0.0;
+    
+    
+    CPPUNIT_ASSERT_THROW(
+      m.mapToParameters(hits, *m_pEvent),
+      std::string
+    );
+      
+}
