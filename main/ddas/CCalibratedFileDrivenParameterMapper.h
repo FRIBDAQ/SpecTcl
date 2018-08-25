@@ -137,7 +137,7 @@ public:
     virtual void mapToParameters(
         const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
     );
-    
+private:   
     // map creation:
 
     void makeMap();

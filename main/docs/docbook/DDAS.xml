@@ -63,7 +63,7 @@
             </term>
             <listitem>
                 <para>
-                    Describes a file driven parameter mapping class you can use
+                    Describes two file driven parameter mapping classes you can use
                     with the unpackers in the previous chapter to avoid having
                     to recompile SpecTcl has you modify your mappings.
                 </para>
@@ -363,132 +363,220 @@ MySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
     <para>
         While you can hard-code parameter unpacking, and sometimes it pays to do
         so, you can use a prebuilt <classname>CFileDrivenParameterMapper</classname>
+        or <classname>CCalibratedFileDrivenParameterMapper</classname>
         object to unpack DDAS hits from either of the top level unpackers.
         This unpacker takes a description file which defines how to map
         your DDAS channels (crate/slot/channel triplets) into parameters.
         
     </para>
     <para>
-        As a bonus, objects of this class even create tree parameters for
+        <classname>CFileDrivenParameterMapper</classname> simply unpacks raw
+        parameters. <classname>CCalibratedFileDrivenParameterMapper</classname>
+        provides the additional functionality of created quadratically calibrated
+        raw parameters.
+    </para>
+    <para>
+        As a bonus, objects of these classes even create tree parameters for
         each of the parameters described in its configuration file.  You can use
         this, in conjunction with the fact that tree parameters with the
         same name map to the same underlying parameters to communicate
         between your raw DDAS unpacker and subsequent event processors
         or unpackers.
     </para>
-    <para>
-        The constructor of the <classname>CFileDrivenParameterMapper</classname>
-        looks like this:
-    </para>
-    <constructorsynopsis>
-        <methodname>CFileDrivenParameterMapper</methodname>
-        <methodparam>
-            <modifier>const </modifier><type>char* </type>
-            <parameter>configFile</parameter>
-        </methodparam>
-    </constructorsynopsis>
-    <para>
-        Where <parameter>configFile</parameter> is the path to a configuration
-        file for the parameter mapper.  The configuration file provides a mapping
-        between DDAS channel triplets and parameter names.  In addition
-        metadata about the channel must be provided.
-    </para>
-    <para>
-        The configuration file is a text file that can consist of a series any of the
-        following line types:
-    </para>
-    <variablelist>
-        <varlistentry>
-            <term>Empty line</term>
-            <listitem>
-                <para>
-                    Ignored.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
-            <term>Line whose first character is <literal>#</literal></term>
-            <listitem>
-                <para>
-                    Ignored.  Use this to comment your configuration file.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
-            <term>Channel definition</term>
-            <listitem>
-                <para>
-                    These lines contain five fields.  In order there are four
-                    integers and a string.  Spaces are not allowed in the string.
-                </para>
-                <para>
-                    The first three fields are the channel triplet, in order, the
-                    crate number, the slot number and the channel number within
-                    that crate/slot pair.  The fourth field is the number of
-                    bits of resolution for the digitizer channel described.
-                    The last field is the name of the parameter to which the
-                    DPP energy from this channel should be unpacked into.
-                </para>
-                <para>
-                    Here's a sample channel definition line:
-                </para>
-                <informalexample>
-                    <programlisting>
-1 2 0 14 some.channel.name
-                    </programlisting>
-                </informalexample>
-                <para>
-                    This line specifies that channel number 0 of slot 2 in crate
-                    1 is 14 bits wide and should be unpacked into some.channel.name
-                </para>
-            </listitem>
-        </varlistentry>
-    </variablelist>
-    <para>
-        When <classname>CFileDrivenParameterMapper</classname> objects are
-        constructed, the configuration file is read and for eeach channel
-        definition line, a tree parameter is created with the specified name
-        and the specified number of bits.  When the object's
-        <methodname>mapToParameters</methodname> method is invoked,
-        this mapping is used to drive the interpretation of the
-        <parameter>hits</parameter> parameter.
-    </para>
-    <para>
-        During unpacking, if a channel is encountered that does not have
-        a channel definition, an <classname>std::string</classname> exception
-        is thrown and, in general,
-        the processing of that event is aborted. Failures to parse the
-        configuration file also result in <classname>std::string</classname>
-        exceptions.
-    </para>
-    <para>
-        Here's a sample use of the <classname>CFileDrivenParameterMapper</classname>
-        class in the context of
-        <classname>MySpecTclApp</classname>::<methodname>CreateAnalysisPipeline</methodname>.
-        We are processing event built data.
-    </para>
-    <informalexample>
-        <programlisting>
-std::set&lt;uint32_t&gt;  ddasIds = {1, 2, 3};   // Allowed DDAS source ids (crates).
-...
-MySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
-{
-    try {
-        CFileDrivenParameterMapper* pMapper =
-            new CFileDrivenParameterMapper("/user/fox/crate_1/crate1.parameters");
+    <section>
+        <title>The <classname>CFileDrivenParameterMapper</classname></title>
+        <para>
+            The constructor of the <classname>CFileDrivenParameterMapper</classname>
+            looks like this:
+        </para>
+        <constructorsynopsis>
+            <methodname>CFileDrivenParameterMapper</methodname>
+            <methodparam>
+                <modifier>const </modifier><type>char* </type>
+                <parameter>configFile</parameter>
+            </methodparam>
+        </constructorsynopsis>
+        <para>
+            Where <parameter>configFile</parameter> is the path to a configuration
+            file for the parameter mapper.  The configuration file provides a mapping
+            between DDAS channel triplets and parameter names.  In addition
+            metadata about the channel must be provided.
+        </para>
+        <para>
+            The configuration file is a text file that can consist of a series any of the
+            following line types:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>Empty line</term>
+                <listitem>
+                    <para>
+                        Ignored.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Line whose first character is <literal>#</literal></term>
+                <listitem>
+                    <para>
+                        Ignored.  Use this to comment your configuration file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Channel definition</term>
+                <listitem>
+                    <para>
+                        These lines contain five fields.  In order there are four
+                        integers and a string.  Spaces are not allowed in the string.
+                    </para>
+                    <para>
+                        The first three fields are the channel triplet, in order, the
+                        crate number, the slot number and the channel number within
+                        that crate/slot pair.  The fourth field is the number of
+                        bits of resolution for the digitizer channel described.
+                        The last field is the name of the parameter to which the
+                        DPP energy from this channel should be unpacked into.
+                    </para>
+                    <para>
+                        Here's a sample channel definition line:
+                    </para>
+                    <informalexample>
+                        <programlisting>
+    1 2 0 16 some.channel.name
+                        </programlisting>
+                    </informalexample>
+                    <para>
+                        This line specifies that energy from
+                        channel number 0 of slot 2 in crate
+                        1 is 16 bits wide and should be unpacked into some.channel.name
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            When <classname>CFileDrivenParameterMapper</classname> objects are
+            constructed, the configuration file is read and for eeach channel
+            definition line, a tree parameter is created with the specified name
+            and the specified number of bits.  When the object's
+            <methodname>mapToParameters</methodname> method is invoked,
+            this mapping is used to drive the interpretation of the
+            <parameter>hits</parameter> parameter.
+        </para>
+        <para>
+            During unpacking, if a channel is encountered that does not have
+            a channel definition, an <classname>std::string</classname> exception
+            is thrown and, in general,
+            the processing of that event is aborted. Failures to parse the
+            configuration file also result in <classname>std::string</classname>
+            exceptions.
+        </para>
+        <para>
+            Here's a sample use of the <classname>CFileDrivenParameterMapper</classname>
+            class in the context of
+            <classname>MySpecTclApp</classname>::<methodname>CreateAnalysisPipeline</methodname>.
+            We are processing event built data.
+        </para>
+        <informalexample>
+            <programlisting>
+    std::set&lt;uint32_t&gt;  ddasIds = {1, 2, 3};   // Allowed DDAS source ids (crates).
+    ...
+    MySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
+    {
+        try {
+            CFileDrivenParameterMapper* pMapper =
+                new CFileDrivenParameterMapper("/user/fox/crate_1/crate1.parameters");
+        }
+        catch (std::string msg) {
+            std::cerr &lt;&lt; msg &lt;&lt; std::endl;
+            exit(EXIT_FAILURE);
+        }
+        RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltUnpacker(ddasIds, *pMapper)));
     }
-    catch (std::string msg) {
-        std::cerr &lt;&lt; msg &lt;&lt; std::endl;
-        exit(EXIT_FAILURE);
-    }
-    RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltUnpacker(ddasIds, *pMapper)));
-}
-        </programlisting>
-    </informalexample>
-    <para>
-        Note the use of the try/catch block to output any errors parsing the
-        configuration file prior to exiting.
-    </para>
+            </programlisting>
+        </informalexample>
+        <para>
+            Note the use of the try/catch block to output any errors parsing the
+            configuration file prior to exiting.
+        </para>
+
+    </section>
+    <section>
+        <title>
+            <classname>CCalbratedFileDrivenParameterMapper</classname>
+        </title>
+        <para>
+            This class produces two parameters for each hit.  The first is the
+            same raw parameter <classname>CFileDrivenParameterMapper</classname>
+            unpacks.  The second is a calibrated energy parameter.
+        </para>
+        <para>
+            The calibrated enery is computed by passing the raw energy through
+            a quadratic function.  The configuration file provides the
+            coefficients of this function as either constants, or tree
+            variable names (or a mix).  The configuration file
+            also provides a more general definition of the calibrated
+            treeparameter (low, high bins, and units).
+        </para>
+        <para>
+            Construction of the
+            <classname>CCalibratedFileDrivenParameterMapper</classname>
+            is identical to that of <classname>CFileDrivenParameterMapper</classname>.
+            We will therefore refer you to the usage examples for that
+            class rather than repeating all that stuff here.
+        </para>
+        <para>
+            The difference in usage of these to classes is the configuration
+            file.  Of necessity, the
+            <classname>CCalibratedFileDrivenParameterMapper</classname>,
+            while following similar formatting rules requires additional
+            fields of information.  
+        </para>
+        <para>
+            Following the name of the raw parameter are the three
+            coefficients for the quadratic function used to produce the
+            calibrated parameter.  In order these are the constant, linear and
+            quadratic coeficients.  Each field can be either a constant
+            floating point or the name of a tree variable (which will
+            be created if necessary).
+        </para>
+        <para>
+            Thus linear calibration is simply a matter of providing
+            a constant quadratic coefficient of <literal>0.0</literal>
+        </para>
+        <para>
+            Following the coefficients are four fields that describe the resulting
+            treeparameter.  The first three are numeric and are the low and
+            high limits of the parameter and the binning.  The last is textual
+            and provides the units for the parameter.  Note that the text
+            <literal>""</literal> can be used if no units are required.
+        </para>
+        <para>
+            The final field is the name of the calibrated parameter.
+            As with the raw parameter, a tree parameter is created if necessary.
+        </para>
+        <para>
+            Here's an example of configuration file lines:
+        </para>
+        <informalexample>
+            <programlisting>
+0 2 0 crate0.slot2.raw.chan0 c0.s2.ch0.const c0.s2.ch0.lin 0 0 100 100 MeV crate0.slot2
+            </programlisting>
+        </informalexample>
+        <para>
+            Note how the quadratic coefficient is constant 0?  This results in
+            a linear calibration function.
+        </para>
+        <informalexample>
+            <programlisting>
+0 2 0 crate0.slot2.raw.chan0 c0.s2.ch0.const c0.s2.ch0.lin c0.s2.ch0.q 0 100 100 MeV crate0.slot2.cal.chan0                
+            </programlisting>
+        </informalexample>
+        <para>
+            The line above is a fully quadratic calibration.
+        </para>
+    </section>
+    
 </chapter>
 <chapter  id='chap.reference'>
     <title id='chap.reference.title'>Reference pages.</title>
@@ -1596,12 +1684,12 @@ public:
 #  Experiment xxxxxx XIA DDAS parameter mapping file
 #
 # crate slot channel     bits parameter name. 
-     0    2     0         14  Crate0.slot2.channel0
-     0    2     1         14  Crate0.slot2.channel1
+     0    2     0         16  Crate0.slot2.channel0
+     0    2     1         16  Crate0.slot2.channel1
 ...
-     1    2     15        12  Crate1.slot2.channel16
+     1    2     15        16  Crate1.slot2.channel16
 
-     1    3     0         12  Crate1.slot3.channel0
+     1    3     0         16  Crate1.slot3.channel0
 
 ...
 
@@ -1669,6 +1757,154 @@ public:
             </variablelist>
         </refsect1>
     
+    </refentry>
+    <refentry>
+        <refmeta>
+            <refentrytitle>CCalibratedFileDrivenParameterMapper</refentrytitle>
+            <manvolnum>3ddasSpecTcl</manvolnum>
+        </refmeta>
+        <refnamediv>
+            <refname>CCalibratedFileDrivenParameterMapper</refname>
+            <refpurpose>Unpack DDAS data to raw and calibrated params</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+            <synopsis>
+#include &lt;CCalibratedFileDrivenParameterMapper.h&gt;
+
+class CCalibratedFileDrivenParameterMapper : public DAQ::DDAS::CParameterMapper
+{
+    CCalibratedFileDrivenParameterMapper(const char* filename);
+    
+    
+    virtual void mapToParameters(
+        const std::vector&lt;DAQ::DDAS::DDASHit&gt;&amp; hits, CEvent&amp; rEvent
+    );    
+};
+            </synopsis>    
+        </refsynopsisdiv>
+        <refsect1>
+            <title>DESCRIPTION</title>
+            <para>
+                Provices a parameter mapper for DDAS unpacking.  The mapper
+                produces both a raw energy parameter and a calibrated energy
+                for each hit.  The mapping is defined by an external
+                configuration file whose path is provided by the
+                <parameter>filename</parameter> parameter at
+                construction time.
+            </para>
+            <para>
+                The configuration file is a text file.  Each line can consist
+                of one of the following:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        An empty line with no characters.  Empty lines are ignored
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        A line whose first character is a <literal>#</literal>
+                        these lines are treated as comment lines, and ignored.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        A hit map description line.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                Hit map description lines contain, in order,
+                the following whitespace
+                separated fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>Hit channel definition</term>
+                    <listitem>
+                        <para>
+                            These are three unsigned integer fields that,
+                            in order, provide the crate, slot and device channel
+                            ids
+                            of a DDAS input channel
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Resolution</term>
+                    <listitem>
+                        <para>
+                            This is an unsigned integer that provides the number
+                            of bits of resolution the hit's energy has (usually 16).
+                        </para>                 
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Raw Parameter name</term>
+                    <listitem>
+                        <para>
+                            This is the name of the parameter into which the
+                            raw energy from the pulse processing firmware
+                            will be unpacked.  If necessary, the code
+                            will create a new tree parameter with this name.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Calibration coefficients.</term>
+                    <listitem>
+                        <para>
+                            These are three fields.  In order these are the
+                            constant, the linear, and the quadratic coefficients.
+                        </para>
+                        <para>
+                            Each field is either a constant double precision
+                            floating point number of the name of the treevariable
+                            that will hold the coefficient at run time.  Note
+                            that if needed a tree variable will be created.
+                            The variables created are unitless.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Calibrated parameter description</term>
+                    <listitem>
+                        <para>
+                            The next five fields describe the calibrated parameter.
+                            The first three fields are numeric and are, in order,
+                            the low and high limits anticipated for the
+                            parameter values and the recommended binning.
+                        </para>
+                        <para>
+                            The next field is textual and is the parameter's
+                            unit of measure (e.g. MeV).  If the parameter is
+                            unitless you can use the string <literal>""</literal>.
+                        </para>
+                        <para>
+                            Finally, the last field is textual and is the name
+                            assigned to the calibrated parameter.  This name
+                            and the previouisl four fields are used to
+                            construct a new tree parameter.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect1>
+        <refsect1>
+            <title>EXAMPLE</title>
+            <informalexample>
+                <programlisting>
+#
+#   Calibrated parameter map file
+#
+
+# locn     raw name            const coeff     linear    qua lo hi bins units calibname
+0 2 0 crate0.slot2.raw.chan0 c0.s2.ch0.const c0.s2.ch0.lin 0 0 100 100 MeV crate0.slot2
+0 2 0 crate0.slot2.raw.chan0 c0.s2.ch0.const c0.s2.ch0.lin c0.s2.ch0.q 0 100 100 MeV crate0.slot2.cal.chan0                
+                </programlisting>
+            </informalexample>
+        </refsect1> 
     </refentry>
 </chapter>
 </book>
