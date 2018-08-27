@@ -36,7 +36,7 @@ namespace DAQ {
       //more unpacking data
       if(channellength != (channelheaderlength + tracelength/2)){
         std::stringstream errmsg;
-        errmsg << "FATAL: Data corruption: Inconsistent data lengths found in header ";
+        errmsg << "ERROR: Data corruption: Inconsistent data lengths found in header ";
         errmsg << "\nChannel length = " << std::setw(8) << channellength;
         errmsg << "\nHeader length  = " << std::setw(8) << channelheaderlength;
         errmsg << "\nTrace length   = " << std::setw(8) << tracelength;
@@ -183,7 +183,8 @@ namespace DAQ {
     const uint32_t* DDASHitUnpacker::parseHeaderWord3(DDASHit& hit, 
                                                       const uint32_t* data) {
 
-      if (hit.GetADCResolution()==16 && hit.GetModMSPS()==250) {
+      //if (hit.GetADCResolution()==16 && hit.GetModMSPS()==250) {
+      if (true) {
           hit.setTraceLength((*data >> 16) & 0x7fff);
           hit.setADCOverflowUnderflow(*data >> 31);
           hit.setEnergy(*data & LOWER16BITMASK);
@@ -219,10 +220,11 @@ namespace DAQ {
       }
       else if (ModMSPS == 500) {
         // no fail bit in 500 MSPS modules
-        cfdfailbit    = 0;      
+
         cfdtrigsource = ((data & BIT31to29MASK) >> 29 );
         timecfd       = ((data & BIT28to16MASK) >> 16);
         correction    = (timecfd/8192.0 + cfdtrigsource - 1)*2.0;
+	cfdfailbit    = (cfdtrigsource == 7) ? 1 : 0;
       }
 
       return make_tuple(correction, timecfd, cfdtrigsource, cfdfailbit);
@@ -254,10 +256,10 @@ namespace DAQ {
       }
       else if (ModMSPS == 500) {
         // no fail bit in 500 MSPS modules
-        cfdfailbit    = 0;      
         cfdtrigsource = ((data & BIT31to29MASK) >> 29 );
         timecfd       = ((data & BIT28to16MASK) >> 16);
         correction    = (timecfd/8192.0 + cfdtrigsource - 1)*2.0;
+	cfdfailbit    = (cfdtrigsource == 7) ? 1 : 0;
       }
 
       hit.setCFDFailBit(cfdfailbit);
