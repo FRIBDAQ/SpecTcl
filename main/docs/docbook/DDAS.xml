@@ -503,7 +503,7 @@ MySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
     </section>
     <section>
         <title>
-            <classname>CCalbratedFileDrivenParameterMapper</classname>
+            <classname>CCalibratedFileDrivenParameterMapper</classname>
         </title>
         <para>
             This class produces two parameters for each hit.  The first is the
