@@ -755,7 +755,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
     try {
       CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
       if (pDisplay) {
-        pDisplay->addSpectrum(*pSpec, *api.GetHistogrammer());
+	makeBinding(*pSpec, *api.GetHistogrammer());
       }
     }
     catch (CException& rExcept) {
@@ -809,7 +809,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
       try {
           CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
           if (pSpec) {
-              pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
+	    makeBinding(*pSpec, *(api.GetHistogrammer()));
           } else {
               throw CDictionaryException(CDictionaryException::knNoSuchKey,
                                          "binding spectrum by name", *p);
@@ -872,7 +872,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
       try {
           CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
           if(pSpec) {
-              pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
+              makeBinding(*pSpec, *(api.GetHistogrammer()));
           }
           else {
               char TextId[100];
@@ -2387,3 +2387,35 @@ CSpectrumPackage::AllParamsExist(CSpectrum* pSpectrum)
 }
 
 
+/**
+ * makeBinding
+ *   Given a histogram object and the histogrammer bind the spectrum
+ *   to the displayer.  If the spectrum is already bound to the displayer,
+ *   It is not bound again.
+ *
+ * @param spec - reference to the CHistogram object that defines the spectrum.
+ * @param hist - reference to the CHistogrammer object that is the histogramming kernel.
+ *
+ */
+void
+CSpectrumPackage::makeBinding(CSpectrum& spec, CHistogrammer& hist)
+{
+  std::string name = spec.getName();
+
+  // Get the current bindings and see if this one is in it.
+  
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+  SpectrumContainer spectra = pDisplay->getBoundSpectra();
+  size_t nSpectra = spectra.size();
+  for(size_t i = 0; i < nSpectra; i++) {
+      CSpectrum* pBoundSpec = spectra[i];
+      if(pBoundSpec) {
+          if(name == pBoundSpec->getName())
+	    return;                     // Duplicate binding.
+      }
+  }
+  // This isn't bound yet so add it:
+
+  pDisplay->addSpectrum(spec, hist);
+
+}

@@ -215,6 +215,7 @@ protected:
   UInt_t      FindDisplayBinding(UInt_t             nId);
   void        FormatBinding(CTCLString& rString, UInt_t nXId, 
 			    CSpectrum*  pSpectrum);
+  void        makeBinding(CSpectrum& spec, CHistogrammer& hist);
 public:
   Bool_t      GetNumberList(CTCLResult& rResult, 
 			    std::vector<UInt_t>& rvIds,
