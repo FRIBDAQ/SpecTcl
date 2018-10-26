@@ -49,7 +49,6 @@
 #include "Spectrum.h"
 #include <string>
 #include <vector>
-                        
                                                                
 class CSnapshotSpectrum  : public CSpectrum        
 {                       
@@ -69,7 +68,8 @@ public:
 	      rSpectrum.getAxisMaps()), // Note, snapshot spectra are not gated.
     m_rActualSpectrum(rSpectrum),
     m_fOwnSpectrum(fOwner)
-  { 
+  {
+    setRootSpectrum(rSpectrum.getRootSpectrum());
     setStorageType(m_rActualSpectrum.StorageType());
   }      
   virtual ~CSnapshotSpectrum() {
@@ -124,7 +124,6 @@ public:
   virtual   void GetParameterIds(std::vector<UInt_t>& rvIds);
   virtual   void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual   SpectrumDefinition& GetDefinition();
-
   Bool_t    SetOwnership(Bool_t fNewOwnership) {
     Bool_t fOwn    = m_fOwnSpectrum;
     m_fOwnSpectrum = fNewOwnership;
