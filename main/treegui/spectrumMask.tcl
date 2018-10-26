@@ -47,7 +47,7 @@ package provide spectrumMaskWidget 1.0
 snit::widget spectrumMaskWidget {
     hulltype ttk::frame
 
-    option -mask      -default * -configuremethod SetMask
+    option -mask      -configuremethod SetMask -cgetmethod GetMask
     option -updatecmd -default [list]
 
     ##
@@ -58,11 +58,12 @@ snit::widget spectrumMaskWidget {
 
 	ttk::button $win.update  -text {Update Spectrum List} -command [mymethod Dispatch -updatecmd]
 	ttk::label  $win.masklbl -text { Spectrum Mask: }
-	ttk::entry  $win.mask    -width 20 -textvariable ${selfns}::options(-mask)
+	ttk::entry  $win.mask    -width 20
 	ttk::button $win.clear   -text Clear -command [mymethod SetMask -mask *]
 
 	bind $win.mask <KeyRelease> [mymethod Dispatch -updatecmd]
 
+    $self configure -mask *;   # Initial mask must be set this way now.
 	$self configurelist $args; # Done now so that -mask configuration triggers the update.
 
 	grid $win.update $win.masklbl $win.mask $win.clear
@@ -83,9 +84,27 @@ snit::widget spectrumMaskWidget {
     # @param value  - New value of the -mask option.
     #
     method SetMask {option value} {
-	set options($option) $value; # Also updates the value of the entry.
+        $win.mask delete 0 end
+        $win.mask insert end $value
 
-	$self Dispatch -updatecmd; # Mask has changed so let the client know about it.
+    
+        $self Dispatch -updatecmd; # Mask has changed so let the client know about it.
+    }
+    ##
+    #  GetMask
+    #    Handle mask getting.   This addresses daqdev/SpecTcl#369
+    #   By making the returned mask * if the entry is empty.
+    #
+    # @param optname - name of the option to fetch (ignored).
+    # @return string - The mask to use.
+    #
+    method GetMask optname {
+        set mask [string trim [$win.mask get]]
+        
+        if {$mask eq ""} {
+            set mask "*"
+        }
+        return $mask
     }
 
     #-----------------------------------------------------------------------------------
@@ -96,7 +115,7 @@ snit::widget spectrumMaskWidget {
     # @param option - option containing the script to which we dispatch.
     #
     method Dispatch option {
-	treeutility::dispatch $options($option) [list %W %M] [list $win $options(-mask)]
+	treeutility::dispatch $options($option) [list %W %M] [list $win [$win cget -mask]]
     }
 
 }
