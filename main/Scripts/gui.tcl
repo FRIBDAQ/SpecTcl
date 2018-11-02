@@ -381,14 +381,28 @@ frame .buffer
 label .buffer.head -text {Analyzed Buffers: } -background LightSteelBlue1 
 pack  .buffer.head -side left -expand 1
 
-button .clearall -background {gold} -text "Clear Spectra" -command {clear -all}
+# load/save spectra frame
+frame .spfr
+button .spfr.b1 -background {DarkGoldenrod2} -text "Load spectra" -command readSpectrumFile
+pack .spfr.b1 -side left -expand 1
+button .spfr.b2 -background {DarkGoldenrod2} -text "Save spectra" -command saveSeveralSpectra
+pack .spfr.b2 -side right -expand 1
+pack .spfr -fill both -expand 1
+
+set loadPath .treegui.notebook.spectra.topmost.fileio.load
+set savePath .treegui.notebook.spectra.topmost.fileio.save
+
+button .clearall -background {gold} -text "Clear spectra" -command {clear -all}
+button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
+button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
 button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl attachOnline]
 button .attfile -background {DarkOliveGreen2} -text "Attach to file" -command [list toggleTheButton .attfile attachFile]
 button .attfilelist -background {DarkOliveGreen2} -text "Attach list of files" -command [list toggleTheButton .attfilelist attachRunList]
-button .detach -background {light steel blue} -text "Detach" -command detach
-button .exit -background {plum3} -text Exit -command "Exit"
+button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -command [list toggleTheButton .attfilefilt attachFilter]
+button .detach -background {plum3} -text "Detach" -command detach
+button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .clearall .attonl .attfile .attfilelist .detach .title .source .runno .buffer .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .title .source .runno .buffer .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons
