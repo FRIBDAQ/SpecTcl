@@ -93,9 +93,6 @@ private:
   CTCLVariable* m_pRunState;
   UInt_t        m_nEventSize;
 
-  std::string current;
-  EventProcessingPipeline m_lAnalysisPipeline;
-  MapEventProcessingPipeline m_lAnalysisPipelineList;
   VariableArray           m_vStatistics;
   std::vector<Int_t*>     m_vStatisticsInts;
 
@@ -131,32 +128,6 @@ public:
   virtual void OnPause(CBufferDecoder* rDecoder);
   virtual void OnResume(CBufferDecoder* rDecoder);
   virtual void OnInitialize();
-
-
-
-  // Manipulating and inquiring the event processing pipeline.
-
-  void CreatePipeline(std::string name_pipe);
-  void ListPipelineList();
-  void ListCurrentPipeline();  
-  void ListAll();
-  void GetPipeline(std::string name_pipe);  
-  void AddEventProcessor(std::string name_pipe, CEventProcessor& rProcessor, const char* pName = 0);
-  EventProcessorIterator FindEventProcessor(std::string name_pipe, std::string name);
-  EventProcessorIterator FindEventProcessor(std::string name_pipe, CEventProcessor& processor);
-  void InsertEventProcessor(std::string name_pipe,
-			    CEventProcessor& processor, 
-			    EventProcessorIterator here, 			    
-			    const char* name = 0);
-  CEventProcessor* RemoveEventProcessor(std::string name_pipe, std::string name);
-  CEventProcessor* RemoveEventProcessor(std::string name_pipe, EventProcessorIterator here);
-  void RemovePipeline(std::string name_pipe);
-  void ClearPipeline(std::string name_pipe);
-  void RestorePipeline(std::string name_pipe);
-  std::string GetCurrentPipeline();
-  UInt_t size(std::string name_pipe);
-  EventProcessorIterator begin(std::string name_pipe);
-  EventProcessorIterator end(std::string name_pipe);
 
   // Maintaining counters.
 

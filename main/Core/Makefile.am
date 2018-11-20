@@ -206,8 +206,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
-	CPipelineCommand.cpp CPipelineManager.cpp FragmentIndex.cpp \
-	CEventBuilderEventProcessor.cpp
+	 CPipelineManager.cpp FragmentIndex.cpp \
+	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp
 
 # TapeCommand.h removed
 

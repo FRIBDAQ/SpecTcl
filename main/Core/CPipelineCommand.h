@@ -19,18 +19,19 @@ class CPipelineCommand : public CTCLObjectProcessor
  public: 
   void showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);    
   void createPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
-  void listPipelineList(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  void listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void listCurrentPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
-  void getPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
-  void addProcessorPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  void usePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
+  void addProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void clearPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
-  void removeProcessorPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-  void removePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  
-  void restorePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  void removeProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  void clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 
   CPipelineCommand(CTCLInterpreter& interp);
-  int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv); 
+  int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+private:
+    void listPipeline(CTCLObject& list, std::string pipename);
 
 };
 

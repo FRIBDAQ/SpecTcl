@@ -305,7 +305,7 @@ void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
 					    const char* name) {
   
   SpecTcl* api = SpecTcl::getInstance();
-  api->AddEventProcessor("", rEventProcessor, name);
+  api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
   
 }  
 
