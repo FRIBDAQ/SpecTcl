@@ -21,6 +21,7 @@
 
 #include "CPipelineManager.h"
 #include <stdexcept>
+#include "EventProcessor.h"
 
 /**
  * The singleton instance:
@@ -173,8 +174,7 @@ CPipelineManager::insertEventProcessor(
  *                     event processor isn't in the specified pipeline.
  */
 void
-CPipelineManager::removeEventProcessor(const std::string& pipename, const std::string evpName)
-{
+CPipelineManager::removeEventProcessor(const std::string& pipename, const std::string& evpName)
 {
     // look up the pipe and event processor they both must exist:
     
@@ -251,7 +251,7 @@ CPipelineManager::setCurrentPipeline(const std::string& pipename)
     }
 
     m_pCurrentPipeline = pipe->second;
-    m_pCurrentPipelineName = pipe->first;
+    m_currentPipelineName = pipe->first;
     
 }
 /**
@@ -265,16 +265,16 @@ CPipelineManager::setCurrentPipeline(const std::string& pipename)
 void
 CPipelineManager::clonePipeline(const std::string& from, const std::string& to)
 {
-    MapEventProcessingPipeline::iterator pipe = m_pipelines.find(pipename);
+    MapEventProcessingPipeline::iterator pipe = m_pipelines.find(from);
     if (pipe == m_pipelines.end()) {
         std::string msg = "Event processor pipeline ";
-        msg += pipename;
+        msg += from;
         msg += " does not exist.";
         throw std::logic_error(msg);
     }
     createPipeline(to);            // Throws if duplicate.
-    auto pToIterator = m_pipelines.find(pipename);
-    auto pTo = pToIterator->seoncd;             // Pointer to the list.
+    auto pToIterator = m_pipelines.find(to);
+    auto pTo = pToIterator->second;             // Pointer to the list.
     for (auto p = pipe->second->begin(); p != pipe->second->end(); p++) {
         pTo->push_back(CTclAnalyzer::PipelineElement(p->first, p->second));
     }
@@ -288,7 +288,7 @@ CPipelineManager::clonePipeline(const std::string& from, const std::string& to)
 CTclAnalyzer::EventProcessingPipeline*
 CPipelineManager::getCurrentPipeline()
 {
-   return m_currentPipeline;
+   return m_pCurrentPipeline;
 }
 /**
  * getCurrentPipelineName
@@ -326,7 +326,7 @@ std::vector<std::string>
 CPipelineManager::getEventProcessorNames() const
 {
     std::vector<std::string> result;
-    for (auto p = m_processors.begin(); p != m_processors.end()) {
+    for (auto p = m_processors.begin(); p != m_processors.end(); p++) {
         result.push_back(p->first);
     }
     
@@ -372,7 +372,7 @@ std::string
 CPipelineManager::lookupEventProcessor(const CEventProcessor* p) const
 {
     for(auto pe = m_processors.begin(); pe != m_processors.end(); p++) {
-        if (p == pe->second) return pe->first;p
+        if (p == pe->second) return pe->first;
     }
     throw std::logic_error("CPipelineManager::lookupEventProcessor - processor not registered");
 }
@@ -415,13 +415,13 @@ CPipelineManager::pipelineEnd() const
  *  support for readonly iteration over the registered event processors.
  *  see comments about API completeness above.
  */
-CPipelineManager::MapEventProcessor::const_iterator
+CPipelineManager::MapEventProcessors::const_iterator
 CPipelineManager::processorsBegin() const
 {
     return m_processors.begin();
 }
 
-CPipelineManager::MapEventProcessor::const_iterator
+CPipelineManager::MapEventProcessors::const_iterator
 CPipelineManager::processorsEnd() const
 {
     return m_processors.end();

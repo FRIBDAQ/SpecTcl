@@ -2012,23 +2012,23 @@ SpecTcl::ApplyGate(string gateName, string spectrumName)
  * @return CTCLAnalyzer::CEventProcessingPipeline*
  * @throw std::logic_error if no such pipeline.
  */
-CTclAnalyzer::CEventProcessingPipeline*
+CTclAnalyzer::EventProcessingPipeline*
 SpecTcl::getEventPipeline(const char* name)
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  for (auto p = pMgr->pipelineBegin(); p != pMGr->pipelineEnd(); p++)  {
+  for (auto p = pMgr->pipelineBegin(); p != pMgr->pipelineEnd(); p++)  {
     if (p->first == name) return p->second;
   }
   std::string msg = name;
   msg += " is not the name of an event processing pipeline";
-  throw std::logic_error;
+  throw std::logic_error(msg);
 }
 /**
  * getCurrentEventPipeline
- *    @return CTclAnalyzer::CEventProcessingPipeline*  - pointer to the current
+ *    @return CTclAnalyzer::EventProcessingPipeline*  - pointer to the current
  *                pipeline.
  */
-CTclAnalyzer::CEventProcessingPipeline*
+CTclAnalyzer::EventProcessingPipeline*
 SpecTcl::getCurrentEventPipeline()
 {
   return CPipelineManager::getInstance()->getCurrentPipeline();
@@ -2069,7 +2069,7 @@ CTclAnalyzer::EventProcessorIterator
 SpecTcl::FindEventProcessor(std::string name_pipe, string name)
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe);
+  CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
   for (auto pp = pPipe->begin(); pp != pPipe->end(); pp++ ) {
     if (name == pp->first) {
       return pp;              // May need to const_cast away const?
@@ -2112,13 +2112,13 @@ SpecTcl:: FindEventProcessor(std::string name)
 CTclAnalyzer::EventProcessorIterator 
 SpecTcl::FindEventProcessor(std::string name_pipe, CEventProcessor& processor)
 {
-      CTclAnalyer::CEventProcessingPipeline* pPipe = getEventPipeline(name_pipe);
+      CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
       for(auto pp = pPipe->begin(); pp != pPipe->end(); pp++) {
         if (&processor == pp->second) {
           return pp;
         }
       }
-      std::msg "SpecTcl::FindEventProcessor (by ref) not found in pipe: ";
+      std::string msg = "SpecTcl::FindEventProcessor (by ref) not found in pipe: ";
       msg += name_pipe;
       throw std::logic_error(msg);
 
@@ -2159,7 +2159,7 @@ SpecTcl::InsertEventProcessor(std::string name_pipe,
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   try {
-    pMgr-registerEventProcessor(name, &processor);
+    pMgr->registerEventProcessor(name, &processor);
   } catch(...) {}               // assume it's already registered on throw.
   
   pMgr->insertEventProcessor(name_pipe, name, where);
@@ -2182,7 +2182,8 @@ SpecTcl::InsertEventProcessor(CEventProcessor& processor,
  */
 void
 SpecTcl::InsertEventProcessor(
-    const char*  pipename, const char* evpname, CTCLAnalyzer::EventProcessorIterator here
+    const char*  pipename, const char* evpname,
+    CTclAnalyzer::EventProcessorIterator here
 )
 {
   CPipelineManager::getInstance()->insertEventProcessor(pipename, evpname, here);
@@ -2222,7 +2223,7 @@ SpecTcl::RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here)
        Name of the procesor to remove.
 */
 void
-SpecTcl::RemoveEventProcessor(std::string name_pipe, std::string name)
+SpecTcl::RemoveEventProcessor(const char* name_pipe, const char* name)
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   pMgr->removeEventProcessor(name_pipe, name);
@@ -2234,7 +2235,7 @@ void
 SpecTcl::RemoveEventProcessor(std::string name)
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  RemoveEventProcessor(pMgr->getCurrentPipelineName(), name);
+  RemoveEventProcessor(pMgr->getCurrentPipelineName().c_str(), name.c_str());
 
 }
 /**
@@ -2246,7 +2247,7 @@ void
 SpecTcl::ClearPipeline(std::string name_pipe)
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  std::vector<std::string processorNames =
+  std::vector<std::string> processorNames =
     pMgr->getEventProcessorsInPipeline(name_pipe);
     
   // This loop isn't as bad as it looks.  Each pass is only log2 on the
@@ -2255,7 +2256,7 @@ SpecTcl::ClearPipeline(std::string name_pipe)
   // in any event if you're doing this a lot you've got bigger problems
   // so it's not worth optimizing this.
     
-  for (int i = 0; i < pMgr->size(); i++) {
+  for (int i = 0; i < processorNames.size(); i++) {
     pMgr->removeEventProcessor(name_pipe, processorNames[i]);
   }
 }
@@ -2270,7 +2271,15 @@ SpecTcl::SetCurrentPipeline(std::string name_pipe)
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   pMgr->setCurrentPipeline(name_pipe.c_str());
 }
-
+/*
+ * GetCurrentPipeline
+ *    @return std::string - current pipeline name
+ */
+std::string
+SpecTcl::GetCurrentPipeline()
+{
+  return CPipelineManager::getInstance()->getCurrentPipelineName();
+}
 
 /*!
   Returns the number of elements in an event processing pipeline.
@@ -2280,7 +2289,7 @@ SpecTcl::SetCurrentPipeline(std::string name_pipe)
 UInt_t 
 SpecTcl::ProcessingPipelineSize(std::string name_pipe)
 {
-  CTclAnalyzer::CEventProcessingPipeline* pPipe = getEventPipeline(name_pipe);
+  CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
   return pPipe->size();
 
 }
@@ -2305,7 +2314,7 @@ SpecTcl::ProcessingPipelineSize()
 CTclAnalyzer::EventProcessorIterator 
 SpecTcl::ProcessingPipelineBegin(std::string name_pipe)
 {
-  CTclAnalyzer::CEventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
+  CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
   return pPipe->begin();
 }
 /**
@@ -2331,7 +2340,7 @@ SpecTcl::ProcessingPipelineBegin()
 CTclAnalyzer::EventProcessorIterator 
 SpecTcl::ProcessingPipelineEnd(std::string name_pipe)
 {
-  CTclAnalyzer::CEventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
+  CTclAnalyzer::EventProcessingPipeline* pPipe = getEventPipeline(name_pipe.c_str());
   return pPipe->end();
 }
 
@@ -2389,7 +2398,7 @@ void
 SpecTcl::appendEventProcessor(const char* evpname)
 {
   std::string pipename = CPipelineManager::getInstance()->getCurrentPipelineName();
-  appendEventProcessor(pipname.c_str(), evpname);
+  appendEventProcessor(pipename.c_str(), evpname);
 }
 /**
  * clonePipeline
@@ -2429,7 +2438,7 @@ SpecTcl::listProcessingPipelines()
 std::vector<std::string>
 SpecTcl::listPipeline(const char* name)
 {
-  return CPipelineManager::getInstance()->gretEventProcessorsInPipeline(name);
+  return CPipelineManager::getInstance()->getEventProcessorsInPipeline(name);
 }
 
 /*!

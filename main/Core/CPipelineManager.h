@@ -25,7 +25,7 @@
 #include <map>
 #include <vector>
 
-class CPipelineManager{
+class CPipelineManager {
   
 public:
 
@@ -34,9 +34,9 @@ public:
 
   // Instance data:
 private:
-  MapEventProcessingPipelines            m_pipelines;
+  MapEventProcessingPipeline            m_pipelines;
   MapEventProcessors                     m_processors;
-  CTCLAnalyzer::EventProcessingPipeline* m_pCurrentPipeline;
+  CTclAnalyzer::EventProcessingPipeline* m_pCurrentPipeline;
   std::string                            m_currentPipelineName;
   
   static CPipelineManager*              m_pInstance;
@@ -66,14 +66,14 @@ public:
   std::string                            getCurrentPipelineName() const;
   std::vector<std::string>               getPipelineNames() const;
   std::vector<std::string>               getEventProcessorNames() const;
-  std::vector<std::string>               getEventProcesorsInPipeline(const std::string& pipename) const;
+  std::vector<std::string>               getEventProcessorsInPipeline(const std::string& pipename) const;
   std::string                            lookupEventProcessor(const CEventProcessor* p) const;
   
   size_t pipelineCount() const;
   size_t eventProcessorCount() const;
   
   MapEventProcessingPipeline::const_iterator pipelineBegin() const;
-  MapEventProcessingPipeline::const_iterator piplineEnd() const;
+  MapEventProcessingPipeline::const_iterator pipelineEnd() const;
   
   MapEventProcessors::const_iterator processorsBegin() const;
   MapEventProcessors::const_iterator processorsEnd() const;

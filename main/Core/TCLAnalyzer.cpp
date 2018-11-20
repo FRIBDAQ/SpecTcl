@@ -39,6 +39,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <stdio.h>
 #include "CPipelineManager.h"
+#include <set>
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -285,7 +287,7 @@ void CTclAnalyzer::OnEnd(CBufferDecoder* rDecoder) {
   // Iterate through the pipeline's OnEnd() members.
   // The loop is broken on the first false return from a processor.
   //
-  CPipelineManger* pMgr = CPipelineManager::getInstance();
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
   
   EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
   while(p != pMgr->getCurrentPipeline()->end()) {
@@ -339,7 +341,7 @@ void CTclAnalyzer::OnResume(CBufferDecoder* rDecoder) {
   //
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-  while(p != pMgr->getCurrentPipeline->end()) {
+  while(p != pMgr->getCurrentPipeline()->end()) {
     CEventProcessor *pProcessor(p->second);
     if(!(pProcessor->OnResume(*this, *rDecoder))) break;
     p++;
@@ -454,8 +456,10 @@ CTclAnalyzer::OnInitialize()
     }
     // Now remove any failed even processors:
     
+    std::string pipeName  = api->GetCurrentPipeline();
     for (int i=0; i < processorsToRemove.size(); i++) {
-        RemoveEventProcessor(GetCurrentPipeline(), processorsToRemove[i]);
+      
+        api->RemoveEventProcessor(pipeName.c_str(), processorsToRemove[i].c_str());
     }
 }
 
@@ -470,7 +474,7 @@ CTclAnalyzer::OnEndFile()
 {
   SpecTcl* api = SpecTcl::getInstance();
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  CTclAnalyzer::EventProcessorIterator p = pMgr->getCurrentPipeline()->begin()
+  CTclAnalyzer::EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
 
   while (p != pMgr->getCurrentPipeline()->end()) {
     CEventProcessor *pProcessor = p->second;
@@ -491,6 +495,10 @@ string
 CTclAnalyzer::AssignName()
 {
   string name;
+  SpecTcl* api = SpecTcl::getInstance();
+  
+  std::vector<std::string> names = api->listEventProcessors();
+  std::set<std::string> nameSet(names.begin(), names.end());
   while (1) {
     char buffer[100];
 
@@ -498,10 +506,8 @@ CTclAnalyzer::AssignName()
     snprintf(buffer, sizeof(buffer), "%d", m_nSequence);
     m_nSequence++;
     name += buffer;
-
-    if(FindEventProcessor(current, buffer) == end(current)) {
-      break;
-    }
+    
+    if (nameSet.count(name) == 0) break;
   }
   return name;
 }

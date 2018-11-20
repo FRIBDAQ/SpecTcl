@@ -328,8 +328,8 @@ public:
 
   // Manipulate event processing pipelines:
   
-  CTclAnalyzer::CEventProcessingPipeline* getEventPipeline(const char* name);
-  CTClAnalyzer::CEventProcessingPipeline* getCurrentEventPipeline();
+  CTclAnalyzer::EventProcessingPipeline* getEventPipeline(const char* name);
+  CTclAnalyzer::EventProcessingPipeline* getCurrentEventPipeline();
 
   void AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
 
@@ -352,14 +352,16 @@ public:
   
   void RemoveEventProcessor(std::string pipe_name, CTclAnalyzer::EventProcessorIterator here);  
   void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
-  void removeEventProcessor(const char* pipename, const char* evpname);
+  void RemoveEventProcessor(const char* pipename, const char* evpname);
   void RemoveEventProcessor(std::string name);
   
   void ClearPipeline(std::string pipe_name);
   
-  void setCurrentPipeline(std::string pipename);
+  void SetCurrentPipeline(std::string pipename);
+  std::string GetCurrentPipeline();
   
 
+  UInt_t ProcessingPipelineSize(std::string name_pipe);
   UInt_t ProcessingPipelineSize();
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin(std::string pipe_name);
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();

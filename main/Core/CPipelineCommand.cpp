@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <Exception.h>
 #include <tcl.h>
-#include <SpecTc.h>
+#include <SpecTcl.h>
 #include <CPipelineManager.h>
 
 CPipelineCommand::CPipelineCommand(CTCLInterpreter& interp) :
@@ -46,7 +46,7 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
       } else if (subcommand == "clear"){
         clearPipeline(interp, objv);            
       } else if (subcommand == "clone"){
-        restorePipeline(interp, objv);
+        clonePipeline(interp, objv);
       } else {
         std::string msg = "Invalid subcommand: " ;
         msg += subcommand;
@@ -117,7 +117,7 @@ CPipelineCommand::listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>
   std::string pattern = "*";            // Default.
   requireAtMost(objv, 3, "Too many command parameters");
   if (objv.size() == 3) {
-    pattern = objv[2];
+    pattern = std::string(objv[2]);
   }
   std::vector<std::string> pipeNames =
     SpecTcl::getInstance()->listProcessingPipelines();
@@ -128,8 +128,8 @@ CPipelineCommand::listPipelines(CTCLInterpreter& interp, std::vector<CTCLObject>
   result.Bind(interp);
   
   for (int i = 0; i < pipeNames.size(); i++) {
-    if (Tcl_StringMatch(pipeNames[i].c_str(), pattern.c_tr()) {
-      result += pipenames[i];
+    if (Tcl_StringMatch(pipeNames[i].c_str(), pattern.c_str())) {
+      result += pipeNames[i];
     }
   }
   
@@ -149,9 +149,9 @@ CPipelineCommand::listCurrentPipeline(CTCLInterpreter& interp, std::vector<CTCLO
   CTCLObject evpList;
   result.Bind(interp);
   evpList.Bind(interp);
-  std::string pipe = CPipelineManager::getInstance()->getCurrentPipelineName()
+  std::string pipe = CPipelineManager::getInstance()->getCurrentPipelineName();
   listPipeline(evpList, pipe);
-  result += pipe
+  result += pipe;
   result += evpList;
   interp.setResult(result);
 }
@@ -168,7 +168,7 @@ CPipelineCommand::listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
   std::string pattern = "*";
   requireAtMost(objv, 3, "Too many command parameters");
   if (objv.size() == 3) {
-    pattern = objv[2];
+    pattern = std::string(objv[2]);
   }
   
   SpecTcl* pApi = SpecTcl::getInstance();
@@ -178,7 +178,7 @@ CPipelineCommand::listAll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
   result.Bind(interp);
   
   for (int i = 0; i < pipeNames.size(); i++) {
-    if (Tcl_MatchString(pipeNames[i].c_str(), pattern.c_str())) {
+    if (Tcl_StringMatch(pipeNames[i].c_str(), pattern.c_str())) {
       CTCLObject name;
       CTCLObject processors;
       name.Bind(interp);
@@ -206,7 +206,7 @@ CPipelineCommand::usePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& 
   requireExactly(objv, 3, "Missing pipeline name");
   std::string pipeName = objv[2];
   
-  SpecTcl::getInstance()->setCurrentPipeline(pipeName);
+  SpecTcl::getInstance()->SetCurrentPipeline(pipeName);
 }
 /**
  * addProcessor
@@ -256,5 +256,27 @@ CPipelineCommand::clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>
   std::string oldName =  objv[2];
   std::string newName = objv[3];
   
-  CSpecTcl::getInstance()->clonePipeline(oldName.c_str(), newName.c_st());
+  SpecTcl::getInstance()->clonePipeline(oldName.c_str(), newName.c_str());
+}
+/*-------------------------------------------------------------------------------
+ * Utility methods
+ */
+
+/**
+ * listPipeline
+ *    list the contents of a pipeline in to a TclObject as a list.
+ *
+ *  @param[out] list - reference a CTCLObject that's bound to an interp.
+ *                     will get the list of pipeline elements
+ *  @param[in] pipename - Name of the pipeline to list.
+ */
+void
+CPipelineCommand::listPipeline(CTCLObject& list, std::string pipename)
+{
+  std::vector<std::string> evpNames =
+    CPipelineManager::getInstance()->getEventProcessorsInPipeline(pipename);
+    
+  for (int i =0; i < evpNames.size(); i++) {
+    list += evpNames[i];
+  }
 }
