@@ -25,6 +25,7 @@
 #include <map>
 #include <vector>
 
+
 class CPipelineManager {
   
 public:
@@ -81,6 +82,16 @@ public:
 private:
   CPipelineManager();
   ~CPipelineManager();          // Singletons are always final.
+  
+  
+  void attachIfCurrent(
+    CTclAnalyzer::EventProcessingPipeline* pPipe, CEventProcessor* pEp
+  );
+  void detachIfCurrent(
+    CTclAnalyzer::EventProcessingPipeline* pPipe, CEventProcessor* pEp
+  );
+  void detachAll();
+  void attachAll();
 };
 
 

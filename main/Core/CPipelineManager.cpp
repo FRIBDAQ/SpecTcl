@@ -22,7 +22,7 @@
 #include "CPipelineManager.h"
 #include <stdexcept>
 #include "EventProcessor.h"
-
+#include "SpecTcl.h"
 /**
  * The singleton instance:
  */
@@ -121,6 +121,7 @@ CPipelineManager::appendEventProcessor(
     // append the event processor at the end of the selected pipeline:
     
     pipe->second->push_back(CTclAnalyzer::PipelineElement(evp->first, evp->second));
+    attachIfCurrent(pipe->second, evp->second);
 }
 /**
  *  insertEventProcessor
@@ -163,6 +164,7 @@ CPipelineManager::insertEventProcessor(
     // Insert at here:
     
     pipe->second->insert(here, CTclAnalyzer::PipelineElement(evp->first, evp->second));
+    attachIfCurrent(pipe->second, evp->second);
 }
 /**
  * removeEventProcessor
@@ -231,8 +233,9 @@ CPipelineManager::removeEventProcessor(
         msg += " does not exist.";
         throw std::logic_error(msg);
     }
-    
+    detachIfCurrent(pipe->second, here->second);
     pipe->second->erase(here);
+    
 }
 /**
  * setCurrentPipeline - sets the current pipeline to the named pipe.
@@ -249,10 +252,10 @@ CPipelineManager::setCurrentPipeline(const std::string& pipename)
         msg += " does not exist.";
         throw std::logic_error(msg);
     }
-
+    detachAll();
     m_pCurrentPipeline = pipe->second;
     m_currentPipelineName = pipe->first;
-    
+    attachAll();
 }
 /**
  * clonePipeline
@@ -470,4 +473,73 @@ CPipelineManager::~CPipelineManager()
     m_pCurrentPipeline = nullptr;
     m_currentPipelineName = "";
     m_pInstance = nullptr;               // Since this is a singleton.
+}
+/**
+ * attachIfCurrent
+ *    If a processing pipeline is current, invoke OnAttach
+ *    for the event processor.  Call this after an event processor
+ *    is added to a pipeline.
+ *
+ * @param pPipe - the pipeline to check.
+ * @param pEp   - the Event processor.
+ */
+void
+CPipelineManager::attachIfCurrent(
+    CTclAnalyzer::EventProcessingPipeline* pPipe, CEventProcessor* pEp
+)
+{
+    if(pPipe == m_pCurrentPipeline) {
+        pEp->OnAttach(*(SpecTcl::getInstance()->GetAnalyzer()));
+    }
+}
+
+/**
+ * detachIfCurrent
+ *   Same as attachIfCurrent but the OnDetach method is called.
+ *   This should be called just before an event processor is removed
+ *   from a pipeline.
+ *
+ *  @param pPipe - pointer to the pipeline to check.
+ *  @param pEp   - Pointer to the event processor.
+ */
+void
+CPipelineManager::detachIfCurrent(
+    CTclAnalyzer::EventProcessingPipeline* pPipe, CEventProcessor* pEp
+)
+{
+    if (pPipe = m_pCurrentPipeline) {
+        pEp->OnDetach(*(SpecTcl::getInstance()->GetAnalyzer()));
+    }
+}
+/**
+ * detachAll
+ *    Detaches all event processors in the current pipeline from
+ *    the analyzer - should be called just before a new pipeline is
+ *    put in as current
+ * Implicit inputs: m_pCurrentPipeline
+ */
+void
+CPipelineManager::detachAll()
+{
+    CAnalyzer* pAnalyzer = SpecTcl::getInstance()->GetAnalyzer();
+    for (auto p = m_pCurrentPipeline->begin(); p != m_pCurrentPipeline->end(); p++) {
+        p->second->OnDetach(*pAnalyzer);
+    }
+}
+/**
+ * attachAll
+ *    Attaches all event processors in the current pipeline
+ *    to the analyzer. Should be called right after an analyzer pipeline
+ *    is made current.
+ *
+ *  Implicit inputs: m_pCurrentPipeline
+ *  
+ */
+void
+CPipelineManager::attachAll()
+{
+    CAnalyzer* pAnalyzer = SpecTcl::getInstance()->GetAnalyzer();
+    for (auto p = m_pCurrentPipeline->begin(); p != m_pCurrentPipeline->end(); p++) {
+        p->second->OnAttach(*pAnalyzer);        
+    }
 }

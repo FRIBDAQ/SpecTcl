@@ -61,6 +61,18 @@ int CEventProcessor::operator==(const CEventProcessor& aCEventProcessor) const {
 Bool_t CEventProcessor::OnAttach(CAnalyzer& rAnalyzer) {
   return kfTRUE;
 }
+/**
+ * OnDetach
+ *    Called when the event processor is detached from the
+ *    analyzer (happens when removed from the current pipeline)
+ *    or when the current pipline changes.
+ * @param rAnalyzer - references the current analyzer.
+ */
+Bool_t
+CEventProcessor::OnDetach(CAnalyzer& rAnalyzer)
+{
+  return kfTRUE;
+}
 
 //  Function: 	
 //    Bool_t OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder) 
