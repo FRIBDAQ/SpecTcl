@@ -521,9 +521,14 @@ CPipelineManager::detachIfCurrent(
 void
 CPipelineManager::detachAll()
 {
-    CAnalyzer* pAnalyzer = SpecTcl::getInstance()->GetAnalyzer();
-    for (auto p = m_pCurrentPipeline->begin(); p != m_pCurrentPipeline->end(); p++) {
-        p->second->OnDetach(*pAnalyzer);
+    // Edge case -- on startup, this will be called with no
+    // current pipeline:
+    
+    if (m_pCurrentPipeline) {
+        CAnalyzer* pAnalyzer = SpecTcl::getInstance()->GetAnalyzer();
+        for (auto p = m_pCurrentPipeline->begin(); p != m_pCurrentPipeline->end(); p++) {
+            p->second->OnDetach(*pAnalyzer);
+        }
     }
 }
 /**
