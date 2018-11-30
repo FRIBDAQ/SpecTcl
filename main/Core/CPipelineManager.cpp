@@ -374,7 +374,7 @@ CPipelineManager::getEventProcessorsInPipeline(const std::string& pipename) cons
 std::string
 CPipelineManager::lookupEventProcessor(const CEventProcessor* p) const
 {
-    for(auto pe = m_processors.begin(); pe != m_processors.end(); p++) {
+    for(auto pe = m_processors.begin(); pe != m_processors.end(); pe++) {
         if (p == pe->second) return pe->first;
     }
     throw std::logic_error("CPipelineManager::lookupEventProcessor - processor not registered");

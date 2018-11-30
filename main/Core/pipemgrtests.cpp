@@ -53,6 +53,19 @@ class PipeMgrTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(remove_3);   // 1-4 are name, name
   CPPUNIT_TEST(remove_4);
   CPPUNIT_TEST(remove_5);   // 5 on are remove by iterator.
+  
+  CPPUNIT_TEST(setpipe_1);
+  CPPUNIT_TEST(setpipe_2);
+  
+  CPPUNIT_TEST(clone_1);
+  CPPUNIT_TEST(clone_2);
+  CPPUNIT_TEST(clone_3);
+  
+  CPPUNIT_TEST(getprocessors_1);
+  CPPUNIT_TEST(getprocessors_2);
+  
+  CPPUNIT_TEST(lookup_1);
+  CPPUNIT_TEST(lookup_2);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -91,6 +104,19 @@ protected:
   void remove_3();
   void remove_4();
   void remove_5();
+  
+  void setpipe_1();
+  void setpipe_2();
+  
+  void clone_1();
+  void clone_2();
+  void clone_3();
+  
+  void getprocessors_1();
+  void getprocessors_2();
+  
+  void lookup_1();
+  void lookup_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PipeMgrTests);
@@ -131,7 +157,7 @@ void PipeMgrTests::registration_2()
   std::vector<std::string> names= pMgr->getEventProcessorNames();
   EQ(size_t(10), names.size());
 }
-/// Duplicate registration throws std::logic_error
+/// Duplicate registration throwstd::logic_error
 
 void PipeMgrTests::registration_3()
 {
@@ -409,4 +435,131 @@ void PipeMgrTests::remove_5()
   EQ(std::string("dummy2"), names[0]);
   ASSERT(!d1->attached);
   ASSERT(d2->attached);
+}
+// Set the pipe success:
+
+void PipeMgrTests::setpipe_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  
+  pMgr->createPipeline("mypipe");
+  pMgr->setCurrentPipeline("mypipe");
+  
+  EQ(std::string("mypipe"), pMgr->getCurrentPipelineName());
+  CTclAnalyzer::EventProcessingPipeline* pipe =pMgr->m_pipelines["mypipe"];
+  EQ(pipe, pMgr->getCurrentPipeline());
+  
+}
+// Setting nonexistnent pipe is an error.
+
+void PipeMgrTests::setpipe_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+
+  
+  CPPUNIT_ASSERT_THROW(
+    pMgr->setCurrentPipeline("mypipe"),
+    std::logic_error
+  );
+}
+// Clone successful:
+
+void PipeMgrTests::clone_1()
+{
+  DummyProcessor* d1;
+  DummyProcessor* d2;
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->registerEventProcessor("dummy1", d1 = new DummyProcessor);
+  pMgr->registerEventProcessor("dummy2", d2 = new DummyProcessor);
+  
+  // add these processors to default:
+  
+  pMgr->appendEventProcessor("default", "dummy1");
+  pMgr->appendEventProcessor("default", "dummy2");
+  
+  // Make a clone:
+  
+  pMgr->clonePipeline("default", "mypipe");
+  
+  CPPUNIT_ASSERT_NO_THROW(
+    pMgr->setCurrentPipeline("mypipe")
+  );
+  
+  CTclAnalyzer::EventProcessingPipeline* pPipe = pMgr->getCurrentPipeline();
+  CTclAnalyzer::PipelineElement  e = pPipe->front();
+  EQ(std::string("dummy1"), e.first);
+  EQ((void*)d1, (void*)e.second);
+  
+  e = pPipe->back();             // Since it's a two element pipe.
+  EQ(std::string("dummy2"), e.first);
+  EQ((void*)d2, (void*)e.second);
+}
+// Nonexistent source pipe:
+
+void PipeMgrTests::clone_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  CPPUNIT_ASSERT_THROW(
+    pMgr->clonePipeline("nosuch", "a"),
+    std::logic_error
+  );
+}
+// Duplicate destination pipe:
+
+void PipeMgrTests::clone_3()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->createPipeline("new");
+  CPPUNIT_ASSERT_THROW(
+    pMgr->clonePipeline("default", "new"),
+    std::logic_error
+  );
+}
+// Initially there are no processors
+
+void PipeMgrTests::getprocessors_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  std::vector<std::string> prcs = pMgr->getEventProcessorNames();
+  EQ(size_t(0), prcs.size());
+}
+// If we register processors, then we can get their names.
+
+void PipeMgrTests::getprocessors_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->registerEventProcessor("prc1", new DummyProcessor);
+  pMgr->registerEventProcessor("prc2", new DummyProcessor);
+  
+  std::vector<std::string> ps = pMgr->getEventProcessorNames();
+  EQ(size_t(2), ps.size());
+  EQ(std::string("prc1"), ps[0]);
+  EQ(std::string("prc2"), ps[1]);
+}
+// Lookup found:
+
+void PipeMgrTests::lookup_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  CEventProcessor* p1;
+  CEventProcessor* p2;
+  pMgr->registerEventProcessor("prc1", p1 = new DummyProcessor);
+  pMgr->registerEventProcessor("prc2", p2 = new DummyProcessor);
+  
+  std::string name1 = pMgr->lookupEventProcessor(p1);
+  std::string name2 = pMgr->lookupEventProcessor(p2);
+  
+  EQ(std::string("prc1"), name1);
+  EQ(std::string("prc2"), name2);
+}
+// lookup failed:
+
+void PipeMgrTests::lookup_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  CEventProcessor* p = new DummyProcessor;
+  CPPUNIT_ASSERT_THROW(
+    pMgr->lookupEventProcessor(p),
+    std::logic_error
+  );
 }
