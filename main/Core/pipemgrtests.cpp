@@ -66,6 +66,12 @@ class PipeMgrTests : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(lookup_1);
   CPPUNIT_TEST(lookup_2);
+  
+  CPPUNIT_TEST(pliterate_1);
+  CPPUNIT_TEST(pliterate_2);
+  
+  CPPUNIT_TEST(evpiterate_1);
+  CPPUNIT_TEST(evpiterate_2);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -117,6 +123,12 @@ protected:
   
   void lookup_1();
   void lookup_2();
+  
+  void pliterate_1();
+  void pliterate_2();
+  
+  void evpiterate_1();
+  void evpiterate_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PipeMgrTests);
@@ -562,4 +574,63 @@ void PipeMgrTests::lookup_2()
     pMgr->lookupEventProcessor(p),
     std::logic_error
   );
+}
+// Initially pipline iteration can get you a single pipeline.
+
+void PipeMgrTests::pliterate_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  auto p = pMgr->pipelineBegin();
+  
+  EQ(std::string("default"), p->first);
+  
+  p++;
+  ASSERT(p == pMgr->pipelineEnd());
+  
+}
+
+// Put a few other pipelines in the mix. Iteration is alpha order.
+
+void PipeMgrTests::pliterate_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->createPipeline("a");
+  pMgr->createPipeline("b");
+  
+  // We have pipelines "a", "b", "default" in that order.
+  
+  auto p = pMgr->pipelineBegin();
+  EQ(std::string("a"), p->first);
+  p++;
+  EQ(std::string("b"), p->first);
+  p++;
+  EQ(std::string("default"), p->first);
+  p++;
+  ASSERT(p == pMgr->pipelineEnd());
+}
+// Initially empty pipeline:
+
+void PipeMgrTests::evpiterate_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  ASSERT(pMgr->processorsBegin() == pMgr->processorsEnd());
+}
+// Add a few event processors - they should iterate in alpha order.
+
+void PipeMgrTests::evpiterate_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  
+  pMgr->registerEventProcessor("aaa", new DummyProcessor); // first
+  pMgr->registerEventProcessor("ddd", new DummyProcessor); // third
+  pMgr->registerEventProcessor("b", new DummyProcessor);   // second.
+  
+  auto p = pMgr->processorsBegin();
+  EQ(std::string("aaa"), p->first);
+  p++;
+  EQ(std::string("b"), p->first);
+  p++;
+  EQ(std::string("ddd"), p->first);
+  p++;
+  ASSERT(p == pMgr->processorsEnd());
 }
