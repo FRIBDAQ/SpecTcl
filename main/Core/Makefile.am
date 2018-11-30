@@ -464,7 +464,8 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 
 evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
-evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp pipemgrtests.cpp
+evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
+	pipemgrtests.cpp pipecmdtests.cpp
 
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
