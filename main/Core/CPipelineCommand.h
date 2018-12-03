@@ -12,10 +12,8 @@ class CPipelineCommand : public CTCLObjectProcessor
 {
 
  private:
-  CPipelineManager* m_manager = CPipelineManager::getInstance();
-  CPipelineManager::MapEventProcessingPipeline m_activepipelist;
-  CTclAnalyzer::EventProcessingPipeline m_activepipe;
-
+  CPipelineManager* m_manager;
+  
  public: 
   void showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);    
   void createPipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);  

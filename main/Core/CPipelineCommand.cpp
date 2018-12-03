@@ -9,13 +9,10 @@
 #include <CPipelineManager.h>
 
 CPipelineCommand::CPipelineCommand(CTCLInterpreter& interp) :
-  CTCLObjectProcessor(interp, "pman" , true)
+  CTCLObjectProcessor(interp, "pman" , true),
+  m_manager(CPipelineManager::getInstance())
 {
-  /*
-  m_manager->createPipeline(m_activepipelist,"Default");
-  m_manager->createPipeline(m_activepipelist,"Default-filt");  
-  */
-  m_manager->createPipeline("Default-filt");    
+
 }
 
 int
@@ -29,23 +26,23 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
   else {
     std::string subcommand = objv[1];    
     try{
-      if (subcommand == "mk"){
+      if (subcommand == "mk"){                // tested
         createPipeline(interp, objv);      
-      } else if (subcommand == "ls"){
+      } else if (subcommand == "ls"){         // tested
         listPipelines(interp, objv);      
-      } else if (subcommand == "current"){
+      } else if (subcommand == "current"){    // tested
         listCurrentPipeline(interp, objv);
-      } else if (subcommand == "ls-all"){
+      } else if (subcommand == "ls-all"){     // tested
         listAll(interp, objv);
-      } else if (subcommand == "use"){
+      } else if (subcommand == "use"){        // tested
         usePipeline(interp, objv);      	
-      } else if (subcommand == "add"){
+      } else if (subcommand == "add"){        // tested     
         addProcessor(interp, objv);
-      } else if (subcommand == "rm"){
+      } else if (subcommand == "rm"){         // tested
         removeProcessor(interp, objv);
-      } else if (subcommand == "clear"){
+      } else if (subcommand == "clear"){      // Tested
         clearPipeline(interp, objv);            
-      } else if (subcommand == "clone"){
+      } else if (subcommand == "clone"){      // Tested.
         clonePipeline(interp, objv);
       } else {
         std::string msg = "Invalid subcommand: " ;
@@ -79,7 +76,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   std::stringstream sCmds;
   sCmds << "pman mk pipe-name       : Create a new pipeline\n";
   sCmds << "pman ls ?pattern?       : Lists the pipeline names matching pattern (default is *)\n";
-  sCmds << "pman current            : Lists event processors in the current pipeline\n";
+  sCmds << "pman current            : Lists name of and event processors in the current pipeline\n";
   sCmds << "pman ls-all             : List names and event processors in all pipeilnes\n";
   sCmds << "pman use name           : Use the pipeline 'name' as the current pipeline\n";
   sCmds << "pman add pipename epname : Add the event processor 'evpname' to the end of \n";
@@ -90,7 +87,8 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   sCmds << "pman clone old new      : Clones the pipline named 'old' creating one \n";
   sCmds << "                          named 'new'\n";
   
-  interp.setResult(sCmds.str());
+  
+  throw std::invalid_argument(sCmds.str());
 }
 /**
  * createPipeline
