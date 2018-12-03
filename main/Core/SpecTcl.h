@@ -326,46 +326,61 @@ public:
 
   void ApplyGate(std::string gateName, std::string spectrumName);
 
-  // Manipulating the event processor pipeline.
-
-  void CreatePipeline(std::string name);
-  void ListPipelineList();
-  void ListCurrentPipeline();  
-  void ListAll();
-  void GetPipeline(std::string name);
-  void AddEventProcessor(std::string name_pipe, CEventProcessor& eventProcessor, const char* name_proc = 0);  
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name_pipe, std::string name);
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name_pipe, CEventProcessor& processor);
-  void InsertEventProcessor(std::string name_pipe, CEventProcessor& processor,
-			    CTclAnalyzer::EventProcessorIterator where, 
-			    const char*  name = 0);
-  void RemoveEventProcessor(std::string name_pipe, std::string name);
-  void RemoveEventProcessor(std::string name_pipe, CTclAnalyzer::EventProcessorIterator here);
-  void RemovePipeline(std::string name_pipe);
-  void ClearPipeline(std::string name_pipe);
-  void RestorePipeline(std::string name_pipe);    
-  std::string GetCurrentPipeline();
-  UInt_t ProcessingPipelineSize(std::string name_pipe);
-  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin(std::string name_pipe);
-  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd(std::string name_pipe);
-
-  // These methods are provided for compatibility with pipeline manipulation prior to the
-  // pipeline manager.  They manipulate the current pipeline:
+  // Manipulate event processing pipelines:
+  
+  CTclAnalyzer::EventProcessingPipeline* getEventPipeline(const char* name);
+  CTclAnalyzer::EventProcessingPipeline* getCurrentEventPipeline();
 
   void AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
+
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string pipe_name, std::string name);
   CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string pipe_name, CEventProcessor& processor);
   CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
-  void InsertEventProcessor(CEventProcessor& processor,
+  
+  void InsertEventProcessor(std::string pipe_name,
+          CEventProcessor& processor,
 			    CTclAnalyzer::EventProcessorIterator where, 
 			    const char*  name = 0);
-  void RemoveEventProcessor(std::string name);
+  void InsertEventProcessor(CEventProcessor& processor,
+			    CTclAnalyzer::EventProcessorIterator where, 
+			    const char*  name);
+   void InsertEventProcessor(
+    const char* pipeline, const char* evpname,
+    CTclAnalyzer::EventProcessorIterator here
+  );
+  
+  void RemoveEventProcessor(std::string pipe_name, CTclAnalyzer::EventProcessorIterator here);  
   void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
+  void RemoveEventProcessor(const char* pipename, const char* evpname);
+  void RemoveEventProcessor(std::string name);
+  
+  void ClearPipeline(std::string pipe_name);
+  
+  void SetCurrentPipeline(std::string pipename);
+  std::string GetCurrentPipeline();
+  
+
+  UInt_t ProcessingPipelineSize(std::string name_pipe);
   UInt_t ProcessingPipelineSize();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin(std::string pipe_name);
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+  CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd(std::string pipe_name);
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
 
+  // New interface to the event processing pipeline:
   
+  void registerEventProcessor(const char* name, CEventProcessor* processor);
+  void makePipeline(const char* name);
   
+  void appendEventProcessor(const char* pipename, const char* evpname);
+  void appendEventProcessor(const char* evpname);
+  
+  void clonePipeline(const char* pipename, const char*  newPipename);
+  
+  std::vector<std::string> listEventProcessors();
+  std::vector<std::string> listProcessingPipelines();
+  std::vector<std::string> listPipeline(const char* pipeName);
   // Spectrum I/O formatting control:
 
   void AddSpectrumFormatter(std::string name, CSpectrumFormatter& formatter);
