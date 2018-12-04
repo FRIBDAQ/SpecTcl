@@ -77,7 +77,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   sCmds << "pman mk pipe-name       : Create a new pipeline\n";
   sCmds << "pman ls ?pattern?       : Lists the pipeline names matching pattern (default is *)\n";
   sCmds << "pman current            : Lists name of and event processors in the current pipeline\n";
-  sCmds << "pman ls-all             : List names and event processors in all pipeilnes\n";
+  sCmds << "pman ls-all ?pattern?   : List names and event processors in all pipeilnes\n";
   sCmds << "pman use name           : Use the pipeline 'name' as the current pipeline\n";
   sCmds << "pman add pipename epname : Add the event processor 'evpname' to the end of \n";
   sCmds << "                        :  Pipeline 'pipename' \n";
