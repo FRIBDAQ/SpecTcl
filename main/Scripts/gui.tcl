@@ -277,6 +277,10 @@
 # */
 
 # (C) Copyright Michigan State University 2013, All rights reserved 
+
+###########################
+# begin obsolete stuff
+###########################
 set StartButtonText  "Start Analysis"
 proc StartStop {} {
     global RunState
@@ -296,11 +300,26 @@ proc UpdateStartButton {name element op} {
 	set StartButtonText "Start Analysis"
     }
 }
+button .startstop -textvariable StartButtonText -command StartStop
+###########################
+# end obsolete stuff
+###########################
 
-proc Help {} {
-    global SpecTclHome
-    set URL [format "%s%s" $SpecTclHome /doc/index.htm]
-    exec netscape $URL &
+proc toggleTheButton {w cmd} {
+    global RunState
+    $cmd
+    if { $RunState } {
+	$w configure -background {tomato}
+    } 
+}
+
+proc UpdateButtons {name element op} {
+    global RunState
+    if { ! $RunState } {
+	.attonl configure -background {DarkOliveGreen2};	
+	.attfile configure -background {DarkOliveGreen2};	
+	.attfilelist configure -background {DarkOliveGreen2};	
+    }
 }
 
 proc Exit {} {
@@ -309,15 +328,84 @@ proc Exit {} {
     if {$answer == "yes"} exit
 }
 
-button .exit -text Exit -command "Exit"
-button .startstop -textvariable StartButtonText -command StartStop
-button .clearall  -text "Clear Spectra" -command {clear -all}
-button .help      -text "Help"          -command {Help}
+proc updateInfo nms {
+    
+    global RunTitle
+    global RunNumber
+    global RunState
+    global BuffersAnalyzed
+    global type
+    global filename
 
+    if {[winfo exists .source.head]} {
+	
+	after $nms [list updateInfo $nms];
+	set source  [attach -list]
+	set type [regexp -inline {\S+} $source]
+	set filename [regexp -inline {\S+} [file tail $source]]
+	
+	if {$RunState} {
+	    set state Active
+	} else {
+	    set state Inactive
+	}
+	
+	.title.head configure -text \
+	    [format "Run title: %s " $RunTitle]
+	.source.head configure -text \
+	    [format "Data Source:%s %s (%s)" $type $filename $state]	
+	.runno.head configure -text \
+	    [format "Run number: %s " $RunNumber] 
+	.buffer.head configure -text \
+	    [format "Analyzed buffers: %s " $BuffersAnalyzed]
+    }
+}
 
-pack .clearall .exit     -side top -fill x
+# Display run title
+frame .title
+label .title.head -text {Run title: } -background LightSteelBlue1 
+pack  .title.head -side left -expand 1
 
-trace variable RunState w  UpdateStartButton
+# Display Data source
+frame .source
+label .source.head -text {Data Source:  Test (inactive)} -background LightSteelBlue1 
+pack  .source.head -side left -expand 1
+
+# Display Run Number
+frame .runno
+label .runno.head -text {Run Number: } -background LightSteelBlue1 
+pack  .runno.head -side left -expand 1
+
+# Create buffer display frame
+frame .buffer
+label .buffer.head -text {Analyzed Buffers: } -background LightSteelBlue1 
+pack  .buffer.head -side left -expand 1
+
+# load/save spectra frame
+frame .spfr
+button .spfr.b1 -background {DarkGoldenrod2} -text "Load spectra" -command readSpectrumFile
+pack .spfr.b1 -side left -expand 1
+button .spfr.b2 -background {DarkGoldenrod2} -text "Save spectra" -command saveSeveralSpectra
+pack .spfr.b2 -side right -expand 1
+pack .spfr -fill both -expand 1
+
+set loadPath .treegui.notebook.spectra.topmost.fileio.load
+set savePath .treegui.notebook.spectra.topmost.fileio.save
+
+button .clearall -background {gold} -text "Clear spectra" -command {clear -all}
+button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
+button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
+button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl attachOnline]
+button .attfile -background {DarkOliveGreen2} -text "Attach to file" -command [list toggleTheButton .attfile attachFile]
+button .attfilelist -background {DarkOliveGreen2} -text "Attach list of files" -command [list toggleTheButton .attfilelist attachRunList]
+button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -command [list toggleTheButton .attfilefilt attachFilter]
+button .detach -background {plum3} -text "Detach" -command detach
+button .exit -background {MediumPurple2} -text Exit -command "Exit"
+
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .title .source .runno .buffer .exit -side top -fill x 
+
+updateInfo 1000
+trace variable RunState w  UpdateButtons
 
 #
 #   Ensure the gui updates when variables get modified in the background.
@@ -328,3 +416,4 @@ proc Idler {} {
    after 1000 Idler
 }
 Idler
+
