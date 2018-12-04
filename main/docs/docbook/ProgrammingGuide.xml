@@ -145,6 +145,17 @@
                 </para>
             </listitem>
         </varlistentry>
+        <varlistentry>
+            <term>
+                <link linkend='chap.dynamicpipe' endterm='chap.dynamicpipe.title' />
+            </term>
+            <listitem>
+                <para>
+                    Describes new features for SpecTcl 5.1 which allow you to
+                    dynamically alter the event processing pipeline.
+                </para>
+            </listitem>
+        </varlistentry>
     </variablelist>
 </chapter>
 <chapter id='chap.processingmodel'>
@@ -9943,5 +9954,233 @@ ring  - NSCL DAQ Ring buffer data acquisition system
         </para>
     </section>
 </chapter>
+<chapter id='chap.dynamicpipe'>
+    <title id='chap.dynamicpipe.title'>Dynamic processing pipelines</title>
+    <para>
+        Beginning with SpecTcl 5.1, SpecTcl supports dynamic event processsing
+        pipelines.  At the very least, this allows you to use the same
+        SpecTcl executable image to analyze raw data and to playback filter files.
+        You can also use it to selectively enable analysis or to allow a single
+        SpecTcl executable to analyze data from a wide variety of data formats.
+    </para>
+    <para>
+        To use this facility you must:
+    </para>
+    <itemizedlist>
+        <listitem>
+            <para>
+                Create instances of the event processors you want to use.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Register the event processor instances with the pipeline manager.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Use the SpecTcl <command>pman</command> commands to setup event processing
+                pipelines involving those event processors.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Use the SpecTcl <command>pman</command> command to select
+                the event processing pipeline to use.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                Start anlayzing data from a data source.
+            </para>
+        </listitem>
+    </itemizedlist>
+    <para>
+        In this chapter we'll give sample code that shows how to create
+        instances of event processors and how to register them with the
+        pipeline manager singleton.  We'll also give examples of Tcl command
+        sequences that build up and select event processing pipelines.
+    </para>
+    <para>
+        Before continuing, let me reassure you that all of your existing
+        SpecTcl code should work just fine.  When SpecTcl starts, it creates
+        a pipeline named <literal>default</literal> and sets that pipeline
+        as the current event processing pipeline.  The
+        <methodname>CreateAnalysisPipeline</methodname> code you use
+        registers event processors you create (they must be uniquely named or
+        have default names) and adds them to the current event processing
+        pipeline.  Thus everything we describe in this chapter is optional.
+    </para>
+    <section>
+        <title>Creating and registering event processors.</title>
+        <para>
+            To use dynamic event processors, you must have  a set of
+            event processor instances, each registered with the pipeline
+            manager singleton under a unqique name.  In this section,
+            I'll show how to create a few event processors and register
+            them with the pipeline manager.  This code could appear in
+            <methodname>CreateAnalysisPipeline</methodname>.  We're going to
+            assume you have created event processor classes namec Evp1, Evp2
+            and Evp3. Additionally, we're going to
+            instantiate and register the filter event
+            processor that comes with SpecTcl.
+        </para>
+        <example>
+            <title>Creating and registering</title>
+            <programlisting>
+#include &lt;FilterEventProcessor.h&gt;
+#include "Evp1.h"
+#include "Evp2.h"                           <co id='dynpipe.includes' />
+#include "Evp3.h"
+#include &lt;CPipelineManager.h&gt;
+....
+void
+CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
+{
+    CPipelineManager* pMgr = CPipelineManager::getInstance()  <co id='dynpipe.pmgrsingleton' />
+    
+    pMgr->registerEventProcessor("evp1", new Evp1);
+    pMgr->registerEventProcessor("evp2", new Evp2);           <co id='dynpipe.evpregister' />
+    pMgr->registerEventProcessor("evp3", new Evp3);
+    pMgr->registerEventProcessor("filter", new CFilterEventProcessor);
+}
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='dynpipe.includes'>
+                <para>
+                    These includes, presumably pull in the class definitions
+                    for the your <classname>Evp1</classname> ..
+                    <classname>Evp3</classname> classes, the
+                    <classname>CFilterEventProcessor</classname> definition
+                    and definition of <classname>CPipelineManager</classname>,
+                    the pipeline manager singleton.
+                </para>
+            </callout>
+            <callout arearefs='dynpipe.pmgrsingleton'>
+                <para>
+                    Since the <classname>CPipelineManager</classname> is a
+                    singleton, you can't construct it.
+                    It's <methodname>getInstance</methodname> method
+                    (it's declared as private).
+                    returns a pointer to the one and only instance of this
+                    class.
+                </para>
+            </callout>
+            <callout arearefs='dynpipe.evpregister'>
+                <para>
+                    Each of these calls registers an event processor with the
+                    pipeline manager.  The first paramteer is a name that will
+                    be associated with the event processor instance.  The second,
+                    a pointer to an instance of the event processor.
+                    If you attempt to register a duplicate name a
+                    <classname>std::logic_error</classname> exception will be
+                    thrown by the pipleline manager.
+                </para>
+            </callout>
+        </calloutlist>
+        <para>
+            Note that we have not created any event processing pipelines.  In
+            this set of examples, we're going to do that at the Tcl script level.
+            If you prefer, the pipeline manager does provide methods to create
+            pipelines, add event processors to them to select the pipeline that
+            SpecTcl will use to analyze data.
+        </para>
+        <para>
+            See the programming reference for a complete description of the
+            methods provided by the pipeline manager singleton.
+        </para>
+    </section>
+    <section>
+        <title>Using the <command>pman</command> command to create and select pipelines</title>
+        <para>
+            In this section, we are going to assume that SpecTcl has the code
+            described in the previous section and therefore there are
+            four event processors registered: <literal>evp1</literal>,
+            <literal>evp2</literal>, <literal>evp3</literal> and
+            <literal>filter</literal>.
+            We'll create two pipelines. One called <literal>raw</literal>
+            which will contain the user written <literal>evp*</literal> event
+            prociessors and one called <literal>filter</literal> which
+            contains the filter event processor.  We'll then select the
+            <literal>raw</literal> event processing pipeline to be the one
+            SpecTcl uses.
+        </para>
+        <para>
+            Once more, all this could be done programatically using the
+            pipeline manager object, but this method is more flexible and
+            allows pipeline management to be added to your experiment
+            specific Tcl/Tk GUI without any additional C++ coding.
+        </para>
+        <example>
+            <title>Using the <command>pman</command> SpecTcl command</title>
+            <programlisting>
+pman mk raw                                <co id='dynpipe.pman.mk' />
+foreach proc [list evp1 evp2 evp3] {
+    pman add raw $proc                     <co id='dynpipe.pman.add' />
+}
 
+pman mk filter                             <co id='dynpipe.pman.filter' />
+pman add filter filter
+
+pman use raw                               <co id='dynpipe.pman.use'/>
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='dynpipe.pman.mk'>
+                <para>
+                    The <command>pman</command> command is a command
+                    ensemble.  This means that it requires a subcommand
+                    to tell it what to do.   The <command>mk</command>
+                    subcommand creates new pipelines.  This line
+                    creates a new event processing pipeline called
+                    <literal>raw</literal>
+                </para>
+            </callout>
+            <callout arearefs='dynpipe.pman.add'>
+                <para>
+                    This loop adds the user written event processors we
+                    registered in the C++ code in the previous section
+                    to the <literal>raw</literal> pipeline.
+                    The list in the <command>foreach</command> loop
+                    determines the order in which the event processors
+                    are called.
+                </para>
+            </callout>
+            <callout arearefs='dynpipe.pman.filter'>
+                <para>
+                    Similarly, this pair of commands creates the
+                    pipeline named <literal>filter</literal> and makes
+                    the <literal>filter</literal> event processor its only element.
+                    Pipeline names must be unique, and event processor names must
+                    be unique, but the namespaces for pipelines and event processors
+                    are distinct allowing the pipeline to have the same name
+                    as an event processor.
+                </para>
+            </callout>
+            <callout arearefs='dynpipe.pman.use'>
+                <para>
+                    SpecTcl only runs a singl event processing pipeline at a time.
+                    When it starts executing, a pipeline named
+                    <literal>default</literal> is used.  The
+                    <command>use</command> subcommand specifies a new pipeline
+                    to be used by SpecTcl to analyze data.
+                </para>
+                <para>
+                    We could have equally well just added our raw event
+                    processors to the <literal>default</literal> pipeline not
+                    bothering with a <literal>raw</literal> pipeline.
+                    We chose not to for illustrative purposes, and to give
+                    that pipeline a better name.
+                </para>
+                <para>
+                    The same SpecTcl executable can read filter files by
+                    simply doing a <command>pman use filter</command> at a later
+                    time.
+                </para>
+            </callout>
+        </calloutlist>
+    </section>
+
+</chapter>
 </book>
