@@ -6529,7 +6529,7 @@ roottree list <replaceable>?tree-name-pattern?</replaceable>
     </refmeta>
     <refnamediv>
         <refname>pman</refname>
-        <refpurpose>Manipulate the SpecTcl Analysis Pipeline</refpurpose>
+        <refpurpose>V5.1+ Manipulate the SpecTcl Analysis Pipeline</refpurpose>
     </refnamediv>
     <refsynopsisdiv>
         <cmdsynopsis>
@@ -6539,7 +6539,7 @@ pman mk <replaceable>pipeline-name</replaceable>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-pman ls                
+pman ls ?pattern?             
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
@@ -6549,12 +6549,12 @@ pman current
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-pman ls-all 
+pman ls-all ?pattern?
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-pman get  <replaceable>pipeline-name</replaceable>     
+pman use  <replaceable>pipeline-name</replaceable>     
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
@@ -6569,304 +6569,245 @@ pman rm <replaceable>pipeline-name processor-name</replaceable>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-pman rm-pipe <replaceable>pipeline-name</replaceable>
-            </command>
-        </cmdsynopsis>
-        <cmdsynopsis>
-            <command>
 pman clear <replaceable>pipeline-name</replaceable>
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
-pman restore <replaceable>pipeline-name</replaceable>
+pman clone <replaceable>existing-pipe new-pipe</replaceable>
             </command>
         </cmdsynopsis>
     </refsynopsisdiv>
     <refsect1>
         <title>DESCRIPTION</title>
         <para>
-            This command supports script level manipulation of SpecTcl's
-            event processing pipline.  The event processing pipeline is
-            responsible for incrementally producing a set of parameters from
-            a combination of the raw event and parameters produced by prior
-            elements of the pipeline.
+            The <command>pman</command> command ensemble is fully functional
+            and available starting with SpecTcl 5.1.  Along with the
+            <classname>CPipelineManager</classname> class, it supports
+            fully dynamic event processing pipelines within SpecTcl.
         </para>
         <para>
-            In reading the description of the subcommands.  It's important
-            to keep in mind the following bits of terminology and information.
+            Once you have registered a set of event processors, you can use the
+            <command>pman</command> command to create pipelines of these processors
+            and dynamically select which of theses is actively operating.
         </para>
-        <variablelist>
-            <varlistentry>
-                <term>Event Processor</term>
-                <listitem>
-                    <para>
-                        An event processor is an object from a class
-                        derived from <classname>CEventProcessor</classname>.
-                        It is invoked for each event and can contribute to the
-                        set of parameters for that event.  It receives both the
-                        raw event and the set of previously produced parameters.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Event processing pipeline</term>
-                <listitem>
-                    <para>
-                        An ordered list of event processors.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Event pipeline element</term>
-                <listitem>
-                    <para>
-                        An event processor that has been associated with
-                        a name
-                        and is in the ordered list of event processors for a
-                        specific pipeline.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Active pipeline</term>
-                <listitem>
-                    <para>
-                        The event processing pipeline currently in use by
-                        SpecTcl.  For each event, SpecTcl will ask the
-                        active pipeline to iterate over its pipeline elements
-                        invoking each one in turn.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Default pipeline</term>
-                <listitem>
-                    <para>
-                        This is the pipeline that is created by
-                        the MySpecTclApp's
-                        <methodname>createAnalysisPipeline</methodname>
-                        method.  It is the initial active pipeline.
-                    </para>
-                </listitem>
-            </varlistentry>
-        </variablelist>
         <para>
-            The intent of this ensemble of command is to allow you a limited
-            ability to manipulate the elements of event processing pipelines,
-            and to select the Active pipeline from amongst those that are defined.
-            Future versions of this will support more complete manipulation
-            of pipeline contents.  For now, one use of this ensemble is to
-            be able to use the same compiled version of SpecTcl to analyze
-            filtered data as well as raw data.
+            The <command>pman</command> command is a command ensemble.  This
+            means it has a mandatory first command parameter which is a subcommand
+            that describes which pipeline management function you wish it
+            to perform.
+        </para>
+        <para>
+            Note that only the pipeline manager can be used to register
+            event processors, however SpecTcl plugins can be created
+            that define, instantiate and register event processors when
+            loaded.
         </para>
     </refsect1>
     <refsect1>
         <title>SUBCOMMANDS</title>
-        <para>
-            This section describes the purpose and parameters of each subcommand
-            in the ensemble.  Where sub-commands are not yet ready for prime time,
-            the planned eventual functionality is also outlined.
-        </para>
         <variablelist>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman mk <replaceable>pipeline-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman mk <replaceable>pipeline-name</replaceable>
+            </command>
+        </cmdsynopsis>
                 </term>
                 <listitem>
                     <para>
-                        Creates a new pipeline with the name
-                        <parameter>pipeline-name</parameter>.  In the future
-                        it will be possible to have a pool of event processors
-                        you've either created or loaded from a shared object.
-                        Those event processors could then be used to construct
-                        a functional event pipeline. 
-                    </para>
-                    <para>
-                        At the time I'm writing this you can only create a
-                        functional event processing pipeline programmatically.
+                        Creates a new event processing pipeline named
+                        <parameter>pipeline-name</parameter>.  It is an error
+                        to try to create a pipeline with the name of an existing
+                        pipeline.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman ls                
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman ls ?pattern?             
+            </command>
+        </cmdsynopsis>
+
                 </term>
                 <listitem>
                     <para>
-                        Outputs a list of the current pipeline names to
-                        stdout.  In the future this will be returned
-                        from the command as a Tcl list that can be
-                        further manipulated at script level.
+                        Lists the names of the pipeline that match the optional
+                        glob pattern. If <parameter>pattern</parameter>
+                        is omitted, it defaults to <literal>*</literal> which
+                        matches all names.
                     </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term><cmdsynopsis>
-                        <command>
-            pman current
-                        </command>
-                    </cmdsynopsis></term>
-                <listitem>
                     <para>
-                        Lists the names of the event processors in the active
-                        event processing pipeline.  Currently this is output
-                        to stdout.   In the future a Tcl list will be returned
-                        that can be further manipulated at the script level.
+                        The return value of the command is a proper Tcl list
+                        whose elements are the names of the pipelines.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman ls-all 
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman current
+            </command>
+        </cmdsynopsis>
+                    
                 </term>
                 <listitem>
                     <para>
-                        Lists the names and contents of all event processing
-                        pipelines. This is currently output to stdout. In
-                        the future a Tcl list will be returned that can be
-                        further manipulated at the script level.
+                        Describes the current event procsssing pipeline.
+                        The result of this command is a two element Tcl
+                        list.  The first element of the list is the
+                        name of the current pipeline.  The second element
+                        is a list whose elements are the names of the
+                        event processors in the pipeline.  Note that
+                        the names of the event processors are given in the
+                        order in which they are in the pipeline.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman get  <replaceable>pipeline-name</replaceable>     
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman ls-all ?pattern?
+            </command>
+        </cmdsynopsis>                    
                 </term>
                 <listitem>
                     <para>
-                        Makes the event processing pipeline named
-                        <parameter>pipeline-name</parameter> the
-                        active event processing pipeline.  The current
-                        active event processing pipeline is not modified,
-                        it is just made inactive.
+                        Lists all the information about event processing
+                        pipelines that have been defined that match the optional
+                        <parameter>pattern</parameter>. If
+                        <parameter>pattern</parameter> is not provided,
+                        it defaults to <literal>*</literal> which matches all
+                        pipeline names.
+                    </para>
+                    <para>
+                        The result of this command is a list with one element
+                        per pipeline.  Each element is a two element sublist.
+                        The first element of that sublist is the name of a pipeline.
+                        The second element is, itself, a list that contains the names
+                        of the event processors in that pipeline in the order
+                        in which they occur.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman add <replaceable>pipeline-name processor-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman use  <replaceable>pipeline-name</replaceable>     
+            </command>
+        </cmdsynopsis>
+                    
                 </term>
                 <listitem>
                     <para>
-                        At present this is not fully supported.  It adds
-                        a new empty event processor
-                        <parameter>processor-name</parameter> to the end of
-                        the event processing pipeline named
+                        Tells SpecTcl to use the pipeline named
+                        <parameter>pipeline-name</parameter> as the current
+                        event processing pipeline.  Beginning with the next
+                        event processed, the event processors in
+                        <parameter>pipeline-name</parameter> will be used to
+                        process events into parameters.
+                    </para>
+                    <para>
+                        It is an error for <parameter>pipeline-name</parameter>
+                        not to exist.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+        <cmdsynopsis>
+            <command>
+pman add <replaceable>pipeline-name processor-name</replaceable>
+            </command>
+        </cmdsynopsis>
+                    
+                </term>
+                <listitem>
+                    <para>
+                        Adds an the event processor
+                        <parameter>processor-name</parameter> to the end
+                        of the event processing pipeline
                         <parameter>pipeline-name</parameter>.
-                    </para>
-                    <para>
-                        In the future you will be able to create event
-                        processors with names and those will be registered in
-                        a manner that this command will add the matching
-                        event processor to the pipeline if there is one or
-                        throw an error if there is not.
-                    </para>
-                    <para>
-                        Note that the planned functionality in conjunction
-                        with the ability to dynamically load shared object
-                        plugins will make possible fully dynamic event
-                        processing.
+                        An error is thrown if the
+                        <parameter>pipeline-name</parameter> is not an
+                        event processing pipeline or
+                        <parameter>processor-name</parameter> is not a
+                        registered event processing pipeline.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman rm <replaceable>pipeline-name processor-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman rm <replaceable>pipeline-name processor-name</replaceable>
+            </command>
+        </cmdsynopsis>
+                    
                 </term>
                 <listitem>
                     <para>
-                        Removes the event processor named
+                        Removes the event processor
                         <parameter>processor-name</parameter> from the
-                        event processing pipeline named
-                        <parameter>pipeline-name</parameter>.
+                        pipelnie <parameter>pipeline-name</parameter>.
+                        If <parameter>pipeline-name</parameter> is not the  name
+                        of a pipeline the command will throw an error.
+                        If <parameter>processor-name</parameter> is not the
+                        name of an event processor in <parameter>pipeline-name</parameter>,
+                        the command will also throw an error.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman rm-pipe <replaceable>pipeline-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman clear <replaceable>pipeline-name</replaceable>
+            </command>
+        </cmdsynopsis>
+                    
                 </term>
                 <listitem>
                     <para>
-                        Destroys the event processing pipeline named
-                        <parameter>pipeline-name</parameter>.  Note that
-                        regardless, the the default event processing
-                        pipeline will be made the active one.
-                    </para>
-                    <para>
-                        In the future, if the removed pipeline is active,
-                        no change will be made to the event processing pipeline.
-                        Furthermore the default analysis pipeline will be
-                        made un-removable.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>
-                    <cmdsynopsis>
-                        <command>
-            pman clear <replaceable>pipeline-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
-                </term>
-                <listitem>
-                    <para>
-                        Removes all elements from the event processing
+                        Removes all event processors from the event processing
                         pipeline named <parameter>pipeline-name</parameter>.
+                        If <parameter>pipeline-name</parameter> does not exist,
+                        the command throws an error.
                     </para>
                 </listitem>
             </varlistentry>
             <varlistentry>
                 <term>
-                    <cmdsynopsis>
-                        <command>
-            pman restore <replaceable>pipeline-name</replaceable>
-                        </command>
-                    </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman clone <replaceable>existing-pipe new-pipe</replaceable>
+            </command>
+        </cmdsynopsis>                    
                 </term>
                 <listitem>
                     <para>
-                        Gives the active event processing pipeline an
-                        additional
-                        name: <parameter>pipeline-name</parameter>.
+                        Creates an exact duplicate of the event processing
+                        pipeline <parameter>existing-pipe</parameter> and names
+                        it <parameter>new-pipe</parameter>.
+                        <parameter>new-pipe</parameter> will be a pipeline with
+                        exactly the same list of event processors.
+                    </para>
+                    <para>
+                        If <parameter>existing-pipe</parameter> is not an
+                        event pipeline an error is thrown.  If
+                        <parameter>new-pipe</parameter> is already defined,
+                        an error is thrown.
                     </para>
                 </listitem>
             </varlistentry>
+            
         </variablelist>
-
-                    
-                    
-                    
-
     </refsect1>
 
 </refentry>
