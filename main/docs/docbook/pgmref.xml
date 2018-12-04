@@ -42642,5 +42642,670 @@ for (auto p = pProc-&gt;begin(); p != pProc-&gt;end(); p++) {
     </refsect1>
 
 </refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>CPipelineManager</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CPipelineManager</refname>
+        <refpurpose>v5.1+ Dynamic pipeline management</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <synopsis>
+#include &lt;CPipelineManager.h&gt;
+#include &lt;TCLAnalyzer.h&gt;
+#include &lt;stdexcept&gt;
+
+class CPipelineManager {
+  
+public:
+
+  typedef std::map &lt;std::string, CTclAnalyzer::EventProcessingPipeline* &gt;
+                                                    MapEventProcessingPipeline;
+  typedef std::map &lt;std::string, CEventProcessor*&gt;
+                                                    MapEventProcessors;
+
+public:
+  static CPipelineManager* getInstance();
+  
+  void registerEventProcessor(const std::string&amp; name, CEventProcessor* pProcessor);
+  void createPipeline(const std::string&amp; name);
+  
+  void appendEventProcessor(const std::string&amp; pipeName, const std::string&amp; evpName);
+  void insertEventProcessor(
+    const std::string&amp; pipename, const std::string&amp; evpname,
+    CTclAnalyzer::EventProcessorIterator where
+  );
+
+  void removeEventProcessor(const std::string&amp; pipename, const std::string&amp; evpname);
+  void removeEventProcessor(const std::string&amp; pipename, CTclAnalyzer::EventProcessorIterator here);
+  
+  void setCurrentPipeline(const std::string&amp; pipename);
+  
+  void clonePipeline(const std::string&amp; from, const std::string&amp; to);
+
+  // inquiries:
+  
+  CTclAnalyzer::EventProcessingPipeline* getCurrentPipeline();
+  std::string                            getCurrentPipelineName() const;
+  std::vector&lt;std::string&gt;               getPipelineNames() const;
+  std::vector&lt;std::string&gt;               getEventProcessorNames() const;
+  std::vector&lt;std::string&gt;               getEventProcessorsInPipeline(const std::string&amp; pipename) const;
+  std::string                            lookupEventProcessor(const CEventProcessor* p) const;
+  
+  size_t pipelineCount() const;
+  size_t eventProcessorCount() const;
+  
+  MapEventProcessingPipeline::const_iterator pipelineBegin() const;
+  MapEventProcessingPipeline::const_iterator pipelineEnd() const;
+  
+  MapEventProcessors::const_iterator processorsBegin() const;
+  MapEventProcessors::const_iterator processorsEnd() const;
+
+};
+        </synopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CPipelineManager</classname> class is a singleton
+            class.   As such it has a private construtor and a
+            <methodname>getInstance</methodname> static method used to
+            obtain a pointer to the single instance of the class.
+        </para>
+        <para>
+            <classname>CPipelineManager</classname> along with the
+            <command>pman</command> command ensemble are used to provide
+            support for dynamic event processing pipeline manipulation.
+            Using this object you can register event processors, create
+            and stock event processing pipelines as well as select an
+            event processing pipeline for use by the analyzer.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier>static </modifier>
+                        <type>CPipelineManager* </type>
+                        <methodname>getInstance</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        This method is used to obtain a pointer to the one
+                        and only instance of a <classname>CPipelineManager</classname>
+                        class.  The <classname>CPipelineManager</classname> class
+                        constructor is <literal>private</literal>,
+                        as is its destructor.  Thus, this
+                        is the only way to obtain a <classname>CPipelineManager</classname>
+                        instance.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>registerEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>name</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CEventProcessor*</type><parameter>pProcessor</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Makes an event processor instance available to the
+                        pipeline manager. <parameter>name</parameter> is the
+                        name that will be associated with the event processor.
+                        <parameter>pProcessor</parameter> points to the instance
+                        of the processor.  The event processor  lifetime must
+                        be the lifetime of SpecTcl's run.
+                    </para>
+                    <para>
+                        <parameter>name</parameter> must be unique amongst all
+                        event processors registered with the pipeline manager.
+                        If an event processor with the same <parameter>name</parameter>
+                        has alread been registered,
+                        this method will throw a <classname>std::logic_error</classname>
+                        exception.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>createPipeline</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> std::string&amp; </type><parameter>name</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a new event processing pipeline.  The pipeline
+                        is created without any event processors
+                        (see however <methodname>clonePipeline</methodname> below).
+                        <parameter>name</parameter> is the name that will be used
+                        to identify the pipeline and must be unique among
+                        all event processing pipelines managed by the pipeline
+                        manager.  If a processing pipeline with the same
+                        <parameter>name</parameter> already exists,
+                        a <classname>std::logic_error</classname>
+                        exception is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void</type>
+                        <methodname>appendEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> std::string&amp; </type><parameter>pipeName </parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const</modifier>
+                            <type> std::string&amp; </type><parameter>evpName</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Appends an event processor to the set of event processors
+                        in an event processing pipeline.
+                        <parameter>pipeName</parameter> is the name of an
+                        event processing pipeline that must already have been
+                        made (note that when the pipeline manager is created,
+                        it defines a pipeline named <literal>default</literal>).
+                        <parameter>evpName</parameter> is the name of an event
+                        processor that was registered with the pipeline manager.
+                    </para>
+                    <para>
+                        If <parameter>pipeName</parameter> is not the name
+                        of a pipeline or <parameter>evpName</parameter> is
+                        not the name of an event processor, a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>insertEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>pipename</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>evpname</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CTclAnalyzer::EventProcessorIterator </type>
+                            <parameter>where</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Inserts an event processor in an arbitrary position
+                        in an event processing pipeline.  This is deliberately
+                        difficult.  <parameter>pipename</parameter>
+                        is the name of an event processing pipeline that
+                        already exists.  If it does not exist
+                        a <classname>std::logic_error</classname> exception
+                        is thrown.
+                    </para>
+                    <para>
+                        <parameter>evpname</parameter> is the name of the
+                        event processor to insert.  This event processor
+                        instance must already have been registered or
+                        a <classname>std::logic_error</classname> exception
+                        is thrown.
+                    </para>
+                    <para>
+                        <parameter>where</parameter> is an iterator into the
+                        event processsing pipeline that specifies where the
+                        where the processor while be inserted.  The processor
+                        will be inserted after the <parameter>where</parameter>
+                        iterator, unless it's an end iterator in which case
+                        behavior is identical to <methodname>appendEventProcessor</methodname>
+                    </para>
+                    <para>
+                        This method is discouraged and intentioally difficult to use.
+                        To use it you'd need to obtain a pointer to an event processing
+                        pipeline (either by getting the current one if that's what
+                        you want to operate on or by iterating over the set of
+                        pipelines).  Next you'd have to iterate over the pipeline
+                        to obtain the insertion iterator.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>pipename</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier> const </modifier>
+                            <type>std::string&amp; </type><parameter>evpname</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the event processor named <parameter>evpname</parameter>
+                        from the event processing pipeline named
+                        <parameter>pipename</parameter>.  This is the preferred
+                        way to remove an event processor from an processing
+                        pipeline.
+                    </para>
+                    <para>
+                        If <parameter>pipename</parameter> is not the  name
+                        of an event proessing pipeline a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.  If <parameter>evpname</parameter> is not
+                        the name of an event processor that's in
+                        <parameter>pipename</parameter>, a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>removeEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>pipename</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>CTclAnalyzer::EventProcessorIterator </type><parameter>here</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Removes the event processor "pointed to" by the
+                        iterator <parameter>here</parameter> from the
+                        event processing pipeline named <parameter>pipename</parameter>.
+                    </para>
+                    <para>
+                        If <parameter>pipename</parameter> is not the name of an
+                        event processing pipeline, a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.  Note that <parameter>here</parameter> must
+                        be an iterator into the pipeline named by
+                        <parameter>here</parameter> or else the results are
+                        not defined.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>void </type>
+                        <methodname>setCurrentPipeline</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>pipename</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Makes the pipeline named <parameter>pipename</parameter>
+                        the current analysis pipeline. Beginning with the
+                        next event, the analyzer will use this pipeline
+                        to turn events into parameters.
+                    </para>
+                    <para>
+                        If <parameter>pipename</parameter> is not an
+                        analysis pipeline, a
+                        <classname>std::logic_error</classname> exception is
+                        thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type> void </type>
+                        <methodname>clonePipeline</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>from</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>to</parameter>
+                        </methodparam>
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Creates a clone of the processing pipeline named
+                        <parameter>from</parameter> named <parameter>to</parameter>.
+                        The <parameter>to</parameter> pipeline will have all of
+                        the event processors <parameter>from</parameter> has
+                        (in the same order) and starts life off identical
+                        to <parameter>from</parameter> in every way.
+                    </para>
+                    <para>
+                        If <parameter>from</parameter> is not the name of
+                        an event processing pipeline, a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.  If <parameter>to</parameter> is already
+                        the name of an event processing pipeline, a
+                        <classname>std::logic_error</classname> exception
+                        is thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>CTclAnalyzer::EventProcessingPipeline* </type>
+                        <methodname>getCurrentPipeline</methodname>
+                        <void />
+                        <modifier></modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a pointer to the current event processing
+                        pipeline.  
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string</type>
+                        <methodname>getCurrentPipelineName</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the name of the current event processing pipeline.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;std::string&gt; </type>
+                        <methodname>getPipelineNames</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector containing the names of the
+                        event processing pipelines that have been defined.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;std::string&gt;</type>
+                        <methodname>getEventProcessorNames</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the names of all of the event processors that
+                        have been registered.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::vector&lt;std::string&gt;</type>
+                        <methodname>getEventProcessorsInPipeline</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>std::string&amp; </type><parameter>pipename</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns a vector containing the names of event processors
+                        in the pipeline named <parameter>pipename</parameter>.
+                        The elements of the vector are the same as the
+                        order of the corresponding event processors in the
+                        pipeline.  If <parameter>pipename</parameter> is not
+                        an event processing pipeline, a
+                        <classname>std::logic_error</classname> exception
+                        will be thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>std::string </type>
+                        <methodname> lookupEventProcessor</methodname>
+                        <methodparam>
+                            <modifier>const </modifier>
+                            <type>CEventProcessor*</type><parameter> p</parameter>
+                        </methodparam>
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Given a pointer to an event processor that is registered
+                        with the pipeline manager, returns the name under which
+                        the processor was registered.  If there is no corresponding
+                        event processor, a
+                        <classname>std::logic_error</classname> exception is
+                        thrown.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>size_t </type>
+                        <methodname>pipelineCount</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of event processing pipelines that
+                        are defined.  Note that the
+                        <literal>default</literal> pipeline always exists so
+                        this is going to be no less than 1.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>size_t </type>
+                        <methodname>eventProcessorCount</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Returns the number of event processors that have been
+                        registered with the pipeline manager.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>MapEventProcessingPipeline::const_iterator</type>
+                        <methodname> pipelineBegin</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>MapEventProcessingPipeline::const_iterator </type>
+                        <methodname>pipelineEnd</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Support iteration through the collection that contains
+                        the event processing pipelines. See
+                        <literal>DATA TYPES</literal> for a description of the
+                        <type>MapEventProcessingPipeline</type> data type.
+                        <type>const_iterator</type> implies the creation of a
+                        pointer like object whose target is read-only.
+                    </para>
+                    <para>
+                        <methodname>pipelineBegin</methodname> produces a
+                        pointer-like object to the first element of the
+                        collection.  <methodname>pipelineEnd</methodname>
+                        produces a pointer like object just off the end
+                        of the collection.  If an iterator is incremented and the
+                        result is the return value from <methodname>pipelineEnd</methodname>,
+                        iteration must be terminated.   Note that any additions to the
+                        pipeline colletion invalidate any and all iterators into it.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+                    <methodsynopsis>
+                        <modifier></modifier>
+                        <type>MapEventProcessors::const_iterator </type>
+                        <methodname>processorsBegin() </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <term>
+                  <methodsynopsis>
+                    <modifier></modifier>
+                        <type>MapEventProcessors::const_iterator </type>
+                        <methodname>processorsEnd() </methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Supports iteration through the collection that
+                        contains registered event processors.
+                        <methodname>processorsBegin</methodname> returns a
+                        pointer-like object to the beginning of the collection
+                        and <methodname>processorsEnd</methodname> 'points'
+                        just past the end of the collection.
+                    </para>
+                    <para>
+                        See <literal>DATA TYPES</literal> below for more
+                        information on what these iterators point at.
+                    </para>
+                </listitem>
+            </varlistentry>
+            
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>DATA TYPES</title>
+        <para>
+            The <classname>CPipelneManager</classname> singleton exports
+            data types for the containers that hold pipelines and event processors.
+            The containser themselves are only accessible via constant
+            iterators, however you need to know what those iterators 'point' to
+            in order to use them.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>CPipelineManager::MapEventProcessingPipeline</type></term>
+                <listitem>
+                    <para>
+                        This is an <classname>std::map</classname> whose
+                        contents are pointers to event processing pipelines
+                        and whose keys are the names of those pipelines.
+                        An iterator into this container will therefore look
+                        like a pointer to
+                        <classname>std::pair&lt;std::string, CTclAnalyzer::EventProcessingPipeline*&gt;</classname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>CPipelineManager::MapEventProcessors</type></term>
+                <listitem>
+                    <para>
+                        This container is a map whose contents are pointers to
+                        event processor instances and whose keys are the names under which
+                        those instances were registered.  An iterator into this
+                        container will threrefore look like a pointer to
+                        <classname>std::pair&lt;std::string, CEventProcessor*&gt;</classname>.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
     </part>
 </book>
