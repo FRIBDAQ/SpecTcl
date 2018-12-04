@@ -206,6 +206,33 @@ CEventBuilderEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
     return kfTRUE;
 }
 /**
+ * OnDetach
+ *   Processes detachment from the analyzer (e.g. pipeline switch).
+ *
+ * @param rAnalyzer -the analyzer.
+ * @return Bool_t - success flag.
+ */
+Bool_t
+CEventBuilderEventProcessor::OnDetach(CAnalyzer& rAnalyzer)
+{
+    try {
+        std::for_each(
+            m_sourceHandlers.begin(), m_sourceHandlers.end(),
+            [&rAnalyzer](std::pair<const unsigned, SourceData>& item) {
+                if (item.second.s_processor)  {
+                    Bool_t result = item.second.s_processor->OnDetach(rAnalyzer);
+                    if (!result) throw result;
+                }
+            }
+        );
+    }
+    catch (Bool_t ok) {
+        return ok;
+    }
+    return kfTRUE;
+}    
+
+/**
  * OnBegin
  *    Called when a run begins.  We initialze the event number to zero
  *    and call the OnBegin methods of all registered event processors.
