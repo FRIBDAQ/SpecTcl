@@ -110,6 +110,7 @@ public:
 
 public:    
     void addEventProcessor(unsigned sourceId, CEventProcessor& processor);
+    bool haveEventProcessor(unsigned sourceId);
     
     // Utilities:
     

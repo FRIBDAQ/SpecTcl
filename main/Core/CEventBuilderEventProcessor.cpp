@@ -485,6 +485,18 @@ CEventBuilderEventProcessor::addEventProcessor(
     addEventSourceParameters(sourceId);        // Make matrix parameters.
  
 }
+/**
+ * haveEventProcessor
+ *    Returns true if there's already a handler for the specified
+ *    source id.
+ * @param sid - source id.
+ * @return bool
+ */
+bool
+CEventBuilderEventProcessor::haveEventProcessor(unsigned sid)
+{
+    return m_sourceHandlers.count(sid) > 0;
+}
 /*------------------------------------------------------------------------------
  *  Private methods (utilities).
  */
