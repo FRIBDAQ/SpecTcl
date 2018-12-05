@@ -21,33 +21,36 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
   bindAll(interp, objv);
 
   int nArgs = objv.size();
-  if (nArgs < 2)
-    showCommands(interp, objv);            
-  else {
-    std::string subcommand = objv[1];    
+  
+ 
     try{
-      if (subcommand == "mk"){                // tested
-        createPipeline(interp, objv);      
-      } else if (subcommand == "ls"){         // tested
-        listPipelines(interp, objv);      
-      } else if (subcommand == "current"){    // tested
-        listCurrentPipeline(interp, objv);
-      } else if (subcommand == "ls-all"){     // tested
-        listAll(interp, objv);
-      } else if (subcommand == "use"){        // tested
-        usePipeline(interp, objv);      	
-      } else if (subcommand == "add"){        // tested     
-        addProcessor(interp, objv);
-      } else if (subcommand == "rm"){         // tested
-        removeProcessor(interp, objv);
-      } else if (subcommand == "clear"){      // Tested
-        clearPipeline(interp, objv);            
-      } else if (subcommand == "clone"){      // Tested.
-        clonePipeline(interp, objv);
-      } else {
-        std::string msg = "Invalid subcommand: " ;
-        msg += subcommand;
-        throw std::string(msg);
+      if (nArgs < 2) {
+       showCommands(interp, objv);            
+      }  else {
+        std::string subcommand = objv[1];    
+        if (subcommand == "mk"){                // tested
+          createPipeline(interp, objv);      
+        } else if (subcommand == "ls"){         // tested
+          listPipelines(interp, objv);      
+        } else if (subcommand == "current"){    // tested
+          listCurrentPipeline(interp, objv);
+        } else if (subcommand == "ls-all"){     // tested
+          listAll(interp, objv);
+        } else if (subcommand == "use"){        // tested
+          usePipeline(interp, objv);      	
+        } else if (subcommand == "add"){        // tested     
+          addProcessor(interp, objv);
+        } else if (subcommand == "rm"){         // tested
+          removeProcessor(interp, objv);
+        } else if (subcommand == "clear"){      // Tested
+          clearPipeline(interp, objv);            
+        } else if (subcommand == "clone"){      // Tested.
+          clonePipeline(interp, objv);
+        } else {
+          std::string msg = "Invalid subcommand: " ;
+          msg += subcommand;
+          throw std::string(msg);
+        }
       }
     }
     catch (const std::string& msg) {
@@ -66,7 +69,6 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
       interp.setResult("pman - unanticipated exception type"); 
       return TCL_ERROR;
     }
-  }
   return TCL_OK;
 }
 
@@ -88,7 +90,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   sCmds << "                          named 'new'\n";
   
   
-  throw std::invalid_argument(sCmds.str());
+  throw sCmds.str();
 }
 /**
  * createPipeline
