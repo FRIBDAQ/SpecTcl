@@ -208,7 +208,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
 	 CPipelineManager.cpp FragmentIndex.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
-	CPipelineEventProcessorl.cpp
+	CPipelineEventProcessor.cpp
 
 # TapeCommand.h removed
 
@@ -377,7 +377,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
-					spectclCmdTests evbProcessorTests 
+					spectclCmdTests evbProcessorTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -466,7 +466,7 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
-	pipemgrtests.cpp pipecmdtests.cpp
+	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp
 
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \

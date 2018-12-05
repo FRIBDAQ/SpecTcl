@@ -72,6 +72,7 @@ CPipelineEventProcessor::operator()(
                 }
             }
             );
+    }
     catch (...) {
         return kfFALSE;
     }
@@ -98,7 +99,7 @@ CPipelineEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
             }
         );
     }
-    catch (...)) {
+    catch (...) {
         return kfFALSE;
     }
     return kfTRUE;
@@ -116,13 +117,13 @@ CPipelineEventProcessor::OnDetach(CAnalyzer& rAnalyzer)
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnDetach(rAalyzer)) {
+                if (!(ep.second)->OnDetach(rAnalyzer)) {
                     throw 1;
                 }
             }
         );
     }
-    catch (...)) {
+    catch (...) {
         return kfFALSE;
     }
     return kfTRUE;
@@ -143,7 +144,7 @@ CPipelineEventProcessor::OnBegin(
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer, &rDecoder](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnBegin(rAalyzer, rDecoder)) {
+                if (!(ep.second)->OnBegin(rAnalyzer, rDecoder)) {
                     throw 1;
                 }
             }
@@ -170,7 +171,7 @@ CPipelineEventProcessor::OnEnd(
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer, &rDecoder](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnEnd(rAalyzer, rDecoder)) {
+                if (!(ep.second)->OnEnd(rAnalyzer, rDecoder)) {
                     throw 1;
                 }
             }
@@ -197,7 +198,7 @@ CPipelineEventProcessor::OnPause(
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer, &rDecoder](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnPause(rAalyzer, rDecoder)) {
+                if (!(ep.second)->OnPause(rAnalyzer, rDecoder)) {
                     throw 1;
                 }
             }
@@ -224,7 +225,7 @@ CPipelineEventProcessor::OnResume(
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer, &rDecoder](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnResume(rAalyzer, rDecoder)) {
+                if (!(ep.second)->OnResume(rAnalyzer, rDecoder)) {
                     throw 1;
                 }
             }
@@ -253,7 +254,7 @@ CPipelineEventProcessor::OnOther(
     try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [nType, &rAnalyzer, &rDecoder](std::pair<std::string, CEventProcessor*> ep) {
-                if (!(ep.second)->OnOther(nType, rAalyzer, rDecoder)) {
+                if (!(ep.second)->OnOther(nType, rAnalyzer, rDecoder)) {
                     throw 1;
                 }
             }
@@ -281,7 +282,7 @@ CPipelineEventProcessor::OnEventSourceOpen(std::string name)
                     throw 1;
                 }
             }
-        )
+        );
     }
     catch (...) {
         return kfFALSE;
@@ -302,7 +303,7 @@ CPipelineEventProcessor::OnEventSourceEOF()
                     throw 1;
                 }
             }
-        )
+        );
     }
     catch (...) {
         return kfFALSE;
@@ -322,7 +323,7 @@ CPipelineEventProcessor::OnInitialize()
                     throw 1;
                 }
             }
-        )
+        );
     }
     catch (...) {
         return kfFALSE;
