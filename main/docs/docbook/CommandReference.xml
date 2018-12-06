@@ -6554,6 +6554,11 @@ pman ls-all ?pattern?
         </cmdsynopsis>
         <cmdsynopsis>
             <command>
+pman ls-evp ?pattern?
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
 pman use  <replaceable>pipeline-name</replaceable>     
             </command>
         </cmdsynopsis>
@@ -6697,6 +6702,23 @@ pman ls-all ?pattern?
             </varlistentry>
             <varlistentry>
                 <term>
+                    <cmdsynopsis>
+                        <command>
+pman ls-evp ?pattern?
+                        </command>
+                    </cmdsynopsis>
+                </term>
+                <listitem>
+                    <para>
+                        Lists the names of the registered event processors
+                        that match the optional glob <parameter>pattern</parameter>.
+                        If <parameter>pattern</parameter> is omitted, it defaults to
+                        <literal>*</literal> which matches all names.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
         <cmdsynopsis>
             <command>
 pman use  <replaceable>pipeline-name</replaceable>     
@@ -6808,6 +6830,155 @@ pman clone <replaceable>existing-pipe new-pipe</replaceable>
             </varlistentry>
             
         </variablelist>
+    </refsect1>
+
+</refentry>
+<refentry>
+    <refmeta>
+        <refentrytitle>evbunpack</refentrytitle>
+        <manvolnum>1SpecTcl</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>evbunpack</refname>
+        <refpurpose>Dynamically setup decoding of event built data.</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+            <command>
+evbunpack create evpname frequency diag-basename
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+evbunpack addprocessor evpname sid pipe-name
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+evbunpack list ?pattern?
+            </command>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <command>evbunpack</command> is a command ensemble that's intended
+            to work with <command>pman</command> to support dynamically
+            setting up analysis of data from event built data sources.
+        </para>
+        <para>
+            The concept is that you use <command>evbunpack</command> to create
+            a <classname>CEventBuilderEventProcessor</classname> at script level.
+            You can then tell that processor to use an event processing pipeline
+            to analyze data from each source id found in event builder fragments.
+            Naturally, this can be cascaded such that a pipeline might contain
+            another event builder event processor which allows SpecTcl
+            to process data from hierarchically built events.
+        </para>
+        <para>
+            Once you've created and stocked you event processor, you can
+            then use <command>pman</command>
+            to create a pipeline whose first element is that
+            event processor.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SUBCOMMANDS</title>
+        <para>
+            The <command>evbunpack</command> command is actually a command
+            ensemble.  The first command parameter is, therefore, a subcommand
+            that tells <command>evbunpack</command> what to actually do:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term>
+        <cmdsynopsis>
+            <command>
+evbunpack create evpname frequency diag-basename
+            </command>
+        </cmdsynopsis>
+                    
+                </term>
+                <listitem>
+                    <para>
+                        Creates a new event processor for unpacking
+                        event built data.  <parameter>evpname</parameter>
+                        give the processor a name that will be used to
+                        register it with the pipeline manager, thus making
+                        it available to the <command>pman</command> command.
+                    </para>
+                    <para>
+                        <parameter>frequency</parameter> is the frequency of
+                        the timestamping clock in MHz.  This is used to construct
+                        the elapsed run time parameter diagnostic parameter of
+                        the event processor.
+                    </para>
+                    <para>
+                        <parameter>diag-basename</parameter> is the base name of
+                        a set of tree parameters.  The event processor produces
+                        and maintains a set of diagnostic parameters that can
+                        be used to monitor the correctness of the event builder.
+                        See the programming reference manual's documentation
+                        of <classname>CEventBuilderEventProcessor</classname>
+                        for more informationa about the set of diagnostic parameters
+                        produced.
+                    </para>
+                    <para>
+                        Once created without error, the event processor is
+                        registered with the <command>pman</command> command
+                        allowing it to be placed into event processing pipelines.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+        <cmdsynopsis>
+            <command>
+evbunpack addprocessor evpname sid pipe-name
+            </command>
+        </cmdsynopsis>
+                    
+                </term>
+                <listitem>
+                    <para>
+                        Tells the event processor to use an existing event processing
+                        pipeline to analyze fragments from a specific data source.
+                        <parameter>evpname</parameter> is the name of an event
+                        processor created by <command>evbunpack create</command>.
+                        <parameter>sid</parameter> is the source id of the fragments
+                        <parameter>pipe-name</parameter> should handle.
+                    </para>
+                    <para>
+                        <parameter>pipe-name</parameter> is the name of a pipeline
+                        that <command>pman</command> knows about and can be
+                        arbitrarily complex.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>
+        <cmdsynopsis>
+            <command>
+evbunpack list ?pattern?
+            </command>
+        </cmdsynopsis>            
+                    
+                </term>
+                <listitem>
+                    <para>
+                        Returns a Tcl list of the event processors this command
+                        has created.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title>BUGS</title>
+        <para>
+            At present, there's no way to determine which pipelines are
+            analyzing which source ids for an event processor.
+        </para>
     </refsect1>
 
 </refentry>

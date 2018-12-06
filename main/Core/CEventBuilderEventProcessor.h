@@ -87,6 +87,7 @@ public:
   
     // Functions:
     virtual Bool_t OnAttach(CAnalyzer& rAnalyzer); // Called on registration.
+    virtual Bool_t OnDetach(CAnalyzer& rAnalyzer);
     virtual Bool_t OnBegin(CAnalyzer& rAnalyzer,
                            CBufferDecoder& rDecoder); // Begin Run.
     virtual Bool_t OnEnd(CAnalyzer& rAnalyzer,
@@ -109,6 +110,7 @@ public:
 
 public:    
     void addEventProcessor(unsigned sourceId, CEventProcessor& processor);
+    bool haveEventProcessor(unsigned sourceId);
     
     // Utilities:
     
