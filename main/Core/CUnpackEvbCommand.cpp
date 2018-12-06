@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <tcl.h>
+#include <TreeParameter.h>
 
 /**
  * Constructor
@@ -130,7 +131,7 @@ CUnpackEvbCommand::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
         CPipelineManager* pMgr = CPipelineManager::getInstance();
         pMgr->registerEventProcessor(name, pProcessor);  // throws on dup name.
         m_Processors[name] = pProcessor;
-        
+        CTreeParameter::BindParameters();
     }
     catch (...) {
         delete pProcessor;
@@ -206,6 +207,7 @@ CUnpackEvbCommand::addprocessor(
     
     CPipelineEventProcessor* pPipeProcessor = new CPipelineEventProcessor(pPipe);
     pProcObject->addEventProcessor(sid, *pPipeProcessor);
+    CTreeParameter::BindParameters();   // This made new parameters.
 }
 /**
  * list
