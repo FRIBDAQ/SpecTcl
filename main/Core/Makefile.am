@@ -207,7 +207,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
 	 CPipelineManager.cpp FragmentIndex.cpp \
-	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp
+	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
+	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp
 
 # TapeCommand.h removed
 
@@ -227,7 +228,8 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
 	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
-	CEventBuilderEventProcessor.h
+	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
+	CUnpackEvbCommand.h
 
 # TapeCommand.h removed
 
@@ -376,7 +378,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
-					spectclCmdTests evbProcessorTests 
+					spectclCmdTests evbProcessorTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -465,7 +467,7 @@ spectclCmdTests_SOURCES  = TestRunner.cpp \
 evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
-	pipemgrtests.cpp pipecmdtests.cpp
+	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
