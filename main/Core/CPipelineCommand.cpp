@@ -277,7 +277,9 @@ CPipelineCommand::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
     CPipelineManager::getInstance()->getEventProcessorNames();
   CTCLObject result; result.Bind(interp);
   for (int i = 0; i < processors.size(); i++) {
-    result += processors[i];
+    if (Tcl_StringMatch(processors[i].c_str(), pattern.c_str())) {
+      result += processors[i];
+    }
   }
   
   interp.setResult(result);
