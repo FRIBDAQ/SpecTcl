@@ -36,6 +36,8 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
           listCurrentPipeline(interp, objv);
         } else if (subcommand == "ls-all"){     // tested
           listAll(interp, objv);
+        } else if (subcommand == "ls-evp") {
+          listEvp(interp,objv);
         } else if (subcommand == "use"){        // tested
           usePipeline(interp, objv);      	
         } else if (subcommand == "add"){        // tested     
@@ -51,8 +53,7 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
           msg += subcommand;
           throw std::string(msg);
         }
-      }
-    }
+      }}
     catch (const std::string& msg) {
       interp.setResult(msg);
       return TCL_ERROR;
@@ -80,6 +81,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   sCmds << "pman ls ?pattern?       : Lists the pipeline names matching pattern (default is *)\n";
   sCmds << "pman current            : Lists name of and event processors in the current pipeline\n";
   sCmds << "pman ls-all ?pattern?   : List names and event processors in all pipeilnes\n";
+  sCmds << "pman ls-evp ?pattern?   : Lists the names of registered event processors\n";
   sCmds << "pman use name           : Use the pipeline 'name' as the current pipeline\n";
   sCmds << "pman add pipename epname : Add the event processor 'evpname' to the end of \n";
   sCmds << "                        :  Pipeline 'pipename' \n";
@@ -257,6 +259,29 @@ CPipelineCommand::clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>
   std::string newName = objv[3];
   
   SpecTcl::getInstance()->clonePipeline(oldName.c_str(), newName.c_str());
+}
+/**
+ * listEvp
+ *    Lists the available event processors.
+ */
+void
+CPipelineCommand::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+  std::string pattern="*";
+  requireAtMost(objv, 3, "Too many parameters for listEvp");
+  if (objv.size() ==3) {
+    pattern = std::string(objv[2]);
+  }
+  
+  std::vector<std::string> processors =
+    CPipelineManager::getInstance()->getEventProcessorNames();
+  CTCLObject result; result.Bind(interp);
+  for (int i = 0; i < processors.size(); i++) {
+    result += processors[i];
+  }
+  
+  interp.setResult(result);
+  
 }
 /*-------------------------------------------------------------------------------
  * Utility methods
