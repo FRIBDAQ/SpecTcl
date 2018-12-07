@@ -13,7 +13,8 @@
 #include <Asserts.h>
 #include <TCLInterpreter.h>
 #include <TCLException.h>
-
+#include <Histogrammer.h>
+#include <Globals.h>
 
 
 class evbunpackCmdTests : public CppUnit::TestFixture {
@@ -42,17 +43,23 @@ private:
   CPipelineManager*  m_pMgr;
   CTCLInterpreter*   m_pInterp;
   CUnpackEvbCommand* m_pCmd;
+  CHistogrammer*     m_pHistogrammer;
 public:
   void setUp() {
     m_pMgr = CPipelineManager::getInstance();
     m_pInterp = new CTCLInterpreter;
     m_pCmd    = new CUnpackEvbCommand(*m_pInterp);
+    m_pHistogrammer = new CHistogrammer;
+    gpEventSink     = m_pHistogrammer;
   }
   void tearDown() {
+
     delete CPipelineManager::m_pInstance;
     CPipelineManager::m_pInstance == 0;
     
     delete m_pCmd;
+    delete m_pHistogrammer;
+    gpEventSink = nullptr;
     delete m_pInterp;
     
   }
