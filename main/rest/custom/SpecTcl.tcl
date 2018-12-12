@@ -1,3 +1,6 @@
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 namespace eval SpecTcl {}
 
 proc SpecTcl::mainMenu {id} {

@@ -1,3 +1,7 @@
+
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 ##
 #  Application direct URL for SpecTcl Spectrum definitions.
 #

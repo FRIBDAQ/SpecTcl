@@ -14,6 +14,9 @@
 #	     East Lansing, MI 48824-1321
 #
 #
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 package require json::write
 
 # Provides the API components at /spectcl/shmem

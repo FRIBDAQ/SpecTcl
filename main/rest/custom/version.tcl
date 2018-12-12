@@ -25,6 +25,9 @@ exec tclsh "$0" ${1+"$@"}
 # @author Ron Fox <fox@nscl.msu.edu>
 #
 
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 package require json::write
 
 Direct_Url /spectcl/version SpecTcl_version

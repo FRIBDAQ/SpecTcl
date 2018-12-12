@@ -1,6 +1,10 @@
 ##
 ## Application direct URL for SpecTcl gate definitions
 #
+
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 package require json::write
 namespace eval ::SpecTcl {
     array set minGateXYPoints [list b 2 c 3 gb 2 gc 3];	# min X/Y points for each 2d gate type.

@@ -1,6 +1,9 @@
 ##
 #  Application direct URL for SpecTcl parameter handling
 #
+set here [file dirname [info script]]
+source [file join $here max.tcl];         # Make sure max is patched.
+
 package require json::write
 
 
