@@ -1199,6 +1199,10 @@ int main(int argc, char* argv[]) {
         cerr << "An unhandled char* exception was caught: " << msg << endl;
         return -1;
     }
+    catch (std::exception& e) {
+      cerr << "std::exception: " << e.what() << endl;
+      return -1;
+    }
     catch(...) {
         cerr << "Unhandled exception\n";
         return -1;

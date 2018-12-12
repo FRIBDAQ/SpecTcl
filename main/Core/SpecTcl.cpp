@@ -62,7 +62,7 @@
 #include <TCLAnalyzer.h>
 #include <DisplayInterface.h>
 #include <CPipelineManager.h>
-
+#include <sstream>
 
 #include <Globals.h>
 #include <stdexcept>
@@ -2041,6 +2041,15 @@ SpecTcl::getCurrentEventPipeline()
 void
 SpecTcl::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
 {
+  // If name_proc is null we need to allocate a new one:
+
+  static unsigned evp_nameSerial(0);
+  std::stringstream nameStream;
+  if(!name_proc) {
+    nameStream << "_anonymous_event_processor_" << evp_nameSerial++;
+    name_proc = nameStream.str().c_str();
+  }
+  
    CPipelineManager* pMgr = CPipelineManager::getInstance();
    try {
     pMgr->registerEventProcessor(name_proc, &eventProcessor);
