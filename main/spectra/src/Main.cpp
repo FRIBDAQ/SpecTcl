@@ -56,16 +56,10 @@ int Main::operator()(int argc, char* argv[])
 {
 
   m_opts.parse(argc, argv);
+  TQApplication qtEventLoop("app", &argc, argv);
+  TQRootApplication rootEventLoop(argc, argv, 0);
 
-   //  QApplication::setGraphicsSystem("native");
-
-    // Set some default values for ROOT
-  //   gEnv->SetValue("Unix.*.Root.UseTTFonts",true);
-  //  gStyle->SetOptStat(0); // this is not useful at the moment. I can do it better using Qt widgets
-
-    if (m_opts.disableTrueTypeFonts()) {
-      //       gEnv->SetValue("Unix.*.Root.UseTTFonts",false);
-    }
+  
 
     if (serverIsOnThisMachine(m_opts.getHost())) {
         std::cout << "Starting local session" << std::endl;
@@ -82,8 +76,7 @@ int Main::operator()(int argc, char* argv[])
 
     // start Qt AND ROOT event loops... yes we need both
 
-    TQApplication qtEventLoop("app", &argc, argv);
-    TQRootApplication rootEventLoop(argc, argv, 0);
+    // Event loop creation was here.
 
    
 
