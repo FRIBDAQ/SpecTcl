@@ -96,8 +96,10 @@ if test "$with_tcl" != "no"; then
           AC_MSG_CHECKING($libloc)
           if test -f $libloc/tclConfig.sh; then
              TclLibBase=$libloc
+	  elif test -f /usr/lib64/tclConfig.sh; then
+	     TclLibBase=/usr/lib64
           else 
-             AC_MSG_ERROR([Can't find tclConfig.sh you'll need to use --with-tclconfig to tell me where it is])
+             AC_MSG_ERROR([Can't find no tclConfig.sh you'll need to use --with-tclconfig to tell me where it is])
           fi
       fi
       AC_MSG_RESULT($TclLibBase)
@@ -191,7 +193,7 @@ version=`echo puts \\\$tcl_version | ${TCLSH}`
 
 if test -z ${TkLibBase}; then   
    AC_MSG_CHECKING([tkConfig.sh])
-   guesses="${TclLibBase}/../tk${version} ${TclLibBase}/../tk"
+   guesses="${TclLibBase}/../tk${version} ${TclLibBase}/../tk /usr/lib64"
    for guess  in $guesses; do
        if test -r ${guess}/tkConfig.sh; then
        	  TkLibBase=${guess}
