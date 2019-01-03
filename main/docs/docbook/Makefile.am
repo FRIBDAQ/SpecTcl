@@ -23,7 +23,7 @@ BUILT_SOURCES = @builddir@/docs_built
 
 @builddir@/docs_built: @srcdir@/analysis.xml @srcdir@/UserGuide.xml \
 	@srcdir@/CommandReference.xml @srcdir@/ProgrammingGuide.xml
-	@HTMLDOCBOOK@ @srcdir@/analysis.xml -o @builddir@
+	@HTMLDOCBOOK@ -s /usr/share/sgml  @srcdir@/analysis.xml -o @builddir@
 	@HTMLDOCBOOK@ @srcdir@/UserGuide.xml -o @builddir@/userguide
 	@HTMLDOCBOOK@ @srcdir@/CommandReference.xml -o @builddir@/cmdref
 	@HTMLDOCBOOK@ @srcdir@/ProgrammingGuide.xml -o @builddir@/pgmguide

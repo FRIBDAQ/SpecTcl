@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,5.1-000, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.2-000, scientificsoftware@nscl.msu.edu)
 
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
@@ -46,10 +46,27 @@ AM_PROG_CC_C_O
 
 # The following are for doctools things:
 
+
+
 AC_PATH_PROG(HCDOCBOOK,   docbook2dvi,  echo)
 AC_PATH_PROG(HTMLDOCBOOK, docbook2html, echo)
 AC_PATH_PROG(DVIPDF,      dvipdf,       echo)
 AC_PATH_PROG(MANDOCBOOK,  xmlto,        echo)
+
+#  We can enable/disable docbook generation as well:
+
+AC_ARG_ENABLE([docbook-docs], 
+   AS_HELP_STRING([--enable-docbook-docs],[Build the docbook documentation (keep disabled for CENTOS/RHEL e.g.)]))
+
+
+
+if [test x$enable_docbook_docs = "xyes"]
+then
+  AM_CONDITIONAL([DO_DOCBOOK], [true])
+else
+  AM_CONDITIONAL([DO_DOCBOOK], [false])
+fi
+
 
 #   Starting with SpecTcl 5.0 we have a new style startup.
 #   Let's let the compiler know so that people can
@@ -270,7 +287,7 @@ then
            libsysdir="/usr/lib/i386-linux-gnu"
            ;;
        x86_64)
-           libsysdir="/usr/lib/x86_64-linux-gnu"
+           libsysdir="/usr/lib/x86_64-linux-gnu /usr/lib64"
            ;;
        *)
 

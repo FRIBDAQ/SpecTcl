@@ -1,2 +1,7 @@
+if DO_DOCBOOK
+DOCBOOKDIR=docbook
+else
+DOCBOOKDIR=
+endif
 
-SUBDIRS = man docbook diagrams webpage
+SUBDIRS = man $(DOCBOOKDIR) diagrams webpage

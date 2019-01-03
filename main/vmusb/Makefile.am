@@ -83,9 +83,9 @@ install-exec-local:
 	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/vmusb
-	for f in @builddir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
-	for f in @builddir@/*.pdf ; do $(INSTALL_DATA)  $$f @prefix@/share/vmusb ; done
-	-for s in {1..8} ; do		\
+	- for f in @builddir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
+	- for f in @builddir@/*.pdf ; do $(INSTALL_DATA)  $$f @prefix@/share/vmusb ; done
+	- for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \
 			$(INSTALL_DATA) $$f @prefix@/share/man/man$$s; \
@@ -95,8 +95,11 @@ install-exec-local:
 
 EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml constants.tcl
 
+if DO_DOCBOOK
 BUILT_SOURCES = @builddir@/docs_built
-
+else
+BUILT_SOURCES=
+endif
 
 
 @builddir@/docs_built: @srcdir@/vmusb.xml
