@@ -44,7 +44,7 @@ Config https_host "";		# Not using https for now.
 Config https_port ""
 Config ipaddr ""
 Config https_ipaddr ""
-
+Config AuthDefaultFile ~/tclhttpd.default
 
 Config docRoot [file join $::SpecTcl::here  htdocs]
 Config library [file join $::SpecTcl::here  custom]; # Tcl files auto-sourced at httpd startup.
