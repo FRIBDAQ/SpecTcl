@@ -33,8 +33,13 @@
 
 class CRingFormatHelper11 : public CRingFormatHelper
 {
+    unsigned m_glomSourceId;
+    uint64_t m_nLastEventCount;
     // No data implies no need for canonicals.
 public:
+    CRingFormatHelper11() : m_glomSourceId(0), m_nLastEventCount(0)
+    {}
+    
     virtual bool hasBodyHeader(void* pItem) const;
     virtual void* getBodyPointer(void* pItem);
     virtual void* getBodyHeaderPointer(void* pItem);

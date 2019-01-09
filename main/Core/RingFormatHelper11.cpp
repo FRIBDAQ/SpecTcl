@@ -56,11 +56,18 @@
  CRingFormatHelper11::getBodyPointer(void* pItem)
  {
     pRingItem p = reinterpret_cast<pRingItem>(pItem);
-
     
     if (hasBodyHeader(pItem)) {
+        // If there's a body header, and this is a physics event item,
+        // save the source id so we know which sid to use for
+        // event counting.
+        
+        if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId =
+            p->s_body.u_hasBodyHeader.s_bodyHeader.s_sourceId;
+        
         return reinterpret_cast<void*>(p->s_body.u_hasBodyHeader.s_body);
     } else {
+        if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId = 0;  // don't know.
         return reinterpret_cast<void*>(p->s_body.u_noBodyHeader.s_body);
     }
  }
@@ -197,8 +204,23 @@ CRingFormatHelper11::getTriggerCount(void* pItem, BufferTranslator* pTranslator)
 {
     if (isTriggerCountItem(pItem)) {
         pPhysicsEventCountItemBody p =
-            reinterpret_cast<pPhysicsEventCountItemBody>(pItem);
-        return pTranslator->TranslateLong(p->s_eventCount);
+            reinterpret_cast<pPhysicsEventCountItemBody>(getBodyPointer(pItem));
+            
+        // If there's no body header, we just hand back the event count from the
+        // body. If there is a body header, we'll hand back the prior value. unless
+        // the source id matches m_glomSourceId .
+        
+        if (hasBodyHeader(pItem)) {
+            pBodyHeader phdr =
+                reinterpret_cast<pBodyHeader>(getBodyHeaderPointer(pItem));
+            if (phdr->s_sourceId == m_glomSourceId) {
+                m_nLastEventCount = pTranslator->TranslateLong(p->s_eventCount);
+                
+            }
+            return m_nLastEventCount;
+        } else {
+            return pTranslator->TranslateLong(p->s_eventCount);
+        }
     } else {
         throw std::string("CRingFormatHelper11::getTriggerCount - not trigger count item");
     }

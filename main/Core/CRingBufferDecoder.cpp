@@ -739,6 +739,7 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   m_nCurrentItemType     = mapType(type);
   switch (type) {
   case BEGIN_RUN:
+    m_nTriggerCount = 0;                  // No events yet.
   case END_RUN:
   case PAUSE_RUN:
   case RESUME_RUN:

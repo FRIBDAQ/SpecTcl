@@ -64,6 +64,7 @@ public:
     
     virtual uint64_t getTriggerCount(
         void* pItem, BufferTranslator* pTranslator);
+
 private:
      bool isStateTransition(void* pItem);
      bool isTextItem(void* pItem);
