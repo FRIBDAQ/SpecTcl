@@ -102,6 +102,7 @@ libSpectra_la_SOURCES = \
   SliceTableItem.cpp  \
   GateListItem.cpp \
   GSlice.cpp  \
+  Marker.cpp	\
   GGate.cpp \
   SpecTclInterface.cpp  \
   SpecTclRESTInterface.cpp  \

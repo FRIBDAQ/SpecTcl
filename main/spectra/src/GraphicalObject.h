@@ -23,6 +23,9 @@
 #define VIEWER_GRAPHICALOBJECT_H
 #include <QObject>
 #include <QString>
+#include <Rtypes.h>
+
+class TMarker;
 
 class QRootCanvas;
 
@@ -40,7 +43,8 @@ namespace Viewer {
         Q_OBJECT
         QString      m_name;                  // Grobs have names.
     public:
-        GraphicalObject(const QString& name);
+        GraphicalObject(const QString& name) :
+            m_name(name) {}
         virtual ~GraphicalObject() {}         // Support virtual destruction.
         
         QString getName() const {return m_name; }

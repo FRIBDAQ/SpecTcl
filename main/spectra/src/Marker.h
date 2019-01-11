@@ -23,7 +23,7 @@
 #define VIEWER_MARKER_H
 
 #include "GraphicalObject.h"
-#include <TMarker.h>
+
 
 namespace Viewer {
     /**
