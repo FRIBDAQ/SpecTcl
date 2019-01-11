@@ -26,6 +26,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   GSlice.h \
   GraphicalObject.h \
   Marker.h	   \
+  MarkerDialog.h   \
   GGate.h \
   SpecTclInterface.h  \
   SpecTclRESTInterface.h  \
@@ -103,6 +104,7 @@ libSpectra_la_SOURCES = \
   GateListItem.cpp \
   GSlice.cpp  \
   Marker.cpp	\
+  MarkerDialog.cpp \
   GGate.cpp \
   SpecTclInterface.cpp  \
   SpecTclRESTInterface.cpp  \
@@ -172,6 +174,7 @@ libSpectra_la_SOURCES = \
 	moc_TabbedMultiSpectrumView.cpp \
   moc_GSlice.cpp \
   moc_GraphicalObject.cpp \
+  moc_MarkerDialog.cpp   \
   moc_Marker.cpp	\
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
@@ -216,6 +219,7 @@ spectraFORMS =  MainWindow.ui  \
   GateBuilderDialog.ui  \
   GateBuilder1DDialog.ui \
   ControlPanel.ui \
+  MarkerDialog.ui \
   GeometrySelector.ui \
   TabbedMultiSpectrumView.ui \
   InformationPanel.ui \
@@ -242,6 +246,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                 ui_GateBuilderDialog.h \
 				ui_GateBuilder1DDialog.h \
 				ui_ControlPanel.h \
+				ui_MarkerDialog.h \
 				ui_GeometrySelector.h \
 				ui_TabbedMultiSpectrumView.h \
                                 ui_SpectrumDrawChooser.h \

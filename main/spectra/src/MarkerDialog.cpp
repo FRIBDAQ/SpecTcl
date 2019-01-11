@@ -1,0 +1,29 @@
+#include "MarkerDialog.h"
+#include "ui_MarkerDialog.h"
+
+MarkerDialog::MarkerDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::MarkerDialog)
+{
+    ui->setupUi(this);
+}
+
+MarkerDialog::~MarkerDialog()
+{
+    delete ui;
+}
+
+void MarkerDialog::on_pMarkerDialogButtonBox_accepted()
+{
+
+}
+
+void MarkerDialog::on_pMarkerDialogButtonBox_rejected()
+{
+
+}
+
+void MarkerDialog::on_pMarkerDialogButtonBox_destroyed()
+{
+
+}
