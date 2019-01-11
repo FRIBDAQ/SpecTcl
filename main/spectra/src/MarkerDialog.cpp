@@ -15,15 +15,17 @@ MarkerDialog::~MarkerDialog()
 
 void MarkerDialog::on_pMarkerDialogButtonBox_accepted()
 {
-
+    QString markerName = ui->lineEdit->text();
+    emit onAccepted(markerName, 0, 0);    // @todo get coordinates.
 }
 
 void MarkerDialog::on_pMarkerDialogButtonBox_rejected()
 {
-
+    
+    emit onRejected();
 }
 
 void MarkerDialog::on_pMarkerDialogButtonBox_destroyed()
 {
-
+    emit onDeleted();
 }

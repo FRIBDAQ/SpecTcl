@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -51,12 +51,12 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
      <y>10</y>
-     <width>280</width>
+     <width>351</width>
      <height>291</height>
     </rect>
    </property>
@@ -77,13 +77,6 @@
         </property>
         <column/>
         <column/>
-       </widget>
-      </item>
-      <item>
-       <widget class="QScrollBar" name="pMarkerVscroll">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
        </widget>
       </item>
      </layout>

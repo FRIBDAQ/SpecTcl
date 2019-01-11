@@ -84,7 +84,7 @@ int Main::operator()(int argc, char* argv[])
     	SIGNAL(lastWindowClosed()), &rootEventLoop, SLOT(quit())
      );
 
-    MainWindow w;
+    MainWindow& w(*MainWindow::getInstance());
     w.show();
 
     

@@ -53,17 +53,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    /*!
-     * \brief Constructor
-     *
-     * \param parent - the parent widget
-     */
-    explicit MainWindow(QWidget *parent = 0);
-
-    /*!
-     * \brief Destructor
-     */
-    ~MainWindow();
+    static MainWindow* getInstance() {
+      if (!m_pInstance) {
+	m_pInstance = new MainWindow;
+      }
+      return m_pInstance;
+    }
 
     /*!
      * \brief Constructs the dockable widgets
@@ -111,6 +106,18 @@ public slots:
 
 private:
     /*!
+     * \brief Constructor
+     *
+     * \param parent - the parent widget
+     */
+    explicit MainWindow(QWidget *parent = 0);
+
+    /*!
+     * \brief Destructor
+     */
+    ~MainWindow();
+    
+    /*!
      * \brief Build the main window into a megawidget
      */
     void assembleWidgets();
@@ -139,6 +146,7 @@ private:
 //    HistogramView                     *m_histView;      ///< dockable histogram widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
     QWidget*                          m_pMainWidget;
+    static MainWindow*                m_pInstance;
 };
 
 

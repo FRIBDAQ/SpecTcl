@@ -21,6 +21,10 @@ private slots:
     void on_pMarkerDialogButtonBox_rejected();
 
     void on_pMarkerDialogButtonBox_destroyed();
+signals:
+    void onAccepted(QString name, int x, int y);
+    void onRejected();
+    void onDeleted();
 
 private:
     Ui::MarkerDialog *ui;
