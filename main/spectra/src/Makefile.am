@@ -24,6 +24,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   SliceTableItem.h  \
   GateListItem.h \
   GSlice.h \
+  GraphicalObject.h \
   GGate.h \
   SpecTclInterface.h  \
   SpecTclRESTInterface.h  \
@@ -168,6 +169,7 @@ libSpectra_la_SOURCES = \
   moc_QRootDialog.cpp \
 	moc_TabbedMultiSpectrumView.cpp \
   moc_GSlice.cpp \
+  moc_GraphicalObject.cpp \
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
   moc_GateEditRequest.cpp \
@@ -230,73 +232,74 @@ spectraRESOURCES = resources.qrc
 
 BUILT_SOURCES = cmdline.h cmdline.c \
 				ui_MainWindow.h \
-								ui_ConnectServer.h \
-								ui_HistogramList.h \
-								ui_HistogramView.h \
-								ui_TGo4CreateNewHistogram.h \
-                                                                ui_GateBuilderDialog.h \
-								ui_GateBuilder1DDialog.h \
-								ui_ControlPanel.h \
-								ui_GeometrySelector.h \
-								ui_TabbedMultiSpectrumView.h \
-                                                                ui_SpectrumDrawChooser.h \
-                                                                ui_InformationPanel.h \
-                                                                ui_GateManager.h \
-                                                                ui_OneDimGateEdit.h \
-                                                                ui_MultiInfoPanel.h \
-                                                                ui_TwoDimGateEdit.h \
-                                                                ui_BulkDrawChooser.h \
-                                                                ui_TabLayoutDialog.h \
-                                                                ui_ViewDrawPanel.h \
-                                                                ui_StatusBar.h \
-                                                                ui_AutoUpdateDialog.h \
-                                                                ui_SaveToRootDialog.h \
-                                                                moc_ControlPanel.cpp \
-								moc_GeometrySelector.cpp \
-								moc_ListRequestHandler.cpp \
-								moc_GateEditComHandler.cpp \
-								moc_QRootCanvas.cpp \
-								moc_ContentRequestHandler.cpp \
-								moc_QRootApplication.cpp \
-								moc_HistogramView.cpp \
-								moc_MultiSpectrumView.cpp \
-								moc_GateBuilder1DDialog.cpp \
-								moc_ConnectServer.cpp \
-								moc_QRootWindow.cpp \
-								moc_MainWindow.cpp \
-								moc_TGo4CreateNewHistogram.cpp \
-								moc_SpecTclRESTInterface.cpp \
-								moc_GateBuilderDialog.cpp \
-								moc_QRootDialog.cpp \
-								moc_TabbedMultiSpectrumView.cpp \
-								moc_GSlice.cpp \
-								moc_GGate.cpp \
-								moc_SpecTclInterface.cpp  \
-								moc_CommonResponseHandler.cpp \
-								moc_GateListRequestHandler.cpp \
-								moc_QTLine.cpp \
-								moc_ConnectionTester.cpp \
-								moc_SpecTclShMemInterface.cpp \
-								moc_InformationPanel.cpp \
-								moc_SpectrumView.cpp \
-								moc_GateManager.cpp \
-								moc_OneDimGateEdit.cpp \
-								moc_GateManagerWidget.cpp \
-								moc_MultiInfoPanel.cpp \
-								moc_TwoDimGateEdit.cpp \
-								moc_SpectrumLayoutDialog.cpp \
-								moc_TabLayoutDialog.cpp \
-								moc_BulkDrawChooser.cpp \
-								moc_ViewDrawPanel.cpp \
-								moc_TabWorkspace.cpp \
-								moc_StatusBar.cpp \
-								moc_AutoUpdater.cpp \
-								moc_AutoUpdateDialog.cpp \
-								moc_SaveToRootDialog.cpp \
-								moc_ConfigCopySelector.cpp \
-								moc_PrintDialog.cpp \
-								moc_Logo.cpp \
-								qrc_resources.cpp
+				ui_ConnectServer.h \
+				ui_HistogramList.h \
+				ui_HistogramView.h \
+				ui_TGo4CreateNewHistogram.h \
+                                ui_GateBuilderDialog.h \
+				ui_GateBuilder1DDialog.h \
+				ui_ControlPanel.h \
+				ui_GeometrySelector.h \
+				ui_TabbedMultiSpectrumView.h \
+                                ui_SpectrumDrawChooser.h \
+                                ui_InformationPanel.h \
+                                ui_GateManager.h \
+                                ui_OneDimGateEdit.h \
+                                ui_MultiInfoPanel.h \
+                                ui_TwoDimGateEdit.h \
+                                ui_BulkDrawChooser.h \
+                                ui_TabLayoutDialog.h \
+                                ui_ViewDrawPanel.h \
+                                ui_StatusBar.h \
+                                ui_AutoUpdateDialog.h \
+                                ui_SaveToRootDialog.h \
+                                moc_ControlPanel.cpp \
+				moc_GeometrySelector.cpp \
+				moc_ListRequestHandler.cpp \
+				moc_GateEditComHandler.cpp \
+				moc_QRootCanvas.cpp \
+				moc_ContentRequestHandler.cpp \
+				moc_QRootApplication.cpp \
+				moc_HistogramView.cpp \
+				moc_MultiSpectrumView.cpp \
+				moc_GateBuilder1DDialog.cpp \
+				moc_ConnectServer.cpp \
+				moc_QRootWindow.cpp \
+				moc_MainWindow.cpp \
+				moc_TGo4CreateNewHistogram.cpp \
+				moc_SpecTclRESTInterface.cpp \
+				moc_GateBuilderDialog.cpp \
+				moc_QRootDialog.cpp \
+				moc_TabbedMultiSpectrumView.cpp \
+				moc_GSlice.cpp \
+				moc_GraphicalObject.cpp \
+				moc_GGate.cpp \
+				moc_SpecTclInterface.cpp  \
+				moc_CommonResponseHandler.cpp \
+				moc_GateListRequestHandler.cpp \
+				moc_QTLine.cpp \
+				moc_ConnectionTester.cpp \
+				moc_SpecTclShMemInterface.cpp \
+				moc_InformationPanel.cpp \
+				moc_SpectrumView.cpp \
+				moc_GateManager.cpp \
+				moc_OneDimGateEdit.cpp \
+				moc_GateManagerWidget.cpp \
+				moc_MultiInfoPanel.cpp \
+				moc_TwoDimGateEdit.cpp \
+				moc_SpectrumLayoutDialog.cpp \
+				moc_TabLayoutDialog.cpp \
+				moc_BulkDrawChooser.cpp \
+				moc_ViewDrawPanel.cpp \
+				moc_TabWorkspace.cpp \
+				moc_StatusBar.cpp \
+				moc_AutoUpdater.cpp \
+				moc_AutoUpdateDialog.cpp \
+				moc_SaveToRootDialog.cpp \
+				moc_ConfigCopySelector.cpp \
+				moc_PrintDialog.cpp \
+				moc_Logo.cpp \
+				qrc_resources.cpp
 
 libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
 									 -I@top_srcdir@/spectra/spectcljson \
