@@ -28,7 +28,7 @@ class QRootCanvas;
 
 namespace Viewer {
     /**
-     *  @class GraphicalObject
+     *  @class Viewer::GraphicalObject
      *      This is the base class for all graphical objects.
      *      A graphical object is a purely local displayable object.
      *      This is an exact analog (well duplication) of Xamine grahpical
