@@ -25,6 +25,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   GateListItem.h \
   GSlice.h \
   GraphicalObject.h \
+  Marker.h	   \
   GGate.h \
   SpecTclInterface.h  \
   SpecTclRESTInterface.h  \
@@ -170,6 +171,7 @@ libSpectra_la_SOURCES = \
 	moc_TabbedMultiSpectrumView.cpp \
   moc_GSlice.cpp \
   moc_GraphicalObject.cpp \
+  moc_Marker.cpp	\
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
   moc_GateEditRequest.cpp \
@@ -273,6 +275,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
 				moc_TabbedMultiSpectrumView.cpp \
 				moc_GSlice.cpp \
 				moc_GraphicalObject.cpp \
+				moc_Marker.cpp	\
 				moc_GGate.cpp \
 				moc_SpecTclInterface.cpp  \
 				moc_CommonResponseHandler.cpp \
