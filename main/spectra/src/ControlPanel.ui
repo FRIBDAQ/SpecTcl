@@ -53,11 +53,14 @@
     </spacer>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="QStackedWidget" name="pControls">
      <property name="currentIndex">
       <number>0</number>
      </property>
      <widget class="QWidget" name="page_3">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="pUpdateSelected">
@@ -86,6 +89,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="pGrobPage">
+         <property name="text">
+          <string>Graph Objs.</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_4">
@@ -101,6 +111,34 @@
         <widget class="QSpinBox" name="spinBox"/>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="page_5">
+      <widget class="QPushButton" name="pMarker">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>81</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Marker...</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pSpecPage">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>10</y>
+         <width>81</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Spec Ctl</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>
@@ -120,7 +158,7 @@
    <item>
     <widget class="QPushButton" name="pStatisticsButton">
      <property name="text">
-      <string>&amp;Canvas &lt;&lt;</string>
+      <string>Gates &lt;&lt;</string>
      </property>
     </widget>
    </item>

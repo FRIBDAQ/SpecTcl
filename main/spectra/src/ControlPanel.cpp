@@ -31,6 +31,8 @@
 #include "ui_ControlPanel.h"
 #include <set>
 
+#include <iostream>
+
 using namespace std;
 
 namespace Viewer
@@ -71,7 +73,13 @@ void ControlPanel::connectSignalsAndSlots()
 
     connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
     connect(ui->pDisplayButton, SIGNAL(clicked()), this, SLOT(onDisplayButtonClicked()));
-    }
+    
+    connect(ui->pGrobPage, SIGNAL(clicked()), this, SLOT(onGrobPageSelected()));
+    connect(ui->pSpecPage, SIGNAL(clicked()), this, SLOT(onSpecPageSelected()));
+    connect(ui->pMarker,   SIGNAL(clicked()), this, SLOT(onMarkerClicked()));
+    
+    
+}
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
@@ -134,10 +142,10 @@ void ControlPanel::onZoom() {
 
 void ControlPanel::onStatisticsButtonClicked()
 {
-    if (ui->pStatisticsButton->text() == "&Canvas >>") {
-        ui->pStatisticsButton->setText("&Canvas <<");
+    if (ui->pStatisticsButton->text() == "&Gates >>") {
+        ui->pStatisticsButton->setText("&Gates <<");
     } else {
-        ui->pStatisticsButton->setText("&Canvas >>");
+        ui->pStatisticsButton->setText("&Gates >>");
     }
     emit statisticsButtonClicked();
 }
@@ -153,6 +161,17 @@ void ControlPanel::onDisplayButtonClicked()
     emit displayButtonClicked();
 }
 
+void ControlPanel::onGrobPageSelected()
+{
+    ui->pControls->setCurrentIndex(2);
+}
 
-
+void ControlPanel::onSpecPageSelected()
+{
+    ui->pControls->setCurrentIndex(0);    
+}
+void ControlPanel::onMarkerClicked()
+{
+    std::cerr << "Would bring up marker dialog here.\n";
+}
 } // end of namespace

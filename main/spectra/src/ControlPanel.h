@@ -108,6 +108,12 @@ public slots:
     void onDisplayButtonClicked();
 
     void setZoomed(bool isZoomed);
+    
+    void onGrobPageSelected();
+    void onSpecPageSelected();
+    void onMarkerClicked();
+    
+    
 
     ///////////////////////////////////////////////////////////////////////////
 signals:
@@ -127,6 +133,8 @@ signals:
     void displayButtonClicked();
 
     void zoomButtonClicked();
+    
+    
 
     //////////////////////////////////////////////////////////////////////////
     // Helper methods
