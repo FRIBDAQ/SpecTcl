@@ -30,6 +30,7 @@
 #include "MainWindow.h"
 #include "ui_ControlPanel.h"
 #include <set>
+#include "MarkerDialog.h"
 
 #include <iostream>
 
@@ -173,5 +174,7 @@ void ControlPanel::onSpecPageSelected()
 void ControlPanel::onMarkerClicked()
 {
     std::cerr << "Would bring up marker dialog here.\n";
+    MarkerDialog* pDialog = new MarkerDialog;
+    pDialog->show();
 }
 } // end of namespace
