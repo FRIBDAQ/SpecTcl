@@ -44,6 +44,7 @@ namespace Viewer
 class GGate;
 class GSlice;
 class MasterGateList;
+class GraphicalObject;
 
 /*! \brief Collection of a histogram and its cuts
  *
@@ -67,6 +68,7 @@ private:
   std::unique_ptr<TH1>          m_pHist;
   std::map<QString, GSlice*>    m_cuts1d;
   std::map<QString, GGate*>     m_cuts2d;
+  std::map<QString, GraphicalObject*> m_grobs;
   SpJs::HistInfo                m_hInfo;
   QString						m_defaultDrawOption;
   std::map<TVirtualPad*,TH1*>       m_clones;
@@ -96,6 +98,12 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Add a new graphical object to the bundle.
+     *   @param obj - pointer to the object to add.
+     */
+    void addGrobj(GraphicalObject* obj);
+    
     /*!
      * \brief Add a 1D cut to the local gate list
      *
