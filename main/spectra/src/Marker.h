@@ -50,6 +50,10 @@ namespace Viewer {
         void setX(Double_t x);
         void setY(Double_t y);
         
+        Double_t getX() const;
+        Double_t getY() const;
+        
+        
         // Slots - these were virtual in the base class:
         
         virtual void draw();

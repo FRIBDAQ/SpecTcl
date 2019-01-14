@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow
 public:
     static MainWindow* getInstance() {
       if (!m_pInstance) {
-	m_pInstance = new MainWindow;
+        m_pInstance = new MainWindow;
       }
       return m_pInstance;
     }
@@ -77,6 +77,11 @@ public:
      */
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
+    /**
+     * getView
+     *   @return TabbedMultiSpectrumView - the view in the main window.
+     */
+    TabbedMultiSpectrumView* getView() { return m_pView; }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -138,11 +143,12 @@ private:
     void constructSpecTclInterface();
 
     void createShortcuts();
+    
 
     ///////////////////////////////////////////////////////////////////////////
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;
-    TabbedMultiSpectrumView                      *m_pView;         ///< viewer
+    TabbedMultiSpectrumView           *m_pView;         ///< viewer
 //    HistogramView                     *m_histView;      ///< dockable histogram widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
     QWidget*                          m_pMainWidget;

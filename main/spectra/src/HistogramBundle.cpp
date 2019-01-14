@@ -78,7 +78,37 @@ void HistogramBundle::addGrobj(GraphicalObject* obj)
 {
     m_grobs.insert({obj->getName(), obj});      // c++11 supports container inits.
 }
-
+/**
+ *  Get a copy of the graphical object vector:
+ *
+ * @return std::vector<const GraphicalObject*
+ */
+std::vector<const GraphicalObject*>
+HistogramBundle::getGrobjs() const
+{
+    std::vector<const GraphicalObject*>  result;
+    
+    for (auto p = m_grobs.begin(); p != m_grobs.end(); p++) {
+        result.push_back(p->second);
+    }
+    
+    return result;
+}
+/**
+ * removeGrob
+ *    Remove the specified graphical object.  It's a no-op to
+ *    remove one that does not exist.
+ *
+ * @param name - name of the object to remove.
+ */
+void
+HistogramBundle::removeGrob(QString name)
+{
+    if (m_grobs.count(name)) {
+        delete m_grobs[name];
+        m_grobs.erase(name);
+    }
+}
 //
 //
 void HistogramBundle::addCut1D(GSlice* pSlice) {

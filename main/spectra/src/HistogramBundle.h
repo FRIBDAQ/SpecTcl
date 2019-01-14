@@ -45,6 +45,7 @@ class GGate;
 class GSlice;
 class MasterGateList;
 class GraphicalObject;
+class Marker;
 
 /*! \brief Collection of a histogram and its cuts
  *
@@ -103,6 +104,8 @@ public:
      *   @param obj - pointer to the object to add.
      */
     void addGrobj(GraphicalObject* obj);
+    std::vector<const GraphicalObject*> getGrobjs() const;
+    void removeGrob(QString name);
     
     /*!
      * \brief Add a 1D cut to the local gate list

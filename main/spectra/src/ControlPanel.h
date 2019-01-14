@@ -26,6 +26,7 @@
 #include <QWidget>
 
 #include <memory>
+#include <Rtypes.h>
 
 namespace Ui {
 class ControlPanel;
@@ -37,6 +38,8 @@ namespace Viewer
   class SpecTclInterface;
   class SpectrumView;
   class MainWindow;
+  class MarkerDialog;
+  class HistogramBundle;
 
 
   /*!
@@ -113,6 +116,8 @@ public slots:
     void onSpecPageSelected();
     void onMarkerClicked();
     
+    void onMarker(QString name, HistogramBundle* pHis, Double_t x, Double_t y);
+    void onNoMarker();
     
 
     ///////////////////////////////////////////////////////////////////////////
@@ -147,6 +152,8 @@ private:
     GeometrySelector                    *m_pGeoSelector;
     std::shared_ptr<SpecTclInterface>   m_pSpecTcl;
     SpectrumView*                       m_pView;
+    
+    MarkerDialog*                       m_pMarkerDialog;
 };
 
 } // end of namespace
