@@ -38,6 +38,8 @@ MarkerDialog::MarkerDialog(QWidget *parent, SpecTclInterface* pSpecTcl) :
     TabbedMultiSpectrumView* pView      = pMain->getView();
     TabWorkspace&            pWorkspace(pView->getCurrentWorkspace());
     m_pCanvas  =  pWorkspace.getView().getCurrentCanvas();
+
+    connect(ui->pDelete, SIGNAL(clicked()), this, SLOT(onDeleteSelected()));
     
     connect(
         m_pCanvas, SIGNAL(mousePressed(QWidget*)),
@@ -225,6 +227,15 @@ MarkerDialog::loadMarkerList()
         }
     }
     ui->pMarkerTable->setSortingEnabled(true);
+}
+
+/**
+ * Delete the seleted marker
+ */
+void
+MarkerDialog::onDeleteSelected()
+{
+    std::cerr << "Delete clicked\n";
 }
 
 }

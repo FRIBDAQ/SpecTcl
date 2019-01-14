@@ -27,8 +27,8 @@ public:
 
 private slots:
     void on_pMarkerDialogButtonBox_accepted();
-
     void on_pMarkerDialogButtonBox_rejected();
+    void onDeleteSelected();
 
 
     void onMouseRelease(QWidget* pad);
