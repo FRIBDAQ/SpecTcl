@@ -105,6 +105,9 @@ public:
     virtual void requestHistContentUpdate(QRootCanvas* pCanvas) = 0;
     virtual void requestHistContentUpdate(TVirtualPad* pPad) = 0;
     virtual void requestHistContentUpdate(const QString& hName) = 0;
+    
+    virtual void clearSpectrum(QRootCanvas* pCanvas) = 0;
+    virtual void clearAllSpectra() = 0;
 
   signals:
     void gateListChanged();

@@ -204,6 +204,9 @@ public:
      * \param hName - name of histogram to update
      */
     void requestHistContentUpdate(const QString& hName);
+    
+    virtual void clearSpectrum(QRootCanvas* pCanvas) ;
+    virtual void clearAllSpectra() ;
 
 public slots:
     void listGates();

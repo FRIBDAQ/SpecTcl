@@ -127,6 +127,7 @@ void TabWorkspace::setUpUI()
     // one has to be so big to let the widget display.
     
     pVSplitter->setSizes({ 10, viewSize.height()*100, 300, 10});
+    
 
     pHSplitter->addWidget(m_pDrawPanel);
     pHSplitter->addWidget(pVSplitter);
