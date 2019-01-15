@@ -63,6 +63,8 @@ Win::SpectrumQueryInterface gSpectrumInterface;
 namespace Viewer
 {
 
+  MainWindow* MainWindow::m_pInstance(0);
+  
 
 //
 //

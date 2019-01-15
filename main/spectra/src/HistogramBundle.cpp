@@ -25,6 +25,7 @@
 #include "GGate.h"
 #include "MasterGateList.h"
 #include "CanvasOps.h"
+#include "GraphicalObject.h"
 
 #include <QMutex>
 #include <QMutexLocker>
@@ -53,6 +54,7 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
       m_pHist(std::move(pHist)),
       m_cuts1d(),
       m_cuts2d(),
+      m_grobs(),
       m_hInfo(info),
       m_defaultDrawOption(),
       m_subscriber(*this)
@@ -67,8 +69,46 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
 HistogramBundle::~HistogramBundle()
 {
     unsubscribeFromAllClones();
+    
+    // @todo Should get rid of all the objects when there are no remaining clones
+    // but that's also not done for cuts; so this is a memory leak IMHO
 }
 
+void HistogramBundle::addGrobj(GraphicalObject* obj)
+{
+    m_grobs.insert({obj->getName(), obj});      // c++11 supports container inits.
+}
+/**
+ *  Get a copy of the graphical object vector:
+ *
+ * @return std::vector<const GraphicalObject*
+ */
+std::vector<const GraphicalObject*>
+HistogramBundle::getGrobjs() const
+{
+    std::vector<const GraphicalObject*>  result;
+    
+    for (auto p = m_grobs.begin(); p != m_grobs.end(); p++) {
+        result.push_back(p->second);
+    }
+    
+    return result;
+}
+/**
+ * removeGrob
+ *    Remove the specified graphical object.  It's a no-op to
+ *    remove one that does not exist.
+ *
+ * @param name - name of the object to remove.
+ */
+void
+HistogramBundle::removeGrob(QString name)
+{
+    if (m_grobs.count(name)) {
+        delete m_grobs[name];
+        m_grobs.erase(name);
+    }
+}
 //
 //
 void HistogramBundle::addCut1D(GSlice* pSlice) {
@@ -151,6 +191,8 @@ void HistogramBundle::draw(const QString& opt) {
     for (auto cut : m_cuts1d) { cut.second->draw(); }
 
     for (auto cut : m_cuts2d) { cut.second->draw(); }
+    
+    for (auto o : m_grobs) { o.second->draw(); }
 }
 
 bool HistogramBundle::isVisible() const {

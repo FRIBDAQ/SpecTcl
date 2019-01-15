@@ -53,17 +53,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    /*!
-     * \brief Constructor
-     *
-     * \param parent - the parent widget
-     */
-    explicit MainWindow(QWidget *parent = 0);
-
-    /*!
-     * \brief Destructor
-     */
-    ~MainWindow();
+    static MainWindow* getInstance() {
+      if (!m_pInstance) {
+        m_pInstance = new MainWindow;
+      }
+      return m_pInstance;
+    }
 
     /*!
      * \brief Constructs the dockable widgets
@@ -82,6 +77,11 @@ public:
      */
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pInterface);
 
+    /**
+     * getView
+     *   @return TabbedMultiSpectrumView - the view in the main window.
+     */
+    TabbedMultiSpectrumView* getView() { return m_pView; }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -111,6 +111,18 @@ public slots:
 
 private:
     /*!
+     * \brief Constructor
+     *
+     * \param parent - the parent widget
+     */
+    explicit MainWindow(QWidget *parent = 0);
+
+    /*!
+     * \brief Destructor
+     */
+    ~MainWindow();
+    
+    /*!
      * \brief Build the main window into a megawidget
      */
     void assembleWidgets();
@@ -131,14 +143,16 @@ private:
     void constructSpecTclInterface();
 
     void createShortcuts();
+    
 
     ///////////////////////////////////////////////////////////////////////////
 private:
     std::unique_ptr<Ui::MainWindow>   pUI;
-    TabbedMultiSpectrumView                      *m_pView;         ///< viewer
+    TabbedMultiSpectrumView           *m_pView;         ///< viewer
 //    HistogramView                     *m_histView;      ///< dockable histogram widget
     SpecTclInterfaceControl           m_specTclControl; ///< owns unique SpecInterface
     QWidget*                          m_pMainWidget;
+    static MainWindow*                m_pInstance;
 };
 
 

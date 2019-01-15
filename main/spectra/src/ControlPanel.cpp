@@ -30,6 +30,11 @@
 #include "MainWindow.h"
 #include "ui_ControlPanel.h"
 #include <set>
+#include "MarkerDialog.h"
+#include "Marker.h"
+#include <QMessageBox>
+
+#include <iostream>
 
 using namespace std;
 
@@ -43,7 +48,8 @@ ControlPanel::ControlPanel(std::shared_ptr<SpecTclInterface> pSpecTcl,
     QWidget(parent),
     ui(new Ui::ControlPanel),
     m_pSpecTcl(pSpecTcl),
-    m_pView(pView)
+    m_pView(pView),
+    m_pMarkerDialog(nullptr)
 {
     assembleWidgets();
 
@@ -71,7 +77,13 @@ void ControlPanel::connectSignalsAndSlots()
 
     connect(ui->pStatisticsButton, SIGNAL(clicked()), this, SLOT(onStatisticsButtonClicked()));
     connect(ui->pDisplayButton, SIGNAL(clicked()), this, SLOT(onDisplayButtonClicked()));
-    }
+    
+    connect(ui->pGrobPage, SIGNAL(clicked()), this, SLOT(onGrobPageSelected()));
+    connect(ui->pSpecPage, SIGNAL(clicked()), this, SLOT(onSpecPageSelected()));
+    connect(ui->pMarker,   SIGNAL(clicked()), this, SLOT(onMarkerClicked()));
+    
+    
+}
 
 void ControlPanel::setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl)
 {
@@ -134,10 +146,10 @@ void ControlPanel::onZoom() {
 
 void ControlPanel::onStatisticsButtonClicked()
 {
-    if (ui->pStatisticsButton->text() == "&Canvas >>") {
-        ui->pStatisticsButton->setText("&Canvas <<");
+    if (ui->pStatisticsButton->text() == "&Gates >>") {
+        ui->pStatisticsButton->setText("&Gates <<");
     } else {
-        ui->pStatisticsButton->setText("&Canvas >>");
+        ui->pStatisticsButton->setText("&Gates >>");
     }
     emit statisticsButtonClicked();
 }
@@ -153,6 +165,56 @@ void ControlPanel::onDisplayButtonClicked()
     emit displayButtonClicked();
 }
 
+void ControlPanel::onGrobPageSelected()
+{
+    ui->pControls->setCurrentIndex(2);
+}
 
+void ControlPanel::onSpecPageSelected()
+{
+    ui->pControls->setCurrentIndex(0);    
+}
+void ControlPanel::onMarkerClicked()
+{
+    if (m_pMarkerDialog) {
+        QString dlgTitle = "duplicate dialog";
+        QString dlgMsg   = "There's already a marker dialog box open";
+        QMessageBox e(
+            QMessageBox::Warning, dlgTitle, dlgMsg, QMessageBox::Close,
+            m_pMarkerDialog
+        );
+        e.exec();
+    } else {
+        m_pMarkerDialog = new MarkerDialog(nullptr, m_pSpecTcl.get());
+        connect(
+            m_pMarkerDialog, SIGNAL(onAccepted(QString, HistogramBundle*, Double_t, Double_t)),
+            this, SLOT(onMarker(QString, HistogramBundle*, Double_t, Double_t))
+        );
+        connect(m_pMarkerDialog, SIGNAL(onRejected()), this, SLOT(onNoMarker()));
+        connect(m_pMarkerDialog, SIGNAL(onDeleted()), this, SLOT(onNoMarker()));
+        m_pMarkerDialog->show();
+    }
+}
+/**
+ * Marker handling slots:
+ */
 
+void
+ControlPanel::onMarker(QString name, HistogramBundle* pHis, Double_t x,Double_t y)
+{
+    delete m_pMarkerDialog;
+    m_pMarkerDialog = nullptr;
+        
+    // Create a new Marker object and add it to the histogram bundle.
+    
+    Marker* m = new Marker(x, y, name);
+    pHis->addGrobj(m);
+}
+void
+ControlPanel::onNoMarker()
+{
+    
+    delete m_pMarkerDialog;
+    m_pMarkerDialog = nullptr;    
+}
 } // end of namespace
