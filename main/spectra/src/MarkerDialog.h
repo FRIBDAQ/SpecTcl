@@ -41,7 +41,8 @@ private:
     HistogramBundle* getCurrentHistogram();
     void deleteTentativeMarker();
     void loadMarkerList();
-    
+    void deleteMarkerRange(int topRow, int bottomRow);
+    void clearMarkerList();
 private:
     Ui::MarkerDialog *ui;
     SpecTclInterface* m_pSpecTcl;

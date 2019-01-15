@@ -15,6 +15,7 @@
 #include <iostream>
 #include "Marker.h"
 #include <sstream>
+#include <QTableWidgetSelectionRange>
 
 static const int ROOT_TENTATIVE_MARKER = 4;   // Open circle rendition.
 
@@ -77,6 +78,7 @@ void MarkerDialog::on_pMarkerDialogButtonBox_accepted()
         msg.exec();
         
         deleteTentativeMarker();
+        emit onRejected();
         return;
     }
     // We have a hit.
@@ -205,7 +207,7 @@ MarkerDialog::loadMarkerList()
     std::vector<const GraphicalObject*> objects = b->getGrobjs();
     ui->pMarkerTable->setSortingEnabled(false);
     
-    int row = 1;                  // Headers are a row.
+    int row = 0;                  // Headers are a row.
     for (int i = 0; i < objects.size(); i++) {
         const Marker* pMarker = dynamic_cast<const Marker*>(objects[i]);
         if (pMarker) {
@@ -222,7 +224,7 @@ MarkerDialog::loadMarkerList()
             
             ui->pMarkerTable->setItem(row, 0, pName);
             ui->pMarkerTable->setItem(row, 1, pCoords);
-            
+            std::cerr << "Filled row " << row << std::endl;
             row++;
         }
     }
@@ -236,6 +238,44 @@ void
 MarkerDialog::onDeleteSelected()
 {
     std::cerr << "Delete clicked\n";
-}
+    QList<QTableWidgetSelectionRange> selection =
+        ui->pMarkerTable->selectedRanges();
 
+    for(int i =0; i < selection.length(); i++) {
+        const QTableWidgetSelectionRange& range(selection.at(i));
+        deleteMarkerRange(range.topRow(), range.bottomRow());
+    }
+    clearMarkerList();
+    loadMarkerList();
+    
+    m_pSpecTcl->requestHistContentUpdate(m_pCanvas);
+}
+/**
+ *  deleteMarkerRange
+ *     Destroy the set of markers on the current spectrum
+ *     that match the list of markers in the given selection range of the
+ *     marker table.  Note that the marker table is not modified by this action.
+ *
+ *  @param topRow - The top row of the selection.
+ *  @#param bottomRow - The  bottom row of the selection (inclusive).
+ */
+void
+MarkerDialog::deleteMarkerRange(int topRow, int bottomRow)
+{
+    HistogramBundle* pBundle = getCurrentHistogram();
+    for (int i = topRow; i <= bottomRow; i++) {
+        QTableWidgetItem* nameItem = ui->pMarkerTable->item(i, 0);
+        QString name = nameItem->text();
+        pBundle->removeGrob(name);
+    }
+}
+/**
+ * clearMarkerList
+ *    Clear the marker list table.
+ */
+void
+MarkerDialog::clearMarkerList()
+{
+    ui->pMarkerTable->setRowCount(0);    // This deletes the data too.
+}
 }
