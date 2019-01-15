@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CanvasControl</class>
- <widget class="QFrame" name="CanvasControl">
+ <class>canvascontrol</class>
+ <widget class="QWidget" name="canvascontrol">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
-    <height>50</height>
+    <width>830</width>
+    <height>42</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Frame</string>
-  </property>
-  <property name="frameShape">
-   <enum>QFrame::StyledPanel</enum>
-  </property>
-  <property name="frameShadow">
-   <enum>QFrame::Raised</enum>
+   <string>Form</string>
   </property>
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>751</width>
+     <width>530</width>
      <height>24</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QPushButton" name="pClearSelected">
+      <property name="toolTip">
+       <string>Clear Selected Spectrum</string>
+      </property>
       <property name="text">
        <string>Clear Selected</string>
       </property>
@@ -38,6 +35,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="pClearVisible">
+      <property name="toolTip">
+       <string>Clear Spectra in visible tab</string>
+      </property>
       <property name="text">
        <string>Clear Visible</string>
       </property>
@@ -45,6 +45,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="pClearAll">
+      <property name="toolTip">
+       <string>Clear all spectcra</string>
+      </property>
       <property name="text">
        <string>Clear All</string>
       </property>
@@ -57,7 +60,7 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>268</width>
+        <width>40</width>
         <height>20</height>
        </size>
       </property>
@@ -65,6 +68,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="pEmptySelected">
+      <property name="toolTip">
+       <string>Remove spectrum from selected pad</string>
+      </property>
       <property name="text">
        <string>Empty Selected</string>
       </property>
@@ -72,6 +78,9 @@
     </item>
     <item>
      <widget class="QPushButton" name="pEmptyVisible">
+      <property name="toolTip">
+       <string>Remove all spectra in from visible tab</string>
+      </property>
       <property name="text">
        <string>Empty Visible</string>
       </property>

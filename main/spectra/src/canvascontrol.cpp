@@ -1,10 +1,18 @@
 #include "canvascontrol.h"
 #include "ui_canvascontrol.h"
 #include <iostream>
+#include "SpectrumView.h"
+#include "SpecTclInterface.h"
 
-CanvasControl::CanvasControl(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::CanvasControl)
+
+namespace Viewer {
+    
+CanvasControl::CanvasControl(
+    SpectrumView* pView, SpecTclInterface* pInterface, QWidget *parent
+) :
+    QWidget(parent),
+    ui(new Ui::canvascontrol),
+    m_pView(pView), m_pSpecTcl(pInterface)
 {
     ui->setupUi(this);
 }
@@ -16,25 +24,26 @@ CanvasControl::~CanvasControl()
 
 void CanvasControl::on_pClearSelected_clicked()
 {
-  std::cerr << "Clearing selected spectrum\n";
-}
-
-void CanvasControl::on_pClearAll_clicked()
-{
-    std::cerr << "Clearing all spectra\n";
+    std::cerr << "Clear selected\n";
 }
 
 void CanvasControl::on_pClearVisible_clicked()
 {
-    std::cerr << "Clearing spectra in this layout\n";
+    std::cerr << "Clear spectra in visible canvases\n";
+}
+
+void CanvasControl::on_pClearAll_clicked()
+{
+    std::cerr << "Clear all spectra\n";
 }
 
 void CanvasControl::on_pEmptySelected_clicked()
 {
-    std::cerr << "Emptying the selected canvas\n";
+    std::cerr << "Empty selected slot\n";
 }
 
 void CanvasControl::on_pEmptyVisible_clicked()
 {
-    std::cerr << "Emptying the visible canvases\n";
+    std::cerr << "Empty slots in visible tab\n";
+}
 }
