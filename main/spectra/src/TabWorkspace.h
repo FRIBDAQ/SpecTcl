@@ -39,7 +39,7 @@ public:
     ControlPanel& getControlPanel();
 
     void setSpecTclInterface(std::shared_ptr<SpecTclInterface> pSpecTcl);
-
+    SpecTclInterface* getSpecTclInterface() {return m_pSpecTcl.get(); }
 signals:
     
 public slots:
