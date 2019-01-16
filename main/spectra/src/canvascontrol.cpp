@@ -65,10 +65,12 @@ void CanvasControl::on_pClearAll_clicked()
 void CanvasControl::on_pEmptySelected_clicked()
 {
     std::cerr << "Empty selected slot\n";
+    m_pView->emptyCurrentCanvas();
 }
 
 void CanvasControl::on_pEmptyVisible_clicked()
 {
     std::cerr << "Empty slots in visible tab\n";
+
 }
 }

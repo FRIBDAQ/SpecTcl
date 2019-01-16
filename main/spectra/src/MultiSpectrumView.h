@@ -97,7 +97,8 @@ public:
      * \return the canvas with focus
      */
     QRootCanvas* getCurrentCanvas();
-
+    virtual void emptyCurrentCanvas();
+    
     /*!
      * \brief Retrieve specific canvas
      * \param row   the row of the canvas

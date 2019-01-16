@@ -351,6 +351,10 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
     return m_pCurrentCanvas;
 }
 
+void MultiSpectrumView::emptyCurrentCanvas()
+{
+    m_pCurrentCanvas->getCanvas()->Clear();
+}
 
 QRootCanvas* MultiSpectrumView::getCanvas(int row, int col)
 {

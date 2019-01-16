@@ -87,6 +87,7 @@ public:
      * \return the canvas currently focused
      */
     virtual QRootCanvas* getCurrentCanvas() = 0;
+    virtual void         emptyCurrentCanvas() = 0;
 
     /*!
      * \brief Retrieve a specific canvas
@@ -174,6 +175,9 @@ public:
     virtual void clearLayout() = 0;
     virtual void layoutSpectra(QStringList spectrumList) = 0;
 
+    //virtual void clearCurrentCell() = 0;
+    //virtual void clearCell(int row, int column);
+    
     virtual void toggleZoom() = 0;
 
     virtual void ignoreUpdates(bool state) = 0;
