@@ -206,6 +206,11 @@ SpecTclShMemInterface::clearSpectrum(QRootCanvas* pCanvas)
 {
     m_pRESTInterface->clearSpectrum(pCanvas);
 }
+void
+SpecTclShMemInterface::clearSpectrum(QString* pName)
+{
+    m_pRESTInterface->clearSpectrum(pName);
+}
 /**
  * clearAllSpectra
  *    Clears all spectra in spectcl.

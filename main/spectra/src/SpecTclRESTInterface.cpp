@@ -311,11 +311,23 @@ void SpecTclRESTInterface::clearSpectrum(QRootCanvas* pCanvas)
     auto port = GlobalSettings::getServerPort();
     std::vector<QString> names = CanvasOps::extractAllHistNames(*pCanvas);
     for (auto& name : names) {
-        QString trimmedName = name.left(name.lastIndexOf(QRegExp("_copy$")));
-        QString reqUrl("http://%1:%2/spectcl/spectrum/zero?pattern=%3");
-        auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(trimmedName);
-        m_pHistContentCmd->get(QUrl(reqUrlTmp));
+        clearSpectrum(&name);
     }
+}
+/**
+ * clear spectrum by name
+ *
+ * @param pName - pointer to the spectrum name.
+ */
+void SpecTclRESTInterface::clearSpectrum(QString* pName)
+{
+    auto host = GlobalSettings::getServerHost();
+    auto port = GlobalSettings::getServerPort();
+    
+    QString trimmedName = pName->left(pName->lastIndexOf(QRegExp("_copy$")));
+    QString reqUrl("http://%1:%2/spectcl/spectrum/zero?pattern=%3");
+    auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(trimmedName);
+    m_pHistContentCmd->get(QUrl(reqUrlTmp));    
 }
 /**
  * clear all spectra

@@ -107,6 +107,7 @@ public:
     virtual void requestHistContentUpdate(const QString& hName) = 0;
     
     virtual void clearSpectrum(QRootCanvas* pCanvas) = 0;
+    virtual void clearSpectrum(QString* pName) = 0;
     virtual void clearAllSpectra() = 0;
 
   signals:

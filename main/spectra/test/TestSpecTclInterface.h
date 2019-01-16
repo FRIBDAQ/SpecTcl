@@ -63,6 +63,7 @@ public:
     virtual void requestHistContentUpdate(const QString& hName);
 
     virtual void clearSpectrum(QRootCanvas* pCanvas) {}
+    virtual void clearSpectrum(QString* pName) {}
     virtual void clearAllSpectra() {}
 // signals:
     void gateListChanged() {}

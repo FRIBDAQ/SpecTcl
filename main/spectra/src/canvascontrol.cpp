@@ -4,6 +4,9 @@
 #include "SpectrumView.h"
 #include "SpecTclInterface.h"
 #include "ControlPanel.h"
+#include "HistogramList.h"
+#include <QList>
+
 
 namespace Viewer {
     
@@ -50,7 +53,13 @@ void CanvasControl::on_pClearVisible_clicked()
 
 void CanvasControl::on_pClearAll_clicked()
 {
+    
     std::cerr << "Clear all spectra\n";
+    QList<QString> names = m_pSpecTcl->getHistogramList()->histNames();
+    for (auto p = names.begin(); p != names.end(); p++) {
+        QString name = *p;
+        m_pSpecTcl->clearSpectrum(&name);
+    }
 }
 
 void CanvasControl::on_pEmptySelected_clicked()
