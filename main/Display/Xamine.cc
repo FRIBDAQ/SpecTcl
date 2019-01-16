@@ -78,6 +78,7 @@ using namespace std;
 
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 
 /*
@@ -97,6 +98,43 @@ extern "C" {
   char *sbrk(int);
 }
 #endif
+
+/**
+ * If the file ~/.Xamine_SpectraDescribed
+ *   does not exist,
+ *   then we pop up a dialog that describes the spectra displayer
+ *   and how to do it...then create the file that stops us from doing that.
+ * @param parent - dialog's parent.
+ */
+static void
+desribeSpectraDisplayer(XMWidget& parent)
+{
+    bool showDialog = true;
+    const char* pHome = getenv("HOME");
+    std::string filename;
+    if (pHome) {
+        filename = pHome;
+        filename += "/";
+        filename += ".Xamine_SpectraDescribed";
+        if(access(filename.c_str(), R_OK) == 0) {
+            showDialog = false;
+        }
+        
+    }
+    if (showDialog) {
+        XMInformationDialog* info = new XMInformationDialog(
+            "Spectra Display info", parent,
+            "Note there's a new Root based displayer.  See $SpecTclHome/Porting.txt for more information"
+        );
+        info->SetModal(XmDIALOG_APPLICATION_MODAL);
+        if (pHome) {
+            int fd = creat(filename.c_str(), S_IRUSR | S_IWUSR );
+            close(fd);
+        }
+    }
+    
+    
+}
 
 /*
 ** Functional Description:
@@ -328,6 +366,7 @@ int main(int argc, char **argv)
     set_new_handler(MemGone);
 #endif
 
+    desribeSpectraDisplayer(main_win);
     top.Begin();			/* Start processing events */
   }
   catch(const char* msg) {		// Error message dialog and exit on accept.
@@ -342,5 +381,6 @@ int main(int argc, char **argv)
     top.Begin();		// Back into the event loop.
   }
 }
+
 
  
