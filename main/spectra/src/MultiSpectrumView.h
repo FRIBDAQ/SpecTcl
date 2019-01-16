@@ -98,6 +98,7 @@ public:
      */
     QRootCanvas* getCurrentCanvas();
     virtual void emptyCurrentCanvas();
+    virtual void emptyCanvas(int row, int col);
     
     /*!
      * \brief Retrieve specific canvas

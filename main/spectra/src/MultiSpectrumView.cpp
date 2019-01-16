@@ -354,7 +354,21 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
 void MultiSpectrumView::emptyCurrentCanvas()
 {
     m_pCurrentCanvas->getCanvas()->Clear();
+    toggleZoom();
+    toggleZoom();
+    
 }
+void MultiSpectrumView::emptyCanvas(int row, int col)
+{
+    QRootCanvas* pCanvas = getCanvas(row, col);
+    if (pCanvas) {
+        pCanvas->getCanvas()->Clear();
+    }
+    
+    toggleZoom();
+    toggleZoom();
+}
+
 
 QRootCanvas* MultiSpectrumView::getCanvas(int row, int col)
 {

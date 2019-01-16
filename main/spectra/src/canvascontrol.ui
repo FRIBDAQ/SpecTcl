@@ -82,7 +82,7 @@
        <string>Remove all spectra in from visible tab</string>
       </property>
       <property name="text">
-       <string>Empty Visible</string>
+       <string>Empty Tab</string>
       </property>
      </widget>
     </item>
