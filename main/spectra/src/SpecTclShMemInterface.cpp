@@ -196,6 +196,31 @@ void SpecTclShMemInterface::requestHistContentUpdate(const QString &hName)
     }
 }
 
+/**
+ * clearSpectrum
+ *    Clear specific spectrum (delegated to the rest interface):
+ * @param pCanvas - canvas displaying the spectrum.
+ */
+void
+SpecTclShMemInterface::clearSpectrum(QRootCanvas* pCanvas)
+{
+    m_pRESTInterface->clearSpectrum(pCanvas);
+}
+void
+SpecTclShMemInterface::clearSpectrum(QString* pName)
+{
+    m_pRESTInterface->clearSpectrum(pName);
+}
+/**
+ * clearAllSpectra
+ *    Clears all spectra in spectcl.
+ */
+void
+SpecTclShMemInterface::clearAllSpectra()
+{
+    m_pRESTInterface->clearAllSpectra();
+}
+
 void SpecTclShMemInterface::onHistogramContentUpdated(HistogramBundle *pBundle) {
     emit histogramContentUpdated(pBundle);
 }

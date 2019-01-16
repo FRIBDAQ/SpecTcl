@@ -168,8 +168,9 @@ std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkReques
       if (info.error() != QHostInfo::NoError) {
           qDebug() << "Lookup failed:" << info.errorString();
       } else {
-          for(auto& address : info.addresses())
-              std::cout << "Found address:" << address.toString().toStdString() << std::endl;
+          for(auto& address : info.addresses()) 
+           //   std::cout << "Found address:" << address.toString().toStdString() << std::endl;
+           ;
       }
 
       QString server("http://%1:%2/spectcl/spectrum/list");
@@ -245,25 +246,29 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 
     HistogramBundle* pHistBundle = nullptr;
     {
-      QMutexLocker listLock(m_pHistList->getMutex());
-      pHistBundle = m_pHistList->getHist(name);
+        QMutexLocker listLock(m_pHistList->getMutex());
+        pHistBundle = m_pHistList->getHist(name);
+        if (pHistBundle) {
 
-        std::lock_guard<HistogramBundle> lock(*pHistBundle);
-        SpJs::HistFiller setContent;
-        setContent(pHistBundle->getHist(), content.getValues());
-        std::map<TVirtualPad*, TH1*> clones = pHistBundle->getClones();
-        for (auto& cloneInfo : clones) {
-            std::cout << "Updating hist content on " << (void*)(cloneInfo.second) << std::endl;
-            setContent(*(cloneInfo.second), content.getValues());
+            std::lock_guard<HistogramBundle> lock(*pHistBundle);
+            SpJs::HistFiller setContent;
+            setContent(pHistBundle->getHist(), content.getValues());
+            std::map<TVirtualPad*, TH1*> clones = pHistBundle->getClones();
+            for (auto& cloneInfo : clones) {
+               // std::cout << "Updating hist content on " << (void*)(cloneInfo.second) << std::endl;
+                setContent(*(cloneInfo.second), content.getValues());
+            }
         }
 
     } // scoping to make sure that the list lock is released
       // b4 passing control to some unknown process.
 
-    std::cout << "done updating content" << std::endl;
+    //std::cout << "done updating content" << std::endl;
 
     // ALL DONE!
-    emit parsingComplete(pHistBundle);
+    if (pHistBundle) {
+        emit parsingComplete(pHistBundle);
+    }
 
   } catch (std::exception& exc) {
     QString msg("Failed to update histogram content because : %1");

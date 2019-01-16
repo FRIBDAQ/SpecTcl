@@ -299,7 +299,49 @@ void SpecTclRESTInterface::requestHistContentUpdate(const QString& name)
 
   m_pHistContentCmd->get(QUrl(reqUrlTmp));
 }
+/**
+ * Clear the spectrum that's in a specific canvas.
+ *
+ * @param pCanvas - pointer to the canvas.
+ */
+void SpecTclRESTInterface::clearSpectrum(QRootCanvas* pCanvas)
+{
 
+    auto host = GlobalSettings::getServerHost();
+    auto port = GlobalSettings::getServerPort();
+    std::vector<QString> names = CanvasOps::extractAllHistNames(*pCanvas);
+    for (auto& name : names) {
+        clearSpectrum(&name);
+    }
+}
+/**
+ * clear spectrum by name
+ *
+ * @param pName - pointer to the spectrum name.
+ */
+void SpecTclRESTInterface::clearSpectrum(QString* pName)
+{
+    auto host = GlobalSettings::getServerHost();
+    auto port = GlobalSettings::getServerPort();
+    
+    QString trimmedName = pName->left(pName->lastIndexOf(QRegExp("_copy$")));
+    QString reqUrl("http://%1:%2/spectcl/spectrum/zero?pattern=%3");
+    auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(trimmedName);
+    m_pHistContentCmd->get(QUrl(reqUrlTmp));    
+}
+/**
+ * clear all spectra
+ */
+void SpecTclRESTInterface::clearAllSpectra()
+{
+    auto host = GlobalSettings::getServerHost();
+    auto port = GlobalSettings::getServerPort();
+
+    QString reqUrl("http://%1:%2/spectcl/spectrum/zero");
+    auto reqUrlTmp = reqUrl.arg(host).arg(port);
+    m_pHistContentCmd->get(QUrl(reqUrlTmp));
+    
+}
 void
 SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 {

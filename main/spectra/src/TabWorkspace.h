@@ -21,6 +21,7 @@ class MultiInfoPanel;
 class AutoUpdater;
 class HistogramBundle;
 class QRootCanvas;
+class CanvasControl;
 
 class TabWorkspace : public QWidget
 {
@@ -58,6 +59,7 @@ private:
     SpectrumView*                       m_pView;
     ViewDrawPanel*                      m_pDrawPanel;
     ControlPanel*                       m_pControls;
+    CanvasControl*                      m_pCanvasControls;
     MultiInfoPanel*                     m_pInfoPanel;
 
     AutoUpdater*                        m_pAutoUpdater;

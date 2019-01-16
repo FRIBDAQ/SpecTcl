@@ -4,6 +4,7 @@
 #include "MultiSpectrumView.h"
 #include "ViewDrawPanel.h"
 #include "ControlPanel.h"
+#include "canvascontrol.h"
 #include "GeometrySelector.h"
 #include "MultiInfoPanel.h"
 #include "AutoUpdater.h"
@@ -23,6 +24,7 @@ TabWorkspace::TabWorkspace(std::shared_ptr<SpecTclInterface> pSpecTcl, QWidget *
     m_pView(nullptr),
     m_pDrawPanel(nullptr),
     m_pControls(nullptr),
+    m_pCanvasControls(nullptr),
     m_pInfoPanel(nullptr),
     m_pAutoUpdater(nullptr)
 
@@ -89,6 +91,9 @@ void TabWorkspace::setUpUI()
     m_pView      = new MultiSpectrumView(m_pSpecTcl, this);
     m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
+    m_pCanvasControls = new CanvasControl(
+        m_pView, m_pSpecTcl.get(), m_pControls, this
+    );
 
     m_pToolBar = new QToolBar(this);
     m_pLogxAction = m_pToolBar->addAction(QIcon(":/icons/logx-icon.png"),"toggle logx");
@@ -111,12 +116,20 @@ void TabWorkspace::setUpUI()
 
     pVSplitter->addWidget(m_pToolBar);
     pVSplitter->addWidget(m_pView);
+    pVSplitter->addWidget(m_pCanvasControls);
     pVSplitter->addWidget(m_pControls);
+    
 
     // adjust the sizes of the
+   
     QSize viewSize    = m_pView->sizeHint();
     QSize controlSize = m_pView->sizeHint();
-    pVSplitter->setSizes({ 10, viewSize.height()*100, 10 });
+    
+    // I really don't get these sizes... specifically why the next to last
+    // one has to be so big to let the widget display.
+    
+    pVSplitter->setSizes({ 10, viewSize.height()*100, 300, 10});
+    
 
     pHSplitter->addWidget(m_pDrawPanel);
     pHSplitter->addWidget(pVSplitter);

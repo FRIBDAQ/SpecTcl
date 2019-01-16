@@ -39,6 +39,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   QTLine.h \
   QHistInfo.h \
   ControlPanel.h \
+  canvascontrol.h \
   GeometrySelector.h \
   SpectrumView.h \
   MultiSpectrumView.h \
@@ -115,6 +116,7 @@ libSpectra_la_SOURCES = \
   GateListRequestHandler.cpp \
   QTLine.cpp \
   ControlPanel.cpp \
+  canvascontrol.cpp \
   GeometrySelector.cpp \
   SpectrumView.cpp \
   MultiSpectrumView.cpp \
@@ -155,6 +157,7 @@ libSpectra_la_SOURCES = \
 	Logo.cpp \
         Main.cpp \
 	moc_ControlPanel.cpp \
+        moc_canvascontrol.cpp \
 	moc_GeometrySelector.cpp \
 	moc_ListRequestHandler.cpp \
 	moc_GateEditComHandler.cpp \
@@ -233,7 +236,8 @@ spectraFORMS =  MainWindow.ui  \
     SpectrumDrawChooser.ui \
     StatusBar.ui \
     AutoUpdateDialog.ui \
-    SaveToRootDialog.ui
+    SaveToRootDialog.ui \
+	canvascontrol.ui
 
 spectraRESOURCES = resources.qrc
 
@@ -246,6 +250,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                 ui_GateBuilderDialog.h \
 				ui_GateBuilder1DDialog.h \
 				ui_ControlPanel.h \
+                         	ui_canvascontrol.h \
 				ui_MarkerDialog.h \
 				ui_GeometrySelector.h \
 				ui_TabbedMultiSpectrumView.h \
@@ -262,6 +267,7 @@ BUILT_SOURCES = cmdline.h cmdline.c \
                                 ui_AutoUpdateDialog.h \
                                 ui_SaveToRootDialog.h \
                                 moc_ControlPanel.cpp \
+				moc_canvascontrol.cpp \
 				moc_GeometrySelector.cpp \
 				moc_ListRequestHandler.cpp \
 				moc_GateEditComHandler.cpp \
