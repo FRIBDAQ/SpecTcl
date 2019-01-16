@@ -25,18 +25,27 @@ CanvasControl::~CanvasControl()
 {
     delete ui;
 }
-
+/**
+ *  Clear the contents in the currently selected spectrum
+ */
 void CanvasControl::on_pClearSelected_clicked()
 {
-    std::cerr << "Clear selected\n";
+    
     QRootCanvas* pCanvas = m_pView->getCurrentCanvas();
     m_pSpecTcl->clearSpectrum(pCanvas);
     
 }
-
+/**
+ *  Clear the ccontents of the spectra in the visible view.
+ */
 void CanvasControl::on_pClearVisible_clicked()
 {
+    
     std::cerr << "Clear spectra in visible canvases\n";
+    std::vector<QRootCanvas*> canvases = m_pView->getAllCanvases();
+    for (int i = 0; i < canvases.size(); i++) {
+        m_pSpecTcl->clearSpectrum(canvases[i]);
+    }
 }
 
 void CanvasControl::on_pClearAll_clicked()
