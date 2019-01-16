@@ -9,6 +9,7 @@ class canvascontrol;
 namespace Viewer {
 class SpectrumView;
 class SpecTclInterface;
+class ControlPanel;
 
 class CanvasControl : public QWidget
 {
@@ -16,7 +17,8 @@ class CanvasControl : public QWidget
 
 public:
     explicit CanvasControl(
-        SpectrumView* pView, SpecTclInterface* pInterface, QWidget *parent = 0
+        SpectrumView* pView, SpecTclInterface* pInterface, ControlPanel* pPanel,
+        QWidget *parent = 0
     );
     ~CanvasControl();
 
@@ -35,6 +37,7 @@ private:
     Ui::canvascontrol *ui;
     SpectrumView*      m_pView;
     SpecTclInterface*  m_pSpecTcl;
+    ControlPanel*      m_pControlPanel;
 };
 
 }

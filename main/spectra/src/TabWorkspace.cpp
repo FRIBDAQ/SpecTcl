@@ -91,7 +91,9 @@ void TabWorkspace::setUpUI()
     m_pView      = new MultiSpectrumView(m_pSpecTcl, this);
     m_pInfoPanel = new MultiInfoPanel(*this, m_pSpecTcl, this);
     m_pControls  = new ControlPanel(m_pSpecTcl, m_pView, this);
-    m_pCanvasControls = new CanvasControl(m_pView, m_pSpecTcl.get(), this);
+    m_pCanvasControls = new CanvasControl(
+        m_pView, m_pSpecTcl.get(), m_pControls, this
+    );
 
     m_pToolBar = new QToolBar(this);
     m_pLogxAction = m_pToolBar->addAction(QIcon(":/icons/logx-icon.png"),"toggle logx");
