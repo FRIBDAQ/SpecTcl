@@ -1,4 +1,4 @@
-dnl
+nl
 dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 dnl
 AC_DEFUN([AM_PATH_CPPUNIT],
@@ -14,6 +14,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
      if test x${CPPUNIT_CONFIG+set} != xset ; then
         CPPUNIT_CONFIG=$cppunit_config_exec_prefix/bin/cppunit-config
      fi
+     
   fi
   if test x$cppunit_config_prefix != x ; then
      cppunit_config_args="$cppunit_config_args --prefix=$cppunit_config_prefix"
@@ -24,7 +25,12 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
 
   AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
   cppunit_version_min=$1
-
+  if test "$CPPUNIT_CONFIG" = "no" ; then
+      AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+      if test "$PKG_CONFIG" != "no" ; then
+      	 CPPUNIT_CONFIG="$PKG_CONFIG cppunit"
+      fi
+  fi
   AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
   no_cppunit=""
   if test "$CPPUNIT_CONFIG" = "no" ; then
