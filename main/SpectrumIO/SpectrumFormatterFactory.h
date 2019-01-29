@@ -295,7 +295,8 @@ DAMAGES.
 // 
 // (c) Copyright NSCL 1999, All rights reserved SpectrumFormatterFactory.h
 //
-
+#include <Exception.h>
+  
 #ifndef __SPECTRUMFORMATTERFACTORY_H  //Required for current class
 #define __SPECTRUMFORMATTERFACTORY_H
 

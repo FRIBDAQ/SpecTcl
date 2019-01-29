@@ -31,10 +31,9 @@
 
 #ifndef __DICTIONARYEXCEPTION_H  //Required for current class
 #define __DICTIONARYEXCEPTION_H
-                               //Required for base classes
-#ifndef __EXCEPTION_H
-#include "Exception.h"
-#endif                               
+
+#include <Exception.h>
+
       
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>

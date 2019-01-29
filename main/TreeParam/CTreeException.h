@@ -32,9 +32,7 @@
 #define __CTREEEXCEPTION_H
 
 
-#ifndef __EXCEPTION_H
 #include <Exception.h>
-#endif
 
 #ifndef __STL_STRING
 #include <string>

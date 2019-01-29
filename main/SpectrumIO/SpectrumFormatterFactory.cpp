@@ -294,7 +294,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 #include <config.h>
+#include <Exception.h>
 #include "SpectrumFormatterFactory.h"    				
+
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

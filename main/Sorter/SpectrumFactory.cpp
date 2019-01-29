@@ -47,6 +47,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <config.h>
 #include "SpectrumFactory.h"
+#include <Exception.h>
+
 #include "SpectrumFactoryException.h"
 #include "DictionaryException.h"
 #include "Spectrum.h"
