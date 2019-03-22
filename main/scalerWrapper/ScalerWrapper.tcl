@@ -107,7 +107,6 @@ proc BeginRun {} {
         title      $::RunTitle                     \
     ]
     
-    puts $event
     handleData $event
 }
 
