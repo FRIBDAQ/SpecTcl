@@ -71,22 +71,31 @@ package require scalermain
 #   -  ScalerDeltaTime   - Number of seconds over which scalers have incremented.
 #
 proc Update {} {
-    set start [expr {$::ElapsedRunTime - $::ScalerDeltaTime}]
-    
-    # Construct the event... except for the scalers themselves:
-    
-    set event [dict create                                                      \
-        type Scaler start $start end $::ElapsedRunTime realtime [clock seconds] \
-        divisor 1 incremental 1 scalers [list]        
-    ]
-    #  Now the scaler increments.
-    
-    set nScalers [llength [array  names ::Scaler_Increments]]
-    for {set i 0} {$i < $nScalers} {incr i} {
-        dict lappend event scalers $::Scaler_Increments($i)
+
+    set f [open error.log a+]
+    set stat [catch {
+	set start [expr {$::ElapsedRunTime - $::ScalerDeltaTime}]
+	
+	# Construct the event... except for the scalers themselves:
+	
+	set event [dict create                                                      \
+		       type Scaler start $start end $::ElapsedRunTime realtime [clock seconds] \
+		       divisor 1 incremental 1 scalers [list]        
+		  ]
+	#  Now the scaler increments.
+	
+	set nScalers [llength [array  names ::Scaler_Increments]]
+	for {set i 0} {$i < $nScalers} {incr i} {
+	    dict lappend event scalers $::Scaler_Increments($i)
+	}
+	handleData $event
+    } msg ]
+    if {$stat} {
+	puts $f "Error in update: $msg"
+	puts $f $::errorInfo
     }
-    handleData $event
-    
+    close $f
+	
 }
 
 ##
@@ -98,16 +107,28 @@ proc Update {} {
 #   -   RunTitle      -  Must have the new run's title
 #
 proc BeginRun {} {
-    
-    set event  [dict create  \
-        type "Begin Run"                            \
-        run        $::RunNumber                     \
-        timeoffset $::ElapsedRunTime               \
-        realtime   $::StartTime                    \
-        title      $::RunTitle                     \
-    ]
-    
-    handleData $event
+    set f [open error.log a+ ]
+
+    set  stat [catch {
+	if {[info globals StartTime] eq ""} {
+	    set ::StartTime [clock seconds]
+	}
+	set event  [dict create  \
+			type "Begin Run"                            \
+			run        $::RunNumber                     \
+			timeoffset $::ElapsedRunTime               \
+			realtime   $::StartTime                    \
+			title      $::RunTitle                     \
+		       ]
+	
+	handleData $event
+    } msg] 
+    if {$stat} {
+	puts $f  "Errror in BeginRun: $msg"
+	puts $f  $::errorInfo
+    }
+    close $f
+
 }
 
 
@@ -117,17 +138,23 @@ proc BeginRun {} {
 #
 proc EndRun {} {
     #  Create the event:
-    
-    set event  [dict create  \
-        type "End Run"                            \
-        run        $::RunNumber                     \
-        timeoffset $::ElapsedRunTime               \
-        realtime   $::StartTime                    \
-        title      $::RunTitle                     \
-    ]
-    
-    puts $event
-    handleData $event    
+
+    set f [open error.log a+ ]
+    set stat   [catch {
+	set event  [dict create  \
+			type "End Run"                            \
+			run        $::RunNumber                     \
+			timeoffset $::ElapsedRunTime               \
+			realtime   $::StartTime                    \
+			title      $::RunTitle                     \
+		       ]
+	handleData $event
+    } msg ]
+    if {$stat} {
+	puts $f "Error in EndRun: $msg"
+	puts $f $::errorInfo
+    }
+    close $f
 }
 
 proc PauseRun {} {}
