@@ -23,7 +23,8 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					spectra 
+					spectra \
+					scalerWrapper
 
 
 ACLOCAL_AMFLAGS=-I m4

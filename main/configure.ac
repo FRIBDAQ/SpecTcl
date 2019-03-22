@@ -941,6 +941,7 @@ AC_OUTPUT(Makefile
           filtsplit/Makefile
           Gui/Makefile
           Replace/Makefile
+	  scalerWrapper/Makefile
           Scripts/Makefile 
           SpecTcl/Makefile
           splash/Makefile
