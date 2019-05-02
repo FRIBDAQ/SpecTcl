@@ -137,7 +137,7 @@ procede.cc colormgr.cc
 
 
 
-colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11  $(X11EXTRA_LDFLAGS)
 
 #Xaminetest_LDFLAGS = -L.
 
@@ -168,7 +168,8 @@ Xamine_DEPENDENCIES = menusetup.o exit.o helpmenu.o winiomenu.o \
 Xamine_LDFLAGS=  -g
 Xamine_LDADD=  @top_builddir@/XamineParsers/libXamineParsers.la @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
-			-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+			-lXm -lXt -lX11 -lm  $(X11EXTRA_LDFLAGS)
+#			-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 #Xaminetest_LDADD = $(Xamine_LDADD)
 
 
