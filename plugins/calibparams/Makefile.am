@@ -1,4 +1,4 @@
-initLDFLAGS=@TCL_LDFLAGS@
+initLDFLAGS=@TCL_LIBS@
 
 ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
@@ -12,7 +12,7 @@ libCalibrations_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @GSL_LDFLAGS@ \
 
 libCalibrations_la_CPPFLAGS  = -I.			\
 	@SPECTCLCCSW@					\
-	@TCLCCSW@ 					\
+	@TCL_CPPFLAGS@ 					\
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT      \
 	@GSL_CXXFLAGS@ $(ROOT_CFLAGS)
 
