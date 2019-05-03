@@ -17,10 +17,10 @@ noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
 
-AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
-				$(TCLCCSW)  $(ROOT_CFLAGS)
+libradwareio_la_CPPFLAGS= -I. $(SPECTCLCCSW) \
+				@TCL_CPPFLAGS@  $(ROOT_CFLAGS)
 
-libradwareio_la_LDFLAGS=$(ROOT_LDFLAGS)
+libradwareio_la_LDFLAGS=$(ROOT_LDFLAGS) @TCL_LIBS@
 
 
 
