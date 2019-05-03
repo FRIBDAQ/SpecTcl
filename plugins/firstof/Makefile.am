@@ -11,10 +11,9 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 			CFirstofEventProcessor.h \
 			CBiggestOfEventProcessor.h
 
-AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW) $(ROOT_CFLAGS)
 
-libfirstof_la_LDFLAGS = $(ROOTLDFLAGS)
-libfirstof_la_CPPFLAGS=$(ROOTCFLAGS)
+libfirstof_la_LDFLAGS = $(ROOTLDFLAGS) @TCL_LIBS@
+libfirstof_la_CPPFLAGS=$(ROOTCFLAGS) @TCL_CPPFLAGS@ $(SPECTCLCCSW) $(ROOT_CFLAGS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
