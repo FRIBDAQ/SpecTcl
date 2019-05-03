@@ -2,8 +2,6 @@ lib_LTLIBRARIES = libradwareio.la
 ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
-ROOT_CFLAGS=$(shell $(ROOTSYS)/bin/root-config --cflags)
-ROOT_LDFLAGS=$(shell $(ROOTSYS)/bin/root-config --ldflags)
 
 libradwareio_la_SOURCES		= 	cask.c 			\
 					caskyn.c		\
