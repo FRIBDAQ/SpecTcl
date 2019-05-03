@@ -13,9 +13,9 @@ noinst_HEADERS = 	CConstCommand.h  \
 			CConstProcessor.h
 
 AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
-				$(TCLCCSW) $(ROOT_CFLAGS)
+				@TCL_CPPFLAGS@ $(ROOT_CFLAGS)
 
-libconstparam_la_LDFLAGS=$(ROOT_LDFLAGS)
+libconstparam_la_LDFLAGS=$(ROOT_LDFLAGS) @TCL_LIBS@
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs $(prefix)/TclLibs/constparam
