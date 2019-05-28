@@ -33,6 +33,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "mapcoord.h"
 #include "dispshare.h"
 
+#include <iostream>
+
 extern volatile spec_shared *xamine_shared;
 
 
@@ -75,6 +77,7 @@ float Transform(float fSourceLow, float fSourceHigh,
   else {
     fraction = 0.0;
   }
+  
   return fDestLow + fraction*(fDestHigh - fDestLow);
 }
 

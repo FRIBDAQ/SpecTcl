@@ -50,6 +50,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "spcdisplay.h"
 #include "dispshare.h"
 #include "mapcoord.h"
+
+
+
+#include <iostream>
+
 /*
 ** External references:
 */
@@ -197,6 +202,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
     }
   }
   else {
+    std::cerr << "Setting locator xpos to : " << locdata.xpos << std::endl;
     l->Xpos(locdata.xpos);
     l->Ypos(locdata.ypos);
   }

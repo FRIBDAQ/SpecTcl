@@ -29,7 +29,7 @@
 #include "text.h"
 #include "gcmgr.h"
 #include "mapcoord.h"
-
+#include <iostream>
 /*
 ** Externally referenced globals:
 */
@@ -49,8 +49,9 @@ extern volatile spec_shared *xamine_shared;
 * Returns:
 **   The parameter interval between ticks.
 */
-static unsigned int ComputeLinearTickInterval(unsigned int paramrange, int pixels)
+static unsigned int ComputeLinearTickInterval(int paramrange, int pixels)
 {
+
   /*  Compute the 'tight' packed tick interval... */
   double tickmin = paramrange / XAMINE_TICK_MAXCOUNT;  /* Pack ticks tightly */
   int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
@@ -93,6 +94,8 @@ static unsigned int ComputeLinearTickInterval(unsigned int paramrange, int pixel
 
 static float ComputeMappedTickInterval(float pparamrange, int pixels)
 {
+
+  
   float paramrange = fabsf(pparamrange); // Compute in abs vale.
   float rangesign = pparamrange/paramrange; // +/- 1 depending on sign of pparamrange.
   /*  Compute the 'tight' packed tick interval... */
@@ -222,14 +225,14 @@ static void DrawAxes(Display *d, Window w, GC gc,
 */
 static void DrawLinearXTicks(Display *disp, Window win, GC gc,
 			     int xbase, int ybase, int nx, int ny,
-			     unsigned low, unsigned int hi, 
+			     int low,  int hi, 
 			     Boolean label_ticks)
 {
   float interval;		/* Number of pixels between ticks. */
   int height;			/* Height of a tick. */
   float value_represented;	/* The value represented by a tick. */
   float value_interval;		/* The tick interval in value units. */
-  unsigned int   last_value;
+  int   last_value;
   float xb = (float)xbase;
   char label[20];
 
@@ -261,12 +264,12 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
 
 
   while(xbase < nx) {
-    if( (unsigned int)value_represented != last_value) {
-      last_value = (unsigned int)value_represented;
+    if( (int)value_represented != last_value) {
+      last_value = (int)value_represented;
       ticks.draw(xbase,ybase+2, xbase,ybase-height);
       if((label_ticks) && (font != NULL)) {
-	unsigned long labelValue = (unsigned long)value_represented;
-	sprintf(label, "%lu", labelValue);
+	long labelValue = (unsigned long)value_represented;
+	sprintf(label, "%ld", labelValue);
 	Xamine_DrawCenteredString(disp, win, font, gc,
 				  (xbase - labelwidth/2), (ybase+labelheight),
 				  (xbase + labelwidth/2), (ybase),
@@ -887,12 +890,14 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 
   /* Get the limits on the gaurenteed channels axis: */
 
-    unsigned int low, hi;
-    unsigned int mapped = 0;
+    int low, hi;
+    int mapped = 0;
     spec_label xlabel;
     spec_label ylabel;
-    low = 0;
-    hi  = xamine_shared->getxdim(attribs->spectrum());/* Assume unexpanded.*/
+    // This -1 puts the underflow channel at -1.
+    
+    low = -1;
+    hi  = xamine_shared->getxdim(attribs->spectrum()) - 1; /* Assume unexpanded.*/
     
     if(attribs->is1d()) {
       win_1d *att = (win_1d *)attribs;
@@ -918,6 +923,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 	DrawLinearYTicks(disp, win, gc, xbase, ybase, nx, ny, low, hi,
 			 attribs->labelaxes());
       else
+
 	DrawLinearXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
 			 attribs->labelaxes());
     }
