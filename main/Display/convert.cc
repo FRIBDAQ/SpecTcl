@@ -571,10 +571,10 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     }
   }
   else {
-    xl = 0;
-    xh = spectra->getxdim(spec)-1;
-    yl = 0;			/* These are in spectrum orientation so... */
-    yh = spectra->getydim(spec)-1;
+    xl = -1;			// Root underflow chan is -1.
+    xh = spectra->getxdim(spec) -1 ;
+    yl = -1;			/* These are in spectrum orientation so... */
+    yh = spectra->getydim(spec)- 1;
   }
 
   /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
@@ -603,10 +603,10 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   // xp = (int)LinearPosition(xpix, xl, xh, nx);
   // yp = (int)LinearPosition(ypix, yl, yh, ny);
 
-  xp = (int)Transform(0.0, (float)(nx-1),
-		      (float)xl, (float)xh, (float)xpix);
-  yp = (int)Transform(0.0, (float)(ny-1),
-		      (float)yl, (float)yh, (float)ypix);
+  xp = floor(Transform(0.0, (float)(nx-1),
+		       (float)xl, (float)xh, (float)xpix));
+  yp = floor(Transform(0.0, (float)(ny-1),
+		       (float)yl, (float)yh, (float)ypix));
 		      
 
   if((att->isflipped() && att->isexpanded() && att->isexpandedfirst()) ||

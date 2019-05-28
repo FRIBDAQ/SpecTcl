@@ -202,7 +202,6 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
     }
   }
   else {
-    std::cerr << "Setting locator xpos to : " << locdata.xpos << std::endl;
     l->Xpos(locdata.xpos);
     l->Ypos(locdata.ypos);
   }

@@ -534,14 +534,14 @@ static void DrawLogXTicks(Display *disp, Window win, GC gc,
 */
 static void DrawLinearYTicks(Display *disp, Window win, GC gc,
 			     int xbase, int ybase, int nx, int ny,
-			     unsigned int low,unsigned int hi, 
+			     int low,  int hi, 
 			     Boolean label_ticks)
 {
   float value_represented, value_interval;
   float interval;
   float   yb = (float)ybase;
   int height;
-  unsigned int last_value;
+  int last_value;
 
 
 
@@ -576,8 +576,8 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
       last_value = (unsigned int)value_represented;
       ticks.draw(xbase-2,ybase, xbase+height,ybase);
       if(label_ticks && (font != NULL)) {
-	unsigned long labelValue = (unsigned long)value_represented;
-	sprintf(label, "%lu", labelValue);
+	long labelValue = (unsigned long)value_represented;
+	sprintf(label, "%ld", labelValue);
 	Xamine_DrawCenteredString(disp, win , font, gc,
 				  0, (ybase + labelheight/2),
 				  labelwidth, (ybase - labelheight/2),
@@ -979,8 +979,8 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     }
     else {			/* 2-d spectrum. Figure out hi/low like X */
       win_2d *att = (win_2d *)attribs;
-      low = 0;
-      hi  = xamine_shared->getydim(att->spectrum());
+      low = -1;
+      hi  = xamine_shared->getydim(att->spectrum())-1;
       // The + 1 on high makes the expansion [low,hi].
       if(att->isexpanded() && att->isflipped()) {
 	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
