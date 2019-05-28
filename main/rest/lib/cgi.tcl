@@ -150,6 +150,7 @@ proc Cgi_SetEnvAll {sock path extra url var} {
     global Httpd Httpd_EnvMap Cgi
 
     # we can't "unset env" or it won't get passed to the CGI script
+    if {0} {
     foreach i [array names env] {
 	set clear 1
 	foreach x $Cgi(env-pass) {
@@ -162,6 +163,7 @@ proc Cgi_SetEnvAll {sock path extra url var} {
 	if {$clear} {
 	    unset env($i)
 	}
+    }
     }
     foreach name [array names Httpd_EnvMap] {
 	set env($name) ""
