@@ -935,12 +935,14 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       float f_low = Xamine_XChanToMapped(attribs->spectrum(), low);
       float f_hi  = Xamine_XChanToMapped(attribs->spectrum(), hi);
       xamine_shared->getxlabel_map(xlabel, attribs->spectrum());
-      if(attribs->isflipped())
+      if(attribs->isflipped()) {
 	DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_low, 
 			 f_hi, xlabel, attribs->labelaxes());
-      else
+      }      else {
+	std::cerr << "mapped limits: " << f_low << " " << f_hi << std::endl;
 	DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_low,
 			 f_hi, xlabel, attribs->labelaxes());
+      }
     }
 
   /* For 1-d spectra, the other axis is the counts axis and it may be linear

@@ -162,7 +162,7 @@ float Xamine_XChanToMapped(int specno, float chan)
   float xhi = xamine_shared->getxmax_map(specno);
   int   nch = xamine_shared->getxdim(specno);
 
-  return Transform(0.0, (float)(nch),    
+  return Transform(-1.0, (float)(nch - 1),    
 		   xlo, xhi, chan);                  
 }
 
@@ -185,6 +185,6 @@ float Xamine_YChanToMapped(int specno, float chan)
   float yhi = xamine_shared->getymax_map(specno);
   int   nch = xamine_shared->getydim(specno);
 
-  return Transform(0.0, (float)(nch), ylo, yhi, chan);
+  return Transform(-1.0, (float)(nch-1), ylo, yhi, chan);
 
 }

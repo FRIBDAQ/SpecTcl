@@ -627,10 +627,10 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 
   if( ((xp >= xl) && (yp >= yl) && (xp <= xh) && (yp <= yh))) {
     if(attributes->isflipped()) {
-      loc->counts = spectra->getchannel(spec, yp, xp);
+      loc->counts = spectra->getchannel(spec, yp+1, xp+1);
     }
     else {
-      loc->counts = spectra->getchannel(spec, xp, yp);
+      loc->counts = spectra->getchannel(spec, xp+1, yp+1);
     }
   }
   else {
