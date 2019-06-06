@@ -40,6 +40,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tk.h>
 #include <iostream>
 
+#include "ZMQSenderClass.h"
+#include "ThreadAPI.h"
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -60,12 +63,23 @@ UInt_t CTKRunControl::m_nDefaultBufferSize=8*kn1K; // Default buffer size.
 void 
 CTKRunControl::Start() 
 {
-// Starts analyzing data.
-// Exceptions:  
-
-
+  // Starts analyzing data.
+  // Exceptions:  
   m_FileHandler.Set();
-  CRunControl::Start();		// Update the internal state variables.
+
+  // Let's set the file descriptor to start all the threads
+  Sender* snd = Sender::getInstance();
+  snd->setFd(getEventSource()->getFd());
+  
+  ThreadAPI* api = ThreadAPI::getInstance();
+  api->SetNThreads(NBR_WORKERS);
+  api->CreateThreads();
+  api->JoinThreads();
+
+  // print out summary
+  snd->finish();
+  
+  //  CRunControl::Start();		// Update the internal state variables.
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -115,7 +129,12 @@ CTKRunControl::OnEnd()
 void
 CTKRunControl::OnBuffer(UInt_t nBytes)
 {
-  if(getRunning())m_FileHandler.Set();		// Re-enable file handler.
+  if(getRunning())m_FileHandler.Set();		// Re-enable file handler.  
+  
+  // Set up the worker and histogrammer threads
+  //  ThreadAPI* api = ThreadAPI::getInstance();
+  //  api->SetNThreads(NBR_WORKERS);
+  //  api->CreateThreads();
+  
   CRunControl::OnBuffer(nBytes); // Note on end of file this will clear().
-
 }
