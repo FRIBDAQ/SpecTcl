@@ -5,7 +5,7 @@ class ThreadAPI {
  public:
   static ThreadAPI* getInstance();
   void Destroy();
-  
+
   void SetNThreads(int nthreads);  
   void CreateThreads();
   void JoinThreads(); // Join sender+worker threads

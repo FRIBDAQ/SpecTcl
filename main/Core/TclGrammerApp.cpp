@@ -98,7 +98,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 
-
+#include "ZMQSenderClass.h"
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -307,6 +307,9 @@ void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
   
   SpecTcl* api = SpecTcl::getInstance();
   api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
+
+  Sender* aapi = Sender::getInstance();
+  aapi->AddEventProcessor(rEventProcessor, name);
   
 }  
 

@@ -1,10 +1,15 @@
+#include <mutex>
+#include "DataFormat.h"
+#include "CRingBufferDecoder.h"
 #include "ZMQSenderClass.h"
 #include "SpecTcl.h"
 #include "ThreadAPI.h"
+#include "BufferDecoder.h"
 
 int status;
 bool debug = false;
 Sender* Sender::m_pInstance = 0;
+std::mutex mu;
 
 const int NBR_WORKERS = 10;
 int CHUNK_SIZE  = 1024*1024;
@@ -12,12 +17,28 @@ int CHUNK_SIZE  = 1024*1024;
 static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
 size_t* Sender::threadItems = new size_t[NBR_WORKERS];
+size_t* Sender::physicsItems = new size_t[NBR_WORKERS];
 
-Sender::Sender(){}
+EventProcessingPipeline* Sender::m_pipeline;
+BufferTranslator* Sender::m_pTranslator;
+static EventProcessingPipeline* pipecopy;
+BufferTranslator* pTranslator[NBR_WORKERS];
+CBufferDecoder* pDecoder[NBR_WORKERS];
+
+Sender::Sender()
+{
+  m_pipeline = new EventProcessingPipeline;
+  pipecopy = new EventProcessingPipeline[NBR_WORKERS];
+
+  for (int i=0; i<NBR_WORKERS; ++i)
+    physicsItems[i] = 0;
+}
+
 Sender::~Sender()
 {
   delete []threadBytes;
   delete []threadItems;
+  delete []physicsItems;
 }
 
 Sender*
@@ -43,10 +64,142 @@ Sender::getFd()
   return m_nFd;
 }
 
-static void
-processRingItems(CRingFileBlockReader::pDataDescriptor descrip, void* pData)
+void
+Sender::createTranslator(uint32_t* pBuffer)
 {
+  pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
+  delete m_pTranslator;
+  if (pItem->s_header.s_type & 0xffff0000) {
+    m_pTranslator = new SwappingBufferTranslator(pBuffer);
+  }
+  else {
+    m_pTranslator = new NonSwappingBufferTranslator(pBuffer);
+  }
+}
+
+void
+Sender::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
+{
+  // register the processors
+  try {
+    if(m_processors.count(name_proc)) {
+      std::string msg = "Duplicate event processor name: ";
+      msg += name_proc;
+      throw std::logic_error(msg);
+    }
+    m_processors[name_proc] = &eventProcessor;
+  }
+  catch (...) {}
+
+  // append the processors
+  MapEventProcessors::iterator evp  = m_processors.find(name_proc);
+  m_pipeline->push_back(PipelineElement(evp->first, evp->second));
+
+}
+
+void
+Sender::CopyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe)
+{
+  EventProcessingPipeline::iterator it;
+  for (it = oldpipe.begin(); it!=oldpipe.end(); it++){
+    newpipe.push_back(PipelineElement(it->first, it->second));
+  }
+}
+
+void
+Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData)
+{
+  uint32_t*    pBuffer = reinterpret_cast<uint32_t*>(pData);
+  uint32_t*    pBufferCursor = pBuffer;
+  uint32_t     nResidual = descrip->s_nBytes; 
+  
+  //////////////////////////////////////
+  // Buffer translator
+  //////////////////////////////////////  
+  try {
+    Sender::createTranslator(pBuffer);
+    if (!pTranslator[thread]){
+      if (debug)
+	std::cout << "Created translator " << thread << std::endl;
+      pTranslator[thread] = m_pTranslator->clone();
+    }
+    else {
+      pTranslator[thread]->newBuffer(pBuffer);
+    }
+  }
+  catch (...) {
+    std::cerr << "SpecTcl exiting due to buffer decoder exception\n";
+    exit(EXIT_FAILURE);
+  }
+
+  //////////////////////////////////////
+  // Buffer decoder + analyzer
+  //////////////////////////////////////    
+  if (!pDecoder[thread]){
+    if (debug)
+      std::cout << "Created decoder " << thread << std::endl;
+    pDecoder[thread] = new CRingBufferDecoder;
+    //    pAnalyzer[id].AttachDecoder(*pDecoder[id]);
+    //    std::cout << "...and attached to the threaded analyzer" << std::endl;
+  }
+
+  //////////////////////////////////////
+  // Analysis pipeline
+  //////////////////////////////////////  
+  if (pipecopy[thread].size() == 0){
+    CopyPipeline(*m_pipeline, pipecopy[thread]);
+    if (debug)
+      std::cout << "Created pipecopy " << thread << " of size " << pipecopy[thread].size() << std::endl;
+  }
+
+  Address_t    pBody;
+  UInt_t       nBodySize;
+  
+  while(nResidual) {
+    
+    pRingItem        pItem = reinterpret_cast<pRingItem>(pBufferCursor);
+    uint32_t         size  = pTranslator[thread]->TranslateLong(pItem->s_header.s_size);
+    uint32_t         type  = pTranslator[thread]->TranslateLong(pItem->s_header.s_type);
+    pTranslator[thread]->newBuffer(pItem);
+
+    pBody     = pItem->s_body.u_noBodyHeader.s_body;
+    nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
+    
+    switch (type) {
+    case BEGIN_RUN:
+      {
+	if (debug)
+	  std::cout << "BEGIN RUN" << std::endl;
+      }
+      break;
+    case END_RUN:
+    case PAUSE_RUN:
+    case RESUME_RUN:
+      {}
+      break;
+    case PACKET_TYPES:
+    case MONITORED_VARIABLES:
+      {}
+      break;
+    case PERIODIC_SCALERS:
+      {}
+      break;
+    case PHYSICS_EVENT:
+      {
+	physicsItems[thread]++;
+      }
+      break;
+    case PHYSICS_EVENT_COUNT:
+      {}
+      break;
+    default:
+      {}
+      break;
+    }
+    pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(pBufferCursor) + size);
+    nResidual    -= size;
+  }
 }
 
 void *
@@ -93,7 +246,9 @@ Sender::worker_task(void *args)
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
 
-      processRingItems(pDescriptor, pRingItems); // any interesting work goes here.
+      mu.lock();
+      Sender::processRingItems(thread, pDescriptor, pRingItems); 
+      mu.unlock();
       
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -174,14 +329,16 @@ Sender::finish()
 {
   size_t totalBytes(0);
   size_t totalItems(0);
+  size_t totalPhysicsItems(0);
   for (int i = 0; i < NBR_WORKERS; i++) {
     std::cout << "Thread " << i << " processed " <<
       threadItems[i] << " items containing a total of " << threadBytes[i] << " bytes"  << std::endl;
     totalBytes += threadBytes[i];
     totalItems += threadItems[i];
+    totalPhysicsItems += physicsItems[i];
   }
   std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
-
+  std::cout << "Physics Items " << totalPhysicsItems << std::endl;
 }  
 
 void*

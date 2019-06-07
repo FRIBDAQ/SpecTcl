@@ -27,7 +27,6 @@
 CRingFileBlockReader::CRingFileBlockReader(const int fd) :
   m_partialItemSize(0), m_partialItemBlockSize(0), m_pPartialItem(nullptr)
 {
-  std::cout << "Inside constructor..." << std::endl;
   m_nFd = fd;
   if (m_nFd < 0) {
     throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)),

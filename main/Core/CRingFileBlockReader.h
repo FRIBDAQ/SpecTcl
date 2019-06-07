@@ -11,8 +11,6 @@ private:
   std::uint32_t  m_partialItemBlockSize;	// How big is the buffer pointed to by m_pPartialItem.
   char* m_pPartialItem;
 
-  
-  
 public:
   typedef struct _DataDescriptor {
     std::uint32_t s_nBytes;
