@@ -939,7 +939,6 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 	DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_low, 
 			 f_hi, xlabel, attribs->labelaxes());
       }      else {
-	std::cerr << "mapped limits: " << f_low << " " << f_hi << std::endl;
 	DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_low,
 			 f_hi, xlabel, attribs->labelaxes());
       }
