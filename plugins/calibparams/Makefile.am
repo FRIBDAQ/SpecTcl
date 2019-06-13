@@ -54,7 +54,7 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs/calibration
 	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/calibration
 	$(INSTALL_PROGRAM) .libs/libCalibrations.* $(prefix)/TclLibs/calibration
-	$(TCLSH_CMD)  packages.tcl $(prefix)/TclLibs/calibration
+	@TCLSH@  packages.tcl $(prefix)/TclLibs/calibration
 	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
 	$(prefix)/TclLibs/calibration/pkgIndex.tcl
 
