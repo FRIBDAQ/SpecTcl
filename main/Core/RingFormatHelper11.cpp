@@ -64,8 +64,17 @@
         
         if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId =
             p->s_body.u_hasBodyHeader.s_bodyHeader.s_sourceId;
-        
-        return reinterpret_cast<void*>(p->s_body.u_hasBodyHeader.s_body);
+
+	// The code below will not work if the body header has been extended
+	// (e.g. by the software trigger framework (NSCLDAQ-11.4 and later):
+        //return reinterpret_cast<void*>(p->s_body.u_hasBodyHeader.s_body);
+
+	uint32_t bheaderSize =  p->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
+	uint8_t* b           =
+	  reinterpret_cast<uint8_t*>(&(p->s_body.u_hasBodyHeader.s_bodyHeader));
+	b                   += bheaderSize;
+	return reinterpret_cast<void*>(b);
+				 
     } else {
         if (p->s_header.s_type == PHYSICS_EVENT) m_glomSourceId = 0;  // don't know.
         return reinterpret_cast<void*>(p->s_body.u_noBodyHeader.s_body);
