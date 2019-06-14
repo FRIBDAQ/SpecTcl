@@ -21,12 +21,19 @@ ThreadAPI::SetNThreads(int nthreads)
 }
 
 void
+ThreadAPI::SetTCLApp(CTCLApplication& app)
+{
+  std::cout << "\t\t\t\t\tInside SetTCLApp" << std::endl;
+  m_app = &app;
+}
+
+void
 ThreadAPI::CreateThreads()
 {
   // Setup sender
   std::cout << "Setting up sender..." << std::endl;
   pthread_create(&sender, nullptr, Sender::sender_task,  nullptr);
-  
+
   // Setup worker
   std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
@@ -42,12 +49,6 @@ ThreadAPI::JoinThreads()
     pthread_join(workers[worker_nbr], NULL);
   }
   pthread_join(sender, nullptr);
-}
-
-void
-ThreadAPI::JoinHThread()
-{
-  
 }
 
 void

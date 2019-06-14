@@ -1,3 +1,4 @@
+#include <utility>
 #include <memory>
 #include <iostream>
 #include <unistd.h>
@@ -19,6 +20,8 @@ typedef std::map <std::string, EventProcessingPipeline >               MapEventP
 typedef EventProcessingPipeline::iterator                              EventProcessorIterator;
 typedef std::map <std::string, CEventProcessor*>                       MapEventProcessors;
 
+typedef std::vector<std::pair<unsigned int, double>> Vpairs;
+
 class Sender
 {
  private:
@@ -28,6 +31,7 @@ class Sender
   virtual ~Sender();
 
  public: 
+
   static Sender* getInstance();
 
   int m_nFd;  
@@ -47,11 +51,39 @@ class Sender
 
   uint32_t*    pBuffer;
   
-  void AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
-  static void  createTranslator(uint32_t* pBuffer);
-  static void  CopyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe);
-  static void  processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData);
+  void addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
+  static void createTranslator(uint32_t* pBuffer);
+  static void copyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe);
+  static void processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec);
+  static void marshall(long thread, CEventList& lst, Vpairs& vec);
+  static void histoData(long thread, Vpairs& vec);
+  static int HistogramHandler(Tcl_Event* evPtr, int flags);
+    
   
   void finish();
+  void cleanup();
   
+ private:
+  //! Match pipeline element by name.
+    class MatchName
+    {
+    private:
+      std::string       m_sName;
+      CEventProcessor*  m_pLastMatch;
+    public:
+      MatchName(std::string name);
+      bool operator()(PipelineElement& element);
+      CEventProcessor*  getLastMatch() const;
+    };
+    //! Match pipeline element by pointer.
+      class MatchAddress
+      {
+      private:
+	CEventProcessor* m_pProcessor;
+	CEventProcessor* m_pLastMatch;
+      public:
+	MatchAddress(CEventProcessor& processor);
+	bool operator()(PipelineElement& element);
+	CEventProcessor* getLastMatch() const;
+      };
 };

@@ -44,6 +44,7 @@
 
 // Include files:
 
+#include "BufferTranslator.h"
 #include <histotypes.h>
 #include <string>
 
@@ -64,10 +65,19 @@ class CEventProcessor {
   int operator!=(const CEventProcessor& aCEventProcessor) const {
     return !(*this == aCEventProcessor);
   }
+
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
-			    CBufferDecoder& rDecoder); // Physics Event.
+			    CBufferDecoder& rDecoder
+			    ); // Physics Event.
+
+  virtual Bool_t operator()(const Address_t pEvent,
+			    CEvent& rEvent,
+			    CAnalyzer& rAnalyzer,
+			    CBufferDecoder& rDecoder,
+			    BufferTranslator& trans
+			    ); // Physics Event.  
 
   // Functions:
   virtual Bool_t OnAttach(CAnalyzer& rAnalyzer); // Called on registration.

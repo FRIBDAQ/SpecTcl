@@ -45,12 +45,14 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "EventProcessor.h"
+
 
 // Names of the variables maintained:
 static const char* BufferCountVar    = "BuffersAnalyzed";
 static const char* LastSequenceVar   = "LastSeqeunce";
 
-class CEventProcessor;
+//class CEventProcessor;
 // Counter is an enumerated type which describes the sorts of
 // statistics counters maintained.
 enum Counter {

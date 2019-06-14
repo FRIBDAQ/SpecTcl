@@ -106,7 +106,7 @@ private:
   CGatingDisplayObserver*   m_pGatingObserver;
   
   int m_nUpdateRate;
-
+  Tcl_ThreadId              m_nMainThread;
  public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
@@ -129,6 +129,7 @@ private:
 
   // Selectors:
  public:
+  Tcl_ThreadId getThread() const { return m_nMainThread; }
   //Get accessor function for non-static attribute data member
   UInt_t getDisplaySize() const {
     return m_nDisplaySize;

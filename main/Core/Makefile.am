@@ -71,13 +71,13 @@ DisplayInterface_INCLUDES =  Display.h \
 Events_SRC = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \
 	RunControl.cpp TCLRunFileHandler.cpp TKRunControl.cpp EventSink.cpp \
-	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp ZMQSenderClass.cpp ThreadAPI.cpp CRingFileBlockReader.cpp
+	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp ZMQSenderClass.cpp ThreadAPI.cpp CRingFileBlockReader.cpp ThreadAnalyzer.cpp
 
 Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
-	NSCLJumboBufferDecoder.h DopeVector.h ZMQSenderClass.h ThreadAPI.h CRingFileBlockReader.h
+	NSCLJumboBufferDecoder.h DopeVector.h ZMQSenderClass.h ThreadAPI.h CRingFileBlockReader.h ThreadAnalyzer.h
 
 # Removed TapeException.cpp, Tapefile
 

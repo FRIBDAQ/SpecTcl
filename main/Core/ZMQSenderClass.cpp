@@ -1,18 +1,24 @@
+#include <limits>
 #include <mutex>
 #include "DataFormat.h"
 #include "CRingBufferDecoder.h"
 #include "ZMQSenderClass.h"
 #include "SpecTcl.h"
 #include "ThreadAPI.h"
+#include "ThreadAnalyzer.h"
 #include "BufferDecoder.h"
+#include "SpectrumDictionaryFitObserver.h"
+#include "TclGrammerApp.h"
 
 int status;
+bool isDone = false;
 bool debug = false;
 Sender* Sender::m_pInstance = 0;
 std::mutex mu;
 
-const int NBR_WORKERS = 10;
+const int NBR_WORKERS = 5;
 int CHUNK_SIZE  = 1024*1024;
+double qnan = std::numeric_limits<double>::quiet_NaN();
 
 static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
@@ -23,15 +29,30 @@ EventProcessingPipeline* Sender::m_pipeline;
 BufferTranslator* Sender::m_pTranslator;
 static EventProcessingPipeline* pipecopy;
 BufferTranslator* pTranslator[NBR_WORKERS];
+static CThreadAnalyzer* pAnalyzer;
 CBufferDecoder* pDecoder[NBR_WORKERS];
+static CEventList* pEventList;
+
+Vpairs* tmp;
+
+CTCLApplication* gpTCLApplication;
+
+typedef struct _HistoEvent {
+  Tcl_Event      tclEvent;
+  Vpairs*        histoList; 
+} HistoEvent, *pHistoEvent;
 
 Sender::Sender()
 {
   m_pipeline = new EventProcessingPipeline;
   pipecopy = new EventProcessingPipeline[NBR_WORKERS];
 
+  pAnalyzer = new CThreadAnalyzer[NBR_WORKERS];
+  pEventList = new CEventList[NBR_WORKERS];
+  
   for (int i=0; i<NBR_WORKERS; ++i)
     physicsItems[i] = 0;
+
 }
 
 Sender::~Sender()
@@ -39,6 +60,12 @@ Sender::~Sender()
   delete []threadBytes;
   delete []threadItems;
   delete []physicsItems;
+  delete m_pipeline;
+}
+
+void
+Sender::cleanup()
+{
 }
 
 Sender*
@@ -79,7 +106,7 @@ Sender::createTranslator(uint32_t* pBuffer)
 }
 
 void
-Sender::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
+Sender::addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
 {
   // register the processors
   try {
@@ -99,7 +126,7 @@ Sender::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_proc
 }
 
 void
-Sender::CopyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe)
+Sender::copyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe)
 {
   EventProcessingPipeline::iterator it;
   for (it = oldpipe.begin(); it!=oldpipe.end(); it++){
@@ -108,12 +135,34 @@ Sender::CopyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& 
 }
 
 void
-Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData)
+Sender::marshall(long thread, CEventList& lst, Vpairs& vec)
+{
+  DopeVector dp;
+  CEventVector& evlist(lst.getVector());
+  CEventListIterator p = evlist.begin();
+  for(; p != evlist.end(); p++) {
+    if(*p) {
+      CEvent* pEvent = *p;
+      dp = pEvent->getDopeVector();
+      // add size of the dope vector and id
+      vec.push_back(std::make_pair(dp.size(), qnan));
+      for (int i =0; i < dp.size(); i++){ 
+	unsigned int n = dp[i];
+	double value = (*pEvent)[n];
+	//	std::cout << n << " " << value << std::endl;
+	vec.push_back(std::make_pair(n, value));
+      }
+    }
+  }
+}
+
+void
+Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec)
 {
   uint32_t*    pBuffer = reinterpret_cast<uint32_t*>(pData);
   uint32_t*    pBufferCursor = pBuffer;
   uint32_t     nResidual = descrip->s_nBytes; 
-  
+
   //////////////////////////////////////
   // Buffer translator
   //////////////////////////////////////  
@@ -134,21 +183,22 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   }
 
   //////////////////////////////////////
-  // Buffer decoder + analyzer
+  // Buffer decoder + analyzer 
   //////////////////////////////////////    
   if (!pDecoder[thread]){
     if (debug)
       std::cout << "Created decoder " << thread << std::endl;
     pDecoder[thread] = new CRingBufferDecoder;
-    //    pAnalyzer[id].AttachDecoder(*pDecoder[id]);
-    //    std::cout << "...and attached to the threaded analyzer" << std::endl;
+    pAnalyzer[thread].AttachDecoder(*pDecoder[thread]);
+    if (debug)
+      std::cout << "...and attached to the threaded analyzer" << std::endl;
   }
 
   //////////////////////////////////////
   // Analysis pipeline
   //////////////////////////////////////  
   if (pipecopy[thread].size() == 0){
-    CopyPipeline(*m_pipeline, pipecopy[thread]);
+    copyPipeline(*m_pipeline, pipecopy[thread]);
     if (debug)
       std::cout << "Created pipecopy " << thread << " of size " << pipecopy[thread].size() << std::endl;
   }
@@ -188,6 +238,8 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     case PHYSICS_EVENT:
       {
 	physicsItems[thread]++;
+	pAnalyzer[thread].OnPhysics(thread, *pDecoder[thread], nBodySize, pBody, pipecopy[thread], *pTranslator[thread], pEventList[thread]);
+	marshall(thread, pEventList[thread], vec);
       }
       break;
     case PHYSICS_EVENT_COUNT:
@@ -202,18 +254,82 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   }
 }
 
+void
+Sender::histoData(long thread, Vpairs& vec)
+{
+  std::cout << "Onto the Tcl_ThreadQueueEvent..." << std::endl;
+  
+  Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
+  
+  pHistoEvent pHEvent = reinterpret_cast<pHistoEvent>(Tcl_Alloc(sizeof(HistoEvent)));
+  pHEvent->tclEvent.proc = Sender::HistogramHandler;
+  pHEvent->histoList     = &vec;
+
+  Tcl_ThreadQueueEvent(tid,
+		       reinterpret_cast<Tcl_Event*>(pHEvent),
+		       TCL_QUEUE_TAIL);
+
+}
+
+int
+Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
+{
+  pHistoEvent pEvent = reinterpret_cast<pHistoEvent>(evPtr);
+  Vpairs* hlist = pEvent->histoList;
+
+  SpecTcl *pApi = SpecTcl::getInstance();
+  CHistogrammer* hist = pApi->GetHistogrammer();  
+  
+  // convert Vpairs* to CEventList*
+  unsigned int index, size;
+  double value;
+  CEvent* e;
+
+  CEventList* outList = new CEventList;
+  CEventVector& olist(outList->getVector());
+  
+  for (const std::pair<unsigned int, double> &evt : *hlist){
+    index = evt.first;
+    value = evt.second;
+    if (std::isnan(value)){
+      size = index;
+      //      std::cout << " Size: " << size << std::endl;
+      e = new CEvent;
+      continue;
+    }
+    //    std::cout << counter << " " << evt.first << " " << evt.second << std::endl;
+    (*e)[index] = value;
+    if(size == e->getDopeVector().size()){
+      //      std::cout << "pushed to list" << std::endl;
+      //    olist.push_back(e);
+      // instead of filling the list let's histogram them right away
+      hist->operator()(*e);
+      delete e;
+      e = (CEvent*)kpNULL;
+    }
+  }
+
+  //  hist->operator()(*outList);    
+  
+  delete outList;
+
+  return 1;
+}
+
 void *
 Sender::worker_task(void *args)
 {
   long thread = (long)(args);
   zmq::context_t context(1);
-  zmq::socket_t worker(context, ZMQ_DEALER);
   int linger(0);
+  ////////////////////////////////////////////
+  // ROUTER/DEALER PATTERN TO GET THE DATA
+  ////////////////////////////////////////////  
+  zmq::socket_t worker(context, ZMQ_DEALER);
   worker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
-
-  s_set_id(worker);          //  Set a printable identity
-
+  std::string id1 = s_set_id(worker);          //  Set a printable identity
   worker.connect("tcp://localhost:5671");
+
   std::stringstream ChunkSize;
   ChunkSize << CHUNK_SIZE;
   size_t bytes = 0;
@@ -246,9 +362,9 @@ Sender::worker_task(void *args)
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
 
-      mu.lock();
-      Sender::processRingItems(thread, pDescriptor, pRingItems); 
-      mu.unlock();
+      tmp = new Vpairs;
+      Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
+      Sender::histoData(thread, *tmp);
       
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -327,6 +443,7 @@ sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader
 void
 Sender::finish()
 {
+  isDone = true;
   size_t totalBytes(0);
   size_t totalItems(0);
   size_t totalPhysicsItems(0);
@@ -336,6 +453,7 @@ Sender::finish()
     totalBytes += threadBytes[i];
     totalItems += threadItems[i];
     totalPhysicsItems += physicsItems[i];
+    physicsItems[i] = 0;
   }
   std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
   std::cout << "Physics Items " << totalPhysicsItems << std::endl;
@@ -354,8 +472,7 @@ Sender::sender_task(void* args)
   Sender* api = Sender::getInstance();
   int fd = api->getFd();
 
-  CRingFileBlockReader reader(fd);
-  
+  CRingFileBlockReader reader(fd);  
   int workers_fired = 0;
   bool done = false;
   while (1) {
@@ -389,4 +506,3 @@ Sender::sender_task(void* args)
   }
   broker.close();
 }
-

@@ -221,7 +221,6 @@ void CHistogrammer::operator()(const CEvent& rEvent)
   }
 
   // Increment the histograms:
-
   (*m_pSpectrumLists)(rEvent);
 
 }
@@ -240,7 +239,6 @@ void CHistogrammer::operator()(CEventList& rEvents)
 
   nEvents = 0;
 
-
   //  Now analyze the events.
   //  the assumption is that the first null
   //  event or the end of the vector terminates.
@@ -255,7 +253,8 @@ void CHistogrammer::operator()(CEventList& rEvents)
 	operator()(*pEvent);
       }
       else {
-	break;
+	std::cout << "null event" << std::endl;
+	//      	break;
       }
     }
   }

@@ -267,7 +267,8 @@ CTclGrammerApp::CTclGrammerApp() :
   m_TclDisplayType(string("DisplayType"),       kfFALSE),
   m_pMultiTestSource((CMultiTestSource*)kpNULL),
   m_nUpdateRate(1000),                              // Seconds between periodic events.
-  m_pGatingObserver(NULL)
+  m_pGatingObserver(NULL),
+  m_nMainThread(Tcl_GetCurrentThread())
 {
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
@@ -309,7 +310,7 @@ void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
   api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
 
   Sender* aapi = Sender::getInstance();
-  aapi->AddEventProcessor(rEventProcessor, name);
+  aapi->addEventProcessor(rEventProcessor, name);
   
 }  
 

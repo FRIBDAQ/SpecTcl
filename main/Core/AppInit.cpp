@@ -65,6 +65,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ThreadAPI.h"
+
 #include <sys/sysinfo.h>
 #ifdef HAVE_MACHINE_HAL_SYSINFO_H
 #include <machine/hal_sysinfo.h>
@@ -176,19 +178,22 @@ extern "C" {
    extern CTCLApplication* gpTCLApplication __attribute__ ((used)) = &app;
 
    CTCLVariable Rcfile(string("tcl_rcFileName"),
-                     kfFALSE);
+		       kfFALSE);
 //
 //  This code initializes the TclGrammer Tcl interpreter and its environment.
 //
    int
    CTclGrammerApp::operator()()
    {
-   
+
       CTCLInterpreter* pInterp = getInterpreter();
       CTCLVariable     RcFile(string("tcl_rcFileName")  , kfFALSE);
       Rcfile.Bind(pInterp);
    
-   
+      ThreadAPI* api = ThreadAPI::getInstance();
+      api->SetTCLApp(gpTCLApplication);
+      Tcl_ThreadId mainThread = Tcl_GetCurrentThread();
+      
    // Set default values for the variables which contain sizing information
    //
    

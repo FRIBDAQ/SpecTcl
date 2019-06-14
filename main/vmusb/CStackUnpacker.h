@@ -81,8 +81,11 @@ public:
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
-			    CBufferDecoder& rDecoder);
-
+			    CBufferDecoder& rDecoder,
+                            BufferTranslator& trans
+			    );
+  
+  
   // Utilties:
 
 private:

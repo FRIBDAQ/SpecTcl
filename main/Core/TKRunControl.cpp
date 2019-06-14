@@ -76,10 +76,7 @@ CTKRunControl::Start()
   api->CreateThreads();
   api->JoinThreads();
 
-  // print out summary
-  snd->finish();
-  
-  //  CRunControl::Start();		// Update the internal state variables.
+  CRunControl::Start();		// Update the internal state variables.
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -111,9 +108,12 @@ CTKRunControl::OnEnd()
   // in our case, we execute the script stored in m_sEndScript
 
   CRunControl::OnEnd();
-
+  Sender* snd = Sender::getInstance();
+  
   cerr << "End file encountered on Data Source\n";
   try {				// May need this later when user scripts allowed
+    // print out summary
+    snd->finish();
     m_pInterp->Eval(m_sEndScript);
   }
   catch(CTCLException& except) {
