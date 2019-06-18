@@ -51,6 +51,8 @@ using namespace std;
 
 UInt_t CTKRunControl::m_nDefaultBufferSize=8*kn1K; // Default buffer size.
 
+//double start_time;
+
 // Functions for class CTKRunControl
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,6 +78,8 @@ CTKRunControl::Start()
   api->CreateThreads();
   api->JoinThreads();
 
+  //  start_time = Sender::clock();
+  
   CRunControl::Start();		// Update the internal state variables.
 }
 //////////////////////////////////////////////////////////////////////////

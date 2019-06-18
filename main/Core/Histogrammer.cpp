@@ -253,7 +253,7 @@ void CHistogrammer::operator()(CEventList& rEvents)
 	operator()(*pEvent);
       }
       else {
-	std::cout << "null event" << std::endl;
+	//	std::cout << "null event" << std::endl;
 	//      	break;
       }
     }

@@ -2,6 +2,7 @@
 #include <memory>
 #include <iostream>
 #include <unistd.h>
+#include <chrono>
 #include <map>
 
 #include "zhelpers.hpp"
@@ -14,6 +15,7 @@
 
 extern const int NBR_WORKERS;
 
+
 typedef std::pair<std::string, CEventProcessor*>                       PipelineElement;
 typedef std::list<PipelineElement>                                     EventProcessingPipeline;
 typedef std::map <std::string, EventProcessingPipeline >               MapEventProcessingPipeline;
@@ -21,6 +23,8 @@ typedef EventProcessingPipeline::iterator                              EventProc
 typedef std::map <std::string, CEventProcessor*>                       MapEventProcessors;
 
 typedef std::vector<std::pair<unsigned int, double>> Vpairs;
+
+extern double start_time, stop_time;
 
 class Sender
 {
@@ -58,7 +62,8 @@ class Sender
   static void marshall(long thread, CEventList& lst, Vpairs& vec);
   static void histoData(long thread, Vpairs& vec);
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
-    
+  static double clock();
+  
   
   void finish();
   void cleanup();

@@ -1,5 +1,6 @@
 #include <limits>
 #include <mutex>
+#include <chrono>
 #include "DataFormat.h"
 #include "CRingBufferDecoder.h"
 #include "ZMQSenderClass.h"
@@ -9,16 +10,19 @@
 #include "BufferDecoder.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "TclGrammerApp.h"
+pthread_mutex_t mu;
 
 int status;
 bool isDone = false;
 bool debug = false;
+bool isStart = true;
 Sender* Sender::m_pInstance = 0;
-std::mutex mu;
 
-const int NBR_WORKERS = 5;
-int CHUNK_SIZE  = 1024*1024;
+const int NBR_WORKERS = 25;
+int CHUNK_SIZE  = 1024*1024*96;
 double qnan = std::numeric_limits<double>::quiet_NaN();
+
+double stop_time, start_time;
 
 static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
@@ -38,8 +42,8 @@ Vpairs* tmp;
 CTCLApplication* gpTCLApplication;
 
 typedef struct _HistoEvent {
-  Tcl_Event      tclEvent;
-  Vpairs*        histoList; 
+  Tcl_Event    tclEvent;
+  Vpairs*      histoList;
 } HistoEvent, *pHistoEvent;
 
 Sender::Sender()
@@ -61,6 +65,14 @@ Sender::~Sender()
   delete []threadItems;
   delete []physicsItems;
   delete m_pipeline;
+}
+
+double
+Sender::clock()
+{
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  return (1.0e-6*t.tv_usec + t.tv_sec);
 }
 
 void
@@ -254,11 +266,28 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   }
 }
 
+////////////////////////////////////////////////////////////////////////
+///// This version histograms only the CEventList* in the Tcl Thread
+///// This choice doesn't work because the flow goes as follows
+////  CEventList 1
+////  CEventList 2
+////  CEventList ...
+////  CEventList N
+////  HistogramHandle 1
+////  HistogramHandle 2
+////  HistogramHandle ...
+////  HistogramHandle 3
+////  Because I'm passing pointer to memory the system blows up before
+////  I am able to free the heap
+////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////
+///// This version histograms inside the Tcl Thread
+////////////////////////////////////////////////////////////////////////
 void
 Sender::histoData(long thread, Vpairs& vec)
 {
-  std::cout << "Onto the Tcl_ThreadQueueEvent..." << std::endl;
-  
   Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
   
   pHistoEvent pHEvent = reinterpret_cast<pHistoEvent>(Tcl_Alloc(sizeof(HistoEvent)));
@@ -285,34 +314,26 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   double value;
   CEvent* e;
 
-  CEventList* outList = new CEventList;
-  CEventVector& olist(outList->getVector());
-  
+  CEventList* outList;
   for (const std::pair<unsigned int, double> &evt : *hlist){
+    outList = new CEventList;
+    CEventVector& olist(outList->getVector());
+
     index = evt.first;
     value = evt.second;
     if (std::isnan(value)){
       size = index;
-      //      std::cout << " Size: " << size << std::endl;
       e = new CEvent;
       continue;
     }
-    //    std::cout << counter << " " << evt.first << " " << evt.second << std::endl;
     (*e)[index] = value;
     if(size == e->getDopeVector().size()){
-      //      std::cout << "pushed to list" << std::endl;
-      //    olist.push_back(e);
-      // instead of filling the list let's histogram them right away
-      hist->operator()(*e);
-      delete e;
-      e = (CEvent*)kpNULL;
+      olist.push_back(e);
+      hist->operator()(*outList);    
     }
+    delete outList;
   }
-
-  //  hist->operator()(*outList);    
   
-  delete outList;
-
   return 1;
 }
 
@@ -346,6 +367,13 @@ Sender::worker_task(void *args)
 
     s_recv(worker);                               // Delimeter.
     std::string type = s_recv(worker);
+
+    if (isStart){
+      std::cout << "Start!" << std::endl;
+      start_time = Sender::clock();
+      isStart = false;
+    }
+      
     if (type == "eof") {
       break;
     } else if (type == "data") {
@@ -457,6 +485,9 @@ Sender::finish()
   }
   std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
   std::cout << "Physics Items " << totalPhysicsItems << std::endl;
+
+  stop_time = clock();
+  printf("Elapsed time %lf\n", stop_time-start_time);
 }  
 
 void*
