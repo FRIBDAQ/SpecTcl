@@ -20,8 +20,11 @@ Sender* Sender::m_pInstance = 0;
 
 const int NBR_WORKERS = 25;
 int CHUNK_SIZE  = 1024*1024*96;
-double qnan = std::numeric_limits<double>::quiet_NaN();
+UInt_t m_nParametersInEvent = 512;
+CEventList Sender::m_eventPool;
+CEventList Sender::m_eventList;
 
+double qnan = std::numeric_limits<double>::quiet_NaN();
 double stop_time, start_time;
 
 static size_t bytesSent(0);
@@ -65,6 +68,38 @@ Sender::~Sender()
   delete []threadItems;
   delete []physicsItems;
   delete m_pipeline;
+}
+
+CEvent*
+Sender::CreateEvent()
+{
+  CEventVector& rVec(m_eventPool.getVector());
+  CEvent* pEvent;
+  if(rVec.empty()) {
+    pEvent =  new CEvent(m_nParametersInEvent);
+    
+  } else {
+    pEvent = rVec.back();
+    rVec.pop_back();
+  }
+  if(pEvent) pEvent->clear(); // BUG prevention.
+  else pEvent= new CEvent(m_nParametersInEvent);
+  return pEvent;
+}
+
+void
+Sender::ClearEventList()
+{
+  CEventVector& evlist(m_eventList.getVector());
+  CEventVector& evpool(m_eventPool.getVector());
+  CEventListIterator p = evlist.begin();
+  for(; p != evlist.end(); p++) {
+    if(*p) {
+      CEvent* pEvent = *p;
+      evpool.push_back(pEvent);
+      *p = (CEvent*)kpNULL;
+    }
+  }
 }
 
 double
@@ -267,22 +302,6 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 }
 
 ////////////////////////////////////////////////////////////////////////
-///// This version histograms only the CEventList* in the Tcl Thread
-///// This choice doesn't work because the flow goes as follows
-////  CEventList 1
-////  CEventList 2
-////  CEventList ...
-////  CEventList N
-////  HistogramHandle 1
-////  HistogramHandle 2
-////  HistogramHandle ...
-////  HistogramHandle 3
-////  Because I'm passing pointer to memory the system blows up before
-////  I am able to free the heap
-////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////
 ///// This version histograms inside the Tcl Thread
 ////////////////////////////////////////////////////////////////////////
 void
@@ -309,29 +328,27 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   SpecTcl *pApi = SpecTcl::getInstance();
   CHistogrammer* hist = pApi->GetHistogrammer();  
   
-  // convert Vpairs* to CEventList*
+  // convert Vpairs* to CEvent*
   unsigned int index, size;
   double value;
-  CEvent* e;
+  UInt_t nEventNo = 0;
 
-  CEventList* outList;
+  CEvent* e = 0;
   for (const std::pair<unsigned int, double> &evt : *hlist){
-    outList = new CEventList;
-    CEventVector& olist(outList->getVector());
 
     index = evt.first;
     value = evt.second;
     if (std::isnan(value)){
       size = index;
-      e = new CEvent;
+      e = Sender::CreateEvent();
       continue;
     }
     (*e)[index] = value;
     if(size == e->getDopeVector().size()){
-      olist.push_back(e);
-      hist->operator()(*outList);    
+      m_eventList[nEventNo] = e;
+      hist->operator()(*e); 
+      Sender::ClearEventList();
     }
-    delete outList;
   }
   
   return 1;
@@ -401,7 +418,7 @@ Sender::worker_task(void *args)
   }
   threadBytes[thread] = bytes;
   threadItems[thread]  = nItems;
-
+  
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
     

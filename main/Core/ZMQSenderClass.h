@@ -63,10 +63,14 @@ class Sender
   static void histoData(long thread, Vpairs& vec);
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
   static double clock();
-  
-  
+    
   void finish();
   void cleanup();
+  
+  static CEventList m_eventPool;
+  static CEventList m_eventList;    
+  static CEvent* CreateEvent();
+  static void ClearEventList();
   
  private:
   //! Match pipeline element by name.
