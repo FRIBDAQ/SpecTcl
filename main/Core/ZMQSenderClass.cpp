@@ -1,5 +1,4 @@
 #include <limits>
-#include <mutex>
 #include <chrono>
 #include "DataFormat.h"
 #include "CRingBufferDecoder.h"
@@ -10,7 +9,9 @@
 #include "BufferDecoder.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "TclGrammerApp.h"
-pthread_mutex_t mu;
+#include "RingFormatHelper.h"
+#include "RingFormatHelper11Creator.h"
+#include "RingFormatHelperFactory.h"
 
 int status;
 bool isDone = false;
@@ -19,7 +20,7 @@ bool isStart = true;
 Sender* Sender::m_pInstance = 0;
 
 const int NBR_WORKERS = 25;
-int CHUNK_SIZE  = 1024*1024*96;
+int CHUNK_SIZE  = 1024*1024*48;
 UInt_t m_nParametersInEvent = 512;
 CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;
@@ -31,6 +32,13 @@ static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
 size_t* Sender::threadItems = new size_t[NBR_WORKERS];
 size_t* Sender::physicsItems = new size_t[NBR_WORKERS];
+Vpairs* Sender::tmp = new Vpairs[NBR_WORKERS];
+CRingFormatHelperFactory* Sender::m_pFactory = new CRingFormatHelperFactory[NBR_WORKERS];
+
+CTCLVariable* Sender::m_pBuffersAnalyzed(0);
+CTCLVariable* Sender::m_pRunNumber;
+CTCLVariable* Sender::m_pRunTitle;
+int  Sender::m_nBuffersAnalyzed(0);
 
 EventProcessingPipeline* Sender::m_pipeline;
 BufferTranslator* Sender::m_pTranslator;
@@ -40,9 +48,8 @@ static CThreadAnalyzer* pAnalyzer;
 CBufferDecoder* pDecoder[NBR_WORKERS];
 static CEventList* pEventList;
 
-Vpairs* tmp;
-
 CTCLApplication* gpTCLApplication;
+CRingFormatHelper11Creator create11;
 
 typedef struct _HistoEvent {
   Tcl_Event    tclEvent;
@@ -56,9 +63,29 @@ Sender::Sender()
 
   pAnalyzer = new CThreadAnalyzer[NBR_WORKERS];
   pEventList = new CEventList[NBR_WORKERS];
-  
+
   for (int i=0; i<NBR_WORKERS; ++i)
     physicsItems[i] = 0;
+
+  // RingFormatHelper
+  for (int i=0; i<NBR_WORKERS; ++i){
+    m_pFactory[i].addCreator(11, 0, create11);
+  }
+    
+  SpecTcl *pApi = SpecTcl::getInstance();
+  CTCLInterpreter* rInterp = pApi->getInterpreter();
+
+  m_pBuffersAnalyzed = new CTCLVariable(rInterp,
+					std::string("BuffersAnalyzed"),
+					kfFALSE);
+  m_pBuffersAnalyzed->Link(&m_nBuffersAnalyzed, TCL_LINK_INT);
+  m_nBuffersAnalyzed = 1;  
+
+  m_pRunNumber = new CTCLVariable(rInterp, std::string("RunNumber"), kfFALSE);
+  ClearVariable(*m_pRunNumber);
+  
+  m_pRunTitle = new CTCLVariable(rInterp, std::string("RunTitle"), kfFALSE);
+  m_pRunTitle->Set(">>> Unknown <<<");
 
 }
 
@@ -67,7 +94,9 @@ Sender::~Sender()
   delete []threadBytes;
   delete []threadItems;
   delete []physicsItems;
+  delete []tmp;
   delete m_pipeline;
+  delete []m_pFactory;
 }
 
 CEvent*
@@ -113,6 +142,26 @@ Sender::clock()
 void
 Sender::cleanup()
 {
+  delete []threadBytes;
+  delete []threadItems;
+  delete []physicsItems;
+  delete []tmp;
+  delete m_pipeline;
+  
+  m_pBuffersAnalyzed->Unlink();
+  delete m_pBuffersAnalyzed;
+  
+  threadBytes = new size_t[NBR_WORKERS];
+  threadItems = new size_t[NBR_WORKERS];
+  physicsItems = new size_t[NBR_WORKERS];
+  for (int i=0; i<NBR_WORKERS; ++i){
+    physicsItems[i] = 0;
+  }
+  m_pipeline = new EventProcessingPipeline;
+  tmp = new Vpairs[NBR_WORKERS];
+
+  isStart = true;
+  
 }
 
 Sender*
@@ -252,6 +301,9 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 
   Address_t    pBody;
   UInt_t       nBodySize;
+
+  std::string  m_title;         // Last title gotten from a transition event.
+  UInt_t       m_runNumber;     // Last run number   ""    ""
   
   while(nResidual) {
     
@@ -260,20 +312,29 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     uint32_t         type  = pTranslator[thread]->TranslateLong(pItem->s_header.s_type);
     pTranslator[thread]->newBuffer(pItem);
 
+    // RingHelper
+    CRingFormatHelper* pHelper;
+    pHelper = m_pFactory[thread].create(11,0);
+    
     pBody     = pItem->s_body.u_noBodyHeader.s_body;
     nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
     
     switch (type) {
     case BEGIN_RUN:
       {
-	if (debug)
-	  std::cout << "BEGIN RUN" << std::endl;
+	Sender::SetVariable(*m_pBuffersAnalyzed, -1);
       }
       break;
     case END_RUN:
     case PAUSE_RUN:
     case RESUME_RUN:
-      {}
+      {
+	m_title        = pHelper->getTitle(pItem);
+	m_runNumber    = pHelper->getRunNumber(pItem, pTranslator[thread]);
+	// add run number and title
+	Sender::SetVariable(*m_pRunNumber, m_runNumber);
+	m_pRunTitle->Set(m_title.c_str());
+      }
       break;
     case PACKET_TYPES:
     case MONITORED_VARIABLES:
@@ -386,7 +447,6 @@ Sender::worker_task(void *args)
     std::string type = s_recv(worker);
 
     if (isStart){
-      std::cout << "Start!" << std::endl;
       start_time = Sender::clock();
       isStart = false;
     }
@@ -407,9 +467,8 @@ Sender::worker_task(void *args)
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
 
-      tmp = new Vpairs;
-      Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
-      Sender::histoData(thread, *tmp);
+      Sender::processRingItems(thread, pDescriptor, pRingItems, tmp[thread]); 
+      Sender::histoData(thread, tmp[thread]);
       
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -502,10 +561,26 @@ Sender::finish()
   }
   std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
   std::cout << "Physics Items " << totalPhysicsItems << std::endl;
-
+  Sender::SetVariable(*m_pBuffersAnalyzed, totalPhysicsItems);
+  
   stop_time = clock();
   printf("Elapsed time %lf\n", stop_time-start_time);
-}  
+
+  Sender::cleanup();
+  
+}
+
+void
+Sender::SetVariable(CTCLVariable& rVar, int newval) {
+  std::string Script("set ");
+  char sval[100];
+  sprintf(sval, "%d", newval);
+  Script += rVar.getVariableName();
+  Script += " ";
+  Script += sval;
+  rVar.getInterpreter()->GlobalEval(Script);
+}
+
 
 void*
 Sender::sender_task(void* args)

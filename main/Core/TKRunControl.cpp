@@ -72,14 +72,12 @@ CTKRunControl::Start()
   // Let's set the file descriptor to start all the threads
   Sender* snd = Sender::getInstance();
   snd->setFd(getEventSource()->getFd());
-  
+
   ThreadAPI* api = ThreadAPI::getInstance();
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
   api->JoinThreads();
 
-  //  start_time = Sender::clock();
-  
   CRunControl::Start();		// Update the internal state variables.
 }
 //////////////////////////////////////////////////////////////////////////

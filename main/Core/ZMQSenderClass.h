@@ -15,7 +15,6 @@
 
 extern const int NBR_WORKERS;
 
-
 typedef std::pair<std::string, CEventProcessor*>                       PipelineElement;
 typedef std::list<PipelineElement>                                     EventProcessingPipeline;
 typedef std::map <std::string, EventProcessingPipeline >               MapEventProcessingPipeline;
@@ -26,6 +25,9 @@ typedef std::vector<std::pair<unsigned int, double>> Vpairs;
 
 extern double start_time, stop_time;
 
+class CRingFormatHelper;
+class CRingFormatHelperFactory;
+
 class Sender
 {
  private:
@@ -33,11 +35,18 @@ class Sender
   static Sender* m_pInstance;
   Sender(); 
   virtual ~Sender();
+  
+  static CTCLVariable* m_pBuffersAnalyzed; // # buffers analyzed.
+  static int  m_nBuffersAnalyzed; // linkedto m_pBuffersAnalyzed.
+  static CTCLVariable* m_pRunNumber;
+  static CTCLVariable* m_pRunTitle;
 
  public: 
 
   static Sender* getInstance();
 
+  static Vpairs* tmp;
+  
   int m_nFd;  
   void setFd(int fd);
   int  getFd();  
@@ -45,10 +54,12 @@ class Sender
   MapEventProcessors                 m_processors;
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
-  
+
   static size_t* threadBytes;
   static size_t* threadItems;
   static size_t* physicsItems;  
+
+  static CRingFormatHelperFactory* m_pFactory;
   
   static void* sender_task(void *args);  
   static void* worker_task(void *args);
@@ -65,12 +76,17 @@ class Sender
   static double clock();
     
   void finish();
-  void cleanup();
+  static void cleanup();
   
   static CEventList m_eventPool;
   static CEventList m_eventList;    
   static CEvent* CreateEvent();
   static void ClearEventList();
+
+  static void SetVariable(CTCLVariable& rVar, int newval);
+  static void ClearVariable(CTCLVariable& rVar) {
+    SetVariable(rVar, 0);
+  }
   
  private:
   //! Match pipeline element by name.
