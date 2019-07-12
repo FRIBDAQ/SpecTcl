@@ -32,20 +32,10 @@
 #ifndef __DICTIONARYEXCEPTION_H  //Required for current class
 #define __DICTIONARYEXCEPTION_H
                                //Required for base classes
-#ifndef __EXCEPTION_H
 #include "Exception.h"
-#endif                               
-      
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+
                          
 class CDictionaryException  : public CException        
 {

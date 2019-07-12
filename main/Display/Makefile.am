@@ -13,7 +13,7 @@ AM_CPPFLAGS = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 Xamine_LDFLAGS=  -g 
 Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		@TK_LIBS@ @TCL_LIBS@ 						\
-	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS) 
+	        -lXm -lXt -lX11 -lm  $(X11EXTRA_LDFLAGS) 
 # Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 #  @LD_EXTRA_FLAGS@
@@ -163,7 +163,7 @@ Xaminetest_SOURCES = Xaminetest.c
 
 
 
-colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11  $(X11EXTRA_LDFLAGS)
 
 Xaminetest_LDADD = -lXamine -lm @TK_LIBS@ @TCL_LIBS@
 

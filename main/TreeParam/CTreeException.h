@@ -32,16 +32,9 @@
 #define __CTREEEXCEPTION_H
 
 
-#ifndef __EXCEPTION_H
 #include <Exception.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+
 
 /**
  * Exception that can be thrown due to usage problems in the
