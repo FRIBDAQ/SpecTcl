@@ -39,7 +39,7 @@
 // Python type objects that will be added to spectcl package:
 //
 
-//#include "pythonParameters.h"            // Parameters/parameter object.
+#include "pythonParameters.h"            // Parameters/parameter object.
 
 /////////////////////////////////////////////////////////////////////////////
 //  The spectcl python module that lets python scripts do SpecTcl stuff.
@@ -151,7 +151,7 @@ PyInit_SpecTcl(void)
 {
     PyObject* module =  PyModule_Create(&spectclModule);
     
-    // setupPythonParameterObjects(module);
+    setupPythonParameterObjects(module);
     
     return module;
 }
