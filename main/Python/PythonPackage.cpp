@@ -19,10 +19,24 @@
  *  @brief: Package initialization for SpecTcl python package.
  */
 #include <tcl.h>
+#include <Python.h>
+#ifdef HAVE_STAT             // Dueling configs
+#undef HAVE_STAT
+#endif
 #include <TCLInterpreter.h>
 #include <SpecTcl.h>
 
 #include "CPythonCommand.h"
+
+#include <Exception.h>           // Eval throws CTCLExceptions.
+#include <string>
+
+// Python extensions to interface back to Tcl.
+// NOTE:  These assume python has been initialized already.
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Tcl package initialization.
 
 static const char* version("1.0");
 extern "C" {
@@ -36,6 +50,8 @@ extern "C" {
         
         new CPythonCommand(*pSpecTclInterp, "python");
         std:: cerr << " SpecTcl 'python' package " << version << " loaded\n";
+        
+        
         return TCL_OK;
     }
 }

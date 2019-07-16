@@ -18,15 +18,98 @@
 /** @file:  CPythonCommand.cpp
  *  @brief: Implement command processor that executes Python Scripts.
  */
-
+#include <Python.h>
+#ifdef HAVE_STAT                // dueling features.
+#undef HAVE_STAT
+#endif
 #include "CPythonCommand.h"
+
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
+#include <SpecTcl.h>
+
 #include <stdexcept>
 
 #include <stdio.h>
-#include <Python.h>
+
+
+/////////////////////////////////////////////////////////////////////////////
+//  The spectcl python mocule that lets python scripts do SpecTcl stuff.
+
+
+/**
+ * spectcl_tcl
+ *    Run a tcl script from python in SpecTcl's interpreter.
+ *
+ * @param self - pointer to the module object we're in.
+ * @param args - Parameters to the command - should be a single string.
+ * @return - string that's the interpreter result of the Tcl script execution
+ * @note raises a RuntimeError if the script fails.
+ * @note the script scope is the current tcl scope thus e.g.:
+ * \verbatim
+ *   proc a {stuff} {
+ *      set value [expr $stuff*2]
+ *      python exec {spectcl.tcl("puts $value")}
+ *   }
+ * \endverbatim
+ *   Should work just fine... and print $stuff*2 when a was called.
+ *   @note - naturally  spectcl.tcl("source filename") can be used as well
+ *   as package requires to load packages in the SpecTcl interpreter.
+ */
+static PyObject*
+spectcl_tcl(PyObject* self, PyObject* args)
+{
+    const char* script;
+    if (!PyArg_ParseTuple(args, "s", &script)) {
+        return NULL;                  // parse tuple raises exceptions on error.
+    }
+    
+    SpecTcl* api = SpecTcl::getInstance();
+    CTCLInterpreter* pInterp = api->getInterpreter();       // Tcl interpreter.
+    std::string result;
+    try {
+        result = pInterp->Eval(script);
+    }
+    catch (CException& e) {
+        std::string msg = e.ReasonText();
+        PyErr_SetString(PyExc_RuntimeError, msg.c_str());
+        return NULL;
+    }
+    catch (...) {
+        PyErr_SetString(PyExc_RuntimeError, "Unanticipated exception from Tcl script");
+        return NULL;
+    }
+    
+    // Create the string result and pass it back.
+    
+    return  PyUnicode_FromString(result.c_str());
+    
+}
+
+// Module symbol table for the spectcl module:
+
+static struct PyMethodDef SpecTclMethods[] = {
+    {"tcl", spectcl_tcl, METH_VARARGS, "Run Tcl script in SpecTcl interpreter"},
+    {NULL, NULL, 0, NULL}
+};
+
+// Module definition struct:
+
+static struct PyModuleDef spectclModule = {
+    PyModuleDef_HEAD_INIT,
+    "spectcl", NULL, -1,
+    SpecTclMethods
+};
+
+// Module initialization function:
+
+PyMODINIT_FUNC
+PyInit_SpecTcl(void)
+{
+    return PyModule_Create(&spectclModule);
+}
+
 
 static const wchar_t* pName = L"SpecTcl";
 
@@ -46,7 +129,12 @@ CPythonCommand::CPythonCommand(CTCLInterpreter& interp, const char* name) :
     Py_SetProgramName(
         const_cast<wchar_t*>(pName)
     );
+    // Add the SpecTcl module  to the set of preloaded/built in modules:
+    
+    PyImport_AppendInittab("spectcl", &PyInit_SpecTcl);
+    
     Py_Initialize();
+    PyImport_ImportModule("spectcl");
 }
 /**
  * destructor
