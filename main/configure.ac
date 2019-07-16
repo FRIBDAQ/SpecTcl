@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl,5.1-010, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.2-000, scientificsoftware@nscl.msu.edu)
 
 
 
@@ -42,6 +42,8 @@ AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
+
+AX_PYTHON
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
@@ -961,6 +963,7 @@ AC_OUTPUT(Makefile
           spectra/test/Makefile
           spectra/spectcljson/Makefile
           spectra/Xamine2Root/Makefile
+          Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user
