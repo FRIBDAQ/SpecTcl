@@ -18,6 +18,7 @@
 /** @file:  CPythonCommand.cpp
  *  @brief: Implement command processor that executes Python Scripts.
  */
+#define PY_SSIZ_T_CLEAN         // from the examples ...
 #include <Python.h>
 #ifdef HAVE_STAT                // dueling features.
 #undef HAVE_STAT
@@ -34,8 +35,14 @@
 #include <stdio.h>
 #include <iostream>
 
+//
+// Python type objects that will be added to spectcl package:
+//
+
+//#include "pythonParameters.h"            // Parameters/parameter object.
+
 /////////////////////////////////////////////////////////////////////////////
-//  The spectcl python mocule that lets python scripts do SpecTcl stuff.
+//  The spectcl python module that lets python scripts do SpecTcl stuff.
 
 
 /**
@@ -87,10 +94,45 @@ spectcl_tcl(PyObject* self, PyObject* args)
     
 }
 
+/**
+ * spectcl_plist
+ *    Creates a python ntuple of parameter name strings. No filtering is done,
+ *    No filtering is done.
+ */
+static PyObject*
+spectcl_plist(PyObject* self, PyObject* args)
+{
+    // there can be no parameters:
+    
+    if(PyTuple_Size(args) != 0) {
+        PyErr_SetString(PyExc_IndexError, "spectcl.plist does not accept any parameters");
+        return NULL;
+    }
+    // Figure out the size of the resulting ntuple:
+    
+    SpecTcl* pSpecTcl = SpecTcl::getInstance();
+    UInt_t nParams    = pSpecTcl->ParameterCount();
+    
+    // Create the result then iterate over the spectrumdictionary to pull out
+    // the parameter names:
+    
+    PyObject* result = PyTuple_New(nParams);
+    int       i      = 0;
+    for (
+        auto p = pSpecTcl->BeginParameters(); p != pSpecTcl->EndParameters();
+        p++, i++
+    ) {
+        PyTuple_SetItem(result, i, PyUnicode_FromString(p->first.c_str()));
+    }
+    
+    return result;
+}
+
 // Module symbol table for the spectcl module:
 
 static struct PyMethodDef SpecTclMethods[] = {
     {"tcl", spectcl_tcl, METH_VARARGS, "Run Tcl script in SpecTcl interpreter"},
+    {"listparams", spectcl_plist, METH_VARARGS, "List names of SpecTcl parameters"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -107,7 +149,11 @@ static struct PyModuleDef spectclModule = {
 PyMODINIT_FUNC
 PyInit_SpecTcl(void)
 {
-    return PyModule_Create(&spectclModule);
+    PyObject* module =  PyModule_Create(&spectclModule);
+    
+    // setupPythonParameterObjects(module);
+    
+    return module;
 }
 
 
