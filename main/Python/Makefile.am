@@ -11,3 +11,9 @@ libSpecTclPython_la_CXXFLAGS=-I@top_srcdir@/Core \
 libSpecTclPython_la_LIBADD= @top_builddir@/Core/libTclGrammerApp.la   \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ \
 	-l@PYTHON_LIB@
+
+install-exec-hook: @builddir@/libSpecTclPython.la
+	$(mkinstalldirs) @prefix@/TclLibs/python
+	$(INSTALL_PROGRAM) @libdir@/libSpecTclPython.so @prefix@/TclLibs/python
+	echo package ifneeded python 1.0 [list load [file join \$$dir libSpecTclPython.so]] > @prefix@/TclLibs/python/pkgIndex.tcl
+
