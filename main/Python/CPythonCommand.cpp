@@ -32,7 +32,7 @@
 #include <stdexcept>
 
 #include <stdio.h>
-
+#include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////
 //  The spectcl python mocule that lets python scripts do SpecTcl stuff.
@@ -134,7 +134,8 @@ CPythonCommand::CPythonCommand(CTCLInterpreter& interp, const char* name) :
     PyImport_AppendInittab("spectcl", &PyInit_SpecTcl);
     
     Py_Initialize();
-    PyImport_ImportModule("spectcl");
+    return;
+
 }
 /**
  * destructor
