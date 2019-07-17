@@ -25,6 +25,7 @@ SUBDIRS = Replace \
 					docs \
 					spectra \
 					scalerWrapper \
+					packaged \
 					Python
 
 ACLOCAL_AMFLAGS=-I m4

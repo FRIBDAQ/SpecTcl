@@ -967,5 +967,6 @@ AC_OUTPUT(Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user
+	  packaged/Makefile
 	  )
           

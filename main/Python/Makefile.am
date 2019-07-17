@@ -5,7 +5,7 @@ libSpecTclPython_la_SOURCES=CPythonCommand.cpp CPythonCommand.h \
 	pythonParameters.cpp pythonParameters.h
 
 
-libSpecTclPython_la_CXXFLAGS=-I@top_srcdir@/Core \
+libSpecTclPython_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
 	-I@PYTHON_INCLUDE_DIR@				\
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ 
 
