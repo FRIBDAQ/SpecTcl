@@ -1,8 +1,11 @@
 lib_LTLIBRARIES=libSpectcl.la
 
-libSpectcl_la_SOURCES=Spectclpackage.cpp
+libSpectcl_la_SOURCES=Spectclpackage.cpp CPipelineMaker.cpp
+
+include_HEADERS=CPipelineMaker.h
 
 libSpectcl_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
+	-I@top_srcdir@/factories \
 		@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 		-DINSTALLED_IN='"@prefix@"'
 
