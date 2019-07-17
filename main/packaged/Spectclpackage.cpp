@@ -61,7 +61,11 @@ void* gpApplication(nullptr);
 extern "C" {
     int Spectcl_Init(Tcl_Interp* pRawInterp)
     {
-        Tcl_Init(pRawInterp);
+        //Tcl_Init(pRawInterp);
+        
+        
+        Tcl_PkgProvide(pRawInterp, "spectcl", "1.0");
+        
         CTCLInterpreter* pInterp = new CTCLInterpreter(pRawInterp);
         
         // Create enough of the SpecTcl scaffolding that none of the
