@@ -8,6 +8,7 @@ class ThreadAPI {
   void Destroy();
 
   void SetNThreads(int nthreads);  
+  int GetNThreads();
   void CreateThreads();
   void JoinThreads(); // Join sender+worker threads
   void SetTCLApp(CTCLApplication& app);

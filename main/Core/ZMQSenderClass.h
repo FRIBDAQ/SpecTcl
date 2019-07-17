@@ -24,6 +24,7 @@ typedef std::map <std::string, CEventProcessor*>                       MapEventP
 typedef std::vector<std::pair<unsigned int, double>> Vpairs;
 
 extern double start_time, stop_time;
+extern pthread_key_t glob_var_key;
 
 class CRingFormatHelper;
 class CRingFormatHelperFactory;

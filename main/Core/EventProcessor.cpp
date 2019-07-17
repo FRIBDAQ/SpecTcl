@@ -171,7 +171,8 @@ Bool_t CEventProcessor::operator()(const Address_t pEvent,
 				   CEvent& rEvent,
 				   CAnalyzer& rAnalyzer,
 				   CBufferDecoder& rDecoder,
-				   BufferTranslator& trans) {
+				   BufferTranslator& trans,
+				   long thread) {
   return kfTRUE;
 }
 

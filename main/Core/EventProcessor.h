@@ -76,7 +76,8 @@ class CEventProcessor {
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
 			    CBufferDecoder& rDecoder,
-			    BufferTranslator& trans
+			    BufferTranslator& trans,
+			    long thread
 			    ); // Physics Event.  
 
   // Functions:

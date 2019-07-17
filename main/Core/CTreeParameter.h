@@ -106,7 +106,8 @@ private:
    * The parameter element indicates which element of the Event we will fill in.
    */
   static CEvent *m_pEvent;
-  
+  static CEvent **m_pEventThread;
+
   bool m_initialized;
   
 public:
@@ -186,14 +187,16 @@ public:
   void   setChanged();
   void   resetChanged();
   static void ResetAll();
-  
 
  // Other member functions.
   
   static void BindParameters();
   static void setEvent(CEvent& rEvent);
+  static void setEvent(CEvent& rEvent, long id);  
   bool isBound() const;
-  
+
+  static int getCurrentThread();
+    
   // Iteration and location.
   
   static std::multimap<std::string, CTreeParameter*>::iterator begin();

@@ -72,6 +72,7 @@ Sender::Sender()
     m_pFactory[i].addCreator(11, 0, create11);
   }
     
+
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
 
@@ -147,9 +148,6 @@ Sender::cleanup()
   delete []physicsItems;
   delete []tmp;
   delete m_pipeline;
-  
-  m_pBuffersAnalyzed->Unlink();
-  delete m_pBuffersAnalyzed;
   
   threadBytes = new size_t[NBR_WORKERS];
   threadItems = new size_t[NBR_WORKERS];
@@ -316,7 +314,8 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     CRingFormatHelper* pHelper;
     pHelper = m_pFactory[thread].create(11,0);
     
-    pBody     = pItem->s_body.u_noBodyHeader.s_body;
+    //    pBody     = pItem->s_body.u_noBodyHeader.s_body;
+    pBody = pHelper->getBodyPointer(pItem);
     nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
     
     switch (type) {
@@ -419,6 +418,10 @@ void *
 Sender::worker_task(void *args)
 {
   long thread = (long)(args);
+  long* p = (long*)malloc(sizeof(long));
+  *p = thread;
+  pthread_setspecific(glob_var_key, p);
+  
   zmq::context_t context(1);
   int linger(0);
   ////////////////////////////////////////////
@@ -477,6 +480,9 @@ Sender::worker_task(void *args)
   }
   threadBytes[thread] = bytes;
   threadItems[thread]  = nItems;
+
+  pthread_setspecific(glob_var_key, NULL);
+  free(p);
   
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;

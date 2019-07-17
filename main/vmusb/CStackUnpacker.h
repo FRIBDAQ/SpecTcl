@@ -82,9 +82,8 @@ public:
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
 			    CBufferDecoder& rDecoder,
-                            BufferTranslator& trans
-			    );
-  
+                            BufferTranslator& trans,
+			    long thread);
   
   // Utilties:
 

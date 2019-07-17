@@ -86,7 +86,7 @@ void CThreadAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder) {
   calling each processor and giving it a chance to process the event.
   Returns the value of m_nEventSize.  Aborts the event if necessary.
 */
-UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans) {
+UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread) {
 
   EventProcessorIterator p = pipecopy.begin();
 
@@ -95,13 +95,14 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
   CBufferDecoder* pDecoder((CBufferDecoder*)cpDecoder);
 
   // Set up tree parameter processing:
-  CTreeParameter::setEvent(anEvent);
+  long dummy;
+  CTreeParameter::setEvent(anEvent, dummy);
 
   while(p != pipecopy.end()) {
     CEventProcessor* pProcessor(p->second);
     Bool_t success;
     try {
-      success = pProcessor->operator()(pRawData, anEvent, *this, *pDecoder, trans);
+      success = pProcessor->operator()(pRawData, anEvent, *this, *pDecoder, trans, thread);
     } 
     catch (string msg) {
       cerr << "Event processor " << p->first << "threw: '" << msg << "'" << endl;
@@ -297,7 +298,7 @@ void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nB
       try {
 	
 	m_fAbort = kfFALSE;
-	nEventSize = OnEvent(pData, *pEvent, rDecoder, pipeline, trans);
+	nEventSize = OnEvent(pData, *pEvent, rDecoder, pipeline, trans, thread);
 	if(!m_fAbort) {
 	  eventList[nEventNo] = pEvent;
 	  lst[nEventNo] = pEvent;

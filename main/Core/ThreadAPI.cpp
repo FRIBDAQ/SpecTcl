@@ -2,6 +2,7 @@
 #include "ZMQSenderClass.h"
 
 ThreadAPI* ThreadAPI::m_pInstance = 0;
+pthread_key_t glob_var_key;
 
 ThreadAPI*
 ThreadAPI::getInstance()
@@ -20,6 +21,12 @@ ThreadAPI::SetNThreads(int nthreads)
   workers = new pthread_t[NTHREADS];
 }
 
+int
+ThreadAPI::GetNThreads()
+{
+  return NTHREADS;
+}
+
 void
 ThreadAPI::SetTCLApp(CTCLApplication& app)
 {
@@ -30,6 +37,8 @@ ThreadAPI::SetTCLApp(CTCLApplication& app)
 void
 ThreadAPI::CreateThreads()
 {
+  pthread_key_create(&glob_var_key,NULL);
+  
   // Setup sender
   std::cout << "Setting up sender..." << std::endl;
   pthread_create(&sender, nullptr, Sender::sender_task,  nullptr);

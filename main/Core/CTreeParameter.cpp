@@ -40,17 +40,17 @@
 #include  <SpecTcl.h>
 #include <iostream>
 
+#include "ZMQSenderClass.h"
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
-
-
 // Static member data:
-
 const string CTreeParameter::TreeParameterVersion("2.1");
 bool  CTreeParameter::StrictTypeChecking(false);
 CEvent* CTreeParameter::m_pEvent(0);
+CEvent** CTreeParameter::m_pEventThread; 
 
 multimap<string, CTreeParameter*> CTreeParameter::m_ObjectRegistry;
 
@@ -69,7 +69,7 @@ CTreeParameter::CTreeParameter() :
   m_pParameter(0),
   m_initialized(false)
 {
-
+  m_pEventThread = new CEvent*[NBR_WORKERS];
 }
 
 
@@ -85,8 +85,6 @@ CTreeParameter::CTreeParameter(string name) :
   m_pParameter(0), m_initialized(false)
 {
   Initialize(name);
-  
-
 }
 
 
@@ -240,6 +238,7 @@ CTreeParameter::CTreeParameter(const CTreeParameter& rhs) :
 {
   Initialize(rhs.m_sName, rhs.m_nChannels, rhs.m_dLowLimit, rhs.m_dHighLimit,
 	     rhs.m_sUnits);
+  Bind();
 }
 
 
@@ -351,8 +350,6 @@ CTreeParameter::BindParameters()
   BindVisitor visitor;
   BindVisitor& bv(visitor);
   for_each(begin(), end(), bv);
-
-
 }
 
 
@@ -368,6 +365,20 @@ void
 CTreeParameter::setEvent(CEvent& rEvent)
 {
   m_pEvent = &rEvent;
+}
+
+int 
+CTreeParameter::getCurrentThread()
+{
+  long* id = (long*)pthread_getspecific(glob_var_key);
+  return (int)(*id);
+}
+
+
+void 
+CTreeParameter::setEvent(CEvent& rEvent, long id)
+{
+  m_pEventThread[getCurrentThread()] = &rEvent;
 }
 
 
@@ -388,7 +399,8 @@ CTreeParameter::isBound() const
 	// If there's a parameter binding, there must also be an event as
 	// otherwise we can't assign/get a value from this.
 	
-	return (m_pEvent != (CEvent*)NULL);
+	//	return (m_pEvent != (CEvent*)NULL);
+	return (m_pEventThread[getCurrentThread()] != (CEvent*)NULL);	
 }
 
 /**
@@ -413,7 +425,7 @@ CTreeParameter::Initialize(string name, UInt_t resolution)
   Initialize(name);
   // This registers me.
   // Override the defaults with our defaults where different.
-    
+
   m_dLowLimit          = 0.0;
   m_nChannels          = 1 << resolution;
   m_dHighLimit         = (float)(m_nChannels); // This is an exclusive limit
@@ -498,6 +510,7 @@ CTreeParameter::Initialize(string name)
   Register();
 
   m_initialized = true;
+
 }
 
 
@@ -584,12 +597,8 @@ CTreeParameter::operator double()
 CTreeParameter& 
 CTreeParameter::operator=(double newValue)
 {
-
-  setValue(newValue);
-  
+  setValue(newValue);  
   return *this;
-
-
 }
 
 
@@ -796,7 +805,8 @@ CTreeParameter::getValue()
 {
   ThrowIfNoEvent(gvaluestring);
   try {
-    return (*m_pEvent)[getId()];
+    //    return (*m_pEvent)[getId()];
+    return (*m_pEventThread[getCurrentThread()])[getId()];    
   } catch (std::string& msg) {
     std::string finalmsg = getName();
     finalmsg += " (tree parameter) : ";
@@ -816,9 +826,9 @@ static string setvaluestring("Setting Value");
 void 
 CTreeParameter::setValue(double newValue)
 {
-
   ThrowIfNoParameter(setvaluestring);
-  (*m_pEvent)[getId()] = newValue; // Getid calls ThrowIfNoEvent.
+  //  (*m_pEvent)[getId()] = newValue; // Getid calls ThrowIfNoEvent.
+  (*m_pEventThread[getCurrentThread()])[getId()] = newValue; // Getid calls ThrowIfNoEvent.  
 }
 
 
@@ -965,14 +975,14 @@ bool
 CTreeParameter::isValid()
 {
   UInt_t id = getId();                // Throws if no underlying parameter.
-  if(!m_pEvent) {
+  //  if(!m_pEvent) {
+  if(!&m_pEventThread[getCurrentThread()]) {  
     throw CTreeException(CTreeException::
 			 NotBound, "CTreeParameter::isValid");
   }
   
-  return (*m_pEvent)[id].isValid();
-
-
+  //  return (*m_pEvent)[id].isValid();
+  return (*m_pEventThread[getCurrentThread()])[id].isValid();  
 }
 
 
@@ -986,11 +996,13 @@ CTreeParameter::setInvalid()
 {
   
   UInt_t id = getId();                // Throws if no underlying parameter.
-  if(!m_pEvent) {
+  //  if(!m_pEvent) {
+  if(!&m_pEventThread[getCurrentThread()]) {  
     throw CTreeException(CTreeException::NotBound, "CTreeParameter::setInvalid");   
   }
   
-  (*m_pEvent)[id].clear();
+  //  (*m_pEvent)[id].clear();
+  (m_pEventThread[getCurrentThread()])[id].clear();  
   
 }
 
@@ -1062,8 +1074,6 @@ CTreeParameter::ResetAll()
   ResetVisitor visitor;
 
   for_each(begin(), end(), visitor);
-
-  
   
 }
 
@@ -1122,7 +1132,8 @@ CTreeParameter::ThrowIfNoParameter(string& doing)
 void
 CTreeParameter::ThrowIfNoEvent(string& doing)
 {
-  if(!m_pEvent) {
+  //  if(!m_pEvent) {
+  if(!&m_pEventThread[getCurrentThread()]) {  
     throw CTreeException(CTreeException::NotBound, doing);
   }
 }
@@ -1159,7 +1170,9 @@ CTreeParameter::testClearMap()
 
   vector<CTreeParameter*> trees;
   
-  m_pEvent = (CEvent*)NULL;	// not bound to an event.
+  //  m_pEvent = (CEvent*)NULL;	// not bound to an event.
+  // to be fixed
+  //  m_pEventThread[m_thread] = (CEvent*)NULL; // not bound to an event.
   p = m_ObjectRegistry.begin();
   while (p != m_ObjectRegistry.end()) {
     trees.push_back(p->second);

@@ -89,7 +89,7 @@ public:
   
  protected:
   
-  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans);
+  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread);
 
  private:
   CEvent* CreateEvent() {

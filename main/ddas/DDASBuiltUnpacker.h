@@ -66,12 +66,16 @@ namespace DAQ {
      * likely to be an issue in the future unless you try to analyze your
      * system on a computer with a strange architecture.
      */
+
+    typedef std::vector<DDASHit> DDASHitV;
+
     class CDDASBuiltUnpacker : public  CEventProcessor
     {
 
       private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
-        std::vector<DDASHit>  m_channelList;      ///< list of parsed data
+	DDASHitV* m_channelList;      ///< list of parsed data
+	//        std::vector<DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
 
       public:
@@ -141,18 +145,20 @@ namespace DAQ {
          *
          */
         virtual Bool_t operator()(const Address_t pEvent,
-            CEvent&         rEvent,
-            CAnalyzer&      rAnalyzer,
-            CBufferDecoder& rDecoder);
+				  CEvent&         rEvent,
+				  CAnalyzer&      rAnalyzer,
+				  CBufferDecoder& rDecoder,
+				  BufferTranslator& trans,
+				  long thread);
 
         // Utility methods
       protected:
         void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,
-                          CAnalyzer& rAnalyzer);
+                          CAnalyzer& rAnalyzer, BufferTranslator& trans);
 
-        Bool_t selectivelyParseData(uint16_t* p16);
+        Bool_t selectivelyParseData(uint16_t* p16, long thread);
 
-        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo);
+        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo, long thread);
     };
 
   } // end DDAS namespace
