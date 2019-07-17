@@ -45,7 +45,7 @@
 #include <CUnpackEvbCommand.h>
 #include <ProductionXamineShMem.h>
 
-#include <DisplayInterface.h>
+#include <SpecTclDisplayManager.h>
 #include <TCLAnalyzer.h>
 #include <TCLHistogrammer.h>
 #include <TCLAnalyzer.h>
@@ -71,7 +71,8 @@ extern "C" {
         gpEventSink = new CTCLHistogrammer(pInterp);
         gpEventSinkPipeline = new CEventSinkPipeline;
         gpEventSinkPipeline->AddEventSink(*gpEventSink, "::Histogrammer");
-        gpDisplayInterface = new CDisplayInterface;
+        gpDisplayInterface = new CSpecTclDisplayInterface;
+        gpDisplayInterface->setCurrentDisplay("none");
         gpAnalyzer = new CTclAnalyzer(*pInterp, 100, 1);
         
         // Add the SpecTcl Commands
