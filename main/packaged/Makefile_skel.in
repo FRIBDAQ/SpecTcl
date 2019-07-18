@@ -43,12 +43,14 @@ MYPACKAGELIB=libMyPipelineMaker.so
 #-------------------------------------------------------
 #  Don't modify anything below this line:
 
-OBJECTS=$(SOURCES:.cpp=.o)	#Neato trick to build objects from sources.
+SRCS=$(SOURCES)  CPipelineMaker.cpp
+
+OBJECTS=$(SRCS:.cpp=.o)	#Neato trick to build objects from sources.
 
 #  Build the compilation flags from the user flags and
 #  what we know we need.
 
-CXXFLAGS=$(MYCXXFLAGS) -I$(INCDIR) @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@
+CXXFLAGS=$(MYCXXFLAGS) -I$(INCDIR) @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ -fPIC
 
 LDFLAGS=$(MYLDFLAGS) -L@libdir@ -lTclGrammerApp \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
@@ -58,8 +60,8 @@ LDFLAGS=$(MYLDFLAGS) -L@libdir@ -lTclGrammerApp \
 # This rule builds an object from .cpps.
 
 .cpp.o:
-	$(CXX) -c $(CXXFLAGS) $<
+	@CXX@ -c $(CXXFLAGS) $<
 
 $(MYPACKAGELIB): $(OBJECTS)
-	$(CXXLD) -o $(MYPACKAGELIB) $(OBJECTS) $(LDFLAGS)
+	@CXX@ -shared -o $(MYPACKAGELIB) $(OBJECTS) $(LDFLAGS)
 	echo pkg_mkIndex -verbose . $(MYPACKAGELIB)  | @TCLSH@

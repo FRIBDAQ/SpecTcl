@@ -30,9 +30,10 @@ static const std::string standardPipeline("default");
 CPipelineMaker::CPipelineMaker()
 {
     CPipelineManager* pMgr = CPipelineManager::getInstance();
-    
+ try {   
     pMgr->createPipeline(standardPipeline);
     pMgr->setCurrentPipeline(standardPipeline);
+ } catch(...) {}
 }
 
 //////////////////////////////////////////////////////////////////////////////

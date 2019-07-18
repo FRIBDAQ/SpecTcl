@@ -18,7 +18,8 @@ install-exec-hook: @builddir@/libSpectcl.la
 	$(INSTALL_PROGRAM) @libdir@/libSpectcl.so @prefix@/TclLibs/spectclpackage
 	echo package ifneeded spectcl 1.0 [list load [file join \$$dir libSpectcl.so]] > @prefix@/TclLibs/spectclpackage/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/BatchSkel
-	$(INSTALL_DATA) Skeleton.cpp @prefix@/BatchSkel
+	$(INSTALL_DATA) @srcdir@/CPipelineMaker.{h,cpp}    @prefix@/BatchSkel
+	$(INSTALL_DATA) @srcdir@/Skeleton.cpp @prefix@/BatchSkel
 	$(INSTALL_DATA) Makefile_skel @prefix@/BatchSkel/Makefile
 
 
