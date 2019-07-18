@@ -11,7 +11,7 @@
 
 INSTDIR=@prefix@
 INCDIR=@prefix@/include
-LIBDIR=@prefix@/lib
+
 
 #  Add the sources you need built here.
 
@@ -48,16 +48,16 @@ OBJECTS=$(SOURCES:.cpp=.o)	#Neato trick to build objects from sources.
 #  Build the compilation flags from the user flags and
 #  what we know we need.
 
-CXXFLAGS=$(MYCXXFLAGS) -I$(INCDIR) @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS
+CXXFLAGS=$(MYCXXFLAGS) -I$(INCDIR) @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 
-LDFLAGS=$(MYLDFLAGS) -L$(LIBDIR) -lTclGrammerApp \
+LDFLAGS=$(MYLDFLAGS) -L@libdir@ -lTclGrammerApp \
 	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
-	-Wl,-rpath=@LIBDIR@
+	-Wl,-rpath=@libdir@
 
 #
 # This rule builds an object from .cpps.
 
-.cpp.o
+.cpp.o:
 	$(CXX) -c $(CXXFLAGS) $<
 
 $(MYPACKAGELIB): $(OBJECTS)

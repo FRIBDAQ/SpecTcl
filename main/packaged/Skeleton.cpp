@@ -19,7 +19,7 @@
  *  @brief: Provides a user skeleton for the batch SpecTcl user code.
  */
 
-#inlcude <tcl.h>
+#include <tcl.h>
 #include <CPipelineMaker.h>
 #include <TCLInterpreter.h>
 
@@ -39,7 +39,7 @@ static const char* PKG_NAME="MyPipeline";
 class MyPipelineMaker : public CPipelineMaker
 {
 public:
-    void operator() {
+    void operator()() {
         // Here instantiate and use RegisterEventProcessor to
         // setup the event processing pipeline. 
     }
@@ -58,7 +58,7 @@ public:
  *  name below.
  */
 extern "C" {                              // Tcl n eeds C bindings.
-    int Mypipelinemaker_Init(Tcl_Inter* pRawInterpreter)
+    int Mypipelinemaker_Init(Tcl_Interp* pRawInterpreter)
     {
         Tcl_PkgProvide(pRawInterpreter, PKG_NAME, VERSION);
         CTCLInterpreter* pInterp = new CTCLInterpreter(pRawInterpreter);
