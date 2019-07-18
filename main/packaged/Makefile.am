@@ -6,7 +6,7 @@ include_HEADERS=CPipelineMaker.h
 
 
 libSpectcl_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
-	-I@top_srcdir@/factories \
+	-I@top_srcdir@/factories -I@top_srcdir@/Display \
 		@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 		-DINSTALLED_IN='"@prefix@"'
 
