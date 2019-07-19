@@ -27,5 +27,9 @@
 void
 CDistributeToAnalyzer::handleData(std::pair<size_t, void*>& info)
 {
-    gpAnalyzer->OnBuffer(info.first, info.second);
+    if (info.first) {
+        gpAnalyzer->OnBuffer(info.first, info.second);
+    } else {
+        gpAnalyzer->OnEndFile();
+    }
 }

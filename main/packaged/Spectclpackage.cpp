@@ -47,6 +47,7 @@
 
 #include "CAnalyzeCommand.h"
 #include "CFileSourceCommand.h"
+#include "CAnalysisSinkCommand.h"
 
 #include <SpecTclDisplayManager.h>
 #include <TCLAnalyzer.h>
@@ -118,6 +119,7 @@ extern "C" {
         new CUnpackEvbCommand(*pInterp);
         CAnalyzeCommand::getInstance();         // installs the command.
         new CFileSourceCommand(*pInterp);
+        new CAnalysisSinkCommand(*pInterp);
         
         return TCL_OK;
     }
