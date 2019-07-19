@@ -46,6 +46,7 @@
 #include <ProductionXamineShMem.h>
 
 #include "CAnalyzeCommand.h"
+#include "CFileSourceCommand.h"
 
 #include <SpecTclDisplayManager.h>
 #include <TCLAnalyzer.h>
@@ -116,6 +117,7 @@ extern "C" {
         new CPipelineCommand(*pInterp);
         new CUnpackEvbCommand(*pInterp);
         CAnalyzeCommand::getInstance();         // installs the command.
+        new CFileSourceCommand(*pInterp);
         
         return TCL_OK;
     }
