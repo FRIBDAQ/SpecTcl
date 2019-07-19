@@ -4,7 +4,7 @@ libSpectcl_la_SOURCES=Spectclpackage.cpp CPipelineMaker.cpp CRingBlockReader.cpp
 	CRingFileBlockReader.cpp CFileDataGetter.cpp
 
 include_HEADERS=CPipelineMaker.h CDataGetter.h CRingBlockReader.h \
-	CRingFileBlockReader.h CFileDataGetter.h
+	CRingFileBlockReader.h CFileDataGetter.h CDataDistributor.h
 
 noinst_HEADERS=CRingBlockReader.h
 
