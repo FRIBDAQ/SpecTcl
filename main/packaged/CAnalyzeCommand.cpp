@@ -70,6 +70,7 @@ CAnalyzeCommand::getInstance()
 void
 CAnalyzeCommand::setDataGetter(CDataGetter* pGetter)
 {
+    delete m_pDataSource;
     m_pDataSource = pGetter;
 }
 
@@ -80,6 +81,7 @@ CAnalyzeCommand::setDataGetter(CDataGetter* pGetter)
 void
 CAnalyzeCommand::setDistributor(CDataDistributor* pDistrib)
 {
+    delete m_pDataSink;
     m_pDataSink = pDistrib;
 }
 /**
