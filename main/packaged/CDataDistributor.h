@@ -20,6 +20,7 @@
  */
 #ifndef CDATADISTRIBUTOR_H
 #define CDATADISTRIBUTOR_H
+#include <stddef.h>
 #include <utility>
 /**
  * @class CDataDistributor
@@ -37,8 +38,8 @@
 class CDataDistributor
 {
 public:
-    virtual ~CDataDistributor();
-    virtual void handleData(std::pair<size_t, void> info) = 0;
+    virtual ~CDataDistributor() {}
+    virtual void handleData(std::pair<size_t, void*>& info) = 0;
 };
 
 
