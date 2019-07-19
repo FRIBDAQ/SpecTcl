@@ -120,8 +120,6 @@ CRingFileBlockReader::read(size_t nBytes)
       }
     }
     
-
-
     return result;
   }
 

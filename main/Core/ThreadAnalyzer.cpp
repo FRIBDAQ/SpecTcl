@@ -40,6 +40,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2019, Al
 #include "EventFormatError.h"
 #include "Globals.h"
 #include "ThreadAnalyzer.h"
+#include "ZMQSenderClass.h"
 #include "EventProcessor.h"
 #include "SpecTcl.h"
 
@@ -94,10 +95,10 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
   const CBufferDecoder* cpDecoder(&rDecoder);
   CBufferDecoder* pDecoder((CBufferDecoder*)cpDecoder);
 
-  // Set up tree parameter processing:
+  // Set up tree parameter processing 
   long dummy;
   CTreeParameter::setEvent(anEvent, dummy);
-
+  
   while(p != pipecopy.end()) {
     CEventProcessor* pProcessor(p->second);
     Bool_t success;
@@ -119,6 +120,7 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
       AbortEvent();
       return m_nEventSize;
     }
+    
     p++;
   }
   return m_nEventSize;
@@ -279,7 +281,7 @@ void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nB
   UInt_t    nEventSize;
 
   CEvent* pEvent = 0;
-  
+
   try {
     while(nEvents) {
       m_fPartialEntity = false;

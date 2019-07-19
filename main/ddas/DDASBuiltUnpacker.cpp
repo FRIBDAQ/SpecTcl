@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 namespace DAQ {
   namespace DDAS {
 
@@ -74,19 +73,19 @@ namespace DAQ {
 				     long thread)
     {
       m_channelList[thread].clear();
-      
+
       setEventSize(pEvent, rDecoder, rAnalyzer, trans);
       
       uint16_t* p16 = reinterpret_cast<uint16_t*>(pEvent);
 
       // parse all of the fragments that we care about
       Bool_t goodToSort = selectivelyParseData(p16, thread);
-      
+
       // Pass the unpacked data to the user for assignment to their data structures
       //
       // note: m_pParameterMapper can never be a nullptr
       m_pParameterMapper->mapToParameters((std::vector<DAQ::DDAS::DDASHit>)m_channelList[thread], rEvent);
-      
+
       return goodToSort;
     }
     

@@ -238,7 +238,6 @@ CTreeParameter::CTreeParameter(const CTreeParameter& rhs) :
 {
   Initialize(rhs.m_sName, rhs.m_nChannels, rhs.m_dLowLimit, rhs.m_dHighLimit,
 	     rhs.m_sUnits);
-  Bind();
 }
 
 
@@ -1171,8 +1170,7 @@ CTreeParameter::testClearMap()
   vector<CTreeParameter*> trees;
   
   //  m_pEvent = (CEvent*)NULL;	// not bound to an event.
-  // to be fixed
-  //  m_pEventThread[m_thread] = (CEvent*)NULL; // not bound to an event.
+  m_pEventThread[getCurrentThread()] = (CEvent*)NULL; // not bound to an event.
   p = m_ObjectRegistry.begin();
   while (p != m_ObjectRegistry.end()) {
     trees.push_back(p->second);

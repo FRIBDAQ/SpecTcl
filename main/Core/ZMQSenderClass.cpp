@@ -32,7 +32,6 @@ static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
 size_t* Sender::threadItems = new size_t[NBR_WORKERS];
 size_t* Sender::physicsItems = new size_t[NBR_WORKERS];
-Vpairs* Sender::tmp = new Vpairs[NBR_WORKERS];
 CRingFormatHelperFactory* Sender::m_pFactory = new CRingFormatHelperFactory[NBR_WORKERS];
 
 CTCLVariable* Sender::m_pBuffersAnalyzed(0);
@@ -95,7 +94,6 @@ Sender::~Sender()
   delete []threadBytes;
   delete []threadItems;
   delete []physicsItems;
-  delete []tmp;
   delete m_pipeline;
   delete []m_pFactory;
 }
@@ -146,7 +144,6 @@ Sender::cleanup()
   delete []threadBytes;
   delete []threadItems;
   delete []physicsItems;
-  delete []tmp;
   delete m_pipeline;
   
   threadBytes = new size_t[NBR_WORKERS];
@@ -156,7 +153,6 @@ Sender::cleanup()
     physicsItems[i] = 0;
   }
   m_pipeline = new EventProcessingPipeline;
-  tmp = new Vpairs[NBR_WORKERS];
 
   isStart = true;
   
@@ -227,6 +223,8 @@ Sender::copyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& 
     newpipe.push_back(PipelineElement(it->first, it->second));
   }
 }
+
+int i = 0;
 
 void
 Sender::marshall(long thread, CEventList& lst, Vpairs& vec)
@@ -384,7 +382,7 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
 {
   pHistoEvent pEvent = reinterpret_cast<pHistoEvent>(evPtr);
   Vpairs* hlist = pEvent->histoList;
-
+  
   SpecTcl *pApi = SpecTcl::getInstance();
   CHistogrammer* hist = pApi->GetHistogrammer();  
   
@@ -395,7 +393,6 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
 
   CEvent* e = 0;
   for (const std::pair<unsigned int, double> &evt : *hlist){
-
     index = evt.first;
     value = evt.second;
     if (std::isnan(value)){
@@ -411,7 +408,9 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
     }
   }
   
-  return 1;
+  delete hlist;
+  
+  return 1; 
 }
 
 void *
@@ -421,7 +420,7 @@ Sender::worker_task(void *args)
   long* p = (long*)malloc(sizeof(long));
   *p = thread;
   pthread_setspecific(glob_var_key, p);
-  
+
   zmq::context_t context(1);
   int linger(0);
   ////////////////////////////////////////////
@@ -438,6 +437,9 @@ Sender::worker_task(void *args)
   size_t nItems = 0;
   int total = 0;
   while (1) {
+
+    Vpairs* tmp = new Vpairs;
+    
     s_sendmore(worker, "");
     s_sendmore(worker, "fetch");
     s_send(worker, ChunkSize.str());                 // Size of workload
@@ -470,8 +472,8 @@ Sender::worker_task(void *args)
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
 
-      Sender::processRingItems(thread, pDescriptor, pRingItems, tmp[thread]); 
-      Sender::histoData(thread, tmp[thread]);
+      Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
+      Sender::histoData(thread, *tmp);
       
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -483,7 +485,7 @@ Sender::worker_task(void *args)
 
   pthread_setspecific(glob_var_key, NULL);
   free(p);
-  
+
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
     

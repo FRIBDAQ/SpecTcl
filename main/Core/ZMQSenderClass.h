@@ -46,8 +46,6 @@ class Sender
 
   static Sender* getInstance();
 
-  static Vpairs* tmp;
-  
   int m_nFd;  
   void setFd(int fd);
   int  getFd();  
