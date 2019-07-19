@@ -35,7 +35,7 @@ public:
 
   // Instance data:
 private:
-  MapEventProcessingPipeline            m_pipelines;
+  MapEventProcessingPipeline             m_pipelines;
   MapEventProcessors                     m_processors;
   CTclAnalyzer::EventProcessingPipeline* m_pCurrentPipeline;
   std::string                            m_currentPipelineName;

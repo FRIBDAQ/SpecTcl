@@ -33,8 +33,9 @@
 class CDataGetter
 {
 public:
-    std::pair<size_t, void*> read() = 0;    // Read data from the source.
-    void free(std::pair<size_t, void*>& data);  // Do any data frees needed for a read item.
+    virtual ~CDataGetter() {}               // Support polymorphic destructors.
+    virtual std::pair<size_t, void*> read() = 0;    // Read data from the source.
+    virtual void free(std::pair<size_t, void*>& data) =0;  // Do any data frees needed for a read item.
 };
 
 
