@@ -45,6 +45,8 @@
 #include <CUnpackEvbCommand.h>
 #include <ProductionXamineShMem.h>
 
+#include "CAnalyzeCommand.h"
+
 #include <SpecTclDisplayManager.h>
 #include <TCLAnalyzer.h>
 #include <TCLHistogrammer.h>
@@ -52,6 +54,8 @@
 #include <CRingBufferDecoder.h>
 #include <RingFormatHelperFactory.h>
 #include <RingFormatHelper.h>
+
+
 
 #include <tcl.h>
 
@@ -111,6 +115,7 @@ extern "C" {
         new CSpectrumStatsCommand(*pInterp);      
         new CPipelineCommand(*pInterp);
         new CUnpackEvbCommand(*pInterp);
+        CAnalyzeCommand::getInstance();         // installs the command.
         
         return TCL_OK;
     }
