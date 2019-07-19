@@ -1,11 +1,12 @@
 lib_LTLIBRARIES=libSpectcl.la
 
 libSpectcl_la_SOURCES=Spectclpackage.cpp CPipelineMaker.cpp CRingBlockReader.cpp \
-	CRingFileBlockReader.cpp CFileDataGetter.cpp CDistributeToAnalyzer.cpp
+	CRingFileBlockReader.cpp CFileDataGetter.cpp CDistributeToAnalyzer.cpp \
+	CAnalyzeCommand.cpp
 
 include_HEADERS=CPipelineMaker.h CDataGetter.h CRingBlockReader.h \
 	CRingFileBlockReader.h CFileDataGetter.h CDataDistributor.h \
-	CDistributeToAnalyzer.h
+	CDistributeToAnalyzer.h CAnalyzeCommand.h
 
 noinst_HEADERS=CRingBlockReader.h
 
