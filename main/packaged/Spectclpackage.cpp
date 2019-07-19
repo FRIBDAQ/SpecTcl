@@ -86,7 +86,7 @@ extern "C" {
         gpDisplayInterface = new CSpecTclDisplayInterface;
         gpDisplayInterface->setCurrentDisplay("none");
         gpAnalyzer = new CTclAnalyzer(*pInterp, 100, 1);
-        
+        gpAnalyzer->AttachSink(*gpEventSinkPipeline);
         
         CRingBufferDecoder *pDecoder = new CRingBufferDecoder;
         gpBufferDecoder = pDecoder;
