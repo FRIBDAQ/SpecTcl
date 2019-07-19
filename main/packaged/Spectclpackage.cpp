@@ -49,7 +49,9 @@
 #include <TCLAnalyzer.h>
 #include <TCLHistogrammer.h>
 #include <TCLAnalyzer.h>
-
+#include <CRingBufferDecoder.h>
+#include <RingFormatHelperFactory.h>
+#include <RingFormatHelper.h>
 
 #include <tcl.h>
 
@@ -78,6 +80,14 @@ extern "C" {
         gpDisplayInterface = new CSpecTclDisplayInterface;
         gpDisplayInterface->setCurrentDisplay("none");
         gpAnalyzer = new CTclAnalyzer(*pInterp, 100, 1);
+        
+        
+        CRingBufferDecoder *pDecoder = new CRingBufferDecoder;
+        gpBufferDecoder = pDecoder;
+        CRingFormatHelperFactory* pFact = pDecoder->getFormatFactory();
+        pDecoder->setFormatHelper(pFact->create(11, 0));    // 11.0 format.
+        gpAnalyzer->AttachDecoder(*pDecoder);
+        
         
         // Add the SpecTcl Commands
         

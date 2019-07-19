@@ -1,8 +1,10 @@
 lib_LTLIBRARIES=libSpectcl.la
 
-libSpectcl_la_SOURCES=Spectclpackage.cpp CPipelineMaker.cpp
+libSpectcl_la_SOURCES=Spectclpackage.cpp CPipelineMaker.cpp CRingBlockReader.cpp
 
-include_HEADERS=CPipelineMaker.h
+include_HEADERS=CPipelineMaker.h CDataGetter.h CRingBlockReader.h
+
+noinst_HEADERS=CRingBlockReader.h
 
 
 libSpectcl_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
@@ -23,3 +25,4 @@ install-exec-hook: @builddir@/libSpectcl.la
 	$(INSTALL_DATA) Makefile_skel @prefix@/BatchSkel/Makefile
 
 
+EXTRA_DIST=Skeleton.cpp Makefile_skel.in
