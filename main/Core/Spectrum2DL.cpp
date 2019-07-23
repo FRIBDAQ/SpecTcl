@@ -231,14 +231,7 @@ CSpectrum2DL::operator[](const UInt_t* pIndices) const
   
   Int_t   nx = pIndices[0];
   Int_t   ny = pIndices[1];
-  if(nx + 2 >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, nx,
-		      std::string("Indexing 2DW spectrum x axis"));
-  }
-  if(ny + 2>= Dimension(1)) {
-    throw CRangeError(0, Dimension(1)-1, ny,
-		      std::string("Indexing 2DW spectrum y axis"));
-  }
+  
   const TH1* pRootSpectrum = getRootSpectrum();
   Int_t bin = pRootSpectrum->GetBin(nx + 1, ny + 1);
   return (ULong_t)(pRootSpectrum->GetBinContent(bin));

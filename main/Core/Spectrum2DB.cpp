@@ -273,17 +273,10 @@ CSpectrum2DB::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  UChar_t* p = (UChar_t*)getStorage();
+  
   Int_t   nx = pIndices[0];
   Int_t   ny = pIndices[1];
-  if(nx + 2 >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, nx,
-		      std::string("Indexing 2DW spectrum x axis"));
-  }
-  if(ny + 2>= Dimension(1)) {
-    throw CRangeError(0, Dimension(1)-1, ny,
-		      std::string("Indexing 2DW spectrum y axis"));
-  }
+
   const TH1* pRootSpectrum = getRootSpectrum();
   UInt_t bin = pRootSpectrum->GetBin(nx + 1, ny + 1);
   return static_cast<ULong_t>(pRootSpectrum->GetBinContent(bin));
