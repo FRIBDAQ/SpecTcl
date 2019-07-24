@@ -7,6 +7,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/pgmguide
 	$(mkinstalldirs) @prefix@/share/pgmref
 	$(mkinstalldirs) @prefix@/share/DDAS
+	$(mkinstalldirs) @prefix@/share/batch
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
@@ -14,6 +15,7 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
 	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
+	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
 
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
@@ -29,5 +31,5 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/ProgrammingGuide.xml -o @builddir@/pgmguide
 	@HTMLDOCBOOK@ @srcdir@/pgmref.xml           -o @builddir@/pgmref
 	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
-
+	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
 

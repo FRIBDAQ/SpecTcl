@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>Batch SpecTcl (5.2 and later)</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>July 23, 2019</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            This manual describes the batchfeature of SpecTcl that was introduced
+            in version 5.2.  Batch SpecTcl supports fully automated offline
+            processing of event files.  When coupled with the external
+            <application>mpispectcl</application> and
+            <filename>mipspectcl</filename> packages, this offline processing
+            can be performed in massively parallel clusters enabling
+            performance that is only limmited I/O throughput.
+        </para>
+        <para>
+            This document is organized as follows:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    The remainder of this chapter provides a brief introduction
+                    to some of the concepts and limitations of batch SpecTcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="ch.serialbatch" endterm='ch.serialbatch.title' />
+                    describes batch SpecTcl.  How to prepare to use it and
+                    how to drive it.  Note that by itself, batch SpecTcl isn't
+                    that interesting.  What it does do is provide a testbench
+                    to ensure that you hvae the pieces you need to
+                    run a parallel batch SpecTcl in a cluster environment.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="ch.mpitcl" endterm="ch.mpitcl.title" />
+                    Describes a Tcl interpreter that is enhanced to support
+                    simplified Message Passing Interface (MPI) communication.
+                    This is foundational to the
+                    <filename>mpispectcl</filename> package that is used
+                    to implement parallel batch SpecTcl on top of both MPI
+                    and the serial batch SpecTcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend='ch.mpispectcl' endterm='ch.mpispectcl.title' />
+                    Describes the Message Passing Interrace (MPI ) massively
+                    parallel SpecTcl.  For compute intensive SpecTcl applications
+                    you can get several orders of magnitude performance
+                    improvement up to the I/O bandwidth of the system.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            Let's get a few concepts straight before we dive in.
+            Batch SpecTcl is a purely non-interactive version of SpecTcl.
+            Unlike the "normal" SpecTcl (we'll call that just SpecTcl from now on),
+            it runs on a Tcl interpreter without the Tk Graphical user interface
+            package installed.  Furthermore, once you begin analyzing data,
+            the interpreter will be blocked from accepting future commands
+            until that analysis is finished.
+        </para>
+        <para>
+            As with SpecTcl, to use batch SpecTcl you'll need to define
+            and register an analysis pipeline.  The same event processors you
+            used in SpecTcl can be usedin batch SpecTcl, although they
+            have to be setup differently.
+        </para>
+        <para>
+            Since batch SpecTcl is not interactive, the assumption is that
+            at some point you've figured out the set of parameters, spectra,
+            gates and gate applications you need and saved them to some
+            configuration file.  Prior to beginning analysis, you'll
+            pull those definition into batch spectcl.
+        </para>
+        <para>
+            Finally, since batch SpecTcl is non-interactive, you can't see
+            the spectra it creates.   Therefore, after analyzing data,
+            you need to write the spectra to file where they can be
+            read into an interactive SpecTcl.
+        </para>
+        <para>
+            In the next chapter we'll start to dive into how to get
+            batch SpecTcl working for your code.  Note that
+            since batch SpecTcl is purely serial, it's a good testbench for
+            processing that will be used by MPI SpecTcl.
+        </para>
+    </chapter>
+    <chapter id = "ch.serialbatch">
+        <title id = "ch.serialbatch.title">Serial batch SpectTcl</title>
+        <para>
+            This chapter describes the batch SpecTcl.  It describes:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    How to incorporate batch SpecTcl into a raw Tcl interpreter
+                    (e.g. tclsh).
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    The SpecTcl commands that batch SpecTcl
+                    <emphasis>does not</emphasis> support.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    How to create a loadable package that sets up the
+                    batch SpecTcl event processing pipeline.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    The objects in batch SpecTcl that drive the batch
+                    analysis and the commands provided to accept them.
+                    Note that this part of batch SpecTcl is deliberately
+                    overkill to make the implementation of MPI SpecTcl simple.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    We'll look at a simple analysis script and explain how it works.
+                    In that process, we'll also discuss multi-segmented
+                    runs and how to analyze them.
+                </para>
+            </listitem>
+        </itemizedlist>
+    </chapter>
+    <chapter id='ch.mpitcl'>
+        <title id='ch.mpitcl.title'>MPITcl - an enhanced Tcl interpreter</title>
+        <para></para>
+    </chapter>
+    <chapter id='ch.mpispectcl'>
+        <title id='ch.mpispectcl.title'>MPISpecTcl - Massively parallel SpecTcl.</title>
+        <para></para>
+    </chapter>
+</book>
+
