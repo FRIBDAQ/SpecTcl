@@ -1116,16 +1116,715 @@ proc sortRun {filelist} {
     </chapter>
     <chapter id='ch.mpitcl'>
         <title id='ch.mpitcl.title'>MPITcl - an enhanced Tcl interpreter</title>
-        <para></para>
+        <para>
+            MPITcl provides a Tcl friendly interface to the Message Passing
+            Interface (MPI) library for parallel sequential computing.
+            MPI is a commonly used library for parallel computing.  MPITcl
+            is not part of SpecTcl proper, rather it is a separate package.
+            It serves as the basis for parallel batch SpecTcl.
+        </para>
+        <para>
+            MPItcl is an extended Tcl interpreter with additions that support
+            Tcl scripts as MPI programs.
+        </para>
+        <para>
+            In this chapter we will:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Introduce some of the concepts behind MPI.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Describe how MPI concepts are realized in MPITcl
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Describe the MPITcl command ensemble that supports
+                    MPITcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Show how to run MPITcl and provide a very simple
+                    script that shows how it can be used.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            Note that whle you can <literal>package require Tk</literal> in an
+            MPITcl script, this will fail in most cluster computing environments
+            as they are intended for batch computing.  Finally, refer to the
+            reference section for a full discussion of the MPITcl command ensemble.
+        </para>
+        <section>
+            <title>MPI Concepts</title>
+            <para>
+                MPI programs consist of a single program.  Several copies of this
+                single program are run across several cores which may, in turn
+                be distributed across several  network nodes.
+            </para>
+            <para>
+                A Message passing MPI allows copies of the program to exchange
+                messages that consist of well defined data types.  MPI further
+                supports dividing the computation into distinct intercommunicating
+                groups.  Furthermore, messages have tags assocciated with them
+                that can describe the type of information in the message.
+            </para>
+            <para>
+                Each instance of a program in an MPI application has one or more
+                <firstterm>ranks</firstterm>.  A program instance's rank is just
+                an integer numbered from zero to the size of the group.
+                A program can inquire as to its rank within all groups it
+                belongs to.
+            </para>
+            <para>
+                Communication within a group is handled via group's
+                <firstterm>communicator</firstterm>.  A special communicator
+                is predefined <literal>MPI_COMM_WORLD</literal> that
+                communicates with all the program instances in an application.
+            </para>
+        </section>
+        <section>
+            <title>How MPI Concepts map to MPITcl</title>
+            <para>
+                Communication in MPI can be very complex.  The aim of MPITcl
+                is to simplify this communcation and make it friendly to the
+                sorts of things a Tcl script might think of doing in a parallel
+                computation.  These simplifications:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        Remove the concept of grouping program instances
+                        other than the world group.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Since in Tcl everything has a string representation,
+                        all data are exchanged via the MPI_CHAR data type.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        The computation is logically thought of as the
+                        rank 0 script, which runs an interpreter capable of
+                        accepting commands or sourcing script files and
+                        all other ranks which just process messages.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Program instances can send scripts to other ranks
+                        in the computation.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Program instances can send Tcl data to other ranks
+                        in the computation.  Program instances can establish
+                        handlers for Tcl data.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Several tag values are predefined to know how to dispatch
+                        messages received.
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>The mpi::mpi command ensemble.</title>
+            <para>
+                The MPITcl interpreter adds a command ensemble;
+                <command>mpi::mpi</command>.  See the reference material
+                for full information about each subcommand.
+                This has the following subcommands:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>size</command></term>
+                    <listitem>
+                        <para>
+                            Returns the number of mpitcl program instances
+                            in the program.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>rank</command></term>
+                    <listitem>
+                        <para>
+                            Returns the rank of the program within the
+                            <literal>MPI_COMM_WORLD</literal> communicator.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>execute</command></term>
+                    <listitem>
+                        <para>
+                            Executes a command in process.  The process is
+                            either specified by rank or
+                            <literal>others</literal> may be specified to
+                            execute the command in all other processes but the
+                            sender.  <literal>all</literal> can be specified
+                            to execute the script in all processes including this
+                            one.  No communication is done to execute the
+                            command in this process.
+                        </para>
+                        <para>
+                            For rank 0 to execute a command sent to it by
+                            another rank, it must be running the notifier and
+                            be in the event loop (e.g. by <command>vwait</command>).
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>send</command></term>
+                    <listitem>
+                        <para>
+                            Sends data to another process. <literal>all</literal>
+                            and <literal>others</literal> can be used here as well
+                            to specify several receivers.  
+                        </para>
+                        <para>
+                            For all program instances to be able to receive
+                            data requires that they have established a data handler
+                            command (see <command>handle</command>).  Additionally,
+                            for rank 0 to receive data, it must be running the
+                            notifier and be in the event loop (e.g. via
+                            <command>vwait</command>).
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>handle</command></term>
+                    <listitem>
+                        <para>
+                            Specifies a script to handle data sent to the process
+                            via <command>send</command>.  The sender's rank and
+                            the data are appended to the command prior to execution.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>stopnotifier</command></term>
+                    <listitem>
+                        <para>
+                            The notifier is a thread that runs in the rank 0
+                            process.  It's purpose is to monitor for MPI
+                            messages and queue them as events to the main thread's
+                            interpreter where they can be executed when the
+                            event loop is entered via, for example,
+                            <command>vwait</command>.
+                        </para>
+                        <para>
+                            If compiled code wants to do message exchange it
+                            can be important to stop the notifier thread to
+                            prevent events from being queues that the main
+                            thread will be handling.
+                        </para>
+                        <para>
+                            This command, which is only legal in rank 0 stops
+                            the notifier thread.  This is done by sending a
+                            message with a special tag.  The probe loop the
+                            notifier is executing, recognizesthis tag, absorbs
+                            the message and exits.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>startnotifier</command></term>
+                    <listitem>
+                        <para>
+                            Starts the notifier if it is stopped.
+                            If the notifier is already running, this has undefined
+                            results.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Running MPITcl (NSCL/FRIB specific)</title>
+            <para>
+                At the NSCL, the MPITcl shell is located in
+                /usr/opt/miptcl/bin/mpitcl.  It is normally run under the
+                <command>mpirun</command> command.  Usually it is
+                run within a batch job submission script that specifies the
+                resources the application needs and provides stdin redirection to
+                a script that contains the application.
+            </para>
+            <para>
+                For example, the following command runs 4 processes in the
+                MPItcl application and specifies the application script
+                myapp.tcl
+            </para>
+            <example>
+                <title>Running MPITcl</title>
+                <programlisting>
+mpirun -np 4 /usr/opt/mpitcl/bin/mpitcl &lt;myapp.tcl
+                </programlisting>
+            </example>
+            <para>
+                Let's look at a toy application.  In
+                <link linkend='ch.mpispectcl' endterm='ch.mpispectcl.title' />
+                We'll look at MPI batch SpecTcl, a more interesting application
+                that runs under MPITcl.  Remember that the script executes
+                in rank 0. It therefore must tell all other ranks what to do.
+            </para>
+            <example>
+                <title>Toy MPITcl application</title>
+                <programlisting>
+                    
+                    
+puts "There are [mpi::mpi size] proceses in the application."   <co id='mpi.size' />
+mpi::mpi execute others {puts "Hello from worker [mpi::mpi rank]"} <co id='mpi.exec' />
+
+# Note that the notifier starts out running so this can work:
+
+mpi::mpi execute others {
+    proc ReturnData {rank data} {
+      mpi::mpi send 0 $data
+    }                                                <co id='mpi.otherhandle' />
+    mpi::mpi handle  ReturnData
+}
+
+proc receiveData {rank data} {
+    puts "Received data from $rank: $data" 
+    incr ::expecting -1
+}
+mpi::mpi handle receiveData                       <co id='mpi.rank0handle' />
+
+set expecting [mpi::mpi size]                     <co id='mpi.repliesexpected' />
+incr expecting -1                                
+
+mpi::mpi send others [list 1 2 3 4]              <co id='mpi.send' />
+while {$expecting > 0} {
+ vwait expecting
+}
+
+mpi::mpi stopnotifier                          <co id='mpi.stop' />
+mpi::mpi execute all exit
+
+
+                </programlisting>
+            </example>
+            <para>
+                Remember that this script runs in rank 0
+            </para>
+            <calloutlist>
+                <callout arearefs='mpi.size'>
+                    <para>
+                        Reports the number of processes in the computation.
+                        If, for example this was run from
+                        <command>mpirun -np 4 ...</command> this would report
+                        <literal>4</literal>
+                    </para>
+                </callout>
+                <callout arearefs='mpi.exec'>
+                    <para>
+                        Requests all but rank 0 output its rank to stdout.
+                        Note that the output may not be in any order and
+                        may not even be in coherent lines because the
+                        outputs are all done in parallel in the various
+                        non rank 0 processes.
+                    </para>
+                </callout>
+                <callout arearefs='mpi.otherhandle'>
+                    <para>
+                        In all processes besides rank 0, a proc named
+                        <literal>ReturnData</literal> is defined and set up
+                        to handle any data sent to that process.  The proc
+                        sends the data it receives to the rank 0 process.
+                    </para>
+                </callout>
+                <callout arearefs='mpi.rank0handle'>
+                    <para>
+                        In rank 0, however a data handler is established that
+                        outputs where the data came from and the contents of
+                        the data.  The <varname>expecting</varname>
+                        global variable is decremented after each call.
+                        If this variable is <command>vwait</command>ed on,
+                        the <command>vwait</command> will conclude when the
+                        handler is called.
+                    </para>
+                </callout>
+                <callout arearefs='mpi.repliesexpected'>
+                    <para>
+                        For a send to others, this computes the number of
+                        times we expect the <literal>receiveData</literal> handler
+                        tob e called.  Once for each process in the application
+                        except rank 0.
+                    </para>
+                </callout>
+                <callout arearefs='mpi.send'>
+                    <para>
+                        Sends a list of data to all other ranks and
+                        vwaits until all other ranks have responded by
+                        echoing back their data.  Each echo back will
+                        result in <literal>receiveData</literal> being called,
+                        which ends the <command>vwait</command>.  The loop
+                        runs until there are no more replies to wait for.
+                    </para>
+                </callout>
+                <callout arearefs='mpi.stop'>
+                    <para>
+                        Prior to exiting the application the notifier thread must
+                        be exited. The <command>mpi::mpi execute all exit</command>
+                        is the preferred way to exit the MPI application.  A simple
+                        <command>exit</command> won't do because mpirun will
+                        wait until all processes in the application have exited.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Hopefully this toy application gives you an idea about how
+                the typical patterns used in an MPITcl application.  
+            </para>
+        </section>
     </chapter>
     <chapter id='ch.mpispectcl'>
         <title id='ch.mpispectcl.title'>MPISpecTcl - Massively parallel SpecTcl.</title>
-        <para></para>
+        <para>
+            Massively parallel SpecTcl uses the MPITcl package, batch SpecTcl
+            and additional getters and distributor establishing commands
+            to support running a massively parallel SpecTcl analysis on a cluster.
+            The computing models that are supported all involve running the
+            full analysis pipeline, raw data to histograms in parallel and
+            collecting the resulting histograms when all workers are done.
+        </para>
+        <para>
+            In this chapter we will:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Describe the <literal>mpispectcl</literal> package and
+                    its contents.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Describe two methods by which SpecTcl can be run in parallel
+                    using these tools.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Provide a sample detailed script that supports one of those models.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            Again, please refer to the reference pages in the appendix for
+            full reference information.
+        </para>
+        <section>
+            <title>The <literal>mpispectcl</literal> package</title>
+            <para>
+                The mpispectcl package provides an additional getter an distributor
+                for SpecTcl as well as commands that allow you to set these
+                up for the analyzer.
+            </para>
+            <para>
+                The additional distributor, MPIDistributor, supports distributing
+                data to a set of MPI clients using a 'pull' protocol.
+                In a pull protocol, each client requests its next block of data
+                from the distributor.  When no more data is available, the
+                distributor, indicates that to all clients on their next
+                data requests until all clients have been told there's no more
+                data.  The command that sets this distributor up is
+                <command>mpisink</command>
+            </para>
+            <para>
+                The additional data getter, MPIDataGetter is a data getter that
+                gets data from an MPIDistributor.  The command that sets this
+                data getter up is <command>mpisink</command>
+            </para>
+        </section>
+        <section>
+            <title>Parallel models for SpecTcl</title>
+            <para>
+                This section will consider two parallel models for SpecTcl.
+                In both models, the worker processes analyze work items
+                sent by the rank 0 process and, at the end of analysis,
+                are queried for their spectra.
+            </para>
+            <para>
+                The model we will consider in the next chapter uses work units that are a
+                single block of complete ring items.  In that model, the rank
+                0 process has a file data getter, and an mpidistributor while all
+                other processes have an mpi data getter and an analyzer distributor.
+            </para>
+            <para>
+                Each block of data is distributed to the next requestor.  Each
+                process that is not rank 0 is given the entire configuration
+                file and independently histograms.  When analysis is completed,
+                spectra are gathered from the non rank 0 workers and summed into the
+                rank 0 process from which they can be written.
+            </para>
+            <para>
+                This model should scale linearly until I/O limitations bottleneck
+                the computation.  Note that included in the I/O limitations are
+                file read performance and communication costs between the
+                workers and the rank 0 process.  This process is, most often,
+                suitable.  We'll call this model
+                <emphasis>serial I/O parallel computation</emphasis>
+            </para>
+            <para>
+                If the files to be analyzed are scattered across multiple
+                servers, parallel I/O can be performed.  This model
+                <emphasis>Parallel I/O parallel computation</emphasis> can be
+                implemented without using the additional getter/distributors in
+                the <literal>mpispectcl</literal> package.  It should scale up
+                to the aggregate I/O bandwidth.
+            </para>
+            <para>
+                In this second model, all non rank 0 processes are independent
+                batch Spectcls with the exception that the rank 0 process
+                feeds each of them a set of files to analyze.
+            </para>
+            <para>
+                Since traffic shaping is important, each worker might be given
+                a set of files that are on one server.  The files are serially
+                analyzed by each non rank 0 process and, when each process is done,
+                it notifies the rank 0 process which collects the spectra from
+                that process summing it into the spectra it has.   When all workers
+                are done, the rank 0 process can save spectra.
+            </para>
+            <para>
+                This model has more limited application as it requires data to
+                be distributed in some manner on the network.  It is possible
+                and relatively simple to implement.
+            </para>
+        </section>
+        <section>
+            <title>Serial reader parallel worker example.</title>
+            <para>
+                In this chapter we'll work our way along a sample
+                MPITcl/SpecTcl application that implements the serial reader
+                parallel worker model.  The example will just read a single
+                event file, but we've already described how to extend this
+                to multiple files or run segments.
+            </para>
+            <para>
+                To review, workers, non rank 0, will run an mpi data getter and
+                an analysis data distributor.  Rank 0, the reader, will run
+                a file getter and and mpi distributor.
+            </para>
+            <para>
+                We'll look at the script in logical chunks.  Note that in the
+                NSCL to run this, the TCL Library path must include
+                the SpecTcl library path, /usr/opt/mpitcl/TclLibs and the
+                directory in which your batch SpecTcl loadable package lives.
+            </para>
+            <example>
+                <title>Package and definition loads</title>
+                <programlisting>
+mpi::mpi execute all {
+    package require spectcl
+    package require mpispectcl
+    package require MyPipeline
+    source defs.tcl
+}
+
+                </programlisting>
+            </example>
+            <para>
+                All ranks must have loaded the packages and the analysis definitions
+                (<filename>defs.tcl</filename>).
+            </para>
+            <example>
+                <title>Setting up sources and distirbutors</title>
+                <programlisting>
+mpi::mpi execute others {
+    mpisource
+    analysissink
+}
+
+
+filesource run-0003-00.evt
+mpisink
+                </programlisting>
+            </example>
+            <para>
+                The execute others ensures the non rank 0 processes have an mpi source
+                and analyze that data.  Since the rank 0 process is running this
+                script, the next two lines ensure that rank 0 takes data from
+                file and distributes it via MPI.
+            </para>
+            <para>
+                Note that for parallel jobs, the maximum I/O throughput is a
+                function of the blocksize.  You may want to chart it for your
+                application so that you can use an optimal rather than the default
+                block size.
+            </para>
+            <example>
+                <title>Analyze the file in parallel:</title>
+                <programlisting>
+mpi::mpi stopnotifier
+
+mpi::mpi execute others analyze
+analyze
+
+                </programlisting>
+            </example>
+            <para>
+                The wrinkle here is that the mpi distributor needs to have
+                full control over all MPI messaging.  Therefore the notifier
+                is stopped during analysis to ensure no MPI messages get queued
+                to the rank 0 event loop rather than received by the mpi distributor.
+                The execute and analyze commands get analysis running in the workers
+                and data transmission running in rank 0.
+            </para>
+            <example>
+                <title>Getting and saving the results.</title>
+                <programlisting>
+mpi::mpi startnotifier;         # Run the interpreter event pump again.
+
+clear -all;                     # only needed if multiple runs are analyzed.
+
+set l [spectrum -list]
+set f [open spectra.dat w]
+
+foreach spectrum $l {
+    set name [lindex $spectrum 1]
+    getSpectrumFromWorkers $name
+    swrite -format ascii $f $name
+    flush $f
+}
+
+close $f
+
+
+                </programlisting>
+            </example>
+            <para>
+                For data exchange to rank 0 we need the event notifier running.
+                This code is pretty simple, For each defined spectrum,
+                <literal>getSpectrumFromWorkers</literal> is called to sum
+                in the data from each worker into a spectrum,  that spectrum
+                is then written to file.  When all spectra have been
+                received, the the file is closed.
+            </para>
+            <para>
+                We've pushed the magic of fetching spectra off into a pair
+                of procs.  One of them initiates data transfer and waits,
+                the other handles incoming data.  Let's have a look at them.
+            </para>
+            <example>
+                <title>Initiating spectrum data collection and waiting for all the workers to report.</title>
+                <programlisting>
+proc getSpectrumFromWorkers name {
+    mpi::mpi handle [list addData $name]
+    set ::expected [mpi::mpi size]
+    incr ::expected -1;         # Number of workers.
+
+
+
+    set script "mpi::mpi send 0 "
+    append script "\["
+    append script "scontents $name]"
+    mpi::mpi execute others $script
+    while {$::expected > 0} {
+        vwait ::expected
+    }
+
+}
+
+                </programlisting>
+            </example>
+            <para>
+                This follows the pattern described in the example in
+                the MPITcl chapter.  We're going to send a command to the
+                workers to give us the results of scontents on a specific spectrum.
+                Our data handler, <literal>addData</literal> will sum the
+                data from one worker and decrement <literal>::expected</literal>
+                the loop on <command>vwait </command> waits for all data before
+                returning.
+            </para>
+            <para>
+                One wrinkle needs to be pointed out.  We need the spectrum
+                name substituted by our interpreter but the scontents command
+                to be substituted by the target interpreters.  The only
+                way I could figure out how to do that was by incrementally building
+                up the script passed to the ohters.
+            </para>
+            <para>
+                  Note also that <literal>addData</literal> is passed the spectrum
+                  name by us.
+            </para>
+            <para>
+                Let's have a look at the <literal>addData</literal> proc.
+                It's called from the event loop whenever we have data from
+                a worker:
+            </para>
+            <example>
+                <title>Receiving data from a worker:</title>
+                <programlisting>
+proc addData {name src data} {
+    foreach datum $data {
+        set value [lindex $datum end]; #   This is assumed an integer.
+        set coords [lrange $datum 0 end-1]
+        set current [channel -get $name $coords]
+
+        incr current $value
+        channel -set $name $coords $current
+    }
+    incr ::expected -1;         #  one fewer workers to expect.
+
+}
+
+                </programlisting>
+            </example>
+            <para>
+                This is pretty simple, the scontents data is a list of
+                pairs (1d spectra) or triplets (2d spectcra). The last element
+                is the channel value while the previous elements are channel
+                coordinates.
+            </para>
+            <para>
+                The value and coordinates are split out of the each element and
+                the
+                <command>channel -get</command> and <command>channel -set</command>
+                commands are used to add the channel values to the appropriate
+                channel coordinates.  Note that once all elements of the
+                scontents list are processed, <literal>::expected</literal>
+                is decremented which releases <literal>getSpectrumFromWorkers</literal>
+                from its <literal>vwait</literal>.
+            </para>
+            <para>
+                Finall we exit:
+            </para>
+            <example>
+                <title>Exiting parallel SpecTcl</title>
+                <programlisting>
+mpi::mpi stopnotifier;     
+mpi::mpi execute others exit
+exit
+
+                </programlisting>
+            </example>
+            <para>
+                Note again that MPITcl can segfault if asked toexit while the notifier
+                thread is still running. Therefore it's stopped before asking
+                the non rank 0 processes to exit and exiting ourselves.
+            </para>
+        </section>
+        
     </chapter>
     <appendix>
         <title>Reference (man) pages</title>
         <para>
-            
+            This appendix provides reference material for batch SpecTcl,
+            MPITcl and MPISpecTcl
         </para>
     </appendix>
 </book>
