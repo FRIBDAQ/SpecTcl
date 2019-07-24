@@ -118,16 +118,12 @@
             <listitem>
                 <para>
                     The SpecTcl commands that batch SpecTcl
-                    <emphasis>does not</emphasis> support.
+                    supports.  Note that this is a subset of the full set of
+                    SpecTcl commands (e.g. the <command>attach</command> command
+                    is not supported).
                 </para>
             </listitem>
-            <listitem>
-                <para>
-                    How to create a loadable package that sets up the
-                    batch SpecTcl event processing pipeline.
-                </para>
-            </listitem>
-            <listitem>
+             <listitem>
                 <para>
                     The objects in batch SpecTcl that drive the batch
                     analysis and the commands provided to accept them.
@@ -137,12 +133,986 @@
             </listitem>
             <listitem>
                 <para>
+                    How to create a loadable package that sets up the
+                    batch SpecTcl event processing pipeline.
+                </para>
+            </listitem>
+           
+            <listitem>
+                <para>
                     We'll look at a simple analysis script and explain how it works.
                     In that process, we'll also discuss multi-segmented
                     runs and how to analyze them.
                 </para>
             </listitem>
         </itemizedlist>
+        <section>
+            <title>Incorporating batch SpecTcl in to a Tcl interpreter</title>
+            <para>
+                Batch SpecTcl provides a Tcl loadable package that can be
+                installed in any Tcl (or Tk for that matter) interpreter.
+                In order to do this you need to have a Tcl library path that
+                includes the Tcl libraries in the
+                version of SpecTcl you want to use (5.2-000 is
+                the earliest ersion that supports batch SpecTcl).
+            </para>
+            <para>
+                Here are two examples of how to do this assuming SpecTcl is installed
+                in <filename>/usr/opt/spectcl/5.2-000</filename>:
+            </para>
+            <example>
+                <title>Incorporating batch SpecTcl: Specifying the TCL Library on the command line:</title>
+                <programlisting>
+TCLLIBPATH=/usr/opt/spectcl/5.2-000/TclLibs tclsh
+% package require spectcl
+                </programlisting>
+            </example>
+            <example>
+                <title>Incorporating batch SpecTcl: adding the Tcl library to the <varname>auto_path</varname></title>
+                <programlisting>
+tclsh
+% lappend auto_path /usr/opt/spectcl/5.2-000/TclLibs
+% package require spectcl
+                </programlisting>
+                <para>
+                    The <literal>spectcl</literal> package contains the
+                    library code needed to run batch SpecTcl.
+                </para>
+            </example>
+        </section>
+        <section>
+            <title>Commands supported by batch SpecTcl</title>
+            <para>
+                In the previous section we've seen how to incorporate the
+                Batch Spectcl library in a Tcl interpreter.  The
+                <literal>spectcl</literal> package provides
+                <emphasis>most</emphasis> of SpecTcl's commands.  Since batch
+                SpecTcl is fully non-interactive, however, it does not
+                make sense to provide all of SpecTcl's commands.
+            </para>
+            <para>
+                Below is a list of the SpecTcl commands  Batch SpecTcl
+                provides.  See the SpecTcl command reference for complete
+                documentation of each command.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><command>parameter</command></term>
+                    <listitem>
+                        <para>
+                            Allows you to define raw parameters and give
+                            them slot numbers in the <classname>CEvent</classname>
+                            object passed to elements of the event processing
+                            pipeline.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>psuedo</command></term>
+                    <listitem>
+                        <para>
+                            Provides support for creating computed paramters
+                            at the Tcl script level.  While these are not
+                            very performant in serial SpecTcls, in parallel
+                            SpecTcl you can uses as many cores as you need
+                            to get the performance up to the file read limit.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>spectrum</command></term>
+                    <listitem>
+                        <para>
+                            Used to define and delete spectra as well
+                            as to list the available spectra.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>clear</command></term>
+                    <listitem>
+                        <para>
+                            Clears the contents one or more spectra.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>channel</command></term>
+                    <listitem>
+                        <para>
+                            Support for getting or setting channel values
+                            in a spectrum. We'll see how useful this is
+                            in parallel SpecTcl later in this manual.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>swrite</command></term>
+                    <listitem>
+                        <para>
+                            Writes spectra to file.  The result of a batch
+                            SpecTcl run is a set of spectra.  The
+                            <command>swrite</command> command is the
+                            means you have to obtain those analysis products
+                            after the analysis is run.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sread</command></term>
+                    <listitem>
+                        <para>
+                            Reads spectra from file.  This is not as useful
+                            in batch SpecTcl but is supported.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>sbind</command>, <command>unbind</command></term>
+                    <listitem>
+                        <para>
+                            These are effectively No-ops but are don't flag
+                            errors.  They are provided in case your setup files
+                            include e.g. <command>sbind -all</command> commands.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>gate</command></term>
+                    <listitem>
+                        <para>
+                            Allows the creation, modification, deletion and listing
+                            of conditions (gates) that can be applied to
+                            spectra.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>apply</command></term>
+                    <listitem>
+                        <para>
+                            Allows you to apply gates to spectra.  When a gate
+                            is applied to a spectrum, events can only increment
+                            that spectrum if the gate is satisfied by that
+                            event.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>ungate</command></term>
+                    <listitem>
+                        <para>
+                            Removes any condition on the increment of a spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>treeparameter</command></term>
+                    <listitem>
+                        <para>
+                            Provides support for parameters with default ranges
+                            and units.  Tree parameters are often specified in
+                            configuration files.  
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>treevariable</command></term>
+                    <listitem>
+                        <para>
+                            Provides support for Tcl variables that are
+                            easily visible within compiled C code.  These variables
+                            can also have units of measure.
+                            <command>treevariable</command> commands often
+                            are part of configuration files.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>fold</command></term>
+                    <listitem>
+                        <para>
+                            This command can define folds on gamma spectra.
+                            Folds are used in gamma spectroscopy.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>project</command></term>
+                    <listitem>
+                        <para>
+                            provides support to create spectra that are
+                            dynamic projections of 2-d spectra.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>fit</command></term>
+                    <listitem>
+                        <para>
+                            Provides limited fitting support.  Note that
+                            including the <literal>rootinterface</literal>
+                            package provides the <command>rootexec</command>
+                            command which provides access to root's fitting
+                            capabilities and access to SpecTcl's spectra.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>integrate</command></term>
+                    <listitem>
+                        <para>
+                            Supports integration of a region of interest in a
+                            spectrum.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>version</command></term>
+                    <listitem>
+                        <para>
+                            Returns the full SpecTcl version
+                            (e.g. <literal>5.2-000</literal>).
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>scontents</command></term>
+                    <listitem>
+                        <para>
+                            Produces the contents of the non-zero channels
+                            in a spectrum in either Tcl usable or JSON form.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>specstats</command></term>
+                    <listitem>
+                        <para>
+                            Returns the under and overflow counters for
+                            a spectrum.  By underflow and overflow, we mean
+                            the number times an increment was attempted
+                            off the left and right side of the a
+                            spectrum respectively.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>pipeline</command></term>
+                    <listitem>
+                        <para>
+                            Provides for dynamic manipulation of the
+                            event processing pipeline.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><command>evbunpack</command></term>
+                    <listitem>
+                        <para>
+                            Provides for constructing event processing pipelines
+                            that work on event built data.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Additional commands that are specific to batch SpecTcl are
+                also defined.  These are described in th enext section.
+            </para>
+        </section>
+        <section>
+            <title>How Batch SpeTcl analyzes data</title>
+            <para>
+                In normal SpecTcl you don't usually have to worry about
+                data analysis works.  You click buttons on a GUI or use
+                menu items and poof SpecTcl is analyzing data.
+                In normal SpecTcl, what's happening under the hood is a multi-step
+                process:
+            </para>
+            <orderedlist>
+                <listitem>
+                    <para>
+                        An <command>attach</command> command stops any
+                        analysis in progress attaches SpecTcl to a new
+                        data source (file or program on the end of a pipe).
+                    </para>
+                    
+                </listitem>
+                <listitem>
+                    <para>
+                        The <command>ringformat</command> command is used
+                        to indicate if the data source is NSCLDAQ-10.x or
+                        NSCLDAQ-11.x (we're not going to consider data from
+                        NSCLDAQ-8.x or earlier).
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        The <command>start</command> command is used to
+                        start analyzing data from the data source.
+                    </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                What this all does is select data sources, and buffer
+                decoding objects as well as start a Tcl event loop based
+                scheme for analyzing data while keeping the user interface
+                alive to your interactions.
+            </para>
+            <para>
+                Batch SpecTcl does not need to keep the user interface alive
+                and has been written with NSCLDAQ-11.x data in mind (though
+                a suitably sophisticated programmer can override that).
+            </para>
+            <para>
+                Batch SpecTcl provides an analysis scheme were data are taken
+                from some data getting object and passed to some data distributing
+                object.   In practice, the data getting object
+                gets data from file while the data distributing object
+                sends that data into the normal SpecTcl analysis objects.
+            </para>
+            <para>
+                To analyze data you must issue commands to select the
+                data getter and the data distributor and then ask the
+                program to analyze data.  While this may seem overly complex,
+                when we discuss parallel SpecTcl, we'll see how this allows us to
+                extend batch SpecTcl into an MPI application simply by
+                adding additional data getters and distributors as well
+                as a fancier script to drive the analysis.
+            </para>
+            <para>
+                The <command>filesource</command>  command specifies that the
+                data getter the analysis will use gets data from a file.
+                This command takes one mandatory parameter and an optional
+                parameter.  The mandatory parameter is the name of the file
+                the getter takes data from.  The optional one is the size in
+                bytes of reads done from that file.  When you run parallel
+                SpecTcl, this block size can have an impact on when you go
+                I/O limited.  The default block size is <literal>8192</literal>.
+            </para>
+            <para>
+                Here are some examples of the <command>filesource</command> command.
+            </para>
+            <example>
+                <title>Using the <command>filesource</command> command</title>
+                <programlisting>
+filesource /mnt/evtdata/e00000/run6/run-0006-00.evt
+filesource /mnt/evtdata/e00000/run6/run-0006-00.evt   [expr 1024*1024]
+                </programlisting>
+            </example>
+            <para>
+                In the first example, data will be gotten from the run 6 event
+                file in the evtdata area for some experiment using the default
+                block size of <literal>8192</literal>.  In the second example,
+                The same file is read but with a block size of 1 Mbytes
+                (1024*1024).
+            </para>
+            <para>
+                The analysis data distributor is selected using the
+                <command>analysissink</command> command. It takes no parameters.
+            </para>
+            <para>
+                Once the getter and distributor are selected, you can begin
+                analysis via the <command>analyze</command> command.
+                This command will not return until the getter has indicated
+                there's no more data available from its data source.
+                Once that has happened, you're certainly free to analyze
+                another run by using the <command>filesource</command>
+                command to specify another file (for example you could analyze
+                a segmented run in a loop over all the event files in the run).
+            </para>
+            <para>
+                Extending the <command>filesource</command> example above,
+                here's how you would analyze the singly segmented run 6
+                with a blocksize of 1Mbytes
+            </para>
+            <example>
+                <title>Analyzing a run</title>
+                <programlisting>
+filesource /mnt/evtdata/e00000/run6/run6-0006-00.evt
+analysissyink
+analyze
+                </programlisting>
+            </example>
+        </section>
+        <section>
+            <title>Creating a loadable package for the event analysis pipeline</title>
+            <para>
+                In the previous section, wwe learned how to start batch SpecTcl
+                analyzing data.  If you've worked with SpecTcl in any depth, however
+                you should be wondering how to setup the event analysis pipeline.
+                In this section we'll describe how to do that.
+            </para>
+            <para>
+                As a pre-requisite, you'll need to have the sources to the
+                event processors you use available.  They  can stay where
+                they normally live in your normal SpecTcl build tree.
+            </para>
+            <para>
+                What we're going to do is create a compiled Tcl loadable
+                package that you can incorporate in to the Tcl interpreter
+                that's already incorporated the <filename>spectcl</filename>
+                package.
+            </para>
+            <para>
+                Here's the procedure we'll describes:
+            </para>
+            <orderedlist>
+                <listitem>
+                    <para>
+                        Get the batch SpecTcl loadable package skeleton
+                        from the SpecTcl distribution.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Modify the package initialization code in the
+                        skeleton to instantiate event processors and
+                        setup the analysis pipeline.  This process
+                        should be familiar to SpecTcl programmers though the
+                        skeleton is much simpler.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Modify the Makefile in the skeleton to include
+                        the sources needed (e.g. event processors and
+                        supporting code).
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Build the loadable object.
+                    </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                We'll also show how to incorporate your loadable package into
+                tcl and to check that the pipeline you thought you set up is
+                the pipeline you actually set up.
+            </para>
+            <para>
+                To start with, obtain the batch SpecTcl skeleton. This consists
+                of the files in the BatchSkel directory of the Skeleton
+                installation tree. Put these files in an empty directory.
+                For example;  Suppose SpecTcl is installed in
+                <filename>/usr/opt/spectcl/5.2-000</filename>, 
+            </para>
+            <example>
+                <title>Obtaining the batch SpecTcl skeleton</title>
+                <programlisting>
+mkdir batch
+cd batch
+cp /usr/opt/spectcl/5.2-000/BatchSkel/* .
+                </programlisting>
+            </example>
+            <para>
+                The skeleton consists of several files; <filename>Makefile</filename>
+                and <filename>Skeleton.cpp</filename> are the files you
+                will need to edit.  <filename>CPipelineMaker.{h,cpp}</filename>
+                are base class files that we need but should not edit.
+            </para>
+            <para>
+                In editing <filename>Skeleton.cpp</filename>, you need to
+                consider three things:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        The actual event processing pipeline you are going
+                        to create.  Note that unlike SpecTcl, all pipeline
+                        elements (event processors) must have names.  Futhrmore
+                        to take advantage of regular SpecTcl's 5.1 capability
+                        for dynamically built event processingn pipelines you
+                        should get in the habit of providing an event processor
+                        name when registering 
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        The Name and version of the package you are creating
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        The name of the shared object the Makefile will create.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                To setup the event processing pipeline you'll need to
+                provide <literal>#include</literal> directives to pull in
+                the headers for your event processors.  Don't specify absolute
+                paths, take care of that in the Makefile.  
+            </para>
+            <para>
+                Here's an example
+            </para>
+            <example>
+                <title>Including event processor headers</title>
+                <programlisting>
+                    ...
+//  Here you should include your headers for your event processors.
+
+#include &lt;CAENUnpack.h&gt;
+                    ...
+                </programlisting>
+            </example>
+            <para>
+                The command shown is in the skeleton to indicate where to
+                put these <literal>#include</literal> directives.
+            </para>
+            <para>
+                Next, locate the class <classname>MyPiplineMaker</classname>,
+                Create and register the event processor(s) you need
+                 in the order you want them called.  For example
+            </para>
+            <example>
+                <title>Registering your event processing pipeline</title>
+                <programlisting>
+                    ...
+class MyPipelineMaker : public CPipelineMaker
+{
+public:
+    void operator()() {
+        // Here instantiate and use RegisterEventProcessor to
+        // setup the event processing pipeline.
+
+      RegisterEventProcessor(*(new CAENUnpack), "CAEN");
+
+    }
+};
+            ...
+
+                </programlisting>
+            </example>
+            <para>
+                You can register event processors for inclusion in dynamic
+                pipelines.  See the SpecTcl programming and programming
+                reference manuals for a description of that process.
+            </para>
+            <para>
+                The name and version of the Tcl package are defined in
+                the static file level variables
+                <varname>PKG_NAME</varname> and <varname>VERSION</varname>
+                respectively:
+            </para>
+            <example>
+                <title>Setting the package name and version</title>
+                <programlisting>
+                    ...
+// This file will create a Tcl loadable package, those have versions and
+// names... set the version and name here:  Below are sample names.
+// If you keep this you'll load your package by
+//
+//   lappend auto_path $directory_that_has_what_this_builds
+//   package require MyPipeline
+
+static const char* VERSION="1.0";
+static const char* PKG_NAME="MyPipeline";
+                    ...
+                </programlisting>
+            </example>
+            <para>
+                You don't need to modify these usually but you can if you prefer.
+                The Skeleton sets the version to 1.0 and the package name to
+                <literal>MyPipeline</literal>.
+            </para>
+            <para>
+                The Skeleton <filename>Makefile</filename>, by default,
+                creates the library <filename>libMyPipelineMaker.so</filename>.
+                If you change the name of the library, you need to change the
+                name of the package initialization function.  The initialization
+                function must have C language bindings and must have name
+                that is derived as follows: Starting with the library filename,
+                remove the <literal>lib</literal> and <literal>.so</literal>
+                In what remains capitalize the first letter and make all other
+                letters lower case, append <literal>_Init</literal>. So if you
+                have a library named <literal>libBatchPipeline.so</literal> the
+                initialization function will be <literal>Batchpipline_Init</literal>.
+            </para>
+            <para>
+                Below shows the initialization function signature in
+                the <filename>Skeleton.cpp</filename>
+            </para>
+            <example>
+                <title>Initialization entry point</title>
+                <programlisting>
+                    ...
+/**
+ * This entry is called when the package is loaded.
+ *  The name of this entry is derived from the shared library name as follows:
+ *  -  Remove the leading lib kill the trailing .so
+ *  -  Set the first letter to uppercase and all others to lower case.
+ *  -  Append _Init.
+ *
+ *  So, for example, if the library is named libMyPipelineMaker.so
+ *  this entry must be called Mypiplinemaker_Init
+ *  If you chose a different library name, you must adjust the function
+ *  name below.
+ */
+extern "C" {                              // Tcl n eeds C bindings.
+    int Mypipelinemaker_Init(Tcl_Interp* pRawInterpreter)
+    {
+                    ...
+                </programlisting>
+            </example>
+            <para>
+                Unless you want to define additional Tcl commands you normally
+                don't have to modify the Skeleton's initialization
+                function.
+            </para>
+            <para>
+                Now let's look at the Makefile.  As with standard SpecTcl's
+                skeleton Makefile, you  should not need to modify  much more
+                than the top pieces of the file. 
+            </para>
+            <para>
+                Let's look at that file:
+            </para>
+            <example>
+                <title>Batch SpecTcl Makefile</title>
+                <programlisting>
+#  Makefile that you can use to build pipeline maker packages.
+#
+#
+#   What this will produce is a shared library
+#   and a Tcl package index file that allows you to load
+#   the shared library via packgae require
+#   assuming the the library and its pkg_Index.tcl
+#   file are in auto_path.
+#
+
+INSTDIR=/usr/opt/spectcl/5.2-000        <co id='make.version' />
+INCDIR=/usr/opt/spectcl/5.2-000/include
+
+# Add any directories in which sources might live here
+# Use this rather than copying your event processors
+# into this directory e.g.
+
+VPATH=.                               <co id= 'make.srcdirs' />
+
+#  Add the sources you need built here.
+
+SOURCES=Skeleton.cpp                 <co id='make.sources' />
+
+#
+#  Add any compilation flags you need here:
+#
+MYCXXFLAGS=                       <co id='make.cxxflags' />
+
+#
+#  Add any link flags you need here:
+#
+
+MYLDFLAGS=                      <co id='cxxldflags' />
+
+##
+#  Name of the .so we're buiding note the init
+#  function has to track this;  the name here
+#  is the one in the skeleton
+
+MYPACKAGELIB=libMyPipelineMaker.so   <co id='make.libname' />
+
+#  If specific objects have dependencies, put them here
+#  No need to put in the compilation rule.
+#  e.g.
+#    Skeleton.o: Skeleton.cpp MyUnpacker.h       <co id='make.deps' />
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='make.version'>
+                    <para>
+                        These two lines of the file specify the SpecTcl version
+                        you are using.  They are used to compute compilation
+                        and link switches that are defined in the chunk of the
+                        file you don't need to edit.  If you switch to another
+                        version of SpecTcl, simplly change the version numbers
+                         in the paths here to reflect the new SpecTcl version
+                         you are using.
+                    </para>
+                </callout>
+                <callout arearefs='make.srcdirs'>
+                    <para>
+                        It's tempting to copy event processor source files
+                        from your standard SpecTcl to here.  Don't do it. If you
+                        do I pretty much gaurantee that at some point you'll
+                        forget to copy a changed file in one direction or the other.
+                        The <literal>VPATH</literal> Makefile variable
+                        describes to Make the directories in which to search for
+                        dependencies.  Just add the directory(ies) in which your
+                        event processor sources are located to the definition
+                        of <literal>VPATH</literal>.  Path elemnts are either
+                        space or <literal>:</literal> separated.
+                    </para>
+                </callout>
+                <callout arearefs='make.sources'>
+                    <para>
+                        Provide the names of the sources you want compiled
+                        into your shared object.  Note that you don't need to
+                        specify paths of these sources if they  live in directories
+                        that are specified in <literal>VPATH</literal>.  For example,
+                        if <literal>VPATH=. ..</literal> use
+                        <literal>SOURCES=Skeleton.cpp MyEvprocessor.cpp</literal>
+                        <emphasis>NOT</emphasis>
+                        <literal>SOURCES=Skeleton.cpp ../MyEveprocessor.cpp</literal>.
+                    </para>
+                    <para>
+                        Note as well that in this line, unlike the Makefile for
+                        SpecTcl, you're specifying the sources (.cpp) not objects (.o).
+                    </para>
+                </callout>
+                <callout arearefs='make.cxxflags'>
+                    <para>
+                        Specify any compilation flags you need to build code here.
+                        For example if an event processor and its header live in
+                        <literal>..</literal>, you'll need e.g.
+                        <literal>MYCXXFLAGS=-I..</literal>
+                    </para>
+                </callout>
+                <callout arearefs='cxxldflags'>
+                    <para>
+                        Specify the ld flags you need.  For example, if your event
+                        processors are in  a library named
+                        <filename>libMyEventProcessors.a</filename> that's
+                        located in <filename>..</filename>, you might have:
+                        <literal>MYLDFLAGS=-L.. -lMyEventProcessors</literal>
+                    </para>
+                    <para>
+                        Note that Tcl rquires lodable packages to be self contained.
+                        By that I mean that once loaded, along with the
+                        shared objects it was linked to, there can be no
+                        undefined symbols.  If there are, tcl will segfault
+                        when you try to load the object.  You may also see errors
+                        in the last stage of the Makefile when the
+                        <filename>pkgIndex.tcl</filename> file is created.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Once you've edited everything, use <command>make</command>
+                to build the shared object and package index.
+            </para>
+        </section>
+        <section>
+            <title>A simple analysis script.</title>
+            <para>
+                BatchSpecTcl needs to be driven by a script.  The script must:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        Load the spectcl package.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Load the user's Tcl package that sets up the anlaysis
+                        pipeline
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Specify the data getter and distributor.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Start Analysis
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Save the results.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                The sample script below assumes that TCLLIBPATH includes
+                the SpecTcl TclLibs directory and the directory in which your
+                <literal>MyPipeline</literal> package is stored.  We further assume
+                that an interactive SpecTcl has saved its configuration
+                in <filename>defs.tcl</filename>.  This definition file
+                normally contains the spectrum and gate definitions,
+                gate applications and changed tree parameter and tree variable
+                settings.
+            </para>
+            <example>
+                <title>Smaple batch SpecTcl script.</title>
+                <programlisting>
+package require spectcl             <co id='batch.requirebase' />
+package require MyPipeline          <co id='batch.requirepipe' />
+source defs.tcl                     <co id='batch.defs' />
+
+filesource run-0003-00.evt          <co id ='batch.getter' />
+analysissink                        <co id='batch.distributor' />
+puts "analyzing..."
+analyze                             <co id='batch.analyze' />
+puts "done"
+
+set f [open spectra.dat w]
+foreach spectrum [spectrum -list] {
+   set name [lindex $spectrum 1]     <co id='batch.save' />
+   swrite -format ascii $f $name
+}
+close $f
+puts "Spectra written to spectra.dat"
+                    
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='batch.requirebase'>
+                    <para>
+                        Requires the SpecTcl batch package.  This script
+                        requires that TCLLIBPATH includes the
+                        <filename>TclLibs</filename> directory of a SpecTcl
+                        installation with version greater than or equal to
+                        <literal>5.2-000</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='batch.requirepipe'>
+                    <para>
+                        <literal>MyhPipeline</literal> is the name of the
+                        package created by the Skeleton, unless you change
+                        it.  This line loads that package which, at initialization,
+                        sets up the analysis pipeline that produces parameters
+                        from raw events.
+                    </para>
+                </callout>
+                <callout arearefs='batch.defs'>
+                    <para>
+                        Sources the file that contains the spectrum, gate,
+                        gate application definitions and other information
+                        that determines what's done with the parameters
+                        produced for each event.
+                    </para>
+                </callout>
+                <callout arearefs='batch.getter'>
+                    <para>
+                        Specifies data will be gotten from file.
+                        The file we read will be run-0003-00.evt in the
+                        current working directory.  This might be a single run
+                        event file.
+                    </para>
+                </callout>
+                <callout arearefs='batch.distributor'>
+                    <para>
+                        The main analysis loop will take data read from the
+                        getter and distribute them to the SpecTcl analysis
+                        subsystem.
+                    </para>
+                </callout>
+                <callout arearefs='batch.analyze'>
+                    <para>
+                        Analyzes the entire file.
+                    </para>
+                </callout>
+                <callout arearefs='batch.save'>
+                    <para>
+                        This chunk of code opens the file
+                        <filename>specta.dat</filename>, loops over all spectrum
+                        definitions and writes the spectra that have been
+                        accumulated to that file.  Using interactive SpecTcl
+                        you can read this file using a similar loop:
+                    </para>
+                    <example>
+                        <title>Reading a file with several spectra:</title>
+                        <programlisting>
+set f [open spectra.dat r]
+while {![eof $f]} {
+    catch {sread -format ascii -nosnapshot -replace $f}
+}
+close $f
+                        </programlisting>
+                    </example>
+                    <para>
+                        The <command>catch</command> command is used because
+                        att the end of the file, there may be an empty line which
+                        won't let the end file condition be discovered until
+                        after an attempt is made to read a spectrum that is not
+                        there.
+                    </para>
+                </callout>
+
+            </calloutlist>
+            <para>
+                You can certainly modify the analysis so that it
+                analyzes more than one file or even more than one run.
+                Suppose the current directory contains several runs and the
+                order in which the file segments whithin each run is
+                processed is unimportant.  To analyze all segments of
+                runs 1 through 10, the following could be done (after
+                the packages and definitions have been loaded):
+            </para>
+            <example>
+                <title>Reading several multi segmented runs:</title>
+                <programlisting>
+                    ...
+analysissink
+for {set run 1} {$run &lt;= 10} {incr run} {
+    clear -all
+    set namePattern [format run-%04d-*.evt $run]
+    set files [glob $namePattern]
+    puts "Analyzing run $run"
+    foreach file $files {
+        filesource $file
+        analyze
+        puts "Analyzed segment $file"
+    }
+    puts done
+    set  f [open run-$run.spec]
+    for spectrum [spectcrum -list] {
+        set name [lindex $spectrum 1]
+        swrite -format ascii $name $f
+    }
+    close $f
+    puts "Wrote spectra to run-$run.spec"
+    
+}
+                </programlisting>
+            </example>
+            <para>
+                By now this script should be understandable.  Note how prior to
+                analyzing the event files for each run, the spectra are cleared.
+                Note as well that spectra for each run are written in a file that
+                has the run number it its name.
+            </para>
+            <para>
+                Note that the segments in a run will be analyzed out of order.
+                Furthermore a simple
+                <literal>set files [lsort [glob $namePattern]]</literal> will only
+                work if there are less than 100 segments in the run as the file
+                run-0001-100.evt sorts alphabetically prior to run-0001-002.evt
+            </para>
+            <para>
+                Here's a Tcl fragment that provides a proc that sorts the list
+                of run segments for a run in segment order.
+            </para>
+            <example>
+                <title>Ordering run segments by segment number</title>
+                <programlisting>
+proc compare {file1 file2} {
+    scan $file1 run-%04d-%02d.evt run seg1
+    scan $file2 run-%04d-%02d.evt run seg2
+    
+    if {$seg1 &lt; $seg2} {return -1}
+    if {$seg1 &gt; $seg2} {return 1}
+    return 0
+}
+proc sortRun {filelist} {
+    return [lsort  -increasing -command compare $filelist]
+}
+
+                </programlisting>
+            </example>
+            <para>
+                This uses the ability of the <command>lsort</command>
+                command to accept a command that defines the collation order
+                of the list it's sorting.
+            </para>
+        </section>
     </chapter>
     <chapter id='ch.mpitcl'>
         <title id='ch.mpitcl.title'>MPITcl - an enhanced Tcl interpreter</title>
@@ -152,5 +1122,11 @@
         <title id='ch.mpispectcl.title'>MPISpecTcl - Massively parallel SpecTcl.</title>
         <para></para>
     </chapter>
+    <appendix>
+        <title>Reference (man) pages</title>
+        <para>
+            
+        </para>
+    </appendix>
 </book>
 

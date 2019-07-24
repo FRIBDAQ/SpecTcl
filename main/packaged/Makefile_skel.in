@@ -12,6 +12,11 @@
 INSTDIR=@prefix@
 INCDIR=@prefix@/include
 
+# Add any directories in which sources might live here
+# Use this rather than copying your event processors
+# into this directory e.g.
+
+VPATH=.
 
 #  Add the sources you need built here.
 
