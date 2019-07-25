@@ -2,7 +2,8 @@ lib_LTLIBRARIES=libSpecTclPython.la
 
 libSpecTclPython_la_SOURCES=CPythonCommand.cpp CPythonCommand.h \
 	PythonPackage.cpp \
-	pythonParameters.cpp pythonParameters.h
+	pythonParameters.cpp pythonParameters.h \
+	pythonSpectrum.cpp pythonSpectrum.h
 
 
 libSpecTclPython_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \

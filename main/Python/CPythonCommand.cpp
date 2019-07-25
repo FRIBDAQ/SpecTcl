@@ -40,7 +40,7 @@
 //
 
 #include "pythonParameters.h"            // Parameters/parameter object.
-
+#include "pythonSpectrum.h"             // spectrum object.
 /////////////////////////////////////////////////////////////////////////////
 //  The spectcl python module that lets python scripts do SpecTcl stuff.
 
@@ -127,12 +127,34 @@ spectcl_plist(PyObject* self, PyObject* args)
     
     return result;
 }
-
+/**
+ * spectcl_speclist
+ *    @param self - module object.
+ *    @param ignored  parameters.
+ *    @return PyObject* - tuple of spectrum names.
+ */
+static PyObject*
+spectcl_speclist(PyObject* self, PyObject* Py_UNUSED(ignored))
+{
+    SpecTcl* api = SpecTcl::getInstance();
+    size_t numSpectra = api->SpectrumCount();
+    
+    PyObject* result = PyTuple_New(numSpectra);
+    int i = 0;
+    for(auto p = api->SpectrumBegin(); p != api->SpectrumEnd(); p++, i++) {
+        PyTuple_SetItem(result, i, PyUnicode_FromString(p->first.c_str()));
+        
+        
+    }
+    
+    return result;
+}
 // Module symbol table for the spectcl module:
 
 static struct PyMethodDef SpecTclMethods[] = {
     {"tcl", spectcl_tcl, METH_VARARGS, "Run Tcl script in SpecTcl interpreter"},
     {"listparams", spectcl_plist, METH_VARARGS, "List names of SpecTcl parameters"},
+    {"listspectra", spectcl_speclist, METH_NOARGS, "List names of spectra"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -152,6 +174,7 @@ PyInit_SpecTcl(void)
     PyObject* module =  PyModule_Create(&spectclModule);
     
     setupPythonParameterObjects(module);
+    setupPythonSpectrumObjects(module);
     
     return module;
 }
