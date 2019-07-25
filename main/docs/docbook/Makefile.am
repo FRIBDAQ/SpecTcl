@@ -19,7 +19,8 @@ install-exec-local:
 
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
-	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml
+	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
+	batch.xml
 
 BUILT_SOURCES = @builddir@/docs_built
 
