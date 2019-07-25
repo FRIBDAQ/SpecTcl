@@ -1844,6 +1844,9 @@ exit
                 </refnamediv>
                 <refsynopsisdiv>
                     <cmdsynopsis>
+<command>package require spectcl</command>
+                    </cmdsynopsis>
+                    <cmdsynopsis>
 <command>analysissink</command>
                     </cmdsynopsis>
                     
@@ -1868,6 +1871,9 @@ exit
                     <refpurpose>Begin analysis.</refpurpose>
                 </refnamediv>
                 <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>package require spectcl</command>
+                    </cmdsynopsis>
                     <cmdsynopsis>
 <command>analyze</command>
                     </cmdsynopsis>
@@ -1898,6 +1904,9 @@ exit
                     <refpurpose>Establish a data getter from a file.</refpurpose>
                 </refnamediv>
                 <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>package require spectcl</command>
+                    </cmdsynopsis>
                     <cmdsynopsis>
 <command>filesource <replaceable>filename ?blocksize-in-bytes?</replaceable></command>
                     </cmdsynopsis>
@@ -2044,7 +2053,391 @@ public:
             
             </refentry>
         </section>
-        
+        <section>
+            <title>MPITcl</title>
+            <para>
+                This section documents the commands and programmatic
+                interfaces to the MPI enhanced Tcl interpreter.
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>mpi::mpi</refentrytitle>
+                    <manvolnum>1mpitcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>mpi::mpi</refname>
+                    <refpurpose>Command ensemble for MPI under tcl.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>mpirun -np <replaceable>nprocesses</replaceable> /usr/opt/mpitcl/bin/mpitcl <replaceable>script</replaceable></command>
+                    </cmdsynopsis>
+
+                    <cmdsynopsis>
+<command>mpi::mpi <replaceable>subcommand ...</replaceable></command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        <command>mpitcl</command> is an enhanced Tcl interpreter
+                        that provides simple Tcl-ish extensions to support
+                        massively parallel programming with Tcl under the
+                        Message Passing Interface (MPI).
+                    </para>
+                    <para>
+                        In <command>mpitcl</command>, the rank 0 process
+                        runs a Tcl interpreter that takes commands from stdin
+                        just as a normal interpreter does.  All other ranks
+                        run a loop that accepts MPI messages that request
+                        data transfer, or command execution.  Thus the
+                        rank 0 process is the driver of the computation, passing
+                        out work, in the form of commands and data to the other
+                        processes.  Processes other than rank 0, can run scripts
+                        that communicate with other processes  in the same manner,
+                        requesting script execution or data transfer.
+                    </para>
+                    <para>
+                        A notifier thread in the rank 0 process can be used
+                        to queue MPI communication events to the interpreter
+                        running in the rank 0 process.  These events will be
+                        seen when that interpreter enters the event loop via
+                        e.g. <command>vwait</command> or, if the cluster on which
+                        the application runs supports it, by loading the
+                        <literal>Tk</literal> package.
+                    </para>
+                    <para>
+                        The extension to the interpreter is a single command
+                        ensemble:  <command>mpi::mpi</command>.  This command
+                        is defined in the interpreters that run in all ranks.
+                        This command
+                        has the following subcommands:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><command>size</command></term>
+                            <listitem>
+                                <para>
+                                    Returns the number of processes in the
+                                    application.  This is legal in all ranks.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>rank</command></term>
+                            <listitem>
+                                <para>
+                                    Returns the rank of the process.  More
+                                    precisely this is the rank within the
+                                    <literal>MPI_COMM_WORLD</literal> predefined
+                                    communicator.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>execute</command> <replaceable>rank  script</replaceable></term>
+                            <listitem>
+                                <para>
+                                    Executes the <parameter>script</parameter> in
+                                    the processes designated by <parameter>rank</parameter>.
+                                    The <parameter>rank</parameter> parameter can
+                                    either be a numeric rank, or it can be one
+                                    of two special keywords.
+                                </para>
+                                <para>
+                                    If the <parameter>rank</parameter> is the
+                                    keyword <literal>others</literal> the
+                                    execution is requested in all other
+                                    processes but not the requesting process.
+                                    If the <parameter>rank</parameter> is
+                                    the keyword <literal>all</literal> the
+                                    execution is requested first via MPI messaging
+                                    to all other ranks and then performed directly
+                                    in the requestor's interpreter. 
+                                </para>
+                                <para>
+                                    Note that if other processes request execution
+                                    of scripts in the rank 0 process, this will
+                                    be deferred until that process next enteres
+                                    its
+                                    event loop with e.g. <command>vwait</command>.
+                                </para>
+                                <para>
+                                    Note that a request like
+                                    <command>mpi::mpi execute [mpi::mpi rank] ...</command>
+                                    <emphasis>will</emphasis> use MPI message
+                                    passing to request this process execute the script.
+                                    Only in the special <literal>all</literal> rank
+                                    is script execution performed directly in
+                                    the current process's interpreter.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>send</command> <replaceable>rank data</replaceable></term>
+                            <listitem>
+                                <para>
+                                    Sends the <parameter>data</parameter>
+                                    to the process(es) determined by
+                                    <parameter>rank</parameter>.  Note that
+                                    once more, the special ranks
+                                    <literal>others</literal> and
+                                    <literal>all</literal> described above in
+                                    the <command>execute</command> subcommand
+                                    are recognized.
+                                </para>
+                                <para>
+                                    In order to receive data, the receiving
+                                    process must have established a data handler
+                                    via the <command>handle</command>
+                                    subcommand.  Furthermore, messages sent to
+                                    the rank 0 process require that process
+                                    to enter the event loop (e.g. via <command>vwait</command>)
+                                    before they are received.
+                                </para>
+                                <para>
+                                    The data are sent via the the MPI data type
+                                    <literal>MPI_CHAR</literal>, this is suitable
+                                    for arbitrary Tcl data since everything in
+                                    Tcl has a string representation.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>handle</command> <replaceable>script-prefix</replaceable></term>
+                            <listitem>
+                                <para>
+                                    Establishes a data receiver handling script.
+                                    When data are received from a process
+                                    (sent via <command>mpi::mpi send</command>),
+                                    the rank of the sender and the data are
+                                    <command>lappend</command>ed to the
+                                    <parameter>script-prefix</parameter>
+                                    which is then executed.
+                                </para>
+                                <para>
+                                    The <parameter>script-prefix</parameter>
+                                    can be a multiword prefix, and normally
+                                    is a <command>proc</command> invocation,
+                                    though it need not be.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>stopnotifier</command></term>
+                            <listitem>
+                                <para>
+                                    Stops the notifier thread.  This must
+                                    be done prior to application exit as
+                                    otherwise the thread might signal an event
+                                    to an interpreter that no longer exists which
+                                    can cause segfaults.
+                                </para>
+                                <para>
+                                    <command>stopnotifier</command> might also
+                                    be used prior to turning over control to a
+                                    command extension that wants complete control
+                                    over communication (e.g compiled code distributing
+                                    data to compiled code).
+                                </para>
+                                <para>
+                                    This subcommand is only legal in the rank 0
+                                    process as other ranks don't run a notifier
+                                    thread.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><command>startnotifier</command></term>
+                            <listitem>
+                                <para>
+                                    Starts the notifier after it has been stoppped.
+                                    This is only legal for rank 0. 
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <para>
+                        Note that <command>mpirun</command> wants to see all
+                        processes in the application exit prior to exiting itself.
+                        Therefore the proper way to terminate an mpitcl application
+                        is with the following script fragment.
+                    </para>
+                    <example>
+                        <title>Terminating an MPITcl application</title>
+                        <programlisting>
+stopnotifier
+mpi::mpi execute all exit
+                        </programlisting>
+                    </example>
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>MPITcl binary data.</refentrytitle>
+                    <manvolnum>3mpitcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>MPITcl binary data</refname>
+                    <refpurpose>Receiving binary data in compiled MPITcl extensions</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <synopsis>
+#include &lt;mpitcl.h&gt;
+static const int MPI_TAG_SCRIPT(1); 
+static const int MPI_TAG_TCLDATA(2);
+static const int MPI_TAG_BINDATA(3);
+
+typedef void (*MPIBinDataHandler)(int, int, void*);
+void MPITcl_setBinaryDataHandler(MPIBinDataHandler handler);
+
+                    </synopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        It is reasonable to think about compiled extensions
+                        being layered on top of the <command>mpitcl</command>
+                        interpreter.  These extensions can hook into the
+                        message passing as follows:
+                    </para>
+                    <para>
+                        Extensions can use <function>MPI_Send</function> to
+                        send MPI_CHAR data with one of the tags
+                        <literal>MPI_TAG_SCRIPT</literal>
+                        (if a script is being sent for execution in the target),
+                        or <literal>MPI_TAG_TCLDATA</literal> if Tcl friendly data
+                        are being sent for receipt in the targe.  In both cases,
+                        the data must be sent with the data type
+                        <literal>MPI_CHAR</literal>.
+                    </para>
+                    <para>
+                        It's also possible for an extension to register
+                        to be called if data with the tag
+                        <literal>MPI_TAG_BINDATA</literal> tag has been received
+                        by is process.
+                    </para>
+                    <para>
+                        Such <firstterm>binary data handlers</firstterm> are
+                        registered by calling
+                        <function>MPITcl_setBinaryDataHandler</function>.
+                        Note tht passing <literal>nullptr</literal> as a parameter
+                        removes any existing data handler.  Note as well that
+                        in the event this is called several times, only the
+                        most recently established data handler is used.
+                    </para>
+                    <para>
+                        Data handlers are void functions that accept
+                        three parameters, The first parameter is the
+                        rank that sent the message.  The second is the size
+                        of the message in bytes (really in <literal>MPI_CHAR</literal>.
+                        The last a pointer to the received data.  If the data are
+                        required for longer than the duration of execution of the
+                        handler function it must be copied.
+                    </para>
+                    <para>
+                        Note as well that a data  handler established
+                        by <function>MPITcl_setBinaryDataHandler</function>
+                        is only called in rank 0 when that interpreter has
+                        entered the event loop via, e.g. <command>vwait</command>.
+                    </para>
+                </refsect1>
+
+            </refentry>
+        </section>
+        <section>
+            <title>MPI SpecTcl</title>
+            <para>
+                This section provides reference information about MPI parallel
+                batch SpecTcl.  The programmatic interfaces are the union
+                of Batch SpecTcl and MPItcl.  This section merely adds the
+                set of commands and classes that are added by the
+                <literal>mpispectcl</literal> package.
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>mpisource</refentrytitle>
+                    <manvolnum>1MPISpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>mpisource</refname>
+                    <refpurpose>Data Getter from MPI</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+package require mpispectcl
+                        </command>
+                    </cmdsynopsis>
+                    <cmdsynopsis>
+                        <command>
+mpisource
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Establishes the batch SpecTcl data getter as getting
+                        data from MPI.  The sender is assumed to be rank0
+                        and should have used the <command>mpisink</command>
+                        command to set up to transmit data to the other ranks.
+                    </para>
+                    <para>
+                        Note that prior to beginning analysis in the rank 0 process:
+                    </para>
+                    <orderedlist>
+                        <listitem>
+                            <para>
+                                Analysis should be started in all other ranks.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                The mpi notifier should be halted.
+                            </para>
+                        </listitem>
+                    </orderedlist>
+                    
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>mpisink</refentrytitle>
+                    <manvolnum>1MPISpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>mpisink</refname>
+                    <refpurpose>Send data to MPI getters.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+package require mpispectcl
+                        </command>
+                    </cmdsynopsis>
+                    <cmdsynopsis>
+                        <command>
+mpisink
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Establishes a batch data distributor to distribute
+                        to one or more ranks that are running an MPI data getter
+                        (established via <command>mpisource</command>).
+                        The sink knows which ranks to send data to because the
+                        protocol used is a pull protocol that requires ranks
+                        to request data prior to receiving it.  
+                    </para>
+                </refsect1>
+            
+            </refentry>
+        </section>
     </appendix>
 </book>
 
