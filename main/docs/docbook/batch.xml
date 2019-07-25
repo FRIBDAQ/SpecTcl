@@ -1826,6 +1826,225 @@ exit
             This appendix provides reference material for batch SpecTcl,
             MPITcl and MPISpecTcl
         </para>
+        <section>
+            <title>Batch SpecTcl</title>
+            <para>
+                This section provides reference pages for the commands unique
+                to batch SpecTcl and the classes you might want to know
+                about if you are exending batch SpecTcl.
+            </para>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>analysissink</refentrytitle>
+                    <manvolnum>1batchSpectcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>analysissink</refname>
+                    <refpurpose>Establish a data distributor to the anlaysis pipeline</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>analysissink</command>
+                    </cmdsynopsis>
+                    
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Sets the data distributor to an analysis sink.  Regardless
+                        of where the data comes from, it will be passed on to the
+                        analysis pipeline for histogramming.
+                    </para>
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>analyze</refentrytitle>
+                    <manvolnum>1batchSpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>analyze</refname>
+                    <refpurpose>Begin analysis.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>analyze</command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Begin analysis of data from the data getter sending
+                        the resulting data blocks to the data distributor.
+                        It is an error to request analysis without having set
+                        both a getter and a setter.
+                    </para>
+                    <para>
+                        Behavior when this command is issued after an event
+                        source has already been exhausted is not defined and
+                        depends on the implementation of that source.
+                    </para>
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>filesource</refentrytitle>
+                    <manvolnum>1batchSpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>filesource</refname>
+                    <refpurpose>Establish a data getter from a file.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+<command>filesource <replaceable>filename ?blocksize-in-bytes?</replaceable></command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Establishes a data getter that reads data from the file
+                        <parameter>filename</parameter>  If specified the
+                        <parameter>blocksize-in-bytes</parameter> specifies
+                        the size of each read done from the data file.  If
+                        not provided a default value is used. Note that
+                        the block size must be large enough to hold at least
+                        one ring item entirely.
+                    </para>
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CDataGetter</refentrytitle>
+                    <manvolnum>3batchSpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>CDataGetter</refname>
+                    <refpurpose>Base class for data getters.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <synopsis>
+#include &lt;CDataGetter.h&gt;
+
+class CDataGetter
+{
+public:
+    virtual ~CDataGetter() {}               
+    virtual std::pair&lt;size_t, void*&gt; read() = 0;  
+    virtual void free(std::pair&lt;size_t, void*&gt;&amp; data) =0; 
+};
+
+                    </synopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This class is documented in case you want to add additional
+                        data sources to batch SpecTcl.  The <classname>CDataGetter</classname>
+                        class is the base class for such objects.  Concrete
+                        subclasses must implement two methods;
+                        <methodname>read</methodname> and <methodname>free</methodname>.
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term>
+                                <methodsynopsis>
+                                    <modifier>virtual</modifier>
+                                    <type>std::pair&lt;size_t, void*&gt; </type>
+                                    <methodname>read</methodname>
+                                    <void />
+                                    <modifier></modifier>
+                                </methodsynopsis>
+                            </term>
+                            <listitem>
+                                <para>
+                                    This is expected to read another chunk of data
+                                    from the data source.  The return value is
+                                    a pair that provides the amount of data
+                                    read (in bytes) and a pointer to that data.
+                                    The data may be dynamically or statically
+                                    allocated.  The current version of the
+                                    SpecTcl Batch analyzer will only have one
+                                    block of data <firstterm>active</firstterm> at
+                                    a time, that is <methodname>free</methodname>
+                                    will be called prior to the next invocation
+                                    of <methodname>read</methodname>
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>
+                                <methodsynopsis>
+                                    <modifier>virtual </modifier>
+                                    <type>void </type>
+                                    <methodname>free</methodname>
+                                    <methodparam>
+                                        <type>std::pair&lt;size_t, void*&gt;&amp; </type>
+                                        <parameter>data</parameter>
+                                    </methodparam>
+                                    <modifier></modifier>
+                                </methodsynopsis>
+                            </term>
+                            <listitem>
+                                <para>
+                                    Called when the analyzer is done with a block
+                                    of data.  If the data was dynamically allocated,
+                                    this method should free it.  The
+                                    parameter is a reference to the result of
+                                    the most recent call to <methodname>read</methodname>.
+                                    Only one block of data will be in analysis
+                                    in this SpecTcl at a time.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>CDataDistributor</refentrytitle>
+                    <manvolnum>3batchSpecTcl</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>CDataDistributor</refname>
+                    <refpurpose>Data Distribution base class.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <synopsis>
+#include &lt;CDataDistributor&gt;
+class CDataDistributor
+{
+public:
+    virtual ~CDataDistributor() {}
+    virtual void handleData(std::pair&lt;size_t, void*&gt;&amp; info) = 0;
+};
+
+
+                    </synopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This  class is documented in case you want to
+                        write additional methods to dispose of data that has
+                        been gotten from a batch SpecTcl data source.
+                        Concrete subclasses must implement a single method;
+                        <methodname>handleData</methodname> which takes, as a
+                        parameter, a pair gotten from the data getter's
+                        <methodname>read</methodname> method.  This pair contains
+                        the size and pointer to the block of data to handle.
+                        When this method returns, there must be no further need
+                        to reference that storage (it can be freed if desired).
+                    </para>
+                </refsect1>
+            
+            </refentry>
+        </section>
+        
     </appendix>
 </book>
 
