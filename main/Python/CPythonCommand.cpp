@@ -29,6 +29,7 @@
 #include <TCLObject.h>
 #include <Exception.h>
 #include <SpecTcl.h>
+#include <TreeParameter.h>
 
 #include <stdexcept>
 
@@ -149,12 +150,31 @@ spectcl_speclist(PyObject* self, PyObject* Py_UNUSED(ignored))
     
     return result;
 }
+/**
+ * spectcl_varlist
+ *    @param self - module.
+ *    @param ignored -ignroed parameters.
+ *    @return PyObject* - A tuple containing the names of all tree vfariables.
+ */
+static PyObject*
+spectcl_varlist(PyObject* self, PyObject* Py_UNUSED(ignored))
+{
+    PyObject* result = PyTuple_New(CTreeVariable::size());
+    int i = 0;
+    for (auto p = CTreeVariable::begin(); p != CTreeVariable::end(); p++, i++) {
+        std::string name = p->first;
+        PyTuple_SetItem(result, i, PyUnicode_FromString(name.c_str()));
+    }
+    
+    return result;
+}
 // Module symbol table for the spectcl module:
 
 static struct PyMethodDef SpecTclMethods[] = {
     {"tcl", spectcl_tcl, METH_VARARGS, "Run Tcl script in SpecTcl interpreter"},
     {"listparams", spectcl_plist, METH_VARARGS, "List names of SpecTcl parameters"},
     {"listspectra", spectcl_speclist, METH_NOARGS, "List names of spectra"},
+    {"listvars", spectcl_varlist, METH_NOARGS, "List tree variable names"},
     {NULL, NULL, 0, NULL}
 };
 

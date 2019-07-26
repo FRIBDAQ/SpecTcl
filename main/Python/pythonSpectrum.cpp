@@ -419,6 +419,7 @@ deallocate(PyObject* self)
 {
     pSpectrumObject me = (pSpectrumObject)(self);
     delete me->s_objData.s_spectrumName;
+    Py_TYPE(self)->tp_free(self);
 }
 ////////////////////////////////////////////////////////////////////////////
 // Methods
