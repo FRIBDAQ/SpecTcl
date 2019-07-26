@@ -226,6 +226,8 @@ CPythonCommand::CPythonCommand(CTCLInterpreter& interp, const char* name) :
     PyImport_AppendInittab("spectcl", &PyInit_SpecTcl);
     
     Py_Initialize();
+    PyRun_SimpleString("import spectcl"); // goddamnit.
+
     return;
 
 }
