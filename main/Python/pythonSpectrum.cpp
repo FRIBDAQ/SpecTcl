@@ -23,6 +23,9 @@
 #include "Spectrum.h"
 #include "CAxis.h"
 #include "Gamma2DD.h"
+#include "GateContainer.h"
+#include "DisplayInterface.h"
+#include "Display.h"
 #include <Exception.h>
 #include <stdexcept>
 #include <sstream>
@@ -500,6 +503,50 @@ gate(PyObject* self, PyObject* args)
         return NULL;
     }
 }
+/**
+ * bind
+ *    Binds the spectrum to the displayer.
+ *  @param self - pointer to this object.
+ *  @return Py_None if successful.
+ */
+static PyObject*
+bind(PyObject* self, PyObject* Py_UNUSED(ignored))
+{
+    CSpectrum* pSpectrum = getSpectrum(self);
+    if (pSpectrum) {
+        SpecTcl* api = SpecTcl::getInstance();
+        CDisplayInterface* pDisplayApi = api->GetDisplayInterface();
+        CDisplay*          pDisplay    = pDisplayApi->getCurrentDisplay();
+        if (!pDisplay->spectrumBound(pSpectrum)) {
+            pDisplay->addSpectrum(*pSpectrum, *(api->GetHistogrammer()));
+        }
+        Py_RETURN_NONE;
+    } else {
+        return NULL;
+    }
+}
+/**
+ * unbind
+ *   Unbind the spectrum from the display.
+ * @param selfg - pointer to this object.
+ * @return Py_None if successful.
+ */
+static PyObject*
+unbind(PyObject* self, PyObject* Py_UNUSED(ignored))
+{
+    CSpectrum* pSpectrum = getSpectrum(self);
+    if (pSpectrum) {
+        SpecTcl* api = SpecTcl::getInstance();
+        CDisplayInterface* pDisplayApi = api->GetDisplayInterface();
+        CDisplay*          pDisplay    = pDisplayApi->getCurrentDisplay();
+        if (pDisplay->spectrumBound(pSpectrum)) {
+            pDisplay->removeSpectrum(*pSpectrum, *(api->GetHistogrammer()));
+        }
+        Py_RETURN_NONE;
+    } else {
+        return NULL;
+    }    
+}
 //////////////////////////////////////////////////////////////////////////
 // Attribute access. Note that the attributes are actually in the
 // CSpectrum object that we're going to look up at each turn.
@@ -602,6 +649,7 @@ getParams(PyObject* self, void* closure)
         return NULL;
     }
 }
+
 /**
  *  getAxes
  *    @param self - pointer to our object data.
@@ -629,6 +677,24 @@ getAxes(PyObject* self, void* closure)
         return NULL;
     }
 }
+/**
+ * getGate
+ *   @param self - pointer to the object storage.
+ *   @param closure - unused.
+ *   @return PyObject - unicode name of the gate applied to the spectrum.
+ */
+static PyObject*
+getGate(PyObject* self, void* closure)
+{
+    CSpectrum* pSpectrum = getSpectrum(self);
+    if (pSpectrum) {
+        const CGateContainer* g = pSpectrum->getGate();
+        std::string name = g->getName();    // The container holds the name.
+        return PyUnicode_FromString(name.c_str());
+    } else {
+        return NULL;
+    }
+}
 //////////////////////////////////////////////////////////////////////////
 // Tables of methods and getters/setters (we don't actually store
 // data in the object but look it up each time)
@@ -639,7 +705,8 @@ static PyMethodDef spectrumMethods[] = {
     {"clear", (PyCFunction)(clear), METH_NOARGS, "Clear  spectrum"},
     {"ungate", (PyCFunction)(ungate), METH_NOARGS, "Remove conditions on a spectrum"},
     {"gate", (PyCFunction)(gate), METH_VARARGS, "Apply a gate to a spectrum"},
-    
+    {"bind", (PyCFunction)(bind), METH_NOARGS, "Bind spectrum to displayer"},
+    {"unbind", (PyCFunction)(unbind), METH_NOARGS, "Unbind spectrum from displayer"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -650,6 +717,7 @@ static PyGetSetDef gettersAndSetters[] = {
     {"type", (getter)getType, NULL, "Spectrum type string"},
     {"parameters", (getter)getParams, NULL, "Spectrum parameter names"},
     {"axes", (getter)getAxes, NULL, "Spectrum axis definitions"},
+    {"gatename", (getter)getGate, NULL, "Name of gate"},
     {NULL}
 };
 
