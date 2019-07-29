@@ -20,7 +20,7 @@ bool isStart = true;
 Sender* Sender::m_pInstance = 0;
 
 const int NBR_WORKERS = 25;
-int CHUNK_SIZE  = 1024*1024*48;
+int CHUNK_SIZE  = 1024*1024*96;
 UInt_t m_nParametersInEvent = 512;
 CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;

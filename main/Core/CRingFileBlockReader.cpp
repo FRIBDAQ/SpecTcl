@@ -17,6 +17,9 @@
 #include <string.h>
 #include <system_error>
 #include <assert.h>
+#include <set>
+
+static std::set<int> okErrors; // Acceptable errors in I/O operations.
 
 /**
  * Constructor
@@ -42,6 +45,62 @@ CRingFileBlockReader::~CRingFileBlockReader()
 {
   //  close(m_nFd);
   free(m_pPartialItem);
+}
+
+static bool 
+badError(int error)
+{
+  // Stock the okErrors set if empty:
+
+  if (okErrors.empty())
+    {
+      okErrors.insert(EAGAIN);
+      okErrors.insert(EWOULDBLOCK);
+      okErrors.insert(EINTR);
+    }
+
+  // Not in the set -> true.
+
+  return (okErrors.count(error) == 0);
+}
+
+size_t readData (int fd, void* pBuffer,  size_t nBytes)
+{
+  uint8_t* pDest(reinterpret_cast<uint8_t*>(pBuffer));
+  size_t    residual(nBytes);
+  ssize_t   nRead;
+
+  // Read the buffer until :
+  //  error other than EAGAIN, EWOULDBLOCK  or EINTR
+  //  zero bytes read (end of file).
+  //  Regardless of how all this ends, we are going to emit a message on sterr.
+  //
+
+  while (residual) {
+    nRead = read(fd, pDest, residual);
+    if (nRead == 0)// EOF
+      {
+	return nBytes - residual;
+      }
+    if ((nRead < 0) && badError(errno) )
+      {
+	throw errno;
+      }
+    // If we got here and nread < 0, we need to set it to zero.
+    
+    if (nRead < 0)
+      {
+	nRead = 0;
+      }
+
+    // Adjust all the pointers and counts for what we read:
+
+    residual -= nRead;
+    pDest  += nRead;
+  }
+  // If we get here the read worked:
+
+  return nBytes;// Complete read.
 }
 
 /**
@@ -81,47 +140,36 @@ CRingFileBlockReader::read(size_t nBytes)
   char* pDest = reinterpret_cast<char*>(result.s_pData);
   pDest += offset;
 
-  ssize_t nRead = ::read(m_nFd, pDest, numToRead);
+  size_t nRead = readData(m_nFd, pDest, numToRead);
 
-  // if < 0, error,
-  // if ==   EOF,
-  // Anything else is a good read of nRead (our buffer has nRead + offset bytes).
-
-  if (nRead < 0) {
-    throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)),
-			      "Doing bulk read from file");
-  } else if (nRead == 0) {
-    assert(offset == 0);     // if there was a partial item that's a bug
-  } else {
-    // We've added data to the buffer.   
-    // - Compute How many complete ring items we have, containing how many bytes.
-    // - Determine If we have a partial ring item at the end of the block.
-    // - Save any partial item.
-    //  It's going to be convenient to have a uint32_t pointer (to pick up the ring item sizes.
-    //  and a char pointer to step through the buffer.
-
-    size_t bufferBytes = nRead + offset;
-    char* pBuffer = reinterpret_cast<char*>(result.s_pData);
-    while(bufferBytes) {
-      std::uint32_t* pItem = reinterpret_cast<std::uint32_t*>(pBuffer);
-      std::uint32_t itemSize = *pItem;
-
-      // Does it fully fit:
-
-      if (itemSize <= bufferBytes) {
-	result.s_nItems++;
-	result.s_nBytes += itemSize;
-	
-	bufferBytes -= itemSize;          // Book keeping to advance to the
-	pBuffer += itemSize;              // next item.
-      } else {				  // We're at a partial item:
-	savePartialItem(pBuffer, bufferBytes); // Save that item.
-	bufferBytes = 0;		       // Done with the buffer.
-      }
-    }
+  // We've added data to the buffer.   
+  // - Compute How many complete ring items we have, containing how many bytes.
+  // - Determine If we have a partial ring item at the end of the block.
+  // - Save any partial item.
+  //  It's going to be convenient to have a uint32_t pointer (to pick up the ring item sizes.
+  //  and a char pointer to step through the buffer.
+  
+  size_t bufferBytes = nRead + offset;
+  char* pBuffer = reinterpret_cast<char*>(result.s_pData);
+  while(bufferBytes) {
+    std::uint32_t* pItem = reinterpret_cast<std::uint32_t*>(pBuffer);
+    std::uint32_t itemSize = *pItem;
     
-    return result;
+    // Does it fully fit:
+    
+    if (itemSize <= bufferBytes) {
+      result.s_nItems++;
+      result.s_nBytes += itemSize;
+      
+      bufferBytes -= itemSize;          // Book keeping to advance to the
+      pBuffer += itemSize;              // next item.
+    } else {				  // We're at a partial item:
+      savePartialItem(pBuffer, bufferBytes); // Save that item.
+      bufferBytes = 0;		       // Done with the buffer.
+    }
   }
+  
+  return result;
 
 }
 /////////////////////////////////////////////////////////////////
