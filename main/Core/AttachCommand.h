@@ -123,7 +123,7 @@ public:
 protected:
   static void Usage(CTCLResult& rResult);
   static Switch_t ParseSwitch(char* pSwitch);
-private:
+public:
   static CBufferDecoder* createDecoder(std::string type);
 
 };

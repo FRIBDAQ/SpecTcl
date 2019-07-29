@@ -25,11 +25,19 @@
 #endif
 #include "CPythonCommand.h"
 
+#include <Globals.h>
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
 #include <SpecTcl.h>
 #include <TreeParameter.h>
+#include <CRingBufferDecoder.h>
+#include <RingFormatHelper.h>
+#include <RingFormatHelperFactory.h>
+#include <DiskFile.h>
+#include <AttachCommand.h>
+#include <PipeFile.h>
+#include <TKRunControl.h>
 
 #include <stdexcept>
 
@@ -170,6 +178,138 @@ spectcl_varlist(PyObject* self, PyObject* Py_UNUSED(ignored))
     
     return result;
 }
+/**
+ * spectcl_attach
+ *    Attach SpecTcl to a data source.  This accepts keyword parameters:
+ *    -  type: 'file' | 'pipe' (defaults to file)
+ *    -  name: filename or command name if pipe.
+ *    - size: buffersize to use - defaults to 8192.
+ *    - format: Data format "ring10" or "ring11"
+ * @param self - the module object.
+ * @param args - positional parameters.
+ * @param kwds - Keyworded parameters.
+ * @return PyObject* (Py_None).
+ * @note - This code only allows for ring10 or ring11 data.
+ */
+static PyObject*
+spectcl_attach(PyObject* module, PyObject* args, PyObject* kwds)
+{
+    const char* type = "file";
+    char* name = nullptr;
+    int   size = 8192;
+    const char* format="ring11";
+    
+    static const char* keywords[] = {"type", "name", "size", "format",NULL};
+    if (!PyArg_ParseTupleAndKeywords(
+        args, kwds, "|$ssis", const_cast<char**>(keywords), &type, &name, &size, &format
+    )) {
+        return NULL;
+    }
+    // Validate the arguments:
+    
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError, "Required 'name' keyword missing");
+        return NULL;
+    }
+    std::string stype=type;
+    if ((stype != "file") && (stype != "pipe")) {
+        PyErr_SetString(PyExc_ValueError, "type keyword must be 'file' or 'pipe'");
+        return NULL;
+    }
+    std::string sformat = format;
+    if ((sformat != "ring10") && (sformat != "ring11")) {
+        PyErr_SetString(PyExc_ValueError, "format must be 'ring10' or 'ring11'");
+        return NULL;
+    }
+    // If the run is active that's an error too:
+    
+    if (gpRunControl->getRunning()) {
+        PyErr_SetString(PyExc_RuntimeError, "Run is active and must be stopped");
+        return NULL;
+    }
+    
+    // For the most part we need to use the Tcl attch command because
+    // There's stuff it does that's just too hard to do here.
+    // We'll build up the TCL command and execute it in the interpreter:
+    
+    CTCLObject cmd;
+    cmd.Bind(gpInterpreter);
+    cmd = "attach";
+    cmd += "-format";
+    cmd += "ring";
+    if (stype == "file") {
+        cmd += "-file";
+    } else {
+        cmd += "-pipe";
+    }
+    cmd += "-size";
+    cmd += size;
+    cmd += name;
+    std::cerr << "Executing attch command: " << std::string(cmd) << std::endl;
+    try {
+        cmd();
+    }
+    catch (CException& e) {
+        PyErr_SetString(PyExc_RuntimeError, e.ReasonText());
+        return NULL;
+    }
+    catch (...) {
+        PyErr_SetString(PyExc_RuntimeError, "Attach command failed");
+        return NULL;
+    }
+    // Now we have to set the ring format too
+    
+    cmd = "ringformat";
+    if (sformat == "10.0") {
+        cmd += "10.0";
+    } else {
+        cmd += "11.0";
+    }
+    try {
+        cmd();
+    }
+    catch (CException& e) {
+        PyErr_SetString(PyExc_RuntimeError, e.ReasonText());
+        return NULL;
+    }
+    catch (...) {
+        PyErr_SetString(PyExc_RuntimeError, "ringformat command failed");
+        return NULL;
+    }
+    
+    Py_RETURN_NONE;
+}
+/**
+ * spectcl_start
+ *    Starts processing data from the current event source.
+ *    The assumption is that a well formed SpecTcl will always have an event
+ *    source.
+ * @pargm module - pointer to the module.
+ * @return Py_None.
+ */
+static PyObject*
+spectcl_start(PyObject* module, PyObject* Py_UNUSED(ignore))
+{
+    if (!gpRunControl->getRunning()) {
+        gpRunControl->Start();
+        Tcl_SetVar(gpInterpreter->getInterpreter(), "RunState", "1", TCL_GLOBAL_ONLY);
+    }
+    
+    Py_RETURN_NONE;
+}
+/**
+ * spectcl_stop
+ *    Stops  analysis in progress.
+ */
+static PyObject*
+spectcl_stop(PyObject* module, PyObject* Py_UNUSED(ignore))
+{
+    if (gpRunControl->getRunning()) {
+        gpRunControl->Stop();
+        Tcl_SetVar(gpInterpreter->getInterpreter(), "RunState", "0", TCL_GLOBAL_ONLY);
+    }
+    Py_RETURN_NONE;
+}
 // Module symbol table for the spectcl module:
 
 static struct PyMethodDef SpecTclMethods[] = {
@@ -177,6 +317,9 @@ static struct PyMethodDef SpecTclMethods[] = {
     {"listparams", spectcl_plist, METH_VARARGS, "List names of SpecTcl parameters"},
     {"listspectra", spectcl_speclist, METH_NOARGS, "List names of spectra"},
     {"listvars", spectcl_varlist, METH_NOARGS, "List tree variable names"},
+    {"attach",   (PyCFunction)spectcl_attach, METH_VARARGS | METH_KEYWORDS, "Attach to data source"},
+    {"start",    spectcl_start,  METH_NOARGS, "Start analyzing current data source"},
+    {"stop",     spectcl_stop,   METH_NOARGS, "Stop anaylzing from current data source"},
     {NULL, NULL, 0, NULL}
 };
 
