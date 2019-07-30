@@ -56,24 +56,26 @@ CThreadAnalyzer::~CThreadAnalyzer()
 {
 }
 
-void CThreadAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder) {
+void CThreadAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long thread) {
+  /*
   CAnalyzer::OnStateChange(nType, rDecoder);
   switch(nType) {
   case BEGRUNBF:
-    OnBegin(&rDecoder);
+    OnBegin(&rDecoder, thread);
     break;
   case ENDRUNBF:
-    OnEnd(&rDecoder);
+    OnEnd(&rDecoder, thread);
     break;
   case PAUSEBF:
-    OnPause(&rDecoder);
+    OnPause(&rDecoder, thread);
     break;
   case RESUMEBF:
-    OnResume(&rDecoder);
+    OnResume(&rDecoder, thread);
     break;
   default:
     break;
   }
+  */
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -144,12 +146,12 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
   6. Increment Statistics(RunsAnalyzed).
   7. Clear the appropriate set of counters.
 */
-void CThreadAnalyzer::OnBegin(CBufferDecoder* pDecoder) {
+void CThreadAnalyzer::OnBegin(CBufferDecoder* pDecoder, long thread) {
 
   // Iterate through the pipeline's OnBegin() members.
   // The loop is broken on the first false return from a processor.
   //
-  /*  
+  /*
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
   while(p != pMgr->getCurrentPipeline()->end()) {
@@ -172,9 +174,7 @@ void CThreadAnalyzer::OnBegin(CBufferDecoder* pDecoder) {
   1. Set the run state to Halted.
   
 */
-void CThreadAnalyzer::OnEnd(CBufferDecoder* rDecoder) {
-
-  //  m_pRunState->Set("Halted");
+void CThreadAnalyzer::OnEnd(CBufferDecoder* rDecoder, long thread) {
 
   // Iterate through the pipeline's OnEnd() members.
   // The loop is broken on the first false return from a processor.
@@ -201,9 +201,7 @@ void CThreadAnalyzer::OnEnd(CBufferDecoder* rDecoder) {
   This function gains control when a pause run buffer is recieved.
   Action is to set the run state to paused.
 */
-void CThreadAnalyzer::OnPause(CBufferDecoder* rDecoder) {
-
-  //  m_pRunState->Set("Paused");
+void CThreadAnalyzer::OnPause(CBufferDecoder* rDecoder, long thread) {
 
   // Iterate through the pipeline's OnPause() members.
   // The loop is broken on the first false return from a processor.
@@ -231,9 +229,7 @@ void CThreadAnalyzer::OnPause(CBufferDecoder* rDecoder) {
   Gains control when the run is resumed.
   Action is to set the run state to Active.
 */
-void CThreadAnalyzer::OnResume(CBufferDecoder* rDecoder) {
-
-  //  m_pRunState->Set("Active");
+void CThreadAnalyzer::OnResume(CBufferDecoder* rDecoder, long thread) {
 
   // Iterate through the pipeline's OnResume() members.
   // The loop is broken on the first false return from a processor.

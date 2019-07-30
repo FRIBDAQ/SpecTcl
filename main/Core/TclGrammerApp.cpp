@@ -306,11 +306,11 @@ CTclGrammerApp::~CTclGrammerApp() {
 void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
 					    const char* name) {
   
-  SpecTcl* api = SpecTcl::getInstance();
-  api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
+  //  SpecTcl* api = SpecTcl::getInstance();
+  //  api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
 
-  Sender* aapi = Sender::getInstance();
-  aapi->addEventProcessor(rEventProcessor, name);
+  Sender* api = Sender::getInstance();
+  api->addEventProcessor(rEventProcessor, name);
   
 }  
 

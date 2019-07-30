@@ -1,5 +1,10 @@
+#include <map>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <limits>
 #include <chrono>
+#include <buftypes.h>
 #include "DataFormat.h"
 #include "CRingBufferDecoder.h"
 #include "ZMQSenderClass.h"
@@ -32,11 +37,13 @@ static size_t bytesSent(0);
 size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
 size_t* Sender::threadItems = new size_t[NBR_WORKERS];
 size_t* Sender::physicsItems = new size_t[NBR_WORKERS];
+size_t* Sender::entityItems = new size_t[NBR_WORKERS];
 CRingFormatHelperFactory* Sender::m_pFactory = new CRingFormatHelperFactory[NBR_WORKERS];
 
 CTCLVariable* Sender::m_pBuffersAnalyzed(0);
 CTCLVariable* Sender::m_pRunNumber;
 CTCLVariable* Sender::m_pRunTitle;
+CTCLVariable* Sender::m_pRunState;
 int  Sender::m_nBuffersAnalyzed(0);
 
 EventProcessingPipeline* Sender::m_pipeline;
@@ -63,8 +70,10 @@ Sender::Sender()
   pAnalyzer = new CThreadAnalyzer[NBR_WORKERS];
   pEventList = new CEventList[NBR_WORKERS];
 
-  for (int i=0; i<NBR_WORKERS; ++i)
+  for (int i=0; i<NBR_WORKERS; ++i){
     physicsItems[i] = 0;
+    entityItems[i] = 0;    
+  }
 
   // RingFormatHelper
   for (int i=0; i<NBR_WORKERS; ++i){
@@ -83,9 +92,12 @@ Sender::Sender()
 
   m_pRunNumber = new CTCLVariable(rInterp, std::string("RunNumber"), kfFALSE);
   ClearVariable(*m_pRunNumber);
-  
+
   m_pRunTitle = new CTCLVariable(rInterp, std::string("RunTitle"), kfFALSE);
   m_pRunTitle->Set(">>> Unknown <<<");
+
+  m_pRunState = new CTCLVariable(rInterp, std::string("OnlineState"), kfFALSE);
+  m_pRunState->Set(">>> Unknown <<<");
 
 }
 
@@ -94,6 +106,7 @@ Sender::~Sender()
   delete []threadBytes;
   delete []threadItems;
   delete []physicsItems;
+  delete []entityItems;  
   delete m_pipeline;
   delete []m_pFactory;
 }
@@ -149,8 +162,10 @@ Sender::cleanup()
   threadBytes = new size_t[NBR_WORKERS];
   threadItems = new size_t[NBR_WORKERS];
   physicsItems = new size_t[NBR_WORKERS];
+  entityItems = new size_t[NBR_WORKERS];  
   for (int i=0; i<NBR_WORKERS; ++i){
     physicsItems[i] = 0;
+    entityItems[i] = 0;    
   }
   m_pipeline = new EventProcessingPipeline;
 
@@ -198,6 +213,17 @@ Sender::createTranslator(uint32_t* pBuffer)
 void
 Sender::addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
 {
+
+  static unsigned evp_nameSerial(0);
+  std::stringstream nameStream;
+  std::string       nameString;
+  if(!name_proc) {
+    nameStream << "_anonymous_event_processor_" << evp_nameSerial++;
+    nameString = nameStream.str();
+    name_proc = nameString.c_str();
+    std::cerr << "Assigning event processor name: " << name_proc <<std::endl;
+  }
+  
   // register the processors
   try {
     if(m_processors.count(name_proc)) {
@@ -300,6 +326,7 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 
   std::string  m_title;         // Last title gotten from a transition event.
   UInt_t       m_runNumber;     // Last run number   ""    ""
+  UInt_t       m_nCurrentItemType;
   
   while(nResidual) {
     
@@ -312,50 +339,102 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     CRingFormatHelper* pHelper;
     pHelper = m_pFactory[thread].create(11,0);
     
-    //    pBody     = pItem->s_body.u_noBodyHeader.s_body;
     pBody = pHelper->getBodyPointer(pItem);
     nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
-    
+
+    m_nCurrentItemType     = mapType(type);
     switch (type) {
     case BEGIN_RUN:
       {
-	Sender::SetVariable(*m_pBuffersAnalyzed, -1);
-      }
-      break;
-    case END_RUN:
-    case PAUSE_RUN:
-    case RESUME_RUN:
-      {
+	m_pRunState->Set("Active");
+	physicsItems[thread] = 0;
 	m_title        = pHelper->getTitle(pItem);
 	m_runNumber    = pHelper->getRunNumber(pItem, pTranslator[thread]);
-	// add run number and title
 	Sender::SetVariable(*m_pRunNumber, m_runNumber);
 	m_pRunTitle->Set(m_title.c_str());
       }
       break;
+    case END_RUN:
+      {
+	m_pRunState->Set("Halted");
+      }
+      break;
+    case PAUSE_RUN:
+      {
+	m_pRunState->Set("Paused");
+      }
+      break;
+    case RESUME_RUN:
+      {
+	m_pRunState->Set("Active");
+	entityItems[thread] = 0;
+	m_title        = pHelper->getTitle(pItem);
+	m_runNumber    = pHelper->getRunNumber(pItem, pTranslator[thread]);
+	Sender::SetVariable(*m_pRunNumber, m_runNumber);
+	m_pRunTitle->Set(pDecoder[thread]->getTitle().c_str());	
+	//	pAnalyzer[thread].OnStateChange(m_nCurrentItemType, *pDecoder[thread], thread);
+      }
+      break;
     case PACKET_TYPES:
     case MONITORED_VARIABLES:
-      {}
+      {
+	entityItems[thread] = pHelper->getStringCount(pItem, pTranslator[thread]);
+	//	pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
+      }
       break;
     case PERIODIC_SCALERS:
-      {}
+      {
+	entityItems[thread] = pHelper->getScalerCount(pItem, pTranslator[thread]);
+	//	pAnalyzer[thread].OnScaler(*pDecoder[thread], thread);
+      }
       break;
     case PHYSICS_EVENT:
       {
+	entityItems[thread] = 1;
 	physicsItems[thread]++;
 	pAnalyzer[thread].OnPhysics(thread, *pDecoder[thread], nBodySize, pBody, pipecopy[thread], *pTranslator[thread], pEventList[thread]);
 	marshall(thread, pEventList[thread], vec);
       }
       break;
     case PHYSICS_EVENT_COUNT:
-      {}
+      {
+	//	pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
+      }
       break;
     default:
-      {}
+      {
+	//pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
+      }
       break;
     }
     pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(pBufferCursor) + size);
     nResidual    -= size;
+  }
+}
+
+UInt_t
+Sender::mapType(UInt_t type)
+{
+  static bool                mapSetup(false);
+  static std::map<int, int>  typeMapping;
+
+  if (!mapSetup) {
+    typeMapping[BEGIN_RUN]           = BEGRUNBF;
+    typeMapping[END_RUN]             = ENDRUNBF;
+    typeMapping[PAUSE_RUN]           = PAUSEBF;
+    typeMapping[RESUME_RUN]          = RESUMEBF;
+    typeMapping[PACKET_TYPES]        = PKTDOCBF;
+    typeMapping[MONITORED_VARIABLES] = RUNVARBF;
+    typeMapping[PERIODIC_SCALERS]    = SCALERBF;
+    typeMapping[PHYSICS_EVENT]       = DATABF;
+      
+    mapSetup = true;
+  }
+  if (typeMapping.find(type) != typeMapping.end()) {
+    return typeMapping[type];
+  }
+  else {
+    return type;
   }
 }
 
@@ -559,21 +638,27 @@ Sender::finish()
   size_t totalBytes(0);
   size_t totalItems(0);
   size_t totalPhysicsItems(0);
+  size_t totalEntityItems(0);
   for (int i = 0; i < NBR_WORKERS; i++) {
     std::cout << "Thread " << i << " processed " <<
       threadItems[i] << " items containing a total of " << threadBytes[i] << " bytes"  << std::endl;
     totalBytes += threadBytes[i];
     totalItems += threadItems[i];
     totalPhysicsItems += physicsItems[i];
+    totalEntityItems += entityItems[i];
     physicsItems[i] = 0;
+    entityItems[i] = 0;
   }
   std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
   std::cout << "Physics Items " << totalPhysicsItems << std::endl;
+  std::cout << "Entity Items " << totalEntityItems << std::endl;  
   Sender::SetVariable(*m_pBuffersAnalyzed, totalPhysicsItems);
   
   stop_time = clock();
   printf("Elapsed time %lf\n", stop_time-start_time);
 
+  m_pRunState->Set("Halted");
+  
   Sender::cleanup();
   
 }
@@ -588,7 +673,6 @@ Sender::SetVariable(CTCLVariable& rVar, int newval) {
   Script += sval;
   rVar.getInterpreter()->GlobalEval(Script);
 }
-
 
 void*
 Sender::sender_task(void* args)

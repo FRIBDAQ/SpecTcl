@@ -67,17 +67,17 @@ private:
 public:
 
   // The following override base class members:
-  virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder);
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long thread);
   virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst);
   virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnScaler(CBufferDecoder& rDecoder);
   virtual void OnEndFile();
 
   // Extensions to base class functionality:
-  virtual void OnBegin(CBufferDecoder* rDecoder);
-  virtual void OnEnd(CBufferDecoder*   rDecoder);
-  virtual void OnPause(CBufferDecoder* rDecoder);
-  virtual void OnResume(CBufferDecoder* rDecoder);
+  virtual void OnBegin(CBufferDecoder* rDecoder, long thread);
+  virtual void OnEnd(CBufferDecoder*   rDecoder, long thread);
+  virtual void OnPause(CBufferDecoder* rDecoder, long thread);
+  virtual void OnResume(CBufferDecoder* rDecoder, long thread);
   virtual void OnInitialize();
 
   // Handling object tuning parameters:

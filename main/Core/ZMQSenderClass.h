@@ -41,6 +41,7 @@ class Sender
   static int  m_nBuffersAnalyzed; // linkedto m_pBuffersAnalyzed.
   static CTCLVariable* m_pRunNumber;
   static CTCLVariable* m_pRunTitle;
+  static CTCLVariable* m_pRunState;
 
  public: 
 
@@ -56,7 +57,8 @@ class Sender
 
   static size_t* threadBytes;
   static size_t* threadItems;
-  static size_t* physicsItems;  
+  static size_t* physicsItems;
+  static size_t* entityItems;    
 
   static CRingFormatHelperFactory* m_pFactory;
   
@@ -88,6 +90,8 @@ class Sender
   }
   
  private:
+  static UInt_t mapType(UInt_t type);
+
   //! Match pipeline element by name.
     class MatchName
     {
