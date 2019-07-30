@@ -245,7 +245,7 @@ spectcl_attach(PyObject* module, PyObject* args, PyObject* kwds)
     cmd += "-size";
     cmd += size;
     cmd += name;
-    std::cerr << "Executing attch command: " << std::string(cmd) << std::endl;
+    std::cerr << "Executing attach command: " << std::string(cmd) << std::endl;
     try {
         cmd();
     }
@@ -436,9 +436,11 @@ void
 CPythonCommand::execute(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     requireExactly(objv, 3);
-    std::string script = objv[2];
+    Tcl_Obj* pObj = objv[2].getObject();
+    Tcl_Obj* pCmd = Tcl_SubstObj(interp.getInterpreter(), pObj, TCL_SUBST_VARIABLES);
+    const char* script = Tcl_GetStringFromObj(pCmd, nullptr);
     
-    PyRun_SimpleString(script.c_str());
+    PyRun_SimpleString(script);
 }
 /**
  * source
