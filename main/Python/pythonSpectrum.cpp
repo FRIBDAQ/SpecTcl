@@ -768,7 +768,6 @@ project(PyObject* self, PyObject* args, PyObject* kwds)
                 cmd += gateName;
             }
             
-            std::cerr << "Executing: " << std::string(cmd) << std::endl;
             cmd();
             
             // If we got here it worked:
