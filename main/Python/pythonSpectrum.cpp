@@ -26,9 +26,13 @@
 #include "GateContainer.h"
 #include "DisplayInterface.h"
 #include "Display.h"
+#include <TCLInterpreter.h>
+#include <TCLObject.h>
+
 #include <Exception.h>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 class CGateContainer;
 
@@ -702,6 +706,99 @@ Set(PyObject* self, PyObject* args)
 
     
 }
+/**
+ * project
+ *
+ *     Create a projection of this spectrum.  Note that only 2-d spectrum types
+ *     can ge projected.  The actual logic is complex enough and entertwined
+ *     (alas) with the Tcl project command that we're just going to
+ *     construct and execute an appropriate Tcl command.
+ *
+ *  @param self - This is a pointer to our object data.
+ *  @param args - Positiona arguments that are, in order:
+ *                - Name of the new spectrum.
+ *                - Direction ("x" or "y") in which the projection will be done.
+ *  @param kwds   - Optional arguments identified by keywords as follows:
+ *                 *  snapshot = bool - if true the result is a snapshot spectrum
+ *                    otherwise it's live.  The default is false.
+ *                 *  contour - Name of a contour gate within which
+ *                    the projection is done.  If snapshot is false,
+ *                    this gate will be applied to the new spectrum.
+ *                    
+ * @return PyObject* On success, this is the name of the new spectrum.  A common
+ *                 idiom might be:
+ * \verbatim
+ *    s = spectrum('twod')
+ *    p = spectrum(s.project('projected', x, contour='some_contoure'))
+ * \endverbatim
+ *    Which creates the new projected spectrum and an object wrapping it.
+ */
+static PyObject*
+project(PyObject* self, PyObject* args, PyObject* kwds)
+{
+    CSpectrum* pSpec = getSpectrum(self);
+    if (pSpec) {
+        std::string originalName = pSpec->getName();
+        
+        char* newName(nullptr);
+        char* direction;
+        int   snapshot(0);
+        char* gateName(nullptr);
+        const char* keywords[] = {"name", "direction", "contour", "snapshot", NULL};
+        
+        if(!PyArg_ParseTupleAndKeywords(
+            args, kwds, "ss|$sp", const_cast<char**>(keywords), 
+            &newName, &direction, &gateName, &snapshot
+        )) {
+            return NULL;
+        }
+        
+        try {
+            CTCLInterpreter* pI = SpecTcl::getInstance()->getInterpreter();
+            CTCLObject cmd;                    // Build up the command here:
+            cmd.Bind(pI);
+            cmd = "project";
+            if (!snapshot) {
+                cmd += "-nosnapshot";
+            }
+            cmd += originalName;
+            cmd += newName;
+            cmd += direction;
+            if (gateName) {
+                cmd += gateName;
+            }
+            
+            std::cerr << "Executing: " << std::string(cmd) << std::endl;
+            cmd();
+            
+            // If we got here it worked:
+            
+            return PyUnicode_FromString(newName);
+            
+        }
+        catch (CException& e) {
+            PyErr_SetString(PyExc_RuntimeError,  e.ReasonText());
+            return NULL;
+        }
+        catch (std::string msg) {
+            PyErr_SetString(PyExc_RuntimeError, msg.c_str());
+            return NULL;
+        }
+        catch (const char* msg) {
+            PyErr_SetString(PyExc_RuntimeError, msg);
+            return NULL;
+        }
+        catch (...) {
+            PyErr_SetString(
+                PyExc_RuntimeError, "Unanticipated exception type caught"
+            );
+            return NULL;
+        }
+        
+    } else {
+        return NULL;
+    }
+}
 //////////////////////////////////////////////////////////////////////////
 // Attribute access. Note that the attributes are actually in the
 // CSpectrum object that we're going to look up at each turn.
@@ -910,6 +1007,7 @@ static PyMethodDef spectrumMethods[] = {
     {"unbind", (PyCFunction)(unbind), METH_NOARGS, "Unbind spectrum from displayer"},
     {"get",    (PyCFunction)(Get),   METH_VARARGS, "Get channel value from spectrum"},
     {"set",    (PyCFunction)(Set),   METH_VARARGS, "Set channel value in a sectrum."},
+    {"project", (PyCFunction)(project), METH_VARARGS | METH_KEYWORDS, "Create a projection spectrum"},
     
     // End sentinell
     
