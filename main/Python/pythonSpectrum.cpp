@@ -850,6 +850,52 @@ getGate(PyObject* self, void* closure)
         return NULL;
     }
 }
+/**
+ * getRangeErrors
+ *    (range_errors) gets the range error counters.  This is a dict
+ *    that contains the keys
+ *    - overflows  -number of overflows.
+ *    - underflows -number of underflows.
+ *
+ *    Each value in the dictionary is a tuple.  The tuple has one elemement
+ *    for 1d spectra and 2 (x, y in that order) for 2d spectra.
+ *
+ * @param self  - Pointer to my object data.
+ * @param closure - unused.
+ * @return PyObject* that is a dictionary - see above.
+ */
+static PyObject*
+getRangeErrors(PyObject* self, void* closure)
+{
+    CSpectrum* pSpectrum = getSpectrum(self);
+    if (pSpectrum) {
+        std::vector<unsigned> unders  = pSpectrum->getUnderflows();
+        std::vector<unsigned> overs   = pSpectrum->getOverflows();
+        
+        // Make under/overflow tuples  we don't assume the sizes are the same.
+        
+        PyObject* underTuple = PyTuple_New(unders.size());
+        for (int i =0; i < unders.size(); i++) {
+            PyTuple_SetItem(underTuple, i, PyLong_FromUnsignedLong(unders[i]));
+        }
+        
+        PyObject* overTuple = PyTuple_New(overs.size());
+        for (int i = 0; i < overs.size(); i++) {
+            PyTuple_SetItem(overTuple, i, PyLong_FromUnsignedLong(overs[i]));
+        }
+        
+        // Now create and set the dictionary:
+        
+        PyObject* result = PyDict_New();
+        PyDict_SetItemString(result, "underflows", underTuple);
+        PyDict_SetItemString(result, "overflows",  overTuple);
+        
+        return result;
+        
+    } else {
+        return NULL;
+    }
+}
 //////////////////////////////////////////////////////////////////////////
 // Tables of methods and getters/setters (we don't actually store
 // data in the object but look it up each time)
@@ -878,6 +924,7 @@ static PyGetSetDef gettersAndSetters[] = {
     {"parameters", (getter)getParams, NULL, "Spectrum parameter names"},
     {"axes", (getter)getAxes, NULL, "Spectrum axis definitions"},
     {"gatename", (getter)getGate, NULL, "Name of gate"},
+    {"range_errors", (getter)getRangeErrors, NULL, "Range errors" },
     {NULL}
 };
 
