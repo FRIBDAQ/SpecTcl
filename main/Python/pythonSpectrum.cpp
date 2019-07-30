@@ -62,8 +62,12 @@ class CGateContainer;
  *
  *  Spectra have the following methods:
  *     - clear - clear spectrum contents.
- *     - gateOn - Apply a gate to the spectrum.  The gate is specified by name.
+ *     - gate - Apply a gate to the spectrum.  The gate is specified by name.
  *     - ungate - Remove any gate applied to a spectrum.
+ *     - bind   - Bind spectrum storage to  displayer shared memory.
+ *     - unbind - Unbind spectrum stuorage from shared memory.
+ *     - get    - Get a channel of the spectrum.
+ *     - set    - Set a channel value in the spectrum.
  *
  * @note - memory is cheap all spectra are creqted as having longword
  *         channels. 
@@ -177,7 +181,47 @@ IterableToStringVector(PyObject* o)
     }
     return result;
 }
+/**
+ * IterableToUInts
+ *   @param  Coords -iterable of unsigned longs that contains the coordinates.
+ *   @return std::vector<UInt_t>  - the extracted unsigned longs
+ *   @throw std::string on errors.
+ */
+std::vector<UInt_t>
+IterableToUInts(PyObject* coords)
+{
+    std::vector<UInt_t> result;
+    PyObject* iter = PyObject_GetIter(coords);
+    PyObject* item(nullptr);
+    
+    if (!iter) {
+        throw std::string("The coordinates must be an iterable object");
 
+    }
+    try {
+        while(item = PyIter_Next(iter)) {
+            if(!PyNumber_Check(item)) {
+                throw std::string("Coordinates must be numeric");
+            }
+            PyObject* i = PyNumber_Long(item);
+            if (!i) {
+                throw std::string("Coordinates must have an integer representation");
+            }
+            result.push_back(PyLong_AsUnsignedLong(i));
+            
+            Py_DECREF(i);
+            Py_DECREF(item);
+            item = NULL;
+        }
+        Py_DECREF(iter);
+        iter = NULL;
+    } catch(...) {
+        if(iter) Py_DECREF(iter);
+        if(item) Py_DECREF(item);
+        throw;
+    }
+    return result;
+}
 
 /**
  * createSpectrum
@@ -547,6 +591,117 @@ unbind(PyObject* self, PyObject* Py_UNUSED(ignored))
         return NULL;
     }    
 }
+
+/**
+ * Get
+ *    Return the value of a channel from a  spectrum.
+ *    The single parameter is an interable that contains the spectrum
+ *    channel coordinates.
+ *
+ * @param self - pointer to the storage associated with the object whose method is
+ *               being called.
+ * @param args - Pointer to the coordinate iterable argument.
+ * @return PyObject* - the channelvalue (an integer).
+ */
+
+static PyObject*
+Get(PyObject* self, PyObject* args)
+{
+    CSpectrum*  pSpectrum = getSpectrum(self);
+    if (!pSpectrum) {
+        return NULL;                     // Spectrum was yanked out from underneath.
+    }
+    
+    PyObject* coordObj(0);
+    
+    if(!PyArg_ParseTuple(args, "O", &coordObj)) {
+        return NULL;
+    }
+    //  Coords must be able to give us an iterable:
+    // All this is done in a try catch block to ensure that
+    // we decref what we need in case of error.
+    // We set appropriately decrefed objects to null to prevent over decrefing.
+    
+    
+    
+    try {
+
+        std::vector<UInt_t> coords = IterableToUInts(coordObj);
+        
+        // At this point we've marshalled the coords.. there can be at most 2:
+        
+        if (coords.size() > 2) {
+            throw std::string("SpecTcl Spectra have at most two coordinates.");
+        }
+    
+        ULong_t iResult =    (*pSpectrum)[coords.data()];   // Can throw.
+        return PyLong_FromUnsignedLong(iResult);
+    }
+    catch (CException& e) {
+        PyErr_SetString(PyExc_RuntimeError, e.ReasonText());
+        return NULL;
+    }
+    catch (std::string msg) {
+        PyErr_SetString(PyExc_RuntimeError, msg.c_str());
+        return NULL;
+    }
+    catch (...) {
+        PyErr_SetString(PyExc_RuntimeError, "Unanticipated exception type");
+        return NULL;
+    }
+   
+    PyErr_SetString(PyExc_RuntimeError, "*** Control flow bug!! ****");
+    return NULL;
+}
+/**
+ * Set
+ *    Sets a spectrum channel.  There should be two arguments.  The
+ *    first is an iterable that contains the integer channel coordinates.
+ *    The second is the value to give to that coordinate.
+ *
+ * @param self - pointer to the storage of the object that is having its method
+ *               called.
+ * @param args - positional parameters (see above for what's expected).
+ * @return Py_None
+ * 
+ */
+static PyObject*
+Set(PyObject* self, PyObject* args)
+{
+    CSpectrum* pSpectrum  = getSpectrum(self);
+    if (!pSpectrum) {
+        return NULL;
+    }
+    
+    ULong_t   value;
+    PyObject* coordObj;
+    
+    if(!PyArg_ParseTuple(args, "Ok", &coordObj, &value)) {
+        return NULL;
+    }
+    try {
+        std::vector<UInt_t> coords = IterableToUInts(coordObj);
+        pSpectrum->set(coords.data(), value);
+        Py_RETURN_NONE;
+    }
+    catch (CException e) {
+        PyErr_SetString(PyExc_RuntimeError, e.ReasonText());
+        return NULL;
+    }
+    catch (std::string msg) {
+        PyErr_SetString(PyExc_RuntimeError, msg.c_str());
+        return NULL;
+    }
+    catch (...) {
+        PyErr_SetString(PyExc_RuntimeError, "Unanticipated exception type");
+        return NULL;
+    }
+    
+    PyErr_SetString(PyExc_RuntimeError, "*** Logic Flow error");
+    return NULL;
+
+    
+}
 //////////////////////////////////////////////////////////////////////////
 // Attribute access. Note that the attributes are actually in the
 // CSpectrum object that we're going to look up at each turn.
@@ -707,6 +862,11 @@ static PyMethodDef spectrumMethods[] = {
     {"gate", (PyCFunction)(gate), METH_VARARGS, "Apply a gate to a spectrum"},
     {"bind", (PyCFunction)(bind), METH_NOARGS, "Bind spectrum to displayer"},
     {"unbind", (PyCFunction)(unbind), METH_NOARGS, "Unbind spectrum from displayer"},
+    {"get",    (PyCFunction)(Get),   METH_VARARGS, "Get channel value from spectrum"},
+    {"set",    (PyCFunction)(Set),   METH_VARARGS, "Set channel value in a sectrum."},
+    
+    // End sentinell
+    
     {NULL, NULL, 0, NULL}
 };
 

@@ -253,14 +253,7 @@ CSpectrum2DL::set(const UInt_t* pIndices, ULong_t nValue)
   
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
-  if(nx + 2>= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, nx,
-		      std::string("Indexing 2DB spectrum x axis"));
-  }
-  if(ny + 2>= Dimension(1)) {
-    throw CRangeError(0, Dimension(1)-1, ny,
-		      std::string("Indexing 2DB spectrum y axis"));
-  }
+
   TH1* pRootSpectrum = getRootSpectrum();
   Int_t bin = pRootSpectrum->GetBin(nx + 1, ny + 1);
   pRootSpectrum->SetBinContent(bin, static_cast<Double_t>(nValue));
