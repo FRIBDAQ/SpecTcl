@@ -472,7 +472,7 @@ CIntegrateCommand::integrate1d(CTCLInterpreter& interp,
 
   // Ensure the limits are inside the spectrum:
 
-  if ((low < 0) && (hi << 0)) {
+  if ((low < 0) && (hi < 0)) {
     // Sumregion is entirely to the left:
 
     interp.setResult("No spectrum channels are within the limits");
@@ -484,39 +484,16 @@ CIntegrateCommand::integrate1d(CTCLInterpreter& interp,
     interp.setResult("No spectrum channels are within the limits");
     return TCL_ERROR;
   }
-  // Force the endpoints to be within the spectrum now that we know
-  // that the area of interest does contain some channels:
-
-  if (low < 0) low =0;
-  if (hi >= spectrum.Dimension(0)) hi = spectrum.Dimension(0) -1;
-
-  // Now we can start to do the integration:
-
-  double sum   = 0.0;    // Sum of counts.
-  double wsum  = 0.0;    // Sum weighted by parameter position.
-  double sqsum = 0.0;    // Sum of Square of position weighted by height.
-
-
-  for (UInt_t chan = low; chan <= hi; chan++) {
-    double   position  = spectrum.AxisToParameter(0, chan);
-    ULong_t  height    = spectrum[&chan];
-
-    sum   += (double)height;
-    double wval = position * (double)height;
-    wsum  += wval;
-    sqsum += position * wval;
-      
-  }
-  // If there's no area there's no integration.
+  Integration1d integ = integrate1d(&spectrum, limits);
+ 
+  double sum      = integ.s_sum;
+  double centroid = integ.s_centroid;
+  double fwhm     = integ.s_fwhm;
 
   if (sum == 0.0) {
     interp.setResult("Integration area is zero");
     return TCL_ERROR;
   }
-  // Compute the statistics:
-
-  double centroid = wsum / sum;
-  double fwhm     = sqrt(sqsum/sum - centroid*centroid)*fwhmgamma;
   
   // Create the return list:
 
@@ -747,6 +724,127 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
 			       CSpectrum&          spectrum,
 			       std::vector<CPoint> points)
 {
+  
+  Integration2d result;
+  try {
+    result = integrate2d(&spectrum, points);
+    
+  }
+  catch (std::string msg) {
+    interp.setResult(msg);
+    return TCL_ERROR;
+  }
+
+  if (result.s_sum == 0.0 ) {
+    interp.setResult("Integration area is 0");
+    return TCL_ERROR;
+    
+  }
+  else {
+    
+    
+    
+    
+    CTCLObject res;
+    CTCLObject centroids;
+    CTCLObject fwhms;
+    res.Bind(interp);
+    centroids.Bind(interp);
+    fwhms.Bind(interp);
+    
+    centroids += result.s_xCentroid;
+    centroids += result.s_yCentroid;
+    
+    fwhms     += result.s_xFwhm;
+    fwhms     += result.s_yFwhm;
+    
+    res += centroids;
+    res += result.s_sum;
+    res += fwhms;
+    
+    interp.setResult(res);
+    
+    return TCL_OK;
+  }
+  
+}
+/**
+ * integrate1d
+ *    Do an environment neutral integration of a 1-d spectrum given integration
+ *    limits.
+ *  @param spec     - pointer to the spectrum object.
+ *  @param limits   - vector containing left and right integration limits.
+ *  @return Integration1d struct with the results.  Note that if the
+ *                    s_sum field is 0.0, all the others are too and
+ *                    are meaningless.
+ *  @note the caller must verify there is a non null region of integrations
+ *        amd that there are channels in the integration region.
+ */
+CIntegrateCommand::Integration1d
+CIntegrateCommand::integrate1d(CSpectrum* spec, std::vector<int> limits)
+{
+  CSpectrum& spectrum(*spec);    // because function signatures must differ in 
+  Integration1d result;         // more than return type.
+  int low = limits[0];
+  int hi  = limits[1];
+
+  // Force the endpoints to be within the spectrum now that we know
+  // that the area of interest does contain some channels:
+
+  if (low < 0) low =0;
+  if (hi >= spectrum.Dimension(0)) hi = spectrum.Dimension(0) -1;
+
+  // Now we can start to do the integration:
+
+  double sum   = 0.0;    // Sum of counts.
+  double wsum  = 0.0;    // Sum weighted by parameter position.
+  double sqsum = 0.0;    // Sum of Square of position weighted by height.
+
+
+  for (UInt_t chan = low; chan <= hi; chan++) {
+    double   position  = spectrum.AxisToParameter(0, chan);
+    ULong_t  height    = spectrum[&chan];
+
+    sum   += (double)height;
+    double wval = position * (double)height;
+    wsum  += wval;
+    sqsum += position * wval;
+      
+  }
+  // If there's no area there's no integration.
+
+  if (sum == 0.0) {
+    result.s_sum = 0.0;
+    result.s_centroid = 0.0;
+    result.s_fwhm     = 0.0;
+    return result;
+  }
+  // Compute the statistics:
+
+  double centroid = wsum / sum;
+  double fwhm     = sqrt(sqsum/sum - centroid*centroid)*fwhmgamma;
+  
+  result.s_sum      = sum;
+  result.s_centroid = centroid;
+  result.s_fwhm     = fwhm;
+  
+  return result;
+}
+/**
+ * integrate2d
+ *    Performs an environment netural 2d integration.
+ *
+ *  @param pSpectrum - pointer to the spectrum must do this for proper overload.
+ *  @param points    - Points defining the integration bounding box.
+ *  @return Integratino2d - struct giving the integration data.  Note that
+ *                     if s_sum == 0. all other fields will be zero and
+ *                     meaningless as computing them requires division by the sum.
+ */
+CIntegrateCommand::Integration2d
+CIntegrateCommand::integrate2d(CSpectrum* pSpectrum, std::vector<CPoint> points)
+{
+  CSpectrum& spectrum(*pSpectrum);
+  
   // generate the edge tables:
 
   vector<Edge*> edges;
@@ -793,8 +891,8 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
   maxy = clip(maxy, yChannels);
 
   if ((minx == maxx) || (miny == maxy)) {
-    interp.setResult("No spectrum channels are in the region of interest");
-    return TCL_ERROR;
+    throw std::string("No spectrum channels are in the region of interest");
+  
   }
 
   // Ready to sum.
@@ -815,19 +913,19 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
     edgecount--;		// Since .size() is unsigned.
     for (int i =0; i < edgecount; i+=2) {
       if (i+1 < edgepoints.size()) { // in case it's an odd # of edges.
-	int xmin = edgepoints[i];
-	int xmax = edgepoints[i+1];
-	for (UInt_t x = xmin; x <= xmax; x++) {
-	  double xc        = spectrum.AxisToParameter(0, x);
-	  UInt_t    coords[2] = {x, y};
-	  double counts    = spectrum[coords];
-	  
-	  sum   += counts;
-	  wxsum += xc*counts;
-	  wysum += yc*counts;
-	  sqxsum += xc*xc*counts;
-	  sqysum += yc*yc*counts;
-	}
+        int xmin = edgepoints[i];
+        int xmax = edgepoints[i+1];
+        for (UInt_t x = xmin; x <= xmax; x++) {
+          double xc        = spectrum.AxisToParameter(0, x);
+          UInt_t    coords[2] = {x, y};
+          double counts    = spectrum[coords];
+          
+          sum   += counts;
+          wxsum += xc*counts;
+          wysum += yc*counts;
+          sqxsum += xc*xc*counts;
+          sqysum += yc*yc*counts;
+        }
       }
     }
   }
@@ -839,39 +937,25 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
 
   // Calculate the final statistics, and create the result list:
 
+  Integration2d result;
   if (sum == 0.0 ) {
-    interp.setResult("Integration area is 0");
-    return TCL_ERROR;
+    result.s_sum = 0.0;
+    result.s_xCentroid = 0.0;
+    result.s_yCentroid = 0.0;
+    result.s_xFwhm = 0.0; 
+    result.s_yFwhm =0.0;
     
   }
   else {
+    result.s_sum = sum;
+    result.s_xCentroid = wxsum/sum;
+    result.s_xFwhm     = sqrt(sqxsum/sum - result.s_xCentroid*result.s_xCentroid)*fwhmgamma;
     
-    double xCentroid = wxsum/sum;
-    double xFwhm     = sqrt(sqxsum/sum - xCentroid*xCentroid)*fwhmgamma;
+    result.s_yCentroid = wysum/sum;
+    result.s_yFwhm     = sqrt(sqysum/sum - result.s_yCentroid*result.s_yCentroid)*fwhmgamma;
     
-    double yCentroid = wysum/sum;
-    double yFwhm     = sqrt(sqysum/sum - yCentroid*yCentroid)*fwhmgamma;
-    
-    
-    
-    CTCLObject result;
-    CTCLObject centroids;
-    CTCLObject fwhms;
-    result.Bind(interp);
-    centroids.Bind(interp);
-    fwhms.Bind(interp);
-    
-    centroids += xCentroid;
-    centroids += yCentroid;
-    
-    fwhms     += xFwhm;
-    fwhms     += yFwhm;
-    
-    result += centroids;
-    result += sum;
-    result += fwhms;
-    
-    interp.setResult(result);
   }
-  return TCL_OK;
+  return result;
+
+  
 }
