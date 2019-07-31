@@ -349,17 +349,24 @@ proc updateInfo nms {
 	} else {
 	    set state Inactive
 	}
-	
+
+	.np.head configure -text \
+	    [format "Number of Threads: %s " [set a $::NumberOfThreads]]	
 	.title.head configure -text \
-	    [format "Run title: %s " $RunTitle]
+	    [format "Run Title: %s " $RunTitle]
 	.source.head configure -text \
 	    [format "Data Source:%s %s (%s)" $type $filename $state]	
 	.runno.head configure -text \
-	    [format "Run number: %s " $RunNumber] 
+	    [format "Run Number: %s " $RunNumber] 
 	.buffer.head configure -text \
-	    [format "Analyzed buffers: %s " $BuffersAnalyzed]
+	    [format "Analyzed Buffers: %s " $BuffersAnalyzed]
     }
 }
+
+# Display number of threads
+frame .np
+label .np.head -text {Number of threads: } -background LightSteelBlue1 
+pack  .np.head -side left -expand 1
 
 # Display run title
 frame .title
@@ -402,7 +409,7 @@ button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -co
 button .detach -background {plum3} -text "Detach" -command detach
 button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .title .source .runno .buffer .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .title .source .runno .buffer .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons

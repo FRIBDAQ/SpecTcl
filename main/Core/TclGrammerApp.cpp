@@ -125,9 +125,6 @@ static const char* printVersionScript =
 
 static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome TclLibs]\n";
 
-
-
-
 // File scoped unbound variables:
 
 int SpecTclArgc;
@@ -135,6 +132,7 @@ char** SpecTclArgv;
 
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
+static const UInt_t knProcs          = 10;
 static const UInt_t knDisplaySize    = 8;
 
 static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
@@ -143,6 +141,7 @@ static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 static const char* ProtectedVariables[] = {
+  "NumberOfThread",
   "DisplayMegabytes",
   "ParameterCount",
   "EventListSize",
@@ -246,7 +245,8 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
    into the program called SpecTcl.
 */
 CTclGrammerApp::CTclGrammerApp() :
-  m_nDisplaySize(knDisplaySize),
+  m_nProcs(knProcs),
+  m_nDisplaySize(knDisplaySize),  
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
   m_displayType("xamine"),
@@ -261,6 +261,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_pDataSourcePackage(0),
   m_pGatePackage(0),
   m_RCFile(string("tcl_rcFilename"),            kfFALSE),
+  m_TclnProcs(string("NumberOfThreads"),        kfFALSE), // number of workers
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
@@ -332,6 +333,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   // parameter:
   //
   // m_RCFile         - Name of early init file.
+  // m_TclnProcs      - Number of working threads 
   // m_TclDisplaySize - Number of megabytes of display storage.
   // m_ParameterCount - Guess at largest parameter number which will be stuffed
   // m_TclEventListSize - Number of event batched for analysis.
@@ -356,6 +358,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   HomeDir.Set((char*)kpInstalledBase);
 #endif
   m_RCFile.Bind(rInterp);
+  m_TclnProcs.Bind(rInterp);
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
@@ -472,6 +475,7 @@ void CTclGrammerApp::SetLimits() {
   //   m_nListSize       - # events in a histogramming batch (EventListSize).
 
   // By this time the initial RC files have been run.
+  UpdateUInt(m_TclnProcs,   m_nProcs);
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
@@ -927,7 +931,6 @@ int CTclGrammerApp::operator()() {
   SetupRunControl();
 
   //  Setup the user's analysis pipeline:
-
 
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.

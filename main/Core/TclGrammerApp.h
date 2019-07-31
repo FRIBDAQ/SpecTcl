@@ -82,6 +82,7 @@ class CTclGrammerApp {
 
 private:
   // Private Member data:
+  UInt_t                    m_nProcs;  
   UInt_t                    m_nDisplaySize;
   UInt_t                    m_nParams;
   UInt_t                    m_nListSize;
@@ -97,6 +98,7 @@ private:
   CDataSourcePackage*       m_pDataSourcePackage;
   CGatePackage*             m_pGatePackage;
   CTCLVariable              m_RCFile;
+  CTCLVariable              m_TclnProcs;
   CTCLVariable              m_TclDisplaySize;
   CTCLVariable              m_TclParameterCount;
   CTCLVariable              m_TclEventListSize;
@@ -104,7 +106,7 @@ private:
   CMultiTestSource*         m_pMultiTestSource;
   CDisplayInterface*        m_pDisplayInterface;
   CGatingDisplayObserver*   m_pGatingObserver;
-  
+
   int m_nUpdateRate;
   Tcl_ThreadId              m_nMainThread;
  public:
@@ -294,7 +296,7 @@ private:
   virtual void CreateAnalyzer(CEventSink* pSink); // Create the event analyzer.
   virtual void SelectDecoder(CAnalyzer& rAnalyzer); // Select Buffer Decoder.
   virtual void CreateAnalysisPipeline(CAnalyzer& rAnalyzer) = 0; // Create the event pipeline.
-  virtual void AddCommands(CTCLInterpreter& rInterp); // 
+  virtual void AddCommands(CTCLInterpreter& rInterp); //
   void SetupRunControl(); // 
   virtual void SourceFunctionalScripts(CTCLInterpreter& rInterp); // Do functional Tcl initialization.
   virtual int operator()(); // SpecTcl entry point.
