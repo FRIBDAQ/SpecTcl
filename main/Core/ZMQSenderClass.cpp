@@ -24,8 +24,8 @@ bool debug = false;
 bool isStart = true;
 Sender* Sender::m_pInstance = 0;
 
-const int NBR_WORKERS = 25;
-int CHUNK_SIZE  = 1024*1024*96;
+int NBR_WORKERS = 1;
+int CHUNK_SIZE  = 1024*1024*16;
 UInt_t m_nParametersInEvent = 512;
 CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;
@@ -34,11 +34,11 @@ double qnan = std::numeric_limits<double>::quiet_NaN();
 double stop_time, start_time;
 
 static size_t bytesSent(0);
-size_t* Sender::threadBytes = new size_t[NBR_WORKERS];
-size_t* Sender::threadItems = new size_t[NBR_WORKERS];
-size_t* Sender::physicsItems = new size_t[NBR_WORKERS];
-size_t* Sender::entityItems = new size_t[NBR_WORKERS];
-CRingFormatHelperFactory* Sender::m_pFactory = new CRingFormatHelperFactory[NBR_WORKERS];
+std::vector<size_t> Sender::threadBytes(NBR_WORKERS);
+std::vector<size_t> Sender::threadItems(NBR_WORKERS);
+std::vector<size_t> Sender::physicsItems(NBR_WORKERS);
+std::vector<size_t> Sender::entityItems(NBR_WORKERS);
+std::vector<CRingFormatHelperFactory> Sender::m_pFactory(NBR_WORKERS);
 
 CTCLVariable* Sender::m_pBuffersAnalyzed(0);
 CTCLVariable* Sender::m_pRunNumber;
@@ -49,9 +49,9 @@ int  Sender::m_nBuffersAnalyzed(0);
 EventProcessingPipeline* Sender::m_pipeline;
 BufferTranslator* Sender::m_pTranslator;
 static EventProcessingPipeline* pipecopy;
-BufferTranslator* pTranslator[NBR_WORKERS];
+std::vector<BufferTranslator*> pTranslator(NBR_WORKERS);
 static CThreadAnalyzer* pAnalyzer;
-CBufferDecoder* pDecoder[NBR_WORKERS];
+std::vector<CBufferDecoder*> pDecoder(NBR_WORKERS);
 static CEventList* pEventList;
 
 CTCLApplication* gpTCLApplication;
@@ -62,8 +62,36 @@ typedef struct _HistoEvent {
   Vpairs*      histoList;
 } HistoEvent, *pHistoEvent;
 
+void
+Sender::ResizeAll()
+{
+  threadBytes.resize(NBR_WORKERS);
+  threadItems.resize(NBR_WORKERS);
+  physicsItems.resize(NBR_WORKERS);
+  entityItems.resize(NBR_WORKERS);
+
+  m_pFactory.resize(NBR_WORKERS);
+
+  pTranslator.resize(NBR_WORKERS);
+  pDecoder.resize(NBR_WORKERS);
+}
+
+
 Sender::Sender()
 {
+  // Resizing all the vectors according to SpecTclInit.tcl
+  if (debug)
+    std::cout << "Original NBR_WORKERS" << NBR_WORKERS << std::endl;
+  int nthreads = CTclGrammerApp::getInstance()->getNthreads();
+  if (debug)
+    std::cout << "Number of threads requested via SpecTclInit.tcl " << nthreads << std::endl;
+  if (nthreads != NBR_WORKERS){
+    NBR_WORKERS = nthreads;
+    if (debug)
+      std::cout << "New NBR_WORKERS " << NBR_WORKERS << std::endl;
+    ResizeAll();
+  }
+  
   m_pipeline = new EventProcessingPipeline;
   pipecopy = new EventProcessingPipeline[NBR_WORKERS];
 
@@ -71,16 +99,14 @@ Sender::Sender()
   pEventList = new CEventList[NBR_WORKERS];
 
   for (int i=0; i<NBR_WORKERS; ++i){
+    threadBytes[i] = 0;
+    threadItems[i] = 0;
     physicsItems[i] = 0;
     entityItems[i] = 0;    
-  }
 
-  // RingFormatHelper
-  for (int i=0; i<NBR_WORKERS; ++i){
-    m_pFactory[i].addCreator(11, 0, create11);
+    m_pFactory[i].addCreator(11, 0, create11);    
   }
-    
-
+  
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
 
@@ -103,12 +129,7 @@ Sender::Sender()
 
 Sender::~Sender()
 {
-  delete []threadBytes;
-  delete []threadItems;
-  delete []physicsItems;
-  delete []entityItems;  
   delete m_pipeline;
-  delete []m_pFactory;
 }
 
 CEvent*
@@ -154,19 +175,18 @@ Sender::clock()
 void
 Sender::cleanup()
 {
-  delete []threadBytes;
-  delete []threadItems;
-  delete []physicsItems;
-  delete m_pipeline;
-  
-  threadBytes = new size_t[NBR_WORKERS];
-  threadItems = new size_t[NBR_WORKERS];
-  physicsItems = new size_t[NBR_WORKERS];
-  entityItems = new size_t[NBR_WORKERS];  
+  threadBytes.clear();
+  threadItems.clear();
+  physicsItems.clear();
+  entityItems.clear();
+
   for (int i=0; i<NBR_WORKERS; ++i){
+    threadBytes[i] = 0;
+    threadItems[i] = 0;
     physicsItems[i] = 0;
-    entityItems[i] = 0;    
+    entityItems[i] = 0;
   }
+  
   m_pipeline = new EventProcessingPipeline;
 
   isStart = true;

@@ -14,6 +14,8 @@
 
 
 # (C) Copyright Michigan State University 2014, All rights reserved 
+set NumberOfThreads 10
+set DataChunkSize 1024*1024*16
 set DisplayMegabytes 20
 set ParameterCount   256
 set EventListSize    1

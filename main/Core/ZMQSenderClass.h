@@ -13,7 +13,7 @@
 #include "EventProcessor.h"
 #include <BufferTranslator.h>
 
-extern const int NBR_WORKERS;
+extern int NBR_WORKERS;
 
 typedef std::pair<std::string, CEventProcessor*>                       PipelineElement;
 typedef std::list<PipelineElement>                                     EventProcessingPipeline;
@@ -46,7 +46,8 @@ class Sender
  public: 
 
   static Sender* getInstance();
-
+  void ResizeAll();
+  
   int m_nFd;  
   void setFd(int fd);
   int  getFd();  
@@ -55,12 +56,12 @@ class Sender
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
 
-  static size_t* threadBytes;
-  static size_t* threadItems;
-  static size_t* physicsItems;
-  static size_t* entityItems;    
+  static std::vector<size_t> threadBytes;
+  static std::vector<size_t> threadItems;
+  static std::vector<size_t> physicsItems;
+  static std::vector<size_t>  entityItems;
 
-  static CRingFormatHelperFactory* m_pFactory;
+  static std::vector<CRingFormatHelperFactory> m_pFactory;
   
   static void* sender_task(void *args);  
   static void* worker_task(void *args);

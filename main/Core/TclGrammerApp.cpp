@@ -133,6 +133,7 @@ char** SpecTclArgv;
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
 static const UInt_t knProcs          = 10;
+static const UInt_t knChunk          = 1024*1024*16;
 static const UInt_t knDisplaySize    = 8;
 
 static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
@@ -142,6 +143,7 @@ static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 static const char* ProtectedVariables[] = {
   "NumberOfThread",
+  "DataChunkSize",  
   "DisplayMegabytes",
   "ParameterCount",
   "EventListSize",
@@ -246,6 +248,7 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
 */
 CTclGrammerApp::CTclGrammerApp() :
   m_nProcs(knProcs),
+  m_nChunk(knChunk),
   m_nDisplaySize(knDisplaySize),  
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
@@ -262,6 +265,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_pGatePackage(0),
   m_RCFile(string("tcl_rcFilename"),            kfFALSE),
   m_TclnProcs(string("NumberOfThreads"),        kfFALSE), // number of workers
+  m_TclDataChunk(string("DataChunkSize"),       kfFALSE), // data chunk size to transfer
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
@@ -334,6 +338,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   //
   // m_RCFile         - Name of early init file.
   // m_TclnProcs      - Number of working threads 
+  // m_TclDataChunk   - Data chunk size to analyze
   // m_TclDisplaySize - Number of megabytes of display storage.
   // m_ParameterCount - Guess at largest parameter number which will be stuffed
   // m_TclEventListSize - Number of event batched for analysis.
@@ -359,6 +364,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
 #endif
   m_RCFile.Bind(rInterp);
   m_TclnProcs.Bind(rInterp);
+  m_TclDataChunk.Bind(rInterp);  
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
@@ -465,6 +471,7 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
 
 
 */
+
 void CTclGrammerApp::SetLimits() {
   UInt_t nResult;
 
@@ -476,6 +483,7 @@ void CTclGrammerApp::SetLimits() {
 
   // By this time the initial RC files have been run.
   UpdateUInt(m_TclnProcs,   m_nProcs);
+  UpdateUInt(m_TclDataChunk,   m_nChunk);  
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
@@ -892,7 +900,6 @@ int CTclGrammerApp::operator()() {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
-
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 

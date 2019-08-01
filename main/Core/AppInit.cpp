@@ -88,6 +88,8 @@ extern "C" {
 // Local constants which are defaults for various sizing parameters:
 //
 
+   static const UInt_t knProcs = 10;
+   static const UInt_t knChunk = 1024*1024*16;
    static const UInt_t knParameterCount   = 256;
    static const UInt_t knEventListSize    = 256;
 
@@ -110,6 +112,8 @@ extern "C" {
 
    class CTclGrammerApp : public CTCLApplication
    {
+      UInt_t               m_nProcs;
+      UInt_t               m_nChunk;     
       UInt_t               m_nDisplaySize;
       UInt_t               m_nParams;
       UInt_t               m_nListSize;
@@ -128,6 +132,8 @@ extern "C" {
       CGatePackage*       m_pGatePackage;
    public:
       CTclGrammerApp() :
+      m_nProcs(0),
+      m_nChunk(0),      
       m_nDisplaySize(0),
       m_nParams(0),
       m_nListSize(0),
@@ -194,19 +200,28 @@ extern "C" {
       api->SetTCLApp(gpTCLApplication);
       Tcl_ThreadId mainThread = Tcl_GetCurrentThread();
       
-   // Set default values for the variables which contain sizing information
-   //
-   
+      // Set default values for the variables which contain sizing information
+      //
+
+      CTCLVariable NumberThreads(string("NumberOfThreads"),  kfFALSE);      
+      CTCLVariable DataChunk(string("DataChunkSize"),  kfFALSE);            
       CTCLVariable DisplaySize(string("DisplayMegabytes"),  kfFALSE);
       CTCLVariable ParameterCount(string("ParameterCount"), kfFALSE);
       CTCLVariable EventListSize(string("EventListSize"),   kfFALSE);
    
-   
+      NumberThreads.Bind(pInterp);
+      DataChunk.Bind(pInterp);      
       DisplaySize.Bind(pInterp);
       ParameterCount.Bind(pInterp);
       EventListSize.Bind(pInterp);
    
       char value[100];      // Holds ascii encoded numberics.
+      sprintf(value, "%d", knProcs);
+      NumberThreads.Set(value, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+
+      sprintf(value, "%d", knChunk);
+      DataChunk.Set(value, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);      
+      
       sprintf(value, "%d", knDefaultSpectrumSize/kn1M);
       DisplaySize.Set(value, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
    
@@ -327,6 +342,8 @@ extern "C" {
    
       cout << pProgramCopyright << endl;
       cout << "Parameters:"     << endl;
+      cout << "Number of threads:        " << m_nProcs << endl;
+      cout << "Data chunk to analyzer:        " << m_nChunk << endl;            
       cout << "Display storage:        " << m_nDisplaySize << "(MBytes)" << endl;
       cout << "Initial Parameter count " << m_nParams      << endl;
       cout << "Initial Event List size " << m_nListSize    << endl;
@@ -372,16 +389,23 @@ extern "C" {
    CTclGrammerApp::UpdateLimits()
    {
       UInt_t Result;
-   
+
+
+      CTCLVariable NumberThreads(string("NumberOfThreads"),  kfFALSE);      
+      CTCLVariable DataChunk(string("DataChunkSize"),  kfFALSE);
       CTCLVariable DisplaySize(string("DisplayMegabytes"),    kfFALSE);
       CTCLVariable nParams    (string("ParameterCount"), kfFALSE);
       CTCLVariable nListSize  (string("EventListSize"),  kfFALSE);
    
-   
-   
       DisplaySize.Bind(getInterpreter());
-   
-   
+
+      if(sscanf(NumberThreads.Get(), "%d", &Result) > 0) {
+	m_nProcs = Result;
+      }
+
+      if(sscanf(DataChunk.Get(), "%d", &Result) > 0) {
+	m_nChunk = Result;
+      }            
    
       if(sscanf(DisplaySize.Get(), "%d", &Result) > 0) {
          m_nDisplaySize = Result;

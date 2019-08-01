@@ -351,7 +351,9 @@ proc updateInfo nms {
 	}
 
 	.np.head configure -text \
-	    [format "Number of Threads: %s " [set a $::NumberOfThreads]]	
+	    [format "Number of Threads: %s " $::NumberOfThreads]
+	.dc.head configure -text \
+	    [format "Data Chunk Size per Thread: %s " $::DataChunkSize]		
 	.title.head configure -text \
 	    [format "Run Title: %s " $RunTitle]
 	.source.head configure -text \
@@ -367,6 +369,11 @@ proc updateInfo nms {
 frame .np
 label .np.head -text {Number of threads: } -background LightSteelBlue1 
 pack  .np.head -side left -expand 1
+
+# Display number of threads
+frame .dc
+label .dc.head -text {Data Chunk Size per Thread: } -background LightSteelBlue1 
+pack  .dc.head -side left -expand 1
 
 # Display run title
 frame .title
@@ -409,7 +416,7 @@ button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -co
 button .detach -background {plum3} -text "Detach" -command detach
 button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .title .source .runno .buffer .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons

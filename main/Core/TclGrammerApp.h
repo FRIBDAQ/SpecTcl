@@ -82,7 +82,8 @@ class CTclGrammerApp {
 
 private:
   // Private Member data:
-  UInt_t                    m_nProcs;  
+  UInt_t                    m_nProcs;
+  UInt_t                    m_nChunk;  
   UInt_t                    m_nDisplaySize;
   UInt_t                    m_nParams;
   UInt_t                    m_nListSize;
@@ -99,6 +100,7 @@ private:
   CGatePackage*             m_pGatePackage;
   CTCLVariable              m_RCFile;
   CTCLVariable              m_TclnProcs;
+  CTCLVariable              m_TclDataChunk;  
   CTCLVariable              m_TclDisplaySize;
   CTCLVariable              m_TclParameterCount;
   CTCLVariable              m_TclEventListSize;
@@ -132,6 +134,15 @@ private:
   // Selectors:
  public:
   Tcl_ThreadId getThread() const { return m_nMainThread; }
+
+  //Get accessor function for non-static attribute data member
+  UInt_t getDataChunkSize() const {
+    return m_nChunk;
+  }
+  //Get accessor function for non-static attribute data member
+  UInt_t getNthreads() const {
+    return m_nProcs;
+  }  
   //Get accessor function for non-static attribute data member
   UInt_t getDisplaySize() const {
     return m_nDisplaySize;
