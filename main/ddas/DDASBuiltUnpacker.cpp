@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstdint>
 
+UInt_t nthreads=25;
 
 using namespace std;
 
@@ -21,12 +22,12 @@ namespace DAQ {
     ///////
     ///
     CDDASBuiltUnpacker::CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-                                CParameterMapper& rParameterMapper) 
+					   CParameterMapper& rParameterMapper, UInt_t nthreads) 
       : m_sourceIds(validSourceIds),
 	m_pParameterMapper(&rParameterMapper)
     {
-      std::cout << "CDDASBuiltUnpacker constructor, number of workers " << NBR_WORKERS << std::endl;
-      m_channelList = new DDASHitV[NBR_WORKERS];
+      std::cout << "CDDASBuiltUnpacker constructor, number of workers " << nthreads << std::endl;
+      m_channelList = new DDASHitV[nthreads];
     }
 
     CDDASBuiltUnpacker::~CDDASBuiltUnpacker() {

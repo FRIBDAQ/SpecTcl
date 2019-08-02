@@ -81,7 +81,7 @@ Sender::Sender()
 {
   // Resizing all the vectors according to SpecTclInit.tcl
   if (debug)
-    std::cout << "Original NBR_WORKERS" << NBR_WORKERS << std::endl;
+    std::cout << "Original NBR_WORKERS " << NBR_WORKERS << std::endl;
   int nthreads = CTclGrammerApp::getInstance()->getNthreads();
   if (debug)
     std::cout << "Number of threads requested via SpecTclInit.tcl " << nthreads << std::endl;

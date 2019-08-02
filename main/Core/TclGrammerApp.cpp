@@ -939,6 +939,7 @@ int CTclGrammerApp::operator()() {
 
   //  Setup the user's analysis pipeline:
 
+  std::cout << "Before CreateAnalysisPipeline" << std::endl;
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
 
@@ -950,9 +951,9 @@ int CTclGrammerApp::operator()() {
   
   // Now that SpecTcl is essentially set up, we can initialize the analyzer
   
-  SpecTcl*      pApi      = SpecTcl::getInstance();
-  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
-  pAnalyzer->OnInitialize();
+  //  SpecTcl*      pApi      = SpecTcl::getInstance();
+  //  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
+  //  pAnalyzer->OnInitialize();
   
   // Set up the first incantaion of TimedUpdates.
   

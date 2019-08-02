@@ -87,7 +87,7 @@ namespace DAQ {
          *                          ownership transfers to class)
          */
         CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-                          CParameterMapper& rParameterMapper);
+			   CParameterMapper& rParameterMapper, UInt_t nthreads);
 
         /*! Destructor*/
         ~CDDASBuiltUnpacker();
