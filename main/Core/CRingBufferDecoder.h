@@ -76,13 +76,14 @@ private:
 public:
   CRingBufferDecoder();
   virtual ~CRingBufferDecoder();
-  
-private:
+
+ private:
   CRingBufferDecoder(const CRingBufferDecoder& rhs);
   CRingBufferDecoder& operator=(const CRingBufferDecoder& rhs);
   int operator==(const CRingBufferDecoder& rhs) const;
   int operator!=(const CRingBufferDecoder& rhs) const;
-public:
+
+ public:
   // Overrides of base class functionality (virtually everything is an override.
 
   virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyzer);

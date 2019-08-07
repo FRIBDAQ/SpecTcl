@@ -57,11 +57,12 @@ class CThreadAnalyzer : public CAnalyzer {
   CEventList eventPool;
   CEventList eventList;  
   
-public:
+ public:
   CThreadAnalyzer();
   ~CThreadAnalyzer();
-private:
-  CThreadAnalyzer(const CThreadAnalyzer& rSrc); // Copy constructor > not allowed <
+
+ private:
+  CThreadAnalyzer(const CThreadAnalyzer& rhs);
   CThreadAnalyzer& operator=(const CThreadAnalyzer& rhs);
   
 public:

@@ -65,10 +65,11 @@ class CBufferDecoder {
   // Copy constructor not allowed since there's no good way to
   // copy construct the buffer translator yet (would need a clone
   // operator).
-private:
+  //private:
   CBufferDecoder(const CBufferDecoder& aCBufferDecoder);
   CBufferDecoder& operator=(const CBufferDecoder& aCBufferDecoder);
-public:
+
+ public:
 
   //Operator== Equality Operator
   int operator==(const CBufferDecoder& aCBufferDecoder) {

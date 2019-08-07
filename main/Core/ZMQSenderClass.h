@@ -11,6 +11,8 @@
 #include "TKRunControl.h"
 #include "RunControl.h"
 #include "EventProcessor.h"
+#include "ThreadAnalyzer.h"
+#include "CRingBufferDecoder.h" 
 #include <BufferTranslator.h>
 
 extern int NBR_WORKERS;
@@ -61,8 +63,9 @@ class Sender
   static std::vector<size_t> physicsItems;
   static std::vector<size_t>  entityItems;
 
-  static std::vector<CRingFormatHelperFactory> m_pFactory;
-  
+  static CRingFormatHelperFactory* m_pFactory;  
+  //  static std::vector<CRingFormatHelperFactory> m_pFactory;
+
   static void* sender_task(void *args);  
   static void* worker_task(void *args);
 
@@ -70,7 +73,6 @@ class Sender
   
   void addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
   static void createTranslator(uint32_t* pBuffer);
-  static void copyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe);
   static void processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec);
   static void marshall(long thread, CEventList& lst, Vpairs& vec);
   static void histoData(long thread, Vpairs& vec);

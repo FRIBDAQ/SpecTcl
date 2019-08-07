@@ -273,6 +273,9 @@ int CDataSourcePackage::AttachPipeSource(CTCLResult& rResult) {
   //      TCL_OK         - Success.
   //      TCL_ERROR - Failure.
   // Exceptions:
+
+  std::cout << "Inside AttachPipeSource" << std::endl;
+  
   if(gpRunControl->getRunning()) { // Analysis is active...
     rResult = "Analysis is active and must first be stopped";
     return TCL_ERROR;

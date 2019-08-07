@@ -33,12 +33,14 @@ CEventList Sender::m_eventList;
 double qnan = std::numeric_limits<double>::quiet_NaN();
 double stop_time, start_time;
 
+CTCLApplication* gpTCLApplication;
+
+// statistics 
 static size_t bytesSent(0);
 std::vector<size_t> Sender::threadBytes(NBR_WORKERS);
 std::vector<size_t> Sender::threadItems(NBR_WORKERS);
 std::vector<size_t> Sender::physicsItems(NBR_WORKERS);
 std::vector<size_t> Sender::entityItems(NBR_WORKERS);
-std::vector<CRingFormatHelperFactory> Sender::m_pFactory(NBR_WORKERS);
 
 CTCLVariable* Sender::m_pBuffersAnalyzed(0);
 CTCLVariable* Sender::m_pRunNumber;
@@ -46,17 +48,11 @@ CTCLVariable* Sender::m_pRunTitle;
 CTCLVariable* Sender::m_pRunState;
 int  Sender::m_nBuffersAnalyzed(0);
 
-EventProcessingPipeline* Sender::m_pipeline;
+CRingFormatHelperFactory* Sender::m_pFactory(new CRingFormatHelperFactory);
 BufferTranslator* Sender::m_pTranslator;
-static EventProcessingPipeline* pipecopy;
-std::vector<BufferTranslator*> pTranslator(NBR_WORKERS);
-static CThreadAnalyzer* pAnalyzer;
-std::vector<CBufferDecoder*> pDecoder(NBR_WORKERS);
+EventProcessingPipeline* Sender::m_pipeline(new EventProcessingPipeline);
+
 static CEventList* pEventList;
-
-CTCLApplication* gpTCLApplication;
-CRingFormatHelper11Creator create11;
-
 typedef struct _HistoEvent {
   Tcl_Event    tclEvent;
   Vpairs*      histoList;
@@ -70,12 +66,7 @@ Sender::ResizeAll()
   physicsItems.resize(NBR_WORKERS);
   entityItems.resize(NBR_WORKERS);
 
-  m_pFactory.resize(NBR_WORKERS);
-
-  pTranslator.resize(NBR_WORKERS);
-  pDecoder.resize(NBR_WORKERS);
 }
-
 
 Sender::Sender()
 {
@@ -92,10 +83,6 @@ Sender::Sender()
     ResizeAll();
   }
   
-  m_pipeline = new EventProcessingPipeline;
-  pipecopy = new EventProcessingPipeline[NBR_WORKERS];
-
-  pAnalyzer = new CThreadAnalyzer[NBR_WORKERS];
   pEventList = new CEventList[NBR_WORKERS];
 
   for (int i=0; i<NBR_WORKERS; ++i){
@@ -103,9 +90,11 @@ Sender::Sender()
     threadItems[i] = 0;
     physicsItems[i] = 0;
     entityItems[i] = 0;    
-
-    m_pFactory[i].addCreator(11, 0, create11);    
   }
+
+  // Register the creators for 11.x ring with body headers
+  CRingFormatHelper11Creator create11;
+  m_pFactory->addCreator(11, 0, create11);
   
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
@@ -129,6 +118,8 @@ Sender::Sender()
 
 Sender::~Sender()
 {
+  delete m_pFactory;
+  delete m_pTranslator;
   delete m_pipeline;
 }
 
@@ -187,8 +178,6 @@ Sender::cleanup()
     entityItems[i] = 0;
   }
   
-  m_pipeline = new EventProcessingPipeline;
-
   isStart = true;
   
 }
@@ -259,18 +248,9 @@ Sender::addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc
   MapEventProcessors::iterator evp  = m_processors.find(name_proc);
   m_pipeline->push_back(PipelineElement(evp->first, evp->second));
 
+  std::cout << name_proc << " appended! -> size of the pipeline: " << m_pipeline->size() << std::endl;
+  
 }
-
-void
-Sender::copyPipeline(EventProcessingPipeline& oldpipe, EventProcessingPipeline& newpipe)
-{
-  EventProcessingPipeline::iterator it;
-  for (it = oldpipe.begin(); it!=oldpipe.end(); it++){
-    newpipe.push_back(PipelineElement(it->first, it->second));
-  }
-}
-
-int i = 0;
 
 void
 Sender::marshall(long thread, CEventList& lst, Vpairs& vec)
@@ -301,18 +281,27 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   uint32_t*    pBufferCursor = pBuffer;
   uint32_t     nResidual = descrip->s_nBytes; 
 
+  CRingFormatHelperFactory* m_factory;
+  CRingFormatHelper* pHelper;
+  
+  EventProcessingPipeline* pipecopy;
+  BufferTranslator* m_translator;
+
+  CThreadAnalyzer* pAnalyzer(new CThreadAnalyzer);
+  CBufferDecoder* pDecoder(new CRingBufferDecoder);
+
   //////////////////////////////////////
   // Buffer translator
   //////////////////////////////////////  
   try {
     Sender::createTranslator(pBuffer);
-    if (!pTranslator[thread]){
+    if (!m_translator){    
       if (debug)
 	std::cout << "Created translator " << thread << std::endl;
-      pTranslator[thread] = m_pTranslator->clone();
+      m_translator = m_pTranslator->clone();
     }
     else {
-      pTranslator[thread]->newBuffer(pBuffer);
+      m_translator->newBuffer(pBuffer);
     }
   }
   catch (...) {
@@ -323,24 +312,21 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   //////////////////////////////////////
   // Buffer decoder + analyzer 
   //////////////////////////////////////    
-  if (!pDecoder[thread]){
+  if (!pDecoder){
     if (debug)
       std::cout << "Created decoder " << thread << std::endl;
-    pDecoder[thread] = new CRingBufferDecoder;
-    pAnalyzer[thread].AttachDecoder(*pDecoder[thread]);
+    pAnalyzer->AttachDecoder(*pDecoder);
     if (debug)
       std::cout << "...and attached to the threaded analyzer" << std::endl;
   }
-
+  
   //////////////////////////////////////
   // Analysis pipeline
   //////////////////////////////////////  
-  if (pipecopy[thread].size() == 0){
-    copyPipeline(*m_pipeline, pipecopy[thread]);
-    if (debug)
-      std::cout << "Created pipecopy " << thread << " of size " << pipecopy[thread].size() << std::endl;
-  }
-
+  pipecopy = new EventProcessingPipeline(*m_pipeline);
+  if (debug)
+    std::cout << "Created pipecopy " << thread << " of size " << pipecopy->size() << std::endl;      
+  
   Address_t    pBody;
   UInt_t       nBodySize;
 
@@ -351,13 +337,13 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   while(nResidual) {
     
     pRingItem        pItem = reinterpret_cast<pRingItem>(pBufferCursor);
-    uint32_t         size  = pTranslator[thread]->TranslateLong(pItem->s_header.s_size);
-    uint32_t         type  = pTranslator[thread]->TranslateLong(pItem->s_header.s_type);
-    pTranslator[thread]->newBuffer(pItem);
-
+    uint32_t         size  = m_translator->TranslateLong(pItem->s_header.s_size);
+    uint32_t         type  = m_translator->TranslateLong(pItem->s_header.s_type);
+    m_translator->newBuffer(pItem);
+    
     // RingHelper
-    CRingFormatHelper* pHelper;
-    pHelper = m_pFactory[thread].create(11,0);
+    m_factory = new CRingFormatHelperFactory(*m_pFactory);
+    pHelper = m_factory->create(11,0);    
     
     pBody = pHelper->getBodyPointer(pItem);
     nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
@@ -369,7 +355,7 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 	m_pRunState->Set("Active");
 	physicsItems[thread] = 0;
 	m_title        = pHelper->getTitle(pItem);
-	m_runNumber    = pHelper->getRunNumber(pItem, pTranslator[thread]);
+	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
 	Sender::SetVariable(*m_pRunNumber, m_runNumber);
 	m_pRunTitle->Set(m_title.c_str());
       }
@@ -389,47 +375,48 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 	m_pRunState->Set("Active");
 	entityItems[thread] = 0;
 	m_title        = pHelper->getTitle(pItem);
-	m_runNumber    = pHelper->getRunNumber(pItem, pTranslator[thread]);
+	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
 	Sender::SetVariable(*m_pRunNumber, m_runNumber);
-	m_pRunTitle->Set(pDecoder[thread]->getTitle().c_str());	
-	//	pAnalyzer[thread].OnStateChange(m_nCurrentItemType, *pDecoder[thread], thread);
+	m_pRunTitle->Set(pDecoder->getTitle().c_str());		
       }
       break;
     case PACKET_TYPES:
     case MONITORED_VARIABLES:
       {
-	entityItems[thread] = pHelper->getStringCount(pItem, pTranslator[thread]);
-	//	pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
+	entityItems[thread] = pHelper->getStringCount(pItem, m_translator);	
       }
       break;
     case PERIODIC_SCALERS:
       {
-	entityItems[thread] = pHelper->getScalerCount(pItem, pTranslator[thread]);
-	//	pAnalyzer[thread].OnScaler(*pDecoder[thread], thread);
+	entityItems[thread] = pHelper->getScalerCount(pItem, m_translator);	
       }
       break;
     case PHYSICS_EVENT:
       {
 	entityItems[thread] = 1;
 	physicsItems[thread]++;
-	pAnalyzer[thread].OnPhysics(thread, *pDecoder[thread], nBodySize, pBody, pipecopy[thread], *pTranslator[thread], pEventList[thread]);
+	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, *pipecopy, *m_translator, pEventList[thread]);	
 	marshall(thread, pEventList[thread], vec);
       }
       break;
     case PHYSICS_EVENT_COUNT:
       {
-	//	pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
       }
       break;
     default:
       {
-	//pAnalyzer[thread].OnOther(m_nCurrentItemType, *pDecoder[thread], thread);
       }
       break;
     }
     pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(pBufferCursor) + size);
     nResidual    -= size;
   }
+
+  delete m_factory;
+  delete m_translator;
+  delete pipecopy;
+  delete pAnalyzer;
+  delete pDecoder;
 }
 
 UInt_t

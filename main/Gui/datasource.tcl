@@ -219,13 +219,22 @@ proc attachFile {} {
 
             # If the file is part of a segmented run, we ask the user
 	    # if they'd like us to play back the entire run:
-
+	    
 	    set segments [listRunFiles $file]
+
+	    set tmpdir "/tmp/[file rootname [file tail $file]].clu"
+	    set fo [open $tmpdir w+]
+	    foreach filename $segments {
+		puts $fo $filename
+	    }
+	    close $fo
+
 	    if {[llength $segments] == 1} {
 		attachDataSource $format $size -file $file
 	    } else {
 		if {[doSegmentedRun $segments]} {
-		    attachDataSource $format $size -pipe [segmentPlaybackCommand $segments]
+		    #		    attachDataSource $format $size -pipe [segmentPlaybackCommand $segments]
+		    runrunlist $tmpdir $size $format
 		} else {
 		    attachDataSource $format $size -file $file;	# just do the selected file.
 		}
@@ -277,27 +286,7 @@ proc attachPipe {} {
 #        A run is considered anlayzed when there is a transition
 #        from active -> inactive on analysis (this is determined
 #        by tracing RunState.
-proc attachRunList {} {
-    
-    # Prompt for the filename, buffering and the format of the input files
-    # At this time, all cluster files must have the same format!
-    
-    attachfile .clusterchooser \
-        -defaultextension .clu -initialfile $::datasource::lastrunlist \
-        -initialdir [file dirname $::datasource::lastrunlist]   \
-        -buffersize $::GuiPrefs::preferences(defaultBuffersize) \
-        -format [defaultFormat]
-    
-    .clusterchooser modal
-    
-    # Fish the stuff out of the dialog:
-    
-    set runlist [.clusterchooser cget -initialfile]
-    set size   [.clusterchooser cget -buffersize]
-    set format [.clusterchooser cget -format]
-    
-    destroy .clusterchooser
-    
+proc runrunlist {runlist size format} {
     if {$runlist != ""} {
         if {$datasource::runlistFiles != ""} {
             set answer [tk_messageBox -icon question -title {stop current runlist}       \
@@ -324,6 +313,30 @@ proc attachRunList {} {
         set ::RunState 0;             # Start the next file...
         
     }
+}
+
+proc attachRunList {} {
+    
+    # Prompt for the filename, buffering and the format of the input files
+    # At this time, all cluster files must have the same format!
+    
+    attachfile .clusterchooser \
+        -defaultextension .clu -initialfile $::datasource::lastrunlist \
+        -initialdir [file dirname $::datasource::lastrunlist]   \
+        -buffersize $::GuiPrefs::preferences(defaultBuffersize) \
+        -format [defaultFormat]
+    
+    .clusterchooser modal
+    
+    # Fish the stuff out of the dialog:
+    
+    set runlist [.clusterchooser cget -initialfile]
+    set size   [.clusterchooser cget -buffersize]
+    set format [.clusterchooser cget -format]
+    
+    destroy .clusterchooser
+
+    runrunlist $runlist $size $format
 
 }
 #  attachFilter
