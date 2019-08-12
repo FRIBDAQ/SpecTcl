@@ -334,6 +334,7 @@ proc updateInfo nms {
     global RunNumber
     global RunState
     global BuffersAnalyzed
+    global ElapsedTime
     global type
     global filename
 
@@ -362,6 +363,8 @@ proc updateInfo nms {
 	    [format "Run Number: %s " $RunNumber] 
 	.buffer.head configure -text \
 	    [format "Analyzed Buffers: %s " $BuffersAnalyzed]
+	.time.head configure -text \
+	    [format "Elapsed Time (s): %s " $ElapsedTime]	
     }
 }
 
@@ -395,6 +398,11 @@ frame .buffer
 label .buffer.head -text {Analyzed Buffers: } -background LightSteelBlue1 
 pack  .buffer.head -side left -expand 1
 
+# Display elapsed time
+frame .time
+label .time.head -text {Elapsed Time: } -background LightSteelBlue1 
+pack  .time.head -side left -expand 1
+
 # load/save spectra frame
 frame .spfr
 button .spfr.b1 -background {DarkGoldenrod2} -text "Load spectra" -command readSpectrumFile
@@ -406,7 +414,7 @@ pack .spfr -fill both -expand 1
 set loadPath .treegui.notebook.spectra.topmost.fileio.load
 set savePath .treegui.notebook.spectra.topmost.fileio.save
 
-button .clearall -background {gold} -text "Clear spectra" -command {clear -all}
+button .clearall -background {gold} -text "Clear" -command {clear -all}
 button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
 button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
 button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl attachOnline]
@@ -416,7 +424,7 @@ button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -co
 button .detach -background {plum3} -text "Detach" -command detach
 button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .time .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons

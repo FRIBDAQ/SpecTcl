@@ -44,6 +44,7 @@ class Sender
   static CTCLVariable* m_pRunNumber;
   static CTCLVariable* m_pRunTitle;
   static CTCLVariable* m_pRunState;
+  static CTCLVariable* m_pElapsedTime;  
 
  public: 
 
@@ -78,9 +79,9 @@ class Sender
   static void histoData(long thread, Vpairs& vec);
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
   static double clock();
-    
+
+  void printStats();
   void finish();
-  static void cleanup();
   
   static CEventList m_eventPool;
   static CEventList m_eventList;    

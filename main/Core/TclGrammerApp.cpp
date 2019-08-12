@@ -939,7 +939,6 @@ int CTclGrammerApp::operator()() {
 
   //  Setup the user's analysis pipeline:
 
-  std::cout << "Before CreateAnalysisPipeline" << std::endl;
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
 

@@ -31,7 +31,7 @@ CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;
 
 double qnan = std::numeric_limits<double>::quiet_NaN();
-double stop_time, start_time;
+double stop_time, start_time, tdiff, etime;
 
 CTCLApplication* gpTCLApplication;
 
@@ -42,11 +42,17 @@ std::vector<size_t> Sender::threadItems(NBR_WORKERS);
 std::vector<size_t> Sender::physicsItems(NBR_WORKERS);
 std::vector<size_t> Sender::entityItems(NBR_WORKERS);
 
-CTCLVariable* Sender::m_pBuffersAnalyzed(0);
+CTCLVariable* Sender::m_pBuffersAnalyzed;
 CTCLVariable* Sender::m_pRunNumber;
 CTCLVariable* Sender::m_pRunTitle;
 CTCLVariable* Sender::m_pRunState;
+CTCLVariable* Sender::m_pElapsedTime;
 int  Sender::m_nBuffersAnalyzed(0);
+
+size_t totalBytes(0);
+size_t totalItems(0);
+size_t totalPhysicsItems(0);
+size_t totalEntityItems(0);
 
 CRingFormatHelperFactory* Sender::m_pFactory(new CRingFormatHelperFactory);
 BufferTranslator* Sender::m_pTranslator;
@@ -103,7 +109,7 @@ Sender::Sender()
 					std::string("BuffersAnalyzed"),
 					kfFALSE);
   m_pBuffersAnalyzed->Link(&m_nBuffersAnalyzed, TCL_LINK_INT);
-  m_nBuffersAnalyzed = 1;  
+  m_nBuffersAnalyzed = 0;  
 
   m_pRunNumber = new CTCLVariable(rInterp, std::string("RunNumber"), kfFALSE);
   ClearVariable(*m_pRunNumber);
@@ -113,6 +119,9 @@ Sender::Sender()
 
   m_pRunState = new CTCLVariable(rInterp, std::string("OnlineState"), kfFALSE);
   m_pRunState->Set(">>> Unknown <<<");
+
+  m_pElapsedTime = new CTCLVariable(rInterp, std::string("ElapsedTime"), kfFALSE);
+  m_pElapsedTime->Set("0");
 
 }
 
@@ -161,25 +170,6 @@ Sender::clock()
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1.0e-6*t.tv_usec + t.tv_sec);
-}
-
-void
-Sender::cleanup()
-{
-  threadBytes.clear();
-  threadItems.clear();
-  physicsItems.clear();
-  entityItems.clear();
-
-  for (int i=0; i<NBR_WORKERS; ++i){
-    threadBytes[i] = 0;
-    threadItems[i] = 0;
-    physicsItems[i] = 0;
-    entityItems[i] = 0;
-  }
-  
-  isStart = true;
-  
 }
 
 Sender*
@@ -248,8 +238,6 @@ Sender::addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc
   MapEventProcessors::iterator evp  = m_processors.find(name_proc);
   m_pipeline->push_back(PipelineElement(evp->first, evp->second));
 
-  std::cout << name_proc << " appended! -> size of the pipeline: " << m_pipeline->size() << std::endl;
-  
 }
 
 void
@@ -639,16 +627,25 @@ sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader
 }
 
 void
-Sender::finish()
+Sender::printStats()
 {
-  isDone = true;
-  size_t totalBytes(0);
-  size_t totalItems(0);
-  size_t totalPhysicsItems(0);
-  size_t totalEntityItems(0);
   for (int i = 0; i < NBR_WORKERS; i++) {
     std::cout << "Thread " << i << " processed " <<
       threadItems[i] << " items containing a total of " << threadBytes[i] << " bytes"  << std::endl;
+  }
+  std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
+  std::cout << "Physics Items " << totalPhysicsItems << std::endl;
+  std::cout << "Entity Items " << totalEntityItems << std::endl;  
+  
+  printf("Elapsed time %lf\n", tdiff);
+  
+}
+
+void
+Sender::finish()
+{
+  isDone = true;
+  for (int i = 0; i < NBR_WORKERS; i++) {
     totalBytes += threadBytes[i];
     totalItems += threadItems[i];
     totalPhysicsItems += physicsItems[i];
@@ -656,17 +653,21 @@ Sender::finish()
     physicsItems[i] = 0;
     entityItems[i] = 0;
   }
-  std::cout << "Items processed " << totalItems << " totalBytesProcessed  " << totalBytes << std::endl;
-  std::cout << "Physics Items " << totalPhysicsItems << std::endl;
-  std::cout << "Entity Items " << totalEntityItems << std::endl;  
-  Sender::SetVariable(*m_pBuffersAnalyzed, totalPhysicsItems);
-  
-  stop_time = clock();
-  printf("Elapsed time %lf\n", stop_time-start_time);
 
-  m_pRunState->Set("Halted");
+  Sender::SetVariable(*m_pBuffersAnalyzed, totalPhysicsItems);
+
+  stop_time = clock();
+  tdiff = stop_time-start_time;
+  etime += tdiff;
+  printf("Running time %lf\n", tdiff);
+  printf("Elapsed time %lf\n", etime);  
+  m_pElapsedTime->Set(std::to_string(etime).c_str());
+  isStart = true;
   
-  Sender::cleanup();
+  if (debug)
+    printStats();
+  
+  m_pRunState->Set("Halted");
   
 }
 

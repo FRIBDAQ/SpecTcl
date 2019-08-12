@@ -40,15 +40,15 @@ ThreadAPI::CreateThreads()
   pthread_key_create(&glob_var_key,NULL);
   
   // Setup sender
-  std::cout << "Setting up sender..." << std::endl;
+  //  std::cout << "Setting up sender..." << std::endl;
   pthread_create(&sender, nullptr, Sender::sender_task,  nullptr);
 
   // Setup worker
-  std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;
+  //  std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
     pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)(intptr_t)worker_nbr);
   }
-  std::cout << "...Done! " << std::endl;
+  //  std::cout << "...Done! " << std::endl;
 }
 
 void
