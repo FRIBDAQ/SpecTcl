@@ -5,7 +5,7 @@ libDDASUnpacker_la_SOURCES = DDASUnpacker.cpp \
 	DDASBuiltUnpacker.cpp  \
 	 DDASHit.cpp DDASHitUnpacker.cpp CFileDrivenParameterMapper.cpp \
 	CCalibratedFileDrivenParameterMapper.cpp FitHitUnpacker.cpp \
-	functions.cpp lmfit.cpp
+	functions.cpp lmfit.cpp DDASBuiltFitUnpacker.cpp
 
 include_HEADERS = DDASUnpacker.h \
 	DDASBuiltUnpacker.h \
@@ -13,7 +13,8 @@ include_HEADERS = DDASUnpacker.h \
 	DDASHit.h DDASHitUnpacker.h \
 	DDASBitMasks.h CFileDrivenParameterMapper.h \
 	CCalibratedFileDrivenParameterMapper.h \
-	DDASFitHit.h FitHitUnpacker.h functions.h lmfit.h
+	DDASFitHit.h FitHitUnpacker.h functions.h lmfit.h DDASBuiltFitUnpacker.h \
+	FitParameterMapper.h
 
 noinst_HEADERS=FitExtender.h
 
