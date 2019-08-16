@@ -72,6 +72,13 @@ Sender::ResizeAll()
   physicsItems.resize(NBR_WORKERS);
   entityItems.resize(NBR_WORKERS);
 
+  for (int i=0; i<NBR_WORKERS; ++i){
+    threadBytes[i] = 0;
+    threadItems[i] = 0;
+    physicsItems[i] = 0;
+    entityItems[i] = 0;    
+  }
+  
 }
 
 Sender::Sender()
@@ -88,26 +95,19 @@ Sender::Sender()
       std::cout << "New NBR_WORKERS " << NBR_WORKERS << std::endl;
     ResizeAll();
   }
-  
-  pEventList = new CEventList[NBR_WORKERS];
-
-  for (int i=0; i<NBR_WORKERS; ++i){
-    threadBytes[i] = 0;
-    threadItems[i] = 0;
-    physicsItems[i] = 0;
-    entityItems[i] = 0;    
-  }
 
   // Register the creators for 11.x ring with body headers
   CRingFormatHelper11Creator create11;
   m_pFactory->addCreator(11, 0, create11);
   
+  // Create event list
+  pEventList = new CEventList[NBR_WORKERS];
+
+  // TCL Variables for GUI
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
 
-  m_pBuffersAnalyzed = new CTCLVariable(rInterp,
-					std::string("BuffersAnalyzed"),
-					kfFALSE);
+  m_pBuffersAnalyzed = new CTCLVariable(rInterp, std::string("BuffersAnalyzed"), kfFALSE);
   m_pBuffersAnalyzed->Link(&m_nBuffersAnalyzed, TCL_LINK_INT);
   m_nBuffersAnalyzed = 0;  
 
@@ -127,9 +127,6 @@ Sender::Sender()
 
 Sender::~Sender()
 {
-  delete m_pFactory;
-  delete m_pTranslator;
-  delete m_pipeline;
 }
 
 CEvent*
@@ -275,9 +272,6 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   EventProcessingPipeline* pipecopy;
   BufferTranslator* m_translator;
 
-  CThreadAnalyzer* pAnalyzer(new CThreadAnalyzer);
-  CBufferDecoder* pDecoder(new CRingBufferDecoder);
-
   //////////////////////////////////////
   // Buffer translator
   //////////////////////////////////////  
@@ -300,6 +294,8 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   //////////////////////////////////////
   // Buffer decoder + analyzer 
   //////////////////////////////////////    
+  CThreadAnalyzer* pAnalyzer(new CThreadAnalyzer);
+  CBufferDecoder* pDecoder(new CRingBufferDecoder);
   if (!pDecoder){
     if (debug)
       std::cout << "Created decoder " << thread << std::endl;
@@ -405,6 +401,7 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   delete pipecopy;
   delete pAnalyzer;
   delete pDecoder;
+
 }
 
 UInt_t
@@ -483,6 +480,9 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   }
   
   delete hlist;
+
+  while (Tcl_DoOneEvent(TCL_WINDOW_EVENTS | TCL_TIMER_EVENTS | TCL_DONT_WAIT | TCL_IDLE_EVENTS))
+    ;
   
   return 1; 
 }
@@ -545,7 +545,7 @@ Sender::worker_task(void *args)
 
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
-
+      
       Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
       Sender::histoData(thread, *tmp);
       

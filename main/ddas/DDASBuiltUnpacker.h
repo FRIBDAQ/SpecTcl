@@ -74,10 +74,12 @@ namespace DAQ {
 
       private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
-	DDASHitV* m_channelList;      ///< list of parsed data
-	//        std::vector<DDASHit>  m_channelList;      ///< list of parsed data
+	std::vector<DDASHitV> m_VectorList;
+	std::vector<int>      m_threadId;
+	std::vector<DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
-
+	int max;
+	
       public:
 
         /*! Constructor
@@ -87,7 +89,7 @@ namespace DAQ {
          *                          ownership transfers to class)
          */
         CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-			   CParameterMapper& rParameterMapper, UInt_t nthreads);
+			   CParameterMapper& rParameterMapper);
 
         /*! Destructor*/
         ~CDDASBuiltUnpacker();

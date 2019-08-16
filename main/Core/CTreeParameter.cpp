@@ -69,7 +69,6 @@ CTreeParameter::CTreeParameter() :
   m_pParameter(0),
   m_initialized(false)
 {
-  m_pEventThread = new CEvent*[NBR_WORKERS];
 }
 
 
@@ -289,8 +288,6 @@ CTreeParameter::isRegistered()
 void 
 CTreeParameter::Register()
 {
-
-
   if (!isRegistered()) {
     pair<string, CTreeParameter*> entry(m_sName, this);
     m_ObjectRegistry.insert(entry); 
@@ -306,9 +303,10 @@ CTreeParameter::Register()
 void 
 CTreeParameter::Unregister()
 {
-
+  //  std::cout << "Inside CTreeParameter::Unregister" << std::endl;
   multimap<string, CTreeParameter*>::iterator p = findRegistration();
   if(p != end()) {
+    //    std::cout << (*p).first << std::endl;
     m_ObjectRegistry.erase(p);
   }
 }
@@ -339,6 +337,14 @@ CTreeParameter::Bind()
 
 }
 
+/**
+ * Initialized the event list per thread
+**/
+void
+CTreeParameter::InitializeEventList()
+{
+  m_pEventThread = new CEvent*[NBR_WORKERS];
+}
 
 /**
  * Binds all parameters that are registered to CParameter items known to SpecTcl.
@@ -350,7 +356,6 @@ CTreeParameter::BindParameters()
   BindVisitor& bv(visitor);
   for_each(begin(), end(), bv);
 }
-
 
 /**
  * Binds an event to the class of Tree parameters.  Modifications to parameter

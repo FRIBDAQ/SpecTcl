@@ -61,7 +61,7 @@ class CThreadAnalyzer : public CAnalyzer {
   CThreadAnalyzer();
   ~CThreadAnalyzer();
 
- private:
+  // private:
   CThreadAnalyzer(const CThreadAnalyzer& rhs);
   CThreadAnalyzer& operator=(const CThreadAnalyzer& rhs);
   

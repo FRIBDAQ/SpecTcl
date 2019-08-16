@@ -191,6 +191,8 @@ public:
  // Other member functions.
   
   static void BindParameters();
+  static void InitializeEventList();
+    
   static void setEvent(CEvent& rEvent);
   static void setEvent(CEvent& rEvent, long id);  
   bool isBound() const;

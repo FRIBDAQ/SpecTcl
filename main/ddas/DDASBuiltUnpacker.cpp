@@ -12,8 +12,6 @@
 #include <algorithm>
 #include <cstdint>
 
-UInt_t nthreads=25;
-
 using namespace std;
 
 namespace DAQ {
@@ -22,12 +20,13 @@ namespace DAQ {
     ///////
     ///
     CDDASBuiltUnpacker::CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-					   CParameterMapper& rParameterMapper, UInt_t nthreads) 
+					   CParameterMapper& rParameterMapper)
       : m_sourceIds(validSourceIds),
+	m_channelList(),
+	max(-1),
 	m_pParameterMapper(&rParameterMapper)
     {
-      std::cout << "CDDASBuiltUnpacker constructor, number of workers " << nthreads << std::endl;
-      m_channelList = new DDASHitV[nthreads];
+      m_VectorList.resize(100);
     }
 
     CDDASBuiltUnpacker::~CDDASBuiltUnpacker() {
@@ -73,7 +72,22 @@ namespace DAQ {
 				     BufferTranslator& trans,
 				     long thread)
     {
-      m_channelList[thread].clear();
+      bool doesExist = std::find(std::begin(m_threadId), std::end(m_threadId), thread) != std::end(m_threadId);
+      if (!doesExist)
+	{
+	  // add the thread id in the vector
+	  m_threadId.push_back(thread);
+	  // create the element of the vector of vector of DDASHit with a copy of the channelList
+	  m_VectorList[thread] = m_channelList;
+	  // max thread number
+	  if (thread > max)
+	    max = thread;
+	  // once we have the number of threads running it's time to resize the vector of vector
+	  if (m_threadId.size() == max+1)
+	    m_VectorList.resize(max+1);
+	}	
+      
+      m_VectorList[thread].clear();
 
       setEventSize(pEvent, rDecoder, rAnalyzer, trans);
       
@@ -85,7 +99,7 @@ namespace DAQ {
       // Pass the unpacked data to the user for assignment to their data structures
       //
       // note: m_pParameterMapper can never be a nullptr
-      m_pParameterMapper->mapToParameters((std::vector<DAQ::DDAS::DDASHit>)m_channelList[thread], rEvent);
+      m_pParameterMapper->mapToParameters(m_VectorList[thread], rEvent);
 
       return goodToSort;
     }
@@ -140,7 +154,7 @@ namespace DAQ {
       // parse the body of the ring item 
       unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), hit );
 
-      m_channelList[thread].push_back(hit);
+      m_VectorList[thread].push_back(hit);
     }
 
   } // end DDAS namespace

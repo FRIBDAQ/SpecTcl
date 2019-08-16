@@ -941,7 +941,7 @@ int CTclGrammerApp::operator()() {
 
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
-
+  CTreeParameter::InitializeEventList();      // Needed for threaded event lists
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
