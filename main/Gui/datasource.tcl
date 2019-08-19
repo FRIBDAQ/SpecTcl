@@ -166,7 +166,7 @@ proc attachOnline {} {
     hostprompt .hostprompt -host $::datasource::lasthost \
 	-format [defaultFormat]                          \
 	-buffersize $::GuiPrefs::preferences(defaultBuffersize)  \
-	-ringname   $::datasource::lastring
+	-ringname   $::datasource::lastring -datasize $::DataChunkSize
     #after 1 .hostprompt configure -format [defaultFormat]
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
@@ -181,7 +181,10 @@ proc attachOnline {} {
                 set ::datasource::lastring $additionalInfo
             }
             set size [.hostprompt cget -buffersize]
-    
+
+	    set datasize [.hostprompt cget -datasize]
+	    set ::DataChunkSize $datasize
+	    
             set ::datasource::lasthost     $host
 	    set ::datasource::lastformat   $format            
 	    set ::GuiPrefs::preferences(defaultBuffersize) $size
@@ -670,7 +673,8 @@ snit::widget hostprompt {
     option -okcommand      {}
     option -cancelcommand  {}
     option -buffersize     8192
-
+    option -datasize       {}
+        
     delegate option -format to format
 
     delegate method onlinehelper to format
@@ -682,7 +686,9 @@ snit::widget hostprompt {
         entry $win.host
         label $win.ringlabel -text {Ring:}
         entry $win.ring
-
+	label $win.datasizelabel -text {Data chunk size:}
+	entry $win.datasize
+	
         spinbox $win.buffersize -values {512 1024 2048 4096 8192 16384 32768 65536}
         label   $win.buflabel   -text {Buffer size in bytes: }
         $win.buffersize set $options(-buffersize)
@@ -695,6 +701,7 @@ snit::widget hostprompt {
 	
         grid $win.hostlabel $win.host
         grid $win.ringlabel $win.ring
+        grid $win.datasizelabel $win.datasize
         grid $win.buflabel  $win.buffersize
         grid $win.fmtlabel
         grid $win.fmt
@@ -762,7 +769,12 @@ snit::widget hostprompt {
 	set options(-buffersize) $value
 	$win.buffersize set $value
     }
-
+    # configure -datasize n
+    #    Set the datasize.
+    #
+    onconfigure -datasize value {
+	setEntry $win.datasize $value
+    }
     # cget -host
     #      Called to retrieve the hostname from the widget.
     oncget -host {
@@ -772,6 +784,11 @@ snit::widget hostprompt {
     #       Return the sizeof the buffer.
     oncget -buffersize {
 	return [$win.buffersize get]
+    }
+    # cget -datasize
+    #       Return the sizeof the data chunk.
+    oncget -datasize {
+	return [$win.datasize get]
     }
     ##
     # the ring name changed...update the entry:

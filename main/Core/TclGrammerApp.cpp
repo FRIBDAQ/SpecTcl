@@ -143,7 +143,7 @@ static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 static const char* ProtectedVariables[] = {
   "NumberOfThread",
-  "DataChunkSize",  
+  //  "DataChunkSize",  // commenting this allows the TCLVariable to be modified later on 
   "DisplayMegabytes",
   "ParameterCount",
   "EventListSize",

@@ -368,6 +368,13 @@ proc updateInfo nms {
     }
 }
 
+proc onlineSize {} {
+    set value [expr $::DataChunkSize]
+    puts $value
+    set wording "You are trying to analyze $::DataChunkSize bytes at the time. This may not be optimal for low rate experiments. Please modify the corresponding field."
+    set answer [tk_messageBox -message [format "%s" $wording] -type ok -icon question]
+}
+
 # Display number of threads
 frame .np
 label .np.head -text {Number of threads: } -background LightSteelBlue1 
@@ -417,7 +424,7 @@ set savePath .treegui.notebook.spectra.topmost.fileio.save
 button .clearall -background {gold} -text "Clear" -command {clear -all}
 button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
 button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
-button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl attachOnline]
+button .attonl -background {DarkOliveGreen2} -text "Attach online" -command {onlineSize; attachOnline;} ;#[list toggleTheButton .attonl attachOnline]
 button .attfile -background {DarkOliveGreen2} -text "Attach to file" -command [list toggleTheButton .attfile attachFile]
 button .attfilelist -background {DarkOliveGreen2} -text "Attach list of files" -command [list toggleTheButton .attfilelist attachRunList]
 button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -command [list toggleTheButton .attfilefilt attachFilter]
