@@ -69,11 +69,11 @@ void CRunControl::OnBuffer(UInt_t nBytes) {
 
   Int_t nRead = m_pEventSource->Read(pBuffer, nBytes);
   if(nRead > 0) {
-    m_pAnalyzer->OnBuffer(nRead, pBuffer);
+    //    m_pAnalyzer->OnBuffer(nRead, pBuffer);
   }
   else {
     OnEnd();		// Do Our end file handling.
-    m_pAnalyzer->OnEndFile();
+    //    m_pAnalyzer->OnEndFile();
   }
   delete []pBuffer;
 }

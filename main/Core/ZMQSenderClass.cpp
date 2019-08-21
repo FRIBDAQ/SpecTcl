@@ -25,7 +25,7 @@ bool isStart = true;
 Sender* Sender::m_pInstance = 0;
 
 int NBR_WORKERS = 1;
-int CHUNK_SIZE  = 1024*1024*16;
+int CHUNK_SIZE  = 1024*512;
 UInt_t m_nParametersInEvent = 512;
 CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;
@@ -197,7 +197,7 @@ Sender::createTranslator(uint32_t* pBuffer)
 {
   pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
-  delete m_pTranslator;
+  //  delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(pBuffer);
   }
