@@ -79,7 +79,8 @@ class Sender
   static void histoData(long thread, Vpairs& vec);
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
   static double clock();
-
+  static int converter(const char* s);
+  
   void printStats();
   void finish();
   

@@ -1,4 +1,5 @@
 #include <map>
+#include <regex>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -81,12 +82,42 @@ Sender::ResizeAll()
   
 }
 
+int
+Sender::converter(const char* s)
+{
+  std::string ss = s;
+  std::regex e(R"(\d+)");
+
+  std::sregex_iterator iter(ss.begin(), ss.end(), e);
+  std::sregex_iterator end;
+
+  int value = 1;
+  while(iter != end)
+    {
+      for(unsigned i = 0; i < iter->size(); ++i)
+	{
+	  value *= std::stoi((*iter)[i]);
+	}
+      ++iter;
+    }
+
+  return value;
+}
+
 Sender::Sender()
 {
   // Resizing all the vectors according to SpecTclInit.tcl
   if (debug)
     std::cout << "Original NBR_WORKERS " << NBR_WORKERS << std::endl;
   int nthreads = CTclGrammerApp::getInstance()->getNthreads();
+  std::cout << "CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+  const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
+  std::cout << "const char* c_size: " << c_size << std::endl;
+  int size = converter(c_size);
+  std::cout << "int size: " << size << std::endl;  
+  CHUNK_SIZE = size;
+  std::cout << "CHUNK_SIZE: " << CHUNK_SIZE << std::endl;  
+  
   if (debug)
     std::cout << "Number of threads requested via SpecTclInit.tcl " << nthreads << std::endl;
   if (nthreads != NBR_WORKERS){
@@ -505,6 +536,15 @@ Sender::worker_task(void *args)
   std::string id1 = s_set_id(worker);          //  Set a printable identity
   worker.connect("tcp://localhost:5671");
 
+  const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
+  int size = converter(c_size);
+
+  if (CHUNK_SIZE != size){
+    std::cout << "Inside worker_task CHUNK_SIZE before " << CHUNK_SIZE << std::endl;
+    CHUNK_SIZE = size;
+    std::cout << "Inside worker_task CHUNK_SIZE after " << CHUNK_SIZE << std::endl;    
+  }
+  
   std::stringstream ChunkSize;
   ChunkSize << CHUNK_SIZE;
   size_t bytes = 0;

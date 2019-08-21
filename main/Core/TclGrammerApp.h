@@ -200,6 +200,10 @@ private:
     return m_TclDisplaySize;
   }
   //Get accessor function for non-static attribute data member
+  CTCLVariable getDataChunkSizeVar() const {
+    return m_TclDataChunk;
+  }  
+  //Get accessor function for non-static attribute data member
   CTCLVariable getTclParameterCount() const {
     return m_TclParameterCount;
   }
