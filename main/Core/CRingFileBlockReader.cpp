@@ -64,43 +64,9 @@ badError(int error)
   return (okErrors.count(error) == 0);
 }
 
-size_t readData (int fd, void* pBuffer,  size_t nBytes)
+size_t readBlock(int fd, void* pBuffer,  size_t nBytes)
 {
-  uint8_t* pDest(reinterpret_cast<uint8_t*>(pBuffer));
-  size_t    residual(nBytes);
-  ssize_t   nRead;
-
-  // Read the buffer until :
-  //  error other than EAGAIN, EWOULDBLOCK  or EINTR
-  //  zero bytes read (end of file).
-  //  Regardless of how all this ends, we are going to emit a message on sterr.
-  //
-
-  while (residual) {
-    nRead = read(fd, pDest, residual);
-    if (nRead == 0)// EOF
-      {
-	return nBytes - residual;
-      }
-    if ((nRead < 0) && badError(errno) )
-      {
-	throw errno;
-      }
-    // If we got here and nread < 0, we need to set it to zero.
-    
-    if (nRead < 0)
-      {
-	nRead = 0;
-      }
-
-    // Adjust all the pointers and counts for what we read:
-
-    residual -= nRead;
-    pDest  += nRead;
-  }
-  // If we get here the read worked:
-
-  return nBytes;// Complete read.
+  return ::read(fd, pBuffer, nBytes);
 }
 
 /**
@@ -114,61 +80,98 @@ size_t readData (int fd, void* pBuffer,  size_t nBytes)
 CRingFileBlockReader::DataDescriptor
 CRingFileBlockReader::read(size_t nBytes)
 {
-  DataDescriptor result = {0, 0, malloc(nBytes)};
+  DataDescriptor result = {0, 0, malloc(nBytes)};  
   if (!result.s_pData) {
     throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)),
 			    "Initial buffer allocation");
   }
-  size_t numToRead = nBytes;
-  size_t offset    = 0;
   
-  // If there's a partial ring item put it in the front of the buffer.
-  // It's a logic error for it not to fit.
-
+  // We read until one of the following conditions is true:
+  // - readBlock returns 0 or errror indicating the program better exit.
+  // - we have at least one ring item in the user buffer.
+  // - The user buffer can't hold the partial ring item we have (error)..
+  // - The read is complete in which case any partial ring item read
+  //   is stored to be prepended to the next read operation.
+  
+  // If there's a partial item and the full item won't fit in the
+  // user buffer we're done with an std::logic_error:
+  
+  if (m_partialItemSize && (m_partialItemSize > nBytes)) {
+    throw std::logic_error("The buffer is not big enough for the partial item we have");
+  }
+  // IF there's a partial item copy it in to the buffer and figure out
+  // where we need to append data and how much of a read we have left.
+  
+  int numToRead = nBytes;           // Will be the remaining buffer size.
+  uint8_t* pNextBytes = static_cast<uint8_t*>(result.s_pData); // read here.
+  uint8_t* pFirstByte = pNextBytes; // For distance calculations.
+  uint32_t* pFront    = reinterpret_cast<uint32_t*>(pFirstByte); // For size.
+  
   if (m_partialItemSize) {
-    if (m_partialItemSize >= numToRead) {
-      throw std::logic_error("You need to declare bigger buffers for this data\n");
-    }
-    memcpy(result.s_pData, m_pPartialItem, m_partialItemSize);
-    numToRead -= m_partialItemSize;
-    offset     = m_partialItemSize;  // Read starting here in the buffer.
-    m_partialItemSize = 0;	// We absorbed the partial itemsize..
+    memcpy(pNextBytes, m_pPartialItem, m_partialItemSize);
+    pNextBytes += m_partialItemSize;
+    numToRead  -= m_partialItemSize;
+    
+    m_partialItemSize = 0;                 // no partial item now.
   }
-
-  // We can read the remainder of the item.
-
-  char* pDest = reinterpret_cast<char*>(result.s_pData);
-  pDest += offset;
-
-  size_t nRead = readData(m_nFd, pDest, numToRead);
-
-  // We've added data to the buffer.   
-  // - Compute How many complete ring items we have, containing how many bytes.
-  // - Determine If we have a partial ring item at the end of the block.
-  // - Save any partial item.
-  //  It's going to be convenient to have a uint32_t pointer (to pick up the ring item sizes.
-  //  and a char pointer to step through the buffer.
-  
-  size_t bufferBytes = nRead + offset;
-  char* pBuffer = reinterpret_cast<char*>(result.s_pData);
-  while(bufferBytes) {
-    std::uint32_t* pItem = reinterpret_cast<std::uint32_t*>(pBuffer);
-    std::uint32_t itemSize = *pItem;
-    
-    // Does it fully fit:
-    
-    if (itemSize <= bufferBytes) {
-      result.s_nItems++;
-      result.s_nBytes += itemSize;
+  bool done = false;
+  while (!done) {
+    ssize_t nRead = readBlock(m_nFd, pNextBytes, numToRead);
+    if (nRead < 0) {
+      if ((errno != EINTR ) && (errno != EAGAIN)) {
+        throw std::system_error(
+				std::make_error_code(static_cast<std::errc>(errno)),
+          "Reading a block of data."
+				);
+      } else {
+        continue;                  // do the next loop pass.
+      }
+    }
+    if (nRead == 0) {
+      done = true;                // End file.
+    } else {
+      numToRead -= nRead;          // In case we're not done yet...
+      pNextBytes += nRead;
       
-      bufferBytes -= itemSize;          // Book keeping to advance to the
-      pBuffer += itemSize;              // next item.
-    } else {				  // We're at a partial item:
-      savePartialItem(pBuffer, bufferBytes); // Save that item.
-      bufferBytes = 0;		       // Done with the buffer.
+      // If we have at least a ring item figure out how many, store any partial
+      // and indicate done-ness.  Otherwise we need another pass.
+      // Note that we must again check the item size against the buffer size.
+      // In doing all this there's an implicit assumption that we'll get at
+      // least sizeof(uint32_t) in reads, else we'll not get the size.
+      
+      assert(nRead >= sizeof(uint32_t));
+      
+      if (*pFront > nBytes) {
+	std::cout << "Ring item size " << *pFront << " > buffer size " << nBytes << std::endl;
+        throw std::logic_error("Buffer size is too small for a ring item");
+      }
+      if ((pNextBytes - pFirstByte) >= *pFront) {  // we have at least a ring item.
+        uint32_t* p     = pFront;
+        uint32_t  n     = pNextBytes - pFirstByte; // Number of bytes read.
+        while ((n >= *p) && (n > 0)) {                          // There's still a ring item.
+          result.s_nItems++;
+          n  -= *p;
+          result.s_nBytes += *p;
+          p   = reinterpret_cast<uint32_t*>(
+					    (reinterpret_cast<uint8_t*>(p) + *p)
+					    );                                    // Next item.
+        }
+        // If there's any partial item we'ver got to squirrel it away:
+        
+        if (n) {
+          savePartialItem(p, n);
+        }
+        
+        done = true;
+      }    
     }
+    
+    
   }
-  
+  if (result.s_nBytes == 0) {
+    free(result.s_pData);
+    result.s_pData = nullptr;
+  }
   return result;
 
 }
@@ -188,11 +191,10 @@ void
 CRingFileBlockReader::savePartialItem(void* pItem, size_t nBytes)
 {
   if (m_partialItemBlockSize < nBytes) {
-    delete []m_pPartialItem;  	// No-op for null pointer.
+    delete []m_pPartialItem;  // No-op for null pointer.
     m_pPartialItem = new char[nBytes];
     m_partialItemBlockSize = nBytes;
   }
   memcpy(m_pPartialItem, pItem, nBytes);
   m_partialItemSize = nBytes;
-  
 }

@@ -538,7 +538,7 @@ Sender::worker_task(void *args)
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
   int size = converter(c_size);
-
+  
   if (CHUNK_SIZE != size){
     std::cout << "Inside worker_task CHUNK_SIZE before " << CHUNK_SIZE << std::endl;
     CHUNK_SIZE = size;
@@ -585,7 +585,7 @@ Sender::worker_task(void *args)
 
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
-      
+
       Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
       Sender::histoData(thread, *tmp);
       
@@ -652,6 +652,7 @@ sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader
     reinterpret_cast<CRingFileBlockReader::pDataDescriptor>(malloc(sizeof(CRingFileBlockReader::DataDescriptor)));
 
   *pDesc = reader.read(nItems);
+
   if (pDesc->s_nBytes > 0) {
     size_t nSent = pDesc->s_nBytes;
     bytesSent += nSent;;
@@ -767,5 +768,6 @@ Sender::sender_task(void* args)
       }
     }
   }
+
   broker.close();
 }

@@ -133,10 +133,5 @@ CTKRunControl::OnBuffer(UInt_t nBytes)
 {
   if(getRunning())m_FileHandler.Set();		// Re-enable file handler.  
   
-  // Set up the worker and histogrammer threads
-  //  ThreadAPI* api = ThreadAPI::getInstance();
-  //  api->SetNThreads(NBR_WORKERS);
-  //  api->CreateThreads();
-  
   CRunControl::OnBuffer(nBytes); // Note on end of file this will clear().
 }
