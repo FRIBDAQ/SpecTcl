@@ -71,6 +71,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
+bool isOnline = false;
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -275,6 +276,7 @@ int CDataSourcePackage::AttachPipeSource(CTCLResult& rResult) {
   // Exceptions:
 
   std::cout << "Inside AttachPipeSource" << std::endl;
+  isOnline = true;
   
   if(gpRunControl->getRunning()) { // Analysis is active...
     rResult = "Analysis is active and must first be stopped";

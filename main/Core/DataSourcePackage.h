@@ -50,6 +50,8 @@ class CRingFormatCommand;
 class CTCLInterpreter;
 class CTCLResult;
 
+extern bool isOnline;
+
 //Class definition:
 class CDataSourcePackage : public CTCLCommandPackage {
  public:

@@ -59,6 +59,7 @@ class Sender
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
 
+  static std::vector<float> tmpBytes;
   static std::vector<size_t> threadBytes;
   static std::vector<size_t> threadItems;
   static std::vector<size_t> physicsItems;
@@ -67,7 +68,7 @@ class Sender
   static CRingFormatHelperFactory* m_pFactory;  
   //  static std::vector<CRingFormatHelperFactory> m_pFactory;
 
-  static void* sender_task(void *args);  
+  static void* sender_task(void *arg);  
   static void* worker_task(void *args);
 
   uint32_t*    pBuffer;

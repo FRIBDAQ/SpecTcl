@@ -77,7 +77,7 @@ CTKRunControl::Start()
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
   api->JoinThreads();
-
+  
   CRunControl::Start();		// Update the internal state variables.
 }
 //////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ CTKRunControl::OnEnd()
   CRunControl::OnEnd();
   Sender* snd = Sender::getInstance();
   
-  cerr << "End file encountered on Data Source\n";
+  cerr << "\nEnd file encountered on Data Source\n";
   try {				// May need this later when user scripts allowed
     // print out summary
     snd->finish();

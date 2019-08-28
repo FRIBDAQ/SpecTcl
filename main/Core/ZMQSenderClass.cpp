@@ -1,5 +1,8 @@
 #include <map>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <regex>
+#include <mutex>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -7,6 +10,7 @@
 #include <chrono>
 #include <buftypes.h>
 #include "DataFormat.h"
+#include "DataSourcePackage.h"
 #include "CRingBufferDecoder.h"
 #include "ZMQSenderClass.h"
 #include "SpecTcl.h"
@@ -34,10 +38,16 @@ CEventList Sender::m_eventList;
 double qnan = std::numeric_limits<double>::quiet_NaN();
 double stop_time, start_time, tdiff, etime;
 
+int old_percentage(0);
+long filesize(0);
+
 CTCLApplication* gpTCLApplication;
+
+std::mutex mtx;
 
 // statistics 
 static size_t bytesSent(0);
+std::vector<float> Sender::tmpBytes(NBR_WORKERS);
 std::vector<size_t> Sender::threadBytes(NBR_WORKERS);
 std::vector<size_t> Sender::threadItems(NBR_WORKERS);
 std::vector<size_t> Sender::physicsItems(NBR_WORKERS);
@@ -68,12 +78,14 @@ typedef struct _HistoEvent {
 void
 Sender::ResizeAll()
 {
+  tmpBytes.resize(NBR_WORKERS);  
   threadBytes.resize(NBR_WORKERS);
   threadItems.resize(NBR_WORKERS);
   physicsItems.resize(NBR_WORKERS);
   entityItems.resize(NBR_WORKERS);
 
   for (int i=0; i<NBR_WORKERS; ++i){
+    tmpBytes[i] = 0;
     threadBytes[i] = 0;
     threadItems[i] = 0;
     physicsItems[i] = 0;
@@ -367,12 +379,14 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     switch (type) {
     case BEGIN_RUN:
       {
+	/*
 	m_pRunState->Set("Active");
 	physicsItems[thread] = 0;
 	m_title        = pHelper->getTitle(pItem);
 	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
-	Sender::SetVariable(*m_pRunNumber, m_runNumber);
+	//	Sender::SetVariable(*m_pRunNumber, m_runNumber);
 	m_pRunTitle->Set(m_title.c_str());
+	*/
       }
       break;
     case END_RUN:
@@ -473,21 +487,23 @@ Sender::histoData(long thread, Vpairs& vec)
   pHEvent->tclEvent.proc = Sender::HistogramHandler;
   pHEvent->histoList     = &vec;
 
-  Tcl_ThreadQueueEvent(tid,
-		       reinterpret_cast<Tcl_Event*>(pHEvent),
-		       TCL_QUEUE_TAIL);
-
+  //  Tcl_ThreadQueueEvent(tid,
+  //		       reinterpret_cast<Tcl_Event*>(pHEvent),
+  //		       TCL_QUEUE_TAIL);
 }
 
 int
 Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
 {
+  std::cout << "Inside Sender::HistogramHandler" << std::endl;
+
+  /*
   pHistoEvent pEvent = reinterpret_cast<pHistoEvent>(evPtr);
   Vpairs* hlist = pEvent->histoList;
   
   SpecTcl *pApi = SpecTcl::getInstance();
   CHistogrammer* hist = pApi->GetHistogrammer();  
-  
+
   // convert Vpairs* to CEvent*
   unsigned int index, size;
   double value;
@@ -511,13 +527,44 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   }
   
   delete hlist;
-
+  */
+  
   while (Tcl_DoOneEvent(TCL_WINDOW_EVENTS | TCL_TIMER_EVENTS | TCL_DONT_WAIT | TCL_IDLE_EVENTS))
     ;
-  
+
   return 1; 
 }
 
+void
+show_progress_bar(std::ostream& os, float bytes, size_t items, std::string message, char symbol = '*')
+{
+  static const auto bar_length = 100;
+  // not including the percentage figure and spaces
+
+  if (message.length() >= bar_length) {
+    os << message << '\n';
+    message.clear();
+  } else {
+    message += " ";
+  }
+
+  double percentage = (bytes/filesize)*100;
+
+  if (isOnline){
+    std::cout << "\rPhysics Items analyzed: " << items << std::flush;
+  } else {
+    if (old_percentage != percentage){
+      for (int i=0; i<percentage; i++)
+	message += symbol;
+      old_percentage=percentage;
+    }
+  
+    os << "\r [" << std::setw(3) << static_cast<double>(percentage) << "%] "
+       << message << std::flush;
+  }
+  
+}
+  
 void *
 Sender::worker_task(void *args)
 {
@@ -525,16 +572,17 @@ Sender::worker_task(void *args)
   long* p = (long*)malloc(sizeof(long));
   *p = thread;
   pthread_setspecific(glob_var_key, p);
-
-  zmq::context_t context(1);
+  //  zmq::context_t context(1);
+  
   int linger(0);
   ////////////////////////////////////////////
   // ROUTER/DEALER PATTERN TO GET THE DATA
   ////////////////////////////////////////////  
-  zmq::socket_t worker(context, ZMQ_DEALER);
+  zmq::socket_t worker(*ThreadAPI::getInstance()->getContext(), ZMQ_DEALER);
   worker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
   std::string id1 = s_set_id(worker);          //  Set a printable identity
   worker.connect("tcp://localhost:5671");
+  //  worker.connect("inproc://workers");  
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
   int size = converter(c_size);
@@ -585,9 +633,22 @@ Sender::worker_task(void *args)
 
       nItems += pDescriptor->s_nItems;
       bytes  += pDescriptor->s_nBytes;
-
+      tmpBytes[thread] += pDescriptor->s_nBytes;
+      
       Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
+
+      // progress bar on terminal
+      float totBytes(0);
+      size_t totPhysItem(0);      
+      for (int i = 0; i < NBR_WORKERS; i++){ 
+	totBytes += tmpBytes[i];	
+	totPhysItem += physicsItems[i];
+      }
+      mtx.lock();
+      show_progress_bar(std::clog, totBytes, totPhysItem, "", '#');
       Sender::histoData(thread, *tmp);
+      mtx.unlock();
+
       
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -602,7 +663,7 @@ Sender::worker_task(void *args)
 
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
-    
+
   worker.close();
   return NULL;
   
@@ -691,6 +752,7 @@ Sender::finish()
     totalItems += threadItems[i];
     totalPhysicsItems += physicsItems[i];
     totalEntityItems += entityItems[i];
+    tmpBytes[i] = 0;
     physicsItems[i] = 0;
     entityItems[i] = 0;
   }
@@ -705,7 +767,7 @@ Sender::finish()
   m_pElapsedTime->Set(std::to_string(etime).c_str());
   isStart = true;
   
-  if (debug)
+  //  if (debug)
     printStats();
   
   m_pRunState->Set("Halted");
@@ -723,19 +785,33 @@ Sender::SetVariable(CTCLVariable& rVar, int newval) {
   rVar.getInterpreter()->GlobalEval(Script);
 }
 
-void*
-Sender::sender_task(void* args)
+long
+FdGetFileSize(int fd)
 {
-  zmq::context_t context(1);
-  zmq::socket_t broker(context, ZMQ_ROUTER);
+  struct stat stat_buf;
+  int rc = fstat(fd, &stat_buf);
+  return rc == 0 ? stat_buf.st_size : -1;
+}
+
+void*
+Sender::sender_task(void* arg)
+{
+  // context
+  //  zmq::context_t context(1);
+  //  zmq::socket_t broker(context, ZMQ_ROUTER);
+  zmq::socket_t broker(*ThreadAPI::getInstance()->getContext(), ZMQ_ROUTER);  
+  
   int linger(0);
   broker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
 
   broker.bind("tcp://*:5671");
+  //  broker.bind("inproc://workers");  
 
   Sender* api = Sender::getInstance();
   int fd = api->getFd();
 
+  filesize = FdGetFileSize(fd);
+  
   CRingFileBlockReader reader(fd);  
   int workers_fired = 0;
   bool done = false;

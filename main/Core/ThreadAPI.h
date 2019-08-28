@@ -1,6 +1,7 @@
 #include "TCLApplication.h"
 #include <pthread.h>
 #include <iostream>
+#include <zmq.hpp>
 
 class ThreadAPI {
  public:
@@ -12,6 +13,7 @@ class ThreadAPI {
   void CreateThreads();
   void JoinThreads(); // Join sender+worker threads
   void SetTCLApp(CTCLApplication& app);
+  static zmq::context_t*  getContext();
   
  private:
   ThreadAPI(){}; 
@@ -24,5 +26,6 @@ class ThreadAPI {
   pthread_t* workers;
   
   static ThreadAPI* m_pInstance;
+  static zmq::context_t* m_pContextSingleton;
   CTCLApplication* m_app;
 };

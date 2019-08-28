@@ -1,8 +1,19 @@
 #include "ThreadAPI.h"
 #include "ZMQSenderClass.h"
 
+zmq::context_t* ThreadAPI::m_pContextSingleton(nullptr);
 ThreadAPI* ThreadAPI::m_pInstance = 0;
 pthread_key_t glob_var_key;
+
+zmq::context_t*
+ThreadAPI::getContext()
+{
+  if (!m_pContextSingleton) {
+        m_pContextSingleton =
+	  new zmq::context_t(1);
+  }
+  return m_pContextSingleton;
+}
 
 ThreadAPI*
 ThreadAPI::getInstance()
@@ -17,7 +28,6 @@ void
 ThreadAPI::SetNThreads(int nthreads)
 {
   NTHREADS = nthreads;
-
   workers = new pthread_t[NTHREADS];
 }
 
@@ -38,13 +48,12 @@ void
 ThreadAPI::CreateThreads()
 {
   pthread_key_create(&glob_var_key,NULL);
-  
   // Setup sender
-  //  std::cout << "Setting up sender..." << std::endl;
+  //  std::cout << "Setting up sender..." << std::endl; 
   pthread_create(&sender, nullptr, Sender::sender_task,  nullptr);
 
   // Setup worker
-  //  std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;
+  //  std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;  
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
     pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)(intptr_t)worker_nbr);
   }

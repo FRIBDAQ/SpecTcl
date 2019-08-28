@@ -39,7 +39,7 @@ namespace eval datasource {
     variable lastFilterFile {}
     variable actualSpecTclDaq {}
     variable lastring      $::tcl_platform(user)
-    variable clustersize   8192
+    variable clustersize   131072
     variable defaultFileBuffer [expr 128*1024];    # Better performance for files.
 }
 
@@ -672,7 +672,7 @@ snit::widget hostprompt {
 	-cgetmethod getRing
     option -okcommand      {}
     option -cancelcommand  {}
-    option -buffersize     8192
+    option -buffersize     131072
     option -datasize       {}
         
     delegate option -format to format
@@ -689,7 +689,7 @@ snit::widget hostprompt {
 	label $win.datasizelabel -text {Data chunk size:}
 	entry $win.datasize
 	
-        spinbox $win.buffersize -values {512 1024 2048 4096 8192 16384 32768 65536}
+        spinbox $win.buffersize -values {4096 8192 16384 32768 65536 131072 262144}
         label   $win.buflabel   -text {Buffer size in bytes: }
         $win.buffersize set $options(-buffersize)
     
@@ -834,7 +834,7 @@ snit::widget attachpipe {
     option -arguments     {}
     option -okcommand     {}
     option -cancelcommand {}
-    option -buffersize    8192
+    option -buffersize    131072
     
     delegate option -format to format
 
