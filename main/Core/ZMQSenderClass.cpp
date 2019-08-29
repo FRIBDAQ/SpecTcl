@@ -589,8 +589,8 @@ Sender::worker_task(void *args)
   zmq::socket_t worker(*ThreadAPI::getInstance()->getContext(), ZMQ_DEALER);
   worker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
   std::string id1 = s_set_id(worker);          //  Set a printable identity
-  worker.connect("tcp://localhost:5671");
-  //  worker.connect("inproc://workers");  
+  //  worker.connect("tcp://localhost:5671");
+  worker.connect("ipc://workers");  
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
   int size = converter(c_size);
@@ -654,10 +654,12 @@ Sender::worker_task(void *args)
 	totBytes += tmpBytes[i];	
 	totPhysItem += physicsItems[i];
       }
-      mtx.lock();
+      //      if (debug){
+      //	mtx.lock();
       show_progress_bar(std::clog, totBytes, totPhysItem, "", '#');
+      //	mtx.unlock();
+      //      }
       Sender::histoData(thread, *tmp);
-      mtx.unlock();
 
       
     } else {
@@ -778,7 +780,7 @@ Sender::finish()
   m_pElapsedTime->Set(std::to_string(etime).c_str());
   isStart = true;
   
-  //  if (debug)
+  if (debug)
     printStats();
   
   m_pRunState->Set("Halted");
@@ -815,8 +817,8 @@ Sender::sender_task(void* arg)
   int linger(0);
   broker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
 
-  broker.bind("tcp://*:5671");
-  //  broker.bind("inproc://workers");  
+  //  broker.bind("tcp://*:5671");
+  broker.bind("ipc://workers");  
 
   Sender* api = Sender::getInstance();
   int fd = api->getFd();
