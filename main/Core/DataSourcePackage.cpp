@@ -188,6 +188,8 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   // Returns:
   //     TCL_OK         - Success
   //     TCL_ERROR - Failure.
+  std::cout << "Inside AttachFileSource" << std::endl;
+
   if(gpRunControl->getRunning()) { // Analysis is active...
     rResult = "Analysis is active and must first be stopped";
     return TCL_ERROR;

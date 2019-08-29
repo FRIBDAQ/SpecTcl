@@ -65,11 +65,9 @@ void CRunControl::OnBuffer(UInt_t nBytes) {
   assert(m_pAnalyzer != (CAnalyzer*)kpNULL);
   assert(m_pEventSource != (CFile*)kpNULL);
 
-  // temporary hack for reading small amount of bytes
-  nBytes = 2048;
-  
   Char_t* pBuffer = new Char_t[nBytes];	// Create a buffer...
 
+  /*
   Int_t nRead = m_pEventSource->Read(pBuffer, nBytes);
   if(nRead > 0) {
     //    m_pAnalyzer->OnBuffer(nRead, pBuffer);
@@ -78,6 +76,7 @@ void CRunControl::OnBuffer(UInt_t nBytes) {
     OnEnd();		// Do Our end file handling.
     //    m_pAnalyzer->OnEndFile();
   }
+  */
   delete []pBuffer;
 }
 
