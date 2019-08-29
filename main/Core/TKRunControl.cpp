@@ -110,12 +110,8 @@ CTKRunControl::OnEnd()
   // in our case, we execute the script stored in m_sEndScript
 
   CRunControl::OnEnd();
-  Sender* snd = Sender::getInstance();
-  
-  cerr << "\nEnd file encountered on Data Source\n";
+  cerr << "End file encountered on Data Source\n";
   try {				// May need this later when user scripts allowed
-    // print out summary
-    snd->finish();
     m_pInterp->Eval(m_sEndScript);
   }
   catch(CTCLException& except) {

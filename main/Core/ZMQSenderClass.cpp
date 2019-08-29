@@ -46,6 +46,7 @@ CTCLApplication* gpTCLApplication;
 std::mutex mtx;
 
 // statistics 
+int* wDone;
 static size_t bytesSent(0);
 std::vector<float> Sender::tmpBytes(NBR_WORKERS);
 std::vector<size_t> Sender::threadBytes(NBR_WORKERS);
@@ -146,6 +147,8 @@ Sender::Sender()
   // Create event list
   pEventList = new CEventList[NBR_WORKERS];
 
+  wDone = new int[NBR_WORKERS];
+  
   // TCL Variables for GUI
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
@@ -233,6 +236,16 @@ int
 Sender::getFd()
 {
   return m_nFd;
+}
+
+int
+Sender::workDone()
+{
+  int sum = 0;
+  for (int i=0; i<NBR_WORKERS; i++)
+    sum += wDone[i];
+
+  return sum;
 }
 
 void
@@ -562,7 +575,6 @@ show_progress_bar(std::ostream& os, float bytes, size_t items, std::string messa
     os << "\r [" << std::setw(3) << static_cast<double>(percentage) << "%] "
        << message << std::flush;
   }
-  
 }
   
 void *
@@ -592,6 +604,8 @@ Sender::worker_task(void *args)
     CHUNK_SIZE = size;
     std::cout << "Inside worker_task CHUNK_SIZE after " << CHUNK_SIZE << std::endl;    
   }
+
+  wDone[thread]= -99;
   
   std::stringstream ChunkSize;
   ChunkSize << CHUNK_SIZE;
@@ -664,6 +678,7 @@ Sender::worker_task(void *args)
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
 
+  wDone[thread] = 0;
   worker.close();
   return NULL;
   
@@ -762,7 +777,7 @@ Sender::finish()
   stop_time = clock();
   tdiff = stop_time-start_time;
   etime += tdiff;
-  printf("Running time %lf\n", tdiff);
+  printf("\nRunning time %lf\n", tdiff);
   printf("Elapsed time %lf\n", etime);  
   m_pElapsedTime->Set(std::to_string(etime).c_str());
   isStart = true;
@@ -834,13 +849,13 @@ Sender::sender_task(void* arg)
 
 	++workers_fired;
 	if (workers_fired == NBR_WORKERS) {
-	  break;
+	    break;
 	}
       }
     } else {
       sendEOF(broker, identity);
       if (++workers_fired == NBR_WORKERS){
-	break;
+	  break;
       }
     }
   }

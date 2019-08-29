@@ -84,6 +84,7 @@ class Sender
   
   void printStats();
   void finish();
+  static int workDone();
   
   static CEventList m_eventPool;
   static CEventList m_eventList;    

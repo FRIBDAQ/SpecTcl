@@ -39,6 +39,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tcl.h>
 #include <tk.h>
 #include <stdio.h>
+#include "ZMQSenderClass.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -103,7 +104,21 @@ CTCLRunFileHandler::operator()()
     ;
 
   // Process data from the file.
+  try {
+    if(Sender::getInstance()){
+      if (Sender::getInstance()->workDone() == 0) {
+	Sender::getInstance()->finish();
+	m_pRun->OnEnd();
+      }
+      else {
+	Set();
+      }
+    }
+  }
+  catch (...) {}
+  
 
+  /*
   const CFile* pSource = m_pRun->getEventSource();
   if(pSource->IsReadable(nWaitTime)) {
     m_pRun->OnBuffer(m_nBufferSize); // If a buffer is available process else.
@@ -111,5 +126,5 @@ CTCLRunFileHandler::operator()()
   else {
     Set();			// Repropagate.
   }
-
+  */
 }
