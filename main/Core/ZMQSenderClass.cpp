@@ -500,17 +500,14 @@ Sender::histoData(long thread, Vpairs& vec)
   pHEvent->tclEvent.proc = Sender::HistogramHandler;
   pHEvent->histoList     = &vec;
 
-  //  Tcl_ThreadQueueEvent(tid,
-  //		       reinterpret_cast<Tcl_Event*>(pHEvent),
-  //		       TCL_QUEUE_TAIL);
+  Tcl_ThreadQueueEvent(tid,
+  		       reinterpret_cast<Tcl_Event*>(pHEvent),
+		       TCL_QUEUE_TAIL);
 }
 
 int
 Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
 {
-  std::cout << "Inside Sender::HistogramHandler" << std::endl;
-
-  /*
   pHistoEvent pEvent = reinterpret_cast<pHistoEvent>(evPtr);
   Vpairs* hlist = pEvent->histoList;
   
@@ -540,7 +537,6 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   }
   
   delete hlist;
-  */
   
   while (Tcl_DoOneEvent(TCL_WINDOW_EVENTS | TCL_TIMER_EVENTS | TCL_DONT_WAIT | TCL_IDLE_EVENTS))
     ;

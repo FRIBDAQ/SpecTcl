@@ -73,7 +73,6 @@ CTKRunControl::Start()
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
 
-  /*
   // Let's set the file descriptor to start all the threads
   Sender* snd = Sender::getInstance();
   snd->setFd(getEventSource()->getFd());
@@ -82,7 +81,7 @@ CTKRunControl::Start()
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
   api->JoinThreads();
-  */
+
 }
 //////////////////////////////////////////////////////////////////////////
 //

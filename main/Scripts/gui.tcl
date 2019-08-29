@@ -305,7 +305,15 @@ button .startstop -textvariable StartButtonText -command StartStop
 # end obsolete stuff
 ###########################
 
-proc toggleTheButton {w cmd cmd2} {
+proc toggleTheButton {w cmd} {
+    global RunState
+    $cmd
+    if { $RunState } {
+	$w configure -background {tomato}
+    } 
+}
+
+proc toggleTheButton2 {w cmd cmd2} {
     global RunState
     $cmd
     $cmd2
@@ -425,7 +433,7 @@ set savePath .treegui.notebook.spectra.topmost.fileio.save
 button .clearall -background {gold} -text "Clear" -command {clear -all}
 button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
 button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
-button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl onlineSize attachOnline]
+button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton2 .attonl onlineSize attachOnline]
 button .attfile -background {DarkOliveGreen2} -text "Attach to file" -command [list toggleTheButton .attfile attachFile]
 button .attfilelist -background {DarkOliveGreen2} -text "Attach list of files" -command [list toggleTheButton .attfilelist attachRunList]
 button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -command [list toggleTheButton .attfilefilt attachFilter]
