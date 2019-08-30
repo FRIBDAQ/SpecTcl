@@ -69,7 +69,7 @@ namespace eval GuiPrefs {
 set GuiPrefs::preferences(defaultXChannels)   1024
 set GuiPrefs::preferences(defaultYChannels)   1024
 set GuiPrefs::preferences(defaultDaqRoot)    $::daqdefs::daqroot
-set GuiPrefs::preferences(defaultBuffersize)  8192
+set GuiPrefs::preferences(defaultBuffersize)  524288
 
 
 

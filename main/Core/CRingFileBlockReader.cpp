@@ -119,10 +119,11 @@ CRingFileBlockReader::read(size_t nBytes)
     ssize_t nRead = readBlock(m_nFd, pNextBytes, numToRead);
     if (nRead < 0) {
       if ((errno != EINTR ) && (errno != EAGAIN)) {
-        throw std::system_error(
-				std::make_error_code(static_cast<std::errc>(errno)),
-          "Reading a block of data."
-				);
+	// Fix this for anything BUT /dev/null (giordano)
+	//        throw std::system_error(
+	//				std::make_error_code(static_cast<std::errc>(errno)),
+	//				"Reading a block of data."
+	//				);
       } else {
         continue;                  // do the next loop pass.
       }

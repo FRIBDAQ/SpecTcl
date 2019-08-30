@@ -69,6 +69,8 @@ CTKRunControl::Start()
   // Exceptions:
   
   std::cout << "Inside CTKRunControl::Start" << std::endl;
+  Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
+  std::cout << "Tcl_ThreadId " << tid << std::endl;
   
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
@@ -80,7 +82,7 @@ CTKRunControl::Start()
   ThreadAPI* api = ThreadAPI::getInstance();
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
-  api->JoinThreads();
+  //  api->JoinThreads();
 
 }
 //////////////////////////////////////////////////////////////////////////

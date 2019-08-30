@@ -397,7 +397,7 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
 	physicsItems[thread] = 0;
 	m_title        = pHelper->getTitle(pItem);
 	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
-	//	Sender::SetVariable(*m_pRunNumber, m_runNumber);
+	Sender::SetVariable(*m_pRunNumber, m_runNumber);
 	m_pRunTitle->Set(m_title.c_str());
 	*/
       }
@@ -538,8 +538,8 @@ Sender::HistogramHandler(Tcl_Event* evPtr, int flags)
   
   delete hlist;
   
-  while (Tcl_DoOneEvent(TCL_WINDOW_EVENTS | TCL_TIMER_EVENTS | TCL_DONT_WAIT | TCL_IDLE_EVENTS))
-    ;
+  //  while (Tcl_DoOneEvent(TCL_WINDOW_EVENTS | TCL_TIMER_EVENTS | TCL_DONT_WAIT | TCL_IDLE_EVENTS))
+  //    ;
 
   return 1; 
 }
@@ -589,8 +589,8 @@ Sender::worker_task(void *args)
   zmq::socket_t worker(*ThreadAPI::getInstance()->getContext(), ZMQ_DEALER);
   worker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
   std::string id1 = s_set_id(worker);          //  Set a printable identity
-  //  worker.connect("tcp://localhost:5671");
-  worker.connect("ipc://workers");  
+  worker.connect("tcp://localhost:5671");
+  //  worker.connect("inproc://workers");  
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
   int size = converter(c_size);
@@ -655,9 +655,9 @@ Sender::worker_task(void *args)
 	totPhysItem += physicsItems[i];
       }
       //      if (debug){
-      //	mtx.lock();
+      mtx.lock();
       show_progress_bar(std::clog, totBytes, totPhysItem, "", '#');
-      //	mtx.unlock();
+      mtx.unlock();
       //      }
       Sender::histoData(thread, *tmp);
 
@@ -677,6 +677,9 @@ Sender::worker_task(void *args)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
 
   wDone[thread] = 0;
+
+  //  std::cout << "Worker " << thread << " is done" << std::endl;
+  
   worker.close();
   return NULL;
   
@@ -817,8 +820,8 @@ Sender::sender_task(void* arg)
   int linger(0);
   broker.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
 
-  //  broker.bind("tcp://*:5671");
-  broker.bind("ipc://workers");  
+  broker.bind("tcp://*:5671");
+  //  broker.bind("inproc://workers");  
 
   Sender* api = Sender::getInstance();
   int fd = api->getFd();

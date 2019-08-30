@@ -195,9 +195,7 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
     return TCL_ERROR;
   }
 
-  // Disconnect the current event source and connect the new one.
-
-  
+  // Disconnect the current event source and connect the new one.  
   CFile* pNew   = new CDiskFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);

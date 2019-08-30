@@ -689,7 +689,7 @@ snit::widget hostprompt {
 	label $win.datasizelabel -text {Data chunk size:}
 	entry $win.datasize
 	
-        spinbox $win.buffersize -values {4096 8192 16384 32768 65536 131072 262144}
+        spinbox $win.buffersize -values {16384 32768 65536 131072 262144 524288 1048576}
         label   $win.buflabel   -text {Buffer size in bytes: }
         $win.buffersize set $options(-buffersize)
     

@@ -40,13 +40,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tk.h>
 #include <stdio.h>
 #include "ZMQSenderClass.h"
+#include "ThreadAPI.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
-
-
+ThreadAPI* api = ThreadAPI::getInstance();
 const UInt_t knWaitTime = 500; // default Ms to wait for file to be readable.
 ULong_t        nWaitTime(knWaitTime);
 
@@ -107,6 +107,7 @@ CTCLRunFileHandler::operator()()
   try {
     if(Sender::getInstance()){
       if (Sender::getInstance()->workDone() == 0) {
+	api->JoinThreads();
 	Sender::getInstance()->finish();
 	m_pRun->OnEnd();
       }

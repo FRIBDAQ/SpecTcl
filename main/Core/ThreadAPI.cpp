@@ -63,6 +63,7 @@ ThreadAPI::CreateThreads()
 void
 ThreadAPI::JoinThreads()
 {
+  std::cout << "\nJoining threads" << std::endl;
   for (int worker_nbr = 0; worker_nbr < NBR_WORKERS; ++worker_nbr) {
     pthread_join(workers[worker_nbr], NULL);
   }
