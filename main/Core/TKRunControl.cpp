@@ -68,9 +68,7 @@ CTKRunControl::Start()
   // Starts analyzing data.
   // Exceptions:
   
-  std::cout << "Inside CTKRunControl::Start" << std::endl;
   Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
-  std::cout << "Tcl_ThreadId " << tid << std::endl;
   
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
@@ -115,7 +113,7 @@ CTKRunControl::OnEnd()
   // in our case, we execute the script stored in m_sEndScript
 
   CRunControl::OnEnd();
-  cerr << "End file encountered on Data Source\n";
+  cerr << "End encountered on Data Source\n";
   try {				// May need this later when user scripts allowed
     m_pInterp->Eval(m_sEndScript);
   }

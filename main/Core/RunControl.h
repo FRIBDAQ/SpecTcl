@@ -112,7 +112,6 @@ class CRunControl {
   // Public interface:
  public:
   virtual void Start() {
-    std::cout << "Inside RunControl::Start" << std::endl;
     m_fRunning = kfTRUE;
   }
 

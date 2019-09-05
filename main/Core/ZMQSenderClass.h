@@ -82,6 +82,21 @@ class Sender
   static double clock();
   static int converter(const char* s);
   
+  static inline uint64_t hrDiff(const timespec& end, const timespec& start)
+  {
+    timespec temp;
+    if ((end.tv_nsec-start.tv_nsec)<0) {
+      temp.tv_sec = end.tv_sec-start.tv_sec-1;
+      temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+    } else {
+      temp.tv_sec = end.tv_sec-start.tv_sec;
+      temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+    }
+    return (uint64_t)((temp.tv_sec * 1.0e9) + temp.tv_nsec);
+  }
+  static void show_progress_bar(std::ostream& os, float bytes, size_t items, std::string message, char symbol);
+  
+  
   void printStats();
   void finish();
   static int workDone();

@@ -143,8 +143,8 @@ CRingFileBlockReader::read(size_t nBytes)
       assert(nRead >= sizeof(uint32_t));
       
       if (*pFront > nBytes) {
-	std::cout << "Ring item size " << *pFront << " > buffer size " << nBytes << std::endl;
-        throw std::logic_error("Buffer size is too small for a ring item");
+	//	std::cout << "Ring item size " << *pFront << " > buffer size " << nBytes << std::endl;
+	//        throw std::logic_error("Buffer size is too small for a ring item");
       }
       if ((pNextBytes - pFirstByte) >= *pFront) {  // we have at least a ring item.
         uint32_t* p     = pFront;
