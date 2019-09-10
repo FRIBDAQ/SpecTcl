@@ -127,13 +127,9 @@ Sender::Sender()
   if (debug)
     std::cout << "Original NBR_WORKERS " << NBR_WORKERS << std::endl;
   int nthreads = CTclGrammerApp::getInstance()->getNthreads();
-  //  std::cout << "CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
-  //  std::cout << "const char* c_size: " << c_size << std::endl;
   int size = converter(c_size);
-  //  std::cout << "int size: " << size << std::endl;  
   CHUNK_SIZE = size;
-  //  std::cout << "CHUNK_SIZE: " << CHUNK_SIZE << std::endl;  
   
   if (debug)
     std::cout << "Number of threads requested via SpecTclInit.tcl " << nthreads << std::endl;
@@ -186,7 +182,6 @@ Sender::CreateEvent()
   CEvent* pEvent;
   if(rVec.empty()) {
     pEvent =  new CEvent(m_nParametersInEvent);
-    
   } else {
     pEvent = rVec.back();
     rVec.pop_back();
@@ -396,14 +391,14 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
     switch (type) {
     case BEGIN_RUN:
       {
-	/*
-	m_pRunState->Set("Active");
-	physicsItems[thread] = 0;
-	m_title        = pHelper->getTitle(pItem);
-	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
-	Sender::SetVariable(*m_pRunNumber, m_runNumber);
-	m_pRunTitle->Set(m_title.c_str());
-	*/
+	if (!isOnline){
+	  m_pRunState->Set("Active");
+	  physicsItems[thread] = 0;
+	  m_title        = pHelper->getTitle(pItem);
+	  m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
+	  Sender::SetVariable(*m_pRunNumber, m_runNumber);
+	  m_pRunTitle->Set(m_title.c_str());
+	}
       }
       break;
     case END_RUN:
@@ -459,6 +454,7 @@ Sender::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor desc
   }
 
   delete m_factory;
+  delete pHelper;
   delete m_translator;
   delete pipecopy;
   delete pAnalyzer;
@@ -573,6 +569,9 @@ Sender::show_progress_bar(std::ostream& os, float bytes, size_t items, std::stri
   uint64_t nsDiff = Sender::hrDiff(tcheck, start);
   double rate = (double)(items)/(nsDiff) * 1.0e9;
   double rate_bytes = (double)(bytes)/(nsDiff) * 1.0e9;
+
+  Sender::SetVariable(*m_pBuffersAnalyzed, items);
+  m_pElapsedTime->Set(std::to_string(nsDiff*1.0e-09).c_str());
 
   if (isOnline){
     std::cout << "\rPhysics Items analyzed -> " << rate_bytes/1.0e6 << " Mb/s" << std::flush;
