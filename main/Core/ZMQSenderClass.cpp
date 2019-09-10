@@ -37,7 +37,6 @@ CEventList Sender::m_eventPool;
 CEventList Sender::m_eventList;
 
 double qnan = std::numeric_limits<double>::quiet_NaN();
-double stop_time, start_time, tdiff, etime;
 
 int old_percentage(0);
 long filesize(0);
@@ -47,6 +46,7 @@ CTCLApplication* gpTCLApplication;
 std::mutex mtx;
 float totBytes(0);
 size_t totPhysItem(0);      
+uint64_t etime;
 timespec start, stop, tcheck;
 
 // statistics 
@@ -257,7 +257,7 @@ Sender::createTranslator(uint32_t* pBuffer)
 {
   pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
-  //  delete m_pTranslator;
+  delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(pBuffer);
   }
@@ -583,7 +583,7 @@ Sender::show_progress_bar(std::ostream& os, float bytes, size_t items, std::stri
       old_percentage=percentage;
     }
   
-    os << "\r " << "[" << std::setw(3) << static_cast<int>(percentage) << "%] "
+    os << "\r " << "[" << std::setw(4) << static_cast<int>(percentage) << "%] "
        << message << std::flush;
   }
 
@@ -640,7 +640,6 @@ Sender::worker_task(void *args)
     std::string type = s_recv(worker);
 
     if (isStart){
-      start_time = Sender::clock();
       clock_gettime(CLOCK_REALTIME, &start);
       isStart = false;
     }
@@ -663,24 +662,7 @@ Sender::worker_task(void *args)
       tmpBytes[thread] += pDescriptor->s_nBytes;
 
       Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
-
-      // progress bar on terminal
-      /*
-      totBytes = 0;
-      totPhysItem = 0;
-      for (int i = 0; i < NBR_WORKERS; i++){ 
-	totBytes += tmpBytes[i];	
-	totPhysItem += physicsItems[i];
-      }
-      //      if (debug){
-      mtx.lock();
-      show_progress_bar(std::clog, totBytes, totPhysItem, "", '#');
-      mtx.unlock();
-      //      }
-      */
-      
       Sender::histoData(thread, *tmp);
-
      
     } else {
       std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
@@ -698,21 +680,6 @@ Sender::worker_task(void *args)
 
   wDone[thread] = 0;
 
-  /*
-  float totBytes(0);
-  size_t totPhysItem(0);      
-  for (int i = 0; i < NBR_WORKERS; i++){ 
-    totBytes += tmpBytes[i];	
-    totPhysItem += physicsItems[i];
-  }
-  //      if (debug){
-  mtx.lock();
-  show_progress_bar(std::clog, totBytes, totPhysItem, "", '#');
-  mtx.unlock();
-  */
-  
-  //  std::cout << "Worker " << thread << " is done" << std::endl;
-  
   worker.close();
   return NULL;
   
@@ -788,13 +755,13 @@ Sender::printStats()
   std::cout << "Physics Items " << totalPhysicsItems << std::endl;
   std::cout << "Entity Items " << totalEntityItems << std::endl;  
   
-  printf("Elapsed time %lf\n", tdiff);
-  
 }
 
 void
 Sender::finish()
 {
+  clock_gettime(CLOCK_REALTIME, &stop);
+
   isDone = true;
   for (int i = 0; i < NBR_WORKERS; i++) {
     totalBytes += threadBytes[i];
@@ -808,17 +775,14 @@ Sender::finish()
 
   Sender::SetVariable(*m_pBuffersAnalyzed, totalPhysicsItems);
 
-  stop_time = clock();
-  tdiff = stop_time-start_time;
-  etime += tdiff;
-  std::cout << "\n### Summary ###" << std::endl;
-  printf("Running time %lf\n", tdiff);
-  printf("Elapsed time %lf\n", etime);
-  clock_gettime(CLOCK_REALTIME, &stop);
   uint64_t totT = Sender::hrDiff(stop, start);
+  etime += totT;
+  std::cout << "\n### Summary ###" << std::endl;
+  std::cout << "Running time " << totT*1.0e-09 << " s" << std::endl;
+  std::cout << "Elapsed time " << etime*1.0e-09 << " s" << std::endl;
   double rate_bytes = (double)(totalBytes)/(totT) * 1.0e3;
   printf("Average Mb/s %lf\n", rate_bytes);    
-  m_pElapsedTime->Set(std::to_string(etime).c_str());
+  m_pElapsedTime->Set(std::to_string(etime*1.0e-09).c_str());
   isStart = true;
   totalBytes = 0;
   
