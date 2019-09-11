@@ -71,6 +71,16 @@ ThreadAPI::JoinThreads()
 }
 
 void
+ThreadAPI::DetachThreads()
+{
+  std::cout << "\nDetaching threads" << std::endl;
+  for (int worker_nbr = 0; worker_nbr < NBR_WORKERS; ++worker_nbr) {
+    pthread_detach(workers[worker_nbr]);
+  }
+  pthread_detach(sender);
+}
+
+void
 ThreadAPI::Destroy()
 {
   delete []workers;

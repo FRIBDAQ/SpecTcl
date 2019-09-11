@@ -12,6 +12,7 @@ class ThreadAPI {
   int GetNThreads();
   void CreateThreads();
   void JoinThreads(); // Join sender+worker threads
+  void DetachThreads(); // Join sender+worker threads  
   void SetTCLApp(CTCLApplication& app);
   static zmq::context_t*  getContext();
   
