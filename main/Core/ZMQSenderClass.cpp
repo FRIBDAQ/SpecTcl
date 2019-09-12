@@ -43,7 +43,8 @@ long filesize(0);
 
 CTCLApplication* gpTCLApplication;
 
-std::mutex mtx;
+int thread_state = 0;
+
 float totBytes(0);
 size_t totPhysItem(0);      
 uint64_t etime;
@@ -591,7 +592,12 @@ Sender::show_progress_bar(std::ostream& os, float bytes, size_t items, std::stri
 void *
 Sender::worker_task(void *args)
 {
-  long thread = (long)(args);
+  struct arg_struct* a = (struct arg_struct*)(args); 
+
+  long thread = (long)a->thread_id;
+  int thread_state = a->thread_state;
+
+  //  long thread = (long)(args);
   long* p = (long*)malloc(sizeof(long));
   *p = thread;
   pthread_setspecific(glob_var_key, p);
@@ -664,7 +670,7 @@ Sender::worker_task(void *args)
       Sender::histoData(thread, *tmp);
      
     } else {
-      std::cerr << "Worker " << (long)args << " got a bad work item type " << type << std::endl;
+      std::cerr << "Worker " << thread << " got a bad work item type " << type << std::endl;
       break;
     }
   }
@@ -680,6 +686,7 @@ Sender::worker_task(void *args)
   wDone[thread] = 0;
 
   worker.close();
+
   return NULL;
   
 }

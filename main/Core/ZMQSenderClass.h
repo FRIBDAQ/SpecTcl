@@ -27,9 +27,15 @@ typedef std::vector<std::pair<unsigned int, double>> Vpairs;
 
 extern double start_time, stop_time;
 extern pthread_key_t glob_var_key;
+extern int thread_state;
 
 class CRingFormatHelper;
 class CRingFormatHelperFactory;
+
+struct arg_struct {
+  int thread_id;
+  int thread_state;
+};
 
 class Sender
 {

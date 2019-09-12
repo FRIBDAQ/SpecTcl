@@ -1,6 +1,8 @@
+#include <mutex>
 #include "ThreadAPI.h"
 #include "ZMQSenderClass.h"
 
+std::mutex mtx;
 zmq::context_t* ThreadAPI::m_pContextSingleton(nullptr);
 ThreadAPI* ThreadAPI::m_pInstance = 0;
 pthread_key_t glob_var_key;
@@ -54,8 +56,13 @@ ThreadAPI::CreateThreads()
 
   // Setup worker
   //  std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;  
+  struct arg_struct* args;
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
-    pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)(intptr_t)worker_nbr);
+    args = new struct arg_struct;
+    args->thread_id = worker_nbr;
+    args->thread_state = thread_state;
+    //    pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)(intptr_t)worker_nbr);
+    pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)args);    
   }
   //  std::cout << "...Done! " << std::endl;
 }
