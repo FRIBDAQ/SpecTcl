@@ -61,7 +61,7 @@ class Sender
   
   void setFd(int fd);
   int  getFd();  
-  static void setThreadState(int state); // 0: normal 1: exit thread
+  static void setThreadState(int state); // 0: running 1: abrupt exit mode 2: normal exit mode
   static int getThreadState();
   
   MapEventProcessors                 m_processors;

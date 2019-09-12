@@ -689,23 +689,23 @@ Sender::worker_task(void *args)
 	    break;
 	  }
 	}
-	break;
+	continue;
       case 1:
 	pthread_exit(0);
 	break;
       }
+    break;
   }
-  
+
   threadBytes[thread] = bytes;
   threadItems[thread]  = nItems;
-  
-  pthread_setspecific(glob_var_key, NULL);
-  free(p);
-  
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
   
   wDone[thread] = 0;
+  
+  pthread_setspecific(glob_var_key, NULL);
+  free(p);
   
   worker.close();
   
@@ -886,7 +886,7 @@ Sender::sender_task(void* arg)
     } else {
       sendEOF(broker, identity);
       if (++workers_fired == NBR_WORKERS){
-	  break;
+	break;
       }
     }
   }
