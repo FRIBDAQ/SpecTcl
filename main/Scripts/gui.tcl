@@ -334,7 +334,10 @@ proc UpdateButtons {name element op} {
 proc Exit {} {
     set answer [tk_messageBox -icon question -type yesno -title Exit \
 		    -message {Are you sure you want to exit SpecTcl?}]
-    if {$answer == "yes"} exit
+    if {$answer == "yes"} {
+	attach -closeThreads
+	exit
+    }
 }
 
 proc updateInfo nms {

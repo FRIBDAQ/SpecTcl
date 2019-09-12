@@ -603,17 +603,12 @@ Sender::show_progress_bar(std::ostream& os, float bytes, size_t items, std::stri
 void *
 Sender::worker_task(void *args)
 {
-  struct arg_struct* a = (struct arg_struct*)(args); 
+  //  struct arg_struct* a = (struct arg_struct*)(args); 
 
-  long thread = (long)a->thread_id;
-  int t_state = a->thread_state;
+  //  long thread = (long)a->thread_id;
+  //  int t_state = a->thread_state;
 
-  if (debug){
-    if (t_state == Sender::getThreadState())
-      std::cout << "Thread " << thread << " says: All good, ready to start!" << std::endl;
-  }
-    
-  //  long thread = (long)(args);
+  long thread = (long)(args);
   long* p = (long*)malloc(sizeof(long));
   *p = thread;
   pthread_setspecific(glob_var_key, p);
@@ -645,9 +640,9 @@ Sender::worker_task(void *args)
   size_t bytes = 0;
   size_t nItems = 0;
   int total = 0;
+
   while (1) {
-    
-    switch(Sender::getThreadState())
+    switch(Sender::getInstance()->getThreadState())
       {
       case 0:
 	{
@@ -700,7 +695,7 @@ Sender::worker_task(void *args)
 	break;
       }
   }
-
+  
   threadBytes[thread] = bytes;
   threadItems[thread]  = nItems;
   
