@@ -49,6 +49,8 @@ ThreadAPI::SetTCLApp(CTCLApplication& app)
 void
 ThreadAPI::CreateThreads()
 {
+  Sender* snd = Sender::getInstance();
+  
   pthread_key_create(&glob_var_key,NULL);
   // Setup sender
   //  std::cout << "Setting up sender..." << std::endl; 
@@ -60,7 +62,7 @@ ThreadAPI::CreateThreads()
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
     args = new struct arg_struct;
     args->thread_id = worker_nbr;
-    args->thread_state = thread_state;
+    args->thread_state = snd->getThreadState();
     //    pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)(intptr_t)worker_nbr);
     pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)args);    
   }

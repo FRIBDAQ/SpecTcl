@@ -29,6 +29,7 @@ bool isDone = false;
 bool debug = false;
 bool isStart = true;
 Sender* Sender::m_pInstance = 0;
+int Sender::m_threadState = 0;
 
 int NBR_WORKERS = 1;
 int CHUNK_SIZE  = 1024*512;
@@ -42,8 +43,6 @@ int old_percentage(0);
 long filesize(0);
 
 CTCLApplication* gpTCLApplication;
-
-int thread_state = 0;
 
 float totBytes(0);
 size_t totPhysItem(0);      
@@ -149,7 +148,7 @@ Sender::Sender()
   pEventList = new CEventList[NBR_WORKERS];
 
   wDone = new int[NBR_WORKERS];
-  
+
   // TCL Variables for GUI
   SpecTcl *pApi = SpecTcl::getInstance();
   CTCLInterpreter* rInterp = pApi->getInterpreter();
@@ -236,6 +235,18 @@ int
 Sender::getFd()
 {
   return m_nFd;
+}
+
+void
+Sender::setThreadState(int state)
+{
+  m_threadState = state;
+}
+
+int
+Sender::getThreadState()
+{
+  return m_threadState;
 }
 
 int
@@ -595,8 +606,13 @@ Sender::worker_task(void *args)
   struct arg_struct* a = (struct arg_struct*)(args); 
 
   long thread = (long)a->thread_id;
-  int thread_state = a->thread_state;
+  int t_state = a->thread_state;
 
+  if (debug){
+    if (t_state == Sender::getThreadState())
+      std::cout << "Thread " << thread << " says: All good, ready to start!" << std::endl;
+  }
+    
   //  long thread = (long)(args);
   long* p = (long*)malloc(sizeof(long));
   *p = thread;
@@ -630,65 +646,75 @@ Sender::worker_task(void *args)
   size_t nItems = 0;
   int total = 0;
   while (1) {
-
-    Vpairs* tmp = new Vpairs;
     
-    s_sendmore(worker, "");
-    s_sendmore(worker, "fetch");
-    s_send(worker, ChunkSize.str());                 // Size of workload
-
-    // Work items are in two types.  all start with delimetr and type.
-    // Type eof means we're done and need to clean up.
-    // type data means there's two more segments, the descriptor and the data.
-
-    s_recv(worker);                               // Delimeter.
-    std::string type = s_recv(worker);
-
-    if (isStart){
-      clock_gettime(CLOCK_REALTIME, &start);
-      isStart = false;
-    }
-      
-    if (type == "eof") {
-      break;
-    } else if (type == "data") {
-      zmq::message_t descriptor;
-      zmq::message_t bulkData;
-
-      worker.recv(&descriptor);
-      worker.recv(&bulkData);
-
-      void* pRingItems = bulkData.data();
-      CRingFileBlockReader::pDataDescriptor pDescriptor =
-	reinterpret_cast<CRingFileBlockReader::pDataDescriptor>(descriptor.data());
-
-      nItems += pDescriptor->s_nItems;
-      bytes  += pDescriptor->s_nBytes;
-      tmpBytes[thread] += pDescriptor->s_nBytes;
-
-      Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
-      Sender::histoData(thread, *tmp);
-     
-    } else {
-      std::cerr << "Worker " << thread << " got a bad work item type " << type << std::endl;
-      break;
-    }
+    switch(Sender::getThreadState())
+      {
+      case 0:
+	{
+	  Vpairs* tmp = new Vpairs;
+	  
+	  s_sendmore(worker, "");
+	  s_sendmore(worker, "fetch");
+	  s_send(worker, ChunkSize.str());                 // Size of workload
+	  
+	  // Work items are in two types.  all start with delimetr and type.
+	  // Type eof means we're done and need to clean up.
+	  // type data means there's two more segments, the descriptor and the data.
+	  
+	  s_recv(worker);                               // Delimeter.
+	  std::string type = s_recv(worker);
+	  
+	  if (isStart){
+	    clock_gettime(CLOCK_REALTIME, &start);
+	    isStart = false;
+	  }
+	  
+	  if (type == "eof") {
+	    break;
+	  } else if (type == "data") {
+	    zmq::message_t descriptor;
+	    zmq::message_t bulkData;
+	    
+	    worker.recv(&descriptor);
+	    worker.recv(&bulkData);
+	    
+	    void* pRingItems = bulkData.data();
+	    CRingFileBlockReader::pDataDescriptor pDescriptor =
+	      reinterpret_cast<CRingFileBlockReader::pDataDescriptor>(descriptor.data());
+	    
+	    nItems += pDescriptor->s_nItems;
+	    bytes  += pDescriptor->s_nBytes;
+	    tmpBytes[thread] += pDescriptor->s_nBytes;
+	    
+	    Sender::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
+	    Sender::histoData(thread, *tmp);
+	    
+	  } else {
+	    std::cerr << "Worker " << thread << " got a bad work item type " << type << std::endl;
+	    break;
+	  }
+	}
+	break;
+      case 1:
+	pthread_exit(0);
+	break;
+      }
   }
+
   threadBytes[thread] = bytes;
   threadItems[thread]  = nItems;
-
+  
   pthread_setspecific(glob_var_key, NULL);
   free(p);
-
+  
   if (debug)
     std::cout << "Thread " << thread << " threadBytes: " << threadBytes[thread]  << " threadItems: " << threadItems[thread] << std::endl;
-
-  wDone[thread] = 0;
-
-  worker.close();
-
-  return NULL;
   
+  wDone[thread] = 0;
+  
+  worker.close();
+  
+  return NULL;
 }
 
 void

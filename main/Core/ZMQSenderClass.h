@@ -27,7 +27,6 @@ typedef std::vector<std::pair<unsigned int, double>> Vpairs;
 
 extern double start_time, stop_time;
 extern pthread_key_t glob_var_key;
-extern int thread_state;
 
 class CRingFormatHelper;
 class CRingFormatHelperFactory;
@@ -52,15 +51,19 @@ class Sender
   static CTCLVariable* m_pRunState;
   static CTCLVariable* m_pElapsedTime;  
 
+  int m_nFd;  
+  static int m_threadState;  
+  
  public: 
 
   static Sender* getInstance();
   void ResizeAll();
   
-  int m_nFd;  
   void setFd(int fd);
   int  getFd();  
-
+  static void setThreadState(int state); // 0: normal 1: exit thread
+  static int getThreadState();
+  
   MapEventProcessors                 m_processors;
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
