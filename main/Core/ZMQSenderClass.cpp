@@ -264,7 +264,7 @@ Sender::createTranslator(uint32_t* pBuffer)
 {
   pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
-  delete m_pTranslator;
+  //  delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(pBuffer);
   }
@@ -626,11 +626,13 @@ Sender::worker_task(void *args)
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
   int size = converter(c_size);
-  
+
   if (CHUNK_SIZE != size){
-    std::cout << "Inside worker_task CHUNK_SIZE before " << CHUNK_SIZE << std::endl;
+    if (debug)
+      std::cout << "Inside worker_task CHUNK_SIZE before " << CHUNK_SIZE << std::endl;
     CHUNK_SIZE = size;
-    std::cout << "Inside worker_task CHUNK_SIZE after " << CHUNK_SIZE << std::endl;    
+    if (debug)
+      std::cout << "Inside worker_task CHUNK_SIZE after " << CHUNK_SIZE << std::endl;    
   }
 
   wDone[thread]= -99;
@@ -813,7 +815,7 @@ Sender::finish()
   isStart = true;
   totalBytes = 0;
   
-  if (debug)
+  //  if (debug)
     printStats();
   
   m_pRunState->Set("Halted");
