@@ -40,7 +40,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2019, Al
 #include "EventFormatError.h"
 #include "Globals.h"
 #include "ThreadAnalyzer.h"
-#include "ZMQSenderClass.h"
+#include "ZMQRDPatternClass.h"
 #include "EventProcessor.h"
 #include "SpecTcl.h"
 

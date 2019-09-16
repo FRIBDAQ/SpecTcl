@@ -7,7 +7,7 @@
 #include "Globals.h"
 //#include <TCLAnalyzer.h>
 #include <ThreadAnalyzer.h>
-#include <ZMQSenderClass.h>
+#include <ZMQRDPatternClass.h>
 
 #include <algorithm>
 #include <cstdint>

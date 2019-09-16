@@ -1,32 +1,58 @@
-#include "TCLApplication.h"
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2019.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Giordano Cerizza
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
 #include <pthread.h>
 #include <iostream>
 #include <zmq.hpp>
 
-class ThreadAPI {
- public:
-  static ThreadAPI* getInstance();
-  void Destroy();
+#include "TCLApplication.h"
 
-  void SetNThreads(int nthreads);  
-  int GetNThreads();
-  void CreateThreads();
-  void JoinThreads(); // Join sender+worker threads
-  void DetachThreads(); // Join sender+worker threads  
-  void SetTCLApp(CTCLApplication& app);
-  static zmq::context_t*  getContext();
-  
+class ThreadAPI {
+
  private:
+  // ctor, dtor for ThreadAPI
   ThreadAPI(){}; 
   ThreadAPI(ThreadAPI const&){}; 
   ThreadAPI& operator=(ThreadAPI const&){};
 
-  int NTHREADS;
+  int NTHREADS; // number of workers set in SpecTclInit.tcl
 
-  pthread_t sender;
-  pthread_t* workers;
-  
+  // Core of ThreadAPI
   static ThreadAPI* m_pInstance;
   static zmq::context_t* m_pContextSingleton;
+  
+  pthread_t sender;
+  pthread_t* workers;
+
   CTCLApplication* m_app;
+  
+ public:
+
+  // Public methods 
+  static ThreadAPI* getInstance();
+  static zmq::context_t*  getContext();
+  void SetTCLApp(CTCLApplication& app);
+
+  // Configuration of pthreads
+  void SetNThreads(int nthreads);  
+  int GetNThreads();
+  
+  void CreateThreads(); // Create sender+worker threads
+  void JoinThreads(); // Join sender+worker threads
+  void DetachThreads(); // Detach sender+worker threads  
+  void Destroy();
+
 };

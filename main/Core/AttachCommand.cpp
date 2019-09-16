@@ -71,7 +71,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
-#include "ZMQSenderClass.h"
+#include "ZMQRDPatternClass.h"
 bool toClose = false;
 
 // Class level members:
@@ -538,8 +538,8 @@ int CAttachCommand::CloseThreads(CTCLResult& rResult,
 				 const string& rName,
 				 long nBytes)
 {
-  Sender* snd = Sender::getInstance();
-  snd->setThreadState(1);
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->setThreadState(1);
   return TCL_OK;
 }  
 /*!

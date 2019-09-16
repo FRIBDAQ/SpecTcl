@@ -39,7 +39,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tcl.h>
 #include <tk.h>
 #include <stdio.h>
-#include "ZMQSenderClass.h"
+#include "ZMQRDPatternClass.h"
 #include "ThreadAPI.h"
 
 #ifdef HAVE_STD_NAMESPACE
@@ -105,10 +105,11 @@ CTCLRunFileHandler::operator()()
 
   // Process data from the file.
   try {
-    if(Sender::getInstance()){
-      if (Sender::getInstance()->workDone() == 0) {
+    if(ZMQRDClass::getInstance()){
+      if (ZMQRDClass::getInstance()->workDone() == 0) {
 	api->JoinThreads();
-	Sender::getInstance()->finish();
+	ZMQRDClass::getInstance()->finish();
+	api->Destroy();
 	m_pRun->OnEnd();
       }
       else {

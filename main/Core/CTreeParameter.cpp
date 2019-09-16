@@ -40,7 +40,7 @@
 #include  <SpecTcl.h>
 #include <iostream>
 
-#include "ZMQSenderClass.h"
+#include "ZMQRDPatternClass.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

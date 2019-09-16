@@ -40,7 +40,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tk.h>
 #include <iostream>
 
-#include "ZMQSenderClass.h"
+#include "ZMQRDPatternClass.h"
 #include "ThreadAPI.h"
 
 #ifdef HAVE_STD_NAMESPACE
@@ -74,13 +74,12 @@ CTKRunControl::Start()
   CRunControl::Start();		// Update the internal state variables.
 
   // Let's set the file descriptor to start all the threads
-  Sender* snd = Sender::getInstance();
-  snd->setFd(getEventSource()->getFd());
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->setFd(getEventSource()->getFd());
 
   ThreadAPI* api = ThreadAPI::getInstance();
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
-  //  api->JoinThreads();
 
 }
 //////////////////////////////////////////////////////////////////////////
