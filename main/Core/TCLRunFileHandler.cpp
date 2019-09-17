@@ -46,7 +46,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 using namespace std;
 #endif
 
-ThreadAPI* api = ThreadAPI::getInstance();
 const UInt_t knWaitTime = 500; // default Ms to wait for file to be readable.
 ULong_t        nWaitTime(knWaitTime);
 
@@ -107,9 +106,8 @@ CTCLRunFileHandler::operator()()
   try {
     if(ZMQRDClass::getInstance()){
       if (ZMQRDClass::getInstance()->workDone() == 0) {
-	api->JoinThreads();
+	ThreadAPI::getInstance()->JoinThreads();
 	ZMQRDClass::getInstance()->finish();
-	api->Destroy();
 	m_pRun->OnEnd();
       }
       else {

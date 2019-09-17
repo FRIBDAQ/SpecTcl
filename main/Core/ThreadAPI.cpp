@@ -22,7 +22,6 @@
 zmq::context_t* ThreadAPI::m_pContextSingleton(nullptr);
 ThreadAPI* ThreadAPI::m_pInstance = 0;
 
-std::mutex mtx;
 pthread_key_t glob_var_key;
 
 ThreadAPI*
