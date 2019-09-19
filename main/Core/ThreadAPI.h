@@ -55,4 +55,14 @@ class ThreadAPI {
   void DetachThreads(); // Detach sender+worker threads  
   void Destroy();
 
+  // Testing inproc
+  struct arg_thread {
+    int thread_id;
+    zmq::context_t* thread_ctx;
+  };
+  void Test1();
+  void Test2();
+  void Test3();
+  void Test4();      
+  
 };
