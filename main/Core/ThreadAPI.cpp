@@ -38,8 +38,8 @@ zmq::context_t*
 ThreadAPI::getContext()
 {
   if (!m_pContextSingleton) {
-        m_pContextSingleton =
-	  new zmq::context_t(1);
+    m_pContextSingleton =
+      new zmq::context_t(1);
   }
   return m_pContextSingleton;
 }
@@ -71,22 +71,19 @@ ThreadAPI::CreateThreads()
   // Creating sender task
   if (debug)
     std::cout << "Setting up sender..." << std::endl; 
-  pthread_create(&sender, nullptr, ZMQRDClass::sender_task,  nullptr);
+  pthread_create(&sender, nullptr, ZMQRDClass::sender_task,  (void*)ThreadAPI::getInstance()->getContext());
 
   // Creating worker tasks
   if (debug)
     std::cout << "Setting up " << NTHREADS << " workers..." << std::endl;  
-  // This is only for future reference - see below
-  //  struct arg_struct* args;
+  struct arg_struct* args;
   for (int worker_nbr = 0; worker_nbr < NTHREADS; ++worker_nbr) {
-    pthread_create(workers + worker_nbr, NULL, ZMQRDClass::worker_task, (void *)(intptr_t)worker_nbr);
-    // This is for future reference in case I need to pass more than one argument to the threads
-    /*
-      args = new struct arg_struct;
-      args->thread_id = worker_nbr;
-      args->thread_state = snd->getThreadState();
-      pthread_create(workers + worker_nbr, NULL, Sender::worker_task, (void *)args);    
-    */
+    //    pthread_create(workers + worker_nbr, NULL, ZMQRDClass::worker_task, (void *)(intptr_t)worker_nbr);
+    args = new struct arg_struct;
+    args->thread_id = worker_nbr;
+    args->thread_state = ZMQRDClass::getInstance()->getThreadState();
+    args->thread_ctx = ThreadAPI::getInstance()->getContext();
+    pthread_create(workers + worker_nbr, NULL, ZMQRDClass::worker_task, (void *)args);    
   }
   if (debug)
     std::cout << "...Done! " << std::endl;
@@ -125,6 +122,7 @@ ThreadAPI::Destroy()
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
+/*
 void *step1 (void *arg) {
 
   zmq::context_t * context = static_cast<zmq::context_t*>(arg);
@@ -162,7 +160,7 @@ void *step2 (void *arg) {
 }
 
 static void *
-worker_task(void *args)
+worker_task1(void *args)
 {
   zmq::context_t * context = static_cast<zmq::context_t*>(args);
 
@@ -220,7 +218,7 @@ worker_task2(void *args)
     s_recv(worker);     //  Envelope delimiter
     std::string workload = s_recv(worker);
     if ("Fired!" == workload) {
-      std::cout << "Completed: " << total << " tasks" << std::endl;
+      std::cout << "Thread " << thread << " completed: " << total << " tasks" << std::endl;
       break;
     }
     total++;
@@ -294,7 +292,7 @@ ThreadAPI::Test3()
 
   for (int worker_nbr = 0; worker_nbr < NBR_WORKERS; ++worker_nbr) {
     //    pthread_create(workers + worker_nbr, NULL, worker_task, (void *)(intptr_t)worker_nbr);
-    pthread_create(workers + worker_nbr, NULL, worker_task, (void *)&context);    
+    pthread_create(workers + worker_nbr, NULL, worker_task1, (void *)&context);    
   }
 
   
@@ -385,4 +383,4 @@ ThreadAPI::Test4()
 
   std::cout << "Test successful!" << std::endl;
 }
-
+*/

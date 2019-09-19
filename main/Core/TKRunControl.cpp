@@ -47,7 +47,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 using namespace std;
 #endif
 
-bool isTest = true;
+//bool isTest = false;
 
 //  Static member initializations:
 
@@ -70,20 +70,21 @@ CTKRunControl::Start()
   // Starts analyzing data.
   // Exceptions:
 
-  if (!isTest){
-    Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
-    
-    m_FileHandler.Set();
-    CRunControl::Start();		// Update the internal state variables.
-    
-    // Let's set the file descriptor before starting all the threads
-    ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
-    zmqAPI->setFd(getEventSource()->getFd());
-    
-    ThreadAPI* api = ThreadAPI::getInstance();
-    api->SetNThreads(NBR_WORKERS);
-    api->CreateThreads();
-  }
+  //  if (!isTest){
+  Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
+  
+  m_FileHandler.Set();
+  CRunControl::Start();		// Update the internal state variables.
+  
+  // Let's set the file descriptor before starting all the threads
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->setFd(getEventSource()->getFd());
+  
+  ThreadAPI* api = ThreadAPI::getInstance();
+  api->SetNThreads(NBR_WORKERS);
+  api->CreateThreads();
+  /*
+    }
   else {
     ThreadAPI* api = ThreadAPI::getInstance();
     //    api->Test1();
@@ -92,7 +93,7 @@ CTKRunControl::Start()
     api->Test4();    
     OnEnd();
   }
-  
+  */
 }
 //////////////////////////////////////////////////////////////////////////
 //

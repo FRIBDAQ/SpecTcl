@@ -56,6 +56,7 @@ class ThreadAPI {
   void Destroy();
 
   // Testing inproc
+  /*
   struct arg_thread {
     int thread_id;
     zmq::context_t* thread_ctx;
@@ -64,5 +65,5 @@ class ThreadAPI {
   void Test2();
   void Test3();
   void Test4();      
-  
+  */
 };
