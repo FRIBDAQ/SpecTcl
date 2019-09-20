@@ -346,6 +346,7 @@ proc updateInfo nms {
     global RunNumber
     global RunState
     global BuffersAnalyzed
+    global AverageRate
     global ElapsedTime
     global type
     global filename
@@ -375,6 +376,8 @@ proc updateInfo nms {
 	    [format "Run Number: %s " $RunNumber] 
 	.buffer.head configure -text \
 	    [format "Analyzed Buffers: %s " $BuffersAnalyzed]
+	.rate.head configure -text \
+	    [format "Avg. Rate (Mb/s): %s " $AverageRate]	
 	.time.head configure -text \
 	    [format "Elapsed Time (s): %s " $ElapsedTime]	
     }
@@ -417,6 +420,11 @@ frame .buffer
 label .buffer.head -text {Analyzed Buffers: } -background LightSteelBlue1 
 pack  .buffer.head -side left -expand 1
 
+# Create average rate frame
+frame .rate
+label .rate.head -text {Avg. Rate (Mb/s): } -background LightSteelBlue1 
+pack  .rate.head -side left -expand 1
+
 # Display elapsed time
 frame .time
 label .time.head -text {Elapsed Time: } -background LightSteelBlue1 
@@ -443,7 +451,7 @@ button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -co
 button .detach -background {plum3} -text "Detach" -command detach
 button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .time .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .rate .time .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons

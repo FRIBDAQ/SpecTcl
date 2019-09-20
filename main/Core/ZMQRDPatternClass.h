@@ -67,6 +67,7 @@ class ZMQRDClass
   static CTCLVariable* m_pRunNumber;
   static CTCLVariable* m_pRunTitle;
   static CTCLVariable* m_pRunState;
+  static CTCLVariable* m_pAverageRate;    
   static CTCLVariable* m_pElapsedTime;  
 
   int m_nFd;  

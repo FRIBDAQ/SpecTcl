@@ -78,6 +78,7 @@ CTCLVariable* ZMQRDClass::m_pBuffersAnalyzed;
 CTCLVariable* ZMQRDClass::m_pRunNumber;
 CTCLVariable* ZMQRDClass::m_pRunTitle;
 CTCLVariable* ZMQRDClass::m_pRunState;
+CTCLVariable* ZMQRDClass::m_pAverageRate;
 CTCLVariable* ZMQRDClass::m_pElapsedTime;
 
 size_t totalBytes(0);
@@ -182,6 +183,9 @@ ZMQRDClass::ZMQRDClass()
   m_pRunState = new CTCLVariable(rInterp, std::string("OnlineState"), kfFALSE);
   m_pRunState->Set(">>> Unknown <<<");
 
+  m_pAverageRate = new CTCLVariable(rInterp, std::string("AverageRate"), kfFALSE);
+  m_pAverageRate->Set("0");
+  
   m_pElapsedTime = new CTCLVariable(rInterp, std::string("ElapsedTime"), kfFALSE);
   m_pElapsedTime->Set("0");
 
@@ -601,6 +605,7 @@ ZMQRDClass::show_progress_bar(std::ostream& os, float bytes, size_t items, std::
   double rate_bytes = (double)(bytes)/(nsDiff) * 1.0e9;
 
   ZMQRDClass::SetVariable(*m_pBuffersAnalyzed, items);
+  m_pAverageRate->Set(std::to_string(rate_bytes*1.0e-06).c_str());  
   m_pElapsedTime->Set(std::to_string(nsDiff*1.0e-09).c_str());
 
   if (isOnline){
@@ -833,6 +838,7 @@ ZMQRDClass::finish()
   std::cout << "Elapsed time " << etime*1.0e-09 << " s" << std::endl;
   double rate_bytes = (double)(totalBytes)/(totT) * 1.0e3;
   printf("Average Mb/s %lf\n", rate_bytes);    
+  m_pAverageRate->Set(std::to_string(rate_bytes).c_str());  
   m_pElapsedTime->Set(std::to_string(etime*1.0e-09).c_str());
   isStart = true;
   
