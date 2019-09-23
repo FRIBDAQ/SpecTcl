@@ -285,7 +285,7 @@ ZMQRDClass::createTranslator(uint32_t* pBuffer)
 {
   pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
-  delete m_pTranslator;
+  //  delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(pBuffer);
   }
@@ -609,7 +609,8 @@ ZMQRDClass::show_progress_bar(std::ostream& os, float bytes, size_t items, std::
   m_pElapsedTime->Set(std::to_string(nsDiff*1.0e-09).c_str());
 
   if (isOnline){
-    std::cout << "\rPhysics Items analyzed -> " << rate_bytes/1.0e6 << " Mb/s" << std::flush;
+    if (debug)
+      std::cout << "\rPhysics Items analyzed -> " << rate_bytes/1.0e6 << " Mb/s" << std::flush;
   } else {
     if (old_percentage != percentage){
       for (int i=0; i<percentage; i++)
@@ -842,7 +843,7 @@ ZMQRDClass::finish()
   m_pElapsedTime->Set(std::to_string(etime*1.0e-09).c_str());
   isStart = true;
   
-  //  if (debug)
+  if (debug)
     printStats();
   totalBytes = 0;
   totalItems = 0;
