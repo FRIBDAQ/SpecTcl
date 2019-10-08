@@ -102,7 +102,7 @@ CRingFileBlockReader::read(size_t nBytes)
   // IF there's a partial item copy it in to the buffer and figure out
   // where we need to append data and how much of a read we have left.
   
-  int numToRead = nBytes;           // Will be the remaining buffer size.
+  size_t numToRead = nBytes;           // Will be the remaining buffer size.
   uint8_t* pNextBytes = static_cast<uint8_t*>(result.s_pData); // read here.
   uint8_t* pFirstByte = pNextBytes; // For distance calculations.
   uint32_t* pFront    = reinterpret_cast<uint32_t*>(pFirstByte); // For size.

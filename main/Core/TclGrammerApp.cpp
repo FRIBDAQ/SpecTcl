@@ -483,7 +483,7 @@ void CTclGrammerApp::SetLimits() {
 
   // By this time the initial RC files have been run.
   UpdateUInt(m_TclnProcs,   m_nProcs);
-  UpdateUInt(m_TclDataChunk,   m_nChunk);  
+  UpdateULong(m_TclDataChunk,   m_nChunk);  
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
@@ -1006,11 +1006,30 @@ CTCLInterpreter* CTclGrammerApp::getInterpreter() {
 // Operation Type:
 //   Utility.
 void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
-  int nResult;
+  unsigned nResult;
 
   const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));
   if(pValue) {
-    if(sscanf(pValue, "%d", &nResult) > 0) {
+    if(sscanf(pValue, "%ud", &nResult) > 0) {
+      rValue = nResult;
+    }
+    else {			// Value not unsigned complain and no update
+      cerr << "The value of the Tcl variable " << rVar.getVariableName();
+      cerr << " is " << pValue;
+      cerr << " which does not decode to an unsigned int.\n";
+      cerr << "SpecTcl will ignore this value and use its internal default.\n";
+      cerr.flush();
+    }
+  }
+  // No update.
+}
+
+void CTclGrammerApp::UpdateULong(CTCLVariable& rVar, uint64_t& rValue) {
+  uint64_t nResult;
+
+  const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));
+  if(pValue) {
+    if(sscanf(pValue, "%uld", &nResult) > 0) {
       rValue = nResult;
     }
     else {			// Value not unsigned complain and no update

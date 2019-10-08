@@ -107,7 +107,7 @@ class ZMQRDClass
   static void histoData(long thread, Vpairs& vec);
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
   static double clock();
-  static int converter(const char* s);
+  static uint64_t converter(const char* s);
   
   static inline uint64_t hrDiff(const timespec& end, const timespec& start)
   {

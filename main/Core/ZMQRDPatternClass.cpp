@@ -48,7 +48,7 @@ ZMQRDClass* ZMQRDClass::m_pInstance = 0;
 int ZMQRDClass::m_threadState = 0;
 
 int NBR_WORKERS = 1;
-int CHUNK_SIZE  = 1024*512;
+uint64_t CHUNK_SIZE  = 1024*512;
 UInt_t m_nParametersInEvent = 512;
 CEventList ZMQRDClass::m_eventPool;
 CEventList ZMQRDClass::m_eventList;
@@ -56,7 +56,7 @@ CEventList ZMQRDClass::m_eventList;
 double qnan = std::numeric_limits<double>::quiet_NaN();
 
 int old_percentage(0);
-long filesize(0);
+uint64_t filesize(0);
 
 CTCLApplication* gpTCLApplication;
 
@@ -117,7 +117,7 @@ ZMQRDClass::ResizeAll()
   
 }
 
-int
+uint64_t
 ZMQRDClass::converter(const char* s)
 {
   std::string ss = s;
@@ -126,10 +126,10 @@ ZMQRDClass::converter(const char* s)
   std::sregex_iterator iter(ss.begin(), ss.end(), e);
   std::sregex_iterator end;
 
-  int value = 1;
+  uint64_t value = 1;
   while(iter != end)
     {
-      for(unsigned i = 0; i < iter->size(); ++i)
+      for(uint64_t i = 0; i < iter->size(); ++i)
 	{
 	  value *= std::stoi((*iter)[i]);
 	}
@@ -146,7 +146,7 @@ ZMQRDClass::ZMQRDClass()
     std::cout << "Original NBR_WORKERS " << NBR_WORKERS << std::endl;
   int nthreads = CTclGrammerApp::getInstance()->getNthreads();
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
-  int size = converter(c_size);
+  uint64_t size = converter(c_size);
   CHUNK_SIZE = size;
   
   if (debug)
@@ -651,8 +651,8 @@ ZMQRDClass::worker_task(void *args)
   worker.connect("inproc://workers");  
 
   const char* c_size = CTclGrammerApp::getInstance()->getDataChunkSizeVar().Get();
-  int size = converter(c_size);
-
+  uint64_t size = converter(c_size);
+  
   if (CHUNK_SIZE != size){
     if (debug)
       std::cout << "Inside worker_task CHUNK_SIZE before " << CHUNK_SIZE << std::endl;
@@ -780,7 +780,7 @@ sendData(zmq::socket_t& sock, const std::string& identity, const CRingFileBlockR
 }
 
 static int
-sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader& reader,  size_t nItems)
+sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader& reader,  uint64_t nItems)
 {
   CRingFileBlockReader::pDataDescriptor pDesc =
     reinterpret_cast<CRingFileBlockReader::pDataDescriptor>(malloc(sizeof(CRingFileBlockReader::DataDescriptor)));
@@ -788,7 +788,7 @@ sendChunk(zmq::socket_t& sock, const std::string& identity, CRingFileBlockReader
   *pDesc = reader.read(nItems);
 
   if (pDesc->s_nBytes > 0) {
-    size_t nSent = pDesc->s_nBytes;
+    uint64_t nSent = pDesc->s_nBytes;
     bytesSent += nSent;;
     sendData(sock ,identity, pDesc);
     return nSent;
@@ -863,7 +863,7 @@ ZMQRDClass::SetVariable(CTCLVariable& rVar, int newval) {
   rVar.getInterpreter()->GlobalEval(Script);
 }
 
-long
+uint64_t
 FdGetFileSize(int fd)
 {
   struct stat stat_buf;
@@ -903,7 +903,8 @@ ZMQRDClass::sender_task(void* arg)
 	std::cout << "Received " << command << " from id " << identity << std::endl;
     }
     if (!done) {
-      int status =  sendChunk(broker, identity, reader, atoi(size.c_str()));
+      uint64_t sz = strtoul(size.c_str(), NULL, 0);
+      int status =  sendChunk(broker, identity, reader, strtoul(size.c_str(), NULL, 0));
       if (status == 0) {
 	done = true;
 	sendEOF(broker, identity);

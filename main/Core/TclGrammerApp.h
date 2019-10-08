@@ -39,6 +39,7 @@
 
 #include <list>
 #include <string>
+#include <stdint.h>
 
 class CTCLInterpreter;
 class CAnalyzer;
@@ -83,7 +84,7 @@ class CTclGrammerApp {
 private:
   // Private Member data:
   UInt_t                    m_nProcs;
-  UInt_t                    m_nChunk;  
+  uint64_t                  m_nChunk;  
   UInt_t                    m_nDisplaySize;
   UInt_t                    m_nParams;
   UInt_t                    m_nListSize;
@@ -355,6 +356,7 @@ private:
   // Utilities:
 protected:
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
+  static void UpdateULong(CTCLVariable& rVar, uint64_t& rValue);  
   static void UpdateString(CTCLVariable& rVar, std::string& rString);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
 private:
