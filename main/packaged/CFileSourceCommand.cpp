@@ -28,7 +28,8 @@
 #include <stdexcept>
 #include <string>
 
-static const size_t DEFAULT_BLOCKSIZE=8192;
+static const size_t K = 1024;
+static const size_t DEFAULT_BLOCKSIZE=1*1024*1024;
 
 /**
  * constructor
