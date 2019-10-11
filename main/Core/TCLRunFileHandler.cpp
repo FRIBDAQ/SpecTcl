@@ -46,7 +46,7 @@ using namespace std;
 
 
 
-const UInt_t knWaitTime = 500; // default Ms to wait for file to be readable.
+const UInt_t knWaitTime = 1; // default Ms to wait for file to be readable.
 ULong_t        nWaitTime(knWaitTime);
 
 // Functions for class CTCLRunFileHandler
