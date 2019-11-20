@@ -14,6 +14,7 @@ install:
 	cp src/*.h $(INSTDIR)/Qt_test
 	cp src/*.py $(INSTDIR)/Qt_test	
 	cp src/Makefile $(INSTDIR)/Qt_test
+	cp src/gui.py $(INSTDIR)/Script
 	if [ -f $(INSTDIR)/Qt_test/libCPyConverter.so ] ; then echo "libCPyConverter.so exists"; else ln -s $(INSTDIR)/lib/libCPyConverter.so $(INSTDIR)/Qt_test; fi
 	if [ -f $(INSTDIR)/Qt_test/CPyConverter.so ] ; then echo "CPyConverter.so exists"; else ln -s $(INSTDIR)/lib/CPyConverter.so $(INSTDIR)/Qt_test; fi
 
