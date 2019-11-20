@@ -901,11 +901,11 @@ class GUIClass(QDialog):
             self.par_x.addItem('Channel '+str(item))
             self.par_y.addItem('Channel '+str(item))
             self.par_z.addItem('Channel '+str(item))                        
-            sample_size = 10000
-            sample_bkg = 5000
+            sample_size = 10
+            sample_bkg = 5
             if (self.data_type_g.isChecked()):
-                #                mu = int(np.random.uniform(300,500))
-                #                sigma = int(np.random.uniform(10,100))
+                mu = int(np.random.uniform(300,500))
+                sigma = int(np.random.uniform(10,100))
                 #                a = 2.
                 #                s1 = np.random.power(a, sample_bkg)*xmax
                 #                s2 = np.random.normal(mu, sigma, sample_size)

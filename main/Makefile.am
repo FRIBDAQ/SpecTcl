@@ -24,6 +24,7 @@ SUBDIRS = Replace \
 					compress \
 					docs \
 					spectra \
+					qt \
 					scalerWrapper
 
 

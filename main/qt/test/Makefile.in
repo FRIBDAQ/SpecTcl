@@ -1,0 +1,19 @@
+INSTDIR=@prefix@
+
+all:
+	@$(MAKE) -C src 
+
+.PHONY: clean
+
+clean:
+	make clean -C src 
+
+install:
+	if [ -d "$(INSTDIR)/Qt_test" ]; then echo "Qt_test exists"; else mkdir $(INSTDIR)/Qt_test; fi
+	cp src/*.cpp $(INSTDIR)/Qt_test
+	cp src/*.h $(INSTDIR)/Qt_test
+	cp src/*.py $(INSTDIR)/Qt_test	
+	cp src/Makefile $(INSTDIR)/Qt_test
+	if [ -f $(INSTDIR)/Qt_test/libCPyConverter.so ] ; then echo "libCPyConverter.so exists"; else ln -s $(INSTDIR)/lib/libCPyConverter.so $(INSTDIR)/Qt_test; fi
+	if [ -f $(INSTDIR)/Qt_test/CPyConverter.so ] ; then echo "CPyConverter.so exists"; else ln -s $(INSTDIR)/lib/CPyConverter.so $(INSTDIR)/Qt_test; fi
+
