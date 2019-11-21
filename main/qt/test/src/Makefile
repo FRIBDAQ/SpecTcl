@@ -6,7 +6,7 @@ TARGET=GUIapp
 all: $(TARGET)
 
 $(TARGET): gui.o 
-	g++ $(LDFLAGS) -o $(TARGET) gui.o $(LDLIBS)
+	LD_LIBRARY_PATH=`pwd` g++ $(LDFLAGS) -o $(TARGET) gui.o $(LDLIBS)
 
 gui.o: gui.cpp CPyHelper.h
 	g++ $(LDFLAGS) $(CPPFLAGS) -c gui.cpp
