@@ -115,7 +115,11 @@ RootTreeSink::operator()(CEventList& rEvents)
         // Process the events one at a time.
         
         for (int i =0; i < rEvents.size(); i++) {
+	  if(rEvents[i]) {
             (*this)(*(rEvents[i]));
+	  } else {
+	    break;               // Three aren't any more events in the list.
+	  }
         }
     }
 }
