@@ -222,6 +222,33 @@ proc _saveSpectraContents {cmd sid} {
         _saveSpectrumChans $cmd [lindex $spec 0] $data
     }
 }
+##
+# _restoreParamDefs
+#    Restores the parameter definitions. 
+#    - If the parameter exists it is deleted and a new one created.  Note
+#      That if the id is not modified by this any tree parameters bound will
+#      retain their binding.
+#    - If the parameter has range, binning or units information:
+#      * If there's no existing tree paramter a new one is created.
+#      * If there's an existing tree parameter it is modified.
+#
+# @param cmd - DB command name.
+# @param saveid- Save set id.
+#
+proc _restoreParamDefs {cmd saveid} {
+    $cmd eval {
+        SELECT name, number, low, high, bins, units FROM parameter_defs
+        WHERE save_id = :saveid
+    } {
+        set existingDef [parameter -list $name]
+        if {[llength $existingDef] > 0} {
+            puts "Must delete $existingDef"
+            parameter -delete $name
+        }
+        parameter -create $name $number
+    }
+}
+
 
 #-----------------------------------------------------------
 #   Public interface
@@ -359,6 +386,41 @@ proc listConfigs cmd {
     }
     
     return $result
+}
+
+##
+# restoreConfig
+#   Restore the configuration of a save set:
+#
+#  - parameter definitions are restored.
+#  - spectrum definitions are restored.
+#  - If requested, spectrum contents are also restored.
+#
+# @param cmd   - Database command.
+# @param save-name - Name of the save set.
+# @param restoreSpectra - default false.
+# @throw - error if save-name is not a save set.
+#
+#  Probably other errors will be thrown if cmd is a command for  a non
+#  configuration database.
+#
+proc restoreConfig {cmd savename {restoreSpectra 0}} {
+    set saveId ""
+    
+    $cmd eval {
+        SELECT id FROM save_sets WHERE name = :savename
+    } {
+        set saveId $id
+    }
+    if {$saveId eq ""} {
+        error "There is no save set named $savename"
+    }
+    
+    #  Now restore the bits and pieces:
+    
+    # Restore parameters:
+    
+    _restoreParamDefs $cmd $saveId
 }
 
 

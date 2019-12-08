@@ -50,9 +50,9 @@ proc scontents name {
     return $result
 } 
 
-proc parameter {op argv} {
+proc parameter {op args} {
     if {$op eq "-list"} {
-        set pat $argv
+        set pat [lindex $args 0]
         set result [list]
         foreach def $::dummyParamDefs {
             set pName [lindex $def 0]
@@ -61,6 +61,15 @@ proc parameter {op argv} {
             }
         }
         return $result
+    } elseif {$op eq "-create"} {
+        set name [lindex $args 0]
+        set id   [lindex $args 1]
+        lappend ::dummyParamDefs [list $name $id]
+    } elseif {$op eq "-delete"} {
+        set i [lsearch -exact -index 0 $::dummyParamDefs [lindex  $args 0]]
+        if {$i != -1} {
+            set ::dummyParamDefs [lreplace  $::dummyParamDefs $i $i]
+        }
     }
     
 }
@@ -676,6 +685,90 @@ tcltest::test scontents_4 {All spectra have data} \
         [list 1 1 2 3] [list 1 3 4 5] [list 1 6 7 8] [list 1 9 10 11]  \
         [list 2 100 "" 5] [list 2 110 "" 660] [list 2 250 "" 780]      \
         [list 3 10 "" 5] [list 3 11 "" 6] [list 3 20 "" 8] [list 3 100 "" 12] \
+]
+
+################################################################################
+#  Restore tests.
+
+tcltest::test restore_1 {No such save set is an error} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [catch {dbconfig::restoreConfig config test}]
+    set result
+} -result 1
+
+tcltest::test restore_2 {The parameters we saved get restored no delete- no concern about tree params} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    dbconfig::saveConfig config test
+    
+    set dummyParamDefs [list] ;     # Don't test replacement of existing.sa
+    dbconfig::restoreConfig config test
+    
+    set dummyParamDefs
+} -result [list                                             \
+    [list param1 10] [list param2 11] [list param-something 100] \
+]
+
+tcltest::test restore_3 {Parameter deleted if duplicate: } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    dbconfig::saveConfig config test
+    
+    set ::dummyParamDefs [list                                   \
+         [list param1 10]                                        \
+   ]
+    
+    dbconfig::restoreConfig config test
+    
+    #  param1 should have become last:
+    
+    set ::dummyParamDefs
+} -result [list                                             \
+    [list param1 10]  [list param2 11] [list param-something 100]   \
 ]
 
 tcltest::cleanupTests
