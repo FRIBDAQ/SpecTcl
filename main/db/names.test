@@ -539,4 +539,143 @@ tcltest::test scontents_1 {Definitions with out contents is empty table} \
     set count
         
 } -result 0
+
+
+tcltest::test scontents_2 {Definitions and put contents into one of the spectra} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    set ::dummyContents(param1) [list                       \
+        [list 1 2] [list 3 4] [list 5 6] [list 7 8]             \
+    ]
+    
+    dbconfig::saveConfig config sc1;        # save set 1.
+    
+    # We know our speactrum will have id 2:
+    
+    config eval {
+        SELECT xbin, ybin, value FROM spectrum_contents
+        WHERE spectrum_id=2 ORDER BY xbin ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    set result
+    
+} -result [list                                                        \
+    [list 1 "" 2] [list 3 "" 4] [list 5 "" 6] [list 7 ""  8]           \
+]
+
+tcltest::test scontents_3 {2-d spectrum with data} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    
+    dbconfig::saveConfig config test
+    
+    config eval {
+        SELECT * FROM spectrum_contents
+        WHERE spectrum_id = 1 ORDER BY xbin, ybin ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    set result
+} -result [list                                     \
+    [list 1 2 3] [list 3 4 5 ] [list 6 7 8] [list 9 10 11]            \
+]
+
+tcltest::test scontents_4 {All spectra have data} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    # ID 2.
+    set ::dummyContents(param1) [list                               \
+        [list 100 5] [list 110 660] [list 250 780]                  \
+    ]
+    # ID 3:
+    set dummyContents(param2) [list                                 \
+        [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
+    ]
+    dbconfig::saveConfig config a
+    
+    config eval {
+        SELECT * FROM spectrum_contents
+            ORDER BY spectrum_id, xbin, ybin ASC
+    } {
+        lappend result [list $spectrum_id $xbin $ybin $value]
+    }
+    set result
+} -result [list                                                        \
+        [list 1 1 2 3] [list 1 3 4 5] [list 1 6 7 8] [list 1 9 10 11]  \
+        [list 2 100 "" 5] [list 2 110 "" 660] [list 2 250 "" 780]      \
+        [list 3 10 "" 5] [list 3 11 "" 6] [list 3 20 "" 8] [list 3 100 "" 12] \
+]
+
 tcltest::cleanupTests
