@@ -27,12 +27,14 @@
 #include "XamineShMemDisplayImpl.h"
 #include "Spectrum.h"
 #include "SpecTcl.h"
+#include "CHttpdServer.h"
 #include "TCLInterpreter.h"
 #include <Exception.h>
 #include <tcl.h>
 
 #include <memory>
 #include <iostream>
+#include <stdexcept>
 
 namespace Spectra
 {
@@ -96,6 +98,12 @@ CSpectraLocalDisplay* CSpectraLocalDisplay::clone() const
 //
 void CSpectraLocalDisplay::start()
 {
+    // Code is here to avoid repetition in the catch blocks below:
+    
+    SpecTcl* api = SpecTcl::getInstance();
+    CTCLInterpreter* pInterp = api->getInterpreter();
+    Tcl_Interp*      pRawInterp = pInterp->getInterpreter();
+
     try {
         startRESTServer();
         m_pMemory->attach();
@@ -106,9 +114,6 @@ void CSpectraLocalDisplay::start()
         // REST package plugin was not installed.
         // Declare a background error and return.
         
-        SpecTcl* api = SpecTcl::getInstance();
-        CTCLInterpreter* pInterp = api->getInterpreter();
-        Tcl_Interp*      pRawInterp = pInterp->getInterpreter();
         
         Tcl_AppendResult(
             pRawInterp,
@@ -119,6 +124,11 @@ void CSpectraLocalDisplay::start()
             "SpecTcl will run headless.",  nullptr
         );
         Tcl_BackgroundError(pRawInterp);
+    }
+    catch (std::exception &e) {
+    
+        Tcl_AppendResult(pRawInterp,
+            "Unable to start the SpecTclHttpdServer: ", e.what(), nullptr);
     }
 
 }
@@ -152,15 +162,10 @@ void CSpectraLocalDisplay::restart()
 void CSpectraLocalDisplay::startRESTServer()
 {
     CTCLInterpreter* pInterp = m_rSpecTcl.getInterpreter();
-
-    // preproc macro INSTALLED_IN defined in Makefile at compile time
-    std::string prefix(INSTALLED_IN);
-    std::string cmd ("lappend auto_path ");
-    cmd += prefix + "/TclLibs";
-    auto resultStr = pInterp->GlobalEval(cmd.c_str());
-    resultStr = pInterp->GlobalEval("package require SpecTclHttpdServer");
-    resultStr = pInterp->GlobalEval("startSpecTclHttpdServer [::SpecTcl::findFreePort 8080]");
-    std::cout << resultStr << std::endl;
+    CHttpdServer starter(pInterp);
+    if (!starter.isRunning()) {
+        starter.start(8080);
+    }
 }
 
 //
@@ -168,9 +173,11 @@ void CSpectraLocalDisplay::startRESTServer()
 void CSpectraLocalDisplay::stopRESTServer()
 {
     CTCLInterpreter* pInterp = m_rSpecTcl.getInterpreter();
-
-    auto resultStr = pInterp->GlobalEval("Httpd_ServerShutdown");
-
+    CHttpdServer stopper(pInterp);
+    if (stopper.isRunning()) {
+        stopper.stop();
+    }
+ 
 }
 
 //

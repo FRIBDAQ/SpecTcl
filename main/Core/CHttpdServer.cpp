@@ -68,7 +68,7 @@ CHttpdServer::start(int port)
         auto resultStr = m_pInterp->GlobalEval(cmd);
         resultStr = m_pInterp->GlobalEval("package require SpecTclHttpdServer");
         std::stringstream startcmd;
-        startcmd << "startSpecTclHttpdServer [::SpecTcl::findFreePort " << port;
+        startcmd << "startSpecTclHttpdServer [::SpecTcl::findFreePort " << port <<" ]";
         //resultStr = m_pInterp->GlobalEval("startSpecTclHttpdServer [::SpecTcl::findFreePort 8080]");
         resultStr = m_pInterp->GlobalEval(startcmd.str());
         std::cout << " SpecTcl REST Server running on port: " << resultStr << std::endl;
