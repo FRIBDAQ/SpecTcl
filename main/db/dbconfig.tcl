@@ -383,6 +383,7 @@ proc makeSchema cmd {
          name TEXT UNIQUE,
          timestamp INTEGER)
     }
+    # Parameter definitions
     
     $cmd eval {
         CREATE TABLE IF NOT EXISTS parameter_defs
@@ -460,7 +461,45 @@ proc makeSchema cmd {
         CREATE INDEX IF NOT EXISTS scontents_spectrum_id ON spectrum_contents (spectrum_id)
     }
 
+    # Gate definitions
     
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS gate_defs
+        (
+            id          INTEGER PRIMARY KEY,
+            saveset_id  INTEGER NOT NULL,   -- FK to save_sets.id
+            name        TEXT NOT NULL,
+            type        TEXT NOT NULL,
+            has_dependencie INTEGER NOT NULL  -- nonzero if gate has gate dependencies.
+        )
+    }
+        # Primitive gates have points:
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS gate_points
+        (
+            id          INTEGER PRIMARY KEY,
+            gate_id     INTEGER NOT NULL,           -- FK to gate_defs.id
+            X           REAL,                       -- Point x coordinate.
+            Y           REAL                        -- Point y coords.
+        )
+    }
+    $cmd eval {
+        CREATE INDEX IF NOT EXISTS gate_points_gatidx ON gate_points (gate_id)
+    }
+        # Compound gates depend on other gates:
+        
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS component_gates
+        (
+            id          INTEGER PRIMARY KEY,
+            parent_gate INTEGER NOT NULL,      -- gate_defs.id of owner.
+            child_gate  INTEGER NOT NULL       -- Gate parent_gate depends on.
+        )
+    }
+    $cmd eval {
+        CREATE INDEX IF NOT EXISTS component_gates_parentidx
+            ON component_gates (parent_gate)
+    }
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
