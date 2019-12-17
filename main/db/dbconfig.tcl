@@ -242,14 +242,75 @@ proc _restoreParamDefs {cmd saveid} {
     } {
         set existingDef [parameter -list $name]
         if {[llength $existingDef] > 0} {
-            puts "Must delete $existingDef"
             parameter -delete $name
         }
         parameter -create $name $number
     }
 }
+##
+# _restoreSpectrumDefs
+#    Restores the spectrum definitions for a saveset.  Any existing spectrum
+#    with the same name is deleted first.
+#
+# @param cmd - database command.
+# @param sid - save set id.
+#
+proc _restoreSpectrumDefs {cmd sid} {
+    # Get the spectrum top level defs.  These will go into an array of
+    # dicts indexed by the spectrum id
+    
+    array set topdefs [list];          # Array of top level dicts.
+    set idlist [list]
+    $cmd eval {
+        SELECT * from spectrum_defs  WHERE save_id = :sid
+        ORDER BY id ASC
+    } {
+        set value [dict create id $id name $name type $type datatype $datatype]
+        set topdefs($id) $value
+        lappend idlist $id
+    }
+    
+    set idlist [join $idlist ,]
+    
+    # Now get the parameter names for each spectrum.
+    
+    $cmd eval "
+        SELECT spectrum_id, name FROM spectrum_params
+        INNER JOIN parameter_defs ON  parameter_id = parameter_defs.id 
+        WHERE spectrum_id IN ($idlist)
+        ORDER BY spectrum_params.id ASC
+    "   {
+        dict lappend topdefs($spectrum_id) parameters $name
+    }
+    # Now the axis definitions:
+    
+    $cmd eval "
+        SELECT spectrum_id, low, high, bins FROM axis_defs
+        WHERE spectrum_id IN ($idlist)
+        ORDER BY id ASC
+    " {
+        dict lappend topdefs($spectrum_id) axes [list $low $high $bins]
+    }
+    # Now we can run over the spectra, deleting existing ones and
+    # Creating the ones in the definition.
+    
+    set idlist [split $idlist ,];   #Maybe faster than array names?
+    foreach id $idlist {
+        set def $topdefs($id)
+    
+        set name [dict get $def name]
+        if {[llength [spectrum -list $name]] != 0 } {
+            spectrum -delete $name
+        }
+        # Construct the spectrum definition command:
+        
+        set cmd [list spectrum -create $name]
+        lappend cmd [dict get $def type] [dict get $def parameters]
+        lappend cmd [dict get $def axes] [dict get $def datatype]
 
-
+        eval $cmd
+    }
+}
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -421,6 +482,7 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     # Restore parameters:
     
     _restoreParamDefs $cmd $saveId
+    _restoreSpectrumDefs $cmd $saveId
 }
 
 
