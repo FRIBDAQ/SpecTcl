@@ -158,6 +158,70 @@ proc _saveSpectrumDefs {cmd sid} {
     }
 }
 ##
+# _addLeadingParameters
+#    Adds a fixed number of parameters to the gate from a description
+#    when those parameters lead the description:
+#
+# @param cmd   - Database command.
+# @param gid   - Gate id these parameters belong with.
+# @param sid   - save set id
+# @param descr - Gate description string
+# @param n     - Number of parameters.
+#
+proc _addLeadingParameters {cmd gid sid descr n} {
+    # We need to look up the parameters to get their ids
+    
+    incr n -1;             # index of last name.
+    set names [lrange $descr 0 $n]
+    foreach name $names {
+        set pid ""
+        $cmd eval {
+            SELECT id FROM  parameter_defs
+            WHERE save_id = :sid AND name = :name
+        } {
+            set pid $id
+        }
+        if {$pid eq ""} {
+            error "Adding a gate parameter : $name is not defined as a parameter"
+        }
+        $cmd eval {
+            INSERT INTO gate_parameters (parent_gate, parameter_id)
+                VALUES (:gid, :pid)
+        }
+    }
+}
+##
+# _addTrailingParameters
+#    Adds parameters that are in a list that is the last element of the gate
+#    Description
+#
+# @param cmd    - database command.
+# @param gid    - gate id of the ownning gate.
+# @param sid    - Save id.
+# @param descr  - Gate description
+#
+proc _addTrailingParameters {cmd gid sid descr} {
+    
+    set names [lindex $descr end];        # list of parameter names.
+    foreach name $names {
+        set pid  ""
+        $cmd eval {
+            SELECT id FROM parameter_defs
+            WHERE save_id = :sid AND  name = :name
+        } {
+            set pid $id
+        }
+        if {$pid eq ""} {
+            error "Adding a gate parameter : $name is not a defined paramter"
+        } else {
+            $cmd eval {
+                INSERT INTO gate_parameters (parent_gate, parameter_id)
+                    VALUES (:gid, :pid)
+            }
+        }
+    }
+}
+##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
 #    on the gate type.
@@ -166,6 +230,36 @@ proc _saveSpectrumDefs {cmd sid} {
 # @param sid - save id.
 #
 proc _saveGateDefinitions {cmd sid} {
+    set gates [gate -list]
+    
+    #  All gates have a name and type that must be entered.
+    #  This gets entered in the gate_defs table.
+    #
+    
+    foreach gate $gates {
+        set name [lindex $gate 0]
+        set type [lindex $gate 1]
+        set descr [lindex $gate 2]
+        
+        $cmd eval {
+            INSERT INTO gate_defs (saveset_id, name, type)
+            VALUES (:sid, :name, :type)
+        }
+        set gate_id [$cmd last_insert_rowid];    # for foreign keys.
+        
+        # Several gate types have parameter names in the leading part of
+        # the description:
+        
+        if {$type in [list b c]} {
+            _addLeadingParameters $cmd $gate_id $sid $descr 2
+        }
+        if {$type in [list s em am nm]} {
+            _addLeadingParameters $cmd $gate_id $sid $descr 1
+        }
+        if {$type in [list gs gb gc]} {
+            _addTrailingParameters $cmd $gate_id $sid $descr
+        }
+    }
     
 }
 
@@ -481,8 +575,7 @@ proc makeSchema cmd {
             id          INTEGER PRIMARY KEY,
             saveset_id  INTEGER NOT NULL,   -- FK to save_sets.id
             name        TEXT NOT NULL,
-            type        TEXT NOT NULL,
-            has_dependencie INTEGER NOT NULL  -- nonzero if gate has gate dependencies.
+            type        TEXT NOT NULL
         )
     }
         # Primitive gates have points:

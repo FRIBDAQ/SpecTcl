@@ -43,6 +43,14 @@ set dummySpectrumDefs  [list]
 array set dummyContents [list]
 set channelSetHistory [list]
 
+set gateDefs [list]
+
+proc gate {op args} {
+    if {$op eq "-list"} {
+        return $::gateDefs
+    }
+}
+
 proc channel {op args} {
     if {$op eq "-set"} {
         lappend ::channelSetHistory $args;    # Name, channel-spec, value
@@ -927,7 +935,155 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
     [list param2   100 12]                                           \
 ]
     
+#-----------------------------------------------------------------------
+# gates
 
+tcltest::test gates_1 {Save a gate top level}                       \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 s [list param1 10 20]]
+    ]
+    dbconfig::saveConfig config Gates
+    
+    config eval {
+        SELECT saveset_id, name, type FROM gate_defs
+    } {
+        lappend result [list $saveset_id $name $type]
+    }
+    
+    set result
+    
+} -result [list [list 1 gate1 s]]
+
+tcltest::test gates_2 {Save with two gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 s [list param1 10 20]]                         \
+        [list True T [list]]                                       \
+    ]
+    dbconfig::saveConfig config Gates
+    
+    config eval {
+        SELECT saveset_id, name, type FROM gate_defs
+    } {
+        lappend result [list $saveset_id $name $type]
+    }
+    
+    set result
+    
+} -result [list                      \
+    [list 1 gate1 s]                 \
+    [list 1 True T]                  \
+]
+
+tcltest::test gates_3 {can leading parameters get saved?} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 s [list param1 10 20]]                         \
+        [list gate2 c [list param1 param2 {100 200} {300 400} {50 50}]]    \
+        [list gate3 b [list param-something param2 {100 200} {300 400} {50 50}]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_parameters ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $parameter_id]
+    }
+    set result
+} -result [list                                                     \
+    [list 1 1]                                                      \
+    [list 2 1] [list 2 2]                                           \
+    [list 3 3] [list 3 2]                                           \
+]
+
+tcltest::test gate_4 {Can trailing parameter get saved?}           \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 gb [list {{100 200} {500 20} {700 80}} [list param1 param2]]] \
+        [list gate2 gc [list {{100 200} {500 20} {700 80}} [list param-something param2]]] \
+        [list gate3 gs [list [list 100 200] [list param2 param-something]]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_parameters ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $parameter_id]
+    }
+    set result
+    
+} -result [list                                                           \
+    [list 1 1] [list 1 2]                                                 \
+    [list 2 3] [list 2 2]                                                 \
+    [list 3 2] [list 3 3]                                                 \
+]
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
