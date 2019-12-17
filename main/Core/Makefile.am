@@ -54,7 +54,8 @@ DisplayInterface_SRC = Display.cpp \
 			TestDisplay.cpp \
 			CHistogrammerFitObserver.cpp \
 			GateBinderObserver.cpp \
-			GatingDisplayObserver.cpp
+			GatingDisplayObserver.cpp \
+			CHttpdServer.cpp
 
 DisplayInterface_INCLUDES =  Display.h \
 		    DisplayFactory.h \
@@ -65,7 +66,8 @@ DisplayInterface_INCLUDES =  Display.h \
 		    CHistogrammerFitObserver.h \
 		    GateBinderObserver.h \
 		    GatingDisplayObserver.h \
-		    Subprocess.h
+		    Subprocess.h \
+		CHttpdServer.h
 
 
 Events_SRC = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
