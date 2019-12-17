@@ -2522,6 +2522,22 @@ OBJECTS=MySpecTclApp.o SimpleTree.o
                     </para>
                 </listitem>
             </varlistentry>
+            <varlistentry>
+                <term><varname>HTTPDPort</varname> <emphasis>Since 5.2-004</emphasis></term>
+                <listitem>
+                    <para>
+                        If this is set it must be an integer at least 1024.
+                        When set, SpecTdl will start its REST server listening
+                        on the specified port.  If not set, the REST-like server will
+                        be started on port 8080 if the Spectra displayer is selected.
+                    </para>
+                    <para>
+                        The SpecTcl REST server supports remote access to
+                        parameter, gate, and spectrum definitions as well as
+                        spectrum contents. 
+                    </para>
+                </listitem>
+            </varlistentry>
         </variablelist>
         <para>
             Once SpecTcl is fully initialized, it sources the
