@@ -2527,7 +2527,7 @@ OBJECTS=MySpecTclApp.o SimpleTree.o
                 <listitem>
                     <para>
                         If this is set it must be an integer at least 1024.
-                        When set, SpecTdl will start its REST server listening
+                        When set, SpecTcl will start its REST server listening
                         on the specified port.  If not set, the REST-like server will
                         be started on port 8080 if the Spectra displayer is selected.
                     </para>
