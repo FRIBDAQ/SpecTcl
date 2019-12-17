@@ -69,7 +69,7 @@ proc parameter {op args} {
             }
         }
         return $result
-    } elseif {$op eq "-create"} {
+    } elseif {$op eq "-new"} {
         set name [lindex $args 0]
         set id   [lindex $args 1]
         lappend ::dummyParamDefs [list $name $id]
@@ -111,7 +111,7 @@ proc spectrum {op args} {
         if {$i != -1} {
             set ::dummySpectrumDefs [lreplace $::dummySpectrumDefs $i $i]
         }
-    } elseif {$op eq "-create"} {
+    } elseif {$op eq "-new"} {
         # We'll make them all have id 1:
         
         set id 1

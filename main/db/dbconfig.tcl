@@ -244,7 +244,7 @@ proc _restoreParamDefs {cmd saveid} {
         if {[llength $existingDef] > 0} {
             parameter -delete $name
         }
-        parameter -create $name $number
+        parameter -new $name $number
     }
 }
 ##
@@ -304,7 +304,7 @@ proc _restoreSpectrumDefs {cmd sid} {
         }
         # Construct the spectrum definition command:
         
-        set cmd [list spectrum -create $name]
+        set cmd [list spectrum -new $name]
         lappend cmd [dict get $def type] [dict get $def parameters]
         lappend cmd [dict get $def axes] [dict get $def datatype]
 
