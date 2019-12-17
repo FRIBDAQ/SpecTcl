@@ -784,7 +784,7 @@ tcltest::test restore_3 {Parameter deleted if duplicate: } \
     [list param1 10]  [list param2 11] [list param-something 100]   \
 ]
 
-tcltest::test restor_4 {Spectrum definition restore - nothing to delete } \
+tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
 -setup {
     createdb
     dbconfig::makeSchema config
@@ -822,6 +822,42 @@ tcltest::test restor_4 {Spectrum definition restore - nothing to delete } \
         [list 1 param2 1 param2 {{0.0 511.0 512}} long]          \
     ]
     
+tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    # need some params note these are id 1,2,3 in order.
+    
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    dbconfig::saveConfig config spec1;   # three spectra are now saved.
+    
+    
+    dbconfig::restoreConfig config spec1
+    
+    set ::dummySpectrumDefs
+} -result [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0.0 1023.0 1024} {0.0 4095.0 4096}} long] \
+        [list 1 param1 1 param1 {{0.0 1023.0 512}} long]         \
+        [list 1 param2 1 param2 {{0.0 511.0 512}} long]          \
+    ]
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
