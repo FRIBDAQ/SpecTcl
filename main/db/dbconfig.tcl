@@ -223,6 +223,29 @@ proc _saveSpectraContents {cmd sid} {
     }
 }
 ##
+# _restoreTreeParam
+#    If the tree parameter exists, update it otherwise make it.  While the
+#    may not know about it, the definition is useful for creating spectra.
+#
+# @param name - parameter name.
+# @param low  - Recommended low spectrum limit.
+# @param high - Recommended high spectrum limit.
+# @param bins - Recommended number of bins.
+# @param units - Units of measure.
+#
+proc _restoreTreeParam {name low high bins units} {
+    if {[llength [treeparameter -list $name]] > 0} {
+        # Update.
+        
+        treeparameter -setunit   $name $units
+        treeparameter -setlimits $name $low $high
+        treeparameter -setbins   $name $bins
+        
+    } else {
+        treeparameter -create $name $low $high $bins $units
+    }
+}
+##
 # _restoreParamDefs
 #    Restores the parameter definitions. 
 #    - If the parameter exists it is deleted and a new one created.  Note
@@ -245,6 +268,12 @@ proc _restoreParamDefs {cmd saveid} {
             parameter -delete $name
         }
         parameter -new $name $number
+        
+        #  Do we need to create/restore the tree parameter info?
+        
+        if {($low ne "") && ($high ne "") && ($bins ne "") } {
+            _restoreTreeParam $name $low $high $bins $units
+        }
     }
 }
 ##
