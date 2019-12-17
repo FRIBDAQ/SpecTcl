@@ -41,6 +41,14 @@ set dummyTreeParamDefs [list]
 set dummySpectrumDefs  [list]
 
 array set dummyContents [list]
+set channelSetHistory [list]
+
+proc channel {op args} {
+    if {$op eq "-set"} {
+        lappend ::channelSetHistory $args;    # Name, channel-spec, value
+        
+    }
+}
 
 proc scontents name {
     set result [list]
@@ -858,6 +866,68 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
         [list 1 param1 1 param1 {{0.0 1023.0 512}} long]         \
         [list 1 param2 1 param2 {{0.0 511.0 512}} long]          \
     ]
+
+###############################################################################
+#  Test spectrum contents restored.
+#
+
+tcltest::test restore-contents_1 {Restore spectrum contents} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::channelSetHistory [list]
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+    set ::channelSetHistory [list]
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    # ID 2.
+    set ::dummyContents(param1) [list                               \
+        [list 100 5] [list 110 660] [list 250 780]                  \
+    ]
+    # ID 3:
+    set dummyContents(param2) [list                                 \
+        [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
+    ]
+    dbconfig::saveConfig config a
+    dbconfig::restoreConfig config a
+    
+    set ::channelSetHistory
+} -result [list                                                 \
+    [list testspec [list 1 2] 3]                                \
+    [list testspec [list 3 4] 5]                                \
+    [list testspec [list 6 7] 8]                                \
+    [list testspec [list 9 10] 11]                                \
+    [list param1   100 5]                                       \
+    [list param1   110 660]                                       \
+    [list param1   250 780]                                       \
+    [list param2   10 5]                                           \
+    [list param2   11 6]                                           \
+    [list param2   20 8]                                           \
+    [list param2   100 12]                                           \
+]
+    
+
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and

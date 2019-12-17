@@ -311,6 +311,33 @@ proc _restoreSpectrumDefs {cmd sid} {
         eval $cmd
     }
 }
+##
+# _restoreSpectrumContents
+#    Restores the spectrum contents for a save set.
+#    The assumption is that the spectrum has been defined.
+#
+# @param cmd - database command.
+# @param sid - save-set id.
+#
+proc _restoreSpectrumContents {cmd sid} {
+    $cmd eval {
+        SELECT name, xbin, ybin, value FROM spectrum_defs
+        INNER JOIN spectrum_contents ON spectrum_defs.id = spectrum_id
+        WHERE save_id= :sid
+        ORDER by spectrum_defs.id, spectrum_contents.id ASC
+    } {
+        set cmd [list channel -set $name]
+        if {$ybin ne ""} {
+            lappend cmd [list $xbin $ybin]
+        } else {
+            lappend cmd $xbin
+        }
+        lappend cmd $value
+        
+        eval $cmd
+    }
+}
+
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -483,6 +510,7 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     
     _restoreParamDefs $cmd $saveId
     _restoreSpectrumDefs $cmd $saveId
+    _restoreSpectrumContents $cmd $saveId
 }
 
 
