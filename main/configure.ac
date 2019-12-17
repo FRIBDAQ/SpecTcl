@@ -148,6 +148,7 @@ DAQROOT=$daqroot
 AC_SUBST(DAQROOT)
 
 
+
 # -------------------- X11 tests
 
 # Locate the X11 header files and the X11 library archive. Try the
@@ -547,6 +548,33 @@ esac
 # Locate Tcl/Tk and setup compile/link switches for them too:
 
 AX_TCL
+
+#--------------------- sqlite3 tests - needed for dbconfig:
+
+AX_LIB_SQLITE3			dnl The base library.
+
+
+AC_MSG_CHECKING([For sqlite3 Tcl package])
+
+sqlitefile=`tempfile`
+
+echo package require sqlite3 >$sqlitefile
+
+
+
+$TCLSH $sqlitefile 2>/dev/null
+
+status=$?
+
+if test  $status -ne 0 
+then
+	rm -f $sqlitefile
+	AC_MSG_RESULT([no])
+	AC_MSG_FAILURE([Missing sqlite3 TCL Package required to buid SpecTcl],1)
+fi
+rm -f $sqlitefile
+AC_MSG_RESULT([yes])
+
 
 # Look for image magick convert
 
