@@ -1085,6 +1085,43 @@ tcltest::test gate_4 {Can trailing parameter get saved?}           \
     [list 3 2] [list 3 3]                                                 \
 ]
 
+tcltest::test gate_5 {Save gate points for bands and contours}    \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                          \
+        [list gate1 b [list param1 param2 [list {10 10} {100 100}]]] \
+        [list gate2 c [list param2 param-something [list {10 10} {100 100} {50 50}]]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x $y]
+    }
+    set result
+    
+} -result [list                                                   \
+    [list 1 10.0 10.0] [list 1 100.0 100.0]                               \
+    [list 2 10.0 10.0] [list 2 100.0 100.0] [list 2 50.0 50.0]                \
+]
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

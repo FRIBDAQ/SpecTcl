@@ -222,6 +222,27 @@ proc _addTrailingParameters {cmd gid sid descr} {
     }
 }
 ##
+# _addTrailingPoints
+#
+#   Add points to a primitive gate
+#
+# @param cmd - database command
+# @param gid - gate id
+# @param descr - the gate description.
+#
+proc _addTrailingPoints {cmd gid descr} {
+    set points [lindex $descr end];    #extract the points.
+    foreach point $points {
+        set x [lindex $point 0]
+        set y [lindex $point 1]
+        
+        $cmd eval {
+            INSERT INTO gate_points (gate_id, x, y)
+            VALUES (:gid, :x, :y)
+        }
+    }
+}
+##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
 #    on the gate type.
@@ -252,12 +273,17 @@ proc _saveGateDefinitions {cmd sid} {
         
         if {$type in [list b c]} {
             _addLeadingParameters $cmd $gate_id $sid $descr 2
+            _addTrailingPoints    $cmd $gate_id $descr
         }
         if {$type in [list s em am nm]} {
             _addLeadingParameters $cmd $gate_id $sid $descr 1
+            if {$type eq "s"} {
+                _addTrailingPoints     $cmd $gate_id $descr
+            }
         }
         if {$type in [list gs gb gc]} {
             _addTrailingParameters $cmd $gate_id $sid $descr
+            #_addleadingPoints      $cmd $gate_id $descr
         }
     }
     
@@ -584,8 +610,8 @@ proc makeSchema cmd {
         (
             id          INTEGER PRIMARY KEY,
             gate_id     INTEGER NOT NULL,           -- FK to gate_defs.id
-            X           REAL,                       -- Point x coordinate.
-            Y           REAL                        -- Point y coords.
+            x           REAL,                       -- Point x coordinate.
+            y           REAL                        -- Point y coords.
         )
     }
     $cmd eval {
