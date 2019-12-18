@@ -740,6 +740,7 @@ proc _restoreSpectrumContents {cmd sid} {
         eval $cmd
     }
 }
+
 ##
 # _restoreSlice
 #   Pull the parameter and point associated with a slice gate out of the
@@ -771,6 +772,52 @@ proc _restoreSlice {cmd gate} {
     gate -new $name s [list $param $point]
 }
 ##
+# _getParamsAnd2dPts
+#    Given a gate definition flesh out its dict to contain the parameters
+#    and x/y coordinates of the gate points.  This is suitable for use with
+#    b,c gc, gb gates (at least).
+#
+# @param cmd - database command.
+# @param gate - the gate dict so far.
+# @return dict - the fleshed out dict describing the gate.
+#
+proc _getParamsAnd2dPts {cmd gate} {
+    set id [dict get $gate id ];   #  gate id.
+    
+    $cmd eval {
+        SELECT  x, y FROM gate_points WHERE gate_id = :id
+    } {
+        dict lappend gate points [list $x $y]
+    }
+    
+    $cmd eval {
+        SELECT name FROM parameter_defs
+        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
+        WHERE gate_parameters.parent_gate = :id
+    } {
+        dict lappend gate parameters $name
+    }
+    return $gate
+}
+##
+# _restore2dGate
+#   Restore band or contours - note that the action is similar to that of
+#  _restoreSlice but the points have x,y coords
+#
+# @param cmd    - database command.
+# @param gate   - Gate dictionary as we have it so far.
+#
+proc _restore2dGate {cmd gate} {
+    set gate [_getParamsAnd2dPts $cmd $gate]
+    
+    set name [dict get $gate name]
+    set type [dict get $gate type]
+    set params [dict get $gate parameters]
+    set pts    [dict get $gate points]
+    
+    gate -new $name $type [list {*}$params $pts]
+}
+##
 # _restoreGateDefs
 #    Restore all gate definitions in a save set.
 # @param cmd  - database command
@@ -791,8 +838,11 @@ proc _restoreGateDefs {cmd sid} {
     #  Now iterate over the gates doing the correct gate dependent restoration.
     
     foreach gate $gates {
-        if {[dict get $gate type] eq "s"} {;      # Slice gate.
+        set type [dict get $gate type]
+        if {$type eq "s"} {;      # Slice gate.
             _restoreSlice $cmd $gate
+        } elseif {$type in [list c b]} {
+            _restore2dGate $cmd $gate
         }
     }
 }
