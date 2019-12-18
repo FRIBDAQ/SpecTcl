@@ -482,6 +482,54 @@ proc _saveGateDefinitions {cmd sid} {
     }
     
 }
+##
+# _saveGateApplications
+#    Saves the applications of gates to spectra.
+#   At this point we assume that
+#   -   All spectra have been defined.
+#   -   All gates have been defined.
+#
+#
+# @param cmd -- The gate command.
+# @param sid -- The save set id.
+#
+proc _saveGateApplications {cmd sid} {
+    set applications [apply -list]
+    
+    # rather than looking things up one application at  a time build hashes
+    # that take names to ids for spectra and gates:
+    
+    array set spectra [list]
+    array set gates [list]
+    
+    $cmd eval {
+        SELECT id, name FROM spectrum_defs WHERE save_id = :sid
+    } {
+        set spectra($name) $id
+    }
+    $cmd eval {
+        SELECT id, name FROM gate_defs WHERE saveset_id = :sid
+    } {
+        set gates($name) $id
+    }
+    #  Now run through the applications. Note that if the gate is named -TRUE-
+    # the spectrum is ungated and we won't list an application for it:
+    
+    foreach application $applications {
+        set spname [lindex $application 0]
+        set gname  [lindex [lindex $application 1] 0]
+        if {$gname ne "-TRUE-"} {
+            set spid $spectra($spname)
+            set gid  $gates($gname)
+            
+            $cmd eval {
+                INSERT INTO gate_applications (spectrum_id, gate_id)
+                VALUES (:spid, :gid)
+            }
+        }
+    }
+    
+}
 
 ##
 # _saveSpectrumChans
@@ -880,6 +928,7 @@ proc saveConfig {cmd name} {
       _saveParameters $cmd $save_id
       _saveSpectrumDefs $cmd $save_id
       _saveGateDefinitions $cmd $save_id
+      _saveGateApplications $cmd $save_id
       _saveSpectraContents $cmd $save_id
         
     }
