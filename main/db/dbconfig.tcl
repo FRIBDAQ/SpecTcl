@@ -341,7 +341,85 @@ proc _addComponentGates {cmd sid gid descr} {
         }
     }
 }
-
+##
+# _canWrite
+#    Determines if a gate is writable. A gate is writable if
+#   - it is primitve or
+#   - it is not primitive but all gates it depends on have been written.
+#
+# @param gate - the definition of the gate to check.
+# @param written - the names of the gates that have been written.
+# @return bool - true if the gate is writable.
+#
+proc _canWrite {gate written} {
+    set type [lindex $gate 1]
+    if {$type in [list * + -]} {
+        # Need dependency analysis.
+        
+        set dependencies [lindex $gate 2]
+        foreach gate $dependencies {
+            if {$gate ni $written} {
+                return 0;          #unwritten dependency.
+            }
+        }
+        #  All dependencies are in the written list:
+        
+        return 1
+        
+    } else {
+        return 1;              # Can always write a primitive gate.
+    }
+}
+##
+# _ReorderGates
+#    SpecTcl gates can have dependencies.  Compound gates like * + - types
+#    depend on other gates.  Because the component_gates table just stores
+#    gate ids and not gate names (it's a join table); it's imporant to
+#    write gates out in reverse dependency order (that is all gates a gate is
+#    dependent on must be written prior to that gate).
+#    This code re-orders gate definitions to make that happen:
+#    - We put all prmitive gates first - they have no depenencies.
+#    - Then we keep writing out compound gates whose dependencies are all
+#      written until none are left or until the number of gates remaining does
+#      not decrease (that indicates a cyclical dependency that should not actually
+#      be possible).
+#
+# @param defs   - list of gate definitions.
+# @return list  - reordered gate definitions.
+#
+proc _ReorderGates {defs} {
+    
+    set result [list]
+    set written [list];            # names of gatesin result.
+    
+    while {[llength $defs] > 0} {
+       
+        set idxs [list]
+        set i 0;                  # Keeps track of indices.
+        foreach gate $defs {
+           if {[_canWrite $gate $written]} {
+            
+            lappend idxs $i
+            lappend result $gate
+            lappend written [lindex $gate 0]
+           } 
+           incr i
+        }
+        #  Did we write anything?
+        
+        if {[llength $idxs] == 0} {
+            error "Gate dependency cycle detected!!!"
+        }
+        # Remove the written gates from defs in revers order so we don't have
+        # to do any index readjustment:
+        
+        set idxs [lreverse $idxs]
+        foreach idx $idxs {
+            set defs [lreplace $defs $idx $idx]   ; # Remove a writte element.
+        }
+    }
+    return $result
+}
 
 ##
 # _saveGateDefinitions
@@ -360,7 +438,7 @@ proc _saveGateDefinitions {cmd sid} {
     # TODO:  The gates must be re-ordered so that compound gates are only written
     #        Once their component gates are written.
     
-    #set gates _ReorderGates $gates
+    set gates [_ReorderGates $gates]
     foreach gate $gates {
         set name [lindex $gate 0]
         set type [lindex $gate 1]
