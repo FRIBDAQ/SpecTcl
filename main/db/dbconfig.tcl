@@ -311,15 +311,26 @@ proc _addLeadingPoint {cmd gid descr} {
 # @param descr  - Description which is a list of dependent gates.
 #
 proc _addComponentGates {cmd sid gid descr} {
-    set depNames [split $descr ,]
+    set depNames [list]
+    
+    # Can't just join strings -- need to surround them with ""'s to make SQL
+    # happy.
+    
+    foreach gateName $descr {
+        lappend depNames "\"$gateName\""
+    }
+    set depNames [join $depNames ,]
+    
     set depIds [list]
-    $cmd eval "
-        SELECT id FROM gate_defs
-        WHERE saveset_id = :sid
-        AND   name IN ($depIds)
-    " {
+
+    $cmd eval "                            
+        SELECT id FROM gate_defs           
+        WHERE saveset_id = $sid            
+        AND   name IN ($depNames)
+    "   {
         lappend depIds $id
     }
+    
     if {[llength $depIds] != [llength $descr]} {
         error "BUG - trying to write a gate whose dependent gates were not yet written."
     }

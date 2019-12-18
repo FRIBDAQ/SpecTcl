@@ -1220,6 +1220,58 @@ tcltest::test gate_7 {gamma slice point}                   \
     }
     set result
 } -result [list [list 1 10.0 20.0]]
+
+
+tcltest::test gate_8 {Dependent gate ids} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+
+    # We need to have some simple gates and then we can have compound gates:
+    # Simple gates will just be slices for simplicity.
+    # At this stage of testing, we don't assume the gate dependency re-ordering
+    # is working yet.
+    #
+    set ::gateDefs [list                                               \
+        [list gate1 s [list param1 10 20]]                             \
+        [list gate2 s [list param2 100 500]]                           \
+        [list gate3 s [list param-something 0 1023]]                   \
+                                                                       \
+        [list andgate * [list gate1 gate2 gate3]]                      \
+        [list orgate  + [list gate2 gate3]]                            \
+        [list notgate - [list gate3]]                                 \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM  component_gates ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $child_gate]
+    }
+    set result
+} -result [list                                                       \
+    [list 4 1] [list 4 2] [list 4 3]                                  \
+    [list 5 2] [list 5 3]                                             \
+    [list 6 3]                                                       \
+]
+    
+    
+###############################################################################
+#  Gate dependency re-ordering.
+
+
     
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
