@@ -243,6 +243,21 @@ proc _addTrailingPoints {cmd gid descr} {
     }
 }
 ##
+# _addGateMask
+#    Add the mask data for a bitmask gate:
+#
+# @param cmd   - The database command.
+# @param gid   - Gate id.
+# @param descr - Gate description.  The second element is the mask
+#
+proc _addGateMask {cmd gid descr} {
+    set mask [lindex $descr 1]
+    $cmd eval {
+        INSERT INTO gate_masks (parent_gate, mask)
+        VALUES (:gid, :mask)
+    }
+}
+##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
 #    on the gate type.
@@ -279,6 +294,8 @@ proc _saveGateDefinitions {cmd sid} {
             _addLeadingParameters $cmd $gate_id $sid $descr 1
             if {$type eq "s"} {
                 _addTrailingPoints     $cmd $gate_id $descr
+            } else {
+                _addGateMask $cmd $gate_id $descr
             }
         }
         if {$type in [list gs gb gc]} {

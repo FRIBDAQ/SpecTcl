@@ -1122,6 +1122,41 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
     [list 2 10.0 10.0] [list 2 100.0 100.0] [list 2 50.0 50.0]                \
 ]
 
+tcltest::test gate_5 {Saving mask gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                         \
+        [list gate1 em [list param1 1234]]                       \
+        [list gate2 am [list param1 456]]                        \
+        [list gate3 nm [list param1 789]]                        \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_masks ORDER BY ID ASC
+    } {
+        lappend result [list $parent_gate $mask]
+    }
+    set result
+} -result [list                                               \
+    [list 1 1234] [list 2 456] [list 3 789]                  \
+]
+    
+    
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
