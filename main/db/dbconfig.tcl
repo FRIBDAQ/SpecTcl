@@ -281,9 +281,7 @@ proc _addLeadingPoints {cmd gate_id descr} {
 }
 ##
 # _addLeadingPoint
-#    Save the single leading point of e.g. a gamma slice.
-#    This is a single element with x/y won't work in _addLeadingPoints above
-#    because that will see a two element list with only one value per element.
+#    Save the two x parameter of a gamma slice.
 #
 #  @param cmd   - Database Command.
 #  @param gid   - Gate id.
@@ -293,10 +291,12 @@ proc _addLeadingPoint {cmd gid descr} {
     set point [lindex $descr 0]
     set x     [lindex $point 0]
     set y     [lindex $point 1]
-    
-    $cmd eval {
-        INSERT INTO gate_points (gate_id, x, y)
-        VALUES (:gid, :x, :y)
+
+    foreach x $point {    
+        $cmd eval {
+            INSERT INTO gate_points (gate_id, x)
+            VALUES (:gid, :x)
+        }
     }
 }
 ##
