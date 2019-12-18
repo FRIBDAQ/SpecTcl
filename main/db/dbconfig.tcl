@@ -418,6 +418,7 @@ proc _ReorderGates {defs} {
             set defs [lreplace $defs $idx $idx]   ; # Remove a writte element.
         }
     }
+
     return $result
 }
 

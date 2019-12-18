@@ -1295,6 +1295,91 @@ tcltest::test deps_1 {Two gates in reverse order}                   \
     
     dbconfig::saveConfig config deptest
 } -result 1 -returnCodes [list 0]
+
+tcltest::test deps_2 {Several gates with varying dependencies} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list not - [list slice]]                            \
+        [list slice s [list param1 [list 10 100]]]             \
+        [list s1 s   [list param1 [list 20 30]]]             \
+        [list and * [list slice s1 s2]]                      \
+        [list s2 ] s [list param2 [list 100 200]]            \
+    ]
+    
+    dbconfig::saveConfig config deps
+} -result 1 -returnCodes [list 0]
+
+tcltest::test deps_3 {multilevel dependencies}              \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list and * [list or s1 s2 not]]                      \
+        [list not - [list s3]]                                \
+        [list or  + [list s1 s2 not]]                         \
+        [list s1 s [list param1 [list 100 200]]]              \
+        [list s2 s [list param2 [list 400 700]]]            \
+        [list s3 s [list param-something [list 100 200]]]   \
+    ]
+    
+    dbconfig::saveConfig config deps
+} -result 1 -returnCodes [list 0]
+
+tcltest::test deps_4 {cyclical dependencies}            \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list and * [list or s1 s2 not]]                      \
+        [list not - [list and]]                                \
+        [list or  + [list and not]]                            \
+        [list s1 s [list param1 [list 100 200]]]              \
+        [list s2 s [list param2 [list 300 400]]]              \
+    ]
+    
+    dbconfig::saveConfig config deps;            #Cycle detected failure
+} -returnCodes [list 1] -result "Gate dependency cycle detected!!!"
     
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
