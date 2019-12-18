@@ -876,6 +876,31 @@ proc _restore2dGammaGate {cmd gate} {
     gate -new $name $type [list $pts $params]    
 }
 ##
+# _restoreCompoundGate
+#   Restores a gate that's made up of other gates.
+#
+# @param cmd  - The database command.
+# @param gate - the dictionary so far.
+#
+proc _restoreCompoundGate {cmd gate} {
+    # Get the names of the gates associated with this one
+    
+    set id [dict get $gate id]
+    set type [dict get $gate type]
+    set gname [dict get $gate name]
+    set gates [list]
+    $cmd eval {
+        SELECT name FROM gate_defs
+        INNER JOIN component_gates ON component_gates.child_gate = gate_defs.id
+        WHERE parent_gate = :id
+    } {
+        lappend gates $name
+    }
+    gate -new $gname $type "{$gates}"
+    
+    
+}
+##
 # _restoreGateDefs
 #    Restore all gate definitions in a save set.
 # @param cmd  - database command
@@ -889,6 +914,7 @@ proc _restoreGateDefs {cmd sid} {
     set gates [list]
     $cmd eval {
         SELECT id, name, type FROM gate_defs WHERE saveset_id = :sid
+        ORDER BY id ASC
     } {
         lappend gates [dict create id $id name $name type $type]
     }
@@ -905,6 +931,11 @@ proc _restoreGateDefs {cmd sid} {
             _restore2dGammaGate  $cmd $gate
         } elseif {$type eq "gs"} {
             _restoreGammaSlice $cmd $gate
+        } elseif {$type in [list T F]} {
+            set name [dict get $gate name]
+            gate -new $name $type [list]
+        } elseif {$type in [list * + -]} {
+            _restoreCompoundGate $cmd $gate
         }
     }
 }
