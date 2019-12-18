@@ -48,6 +48,8 @@ set applications [list]
 proc apply {op args} {
     if {$op eq "-list"} {
         return $::applications
+    } else {
+        lappend ::applications [list $op $args];    #gate spectrum.
     }
 }
 
@@ -1913,6 +1915,52 @@ tcltest::test grestore_9 {bitmask gate restores} \
     [list and   am [list param2 455]]                        \
     [list notm  nm [list param-something 2134]]              \
 ]
+#############################################################################
+# Restore gate applications:
+
+tcltest::test apprestore_1 {Restore some applications} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+        
+    set ::gateDefs [list                                     \
+        [list equal 1 em [list param1 1234]]                  \
+        [list and   2 am [list param2 455]]                   \
+        [list notm  3 nm [list param-something 2134]]         \
+    ]
+    
+    set ::applications [list                                  \
+        [list testspec [list equal 1 em [list param1 1234]]] \
+        [list param1  [list and   2 am [list param2 455]]]   \
+    ]
+    dbconfig::saveConfig config apply
+    set ::applications [list]
+    dbconfig::restoreConfig config apply
+    set ::applications
+} -result [list                                            \
+    [list equal testspec] [list  and param1]                 \
+]
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

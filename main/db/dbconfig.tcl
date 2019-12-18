@@ -972,6 +972,26 @@ proc _restoreGateDefs {cmd sid} {
         }
     }
 }
+##
+# _restoreGateApplications
+#    Restores the applications of gates to spectra.
+#
+# @param cmd - database command.
+# @param sid - The save set id.
+#
+proc _restoreGateApplications {cmd sid} {
+    
+    $cmd eval {
+        SELECT spectrum_defs.name AS spname, gate_defs.name AS gname
+        FROM gate_applications
+        INNER JOIN spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
+        INNER JOIN gate_defs  ON gate_applications.gate_id = gate_defs.id
+        WHERE spectrum_defs.save_id = :sid
+        ORDER BY gate_applications.id ASC
+    } {
+        apply $gname $spname
+    }
+}
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -1222,8 +1242,10 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     
     _restoreParamDefs        $cmd $saveId
     _restoreSpectrumDefs     $cmd $saveId
-    _restoreSpectrumContents $cmd $saveId
     _restoreGateDefs         $cmd $saveId
+    _restoreGateApplications  $cmd $saveId
+    _restoreSpectrumContents $cmd $saveId
+
 }
 
 
