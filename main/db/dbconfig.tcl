@@ -854,6 +854,15 @@ proc makeSchema cmd {
     $cmd eval {
         CREATE INDEX IF NOT EXISTS gate_mask_parentix ON gate_masks (parent_gate)
     }
+    #   Gate applications:
+    
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS gate_applications (
+            id                INTEGER PRIMARY KEY,
+            spectrum_id       INTEGER NOT NULL,      -- fk to spectrum_defs
+            gate_id           INTEGER NOT NULL       -- fk to gate_defs
+        )
+    }
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
