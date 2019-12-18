@@ -1155,7 +1155,71 @@ tcltest::test gate_5 {Saving mask gates} \
 } -result [list                                               \
     [list 1 1234] [list 2 456] [list 3 789]                  \
 ]
+   
+tcltest::test gate_6 {gamma contour/band points}               \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
     
+    set ::gateDefs [list                                                   \
+        [list gate1 gb [list [list {100 200} {300 400} ] {param1 param2}]] \
+        [list gate2 gc [list [list {100 200} {300 400} {50 20}] {param2 param-something}]] \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x $y]
+    }
+    set result
+} -result   [list                                                     \
+    [list 1 100.0 200.0] [list 1 300.0 400.0]                                \
+    [list 2 100.0 200.0] [list 2 300.0 400.0] [list 2 50.0 20.0]                 \
+]
+
+tcltest::test gate_7 {gamma slice point}                   \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+
+    set ::gateDefs [list                                         \
+        [list gate gs [list [list 10 20] param1]]               \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        select * from gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x $y]
+    }
+    set result
+} -result [list [list 1 10.0 20.0]]
     
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and

@@ -258,6 +258,49 @@ proc _addGateMask {cmd gid descr} {
     }
 }
 ##
+# _addLeadingPoints
+#    Adds points for gate descriptions where the points are a list that is the
+#    first element of the gate description.
+#
+#  @param cmd     - Database command
+#  @param gate_id - Gate id.
+#  @param descr   - Gate description.
+#
+proc _addLeadingPoints {cmd gate_id descr} {
+    set points [lindex $descr 0]
+
+    foreach point $points {
+        set x [lindex $point 0]
+        set y [lindex $point 1]
+        
+        $cmd eval {
+            INSERT INTO gate_points (gate_id, x, y)
+            VALUES (:gate_id, :x, :y)
+        }
+    }
+}
+##
+# _addLeadingPoint
+#    Save the single leading point of e.g. a gamma slice.
+#    This is a single element with x/y won't work in _addLeadingPoints above
+#    because that will see a two element list with only one value per element.
+#
+#  @param cmd   - Database Command.
+#  @param gid   - Gate id.
+#  @param descr - Gate description.
+#
+proc _addLeadingPoint {cmd gid descr} {
+    set point [lindex $descr 0]
+    set x     [lindex $point 0]
+    set y     [lindex $point 1]
+    
+    $cmd eval {
+        INSERT INTO gate_points (gate_id, x, y)
+        VALUES (:gid, :x, :y)
+    }
+}
+
+##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
 #    on the gate type.
@@ -300,7 +343,11 @@ proc _saveGateDefinitions {cmd sid} {
         }
         if {$type in [list gs gb gc]} {
             _addTrailingParameters $cmd $gate_id $sid $descr
-            #_addleadingPoints      $cmd $gate_id $descr
+            if {$type in [list gc gb]} {
+                _addLeadingPoints      $cmd $gate_id $descr
+            } else {
+                _addLeadingPoint $cmd $gate_id $descr
+            }
         }
     }
     
