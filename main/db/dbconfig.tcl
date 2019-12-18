@@ -749,6 +749,25 @@ proc _restoreSpectrumContents {cmd sid} {
     }
 }
 ##
+# _getGateParams
+#    Get parameters associated with a gate that has parameters.
+#
+# @param cmd  - database command
+# @param gate - Gate dict so far.
+# @return gate - Gate dict with parameters added.
+#
+proc _getGateParams {cmd gate} {
+    set id [dict get $gate id ];   #  gate id.
+    $cmd eval {
+        SELECT name FROM parameter_defs
+        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
+        WHERE gate_parameters.parent_gate = :id
+    } {
+        dict lappend gate parameters $name
+    }
+    return $gate
+}
+##
 # _getParamsAnd1dPts
 #
 #    Flesh out the gate dict for a 1d gate.  1d gates have only x parameters
@@ -767,13 +786,7 @@ proc _getParamsAnd1dPts {cmd gate} {
         dict lappend gate points $x
     }
     
-    $cmd eval {
-        SELECT name FROM parameter_defs
-        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
-        WHERE gate_parameters.parent_gate = :id
-    } {
-        dict lappend gate parameters $name
-    }
+    set gate [_getGateParams $cmd $gate]
     return $gate
 }
 ##
@@ -827,14 +840,8 @@ proc _getParamsAnd2dPts {cmd gate} {
     } {
         dict lappend gate points [list $x $y]
     }
-    
-    $cmd eval {
-        SELECT name FROM parameter_defs
-        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
-        WHERE gate_parameters.parent_gate = :id
-    } {
-        dict lappend gate parameters $name
-    }
+    set gate [_getGateParams $cmd $gate]
+
     return $gate
 }
 ##
@@ -936,6 +943,8 @@ proc _restoreGateDefs {cmd sid} {
             gate -new $name $type [list]
         } elseif {$type in [list * + -]} {
             _restoreCompoundGate $cmd $gate
+        } elseif {$type in [list em am nm]} {
+            _restoreMaskGate $cmd $gate
         }
     }
 }
