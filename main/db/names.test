@@ -56,6 +56,8 @@ set gateDefs [list]
 proc gate {op args} {
     if {$op eq "-list"} {
         return $::gateDefs
+    } elseif {$op eq "-new"} {
+        lappend ::gateDefs $args
     }
 }
 
@@ -1602,6 +1604,77 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
     [list param1 or]                                               \
     [list param2 not]                                              \
 ]
+##############################################################################
+# Gate restoration.
+
+tcltest::test grestore_1 {If there are no gates in the db nothing gets restored} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list];                  #Empty the defs.
+    
+    dbconfig::restoreConfig config grestore
+    
+    set ::gateDefs
+} -result [list]
+
+tcltest::test grestore_2 {Slices get restored}             \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list slice s [list param1 [list 10 20]]]
+    ]
+        
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+    
+} -result [list [list slice s [list param1 [list 10.0 20.0]]]]
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and

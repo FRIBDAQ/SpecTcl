@@ -740,7 +740,62 @@ proc _restoreSpectrumContents {cmd sid} {
         eval $cmd
     }
 }
-
+##
+# _restoreSlice
+#   Pull the parameter and point associated with a slice gate out of the
+#   database and restore the slice:
+#
+# @param cmd  - The database command.
+# @param gate - The current gate dictionary.
+#
+proc _restoreSlice {cmd gate} {
+    set id [dict get $gate id ];   #  gate id.
+    
+    $cmd eval {
+        SELECT  x, y FROM gate_points WHERE gate_id = :id
+    } {
+        dict lappend gate points $x
+    }
+    
+    $cmd eval {
+        SELECT name FROM parameter_defs
+        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
+        WHERE gate_parameters.parent_gate = :id
+    } {
+        dict lappend gate parameters $name
+    }
+    
+    set name [dict get $gate name]
+    set param [dict get $gate parameters]
+    set point [dict get $gate points]
+    gate -new $name s [list $param $point]
+}
+##
+# _restoreGateDefs
+#    Restore all gate definitions in a save set.
+# @param cmd  - database command
+# @param sid  - The save set id to restore from.
+#
+proc _restoreGateDefs {cmd sid} {
+    #  List the gates we need to restore.  The fact that they're ordered by the
+    # PK ensures the save order is preserved and therefore the correct dependency
+    # order is maintained.
+    
+    set gates [list]
+    $cmd eval {
+        SELECT id, name, type FROM gate_defs WHERE saveset_id = :sid
+    } {
+        lappend gates [dict create id $id name $name type $type]
+    }
+    
+    #  Now iterate over the gates doing the correct gate dependent restoration.
+    
+    foreach gate $gates {
+        if {[dict get $gate type] eq "s"} {;      # Slice gate.
+            _restoreSlice $cmd $gate
+        }
+    }
+}
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -989,9 +1044,10 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     
     # Restore parameters:
     
-    _restoreParamDefs $cmd $saveId
-    _restoreSpectrumDefs $cmd $saveId
+    _restoreParamDefs        $cmd $saveId
+    _restoreSpectrumDefs     $cmd $saveId
     _restoreSpectrumContents $cmd $saveId
+    _restoreGateDefs         $cmd $saveId
 }
 
 
