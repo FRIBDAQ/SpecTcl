@@ -908,6 +908,30 @@ proc _restoreCompoundGate {cmd gate} {
     
 }
 ##
+# _restoreMaskGate
+#    Restore a bitmask gate:
+#
+# @param cmd   - database command.
+# @param gate  - Gate dict so far.
+#
+proc _restoreMaskGate {cmd gate} {
+    set gate [_getGateParams $cmd $gate];            # add the parameters to the dict.
+    set id [dict get $gate id]
+    $cmd eval {
+        SELECT mask from gate_masks WHERE parent_gate = :id
+    } {
+        dict lappend gate mask $mask
+    }
+    
+    set gname [dict get $gate name]
+    set pname [dict get $gate parameters]
+    set type [dict get $gate type]
+    set mask [dict get $gate mask]
+    
+    gate -new $gname $type [list $pname $mask]
+            
+}
+##
 # _restoreGateDefs
 #    Restore all gate definitions in a save set.
 # @param cmd  - database command
