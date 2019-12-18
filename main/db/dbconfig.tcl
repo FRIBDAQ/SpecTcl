@@ -299,6 +299,38 @@ proc _addLeadingPoint {cmd gid descr} {
         VALUES (:gid, :x, :y)
     }
 }
+##
+# _addComponentGates
+#    For compound gates, write the ids of the component gates.  Note that
+#    We're assuming that the gates we depend on have already been written
+#    We do  a sanity check to ensure this was the case.
+#
+# @param cmd    - Database command.
+# @param sid    - saveset id.
+# @param gid    - my gate id.
+# @param descr  - Description which is a list of dependent gates.
+#
+proc _addComponentGates {cmd sid gid descr} {
+    set depNames [split $descr ,]
+    set depIds [list]
+    $cmd eval "
+        SELECT id FROM gate_defs
+        WHERE saveset_id = :sid
+        AND   name IN ($depIds)
+    " {
+        lappend depIds $id
+    }
+    if {[llength $depIds] != [llength $descr]} {
+        error "BUG - trying to write a gate whose dependent gates were not yet written."
+    }
+    foreach id $depIds {
+        $cmd eval {
+            INSERT INTO component_gates (parent_gate, child_gate)
+            VALUES (:gid, :id)
+        }
+    }
+}
+
 
 ##
 # _saveGateDefinitions
@@ -314,7 +346,10 @@ proc _saveGateDefinitions {cmd sid} {
     #  All gates have a name and type that must be entered.
     #  This gets entered in the gate_defs table.
     #
+    # TODO:  The gates must be re-ordered so that compound gates are only written
+    #        Once their component gates are written.
     
+    #set gates _ReorderGates $gates
     foreach gate $gates {
         set name [lindex $gate 0]
         set type [lindex $gate 1]
@@ -348,6 +383,11 @@ proc _saveGateDefinitions {cmd sid} {
             } else {
                 _addLeadingPoint $cmd $gate_id $descr
             }
+        }
+        # Compound gates (note that T/F gates have no additional data)
+        
+        if {$type in [list * + -]} {
+            _addComponentGates $cmd $sid $gate_id $descr
         }
     }
     
