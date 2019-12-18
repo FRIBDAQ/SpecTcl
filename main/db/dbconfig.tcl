@@ -818,6 +818,26 @@ proc _restore2dGate {cmd gate} {
     gate -new $name $type [list {*}$params $pts]
 }
 ##
+# _restore2dGammaGate
+#   Restores a 2d gamma gate.  For reaons only I can guess the form of the
+#   gate creation command is just that of c/b gates backwards, and the parameters
+#   are a proper list.
+#
+# @param  cmd  - Database command.
+# @param  gate - gate dict so far.
+#
+proc _restore2dGammaGate {cmd gate} {
+    set gate [_getParamsAnd2dPts $cmd $gate]
+    
+    set name [dict get $gate name]
+    set type [dict get $gate type]
+    set params [dict get $gate parameters]
+    set pts    [dict get $gate points]
+
+
+    gate -new $name $type [list $pts $params]    
+}
+##
 # _restoreGateDefs
 #    Restore all gate definitions in a save set.
 # @param cmd  - database command
@@ -843,6 +863,8 @@ proc _restoreGateDefs {cmd sid} {
             _restoreSlice $cmd $gate
         } elseif {$type in [list c b]} {
             _restore2dGate $cmd $gate
+        } elseif {$type in [list gb gc]} {
+            _restore2dGammaGate  $cmd $gate
         }
     }
 }

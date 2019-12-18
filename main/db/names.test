@@ -1713,7 +1713,46 @@ tcltest::test grestore_3 {bands and contours get restored}   \
     
 } -result [list                                                \
     [list contour c [list param1 param2 [list {10.0 10.0} {20.0 30.0} {40.0 70.0}]]] \
-    [list band b    [list param2 param-something [list {700.0 40.0} {800.0 900.0}]]] \
+    [list band b    [list param2 param-something [list {700.0 40.0} {800.0 900.0}]]]  \
+]
+
+tcltest::test grestore_4 {Gamma bands and contours can be restored} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list contour gc [list [list {10 10} {20 30} {40 70}] [list param1 param2]]]            \
+        [list band gb    [list  [list {700 40} {800 900}] [list param2 param-something]]]       \
+    ]
+        
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+} -result [list                                                        \
+    [list contour gc [list [list {10.0 10.0} {20.0 30.0} {40.0 70.0}] [list param1 param2]]] \
+    [list band gb [list  [list {700.0 40.0} {800.0 900.0}] [list param2 param-something]]]
 ]
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
