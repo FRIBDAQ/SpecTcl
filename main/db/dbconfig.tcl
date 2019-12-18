@@ -433,6 +433,14 @@ proc _ReorderGates {defs} {
 proc _saveGateDefinitions {cmd sid} {
     set gates [gate -list]
     
+    # Strip the gate of its id (element1)
+    
+    set strippedGates [list]
+    foreach gate $gates {
+        lappend strippedGates [lreplace $gate 1 1]
+    }
+    set gates $strippedGates
+    
     #  All gates have a name and type that must be entered.
     #  This gets entered in the gate_defs table.
     #
@@ -740,16 +748,17 @@ proc _restoreSpectrumContents {cmd sid} {
         eval $cmd
     }
 }
-
 ##
-# _restoreSlice
-#   Pull the parameter and point associated with a slice gate out of the
-#   database and restore the slice:
+# _getParamsAnd1dPts
 #
-# @param cmd  - The database command.
-# @param gate - The current gate dictionary.
+#    Flesh out the gate dict for a 1d gate.  1d gates have only x parameters
+#   in their points.
 #
-proc _restoreSlice {cmd gate} {
+# @param cmd   - database command.
+# @param gate  - gate dict so far.
+# @return dict - Filled in gate dictionary.
+#
+proc _getParamsAnd1dPts {cmd gate} {
     set id [dict get $gate id ];   #  gate id.
     
     $cmd eval {
@@ -765,11 +774,40 @@ proc _restoreSlice {cmd gate} {
     } {
         dict lappend gate parameters $name
     }
+    return $gate
+}
+##
+# _restoreSlice
+#   Pull the parameter and point associated with a slice gate out of the
+#   database and restore the slice:
+#
+# @param cmd  - The database command.
+# @param gate - The current gate dictionary.
+#
+proc _restoreSlice {cmd gate} {
+    set gate [_getParamsAnd1dPts $cmd $gate]
     
     set name [dict get $gate name]
     set param [dict get $gate parameters]
     set point [dict get $gate points]
     gate -new $name s [list $param $point]
+}
+##
+# _restoreGammaSlice
+#    Restore gamma slice gates.  Very similar to _restoreSlice but the command
+#    format is different.
+#
+# @param cmd  - Database command.
+# @param gate - Partial gate dict.
+#
+proc _restoreGammaSlice {cmd gate} {
+    set gate [_getParamsAnd1dPts $cmd $gate]
+    
+    set name [dict get $gate name]
+    set params [dict get $gate parameters]
+    set point [dict get $gate points]
+    
+    gate -new $name gs [list $point $params]
 }
 ##
 # _getParamsAnd2dPts
@@ -865,6 +903,8 @@ proc _restoreGateDefs {cmd sid} {
             _restore2dGate $cmd $gate
         } elseif {$type in [list gb gc]} {
             _restore2dGammaGate  $cmd $gate
+        } elseif {$type eq "gs"} {
+            _restoreGammaSlice $cmd $gate
         }
     }
 }

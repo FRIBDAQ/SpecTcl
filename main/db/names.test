@@ -967,7 +967,7 @@ tcltest::test gates_1 {Save a gate top level}                       \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 s [list param1 10 20]]
+        [list gate1 1 s [list param1 10 20]]
     ]
     dbconfig::saveConfig config Gates
     
@@ -1000,8 +1000,8 @@ tcltest::test gates_2 {Save with two gates} \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 s [list param1 10 20]]                         \
-        [list True T [list]]                                       \
+        [list gate1 1 s [list param1 10 20]]                         \
+        [list True 2 T [list]]                                       \
     ]
     dbconfig::saveConfig config Gates
     
@@ -1037,9 +1037,9 @@ tcltest::test gates_3 {can leading parameters get saved?} \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 s [list param1 10 20]]                         \
-        [list gate2 c [list param1 param2 {100 200} {300 400} {50 50}]]    \
-        [list gate3 b [list param-something param2 {100 200} {300 400} {50 50}]] \
+        [list gate1 1 s [list param1 10 20]]                         \
+        [list gate2 2 c [list param1 param2 {100 200} {300 400} {50 50}]]    \
+        [list gate3 3 b [list param-something param2 {100 200} {300 400} {50 50}]] \
     ]
     
     dbconfig::saveConfig config gates
@@ -1075,9 +1075,9 @@ tcltest::test gate_4 {Can trailing parameter get saved?}           \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 gb [list {{100 200} {500 20} {700 80}} [list param1 param2]]] \
-        [list gate2 gc [list {{100 200} {500 20} {700 80}} [list param-something param2]]] \
-        [list gate3 gs [list [list 100 200] [list param2 param-something]]] \
+        [list gate1 1 gb [list {{100 200} {500 20} {700 80}} [list param1 param2]]] \
+        [list gate2 2 gc [list {{100 200} {500 20} {700 80}} [list param-something param2]]] \
+        [list gate3 3 gs [list [list 100 200] [list param2 param-something]]] \
     ]
     
     dbconfig::saveConfig config gates
@@ -1114,8 +1114,8 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                          \
-        [list gate1 b [list param1 param2 [list {10 10} {100 100}]]] \
-        [list gate2 c [list param2 param-something [list {10 10} {100 100} {50 50}]]] \
+        [list gate1 1 b [list param1 param2 [list {10 10} {100 100}]]] \
+        [list gate2 2 c [list param2 param-something [list {10 10} {100 100} {50 50}]]] \
     ]
     
     dbconfig::saveConfig config gates
@@ -1150,9 +1150,9 @@ tcltest::test gate_5 {Saving mask gates} \
     ]
     
     set ::gateDefs [list                                         \
-        [list gate1 em [list param1 1234]]                       \
-        [list gate2 am [list param1 456]]                        \
-        [list gate3 nm [list param1 789]]                        \
+        [list gate1  1 em [list param1 1234]]                       \
+        [list gate2  2 am [list param1 456]]                        \
+        [list gate3  3 nm [list param1 789]]                        \
     ]
     dbconfig::saveConfig config gates
     
@@ -1184,8 +1184,8 @@ tcltest::test gate_6 {gamma contour/band points}               \
     ]
     
     set ::gateDefs [list                                                   \
-        [list gate1 gb [list [list {100 200} {300 400} ] {param1 param2}]] \
-        [list gate2 gc [list [list {100 200} {300 400} {50 20}] {param2 param-something}]] \
+        [list gate1 1 gb [list [list {100 200} {300 400} ] {param1 param2}]] \
+        [list gate2 2 gc [list [list {100 200} {300 400} {50 20}] {param2 param-something}]] \
     ]
     dbconfig::saveConfig config gates
     
@@ -1218,7 +1218,7 @@ tcltest::test gate_7 {gamma slice point}                   \
     ]
 
     set ::gateDefs [list                                         \
-        [list gate gs [list [list 10 20] param1]]               \
+        [list gate 1 gs [list [list 10 20] param1]]               \
     ]
     
     dbconfig::saveConfig config gates
@@ -1255,13 +1255,13 @@ tcltest::test gate_8 {Dependent gate ids} \
     # is working yet.
     #
     set ::gateDefs [list                                               \
-        [list gate1 s [list param1 10 20]]                             \
-        [list gate2 s [list param2 100 500]]                           \
-        [list gate3 s [list param-something 0 1023]]                   \
+        [list gate1 1 s [list param1 10 20]]                             \
+        [list gate2 2 s [list param2 100 500]]                           \
+        [list gate3 3 s [list param-something 0 1023]]                   \
                                                                        \
-        [list andgate * [list gate1 gate2 gate3]]                      \
-        [list orgate  + [list gate2 gate3]]                            \
-        [list notgate - [list gate3]]                                 \
+        [list andgate 4 * [list gate1 gate2 gate3]]                      \
+        [list orgate  5 + [list gate2 gate3]]                            \
+        [list notgate 6 - [list gate3]]                                 \
     ]
     dbconfig::saveConfig config gates
     
@@ -1299,8 +1299,8 @@ tcltest::test deps_1 {Two gates in reverse order}                   \
     ]
     
     set ::gateDefs [list                                      \
-        [list not - [list slice]]                             \
-        [list slice s [list param1 [list 10 100]]]            \
+        [list not 1 - [list slice]]                             \
+        [list slice 2 s [list param1 [list 10 100]]]            \
     ]
     
     dbconfig::saveConfig config deptest
@@ -1324,11 +1324,11 @@ tcltest::test deps_2 {Several gates with varying dependencies} \
     ]
     
     set ::gateDefs [list                                      \
-        [list not - [list slice]]                            \
-        [list slice s [list param1 [list 10 100]]]             \
-        [list s1 s   [list param1 [list 20 30]]]             \
-        [list and * [list slice s1 s2]]                      \
-        [list s2 ] s [list param2 [list 100 200]]            \
+        [list not 1 - [list slice]]                            \
+        [list slice 2 s [list param1 [list 10 100]]]             \
+        [list s1 3 s   [list param1 [list 20 30]]]             \
+        [list and 4 * [list slice s1 s2]]                      \
+        [list s2  5 s [list param2 [list 100 200]]]            \
     ]
     
     dbconfig::saveConfig config deps
@@ -1352,12 +1352,12 @@ tcltest::test deps_3 {multilevel dependencies}              \
     ]
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list s3]]                                \
-        [list or  + [list s1 s2 not]]                         \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 400 700]]]            \
-        [list s3 s [list param-something [list 100 200]]]   \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or 3  + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
     ]
     
     dbconfig::saveConfig config deps
@@ -1381,11 +1381,11 @@ tcltest::test deps_4 {cyclical dependencies}            \
     ]
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list and]]                                \
-        [list or  + [list and not]]                            \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 300 400]]]              \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list and]]                                \
+        [list or  3 + [list and not]]                            \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 300 400]]]              \
     ]
     
     dbconfig::saveConfig config deps;            #Cycle detected failure
@@ -1421,12 +1421,12 @@ tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db 
 
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list s3]]                                \
-        [list or  + [list s1 s2 not]]                         \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 400 700]]]            \
-        [list s3 s [list param-something [list 100 200]]]   \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
     ]
 
     dbconfig::saveConfig config apply
@@ -1466,12 +1466,12 @@ tcltest::test apply_2 {Gate applications for -TRUE- get suppressed } \
 
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list s3]]                                \
-        [list or  + [list s1 s2 not]]                         \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 400 700]]]            \
-        [list s3 s [list param-something [list 100 200]]]   \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
     ]
     set applications [list                                 \
         [list testspec [list -TRUE- T {}]]                 \
@@ -1515,12 +1515,12 @@ tcltest::test apply_3  {A spectrum has a gate} \
 
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list s3]]                                \
-        [list or  + [list s1 s2 not]]                         \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 400 700]]]            \
-        [list s3 s [list param-something [list 100 200]]]   \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
     ]
     set applications [list                                 \
         [list testspec [list -TRUE- T {}]]                 \
@@ -1572,12 +1572,12 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
 
     
     set ::gateDefs [list                                      \
-        [list and * [list or s1 s2 not]]                      \
-        [list not - [list s3]]                                \
-        [list or  + [list s1 s2 not]]                         \
-        [list s1 s [list param1 [list 100 200]]]              \
-        [list s2 s [list param2 [list 400 700]]]            \
-        [list s3 s [list param-something [list 100 200]]]   \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 3 - [list s3]]                                \
+        [list or  4 + [list s1 s2 not]]                         \
+        [list s1 5 s [list param1 [list 100 200]]]              \
+        [list s2 6 s [list param2 [list 400 700]]]            \
+        [list s3 7 s [list param-something [list 100 200]]]   \
     ]
     set applications [list                                 \
         [list testspec [list s1 s [list param1 [list 100 200]]]]                 \
@@ -1665,7 +1665,7 @@ tcltest::test grestore_2 {Slices get restored}             \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     set ::gateDefs [list                                                        \
-        [list slice s [list param1 [list 10 20]]]
+        [list slice 1 s [list param1 [list 10 20]]]
     ]
         
     dbconfig::saveConfig config grestore
@@ -1701,8 +1701,8 @@ tcltest::test grestore_3 {bands and contours get restored}   \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     set ::gateDefs [list                                                        \
-        [list contour c [list param1 param2 [list {10 10} {20 30} {40 70}]]]            \
-        [list band b    [list param2 param-something [list {700 40} {800 900}]]]       \
+        [list contour 1 c [list param1 param2 [list {10 10} {20 30} {40 70}]]]            \
+        [list band 2 b    [list param2 param-something [list {700 40} {800 900}]]]       \
     ]
         
     dbconfig::saveConfig config grestore
@@ -1741,8 +1741,8 @@ tcltest::test grestore_4 {Gamma bands and contours can be restored} \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     set ::gateDefs [list                                                        \
-        [list contour gc [list [list {10 10} {20 30} {40 70}] [list param1 param2]]]            \
-        [list band gb    [list  [list {700 40} {800 900}] [list param2 param-something]]]       \
+        [list contour 1 gc [list [list {10 10} {20 30} {40 70}] [list param1 param2]]]            \
+        [list band 2 gb    [list  [list {700 40} {800 900}] [list param2 param-something]]]       \
     ]
         
     dbconfig::saveConfig config grestore
@@ -1751,8 +1751,8 @@ tcltest::test grestore_4 {Gamma bands and contours can be restored} \
     dbconfig::restoreConfig config grestore
     set ::gateDefs
 } -result [list                                                        \
-    [list contour gc [list [list {10.0 10.0} {20.0 30.0} {40.0 70.0}] [list param1 param2]]] \
-    [list band gb [list  [list {700.0 40.0} {800.0 900.0}] [list param2 param-something]]]
+    [list contour  gc [list [list {10.0 10.0} {20.0 30.0} {40.0 70.0}] [list param1 param2]]] \
+    [list band  gb [list  [list {700.0 40.0} {800.0 900.0}] [list param2 param-something]]]
 ]
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
