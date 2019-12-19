@@ -23,7 +23,6 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					spectra \
 					scalerWrapper \
 					packaged \
 					Python db

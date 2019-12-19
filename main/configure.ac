@@ -877,7 +877,7 @@ else
 fi
 
 ROOT_CFLAGS=`$ROOTCONFIG --cflags`
-ROOT_LDFLAGS="`$ROOTCONFIG --glibs` -lQtGSI -Wl,-rpath=`$ROOTCONFIG --libdir` "
+ROOT_LDFLAGS="`$ROOTCONFIG --glibs`  -Wl,-rpath=`$ROOTCONFIG --libdir` "
 ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)
 AC_SUBST(ROOT_LDFLAGS)
@@ -986,11 +986,6 @@ AC_OUTPUT(Makefile
           Utility/daqdefs.tcl 
           vmusb/Makefile
           vmusb/MakefileSkel 
-          spectra/Makefile
-          spectra/src/Makefile
-          spectra/test/Makefile
-          spectra/spectcljson/Makefile
-          spectra/Xamine2Root/Makefile
           Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
