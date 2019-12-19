@@ -538,6 +538,25 @@ proc _saveGateApplications {cmd sid} {
     }
     
 }
+##
+# _saveTreeVariables
+#    Saves tree variables/names.
+# @param cmd - Database command.
+# @param sid - Save set id.
+#
+proc _saveTreeVariables {cmd sid} {
+    set defs [treevariable -list]
+    foreach def $defs {
+        set name [lindex $def 0]
+        set value [lindex $def 1]
+        set units [lindex $def 2]
+        
+        $cmd eval {
+            INSERT INTO treevariables (save_id, name, value, units)
+            VALUES (:sid, :name, :value, :units)
+        }
+    }
+}
 
 ##
 # _saveSpectrumChans
@@ -1170,7 +1189,7 @@ proc makeSchema cmd {
             save_id        INTEGER NOT NULL,
             name           TEXT NOT NULL,
             value          DOUBLE NOT NULL,
-            UNITS          TEXT
+            units          TEXT
         )
     }
     $cmd eval {
@@ -1194,7 +1213,7 @@ proc saveConfig {cmd name} {
       _saveSpectrumDefs     $cmd $save_id
       _saveGateDefinitions  $cmd $save_id
       _saveGateApplications $cmd $save_id
-     #_saveTreeVariables    $cmd $save_id
+      _saveTreeVariables    $cmd $save_id
       _saveSpectraContents  $cmd $save_id
         
     }

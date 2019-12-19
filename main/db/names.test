@@ -36,6 +36,8 @@ proc createdb {} {
     sqlite3 config :memory:
 }
 
+
+
 set dummyParamDefs     [list]
 set dummyTreeParamDefs [list]
 set dummySpectrumDefs  [list]
@@ -61,6 +63,17 @@ proc gate {op args} {
     } elseif {$op eq "-new"} {
         lappend ::gateDefs $args
     }
+}
+
+
+set treevariables [list]
+
+proc treevariable {op args} {
+     if {$op eq "-list"} {
+        return $::treevariables
+     } elseif {$op eq "-set"} {
+        lappend ::treevariables $args
+     }
 }
 
 proc channel {op args} {
@@ -1961,6 +1974,62 @@ tcltest::test apprestore_1 {Restore some applications} \
     [list equal testspec] [list  and param1]                 \
 ]
 
+###########################################################################
+#
+#  Treevariable saves:
+
+tcltest::test treevar_1 {Save no tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    dbconfig::saveConfig config treevars
+    
+    set count [config eval {
+        select COUNT(*) AS count FROM treevariables
+    }]
+    
+} -result 0
+
+tcltest::test treevar_2 {save some tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    set ::treevariables [list                                        \
+        [list treevar1 123 ""]                                      \
+        [list treevar2 10 furlongs]                                \
+        [list t.a.b    10 cm]                                       \
+    ]
+    dbconfig::saveConfig config treevar
+    
+    config eval {
+        SELECT * FROM treevariables ORDER BY id ASC
+    } {
+        lappend result [list $save_id $name $value $units]
+    }
+    set result
+} -result [list                                           \
+    [list 1 treevar1 123.0 ""]                              \
+    [list 1 treevar2 10.0 furlongs ]                        \
+    [list 1 t.a.b 10.0 cm]                                  \
+]
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
