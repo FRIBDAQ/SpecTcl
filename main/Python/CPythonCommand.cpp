@@ -179,6 +179,25 @@ spectcl_varlist(PyObject* self, PyObject* Py_UNUSED(ignored))
     return result;
 }
 /**
+ * spectcl_gatelist
+ *    Creates a list of the gate names.
+ *  @param module - pointer to the module.
+ *  @return PyObject* - Tuple containing the  names of all gates.
+ */
+static PyObject*
+spectcl_gatelist(PyObject* self, PyObject* Py_UNUSED(ignored))
+{
+    SpecTcl*  pApi   = SpecTcl::getInstance();
+    PyObject* result = PyTuple_New(pApi->GateCount());
+    int i = 0;
+    for (auto p = pApi->GateBegin(); p != pApi->GateEnd(); p++) {
+        const std::string& name = p->first;
+        PyTuple_SetItem(result, i, PyUnicode_FromString(name.c_str()));
+        i++;
+    }
+    return result;
+}
+/**
  * spectcl_attach
  *    Attach SpecTcl to a data source.  This accepts keyword parameters:
  *    -  type: 'file' | 'pipe' (defaults to file)
@@ -279,6 +298,7 @@ spectcl_attach(PyObject* module, PyObject* args, PyObject* kwds)
     
     Py_RETURN_NONE;
 }
+
 /**
  * spectcl_start
  *    Starts processing data from the current event source.
@@ -317,6 +337,7 @@ static struct PyMethodDef SpecTclMethods[] = {
     {"listparams", spectcl_plist, METH_VARARGS, "List names of SpecTcl parameters"},
     {"listspectra", spectcl_speclist, METH_NOARGS, "List names of spectra"},
     {"listvars", spectcl_varlist, METH_NOARGS, "List tree variable names"},
+    {"listgates",spectcl_gatelist, METH_NOARGS, "List gate definitions"},
     {"attach",   (PyCFunction)spectcl_attach, METH_VARARGS | METH_KEYWORDS, "Attach to data source"},
     {"start",    spectcl_start,  METH_NOARGS, "Start analyzing current data source"},
     {"stop",     spectcl_stop,   METH_NOARGS, "Stop anaylzing from current data source"},
