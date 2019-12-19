@@ -1162,6 +1162,20 @@ proc makeSchema cmd {
             gate_id           INTEGER NOT NULL       -- fk to gate_defs
         )
     }
+    #  Tree variables:
+    
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS treevariables (
+            id             INTEGER PRIMARY KEY,
+            save_id        INTEGER NOT NULL,
+            name           TEXT NOT NULL,
+            value          DOUBLE NOT NULL,
+            UNITS          TEXT
+        )
+    }
+    $cmd eval {
+        CREATE INDEX IF NOT EXISTS treevariables_saveidx ON treevariables (save_id)
+    }
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
@@ -1176,11 +1190,12 @@ proc saveConfig {cmd name} {
         $cmd eval {INSERT INTO save_sets (name, timestamp) VALUES(:name, :timestamp)}
         set save_id [$cmd last_insert_rowid]
         
-      _saveParameters $cmd $save_id
-      _saveSpectrumDefs $cmd $save_id
-      _saveGateDefinitions $cmd $save_id
+      _saveParameters       $cmd $save_id
+      _saveSpectrumDefs     $cmd $save_id
+      _saveGateDefinitions  $cmd $save_id
       _saveGateApplications $cmd $save_id
-      _saveSpectraContents $cmd $save_id
+     #_saveTreeVariables    $cmd $save_id
+      _saveSpectraContents  $cmd $save_id
         
     }
     return $save_id
