@@ -527,6 +527,7 @@ void CTclGrammerApp::CreateDisplays()
         throw std::runtime_error("Failed to cast to a CXamineCreator");
     }
 
+#ifdef USE_SPECTRA
     // Set up the Xamine display to use the appropriate display size
     pCreator = gpDisplayInterface->getFactory().getCreator("spectra");
     Spectra::CSpectraLocalDisplayCreator* pSpectraCreator
@@ -536,11 +537,13 @@ void CTclGrammerApp::CreateDisplays()
     } else {
         throw std::runtime_error("Failed to cast to a CSpectraLocalDisplayCreator");
     }
-
+#endif    
     // Create the displays so they can chosen.
     m_pDisplayInterface->createDisplay("xamine",  "xamine");
     m_pDisplayInterface->createDisplay("batch",   "null");
+#ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
+#endif
 }
 
 /*! \brief CTclGrammerApp::SelectDisplayer()

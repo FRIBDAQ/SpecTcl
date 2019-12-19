@@ -31,9 +31,10 @@ CSpecTclDisplayInterface::CSpecTclDisplayInterface()
 {
     getFactory().addCreator("null",   *(new CNullDisplayCreator));
     getFactory().addCreator("xamine", *(new CXamineCreator()));
+#ifdef USE_SPECTRA
     getFactory().addCreator("spectra",
                             *(new Spectra::CSpectraLocalDisplayCreator()));
-
+#endif
     createDisplay("none", "null");
     setCurrentDisplay("none");
 

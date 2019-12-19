@@ -22,6 +22,7 @@
 
 #include "DisplayInterface.h"
 #include "Display.h"
+#include <stdexcept>
 
 using namespace std;
 
@@ -101,6 +102,8 @@ bool CDisplayInterface::setCurrentDisplay(const string &name)
     if (found != m_displays.end()) {
         m_collection.setCurrentDisplay(found->second);
         success = true;
+    } else {
+        throw std::invalid_argument("No such display type");
     }
 
     return success;
