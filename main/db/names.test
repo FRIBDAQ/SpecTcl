@@ -2030,6 +2030,36 @@ tcltest::test treevar_2 {save some tree variables} \
     [list 1 treevar2 10.0 furlongs ]                        \
     [list 1 t.a.b 10.0 cm]                                  \
 ]
+
+tcltest::test treevar_3 {Restore tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    set ::treevariables [list                                        \
+        [list treevar1 123 ""]                                      \
+        [list treevar2 10 furlongs]                                \
+        [list t.a.b    10 cm]                                       \
+    ]
+    dbconfig::saveConfig config treevar
+    set ::treevariables [list]
+    dbconfig::restoreConfig config treevar
+    
+    set ::treevariables
+} -result [list                                           \
+    [list treevar1 123.0 ""]                              \
+    [list treevar2 10.0 furlongs ]                        \
+    [list t.a.b 10.0 cm]                                  \
+]
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

@@ -1011,6 +1011,21 @@ proc _restoreGateApplications {cmd sid} {
         apply $gname $spname
     }
 }
+##
+# _restoreTreeVariables
+#    Restore tree variables from a saveset:
+#
+# @param cmd - database comand.
+# @param sid - The save set id.
+#
+proc _restoreTreeVariables {cmd sid} {
+    $cmd eval {
+        SELECT name, value, units FROM treevariables
+        WHERE save_id = :sid
+    } {
+        treevariable -set $name $value $units
+    }
+}
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -1278,6 +1293,7 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     _restoreSpectrumDefs     $cmd $saveId
     _restoreGateDefs         $cmd $saveId
     _restoreGateApplications  $cmd $saveId
+    _restoreTreeVariables    $cmd $saveId
     _restoreSpectrumContents $cmd $saveId
 
 }
