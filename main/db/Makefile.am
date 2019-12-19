@@ -8,4 +8,4 @@ check-TESTS:
 
 check: check-TESTS
 
-EXTRA_DIST=names.test
+EXTRA_DIST=names.test dbconfig.tcl
