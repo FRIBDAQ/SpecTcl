@@ -171,8 +171,8 @@ proc _saveSpectrumDefs {cmd sid} {
 proc _addLeadingParameters {cmd gid sid descr n} {
     # We need to look up the parameters to get their ids
     
-    incr n -1;             # index of last name.
-    set names [lrange $descr 0 $n]
+    
+    set names [lindex $descr 0];          # first is a list of parameters.
     foreach name $names {
         set pid ""
         $cmd eval {
@@ -231,7 +231,7 @@ proc _addTrailingParameters {cmd gid sid descr} {
 # @param descr - the gate description.
 #
 proc _addTrailingPoints {cmd gid descr} {
-    set points [lindex $descr end];    #extract the points.
+    set points [lrange $descr 1 end];    #extract the points.
     foreach point $points {
         set x [lindex $point 0]
         set y [lindex $point 1]
@@ -421,7 +421,25 @@ proc _ReorderGates {defs} {
 
     return $result
 }
-
+##
+# _add1dSlicePoint
+#   Adds a 1d point for a slice.  The point is a single list elemnt with
+#   low, high limts that are only x coordinates:
+#
+# @param cmd - database command.
+# @param gid  - id of the gate.
+# @param desc  - gate description
+#
+#
+proc _add1dSlicePoint {cmd gid desc} {
+    set lims [lindex $desc 1]
+    foreach lim $lims {
+        $cmd eval {
+            INSERT INTO gate_points (gate_id, x)
+            VALUES (:gid, :lim)
+        }
+    }
+}
 ##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
@@ -469,7 +487,7 @@ proc _saveGateDefinitions {cmd sid} {
         if {$type in [list s em am nm]} {
             _addLeadingParameters $cmd $gate_id $sid $descr 1
             if {$type eq "s"} {
-                _addTrailingPoints     $cmd $gate_id $descr
+                _add1dSlicePoint $cmd $gate_id $descr
             } else {
                 _addGateMask $cmd $gate_id $descr
             }

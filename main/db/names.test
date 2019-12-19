@@ -1053,8 +1053,8 @@ tcltest::test gates_3 {can leading parameters get saved?} \
     
     set ::gateDefs [list                                           \
         [list gate1 1 s [list param1 10 20]]                         \
-        [list gate2 2 c [list param1 param2 {100 200} {300 400} {50 50}]]    \
-        [list gate3 3 b [list param-something param2 {100 200} {300 400} {50 50}]] \
+        [list gate2 2 c [list {param1 param2} {100 200} {300 400} {50 50}]]    \
+        [list gate3 3 b [list {param-something param2} {100 200} {300 400} {50 50}]] \
     ]
     
     dbconfig::saveConfig config gates
@@ -1129,8 +1129,8 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                          \
-        [list gate1 1 b [list param1 param2 [list {10 10} {100 100}]]] \
-        [list gate2 2 c [list param2 param-something [list {10 10} {100 100} {50 50}]]] \
+        [list gate1 1 b [list {param1 param2} {10 10} {100 100}]] \
+        [list gate2 2 c [list {param2 param-something} {10 10} {100 100} {50 50}]] \
     ]
     
     dbconfig::saveConfig config gates
@@ -1147,7 +1147,7 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
     [list 2 10.0 10.0] [list 2 100.0 100.0] [list 2 50.0 50.0]                \
 ]
 
-tcltest::test gate_5 {Saving mask gates} \
+tcltest::test gate_6 {Saving mask gates} \
 -setup {
     createdb
     dbconfig::makeSchema config
@@ -1181,7 +1181,7 @@ tcltest::test gate_5 {Saving mask gates} \
     [list 1 1234] [list 2 456] [list 3 789]                  \
 ]
    
-tcltest::test gate_6 {gamma contour/band points}               \
+tcltest::test gate_7 {gamma contour/band points}               \
 -setup {
     createdb
     dbconfig::makeSchema config
@@ -1215,7 +1215,7 @@ tcltest::test gate_6 {gamma contour/band points}               \
     [list 2 100.0 200.0] [list 2 300.0 400.0] [list 2 50.0 20.0]                 \
 ]
 
-tcltest::test gate_7 {gamma slice point}                   \
+tcltest::test gate_8 {gamma slice point}                   \
 -setup {
     createdb
     dbconfig::makeSchema config
@@ -1247,7 +1247,7 @@ tcltest::test gate_7 {gamma slice point}                   \
 } -result [list [list 1 10.0 ] [list 1 20.0]]
 
 
-tcltest::test gate_8 {Dependent gate ids} \
+tcltest::test gate_9 {Dependent gate ids} \
 -setup {
     createdb
     dbconfig::makeSchema config
@@ -1716,8 +1716,8 @@ tcltest::test grestore_3 {bands and contours get restored}   \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     set ::gateDefs [list                                                        \
-        [list contour 1 c [list param1 param2 [list {10 10} {20 30} {40 70}]]]            \
-        [list band 2 b    [list param2 param-something [list {700 40} {800 900}]]]       \
+        [list contour 1 c [list {param1 param2} {10 10} {20 30} {40 70}]]            \
+        [list band 2 b    [list {param2 param-something}  {700 40} {800 900}]]       \
     ]
         
     dbconfig::saveConfig config grestore
