@@ -51,6 +51,7 @@
 #include "pythonParameters.h"            // Parameters/parameter object.
 #include "pythonSpectrum.h"             // spectrum object.
 #include "pythonVariable.h"             // tree variable objects.
+#include "pythonGates.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //  The spectcl python module that lets python scripts do SpecTcl stuff.
@@ -362,6 +363,7 @@ PyInit_SpecTcl(void)
     setupPythonParameterObjects(module);
     setupPythonSpectrumObjects(module);
     setupPythonVariableObjects(module);
+    setupPythonGates(module);
     
     return module;
 }
