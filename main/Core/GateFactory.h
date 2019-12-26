@@ -204,7 +204,7 @@ public:
 				  long Compare);
   
   static UInt_t  AssignId();
- 
+  static GateType stringToGateType(const std::string& sType);
 protected:
   UInt_t ParameterToId(const std::string& rName, GateType eType, 
 		       const char* pWhich) const;
