@@ -23,6 +23,14 @@
 
 #include <Gate.h>
 #include <Cut.h>
+#include <PointlistGate.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
+#include <MaskAndGate.h>
+#include <MaskEqualGate.h>
+#include <MaskNotGate.h>
+
 
 #include <SpecTcl.h>
 
@@ -42,6 +50,43 @@ getContainer(PyObject* self)
 {
     pGateObject pObj = reinterpret_cast<pGateObject>(self);
     return pObj->s_pContainer;
+}
+
+/**
+ * parameterName
+ *    Turns a parameter id into a parameter name object.
+ *
+ * @param id - Id of the parameter.
+ * @return PyObject* - either a unicode object containing the parameter name
+ *                     or Py_None, if the parameter no longer exists.
+ */
+static PyObject*
+parameterName(int id)
+{
+    CParameter* pParam = SpecTcl::getInstance()->FindParameter(id);
+    if (pParam) {
+        std::string name = pParam->getName();
+        return PyUnicode_FromString(name.c_str());
+    } else {
+        Py_RETURN_NONE;
+    }    
+}
+/**
+ * parameterNameList
+ *    Given a vector of UInt_t containing parameter ids, turns that into
+ *    a Tuple containing the corresponding parameter names.
+ *
+ *  @param ids - the parameter list
+ *  @return PyObject* tuple of names.
+ */
+static PyObject*
+parameterNameList(const std::vector<UInt_t>& ids)
+{
+    PyObject* result = PyTuple_New(ids.size());
+    for (int i =0; i < ids.size(); i++) {
+        PyTuple_SetItem(result, i, parameterName(ids[i]));
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -230,15 +275,54 @@ getParameters(PyObject* self, void* closure)
     if (type == "s") {
         CCut* pCut = dynamic_cast<CCut*>(pContainer->getGate());
         int   paramId = pCut->getId();
-        CParameter* pParam = SpecTcl::getInstance()->FindParameter(paramId);
-        if (pParam) {
-            std::string name = pParam->getName();
-            return PyUnicode_FromString(name.c_str());
-        } else {
-            Py_RETURN_NONE;
-        }
+        PyObject* result = PyTuple_New(1);
+        PyTuple_SetItem(result, 0, parameterName(paramId));
+        return result;
+    } else if ((type == "c") || (type == "b")) {
+        // These are both point list gates 2 item ntuple containing the names:
+        // X parameter is first.
+        CPointListGate*  pGate = dynamic_cast<CPointListGate*>(pContainer->getGate());
+        PyObject* result = PyTuple_New(2);
+        int xid = pGate->getxId();
+        int yid = pGate->getyId();
+        
+        PyTuple_SetItem(result, 0, parameterName(xid));
+        PyTuple_SetItem(result, 1, parameterName(yid));
+        return result;
+    } else if (type == "gs") {
+        
+        // Tuple of parameters
+        
+        CGammaCut* pCut = dynamic_cast<CGammaCut*>(pContainer->getGate());
+        CGammaCut::ParameterList params = pCut->getParameters();
+        return parameterNameList(params);
+        
+    } else if (type == "gb") {
+        CGammaBand* pBand = dynamic_cast<CGammaBand*>(pContainer->getGate());
+        CGammaBand::ParameterList params = (pBand->getParameters());   // Todo gamma gate base class...
+        return parameterNameList(params);
+    } else if (type == "gc") {
+        CGammaContour* pContour = dynamic_cast<CGammaContour*>(pContainer->getGate());
+        CGammaContour::ParameterList params (pContour->getParameters());   // Todo gamma gate base class...
+        return parameterNameList(params);
+    } else if (type == "em") {
+        CMaskEqualGate* pGate = dynamic_cast<CMaskEqualGate*>(pContainer->getGate());
+        PyObject* result = PyTuple_New(1);
+        PyTuple_SetItem(result, 0, parameterName(pGate->getId()));
+        return result;
+    } else if (type == "am") {
+        CMaskAndGate* pGate = dynamic_cast<CMaskAndGate*>(pContainer->getGate());
+        PyObject* result = PyTuple_New(1);
+        PyTuple_SetItem(result, 0, parameterName(pGate->getId()));
+        return result;
+    } else if (type == "nm") {
+        CMaskNotGate* pGate = dynamic_cast<CMaskNotGate*>(pContainer->getGate());
+        PyObject* result = PyTuple_New(1);
+        PyTuple_SetItem(result, 0, parameterName(pGate->getId()));
+        return result;
+        
     } else {
-        Py_RETURN_NONE;
+        Py_RETURN_NONE;                 // These gate types don't have parameters.
     }
 }
 
