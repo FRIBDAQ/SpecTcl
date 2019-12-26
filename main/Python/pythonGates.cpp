@@ -30,6 +30,7 @@
 #include <MaskAndGate.h>
 #include <MaskEqualGate.h>
 #include <MaskNotGate.h>
+#include <ConstituentIterator.h>
 
 
 #include <SpecTcl.h>
@@ -325,6 +326,54 @@ getParameters(PyObject* self, void* closure)
         Py_RETURN_NONE;                 // These gate types don't have parameters.
     }
 }
+/**
+ * getGates
+ *   Returns a tuple that contains the name sof the gates the compound gate
+ *   depends on.  Note that if a gate is primitive or in some other way
+ *   does not depend on other gates, Py_None is returned, not an empty tuple.
+ *   Note as well that if there are multiple levels of dependency only the top
+ *   level is returned, for example:
+ * \verbatim
+ *     gate cut c {....}
+ *     gate not n c
+ *     gate and * {n gate1 gate2}
+ *
+ * \endverbatim
+ *
+ *    this will return a tuple containing n, gate, and gate2, not cut, gate1, and gate2.
+ *    This is necessary to allow gates to be reconstructed from previously saved
+ *    information.
+ *
+ * @param self   - Pointer to the gate object data.
+ * @param closure - pointer to something I don't really understand the necessity of.
+ * @return PyObject* - tuple containing the gates or none if the gate does not
+ *                 depend on anything.
+ */
+static PyObject*
+getGates(PyObject* self, void*)
+{
+    CGateContainer* pContainer = getContainer(self);
+    std::string type = (*pContainer)->Type();
+    
+    if ((type == "*") || (type =="+") || (type == "-")) {
+        CGate* pGate =  pContainer->getGate();
+        
+        // The constituent iterators return the names of gates:
+        
+        PyObject* result = PyTuple_New(pGate->Size());
+        CConstituentIterator p = pGate->Begin();
+        for (int i =0; i < pGate->Size(); i++) {
+            std::string name = pGate->GetConstituent(p);
+            ++p;
+            
+            PyTuple_SetItem(result, i, PyUnicode_FromString(name.c_str()));
+        }
+        return result;
+        
+    } else {
+         Py_RETURN_NONE;                // Primitive gate.
+    }
+}
 
 // Methods on the object:
 
@@ -342,6 +391,7 @@ static PyGetSetDef gettersAndSetters[] = {
     {"name", (getter)getName, NULL, "Gate Name"},
     {"type", (getter)getType, NULL, "Gate Type"},
     {"parameters", (getter)getParameters, NULL, "Parameters gate is defined on"},
+    {"gates", (getter)getGates, NULL, "Component Gates"},
     
     {NULL}                            // End sentinell.
 };
