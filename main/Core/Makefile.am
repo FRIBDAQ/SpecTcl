@@ -380,7 +380,8 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
-					spectclCmdTests evbProcessorTests
+					spectclCmdTests evbProcessorTests \
+					gateTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -405,6 +406,10 @@ scalertests_LDADD    = $(commonTestLdFlags)
 scalertests_SOURCES  = TestRunner.cpp \
 			 scalercallbacktests.cpp 	\
 			 controlcallbacktests.cpp
+
+gateTests_CXXFLAGS = $(commonCXXFLAGS)
+gateTests_LDADD    = $(commonTestLdFlags)
+gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
 
 
 docbuftests_CXXFLAGS = $(commonCXXFLAGS)
@@ -472,7 +477,7 @@ evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
 
-TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
+TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
 		spectclCmdTests evbProcessorTests
 
