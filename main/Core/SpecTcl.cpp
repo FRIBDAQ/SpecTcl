@@ -2844,5 +2844,5 @@ SpecTcl::parameterIds(vector<string> names)
     ++i;                            // Next.
     paramIds.push_back(pParameter->getNumber());
   }
-  
+  return paramIds;
 }
