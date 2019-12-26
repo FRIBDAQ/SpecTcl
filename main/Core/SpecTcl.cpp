@@ -2841,6 +2841,7 @@ SpecTcl::parameterIds(vector<string> names)
     if(!pParameter) {
       throw *i;
     }
+    ++i;                            // Next.
     paramIds.push_back(pParameter->getNumber());
   }
   
