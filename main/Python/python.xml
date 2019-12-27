@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl Python package</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>December 26, 2019</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            The Python package allows users of SpecTcl to execute python scripts
+            within the SpecTcl program.   The package provides commands
+            to execute python scripts from file or inline with other Tcl
+            commands.  The package also provides Python-esque wrappings of
+            the major SpecTcl objects, allowing you to manipulate spectra,
+            parameters, gates, and variables directly from your python scripts.
+        </para>
+        <para>
+            Incorporating the Python package in your SpecTcl run is as simple as
+            adding the line:
+            <informalexample>
+                <programlisting>
+package require python
+                </programlisting>
+            </informalexample>
+            to your <filename>SpecTclRC.tcl</filename> script.
+        </para>
+        <para>
+            Note that this both adds the <command>python</command>
+            command to your SpecTcl Tcl interpreter and imports the
+            <literal>spectcl</literal> Python package into the python interpreter
+            that runs that command.  Since the same interpreter is used
+            to run all Python commands, packages, variables, objects created
+            in one script are fully available to subsequent scripts.
+        </para>
+    </chapter>
+    <chapter>
+        <title>The <command>python</command> command.</title>
+        <para>
+            The <literal>python</literal> package adds a new command to the
+            SpecTcl Tcl interpreter:
+        </para>
+        <refentry>
+            <refmeta>
+                <refentrytitle>python</refentrytitle>
+                <manvolnum>1SpecTcl</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>python</refname>
+                <refpurpose>Runs python scripts in SpecTcl</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require python
+                    </command>
+                    <command>
+python source <replaceable>filename</replaceable>                        
+                    </command>
+                    <command>
+python exec <replaceable>script</replaceable>
+                    </command>
+                </cmdsynopsis>                
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    The <command>python</command> command is a Tcl command
+                    ensemble that has two subcommands.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>source</literal></term>
+                        <listitem>
+                            <para>
+                                Accepts a filename and executes the python script
+                                in that file.  
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>exec</literal></term>
+                        <listitem>
+                            <para>
+                                Accepts a python script and executes that script.
+                                Prior to running the script a single variable
+                                substitution pass is run over the script.
+                                This substitution pass is run regardless of the
+                                top level quoting.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <example>
+                    <title>Running a script file</title>
+                    <cmdsynopsis>
+                        <command>
+python source myscript.py
+                        </command>
+                    </cmdsynopsis>
+                    <para>
+                        This example runs a python script that is stored in
+                        <filename>myscript.py</filename>
+                    </para>
+                </example>
+                <example>
+                    <title>Running an immediate script</title>
+                    <cmdsynopsis>
+                        <command>
+python exec {
+print("Hello world from python")
+}
+                        </command>
+                    </cmdsynopsis>
+                    <para>
+                        This prints the string
+                        <literal>Hello world from python</literal>
+                        on stdout.  Note that if you are running the
+                        <application>TkCon</application> console, the output
+                        will not come out there but on the terminal that started
+                        SpecTcl.  This is because python is not aware of the
+                        Tcl redirection of its <literal>stdout</literal> and
+                        <literal>stderr</literal> file descriptors to that console
+                        window.
+                    </para>
+                </example>
+                <example>
+                    <title>Tcl variable substitution</title>
+                    <programlisting>
+set spectrumName myspectrum
+python exec {
+s = spectcl.spectrum('$spectrumName')
+print(s.name)
+print(s.type)
+print(s.parameters)
+print(s.axes)
+
+}
+                    </programlisting>
+                    <para>
+                        Creates a python spectrum object that wraps
+                        the spectrum named by the Tcl variable
+                        <varname>spectrumName</varname> (in this case
+                        <literal>myspectrum</literal>).
+                        The name, type, parameter list and axis definitions
+                        of the spectrum are printed to stdout.
+                    </para>
+                    <para>
+                        Note we needed to quote the variable substitution so
+                        that the resulting parameter would be a properly quoted
+                        literal string from python's point of view.
+                    </para>
+                </example>
+            </refsect1>
+        
+        </refentry>
+    </chapter>
+    <chapter>
+        <title>
+            The python <literal>spectcl</literal> package
+        </title>
+        <para>
+            The <literal>spectcl</literal> package is automatically imported
+            into the python interpreter when the python package is required.
+            It provides access to SpecTcl objects in a manner natural
+            to python programmers.  
+        </para>
+        <para>
+            The python package provides package level methods as well as python
+            types that wrap SpecTcl objects naturally to Python programmers.
+        </para>
+        <para>
+            We'll divide the remainder of this chapter into several sections
+            that first describe the module level methods provided and then each
+            individual type that's implemented by the <literal>spectcl</literal>
+            package.
+        </para>
+        <section>
+            <title>spectcl package level methods.</title>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>tcl</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>tcl</refname>
+                    <refpurpose>Run a Tcl script from Python.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                    <command>
+package require python
+                    </command>
+                    <command>
+spectcl.tcl(<replaceable>tcl-script</replaceable>)
+                    </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This command runs a Tcl script in the SpecTcl interpreter.
+                        If you find that the spectcl package is missing some feature,
+                        as a last resort, you can use this command to gain access
+                        to that feature in SpecTcl.
+                    </para>
+                    <para>
+                        You can also use this command to gain access to the
+                        Tk user interface SpecTcl is running and, with a bit of
+                        thought arrange for python scripts to execute in response
+                        to user interface actions. (Hint
+                        <option>-command</option><literal> [list python exec [list python-script]</literal>)
+                        might get you started there.
+                    </para>
+                </refsect1>
+        
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>listparams</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>listparams</refname>
+                    <refpurpose>Creates a listing of defined parameters.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.listparams()                            
+                        </command>
+                    </cmdsynopsis>                    
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method returns a tuple containing the names of
+                        all SpecTcl commands.
+                    </para>
+                </refsect1>
+                <refsect1>
+                    <title>EXAMPLES</title>
+                    <example>
+                        <title>Listing all parameters to tkcon</title>
+                        <programlisting>
+python exec {
+params = spectcl.listparams()
+for p in params:
+    script = 'puts "{}"'.format(p)
+    spectcl.tcl(script)
+}
+                        </programlisting>
+                        <para>
+                            This example gets a tuple containing the names of
+                            all defined parameters.  The for loop then
+                            generates a Tcl script to output each parameter
+                            name in the tuple to tkcon taking advantage of the
+                            fact that Tcl's stdout is tkcon.  The scripts
+                            are then executed to output the names of the parameters
+                            to the console.
+                        </para>
+                        <para>
+                            Note that if the user's <filename>SpecTclRC.tcl</filename>
+                            does not start TkCon, this will output to the
+                            terminal from which SpecTcl started.
+                        </para>
+                    </example>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>listspectra</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>listspectra</refname>
+                    <refpurpose>Create a list of defined spectrum names.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.listspectra()
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method creates a tuple that contains the list of
+                        all defined spectra.  If no spectra are defined, the
+                        method returns an empty tuple.
+                    </para>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>listvars</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>listvars</refname>
+                    <refpurpose>Get a list of tree variables.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.listvars()
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method returns a tuple containing the names of all
+                        tree variables that have been defined in SpecTcl.
+                        If no tree variables have been defined, the result is an
+                        empty tuple.
+                    </para>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>listgates</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>listgates</refname>
+                    <refpurpose>Create a list of gate names.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.listgates()
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method returns a tuple that contains the list
+                        of all gates defined in SpecTcl.  If no gates have
+                        been defined, the result is an empty tuple.
+                    </para>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>attach</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>attach</refname>
+                    <refpurpose>Attach SpecTcl to a data source.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.attach(
+    type=<replaceable>"file"|"pipe"</replaceable>, name=<replaceable>source-spec</replaceable>,
+    <optional>...</optional>)
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method attaches SpecTcl to a new data source.
+                        Data analysis from any prior source is terminated.
+                        If successful, it's still necesary to start analysis
+                        on the data source.  The method returns
+                        <literal>None</literal>
+                    </para>
+                    <para>
+                        The actual operation of the method is determined by
+                        entirely by keyword parameters.  No positional parameters
+                        are allowed.  With the exception of
+                        <option>type</option> and <option>name</option>, all
+                        other keywords are options.  Allowed keywords are:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                            <term><option>type</option></term>
+                            <listitem>
+                                <para>
+                                    The value of this keyword must be a string
+                                    that contains either <literal>file</literal>,
+                                    if data are to be analyzed from a file,
+                                    or <literal>pipe</literal> if data
+                                    are analyzed from a pipe program.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><option>name</option></term>
+                            <listitem>
+                                <para>
+                                    The value of this keyword is a string. It's
+                                    interpretation depends on the value of
+                                    <option>type</option> above.
+                                </para>
+                                <para>
+                                    If <option>type</option><literal>='file'</literal>,
+                                    the <option>name</option> value is a path
+                                    (absolute or relative) to the file from which
+                                    data will be analyzed.
+                                </para>
+                                <para>
+                                    If <option>type</option><literal>='pipe'</literal>
+                                    the <option>name</option> value is a program
+                                    and its arguments.  The specified program must
+                                    output valid data to its stdout. The specified
+                                    program's stdout will be connected to a pipe
+                                    from which SpecTcl will read data.
+                                </para>
+                                <para>
+                                    Note that pipe data sources are how
+                                    SpecTcl takes data from online systems.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><option>size</option></term>
+                            <listitem>
+                                <para>
+                                    The value of this keyword must be an integer.
+                                    SpecTcl will read data from its data source
+                                    using a buffer with as many bytes as
+                                    specified by <option>size</option>.
+                                    This keyword is optional and its value
+                                    defaults to <literal>8192</literal>.
+                                </para>
+                                <para>
+                                    It is recommended that the size be large enough
+                                    to hold several typical events.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term><option>format</option></term>
+                            <listitem>
+                                <para>
+                                    The value of this keyword is a
+                                    string that specifies
+                                    the data format that SpecTcl assumes the
+                                    data is in.  The legal values are
+                                    <literal>ring10</literal> or
+                                    <literal>ring11</literal>.  This keyword is
+                                    optional and defaults to <literal>ring11</literal>.
+                                </para>
+                                <para>
+                                    Note that if Spectcl sees ring format items
+                                    but <literal>ring10</literal> was specified,
+                                    it will override the specification to the
+                                    data format specified by the format item.
+                                    If the source is online and the run has already
+                                    been started, the initial ring format item
+                                    will not be seen and the specified format
+                                    will be used.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                <refsect1>
+                    <title>EXAMPLES</title>
+                    <example>
+                        <title>Attaching a file data source</title>
+                        <programlisting>
+set filename [file normalize [file join ~ stagearea experiment run1 run-0001-00.evt]]
+python exec {
+spectcl.attach(type='file', name='$filename')
+}
+                        </programlisting>
+                        <para>
+                            Note that Tcl is used to generate and normalize
+                            the event filename in the stagearea.  The resulting
+                            filename is used by the python script as the
+                            <option>name</option> for the attach.
+                        </para>
+                        
+                    </example>
+                    <example>
+                        <title>Taking data from an NSCLDAQ ringbuffer</title>
+                        <programlisting>
+python exec {
+import os
+import getpass
+
+daqbin=os.getenv('DAQBIN')
+host  =os.getenv('DAQHOST')
+
+program = daqbin + '/ringselector --sample=PHYSICS_EVENT --non-blocking '
+user    = getpass.getuser()
+uri     = 'tcp://' + host + '/' + user
+program = program + '--source=' + uri
+
+spectcl.attach(type='pipe', name=program)
+    
+}
+                        </programlisting>
+                        <para>
+                            This example assumes thate:
+                            <itemizedlist>
+                                <listitem>
+                                    <para>
+                                        The <literal>DAQBIN</literal> environment
+                                        variable points at a valid bin
+                                        subdirectory of an NSCLDAQ installation.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        The environment variable
+                                        <literal>DAQHOST</literal> contains the name
+                                        of the system on which the ringbuffer
+                                        from which we want data lives.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        We want to take data from the default
+                                        ringbuffer (the logged in username) from
+                                        that host.
+                                    </para>
+                                    <para>
+                                        Note that the combination of
+                                        <option>--sample</option> and
+                                        <option>--non-blocking</option> on the
+                                        <command>ringselector</command> command
+                                        ensure that SpecTcl will not determine
+                                        the maximum data taking rate.
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </example>
+                    <example>
+                        <title>Reading data from a gzipped event file</title>
+                        <programlisting>
+set filename [file normalize [file join ~ stagearea experiment run1 run-0001-00.evt.gz]]
+python exec {
+program = 'zcat $filename'
+spectcl.attach(type='pipe', name=program)    
+}
+                        </programlisting>
+                        <para>
+                            The output of zcat, the uncompressed event file,
+                            is attached via a pipe to SpecTcl.  As in the
+                            first example, we use Tcl to generate the filename.
+                            We could equally well have done this using
+                            <methodname>os.path.join</methodname> and
+                            <methodname>os.path.abspath</methodname>
+                            completely in the python script.
+                        </para>
+                    </example>
+                </refsect1>
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>start</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>start</refname>
+                    <refpurpose>Start analyzing data.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis>
+                        <command>
+spectcl.start()
+                        </command>
+                    </cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        Starts taking data from the current event source.
+                        The current event source is determined by the
+                        last call to <methodname>spectcl.attach()</methodname>,
+                        or the last Tcl <command>attach</command> command,
+                        whichever was more recent.
+                    </para>
+                    <para>
+                        To allow Tcl scripts to be aware of the change in state,
+                        the Tcl global variable <varname>RunState</varname> is
+                        set to 1 as it is for the Tcl <command>start</command>
+                        command.
+                    </para>
+                    <para>
+                        If analysis is active, this method does nothing.
+                    </para>
+                </refsect1>
+            
+            </refentry>
+            <refentry>
+                <refmeta>
+                    <refentrytitle>stop</refentrytitle>
+                    <manvolnum>3SpecTclPython</manvolnum>
+                </refmeta>
+                <refnamediv>
+                    <refname>stop</refname>
+                    <refpurpose>Stop data analysis</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <cmdsynopsis><command>
+spectcl.stop()
+                    </command></cmdsynopsis>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        This method stops data analysis from the current
+                        data source.  If data analysis is stopped,
+                        this method does nothing.  If data analysis are stopped,
+                        the Tcl global variable <varname>RunState</varname> is
+                        set to 0 as it is for the Tcl <command>stop</command>
+                        command.
+                    </para>
+                </refsect1>
+            
+            </refentry>
+            
+        </section>
+        
+    </chapter>
+</book>

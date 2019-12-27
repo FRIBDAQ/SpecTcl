@@ -1005,7 +1005,7 @@ static PyMethodDef spectrumMethods[] = {
     {"bind", (PyCFunction)(bind), METH_NOARGS, "Bind spectrum to displayer"},
     {"unbind", (PyCFunction)(unbind), METH_NOARGS, "Unbind spectrum from displayer"},
     {"get",    (PyCFunction)(Get),   METH_VARARGS, "Get channel value from spectrum"},
-    {"set",    (PyCFunction)(Set),   METH_VARARGS, "Set channel value in a sectrum."},
+    {"set",    (PyCFunction)(Set),   METH_VARARGS, "Set channel value in a spectrum."},
     {"project", (PyCFunction)(project), METH_VARARGS | METH_KEYWORDS, "Create a projection spectrum"},
     
     // End sentinell
