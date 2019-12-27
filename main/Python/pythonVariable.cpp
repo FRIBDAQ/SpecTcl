@@ -120,6 +120,7 @@ initialize(PyObject* self, PyObject* args, PyObject* kwds)
     
     auto p = CTreeVariable::find(name);
     if (p == CTreeVariable::end()) {
+        PyErr_SetString(PyExc_LookupError, "No such tree parameter");
         return -1;                          // not founfd.
     }
     me->s_objData.s_pProperties = p->second;
