@@ -20,8 +20,8 @@ install-exec-hook: @builddir@/libSpecTclPython.la
 	$(mkinstalldirs) @prefix@/TclLibs/python
 	$(INSTALL_PROGRAM) @libdir@/libSpecTclPython.so @prefix@/TclLibs/python
 	echo package ifneeded python 1.0 [list load [file join \$$dir libSpecTclPython.so]] > @prefix@/TclLibs/python/pkgIndex.tcl
-	@HTMLDOCBOOK@ -o @prefix@/share/python python.xml
-
+	@HTMLDOCBOOK@ -o @prefix@/share/python @srcdir@/python.xml
+0;136;0c
 
 EXTRA_DIST=python.xml
 
