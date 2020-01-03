@@ -32,6 +32,28 @@ namespace eval dbconfig {
 #  Private procs.
 
 ##
+# _lookupSaveSet
+#
+# @param cmd - database command.
+# @param savename - name of a saveset.
+# @return integer -save set id or
+# @throw error if there's no matching saveid.
+#
+proc _lookupSaveSet {cmd savename} {
+    set saveId ""
+    
+    $cmd eval {
+        SELECT id FROM save_sets WHERE name = :savename
+    } {
+        set saveId $id
+    }
+    if {$saveId eq ""} {
+        error "There is no save set named $savename"
+    }
+    return $saveId
+}
+
+##
 # _saveParameters
 #    Save the parameter definitions to the parameter_defs table:
 #
@@ -590,6 +612,7 @@ proc _saveTreeVariables {cmd sid} {
 #       first element of the data:
 #
 proc _saveSpectrumChans {cmd specid data} {
+    
     if {[llength $data] > 0} {
         if {[llength [lindex $data 0]] == 2} {
             # 1d
@@ -702,20 +725,34 @@ proc _restoreParamDefs {cmd saveid} {
 #
 # @param cmd - database command.
 # @param sid - save set id.
+# @param spid - if provided the id of the single specstrum id we want
+#               to restore.
 #
-proc _restoreSpectrumDefs {cmd sid} {
+proc _restoreSpectrumDefs {cmd sid {spid -1}} {
     # Get the spectrum top level defs.  These will go into an array of
     # dicts indexed by the spectrum id
     
     array set topdefs [list];          # Array of top level dicts.
     set idlist [list]
-    $cmd eval {
-        SELECT * from spectrum_defs  WHERE save_id = :sid
-        ORDER BY id ASC
-    } {
-        set value [dict create id $id name $name type $type datatype $datatype]
-        set topdefs($id) $value
-        lappend idlist $id
+    if {$spid == -1} {
+        $cmd eval {
+            SELECT * from spectrum_defs  WHERE save_id = :sid
+            ORDER BY id ASC
+        } {
+            set value [dict create id $id name $name type $type datatype $datatype]
+            set topdefs($id) $value
+            lappend idlist $id
+        }
+    } else {
+        $cmd eval {
+            SELECT * from spectrum_defs WHERE id = :spid
+        } {
+            set value [dict create id $id name $name type $type datatype $datatype]
+            set topdefs($id) $value
+            lappend idlist $id
+
+        }
+        
     }
     
     set idlist [join $idlist ,]
@@ -760,6 +797,26 @@ proc _restoreSpectrumDefs {cmd sid} {
     }
 }
 ##
+# _restoreChannel
+#   Restore a spectrum channel:
+#
+# @param name - spectrum name
+# @param xbin - x axis bin number.
+# @param ybin - y axis bin number ("" if one dimensional).
+# @param value - channel value.
+#
+proc _restoreChannel {name xbin ybin value} {
+    set cmd [list channel -set $name]
+    if {$ybin ne ""} {
+        lappend cmd [list $xbin $ybin]
+    } else {
+        lappend cmd $xbin
+    }
+    lappend cmd $value
+    
+    eval $cmd    
+}
+##
 # _restoreSpectrumContents
 #    Restores the spectrum contents for a save set.
 #    The assumption is that the spectrum has been defined.
@@ -767,24 +824,41 @@ proc _restoreSpectrumDefs {cmd sid} {
 # @param cmd - database command.
 # @param sid - save-set id.
 #
-proc _restoreSpectrumContents {cmd sid} {
-    $cmd eval {
-        SELECT name, xbin, ybin, value FROM spectrum_defs
-        INNER JOIN spectrum_contents ON spectrum_defs.id = spectrum_id
-        WHERE save_id= :sid
-        ORDER by spectrum_defs.id, spectrum_contents.id ASC
-    } {
-        set cmd [list channel -set $name]
-        if {$ybin ne ""} {
-            lappend cmd [list $xbin $ybin]
-        } else {
-            lappend cmd $xbin
-        }
-        lappend cmd $value
+proc _restoreSpectrumContents {cmd sid {spid -1}} {
+    
+    array set haveCleared [list]
+    if {$spid == -1} {
         
-        eval $cmd
+        
+        $cmd eval {
+            SELECT name, xbin, ybin, value FROM spectrum_defs
+            INNER JOIN spectrum_contents ON spectrum_defs.id = spectrum_id
+            WHERE save_id= :sid
+        } {
+            # On the first occurence of a spectrum name, clear it:
+            if {[array names haveCleared $name] == ""} {
+                clear $name
+                set haveCleared($name) 1
+            }
+            _restoreChannel $name $xbin $ybin $value
+
+        }
+    } else {
+         $cmd eval {
+            SELECT name, xbin, ybin, value FROM spectrum_defs
+            INNER JOIN spectrum_contents ON spectrum_defs.id = spectrum_id
+            WHERE save_id= :sid AND spectrum_id = :spid
+        } {
+            if {[array names haveCleared $name] == ""} {
+                clear $name
+                set haveCleared($name) 1
+            }
+            _restoreChannel $name $xbin $ybin $value
+
+        }
     }
 }
+
 ##
 # _getGateParams
 #    Get parameters associated with a gate that has parameters.
@@ -1044,6 +1118,137 @@ proc _restoreTreeVariables {cmd sid} {
         treevariable -set $name $value $units
     }
 }
+
+##
+# _getSpectrumId
+#    Given a spectrum name and a saveset, return the spectrum id
+#    else throw an error.
+# @param cmd   - The database access command.
+# @param sid   - The save set id in which the spectrum is stored.
+# @param specname - name of the spectrum to look up.
+# @return    - id of the spectrum in the spectrum_defs table.
+# @throw error - if no matches.
+#
+proc _getSpectrumId {cmd sid specname} {
+    set ids [list]
+    $cmd eval {
+        SELECT id FROM spectrum_defs
+        WHERE save_id = :sid AND name = :specname
+    } {
+        lappend ids $id
+    }
+    # Highlander requirement:
+    #     Not only can there be only 1, there must be exactly 1.
+    
+    if {[llength $ids] == 0} {
+        error "No matching spectrum $specname in save set $sid"
+    } elseif {[llength $ids] > 1} {
+        error "BUG there's more than one id matchin $specname in $sid: $ids"
+    }
+    
+    return $ids;                  # We know there can be only 1.
+}
+##
+# _deleteContentsIfExists
+#   If a spectrum has contents saved, they are removed.
+#
+# @param cmd - Database command.
+# @param specid - Primary key of the spectrum whose contents we're deleing.
+#                 note this already implies a save set.
+# @note this is a silent No-op if there are no values to delete.
+#
+proc _deleteContentsIfExists {cmd specid} {
+    $cmd eval {
+        DELETE FROM spectrum_contents WHERE spectrum_id = :specid
+    }
+    
+}
+##
+# _requireCompatible
+#   Requires that a spectrum definition in SpecTcl be compatible with a
+#   spectrum given by id in the database.  Compatibility means:
+#
+#   - The identified spectrum have the same spectrum types.
+#   - The identified spectrum has the same number of axes and at least the
+#     same number of bins on each axis.
+#   - The named spectrum has the same set of parameters as the named spectrum.
+#
+# @param  cmd   - database command.
+# @param  id    - Spectrum id (implies a save set id).
+# @param  def   - SpecTcl definition to compare with.
+# @throw error - if the two spectra ar not compatible.
+#
+proc _requireCompatible {cmd id def} {
+    if {$def eq ""} {
+        error "No such spectrum."
+    }
+    # Let's get the spectru, and its parameters first:
+    
+    set params [list]
+    set specname [list]
+    set sptype [list]
+    $cmd eval {
+        SELECT type, parameter_defs.name as pname, spectrum_defs.name as spname
+        FROM spectrum_defs
+        INNER JOIN spectrum_params ON spectrum_defs.id = spectrum_params.spectrum_id
+        INNER JOIN parameter_defs   ON parameter_defs.id = spectrum_params.parameter_id
+        WHERE spectrum_defs.id = :id
+    } {
+        set specname $spname
+        set sptype   $type
+        lappend params $pname
+    }
+    # Get the spectrum axis defs:
+    
+    set axes [list]
+    $cmd eval {
+        SELECT bins FROM axis_defs
+        WHERE spectrum_id = :id
+    } {
+        lappend axes $bins;       # only care about bin count.
+    }
+    
+    # Pick apart the spectrum def we were handed:
+    
+    set deftype [lindex $def 2]
+    set defparams [lindex $def 3]
+    set axislist [lindex $def 4]
+    
+    # Require the same spectrum type:
+    
+    if {$deftype ne $sptype} {
+       error "Incompatible spectrum types db spectrum: $sptype other: $deftype"
+    }
+    # Require the same number and set of parameters:
+    
+    if {[llength $defparams] != [llength $params]} {
+        error "Non-matching parameters.\n db spectrum: '$params' other '$defparams'"
+    }
+    # All parameters in the definition must be in the spectrum.
+    
+    foreach param $defparams {
+        if {$param ni $params} {
+            error "$param in the definition is not in the database spectrum parameters"
+        }
+    }
+    # Require the same number of axes and the database bins must be at least
+    # the number of bins in the definition.
+    
+    if {[llength $axislist] != [llength $axes]} {
+        error "database spectrum and input spectrum don't have the same number of axes"
+    }
+    foreach axis $axislist dbbins $axes {
+        set axisbins [lindex $axis 2]
+        if {$axisbins > $dbbins} {
+            error "The number of bins on the database spectrum, $dbbins is \
+smaller than those of the named spectrum $axisbins"
+        }
+    }
+    # we got here so it's all compatible.
+}
+
+##
+# 
 #-----------------------------------------------------------
 #   Public interface
 ##
@@ -1232,10 +1437,12 @@ proc makeSchema cmd {
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
 #
+#  @param cmd  - the databsae command.
 #  @param name - Name of the configuration.
+#  @param spectra - optional.  If true, saves all spectrum contents as well.
 #  @return int - The id of the save's root record.
 #
-proc saveConfig {cmd name} {
+proc saveConfig {cmd name {spectra 0}} {
     set timestamp [clock seconds]
     
     $cmd transaction {
@@ -1247,7 +1454,10 @@ proc saveConfig {cmd name} {
       _saveGateDefinitions  $cmd $save_id
       _saveGateApplications $cmd $save_id
       _saveTreeVariables    $cmd $save_id
-      _saveSpectraContents  $cmd $save_id
+      if {$spectra} {
+        _saveSpectraContents  $cmd $save_id  
+      }
+      
         
     }
     return $save_id
@@ -1292,16 +1502,7 @@ proc listConfigs cmd {
 #  configuration database.
 #
 proc restoreConfig {cmd savename {restoreSpectra 0}} {
-    set saveId ""
-    
-    $cmd eval {
-        SELECT id FROM save_sets WHERE name = :savename
-    } {
-        set saveId $id
-    }
-    if {$saveId eq ""} {
-        error "There is no save set named $savename"
-    }
+    set saveId [_lookupSaveSet $cmd $savename]
     
     #  Now restore the bits and pieces:
     
@@ -1312,9 +1513,75 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     _restoreGateDefs         $cmd $saveId
     _restoreGateApplications  $cmd $saveId
     _restoreTreeVariables    $cmd $saveId
-    _restoreSpectrumContents $cmd $saveId
+    if {$restoreSpectra} {
+        _restoreSpectrumContents $cmd $saveId    
+    }
+    
 
 }
+##
+# saveSpectrum
+#   Saves a single spectrum's contents into the specified save set.
+#
+# @param cmd      -- the database command.
+# @param sname Save set name.
+# @param specname -- the spectrum name.
+# @note the spectrum definition must already be in the save set.
+# @note if this spectrum has already had its contents saved in this saveset,
+#       this overwrites the spectrum contents in that saveset.
+# 
+proc saveSpectrum {cmd sname specname} {
+    set sid [_lookupSaveSet $cmd $sname];  #raises an error if no such set.
+    set id [_getSpectrumId $cmd $sid $specname]
+    _requireCompatible $cmd $id [lindex [spectrum -list $specname] 0]
+    _deleteContentsIfExists $cmd  $id
+    _saveSpectrumChans $cmd $id [scontents $specname]
+}
+##
+# restoreSpectrum
+#   Restore the contents of a single spectrum from a save set in the database.
+#
+# @param cmd     - database command.
+# @param sname   - Save set name.
+# @param specname - Name of a saved spectrum to restore.
+# @note - if there's an existing spectrum with that name it's silently deleted.
+# @note - the spectrum restored is fully functional not a snapshot.
+# @note - if there's no channel data associated with the spectrum you get an empty spectrum.
+#
+proc restoreSpectrum {cmd sname specname} {
+    set sid [_lookupSaveSet $cmd $sname]
+    set id  [_getSpectrumId $cmd $sid $specname]
+ 
+    # If necessary define the spectrum, load it.
+    
+    _restoreSpectrumDefs $cmd $sid $id;     # Redefine the spectrum according to the database.
+    _restoreSpectrumContents   $cmd $sid $id
+    sbind $specname;
+}
 
+##
+# saveAllSpectrumContents
+#   save all spectra currently defined into a save set.
+#
+# @param database - command.
+# @param  sname - saveset name
+proc saveAllSpectrumContents {cmd sname} {
+    set sid [_lookupSaveSet $cmd $sname]
+    
+    _saveSpectraContents  $cmd $sid
+ 
+}
+##
+#  restoreAllSpectrumContents
+#     Restores the channels in all spectra with saved data in a
+#
+# @param cmd - database command.
+# @param sname - save set name.
+#
+proc restoreAllSpectrumContents {cmd sname} {
+    set sid [_lookupSaveSet $cmd $sname]
+    
+    _restoreSpectrumContents $cmd $sid 
+}
 
 }

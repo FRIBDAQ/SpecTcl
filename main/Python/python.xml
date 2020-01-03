@@ -2061,7 +2061,7 @@ existing.setunits(newunits)
                         The keyword supplied must provide a proper gate definition
                         for the gate type specified by the mandatory
                         <option>type</option> keyword.  If this is the case,
-                        the method generates a new replacment gate and replaces
+                        the method generates a new replacement gate and replaces
                         the gate the gate container the object has with that
                         replacement gate.
                     </para>

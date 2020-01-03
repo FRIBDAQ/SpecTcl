@@ -32,6 +32,14 @@ package require sqlite3
 set here [file dirname [info script]]
 source [file join $here dbconfig.tcl];  # pull in the package.
 
+
+proc sbind args {
+    
+}
+proc clear args {
+    
+}
+
 proc createdb {} {
     sqlite3 config :memory:
 }
@@ -84,6 +92,7 @@ proc channel {op args} {
 }
 
 proc scontents name {
+
     set result [list]
     if {[array names ::dummyContents $name] eq $name} {
         set result $::dummyContents($name)
@@ -633,6 +642,7 @@ tcltest::test scontents_2 {Definitions and put contents into one of the spectra}
     ]
     
     dbconfig::saveConfig config sc1;        # save set 1.
+    dbconfig::saveSpectrum config sc1 param1
     
     # We know our speactrum will have id 2:
     
@@ -678,6 +688,7 @@ tcltest::test scontents_3 {2-d spectrum with data} \
     ]
     
     dbconfig::saveConfig config test
+    dbconfig::saveSpectrum config test testspec
     
     config eval {
         SELECT * FROM spectrum_contents
@@ -727,6 +738,10 @@ tcltest::test scontents_4 {All spectra have data} \
         [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
     ]
     dbconfig::saveConfig config a
+    dbconfig::saveSpectrum config a testspec
+    dbconfig::saveSpectrum config a param1
+    dbconfig::saveSpectrum config a param2
+    
     
     config eval {
         SELECT * FROM spectrum_contents
@@ -943,7 +958,14 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
         [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
     ]
     dbconfig::saveConfig config a
+    dbconfig::saveSpectrum config a testspec
+    dbconfig::saveSpectrum config a param1
+    dbconfig::saveSpectrum config a param2
+    
     dbconfig::restoreConfig config a
+    dbconfig::restoreSpectrum config a testspec
+    dbconfig::restoreSpectrum config a param1
+    dbconfig::restoreSpectrum config a param2
     
     set ::channelSetHistory
 } -result [list                                                 \
