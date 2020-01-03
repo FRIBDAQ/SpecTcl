@@ -440,7 +440,6 @@ proc _ReorderGates {defs} {
             set defs [lreplace $defs $idx $idx]   ; # Remove a writte element.
         }
     }
-
     return $result
 }
 ##
@@ -1014,7 +1013,9 @@ proc _restoreCompoundGate {cmd gate} {
     } {
         lappend gates $name
     }
-    gate -new $gname $type "{$gates}"
+    
+
+    gate -new $gname $type $gates
     
     
 }
@@ -1064,6 +1065,7 @@ proc _restoreGateDefs {cmd sid} {
     #  Now iterate over the gates doing the correct gate dependent restoration.
     
     foreach gate $gates {
+
         set type [dict get $gate type]
         if {$type eq "s"} {;      # Slice gate.
             _restoreSlice $cmd $gate

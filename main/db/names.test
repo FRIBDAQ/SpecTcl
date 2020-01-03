@@ -1906,9 +1906,9 @@ tcltest::test grestore_8 {restore compound gates} \
 } -result [list                                                  \
     [list true T [list]]                                       \
     [list false F [list]]                                       \
-    {not - {{true}}}                                              \
-    [list or  + {{true false}}]                              \
-    [list and * {{true not}}]                                \
+    [list not - true]                                              \
+    [list or  + {true false}]                              \
+    [list and * {true not}]                                \
 ]
 tcltest::test grestore_9 {bitmask gate restores} \
 -setup {
