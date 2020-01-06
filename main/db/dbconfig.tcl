@@ -24,7 +24,7 @@ exec tclsh "$0" ${1+"$@"}
 # @brief Support storing and retrieving configurations and spectra from sqlite3 database.
 # @author Ron Fox <fox@nscl.msu.edu>
 #
-package provide dbconfig 0.1
+package provide dbconfig 1.0
 package require sqlite3
 
 namespace eval dbconfig {
