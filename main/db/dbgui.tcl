@@ -42,7 +42,7 @@ namespace eval dbgui {
     variable folder [image create photo dbgui::folder -format png -file [file join $here folder.png]]
     variable openfolder [image create photo dbgui::openfolder -format png -file [file join $here openfolder.png]]
     variable spectrum   [image create photo dbgui::spectrum   -format png -file [file join $here spectrum.png]]
-    
+    variable configuration [image create photo dbgui::configuration -format png -file [file join $here configuration.png]]
 }
 puts $dbgui::iconcredits;            # Also in help->about...
 package provide dbgui $dbgui::version
@@ -66,13 +66,14 @@ package provide dbgui $dbgui::version
 #
 
 ##
-#  @class menubar
+#  @class dbgui::menubar
 #   Creates the menubar for the application and provides callbacks for
 #   specific items.  The menubar is set as the menubar for the appropriate
 #   top-level widget.
 #
 #    Menus:
 #       File:  New... open...
+#       Save:  Configuration, Spectrum.
 #       Help:  About
 #
 #  Callback options:
@@ -80,14 +81,22 @@ package provide dbgui $dbgui::version
 #                  script.
 #     *  -onopen   - Open an existing database file.  The file is passed as a parameter
 #                  to the script.
-#
+#     *  -onconfigsave - Save configuration.
+#     *  -onspecsave   - Save spectrum.
 #  Normally, on successful completions, these callbacks should pass a new
 #  database command to the treeview widget, and the filename to the statusbar
 #  widget.
 #
+#  Methods:
+#    enableSave   - enable the save method.
+#    disableSave  - disable the save method.
+#
 snit::type dbgui::menubar {
     option -oncreate
     option -onopen
+    option -onconfigsave
+    option -onspecsave
+    
     
     delegate method * to hull
     delegate option * to hull
@@ -115,6 +124,10 @@ snit::type dbgui::menubar {
         $window.file add command -label Open... -command [mymethod _OnOpen]
         $window add cascade -label "File" -menu $window.file 
         
+        menu $window.save -tearoff 0
+        $window.save add command -label Configuration... -command [mymethod _OnCfgSave]
+        $window.save add command -label Spectrum...      -command [mymethod _OnSpecSave]
+        $window add cascade -label Save -menu $window.save
         
         menu $window.help -tearoff 0
         $window.help add command -label About... -command [mymethod _OnAbout]
@@ -126,9 +139,28 @@ snit::type dbgui::menubar {
         set top [$self _TopLevel ]
         $top config -menu $window
     }
+    ##
+    # enableSave
+    #    Enable the menu entries in the save menu:
+    #
+    method enableSave {} {
+        for {set i 0} {$i < 2} {incr i} {
+            $window.save entryconfigure $i -state normal
+        }
+    }
+    ##
+    # disableSave
+    #   Disable the menu entries in the save menu:
+    #
+    method disableSave {} {
+        for {set i 0} {$i < 2} {incr i} {
+            $window.save entryconfigure $i -state disabled
+        }
+    }
     
     #--------------------------------------------------------------------
     # private methods:
+    
     
     ##
     # _TopLevel -
@@ -141,7 +173,6 @@ snit::type dbgui::menubar {
     #
     #
     method _TopLevel {} {
-        puts _TopLevel
         set path [split $window .]
         if {[llength $path] == 1} {
             return .
@@ -166,7 +197,7 @@ snit::type dbgui::menubar {
         ]
         if {$filename eq  ""} return;               # No file chosen.
         if {$options(-oncreate) ne ""} {
-            eval $options(-oncreate) [list $filename] 
+            uplevel #0 $options(-oncreate) [list $filename] 
         } else {
             tk_messageBox -icon error -type ok -title {No -oncreate script} \
                 -message "To use the dbgui::menubar menu requires you specify a -oncreate script"
@@ -188,7 +219,7 @@ snit::type dbgui::menubar {
         ]
         if {$filename eq  ""} return;               # No file chosen.
         if {$options(-onopen) ne ""} {
-            eval $options(-onopen) [list $filename] 
+            uplevel #0 $options(-onopen) [list $filename] 
         } else {
             tk_messageBox -icon error -type ok -title {No -onopen script} \
                 -message "To use the dbgui::menubar menu requires you specify a -onopen script"
@@ -213,4 +244,304 @@ snit::type dbgui::menubar {
 "
         tk_messageBox -icon info -type ok -title "Help About" -message $message
     }
+    ##
+    # _OnCfgSave
+    #    Called when the menu entry to save a configuration is called.
+    #    The -onconfigsave script is called if it exists.  NO-OP if not.
+    #
+    method _OnCfgSave {} {
+        set script $options(-onconfigsave)
+        if {$script ne ""} {
+            uplevel #0 $script
+        }
+    }
+    ##
+    # _OnSpecSave
+    #   Called when the Save->Spectrum menu element is clicked.
+    #   The -onspecsave script is called.
+    #
+    method _OnSpecSave {} {
+        set script $option(-specsave)
+        if {$script ne ""} {
+            uplevel #0 $script
+        }
+    }
 }
+#----------------------------------------------------------------------------
+#
+#  dbgui::dbview
+#    Provides a view of a configuration database.  The window shows a simple
+#    hierarchy of
+
+#\verbatim
+#    Save set name (date) (folder icon).
+#      +---> Configuration  (settings icon)
+#      +---> Spectra (folder icon)
+#         +----> List of saved spectra. (spectrum icon).
+#  Options:
+#    All ttk::treeview options.
+#    -onconfigsave   - Script run when the UI asks a configuration to be saved.
+#    -oncofigrestore - Script run when the UI asks for a configuration to be restored.
+#    -specsave       - Script run when the UI asks for a spectrum to be saved.
+#    -specrestore    - Script run when the UI asks for a spectrum to be restored.
+#    -promptspectrum - Script run to prompt for a spectrum name
+#                      If not supplied a simple dialog with a text entry is used.#
+#  Methods:
+#    All ttk::treeview methods.
+#    setDatabaseCommand - set a new database command.
+#                         regenerates the entire treeview.
+#    getCurrentConfig   - Returns the name of the currently selected configuration
+#                         (empty string if none).
+#    getCurrentSpectrum - Returns name of currently selected spectrum
+#
+snit::widgetadaptor dbgui::dbview {
+    delegate method * to hull
+    
+    option -onconfigsave
+    option -onconfigrestore
+    option -specsave
+    option -specrestore
+    option -promtpspectrum
+    
+    delegate option * to hull
+    
+    variable dbcommand [list]
+    variable configContextMenu
+    variable spectrumContextMenu
+    
+    
+    constructor args {
+        installhull using ttk::treeview
+        
+        $win config -columns [list  label] -displaycolumns #all
+        $win heading 0 -text description
+        $win column  0 -stretch 1
+        
+        # Capture open and close events so that we can open and close the
+        # folders when they happen on top levels:
+        
+        bind $win <<TreeviewOpen>> [mymethod _OnOpen]
+        bind $win  <<TreeviewClose>> [mymethod _OnClose]
+        
+        #  Create the context (right click) menus and bind
+        #  the right clicks on the configuration and spectrum tags to
+        #  pop up their context menus.
+        
+        set configContextMenu [$self _CreateConfigContextMenu]
+        set spectrumContextMenu [$self _CreateSpectrumContextMenu]
+        
+        $win tag bind configuration <ButtonPress-3> \
+            [list $configContextMenu post %X %Y]
+        $win tag bind spectrum      <ButtonPress-3> \
+            [list $spectrumContextMenu post %X %Y]
+        
+        bind $win <Key-Escape> "
+            $configContextMenu unpost
+            $spectrumContextMenu unpost
+        "
+    }
+    #----------------------------------------------------------------
+    # Public METHODS:
+    #
+    
+    ##
+    # getCurrentConfig
+    #    If there is a selection, returns the name of the configuration it's in.
+    #    -  Find the parent of the selection whose parent is {}. Could be the
+    #       selected item.
+    #    - Return the -text of that entry.
+    # @note  This code assumes all top level items are configurations.
+    #        If that is not the csae, we need to modify this.
+    # @return string - name of the configuration the selection is in.
+    # @retval ""     -   There is not currently selected configuration.
+    #
+    method getCurrentConfig {} {
+        set selection [$win selection]
+        
+        if {$selection ne ""} {
+            while {[$win parent $selection] ne ""} {
+                puts "parent = [$win parent $selection]"
+                set selection [$win parent $selection]
+            }
+            return [$win item $selection -text]
+        }
+        return ""
+    }
+    ##
+    # getCurrentSpectrum
+    #    If a spectrum is selected, returns its name.
+    #
+    # @return string
+    # @retval - no spectrum is selected (includes the case that nothing is selected).
+    #
+    method getCurrentSpectrum {} {
+        set selection [$win selection]
+        
+        if {$selection ne ""} {
+            set tags [$win item $selection -tag]
+            if {"spectrum" in $tags} {
+                return [$win set $selection 0]
+            }
+        }
+        return ""
+    }
+    ##
+    # setDatabaseCommand
+    #   Sets a new database command -
+    #   clears the widget,
+    #   loads the widget from the new database.
+    #
+    #  @paramnewcmd
+    #     New database command.
+    method setDatabaseCommand {newcmd} {
+        $self _Clear
+        set dbcommand $newcmd
+        $self _Load
+    }
+    
+    #----------------------------------------------------------------
+    #  Private methods:
+    
+    ##
+    # _Clear
+    #    Removes all entries from the display:
+    #
+    method _Clear {} {
+        set configs [$win children {}];         # Top levesl are configurations.
+        if {[llength $configs] > 0} {
+            $win delete $configs
+        }
+    }
+    ##
+    # _Load
+    #    loads informtion about the databse into the window.
+    #
+    #   Top levels are folders named by config the description gives the save date.
+    #   Each config has a configuration icon and a spectra folder.
+    #   The spectra folder has names of the spectrum contents saved in that config.
+    #
+    #  @note dbcommand  - contains the database commanbd.
+    #
+    method _Load {} {
+        set configs [dbconfig::listConfigs $dbcommand]
+        foreach config $configs {
+            $self _AddConfiguration \
+                [dict get $config name] [dict get $config time]
+        }
+    }
+    ##
+    # _AddConfiguration
+    #   Add a new configuration to the treeview.
+    #
+    # @param configName - name of the configuration
+    # @param timestamp  - [clock seconds] when the configuraiton was saved.
+    #
+    method _AddConfiguration {configName timestamp} {
+        set description "Saved [clock format $timestamp]"
+        lappend values ""
+        lappend values $description
+        set configid [$win insert {} end  -text $configName                  \
+            -image $dbgui::folder -tags configuration                         \
+        ]
+        $win set $configid 0 $description
+        
+        
+        #  Now load the sub-elements.  We have a configuration and
+        #  0 or more spectrum items.
+        
+        $win insert $configid end -image $dbgui::configuration -tags configuration
+        
+        foreach spectrum [dbconfig::listSavedSpectra $dbcommand $configName] {
+            set sid [$win insert $configid end -image $dbgui::spectrum   \
+                -tags spectrum                                            \
+            ]
+            $win set $sid 0 $spectrum
+        }
+        
+    }
+    ##
+    # _OnOpen
+    #    If the current entry's image is a folder, make it an openfolder
+    #
+    method _OnOpen {} {
+        set item [$win focus]
+        if {$item ne "{}"} {
+            set image [$win item $item -image]
+            if {$image eq $dbgui::folder} {
+                $win item $item -image $dbgui::openfolder
+            }
+        }
+    }
+    ##
+    # _OnClose
+    #   If the entry's image is an open folder turn it into a closed one.
+    #
+    method _OnClose {} {
+        set item [$win focus]
+        if {$item ne "{}"} {
+            set image [$win item $item -image]
+            if {$image eq $dbgui::openfolder} {
+                $win item $item -image $dbgui::folder
+            }
+        }
+        
+    }
+    ##
+    # _CreateConfigContextMenu
+    #    Creates the context menu for configuration items:
+    #    -   Save... - requests a configuration name and calls -onconfigsave
+    #    -   Load    - Gets the current configuration and calls -onconfigrestore
+    #
+    # @return - the menu widget path produced.
+    # @note - While menus are considered toplevels, we're going to make this a
+    #         child of $win so that we can ensure that the path is unique.
+    #
+    method _CreateConfigContextMenu {} {
+        set result [menu $win.configcontextmenu -tearoff 0 \
+            -postcommand [list tk_menuSetFocus $win.configcontextmenu]     \
+        ]
+        $result add command -label Save... -command [mymethod _OnConfigSave]
+        $result add command -label {Save Spectrum...} \
+            -command [mymethod _OnSaveSpectrum]
+        $result add separator
+        $result add command -label Load    -command [mymethod _OnConfigRestore]
+
+        # Keypress escape should unpost the menu if its posted.
+        
+        bind $result <Key-Escape> [list $result unpost]
+        
+        return $result
+    }
+    ##
+    # _CreateSpectrumContextMenu
+    #
+    #    Creates the contextmenu for spectrum items.
+    #
+    #   -   Save    - calls _OnResaveCurrentSpectrum.
+    #   -   Save... - calls _OnSaveSpectrum.
+    #   -   Load    - Calls _OnRestoreSpectrum.
+    #
+    #  @return menu widget path.  Will be created as a child of $win.
+    method _CreateSpectrumContextMenu {} {
+        set result [menu $win.spectrumcontextmenu -tearoff 0        \
+            -postcommand [list tk_menuSetFocus $win.spectrumcontextmenu]
+        ]
+        
+        $result add command -label Resave \
+            -command [mymethod _OnResaveCurrentSpectrum]
+        $result add command -label Save... -command [mymethod _OnSaveSpectrum]
+        $result add command -label {SaveConfiguration...} \
+            -command [mymethod _OnConfigSave]
+        $result add separator
+        $result add command -label {Load} -command [mymethod _OnSpectrumRestore]
+
+        bind $result <Key-Escape> [list $result unpost]
+
+                
+        return $result
+    }
+    ##
+    # _OnConfigSave
+}
+
+
