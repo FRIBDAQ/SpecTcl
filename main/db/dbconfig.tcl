@@ -631,7 +631,6 @@ proc _saveSpectrumChans {cmd specid data} {
                 set x [lindex $chan 0]
                 set y [lindex $chan 1]
                 set value [lindex $chan 2]
-                
                 $cmd eval {
                     INSERT INTO spectrum_contents
                     (spectrum_id, xbin, ybin, value)
@@ -1533,11 +1532,13 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
 #       this overwrites the spectrum contents in that saveset.
 # 
 proc saveSpectrum {cmd sname specname} {
-    set sid [_lookupSaveSet $cmd $sname];  #raises an error if no such set.
-    set id [_getSpectrumId $cmd $sid $specname]
-    _requireCompatible $cmd $id [lindex [spectrum -list $specname] 0]
-    _deleteContentsIfExists $cmd  $id
-    _saveSpectrumChans $cmd $id [scontents $specname]
+    $cmd transaction {
+        set sid [_lookupSaveSet $cmd $sname];  #raises an error if no such set.
+        set id [_getSpectrumId $cmd $sid $specname]
+        _requireCompatible $cmd $id [lindex [spectrum -list $specname] 0]
+        _deleteContentsIfExists $cmd  $id
+        _saveSpectrumChans $cmd $id [scontents $specname]
+    }
 }
 ##
 # restoreSpectrum
@@ -1568,9 +1569,11 @@ proc restoreSpectrum {cmd sname specname} {
 # @param database - command.
 # @param  sname - saveset name
 proc saveAllSpectrumContents {cmd sname} {
-    set sid [_lookupSaveSet $cmd $sname]
-    
-    _saveSpectraContents  $cmd $sid
+    $cmd transaction {
+        set sid [_lookupSaveSet $cmd $sname]
+        
+        _saveSpectraContents  $cmd $sid
+    }
  
 }
 ##
@@ -1584,6 +1587,29 @@ proc restoreAllSpectrumContents {cmd sname} {
     set sid [_lookupSaveSet $cmd $sname]
     
     _restoreSpectrumContents $cmd $sid 
+}
+
+##
+# listSavedSpectra
+#    Lists the set of spectra saved in a configuration
+#
+# @param cmd - database command.
+# @param sname - configuration svae set name.
+# @return list of spectrum names that have channels.
+#
+proc listSavedSpectra {cmd sname} {
+    set sid [_lookupSaveSet $cmd $sname]
+    
+    set result [list]
+    $cmd eval {
+        SELECT DISTINCT name FROM spectrum_contents
+        INNER JOIN spectrum_defs ON spectrum_defs.id = spectrum_contents.spectrum_id
+        WHERE spectrum_defs.save_id = :sid
+    } {
+        lappend result $name
+    }
+    
+    return $result
 }
 
 }
