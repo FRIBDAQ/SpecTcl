@@ -744,5 +744,54 @@ snit::widgetadaptor dbgui::dbview {
         }
     }
 }
-
+##
+#  @class StatusLine
+#    The status line of the database gui shows several items:
+#    - Current database file name.
+#    - Current configuration, if any.
+#    - Current Spectrum, if any.
+#    - What the heck -- let's put in the current date/time.
+#
+#  Options
+#    -database - databsae filename.
+#    -configuration - current configuration.
+#    -spectrum      - current spectrum.
+#
+snit::widgetadaptor dbgui::StatusLine {
+    option -database      -default ""
+    option -configuration -default ""
+    option -spectrum      -default ""
+    
+    variable afterid -1
+    
+    
+    constructor args {
+        installhull using ttk::frame
+        ttk::label $win.dbt -text {Database: }
+        ttk::label $win.db -textvariable [myvar options(-database)] -width 32
+        ttk::label $win.cfgt -text {Current config: }
+        ttk::label $win.config -textvariable [myvar options(-configuration)] -width 16
+        ttk::label $win.spt -text {Current Spectrum: }
+        ttk::label $win.spectrum -textvariable [myvar options(-spectrum)] -width 16
+        
+        # The dummy text string is just to ensure the label is wide enough.
+        
+        ttk::label $win.dt -text "Wed Jan 08 09:05:33 EST 2020"
+        
+        grid $win.dbt $win.db $win.cfgt $win.config $win.spt $win.spectrum $win.dt -sticky nsew
+        $self configurelist $args
+        
+        $self _Clock $win.dt
+    }
+    destructor {
+        if {$afterid != -1} {
+            after cancel $afterid
+        }
+    }
+    
+    method _Clock widget {
+        $widget configure -text [clock format [clock seconds]]
+        set afterid [after 1000 [mymethod _Clock $widget]]
+    }
+}
 
