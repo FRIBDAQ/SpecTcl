@@ -29,7 +29,7 @@ package require Tk
 package require dbconfig
 package require snit
 package require img::png;        # for the icons.
-
+package require dialogwrapper
 
 namespace eval dbgui {
     set here [file dirname [info script]]
@@ -64,6 +64,76 @@ package provide dbgui $dbgui::version
 #    *  A status bar shows the open file, and the selected dataset if one is
 #       selected.
 #
+
+##
+# prompter for a string.
+#    The code here produces a widget that can be wrapped by a DialogWrapper
+#    to prompt for a string.  The proc evgui::promptString actually initiates
+#    the modal dialog and returns the user's string.
+#
+
+##
+# @class dbgui::StringPrompter 
+#
+#   Provides the dialog form for prompting.
+#
+# Options:
+#   -text  The prompt to text.
+#   -input The user input.
+#
+snit::widgetadaptor dbgui::StringPrompter {
+    component string
+    
+    option -input
+    
+    delegate option -text to string
+    
+    constructor args {
+        installhull using ttk::frame
+        install string using message $win.msg -width 3i
+        ttk::entry $win.input -textvariable [myvar options(-input)] 
+        
+        grid $win.msg -sticky nsew
+        grid $win.input -sticky nsew
+        
+        $self configurelist $args
+    }
+
+}
+
+##
+# dbgui::promptString
+#    Use the string prompter above wrapped in a dialog to prompt
+#    for a string from the user.
+#
+# @param win - parent window for the dialog.
+# @param prompt - prompt string to fill the message part of the formw with.
+# @param initial - optional initial entry string.
+# @return the user's input string.
+# @retval "" - if the user cancelled out of the dialog.
+#
+proc dbgui::promptString {win prompt {initial {}}} {
+    if {$win eq "."} {
+        set win ""     ;                #unlikely but possible (e.g. in testing).
+    } else {}
+    toplevel $win.prompt
+    set dlg [DialogWrapper $win.prompt.dlg]
+    set formParent  [$dlg controlarea]
+    set form [dbgui::StringPrompter $formParent.form -text $prompt -input $initial]
+    $dlg configure -form $form
+    
+    grid $dlg -sticky nsew
+    set button [$dlg modal]
+    
+    set result ""
+    if {$button eq "Ok"} {
+        set result [$form cget -input]
+    }
+    destroy $win.prompt
+    
+    return $result
+}
+
 
 ##
 #  @class dbgui::menubar
@@ -282,8 +352,8 @@ snit::type dbgui::menubar {
 #    All ttk::treeview options.
 #    -onconfigsave   - Script run when the UI asks a configuration to be saved.
 #    -oncofigrestore - Script run when the UI asks for a configuration to be restored.
-#    -specsave       - Script run when the UI asks for a spectrum to be saved.
-#    -specrestore    - Script run when the UI asks for a spectrum to be restored.
+#    -onspecsave       - Script run when the UI asks for a spectrum to be saved.
+#    -onspecrestore    - Script run when the UI asks for a spectrum to be restored.
 #    -promptspectrum - Script run to prompt for a spectrum name
 #                      If not supplied a simple dialog with a text entry is used.#
 #  Methods:
@@ -297,11 +367,11 @@ snit::type dbgui::menubar {
 snit::widgetadaptor dbgui::dbview {
     delegate method * to hull
     
-    option -onconfigsave
-    option -onconfigrestore
-    option -specsave
-    option -specrestore
-    option -promtpspectrum
+    option -onconfigsave -default [list]
+    option -onconfigrestore -default [list]
+    option -onspecsave -default [list]
+    option -onspecrestore -default [list]
+    option -promptspectrum -default [list]
     
     delegate option * to hull
     
@@ -329,11 +399,13 @@ snit::widgetadaptor dbgui::dbview {
         
         set configContextMenu [$self _CreateConfigContextMenu]
         set spectrumContextMenu [$self _CreateSpectrumContextMenu]
-        
+
         $win tag bind configuration <ButtonPress-3> \
-            [list $configContextMenu post %X %Y]
+             [mymethod _PostMenu $configContextMenu  %X %Y %x %y]
+
+
         $win tag bind spectrum      <ButtonPress-3> \
-            [list $spectrumContextMenu post %X %Y]
+            [mymethod _PostMenu $spectrumContextMenu %X %Y %x %y]
         
         bind $win <Key-Escape> "
             $configContextMenu unpost
@@ -360,7 +432,6 @@ snit::widgetadaptor dbgui::dbview {
         
         if {$selection ne ""} {
             while {[$win parent $selection] ne ""} {
-                puts "parent = [$win parent $selection]"
                 set selection [$win parent $selection]
             }
             return [$win item $selection -text]
@@ -460,6 +531,20 @@ snit::widgetadaptor dbgui::dbview {
         
     }
     ##
+    # _PostMenu
+    #   Selects the item under the pointer and posts a context menu there.
+    #
+    # @param menu - widget containing the menu to post.
+    # @param x,y  - Screen coordinates where menu should appear.
+    # @param wx,wy - Pointer coords within the window.
+    #
+    method _PostMenu {menu x y wx wy} {
+        set element [$win identify item $wx $wy]
+
+        $win selection set $element
+        $menu  post $x $y
+    }
+    ##
     # _OnOpen
     #    If the current entry's image is a folder, make it an openfolder
     #
@@ -532,6 +617,8 @@ snit::widgetadaptor dbgui::dbview {
         $result add command -label Save... -command [mymethod _OnSaveSpectrum]
         $result add command -label {SaveConfiguration...} \
             -command [mymethod _OnConfigSave]
+        $result add command -label {Load Configuration} \
+            -command [mymethod _OnConfigRestore]
         $result add separator
         $result add command -label {Load} -command [mymethod _OnSpectrumRestore]
 
@@ -542,6 +629,120 @@ snit::widgetadaptor dbgui::dbview {
     }
     ##
     # _OnConfigSave
+    #   Called when the user wants a configuration file saved.
+    #   Pop up a name prompter to get the configuration file saver.
+    #   Ensure the configuration does not exist.  Once we have a good file,
+    #   invoke the -onconfigsave script passing the database and configuration
+    #   name as parameters.
+    #
+    method _OnConfigSave {} {
+        set configName [dbgui::promptString $win {Configuration Name}]
+        if {$configName ne ""} {
+            set configs [dbconfig::listConfigs $dbcommand]
+            foreach config $configs {
+                if {$configName eq [dict get $config name]} {
+                    tk_messageBox -icon error -type ok -title "Configuration exists" \
+                        -message "Configuration '$configName' already exists."
+                    return
+                }
+            }
+            #  If we got here we can dispatch:
+            
+            set script $options(-onconfigsave)
+            if {$script ne ""} {
+                lappend script $dbcommand $configName
+                uplevel #0 $script
+            }
+        }
+    }
+    ##
+    # _OnConfigRestore
+    #    Called when the user wants to restore a configuration:
+    #    The current configuration is determined.
+    #    The -onconfigrestore script is invoked passing the database command
+    #    and the configuration name as parameters.
+    #
+    method _OnConfigRestore {} {
+        set configName [$self getCurrentConfig]
+        set script $options(-onconfigrestore)
+        if {$script ne ""} {
+            lappend script $dbcommand $configName
+            uplevel #0 $script
+        }
+    }
+    ##
+    # _PromptSpectruim
+    #    Asks the user for the name of a spectrum.
+    #   - If -promtpspectrum has a script that's used to prompt.  The return
+    #     value is the spectrum name.  The database and current configuration
+    #     and spectrum name if one is active are passed to the user.
+    #   - If no -promptspectrum is defined, then the user is propmted with a string
+    #    prompter.
+    #
+    # @return string - spectrum name "" if none should be chosen.
+    method _PromptSpectrum {} {
+        set config [$self getCurrentConfig]
+        set spec   [$self getCurrentSpectrum] ;   # could be empty/
+        
+        set script $options(-promptspectrum)
+        if {$script ne ""} {
+            set script [lappend $dbcommand $config $spec]
+            return [uplevel #0 $script]
+        } else {
+            return [dbgui::promptString $win {Spectrum name:} $spec]
+        }
+    }
+    ##
+    # _SaveSpectrum
+    #   Contains the common code to invoke -onspecsave;
+    #   database command, configuration name and spectrum name are added to
+    #   the script in -onspecsave and that script is run.
+    #
+    # @param config  - name of the selected configuration.
+    # @param name    - List of names of spectra to save.
+    #
+    method _SaveSpectrum {config name} {
+        set script $options(-onspecsave)
+        if {$script ne ""} {
+            lappend script $dbcommand $config $name
+            uplevel #0 $script
+        }
+    }
+    ##
+    # _OnResaveCurrentSpectrum
+    #    Call _SaveSpectrum with the current configuration and spectrum.
+    #
+    method _OnResaveCurrentSpectrum {} {
+        $self _SaveSpectrum [$self getCurrentConfig] [$self getCurrentSpectrum]
+    }
+    ##
+    # _OnSaveSpectrum
+    #   Called to save an arbitrary spectrum:
+    #     Prompt for the spectrum name.
+    #     Invoke _SaveSpectrum if a non blank spectrum was returned.
+    #
+    method _OnSaveSpectrum {} {
+        set spec [$self _PromptSpectrum]
+        if {$spec ne ""} {
+            set cfg [$self getCurrentConfig]
+            $self _SaveSpectrum $cfg $spec
+        }
+    }
+    ##
+    # _OnSpectrumRestore
+    #    Figure out the current spectrum and configuration and
+    #    call -onspecrestore.
+    #
+    method _OnSpectrumRestore {} {
+        set config [$self getCurrentConfig]
+        set spec  [$self getCurrentSpectrum]
+        
+        set script $options(-onspecrestore)
+        if {$script ne ""} {
+            lappend script $dbcommand $config $spec
+            uplevel #0 $script
+        }
+    }
 }
 
 
