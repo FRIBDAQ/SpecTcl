@@ -188,6 +188,7 @@ snit::type dbgui::menubar {
         set path [split $self :]
         set window [lrange $path end end]
         set window [menu ${window}w]
+        puts "Window: $window"
         
         menu $window.file -tearoff 0
         $window.file add command -label New... -command [mymethod _OnNew]
@@ -207,6 +208,7 @@ snit::type dbgui::menubar {
         #  menubar.
         
         set top [$self _TopLevel ]
+        puts "My Toplevel is $top"
         $top config -menu $window
     }
     ##
@@ -244,10 +246,11 @@ snit::type dbgui::menubar {
     #
     method _TopLevel {} {
         set path [split $window .]
+        puts $path
         if {[llength $path] == 1} {
             return .
         } else {
-            return .[lindex $path 0]
+            return .[lindex $path 1]
         }
     }
     
@@ -363,6 +366,8 @@ snit::type dbgui::menubar {
 #    getCurrentConfig   - Returns the name of the currently selected configuration
 #                         (empty string if none).
 #    getCurrentSpectrum - Returns name of currently selected spectrum
+#    addConfiguration   - Inform the interface there's a new configuration.
+#    addSpectrum        - Informthe interface there's a new spectrum in a configuration
 #
 snit::widgetadaptor dbgui::dbview {
     delegate method * to hull
@@ -469,6 +474,25 @@ snit::widgetadaptor dbgui::dbview {
         set dbcommand $newcmd
         $self _Load
     }
+    ##
+    # addConfiguration
+    #    Add a new configuration to the UI.  The configuration is assumed
+    #    to already be in the database...though we're defensive about that.
+    #    The configuration is assumed _not_ to be in the GUI yet and we're not
+    #    defensive about that.
+    # @param name  - name of the new configuration
+    #
+    method addConfiguration name {
+        set configs [dbconfig::listConfigs $dbcommand]
+        foreach config $configs {
+            set cfgname [dict get $config name]
+            if {$cfgname eq $name} {
+                set tstamp [dict get $config time]
+                $self _AddConfiguration $cfgname $tstamp
+            }
+        }
+    }
+    
     
     #----------------------------------------------------------------
     #  Private methods:
@@ -832,6 +856,7 @@ snit::widgetadaptor dbgui::dbgui {
         
         $menubar configure -onopen [list $self configure -database]
         $menubar configure -oncreate [mymethod _OnCreateDatabase]
+        $menubar configure -onconfigsave [mymethod _OnSaveConfig]
     }
     destructor {
         if {$afterid != -1} {
@@ -908,6 +933,43 @@ snit::widgetadaptor dbgui::dbgui {
                 dbconfig::makeSchema ::dbgui::newdatabase
                 ::dbgui::newdatabase close
                 $self configure -database $path;    #Takes care of the rest.
+    }
+    
+    ##
+    # _OnSaveConfig
+    #
+    #   The Menu has requested a configuration save.
+    #
+    method _OnSaveConfig  {} {
+        set name [dbgui::promptString $win "Name of new configuration (must be unique)"]
+        if {$name ne ""} {
+            if {[info command ::dbgui::database] eq ""} {
+                    tk_messageBox -type ok -icon error -title "No database" \
+                        -message {ERROR: program bug - no database has been established yet}
+            } elseif {[$self _CfgExists $name]} {
+                tk_messageBox -type ok -icon error -title {Duplicate config name} \
+                    -message "There already is a configuration named $name not going to overwrite it"
+                
+            } else {
+            
+                dbconfig::saveConfig dbgui::database $name
+                $view addConfiguration $name
+            }
+        }
+    }
+    ##
+    # _CfgExists
+    #    @param name -name of a configuration.
+    #    @return bool - true if the configuration exists.
+    #
+    method _CfgExists name {
+        set configs [dbconfig::listConfigs ::dbgui::database]
+        foreach config $configs {
+            if {$name eq [dict get $config name]} {
+                return 1
+            }
+        }
+        return 0
     }
     
 }
