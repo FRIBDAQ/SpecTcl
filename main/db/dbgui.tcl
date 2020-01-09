@@ -764,7 +764,6 @@ snit::widgetadaptor dbgui::StatusLine {
     
     variable afterid -1
     
-    
     constructor args {
         installhull using ttk::frame
         ttk::label $win.dbt -text {Database: }
@@ -794,4 +793,121 @@ snit::widgetadaptor dbgui::StatusLine {
         set afterid [after 1000 [mymethod _Clock $widget]]
     }
 }
+##
+# @class dbgui::dbgui
+#    The full database GUI consist of a menubar, the database view and
+#    the status line all stacked vertically filling space.
+#    note that in order for the menubar to work without conflict, this should all
+#    be put into an empty toplevel, or at least one that's known not to have a
+#    menubar.
+#
+#  @note - if this is a problem, could use a toplevel as a hull :-)
+snit::widgetadaptor dbgui::dbgui {
+    component menubar
+    component view
+    component statusbar
+    
+    option -database -configuremethod _SetDatabase
+    option -onloadconfig
+    option -onrestoreconfig
+    option -onloadspectrum
+    option -onrestorespectrum
+    option -spectrumlister
+    
+    variable afterid -1
+    
+    constructor args {
+        installhull using ttk::frame
+        install menubar using dbgui::menubar $win.menu
+        install view    using dbgui::dbview  $win.db
+        install statusbar using dbgui::StatusLine $win.sl
+        
+        grid $view -sticky nsew
+        grid $statusbar -sticky nsew
+        
+        $self configurelist $args
+        $self _UpdateStatusBar 1000
+        
+        #  Setup menu actions:
+        
+        $menubar configure -onopen [list $self configure -database]
+        $menubar configure -oncreate [mymethod _OnCreateDatabase]
+    }
+    destructor {
+        if {$afterid != -1} {
+            after cancel $afterid
+        }
+    }
+    
+    ############################################################################
+    # Private methods
+    
+    ##
+    # _UpdateStatusBar
+    #    Updates the status bar fields we can update and
+    #    reschedules
+    #
+    # @param ms  - Number of milliseconds for next update.
+    #
+    method _UpdateStatusBar ms {
+        $statusbar configure -configuration [$view getCurrentConfig]
+        $statusbar configure -spectrum      [$view getCurrentSpectrum]
+        
+        set afterid [after $ms [mymethod _UpdateStatusBar $ms]]
+    }
+    
+    ##
+    # _SetDatabase
+    #   Set a new value for the database to peek at.
+    #   If the dbgui::database command exists, close it.
+    #   sqlite3 opens the database using the command dbgui::database
+    #   Sets the statusbar filename.
+    #   Sets the view's database command
+    #
+    # @param optname - name of the option being set.
+    # @param optval  - filename.
+    #
+    method _SetDatabase {optname optval} {
+        if {[info commands dbgui::database] ne ""} {
+            dbgui::database close
+        }
 
+        sqlite3 ::dbgui::database $optval
+        
+        
+        $view setDatabaseCommand dbgui::database
+        $statusbar configure -database [file normalize $optval]
+        
+        set options($optname) $optval
+    }
+    ##
+    # _OnNewDatabase
+    #    Called in response to the menubar's New...selection:
+    #    -  Create the database.
+    #    -  Create the schema into the database.
+    #    -  configure ourself to use this new database.
+    #
+    # @param path - path to the new database.
+    # @note any existing file by this name will be deleted.
+    #       the File->New... code has already verified that the user is
+    #       ok with this.
+    #
+    method _OnCreateDatabase path {
+        if {[file exists $path]} {
+            if {![file writable $path]} {
+                tk_messageBox -type ok -icon error \
+                    -title "Cannot delete existing"  \
+                    -message "Unable to delete existing file [file normalize $path] before creating a new database"
+                return
+            } else {
+                file delete $path
+                
+            }
+        }
+        sqlite3 ::dbgui::newdatabase $path
+                dbconfig::makeSchema ::dbgui::newdatabase
+                ::dbgui::newdatabase close
+                $self configure -database $path;    #Takes care of the rest.
+    }
+    
+}
