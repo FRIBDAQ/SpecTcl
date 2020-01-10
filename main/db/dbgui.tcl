@@ -100,7 +100,6 @@ snit::widgetadaptor dbgui::StringPrompter {
     }
 
 }
-
 ##
 # dbgui::promptString
 #    Use the string prompter above wrapped in a dialog to prompt
@@ -134,6 +133,110 @@ proc dbgui::promptString {win prompt {initial {}}} {
     return $result
 }
 
+##
+# @class ListPrompter
+#     Prompt for a selection from amongst a list.
+#
+#  OPTIONS:
+#     -values - list of values in the list box.
+#     -selectmode - passed through to list box to set selection mode.
+# METHODS:
+#    getSelection - Get the list of values selected.
+#
+# @note - this list box scrolls vertically and horizontally.
+#
+#
+snit::widgetadaptor dbgui::ListPrompter {
+    component listbox
+    option -values -configuremethod _SetValues
+    delegate option -selectmode to listbox
+    
+    constructor args {
+        installhull using ttk::frame
+        install listbox using listbox $win.lb -selectmode extended \
+            -yscrollcommand [list $win.ysb set ]                   \
+            -xscrollcommand [list $win.xsb set]
+        
+        # Scroll bars:
+        
+        ttk::scrollbar $win.ysb -orient vertical -command [list $listbox yview]
+        ttk::scrollbar $win.xsb -orient horizontal -command [list $listbox xview]
+        
+        # Layout:
+        
+        grid $listbox $win.ysb -sticky nsew
+        grid $win.xsb -sticky nsew
+        
+        
+        $self configurelist $args
+    }
+    #-----------------------------------------------------------------
+    # public methods:
+    
+    ##
+    # getSelection
+    #   Gets the list of the _texts_ of the items in the selection.
+    #
+    # @return list - of strings.
+    #
+    method getSelection {} {
+        set selectionIndices [$listbox curselection]
+        set result [list]
+        
+        foreach index $selectionIndices {
+            lappend result [$listbox get $index]
+        }
+        
+        return $result
+    }
+    #-----------------------------------------------------------------
+    # private methods:
+    
+    ##
+    # _SetValues
+    #   Given the list of values changed, repopulate the listbox:
+    #
+    # @param optname - option being configured.
+    # @param value   - proposed new value.
+    #
+    method _SetValues {optname value} {
+        $listbox delete 0 end
+        $listbox insert end {*}$value
+        
+        set options($optname) $value
+    }
+}
+##
+#  promptList
+#    Wraps a ListPrompter in a DialogWrapper, and returns the set of
+#    selected items in the listbox.
+#
+# @param parent - parent widget
+# @param items  - Items with which to populate the list box.
+# @param mode   - Listbox selection mode (defaults to extended).
+# @param 
+#
+# @return list of strings - items selected when Ok was clicked.
+# @retval [list] no items selected or Cancel, Destroy done.
+#
+proc dbgui::promptList {parent items {mode extended}} {
+    set top [toplevel $parent.prompt]
+    set dlg [DialogWrapper $top.dialog]
+    set formParent [$dlg controlarea]
+    
+    set form [dbgui::ListPrompter $formParent.form -values $items -selectmode $mode]
+    $dlg configure -form $form
+    grid $dlg -sticky nsew
+    
+    set button [$dlg modal]
+    set result [list]
+    if {$button eq "Ok"} {
+        set result  [$form getSelection]
+    }
+    
+    destroy $top
+    return $result
+}
 
 ##
 #  @class dbgui::menubar
@@ -334,7 +437,7 @@ snit::type dbgui::menubar {
     #   The -onspecsave script is called.
     #
     method _OnSpecSave {} {
-        set script $option(-specsave)
+        set script $options(-onspecsave)
         if {$script ne ""} {
             uplevel #0 $script
         }
@@ -492,10 +595,32 @@ snit::widgetadaptor dbgui::dbview {
             }
         }
     }
-    
+    ##
+    # addSpectrum
+    #   Add a new spectrum to a configuration item in the GUI.
+    # 
+    # @param config - name of the configuration.
+    # @param sname  - name of the spectrum to add.
+    # @note if the spectrum is already in the configuration it is not added.
+    # @note if the configuration does not exist this is also a noop.
+    # @note the configuration folder  is not opened automatically.
+    #
+    method addSpectrum {config sname} {
+        set configItem [$self _GetConfigElement $config]
+        if {$configItem ne ""} {
+            set spectra [$self _GetSpectrumChildren $configItem]
+            if {$sname ni $spectra} {
+                set sid [$win insert $configItem end -image $dbgui::spectrum   \
+                    -tags spectrum                                            \
+                ]
+                $win set $sid 0 $sname
+            }
+        }
+    }
     
     #----------------------------------------------------------------
     #  Private methods:
+    
     
     ##
     # _Clear
@@ -767,6 +892,47 @@ snit::widgetadaptor dbgui::dbview {
             uplevel #0 $script
         }
     }
+    ##
+    # _GetConfigElement
+    #   Return the element id of a specific configuration folder.
+    #   configuration folders are the children of {} their -text
+    #   is the name of the configuration.
+    #
+    # @param name - name of the configuration to get.
+    # @return string -element id of the configuration.
+    # @retval "" - no such configuration folder.
+    #
+    method _GetConfigElement  name {
+        set configs [$win children {}]
+        foreach config $configs {
+            if {$name eq [$win item $config -text]} {
+                return $config
+            }
+        }
+        # No matches:
+        
+        return ""
+    }
+    ##
+    # _GetSpectrumChildren
+    #   @param config element id of a configuration.
+    #   @return list of names - list of spectrum names in the
+    #                           configuration.
+    #   Spectrum names are children with the spectrum -tag.
+    #   Names are the column 0 values.
+    #
+    method _GetSpectrumChildren config {
+        set children [$win children $config]
+        set result [list]
+        
+        foreach child $children {
+            if {"spectrum" in [$win item $child -tags]} {
+                lappend result [$win set $child 0]
+            }   
+        }
+        
+        return $result
+    }
 }
 ##
 #  @class StatusLine
@@ -857,6 +1023,7 @@ snit::widgetadaptor dbgui::dbgui {
         $menubar configure -onopen [list $self configure -database]
         $menubar configure -oncreate [mymethod _OnCreateDatabase]
         $menubar configure -onconfigsave [mymethod _OnSaveConfig]
+        $menubar configure -onspecsave [mymethod _OnSaveSpectrum]
     }
     destructor {
         if {$afterid != -1} {
@@ -971,5 +1138,54 @@ snit::widgetadaptor dbgui::dbgui {
         }
         return 0
     }
-    
+    ##
+    # _OnSaveSpectrum
+    #   Process the menubar's Save->Spectrum:
+    #
+    #   Preconditions:
+    #     * There must be  acurrent cnfiguration to save to.
+    #     * The user must have established a -spectrumlister script
+    #       that will list the names of all spectra that can be saved.
+    #
+    method _OnSaveSpectrum {} {
+        if {[info command ::dbgui::database] eq ""} {
+            tk_messageBox -type ok -icon error -title "No database" \
+                -message "No database open"
+            return
+        }
+        
+        set config  [$view getCurrentConfig]
+        set spectra [$self _GetSpectrumList]
+        
+        
+        set toSave [$self _GetSaveList $spectra]
+        foreach name $toSave {
+            dbconfig::saveSpectrum ::dbgui::database $config $name
+            $view addSpectrum $config $name
+        }
+    }
+    ##
+    # _GetSpectrumList
+    #    - ask the -spectrumlister to give us a list of the spectra:
+    #
+    #  @return list of strings - the spectrum names.
+    #  @note - if there's no lister just return an empty list.
+    method _GetSpectrumList {} {
+        set result [list]
+        set script $options(-spectrumlister)
+        if {$script ne ""} {
+            set result [uplevel #0 $script]
+        }
+        return $result
+    }
+    ##
+    # _GetSaveList
+    #   Get the list of items to save given a list to choose from
+    #
+    # @param list - list of items.
+    #
+    method _GetSaveList list {
+        return  [dbgui::promptList $win $list]
+        
+    }
 }
