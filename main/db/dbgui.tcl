@@ -37,7 +37,7 @@ namespace eval dbgui {
     
     # Icons used in the treeview:
     
-    variable iconcredits {Icons from Vitaly Gorbachev, Pixel perfect via flaticon.com}
+    variable iconcredits {Icons from Vitaly Gorbachev, Pixel perfect, and Flaticons via flaticon.com}
 
     variable folder [image create photo dbgui::folder -format png -file [file join $here folder.png]]
     variable openfolder [image create photo dbgui::openfolder -format png -file [file join $here openfolder.png]]
@@ -999,7 +999,7 @@ snit::widgetadaptor dbgui::dbgui {
     constructor args {
         installhull using ttk::frame
         install menubar using dbgui::menubar $win.menu
-        install view    using dbgui::dbview  $win.db
+        install view    using dbgui::dbview  $win.db -selectmode browse
         install statusbar using dbgui::StatusLine $win.sl
         
         grid $view -sticky nsew
@@ -1026,6 +1026,7 @@ snit::widgetadaptor dbgui::dbgui {
         
         $view configure -onconfigsave [mymethod _OnSaveConfig]
         $view configure -onspecsave  [mymethod _OnSaveSpectrumToConfig]
+        $view configure -onconfigrestore [mymethod _OnRestoreConfig]
     }
     destructor {
         if {$afterid != -1} {
@@ -1218,5 +1219,15 @@ snit::widgetadaptor dbgui::dbgui {
     method _GetSaveList list {
         return  [dbgui::promptList $win $list]
         
+    }
+    ##
+    # _OnRestoreConfig
+    #    Processes context menu config restoration.
+    #
+    # @param db - database command.
+    # @param configname - name of the save set to restore.
+    #
+    method _OnRestoreConfig {db configname} {
+        dbconfig::restoreConfig $db $configname
     }
 }
