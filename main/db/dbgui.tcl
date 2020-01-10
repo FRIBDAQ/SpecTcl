@@ -981,7 +981,15 @@ snit::widgetadaptor dbgui::StatusLine {
 #    be put into an empty toplevel, or at least one that's known not to have a
 #    menubar.
 #
+# OPTIONS:
+#    -database       -     set the database.
+#    -spectrumlister - provide script to list spectra.
+#    -onconfigchange - Provide a script to handle changes in the configuration.\
+# METHODS:
+#   There are no public methods.
+#
 #  @note - if this is a problem, could use a toplevel as a hull :-)
+#
 snit::widgetadaptor dbgui::dbgui {
     component menubar
     component view
@@ -989,6 +997,7 @@ snit::widgetadaptor dbgui::dbgui {
     
     option -database -configuremethod _SetDatabase
     option -spectrumlister
+    option -onconfigchange -default [list]
     
     variable afterid -1
     
@@ -1228,6 +1237,12 @@ snit::widgetadaptor dbgui::dbgui {
     #
     method _OnRestoreConfig {db configname} {
         dbconfig::restoreConfig $db $configname
+        sbind -all ;   # Make displayer aware of spectra.
+        
+        set script $options(-onconfigchange)
+        if {$script ne ""} {
+            uplevel #0 $script
+        }
     }
     ##
     # _OnLoadSpectrum
