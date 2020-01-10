@@ -638,6 +638,23 @@ proc _saveSpectrumChans {cmd specid data} {
                 }
             }
         }
+    } else {
+        #  In this case we need to put channel 0 place holders
+        #  Otherwise the system will think we have not saved this spectrum.
+        #  We need to figure out how many dimensions the spectrum has in order
+        #  to do this properlyh:
+        
+        set type [$cmd eval {SELECT type FROM spectrum_defs WHERE id = :specid}]
+        if {$type in [list 1 g1 b s] } {
+            set ychan ""
+        } else  {
+            set ychan 0
+        }
+        $cmd eval {
+            INSERT INTO spectrum_contents (spectrum_id, xbin, ybin, value)
+                VALUES(:specid, 0, :ychan, 0)
+        }
+        
     }
 }
 ##
