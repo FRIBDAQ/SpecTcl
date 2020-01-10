@@ -474,6 +474,8 @@ snit::type dbgui::menubar {
 #
 snit::widgetadaptor dbgui::dbview {
     delegate method * to hull
+    component tree
+    
     
     option -onconfigsave -default [list]
     option -onconfigrestore -default [list]
@@ -481,7 +483,8 @@ snit::widgetadaptor dbgui::dbview {
     option -onspecrestore -default [list]
     option -promptspectrum -default [list]
     
-    delegate option * to hull
+    delegate option * to tree
+    delegate method * to tree
     
     variable dbcommand [list]
     variable configContextMenu
@@ -489,17 +492,24 @@ snit::widgetadaptor dbgui::dbview {
     
     
     constructor args {
-        installhull using ttk::treeview
+        installhull using ttk::frame
+        install tree using ttk::treeview $win.tree \
+            -yscrollcommand [list $win.scroll set]
+        ttk::scrollbar $win.scroll -orient vertical -command [list $tree yview]
         
-        $win config -columns [list  label] -displaycolumns #all
-        $win heading 0 -text description
-        $win column  0 -stretch 1
+        grid $tree $win.scroll -sticky nsew
+        grid columnconfigure $win 0 -weight 1
+        grid rowconfigure    $win 0 -weight 1
+        
+        $tree config -columns [list  label] -displaycolumns #all
+        $tree heading 0 -text description
+        $tree column  0 -stretch 1
         
         # Capture open and close events so that we can open and close the
         # folders when they happen on top levels:
         
-        bind $win <<TreeviewOpen>> [mymethod _OnOpen]
-        bind $win  <<TreeviewClose>> [mymethod _OnClose]
+        bind $tree <<TreeviewOpen>> [mymethod _OnOpen]
+        bind $tree  <<TreeviewClose>> [mymethod _OnClose]
         
         #  Create the context (right click) menus and bind
         #  the right clicks on the configuration and spectrum tags to
@@ -508,14 +518,14 @@ snit::widgetadaptor dbgui::dbview {
         set configContextMenu [$self _CreateConfigContextMenu]
         set spectrumContextMenu [$self _CreateSpectrumContextMenu]
 
-        $win tag bind configuration <ButtonPress-3> \
+        $tree tag bind configuration <ButtonPress-3> \
              [mymethod _PostMenu $configContextMenu  %X %Y %x %y]
 
 
-        $win tag bind spectrum      <ButtonPress-3> \
+        $tree tag bind spectrum      <ButtonPress-3> \
             [mymethod _PostMenu $spectrumContextMenu %X %Y %x %y]
         
-        bind $win <Key-Escape> "
+        bind $tree <Key-Escape> "
             $configContextMenu unpost
             $spectrumContextMenu unpost
         "
@@ -536,13 +546,13 @@ snit::widgetadaptor dbgui::dbview {
     # @retval ""     -   There is not currently selected configuration.
     #
     method getCurrentConfig {} {
-        set selection [$win selection]
+        set selection [$tree selection]
         
         if {$selection ne ""} {
-            while {[$win parent $selection] ne ""} {
-                set selection [$win parent $selection]
+            while {[$tree parent $selection] ne ""} {
+                set selection [$tree parent $selection]
             }
-            return [$win item $selection -text]
+            return [$tree item $selection -text]
         }
         return ""
     }
@@ -554,12 +564,12 @@ snit::widgetadaptor dbgui::dbview {
     # @retval - no spectrum is selected (includes the case that nothing is selected).
     #
     method getCurrentSpectrum {} {
-        set selection [$win selection]
+        set selection [$tree selection]
         
         if {$selection ne ""} {
-            set tags [$win item $selection -tag]
+            set tags [$tree item $selection -tag]
             if {"spectrum" in $tags} {
-                return [$win set $selection 0]
+                return [$tree set $selection 0]
             }
         }
         return ""
@@ -610,10 +620,10 @@ snit::widgetadaptor dbgui::dbview {
         if {$configItem ne ""} {
             set spectra [$self _GetSpectrumChildren $configItem]
             if {$sname ni $spectra} {
-                set sid [$win insert $configItem end -image $dbgui::spectrum   \
+                set sid [$tree insert $configItem end -image $dbgui::spectrum   \
                     -tags spectrum                                            \
                 ]
-                $win set $sid 0 $sname
+                $tree set $sid 0 $sname
             }
         }
     }
@@ -627,9 +637,9 @@ snit::widgetadaptor dbgui::dbview {
     #    Removes all entries from the display:
     #
     method _Clear {} {
-        set configs [$win children {}];         # Top levesl are configurations.
+        set configs [$tree children {}];         # Top levesl are configurations.
         if {[llength $configs] > 0} {
-            $win delete $configs
+            $tree delete $configs
         }
     }
     ##
@@ -660,22 +670,22 @@ snit::widgetadaptor dbgui::dbview {
         set description "Saved [clock format $timestamp]"
         lappend values ""
         lappend values $description
-        set configid [$win insert {} end  -text $configName                  \
+        set configid [$tree insert {} end  -text $configName                  \
             -image $dbgui::folder -tags configuration                         \
         ]
-        $win set $configid 0 $description
+        $tree set $configid 0 $description
         
         
         #  Now load the sub-elements.  We have a configuration and
         #  0 or more spectrum items.
         
-        $win insert $configid end -image $dbgui::configuration -tags configuration
+        $tree insert $configid end -image $dbgui::configuration -tags configuration
         
         foreach spectrum [dbconfig::listSavedSpectra $dbcommand $configName] {
-            set sid [$win insert $configid end -image $dbgui::spectrum   \
+            set sid [$tree insert $configid end -image $dbgui::spectrum   \
                 -tags spectrum                                            \
             ]
-            $win set $sid 0 $spectrum
+            $tree set $sid 0 $spectrum
         }
         
     }
@@ -688,9 +698,9 @@ snit::widgetadaptor dbgui::dbview {
     # @param wx,wy - Pointer coords within the window.
     #
     method _PostMenu {menu x y wx wy} {
-        set element [$win identify item $wx $wy]
+        set element [$tree identify item $wx $wy]
 
-        $win selection set $element
+        $tree selection set $element
         $menu  post $x $y
     }
     ##
@@ -698,11 +708,11 @@ snit::widgetadaptor dbgui::dbview {
     #    If the current entry's image is a folder, make it an openfolder
     #
     method _OnOpen {} {
-        set item [$win focus]
+        set item [$tree focus]
         if {$item ne "{}"} {
-            set image [$win item $item -image]
+            set image [$tree item $item -image]
             if {$image eq $dbgui::folder} {
-                $win item $item -image $dbgui::openfolder
+                $tree item $item -image $dbgui::openfolder
             }
         }
     }
@@ -711,11 +721,11 @@ snit::widgetadaptor dbgui::dbview {
     #   If the entry's image is an open folder turn it into a closed one.
     #
     method _OnClose {} {
-        set item [$win focus]
+        set item [$tree focus]
         if {$item ne "{}"} {
-            set image [$win item $item -image]
+            set image [$tree item $item -image]
             if {$image eq $dbgui::openfolder} {
-                $win item $item -image $dbgui::folder
+                $tree item $item -image $dbgui::folder
             }
         }
         
@@ -728,11 +738,11 @@ snit::widgetadaptor dbgui::dbview {
     #
     # @return - the menu widget path produced.
     # @note - While menus are considered toplevels, we're going to make this a
-    #         child of $win so that we can ensure that the path is unique.
+    #         child of $tree so that we can ensure that the path is unique.
     #
     method _CreateConfigContextMenu {} {
-        set result [menu $win.configcontextmenu -tearoff 0 \
-            -postcommand [list tk_menuSetFocus $win.configcontextmenu]     \
+        set result [menu $tree.configcontextmenu -tearoff 0 \
+            -postcommand [list tk_menuSetFocus $tree.configcontextmenu]     \
         ]
         $result add command -label Save... -command [mymethod _OnConfigSave]
         $result add command -label {Save Spectrum...} \
@@ -755,10 +765,10 @@ snit::widgetadaptor dbgui::dbview {
     #   -   Save... - calls _OnSaveSpectrum.
     #   -   Load    - Calls _OnRestoreSpectrum.
     #
-    #  @return menu widget path.  Will be created as a child of $win.
+    #  @return menu widget path.  Will be created as a child of $tree.
     method _CreateSpectrumContextMenu {} {
-        set result [menu $win.spectrumcontextmenu -tearoff 0        \
-            -postcommand [list tk_menuSetFocus $win.spectrumcontextmenu]
+        set result [menu $tree.spectrumcontextmenu -tearoff 0        \
+            -postcommand [list tk_menuSetFocus $tree.spectrumcontextmenu]
         ]
         
         $result add command -label Resave \
@@ -785,7 +795,7 @@ snit::widgetadaptor dbgui::dbview {
     #   name as parameters.
     #
     method _OnConfigSave {} {
-        set configName [dbgui::promptString $win {Configuration Name}]
+        set configName [dbgui::promptString $tree {Configuration Name}]
         if {$configName ne ""} {
             set configs [dbconfig::listConfigs $dbcommand]
             foreach config $configs {
@@ -838,7 +848,7 @@ snit::widgetadaptor dbgui::dbview {
             set script [lappend $dbcommand $config $spec]
             return [uplevel #0 $script]
         } else {
-            return [dbgui::promptString $win {Spectrum name:} $spec]
+            return [dbgui::promptString $tree {Spectrum name:} $spec]
         }
     }
     ##
@@ -903,9 +913,9 @@ snit::widgetadaptor dbgui::dbview {
     # @retval "" - no such configuration folder.
     #
     method _GetConfigElement  name {
-        set configs [$win children {}]
+        set configs [$tree children {}]
         foreach config $configs {
-            if {$name eq [$win item $config -text]} {
+            if {$name eq [$tree item $config -text]} {
                 return $config
             }
         }
@@ -922,12 +932,12 @@ snit::widgetadaptor dbgui::dbview {
     #   Names are the column 0 values.
     #
     method _GetSpectrumChildren config {
-        set children [$win children $config]
+        set children [$tree children $config]
         set result [list]
         
         foreach child $children {
-            if {"spectrum" in [$win item $child -tags]} {
-                lappend result [$win set $child 0]
+            if {"spectrum" in [$tree item $child -tags]} {
+                lappend result [$tree set $child 0]
             }   
         }
         
