@@ -486,7 +486,7 @@ snit::widgetadaptor dbgui::dbview {
     option -onconfigrestore -default [list]
     option -onspecsave -default [list]
     option -onspecrestore -default [list]
-    option -promptspectrum -default [list]
+
     
     delegate option * to tree
     delegate method * to tree
@@ -834,41 +834,19 @@ snit::widgetadaptor dbgui::dbview {
             uplevel #0 $script
         }
     }
-    ##
-    # _PromptSpectruim
-    #    Asks the user for the name of a spectrum.
-    #   - If -promtpspectrum has a script that's used to prompt.  The return
-    #     value is the spectrum name.  The database and current configuration
-    #     and spectrum name if one is active are passed to the user.
-    #   - If no -promptspectrum is defined, then the user is propmted with a string
-    #    prompter.
-    #
-    # @return string - spectrum name "" if none should be chosen.
-    method _PromptSpectrum {} {
-        set config [$self getCurrentConfig]
-        set spec   [$self getCurrentSpectrum] ;   # could be empty/
-        
-        set script $options(-promptspectrum)
-        if {$script ne ""} {
-            set script [lappend $dbcommand $config $spec]
-            return [uplevel #0 $script]
-        } else {
-            return [dbgui::promptString $tree {Spectrum name:} $spec]
-        }
-    }
-    ##
+
     # _SaveSpectrum
     #   Contains the common code to invoke -onspecsave;
     #   database command, configuration name and spectrum name are added to
     #   the script in -onspecsave and that script is run.
     #
     # @param config  - name of the selected configuration.
-    # @param name    - List of names of spectra to save.
+    # @note the script is expected to prompt for the spectra to save.
     #
-    method _SaveSpectrum {config name} {
+    method _SaveSpectrum {config} {
         set script $options(-onspecsave)
         if {$script ne ""} {
-            lappend script $dbcommand $config $name
+            lappend script $dbcommand $config
             uplevel #0 $script
         }
     }
@@ -886,11 +864,8 @@ snit::widgetadaptor dbgui::dbview {
     #     Invoke _SaveSpectrum if a non blank spectrum was returned.
     #
     method _OnSaveSpectrum {} {
-        set spec [$self _PromptSpectrum]
-        if {$spec ne ""} {
-            set cfg [$self getCurrentConfig]
-            $self _SaveSpectrum $cfg $spec
-        }
+        set cfg [$self getCurrentConfig]
+        $self _SaveSpectrum $cfg
     }
     ##
     # _OnSpectrumRestore
@@ -1050,6 +1025,7 @@ snit::widgetadaptor dbgui::dbgui {
         # Setup response to popup menus in the view:
         
         $view configure -onconfigsave [mymethod _OnSaveConfig]
+        $view configure -onspecsave  [mymethod _OnSaveSpectrumToConfig]
     }
     destructor {
         if {$afterid != -1} {
@@ -1197,7 +1173,18 @@ snit::widgetadaptor dbgui::dbgui {
                 -message {First click on a configuration in which to save the spectra}
             return
         }
-        
+        $self _OnSaveSpectrumToConfig {} $config
+    }
+    ##
+    # _OnSaveSpectrumToConfig
+    #    Saves a spectrum to a given configuration.  This is needed because
+    #    the context menu  from the view passes the configuration name
+    #    while the Save->Spectrum .. menu entry can't because it knows nothing
+    #    of the view.
+    #
+    # @param config - configuration to which the spectrum is saved.
+    #
+    method _OnSaveSpectrumToConfig {ignore config} {
         set spectra [$self _GetSpectrumList]
         
         
@@ -1206,6 +1193,7 @@ snit::widgetadaptor dbgui::dbgui {
             dbconfig::saveSpectrum ::dbgui::database $config $name
             $view addSpectrum $config $name
         }
+
     }
     ##
     # _GetSpectrumList
