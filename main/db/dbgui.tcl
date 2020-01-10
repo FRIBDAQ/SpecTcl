@@ -843,10 +843,10 @@ snit::widgetadaptor dbgui::dbview {
     # @param config  - name of the selected configuration.
     # @note the script is expected to prompt for the spectra to save.
     #
-    method _SaveSpectrum {config} {
+    method _SaveSpectrum {config {name {}}} {
         set script $options(-onspecsave)
         if {$script ne ""} {
-            lappend script $dbcommand $config
+            lappend script $dbcommand $config $name
             uplevel #0 $script
         }
     }
@@ -855,7 +855,7 @@ snit::widgetadaptor dbgui::dbview {
     #    Call _SaveSpectrum with the current configuration and spectrum.
     #
     method _OnResaveCurrentSpectrum {} {
-        $self _SaveSpectrum [$self getCurrentConfig] [$self getCurrentSpectrum]
+        $self _SaveSpectrum  [$self getCurrentConfig] [$self getCurrentSpectrum]
     }
     ##
     # _OnSaveSpectrum
@@ -988,10 +988,6 @@ snit::widgetadaptor dbgui::dbgui {
     component statusbar
     
     option -database -configuremethod _SetDatabase
-    option -onloadconfig
-    option -onrestoreconfig
-    option -onloadspectrum
-    option -onrestorespectrum
     option -spectrumlister
     
     variable afterid -1
@@ -1027,6 +1023,7 @@ snit::widgetadaptor dbgui::dbgui {
         $view configure -onconfigsave [mymethod _OnSaveConfig]
         $view configure -onspecsave  [mymethod _OnSaveSpectrumToConfig]
         $view configure -onconfigrestore [mymethod _OnRestoreConfig]
+        $view configure -onspecrestore [mymethod _OnLoadSpectrum]
     }
     destructor {
         if {$afterid != -1} {
@@ -1185,11 +1182,13 @@ snit::widgetadaptor dbgui::dbgui {
     #
     # @param config - configuration to which the spectrum is saved.
     #
-    method _OnSaveSpectrumToConfig {ignore config} {
-        set spectra [$self _GetSpectrumList]
-        
-        
-        set toSave [$self _GetSaveList $spectra]
+    method _OnSaveSpectrumToConfig {ignore config {spectrum {}}} {
+        if {$spectrum eq ""} {
+            set spectra [$self _GetSpectrumList]
+            set toSave [$self _GetSaveList $spectra]
+        } else {
+            set toSave $spectrum
+        }
         foreach name $toSave {
             dbconfig::saveSpectrum ::dbgui::database $config $name
             $view addSpectrum $config $name
@@ -1229,5 +1228,16 @@ snit::widgetadaptor dbgui::dbgui {
     #
     method _OnRestoreConfig {db configname} {
         dbconfig::restoreConfig $db $configname
+    }
+    ##
+    # _OnLoadSpectrum
+    #   Load a spectrum.
+    #
+    # @param db - database command.
+    # @param config - configuration name.
+    # @param spec   - spectrum name.
+    #
+    method _OnLoadSpectrum {db config spec} {
+        dbconfig::restoreSpectrum  $db $config $spec
     }
 }
