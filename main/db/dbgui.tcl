@@ -167,6 +167,11 @@ snit::widgetadaptor dbgui::ListPrompter {
         grid $listbox $win.ysb -sticky nsew
         grid $win.xsb -sticky nsew
         
+        # If the user keys a Control-a we should select all spectra.
+        
+        bind $listbox <Control-a> [list $listbox selection set 0 end]
+        bind $listbox <Control-A> [list $listbox selection set 0 end]
+        focus -force $listbox
         
         $self configurelist $args
     }
@@ -1025,6 +1030,9 @@ snit::widgetadaptor dbgui::dbgui {
         grid $view -sticky nsew
         grid $statusbar -sticky nsew
         
+        grid rowconfigure $win  0 -weight 1
+        grid columnconfigure $win 0 -weight 1
+        
         $self configurelist $args
         $self _UpdateStatusBar 1000
         
@@ -1034,11 +1042,16 @@ snit::widgetadaptor dbgui::dbgui {
         $menubar configure -oncreate [mymethod _OnCreateDatabase]
         $menubar configure -onconfigsave [mymethod _OnSaveConfig]
         $menubar configure -onspecsave [mymethod _OnSaveSpectrum]
+        
+        #  Util there's a configuration the save menu must be disabled.
+        
+        $menubar disableSave
     }
     destructor {
         if {$afterid != -1} {
             after cancel $afterid
         }
+        $menubar destroy
     }
     
     ############################################################################
@@ -1081,6 +1094,7 @@ snit::widgetadaptor dbgui::dbgui {
         $statusbar configure -database [file normalize $optval]
         
         set options($optname) $optval
+        $menubar enableSave
     }
     ##
     # _OnNewDatabase
@@ -1107,9 +1121,10 @@ snit::widgetadaptor dbgui::dbgui {
             }
         }
         sqlite3 ::dbgui::newdatabase $path
-                dbconfig::makeSchema ::dbgui::newdatabase
-                ::dbgui::newdatabase close
-                $self configure -database $path;    #Takes care of the rest.
+        dbconfig::makeSchema ::dbgui::newdatabase
+        ::dbgui::newdatabase close
+        $self configure -database $path;    #Takes care of the rest.
+        $menubar enableSave
     }
     
     ##
@@ -1165,6 +1180,12 @@ snit::widgetadaptor dbgui::dbgui {
         }
         
         set config  [$view getCurrentConfig]
+        if {$config eq ""} {
+            tk_messageBox -type ok -icon error -title "No configuration" \
+                -message {First click on a configuration in which to save the spectra}
+            return
+        }
+        
         set spectra [$self _GetSpectrumList]
         
         
