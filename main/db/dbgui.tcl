@@ -462,7 +462,7 @@ snit::type dbgui::menubar {
 #  Options:
 #    All ttk::treeview options.
 #    -onconfigsave   - Script run when the UI asks a configuration to be saved.
-#    -oncofigrestore - Script run when the UI asks for a configuration to be restored.
+#    -onconfigrestore - Script run when the UI asks for a configuration to be restored.
 #    -onspecsave       - Script run when the UI asks for a spectrum to be saved.
 #    -onspecrestore    - Script run when the UI asks for a spectrum to be restored.
 #    -promptspectrum - Script run to prompt for a spectrum name
@@ -1040,12 +1040,16 @@ snit::widgetadaptor dbgui::dbgui {
         
         $menubar configure -onopen [list $self configure -database]
         $menubar configure -oncreate [mymethod _OnCreateDatabase]
-        $menubar configure -onconfigsave [mymethod _OnSaveConfig]
+        $menubar configure -onconfigsave [mymethod _OnSaveConfig ignoreme]
         $menubar configure -onspecsave [mymethod _OnSaveSpectrum]
         
         #  Util there's a configuration the save menu must be disabled.
         
         $menubar disableSave
+        
+        # Setup response to popup menus in the view:
+        
+        $view configure -onconfigsave [mymethod _OnSaveConfig]
     }
     destructor {
         if {$afterid != -1} {
@@ -1130,10 +1134,18 @@ snit::widgetadaptor dbgui::dbgui {
     ##
     # _OnSaveConfig
     #
-    #   The Menu has requested a configuration save.
+    #   The Menubar has requested a configuration save.
+    #   The gui has a context menu which autonomouly prompts.
     #
-    method _OnSaveConfig  {} {
-        set name [dbgui::promptString $win "Name of new configuration (must be unique)"]
+    # @param database - from the context menu the database (we're going to use
+    #                   the database we have).
+    #@param name      - optional configuration name. We prompt if not
+    #                   it's not provided.
+    #
+    method _OnSaveConfig  {database {name {}}} {
+        if {$name eq ""} {
+            set name [dbgui::promptString $win "Name of new configuration (must be unique)"]
+        }
         if {$name ne ""} {
             if {[info command ::dbgui::database] eq ""} {
                     tk_messageBox -type ok -icon error -title "No database" \
