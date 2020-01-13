@@ -48,8 +48,7 @@ puts $dbgui::iconcredits;            # Also in help->about...
 package provide dbgui $dbgui::version
 
 #------------------------------------------------------------------------------
-##
-#   The GUI is intended to live in a top-level widget as it will want
+###   The GUI is intended to live in a top-level widget as it will want
 #   to create a menubar.
 #
 #   The GUI consists of three components:
@@ -779,12 +778,14 @@ snit::widgetadaptor dbgui::dbview {
         $result add command -label Resave \
             -command [mymethod _OnResaveCurrentSpectrum]
         $result add command -label Save... -command [mymethod _OnSaveSpectrum]
+        $result add command -label {Load} -command [mymethod _OnSpectrumRestore]
+        $result add separator
         $result add command -label {SaveConfiguration...} \
             -command [mymethod _OnConfigSave]
         $result add command -label {Load Configuration} \
             -command [mymethod _OnConfigRestore]
-        $result add separator
-        $result add command -label {Load} -command [mymethod _OnSpectrumRestore]
+        
+
 
         bind $result <Key-Escape> [list $result unpost]
 
@@ -1006,6 +1007,7 @@ snit::widgetadaptor dbgui::dbgui {
         install menubar using dbgui::menubar $win.menu
         install view    using dbgui::dbview  $win.db -selectmode browse
         install statusbar using dbgui::StatusLine $win.sl
+        
         
         grid $view -sticky nsew
         grid $statusbar -sticky nsew
@@ -1256,3 +1258,48 @@ snit::widgetadaptor dbgui::dbgui {
         dbconfig::restoreSpectrum  $db $config $spec
     }
 }
+##
+# dbgui::updateTreeGui
+#    Asks all components of the Tree gui to update themselves after a
+#    new configuration was read:
+#
+proc dbgui::updateTreeGui {} {
+    puts "Updating tree gui"
+ 
+    # It's remotely possible the user has not loaded the treegui
+        
+    if {[winfo exists .treegui]} {
+        .treegui.notebook.spectra updateSpectrumList
+        .treegui.notebook.gates updateGates
+        FolderGui::updateBrowser
+    }
+}
+##
+#  Lister for spectra
+#
+proc dbgui::listSpectra {} {
+    set result [list]
+    foreach spectrum [spectrum -list] {
+        lappend result [lindex $spectrum 1]
+        
+    }
+    return $result
+}
+##
+# start
+#
+#   Start the whole gui OFF:
+#
+proc dbgui::start {} {
+    toplevel .dbgui
+    dbgui::dbgui .dbgui.gui -spectrumlister [list dbgui::listSpectra]
+    pack .dbgui.gui -fill both -expand 1
+    
+    #   Link with treeGUI:
+    
+    .dbgui.gui configure -onconfigchange dbgui::updateTreeGui
+}
+#---------------------------------------------------------------------------
+# Entry point:
+
+dbgui::start

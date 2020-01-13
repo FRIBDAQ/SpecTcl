@@ -145,6 +145,18 @@ snit::widget spectrumContainer {
 
 
     }
+    #---------------------------------------------------------------------
+    #  Public methods
+    
+     ##
+    # updateSpectrumList
+    #    Updates the spectrum list.  This is done just by getting and
+    #    setting the spectrum mask.  That forces an update.
+    #
+    method updateSpectrumList {} {
+        set filter [$mask cget -mask]
+        $mask configure -mask $filter
+    }
     #----------------------------------------------------------------------
     #
     # Configuration management

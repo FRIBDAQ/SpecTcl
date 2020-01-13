@@ -59,7 +59,7 @@ package provide gateTabActions 1.0
     #
     private method doScheduledLoadUpdate {} {
 	set menuUpdateAfterId -1
-	loadGateMenu
+        loadGateMenu
 		loadParameterMenu
     }
 
@@ -73,10 +73,10 @@ package provide gateTabActions 1.0
     ##
     # Updates both the gate table and the gate menu using the mask:
     #
-    private method updateGates {} {
-	loadGateTable [$widget cget -mask]
-	loadGateMenu
-		loadParameterMenu
+    public method updateGates {} {
+        loadGateTable [$widget cget -mask]
+        loadGateMenu
+        loadParameterMenu
 	    
     }
     ##
