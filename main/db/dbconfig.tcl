@@ -1451,6 +1451,36 @@ proc makeSchema cmd {
     $cmd eval {
         CREATE INDEX IF NOT EXISTS treevariables_saveidx ON treevariables (save_id)
     }
+    
+    #---------------------------------------------------------------------
+    #  Support putting events into the file as well:
+    
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS runs (    -- Runs that were saved.
+            id         INTEGER PRIMARY KEY,
+            config_id  INTEGER,              -- Configuration at begin of run.
+            run_number INTEGER UNIQUE NOT NULL,
+            title      TEXT NOT NULL,
+            start_time INTEGER,
+            stop_time  INTEGER              -- End of run time
+        )
+    }
+    $cmd eval {
+        CREATE INDEX IF NOT EXISTS run_num_idx ON runs (run_number)
+    }
+    ##
+    #  Event data:
+    
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS events (
+            id         INTEGER PRIMARY KEY,
+            run_id     INTEGER NOT NULL,   -- fk to runs(id).
+            parameter_num INTEGER NOT NULL, -- fk to params(number)
+            parameter_value DOUBLE NOT NULL
+        )
+    }
+    
+    
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
