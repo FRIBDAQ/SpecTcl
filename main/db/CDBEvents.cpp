@@ -195,8 +195,17 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     }
     const StateChangeItemBody* pBody =
         reinterpret_cast<const StateChangeItemBody*>(getBody(pStateTransition));
-        
+    
+    // If a transaction is in progress, finish it:
+    
+    if (m_eventsInCurrentTransaction > 0) {
+        checkStatus(sqlite3_step(m_pCommit), SQLITE_DONE);
+        checkStatus(sqlite3_reset(m_pCommit));
+        m_eventsInCurrentTransaction = 0;
+    }
+    
     // Add the end run time to the run record.
+    
     sqlite3_stmt* pEnd;
     checkStatus(
         sqlite3_prepare(
