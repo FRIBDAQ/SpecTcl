@@ -21,6 +21,7 @@
 #ifndef DBEVENTS_H
 #define DBEVENTS_H
 #include <EventSink.h>
+#include <EventProcessor.h>
 
 class CDBEventWriter;
 
@@ -42,6 +43,40 @@ public:
     virtual void operator()(CEventList& rEvents);
     
     // Things that get called by the event processor:
+    
+    void enable();
+    void disable();
+    void setWriter(CDBEventWriter* pWriter);
+};
+
+/**
+ * @class CDBProcessor
+ *    This is an event processor.
+ *    It's responsible for
+ *    - Registering a CBDSink.
+ *    - Writing the begin/end/scaler items to the database.
+ *    - Providing entries for the commands that control us to
+ *      function.
+ */
+class CDBProcessor : public CEventProcessor
+{
+private:
+    CDBEventWriter* m_pWriter;
+    CDBSink*        m_pSink;
+    bool            m_enabled;
+    bool            m_inRun;
+public:
+    CDBProcessor(CDBEventWriter* pWriter);
+    
+    // Event processor interface:
+    
+    
+    virtual Bool_t OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder);
+    virtual Bool_t OnEnd(CAnalyzer& rANalyzer, CBufferDecoder& rDecoder);
+    virtual Bool_t OnOther(
+        UInt_t nType, CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder
+    );
+    // Control interface:
     
     void enable();
     void disable();
