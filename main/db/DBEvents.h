@@ -68,8 +68,8 @@ private:
     bool            m_inRun;
 public:
     CDBProcessor(CDBEventWriter* pWriter);
-    
-    // TODO: Implement a destructor that kills off the sink.
+    ~CDBProcessor();   
+ 
     
     // Event processor interface:
     
@@ -86,7 +86,6 @@ public:
     
     void enable();
     void disable();
-    // TODO: Should disable.
     void setWriter(CDBEventWriter* pWriter);
 };
 

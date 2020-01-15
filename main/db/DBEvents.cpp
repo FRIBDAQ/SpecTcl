@@ -111,6 +111,28 @@ CDBProcessor::CDBProcessor(CDBEventWriter* pWriter) :
     pApi->AddEventSink(*pSink, "sqlite-writer");
     m_pSink = pSink;   
 }
+
+/**
+ * destructor
+ *    Remove the sink from the event sink pipeline.
+ *    delete it.
+ */
+CDBProcessor::~CDBProcessor()
+{
+    SpecTcl* pApi = SpecTcl::getInstance();
+    auto p = pApi->FindEventSink(*m_pSink);
+    if (p == pApi->EventSinkPipelineEnd()) {
+        throw std::logic_error(
+            "BUGCHECK CDBProcessor destructor can't find sink to destroy it"
+        );
+    }
+    pApi->RemoveEventSink(p);
+    delete m_pSink;
+    
+    // We don't own the writer.
+}
+
+
 /**
  * OnBegin
  *    Called when a begin run has been received. Note that in event built
@@ -210,4 +232,5 @@ CDBProcessor::setWriter(CDBEventWriter* pWriter)
 {
     m_pWriter = pWriter;
     m_pSink->setWriter(pWriter);
+    m_enabled = false;
 }
