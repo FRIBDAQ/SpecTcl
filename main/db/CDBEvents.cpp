@@ -86,8 +86,8 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     checkStatus(
         sqlite3_prepare(
             m_pSqlite,
-            "INSERT INTO events (run_id, parameter_num, parameter_value) \
-                                VALUES (:run, :pno, :val)",
+            "INSERT INTO events (run_id, event_number,  parameter_num,  parameter_value) \
+                                VALUES (:run, :eno, :pno, :val)",
             -1,&m_pInsert, nullptr
         )
     ); 
@@ -177,7 +177,7 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
     checkStatus(sqlite3_finalize(pRun));
     
     m_nCurrentRunId = sqlite3_last_insert_rowid(m_pSqlite);
-
+    m_eventInRun    = 0;
   }
   catch (std::exception& e) {
     std::cerr << "CDBEventWriter failed in begin run: " << e.what();
@@ -219,7 +219,7 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     sqlite3_stmt* pEnd;
     checkStatus(
         sqlite3_prepare(
-            m_pSqlite, "UPDATE runs SET end_time=:end", -1, &pEnd, nullptr
+            m_pSqlite, "UPDATE runs SET stop_time=:end", -1, &pEnd, nullptr
         )
     );
     checkStatus(sqlite3_bind_int(pEnd, 1, pBody->s_Timestamp));
@@ -281,17 +281,19 @@ CDBEventWriter::event(CEvent* pEvent)
             checkStatus(sqlite3_reset(m_pTransaction));
         }
         checkStatus(sqlite3_bind_int(m_pInsert, 1, m_nCurrentRunId));
+	checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
         for (int i =0; i < n; i++) {
             int pno = dope[i];
             double value = e[pno];
             
-            checkStatus(sqlite3_bind_int(m_pInsert, 2, pno));
-            checkStatus(sqlite3_bind_double(m_pInsert, 3, value));
+            checkStatus(sqlite3_bind_int(m_pInsert, 3, pno));
+            checkStatus(sqlite3_bind_double(m_pInsert, 4, value));
             
             checkStatus(sqlite3_step(m_pInsert), SQLITE_DONE);
             checkStatus(sqlite3_reset(m_pInsert));
         }
         m_eventsInCurrentTransaction++;
+	m_eventInRun++;
         
         // Commit a batch if appropriate.
         

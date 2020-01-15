@@ -59,6 +59,7 @@ private:
     std::vector<std::string> m_autoSaveSpectra;  // Names of spectra to auto save.
     unsigned           m_eventsInTransaction;     // More efficient to batch
     unsigned           m_eventsInCurrentTransaction; // events into a transaction.
+    unsigned           m_eventInRun;             // Event number in the run.
     
     static int         m_dbCmdIndex;            // uniquifier for database command.
     

@@ -1475,6 +1475,7 @@ proc makeSchema cmd {
         CREATE TABLE IF NOT EXISTS events (
             id         INTEGER PRIMARY KEY,
             run_id     INTEGER NOT NULL,   -- fk to runs(id).
+	    event_number INTEGER NOT NULL, -- Event number in the run.
             parameter_num INTEGER NOT NULL, -- fk to params(number)
             parameter_value DOUBLE NOT NULL
         )
