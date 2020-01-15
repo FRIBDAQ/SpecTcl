@@ -222,6 +222,16 @@ CDBProcessor::enable()
     m_pSink->enable();
 }
 /**
+ * disable
+ *   Disable writing data
+ */
+void
+CDBProcessor::disable()
+{
+    m_enabled = false;
+    m_pSink->disable();
+}
+/**
  * setWriter
  *   Set a new writer.
  *
