@@ -57,6 +57,7 @@ private:
     CDBEventWriter* m_pWriter;
     CDBProcessor*   m_pEventProcessor;
     bool            m_enabled;
+    int             m_nProcessorIndex;
 public:
     CDBCommands(CTCLInterpreter& interp, const char* name = "daqdb");
     virtual ~CDBCommands();
@@ -72,5 +73,6 @@ private:
     void requireOpen();
     void requireEnabled();
     void requireDisabled();
+    std::string processorName();
 };
 #endif

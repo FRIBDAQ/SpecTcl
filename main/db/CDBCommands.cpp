@@ -39,7 +39,8 @@ CDBCommands::CDBCommands(CTCLInterpreter& interp, const char* name) :
     CTCLObjectProcessor(interp, name, true),
     m_pWriter(nullptr),
     m_pEventProcessor(nullptr),
-    m_enabled(false)
+    m_enabled(false),
+    m_nProcessorIndex(0)
 {}
 
 /**
@@ -70,7 +71,7 @@ CDBCommands::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     bindAll(interp, objv);
     try {
-        requireAtLeast(objv, 2, "We need at lease a subcommand");
+        requireAtLeast(objv, 2, "We need at least a subcommand");
         
         std::string sub = objv[1];        // Sub command.
         if (sub == "open") {
@@ -133,7 +134,7 @@ CDBCommands::dbOpen(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         m_pWriter = pWriter;
         m_pEventProcessor = new CDBProcessor(pWriter);
         SpecTcl* pApi = SpecTcl::getInstance();
-        pApi->AddEventProcessor(*m_pEventProcessor, "Sqlite3-writer");
+        pApi->AddEventProcessor(*m_pEventProcessor, processorName().c_str());
     } else {                            // Already setup.
         m_pEventProcessor->setWriter(pWriter);
         delete m_pWriter;
@@ -211,8 +212,13 @@ CDBCommands::dbClose(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         );
     }
     pApi->RemoveEventProcessor(p);
-    delete m_pEventProcessor;
-    delete m_pWriter;
+    
+    //Deleting the procesor is not safe as it remains registered with the
+    //pipeline manager. TODO: provide safe mechanism to delete event
+    // processor registrations (note must not be in any pipeline).
+    // For now -- leak
+    //delete m_pEventProcessor;
+    //delete m_pWriter;
     
     m_pEventProcessor = nullptr;
     m_pWriter         = nullptr;
@@ -252,4 +258,16 @@ CDBCommands::requireDisabled()
     if (m_enabled) {
         throw std::logic_error("daqdb - database writing must be disabled");
     }
+}
+/**
+ * processorName
+ *    Make a unique event processor processor name.
+ *  @return std::string
+ */
+std::string
+CDBCommands::processorName()
+{
+    std::stringstream s;
+    s << "SpecTcl-sqlite3_" << m_nProcessorIndex++;
+    return s.str();
 }
