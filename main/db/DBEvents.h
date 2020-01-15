@@ -40,6 +40,7 @@ private:
 public:
     CDBSink(CDBEventWriter* pWriter);
     
+    
     virtual void operator()(CEventList& rEvents);
     
     // Things that get called by the event processor:
@@ -68,11 +69,16 @@ private:
 public:
     CDBProcessor(CDBEventWriter* pWriter);
     
+    // TODO: Implement a destructor that kills off the sink.
+    
     // Event processor interface:
     
     
     virtual Bool_t OnBegin(CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder);
     virtual Bool_t OnEnd(CAnalyzer& rANalyzer, CBufferDecoder& rDecoder);
+    
+     // TODO: Implement scaler saving.
+    
     virtual Bool_t OnOther(
         UInt_t nType, CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder
     );
@@ -80,6 +86,7 @@ public:
     
     void enable();
     void disable();
+    // TODO: Should disable.
     void setWriter(CDBEventWriter* pWriter);
 };
 
