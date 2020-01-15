@@ -26,14 +26,14 @@
 #include <stdexcept>
 #include <sstream>
 #include <algorithm>
-
+#include <SpecTcl.h>
 
 int CDBEventWriter::m_dbCmdIndex(0);
 
 /**
  ** constructor
  *   - Save the database name.
- *   - Create the interpreter and
+ *   - Get the SpecTcl interpreter and
  *      - load the sqlite3 and dbconfig packages.
  *      - Create the database in tcl.
  *      - Create the schema for the database.
@@ -55,7 +55,9 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     m_eventsInTransaction(-1),
     m_eventsInCurrentTransaction(0)
 {
-    m_pInterp = new CTCLInterpreter;
+    SpecTcl* pApi = SpecTcl::getInstance();
+    
+    m_pInterp = pApi->getInterpreter();
     m_pInterp->GlobalEval("package require dbconfig");   // Gets sqlite3 too.
     m_dbCommand = nextCommand();
     
@@ -95,7 +97,6 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
 /**
  * destructor
  *    - Close the Tcl database handle.
- *    - Destroy the interpreter.
  *    - finalize the prepared statements.
  *    - close the sqlite C api handle.
  */
@@ -106,7 +107,6 @@ CDBEventWriter::~CDBEventWriter()
     closecmd += "close";
     m_pInterp->GlobalEval(closecmd);
     
-    delete m_pInterp;
     
     checkStatus(sqlite3_finalize(m_pTransaction));
     checkStatus(sqlite3_finalize(m_pInsert));
