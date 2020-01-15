@@ -20,7 +20,9 @@ install-exec-hook:
 	for f in $(IMAGES); do $(INSTALL_DATA) @srcdir@/$$f @prefix@/TclLibs/dbconfig; done
 	rm -f @prefix@/TclLibs/dbconfig/libSpecTclDb.so
 	$(LN_S)           @libdir@/libSpecTclDb.so   @prefix@/TclLibs/dbconfig/libSpecTclDb.so
-	echo pkg_mkIndex -verbose @prefix@/TclLibs/dbconfig "*.tcl *.so"|@TCLSH@ 
+	echo pkg_mkIndex -verbose @prefix@/TclLibs/dbconfig "*.tcl"|@TCLSH@ 
+	echo package ifneeded SpecTclDb 1.0 [list load [file join \$$dir libSpecTclDb.so]] >> @prefix@/TclLibs/dbconfig/pkgIndex.tcl
+
 
 check-TESTS:
 	(cd @srcdir@; tclsh *.test)
