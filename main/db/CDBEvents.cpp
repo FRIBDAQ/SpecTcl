@@ -27,6 +27,7 @@
 #include <sstream>
 #include <algorithm>
 #include <SpecTcl.h>
+#include <iostream>
 
 int CDBEventWriter::m_dbCmdIndex(0);
 
@@ -52,7 +53,7 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     m_pInsert(nullptr),
     m_pCommit(nullptr),
     m_nCurrentRunId(-1),
-    m_eventsInTransaction(-1),
+    m_eventsInTransaction(batchSize),
     m_eventsInCurrentTransaction(0)
 {
     SpecTcl* pApi = SpecTcl::getInstance();
@@ -112,6 +113,8 @@ CDBEventWriter::~CDBEventWriter()
     checkStatus(sqlite3_finalize(m_pInsert));
     checkStatus(sqlite3_finalize(m_pCommit));
     checkStatus(sqlite3_close(m_pSqlite));
+
+    sqlite3_close(m_pSqlite);
     
 }
 /**
@@ -131,6 +134,7 @@ CDBEventWriter::~CDBEventWriter()
 void
 CDBEventWriter::beginRun(const RingItem* pStateTransition)
 {
+  try {
     requireItem(pStateTransition, BEGIN_RUN);
     const StateChangeItemBody* pBody =
         static_cast<const StateChangeItemBody*>(getBody(pStateTransition));
@@ -174,7 +178,12 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
     
     m_nCurrentRunId = sqlite3_last_insert_rowid(m_pSqlite);
 
-    
+  }
+  catch (std::exception& e) {
+    std::cerr << "CDBEventWriter failed in begin run: " << e.what();
+    throw;
+  }
+  
 }
 /**
  * endRun
@@ -189,6 +198,7 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
 void
 CDBEventWriter::endRun(const RingItem* pStateTransition)
 {
+  try {
     requireItem(pStateTransition, END_RUN);
     if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
         throw std::logic_error("CDBEventWriter::endRun called with no open run");
@@ -226,7 +236,12 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     m_nConfigId     = -1;
     m_eventsInCurrentTransaction = 0;
     
-    
+  }
+  catch (std::exception& e) {
+    std::cerr << "CDBEventWriter::endRun failed : " << e.what();
+    throw;
+  }
+  
 }
 /**
  * scaler
@@ -253,6 +268,7 @@ CDBEventWriter::scaler(const RingItem* pScaler)
 void
 CDBEventWriter::event(CEvent* pEvent)
 {
+  try {
     if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
         throw std::logic_error("CDBEventWriter::event called without a current run");
     }
@@ -285,6 +301,11 @@ CDBEventWriter::event(CEvent* pEvent)
             checkStatus(sqlite3_reset(m_pCommit));
         }
     }
+  }
+  catch (std::exception& e) {
+    std::cerr << "CDBEventWriter failed in event: " << e.what();
+    throw;
+  }
 
 }
 
@@ -391,16 +412,19 @@ CDBEventWriter::requireItem(const RingItem* pItem, unsigned itemType)
 const void*
 CDBEventWriter::getBody(const RingItem* pItem)
 {
-    pItem++;                     //  Points to b header size or 0.
-    const uint32_t* pSize = reinterpret_cast<const uint32_t*>(pItem);
-    size_t s = *pSize;
-    if (s == 0) s == sizeof(uint32_t);
-    
-    // Skip the body header:
-    
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(pSize);
-    p += s;
+  
+  if (pItem->s_body.u_noBodyHeader.s_mbz == 0) {
+    return pItem->s_body.u_noBodyHeader.s_body;
+  } else {
+    // We want to allow for body  header extensions so:
+
+    uint32_t size = pItem->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
+    const uint8_t* p    = reinterpret_cast<const uint8_t*>(&pItem->s_body.u_hasBodyHeader);
+    p += size;
     return p;
+   
+  }
+  
 }
 /**
  * saveSpectra
