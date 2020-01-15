@@ -1,5 +1,9 @@
 lib_LTLIBRARIES=libSpecTclDb.la
 
+TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
+IMAGES=configuration.png folder.png openfolder.png spectrum.png
+
+
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	-I@top_srcdir@/Utility @ROOT_CFLAGS@ @TCL_CPPFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
@@ -12,10 +16,8 @@ include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/TclLibs/dbconfig
-	$(INSTALL_SCRIPT) @srcdir@/dbconfig.tcl @prefix@/TclLibs/dbconfig
-	$(INSTALL_SCRIPT) @srcdir@/dbgui.tcl @prefix@/TclLibs/dbconfig
-	$(INSTALL_SCRIPT) @srcdir@/dialogwrapper.tcl @prefix@/TclLibs/dbconfig
-	$(INSTALL_DATA)   @srcdir@/*.png             @prefix@/TclLibs/dbconfig
+	for f in $(TCLSCRIPTS) ;  do $(INSTALL_SCRIPT) @srcdir@/$$f @prefix@/TclLibs/dbconfig; done
+	for f in $(IMAGES); do $(INSTALL_DATA) @srcdir@/$$f @prefix@/TclLibs/dbconfig; done
 	rm -f @prefix@/TclLibs/dbconfig/libSpecTclDb.so
 	$(LN_S)           @libdir@/libSpecTclDb.so   @prefix@/TclLibs/dbconfig/libSpecTclDb.so
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/dbconfig "*.tcl *.so"|@TCLSH@ 
@@ -25,5 +27,5 @@ check-TESTS:
 
 check: check-TESTS
 
-EXTRA_DIST=names.test dbconfig.tcl dbgui.tcl dialogwrapper.tcl \
-	configuration.png folder.png openfolder.png spectrum.png
+EXTRA_DIST=names.test $(TCLSCRIPTS) $(IMAGES)
+
