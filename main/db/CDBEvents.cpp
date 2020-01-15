@@ -219,10 +219,11 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     sqlite3_stmt* pEnd;
     checkStatus(
         sqlite3_prepare(
-            m_pSqlite, "UPDATE runs SET stop_time=:end", -1, &pEnd, nullptr
+            m_pSqlite, "UPDATE runs SET stop_time=:end WHERE id = :id", -1, &pEnd, nullptr
         )
     );
     checkStatus(sqlite3_bind_int(pEnd, 1, pBody->s_Timestamp));
+    checkStatus(sqlite3_bind_int(pEnd, 2, m_nCurrentRunId));
     checkStatus(sqlite3_step(pEnd), SQLITE_DONE);
     checkStatus(sqlite3_finalize(pEnd));
     

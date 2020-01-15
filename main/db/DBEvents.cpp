@@ -198,13 +198,14 @@ CDBProcessor::OnOther(
     UInt_t nType, CAnalyzer& rAnalyzer, CBufferDecoder& rDecoder
 )
 {
+  // TODO: Only call scaler if the item type is correct.
+  
     if (m_enabled &&  m_inRun) {
         CRingBufferDecoder* pDecoder =
             dynamic_cast<CRingBufferDecoder*>(&rDecoder);
         if (pDecoder) {
             pRingItem pItem = static_cast<pRingItem>(pDecoder->getItemPointer());
             m_pWriter->scaler(pItem);
-            m_inRun = false;
         } else {
             throw std::invalid_argument("Buffer decoder is not a ring item decoder");
         }
