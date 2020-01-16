@@ -32,6 +32,39 @@ struct sqlite3;
 struct sqlite3_stmt;
 
 /**
+ * @class CDBEventPlayer
+ *    Provides a class that allows iteration through events.
+ *    The representation of an event is a vector of
+ *    pair<int, double> where the int is the parameter
+ *    number and the double is the value of that parameter
+ *    for that event.  This is surfficiently use neutral
+ *    that it can be used in pretty much any analysis system
+ *    (e.g. could make dataframes or root trees etc).
+ */
+class CDBEventPlayer {
+public:
+    typedef std::pair<int, double> Parameter, *pParameter;
+    typedef std::vector<Parameter> Event, *pEvent;   
+private:
+    sqlite3*       m_pDatabase;
+    sqlite3_stmt*  m_pRetriever;
+    int            m_run;
+    int            m_runId;
+    
+    Parameter      m_firstParam;
+    int            m_eventNumber;
+    Event          m_currentEvent;     // So we can avoid copy.
+    
+public:
+    CDBEventPlayer(sqlite3* pDatabase, int run);
+    ~CDBEventPlayer();
+    
+    const Event& next();            // Empty means no more in the run.
+private:
+    int fillParameter();
+};
+
+/**
  * @class CDBEventWriter
  *    Provides a class for storing  events in an sqlite3
  *    database.  We assume that the dbconfig Tcl package is
@@ -90,11 +123,13 @@ public:
     // For query and playback:
     
     std::vector<RunInfo> listRuns();
+    CDBEventPlayer* playRun(int run);
 
     
+    static void checkStatus(int status, int expected=-1);
 private:
     std::string nextCommand();
-    void checkStatus(int status, int expected=-1);
+    
     void requireItem(const RingItem* pItem, unsigned itemType);
     const void* getBody(const RingItem* pItem);
     void saveSpectra();

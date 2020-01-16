@@ -29,6 +29,124 @@
 #include <SpecTcl.h>
 #include <iostream>
 
+///////////////////////////////////////////////////////////////////
+// CDBEventPlayer implementation.
+//
+
+/**
+ * constructor
+ *    Save the database and run number and fetch the
+ *   runid.  If we can't, throw std::invalid_argument.
+ *   If we can, construct and prepare the retrieval statement for
+ *   next to step in.
+ *
+ * @param pDatabase - pointer to the databaes handle.
+ * @param run       - run number.
+ */
+CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
+  m_pDatabase(pDatabase),
+  m_pRetriever(nullptr),
+  m_run(run),
+  m_runId(-1)
+{
+  sqlite3_stmt* pGetRunId;
+  CDBEventWriter::checkStatus(sqlite3_prepare(
+      m_pDatabase,
+      "SELECT id FROM runs WHERE run_number = :run", -1, &pGetRunId,
+      nullptr
+  ));
+  int status = sqlite3_step(pGetRunId);
+  if (status == SQLITE_ROW) {
+    m_runId = sqlite3_column_int(pGetRunId, 0);
+    CDBEventWriter::checkStatus(sqlite3_finalize(pGetRunId));
+    
+    // Now prepare and bind the m_pRetriever used by next:
+    
+    CDBEventWriter::checkStatus(sqlite3_prepare(
+      m_pDatabase,
+      "SELECT event_number, parameter_num, parameter_value \
+        FROM events WHERE run_id = :id",
+        -1, &m_pRetriever, nullptr
+    ));
+    CDBEventWriter::checkStatus(sqlite3_bind_int(m_pRetriever, 1, m_runId));
+        
+    // Prime the first parameter of the first event:
+    
+    status = sqlite3_step(m_pRetriever);
+    if (status == SQLITE_ROW) {
+      m_eventNumber = fillParameter();
+    } else {
+      m_firstParam = {-1, 0.0};
+      m_eventNumber = -1;
+    }
+    
+    // All done.
+    
+  } else {
+    throw std::invalid_argument("No such run in database");
+  }
+  
+}
+/**
+ * destructor:
+ *    Just finalize the statement.
+ */
+CDBEventPlayer::~CDBEventPlayer()
+{
+  sqlite3_finalize(m_pRetriever);
+}
+/**
+ * Return a const reference to the next event. Note that the
+ * contents of this will be ovewritten by subsequent calls to next
+ * and by destruction of this object.
+ * @return CDBEventPlayer::Event
+ * @retval Event with one parameter with id -1 indicates end.
+ */
+const CDBEventPlayer::Event&
+CDBEventPlayer::next()
+{
+  // The first step gives us the event number.  We then pull
+  // data from the row and keep stepping until the
+  // step results in SQLITE_DONE, or we 
+  
+  m_currentEvent.clear();
+  m_currentEvent.push_back(m_firstParam);       // Last row from prior or first step.
+  while (sqlite3_step(m_pRetriever) == SQLITE_ROW) {
+    int event = fillParameter();
+    if (event == m_eventNumber) {
+      m_currentEvent.push_back(m_firstParam);  // Same event...
+    } else {
+      m_eventNumber = event;                  // Different event
+      return m_currentEvent;
+    }
+    
+  }
+  // If we got here we can return what we have but we've exhausted the
+  // data
+  
+  m_eventNumber = -1;
+  m_firstParam  = {-1, 0.0};
+  
+}
+/**
+ * fillParameter
+ *    called after a successful step to fill in m_firstParam and
+ *    give us the event number from the step.
+ * @return int - event number the data from this step came from.
+ */
+int
+CDBEventPlayer::fillParameter()
+{
+  m_firstParam.first = sqlite3_column_int(m_pRetriever, 1);
+  m_firstParam.second= sqlite3_column_double(m_pRetriever, 2);
+  
+  return sqlite3_column_int(m_pRetriever, 0);   // Event id.
+}
+
+///////////////////////////////////////////////////////////////////
+//  CDBEventWriter implementation.
+//
+
 int CDBEventWriter::m_dbCmdIndex(0);
 
 /**
@@ -394,6 +512,21 @@ CDBEventWriter::listRuns()
     checkStatus(sqlite3_finalize(pList));
     
     return result;
+}
+/**
+ * playRun
+ *    Returns an event player from which events can be gotten.
+ *    At some point this may become a base class from which
+ *    classes can be derived to put some criteria on the
+ *    events to select.  At this point all events in the run will
+ *    be selected.
+ * @param run - number of the run in the database to select.
+ * @return CDBEventPlayer* the caller owns and must dispose of this object.
+ */
+CDBEventPlayer*
+CDBEventWriter::playRun(int run)
+{
+  return new CDBEventPlayer(m_pSqlite, run);
 }
 /////////////////////////////////////////////////////////////////////////////
 // Private utilities
