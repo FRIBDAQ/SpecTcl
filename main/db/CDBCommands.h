@@ -22,10 +22,11 @@
 #define CDBCOMMAND_H
 
 #include <TCLObjectProcessor.h>
-
+#include "CDBEvents.h"
+#include <tcl.h>
 
 class CDBProcessor;
-class CDBEventWriter;
+
 
 /**
  * @class CDBCommand
@@ -44,6 +45,8 @@ class CDBEventWriter;
  *    - close           - Close the database and teardown the event processor/sink
  *                        this also happens immediately.
  *    - autosave list   - Sets the list of spectra to autosave - empty list for none.
+ *    - daqdb listruns  - lists the runs in the current event file.
+ *    - daqdb play      - Playback the specified run number.
  *        
  *  @note disable and close should not be performed while a run is open.
  *        the result will be that the events recorded so far will be there,
@@ -71,10 +74,23 @@ protected:
     void dbDisable(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbClose(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbAutoSave(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dbListRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     void requireOpen();
     void requireEnabled();
     void requireDisabled();
     std::string processorName();
+    void makeRunInfoDict(const CDBEventWriter::RunInfo& info, CTCLObject& dict);
+    
+    void addKey(Tcl_Interp* pInterp, Tcl_Obj* pDict, const char* pKey, int value);
+    void addKey(
+        Tcl_Interp* pInterp, Tcl_Obj* pDict,
+        const char* pKey, const std::string& value
+    );
+    void addKey(
+        Tcl_Interp* pInterp, Tcl_Obj* pDict, const char* pKey, time_t value
+    );
+    Tcl_Obj* stringToObj(const char* pString);
+    
 };
 #endif

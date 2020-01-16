@@ -42,6 +42,15 @@ struct sqlite3_stmt;
  * At the end of the run, optionally a set of spectra can be saved as well.
  */
 class CDBEventWriter {
+public:
+    typedef struct _RunInfo {
+        int             s_runNumber;
+        std::string     s_config;
+        std::string     s_title;
+        time_t          s_start;
+        time_t          s_end;
+        bool            s_hasEnd;
+    } RunInfo, *pRunInfo;
 private:
     std::string        m_dbName;                 // name of the database.
     CTCLInterpreter*   m_pInterp;                // For dbconfig use.
@@ -77,6 +86,12 @@ public:
     void setAutoSaveSpectra(const std::vector<std::string>& spectra);
     void addAutoSaveSpectrum(const char* name);
     void removeAutoSaveSpectrum(const char* name);
+    
+    // For query and playback:
+    
+    std::vector<RunInfo> listRuns();
+
+    
 private:
     std::string nextCommand();
     void checkStatus(int status, int expected=-1);

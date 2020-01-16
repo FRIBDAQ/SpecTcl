@@ -351,6 +351,50 @@ CDBEventWriter::removeAutoSaveSpectrum(const char* name)
     if (p != m_autoSaveSpectra.end()) m_autoSaveSpectra.erase(p);
 
 }
+/**
+ * listRuns
+ *    Provides a list of all the runs that are in database.
+ * @return std::vector<RunInfo> (note this could be empty).
+ */
+std::vector<CDBEventWriter::RunInfo>
+CDBEventWriter::listRuns()
+{
+    std::vector<RunInfo> result;
+    sqlite3_stmt* pList;
+    checkStatus(
+        sqlite3_prepare(
+            m_pSqlite,
+            "SELECT run_number, name, title, start_time, stop_time \
+                    FROM runs                                      \
+                    INNER JOIN save_sets ON runs.config_id = save_sets.id;",
+            -1, &pList, nullptr
+        )
+    );
+    int stat;
+    while ((stat = sqlite3_step(pList)) == SQLITE_ROW) {
+        RunInfo record;
+        record.s_runNumber = sqlite3_column_int(pList, 0);
+        record.s_config    =
+            reinterpret_cast<const char*>(sqlite3_column_text(pList, 1));
+        record.s_title     =
+            reinterpret_cast<const char*>(sqlite3_column_text(pList, 2));
+        record.s_start     = sqlite3_column_int(pList, 3);
+        
+        // The s_end could be a null if the run never ended:
+        
+        int haveEnd       = sqlite3_column_type(pList, 4);
+        if (haveEnd == SQLITE_NULL) {
+            record.s_hasEnd = false;
+        } else {
+            record.s_hasEnd = true;
+            record.s_end   = sqlite3_column_int(pList, 4);
+        }
+        result.push_back(record);
+    }
+    checkStatus(sqlite3_finalize(pList));
+    
+    return result;
+}
 /////////////////////////////////////////////////////////////////////////////
 // Private utilities
 

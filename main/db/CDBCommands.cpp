@@ -28,6 +28,7 @@
 #include <Exception.h>
 #include <sstream>
 #include <SpecTcl.h>
+#include <tcl.h>
 
 /**
  * construtor - all the heavy lifting is done by the base class:
@@ -59,7 +60,7 @@ CDBCommands::~CDBCommands()
  * operator()
  *    Just ensure we have a subcommand and dispatch based on it.
  *    We also set up exeption handling so that errors can be reported vi
- *    exceptions in the subcommand processors.  Futhermore we bind all the
+ *    exceptions in the subcommand processors.  Futhermore we Bind all the
  *    parameters to the interpreter.
  *
  *   @param interp - references the interpreter running this object.
@@ -84,6 +85,8 @@ CDBCommands::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             dbClose(interp, objv);
         } else if (sub == "autosave") {
             dbAutoSave(interp, objv);
+        } else if (sub == "listruns") {
+            dbListRuns(interp, objv);
         } else {
             std::stringstream msg;
             msg << "Invalid subcommand: '" << sub <<  "'";
@@ -255,6 +258,41 @@ CDBCommands::dbAutoSave(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     m_pWriter->setAutoSaveSpectra(spectrumNames);
     
 }
+/**
+ * dbListRuns
+ *    returns a list of the runs in the database (that have events):
+ *
+ *   @param interp - references the interpreter running this object.
+ *   @param objv   - references a vector of encapsulated command line words.
+ *   @note The result is a list of dicts, one per fun in the database.
+ *         The dict has the keys:
+ *         - number - run number of the run.
+ *         - config - Configuration name associated with the run.
+ *         - title  - the title string.
+ *         - start_time - [clock seconds] for the start time.
+ *         - end_time  - (only if not null) [clock seconds] for the end time.
+ */
+void
+CDBCommands::dbListRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "listruns does not require any additional parameters");
+    requireOpen();
+    requireDisabled();
+    
+    std::vector<CDBEventWriter::RunInfo> info = m_pWriter->listRuns();
+    
+    CTCLObject result;
+    result.Bind(interp);
+    
+    for (int i =0; i < info.size(); i++) {
+        CTCLObject dict;
+        dict.Bind(interp);
+        makeRunInfoDict(info[i], dict);
+        result += dict;
+    }
+    
+    interp.setResult(result);
+}
 ///////////////////////////////////////////////////////////////////////////////
 // Private utility methods.
 
@@ -302,4 +340,78 @@ CDBCommands::processorName()
     std::stringstream s;
     s << "SpecTcl-sqlite3_" << m_nProcessorIndex++;
     return s.str();
+}
+
+/**
+ * makeRunInfoDict
+ *    Given a RunInfo create the  dict that describes the run.
+ *
+ * @param info - run info.
+ * @param dict - CPut the dict here.
+ */
+void
+CDBCommands::makeRunInfoDict(const CDBEventWriter::RunInfo& info, CTCLObject& dict)
+{
+    Tcl_Obj* pDict = Tcl_NewDictObj();
+    Tcl_Interp* pInterp = getInterpreter()->getInterpreter();
+    
+    addKey(pInterp, pDict, "number", info.s_runNumber);
+    addKey(pInterp, pDict, "config", info.s_config);
+    addKey(pInterp, pDict, "title", info.s_title);
+    addKey(pInterp, pDict, "start_time", info.s_start);
+    if (info.s_hasEnd) {
+        addKey(pInterp, pDict, "end_time", info.s_end);
+    }
+    dict = pDict;
+}
+
+/**
+ * Each of these methods sets a dict key value pair.  The only differenc
+ * is the type of the value.
+ *
+ * @param pInterp - raw interpreter.
+ * @param pDict   - raw Tcl object that is a dict accumulating keys.
+ * @param pKey    - the key string.
+ * @param value   - The value of the key - varies depending on the overload.
+ */
+
+void
+CDBCommands::addKey(
+    Tcl_Interp* pInterp, Tcl_Obj* pDict, const char* pKey, int value
+)
+{
+    Tcl_Obj* keyObj = stringToObj(pKey);
+    Tcl_Obj* valObj = Tcl_NewIntObj(value);
+    Tcl_DictObjPut(pInterp, pDict, keyObj, valObj);
+}
+void
+CDBCommands::addKey(
+    Tcl_Interp* pInterp, Tcl_Obj* pDict,
+    const char* pKey, const std::string& value    
+)
+{
+    Tcl_Obj* keyObj = stringToObj(pKey);
+    Tcl_Obj* valObj = stringToObj(value.c_str());
+    Tcl_DictObjPut(pInterp, pDict, keyObj, valObj);
+}
+
+void
+CDBCommands::addKey(
+    Tcl_Interp* pInterp, Tcl_Obj* pDict, const char* pKey, time_t value
+)
+{
+    Tcl_Obj* keyObj = stringToObj(pKey);
+    Tcl_Obj* valObj = Tcl_NewLongObj(value);
+    Tcl_DictObjPut(pInterp, pDict, keyObj, valObj);
+}
+/**
+ * stringToObj
+ *     Create a Tcl string object.
+ *  @param the string.
+ *  @return Tcl_Obj*
+ */
+Tcl_Obj*
+CDBCommands::stringToObj(const char* pString)
+{
+    return Tcl_NewStringObj(pString, -1);
 }
