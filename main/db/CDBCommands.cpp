@@ -94,6 +94,8 @@ CDBCommands::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             dbListRuns(interp, objv);
         } else if (sub == "play") {
             dbPlay(interp, objv);
+        } else if (sub == "stop") {
+            dbStopPlayback(interp, objv);
         } else {
             std::stringstream msg;
             msg << "Invalid subcommand: '" << sub <<  "'";
@@ -363,6 +365,27 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         
         while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
             ;                             // Drain the event loop..
+    }
+}
+/**
+ * dbStopPlayback
+ *    Stops playing data from the database:
+ *    - The database must have an m_pPlayback object.
+ *    - It's deleted and set to nullptr.
+ *    Since this is all singly threaded event driven that does not
+ *    cause any race conditions.
+ * @param interp - interpreter running the command.
+ * @param objv   - The encapsulated command words.
+ */
+void
+CDBCommands::dbStopPlayback(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "There are no additional parameters to stop");
+    if (m_pPlayback) {
+        delete m_pPlayback;
+        m_pPlayback = nullptr;
+    } else {
+        throw std::logic_error("No playback is in progress");
     }
 }
 ///////////////////////////////////////////////////////////////////////////////
