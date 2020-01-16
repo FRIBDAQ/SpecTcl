@@ -47,6 +47,7 @@ class CDBProcessor;
  *    - autosave list   - Sets the list of spectra to autosave - empty list for none.
  *    - daqdb listruns  - lists the runs in the current event file.
  *    - daqdb play      - Playback the specified run number.
+ *    - daqdb stop      - Stop playback.
  *        
  *  @note disable and close should not be performed while a run is open.
  *        the result will be that the events recorded so far will be there,
@@ -62,6 +63,7 @@ private:
     CDBProcessor*   m_pEventProcessor;
     bool            m_enabled;
     int             m_nProcessorIndex;
+    CDBEventPlayer* m_pPlayback;
 public:
     CDBCommands(CTCLInterpreter& interp, const char* name = "daqdb");
     virtual ~CDBCommands();
@@ -75,6 +77,8 @@ protected:
     void dbClose(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbAutoSave(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbListRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dbStopPlayback(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     void requireOpen();
     void requireEnabled();

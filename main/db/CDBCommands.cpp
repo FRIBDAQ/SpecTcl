@@ -29,6 +29,10 @@
 #include <sstream>
 #include <SpecTcl.h>
 #include <tcl.h>
+#include <EventSinkPipeline.h>
+#include <Event.h>
+
+static const unsigned PLAYBACK_SIZE(500);
 
 /**
  * construtor - all the heavy lifting is done by the base class:
@@ -41,7 +45,8 @@ CDBCommands::CDBCommands(CTCLInterpreter& interp, const char* name) :
     m_pWriter(nullptr),
     m_pEventProcessor(nullptr),
     m_enabled(false),
-    m_nProcessorIndex(0)
+    m_nProcessorIndex(0),
+    m_pPlayback(nullptr)
 {}
 
 /**
@@ -87,6 +92,8 @@ CDBCommands::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             dbAutoSave(interp, objv);
         } else if (sub == "listruns") {
             dbListRuns(interp, objv);
+        } else if (sub == "play") {
+            dbPlay(interp, objv);
         } else {
             std::stringstream msg;
             msg << "Invalid subcommand: '" << sub <<  "'";
@@ -292,6 +299,71 @@ CDBCommands::dbListRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     }
     
     interp.setResult(result);
+}
+/**
+ * dbPlay
+ *    Initiates playback for a run in the current database:
+ *    - Database must be open,
+ *    - write must not be enabled.
+ *    - m_pPlayback must be null.
+ *    We create the playback object using the current writer and the
+ *    requested run number.  In a loop we pull out groups of
+ *    PLAYBACK_SIZE events until we either have no more events or
+ *    m_pPlaback becomes null (this can happen if an Tcl event
+ *    invoked dbStopPlayback).
+ *    After each group of events is dispatched to the event sink pipeline,
+ *    we drain the event queue.
+ *
+ *  @param interp - references the interpreter running the command.
+ *  @param objv   - Encapsulated command words in the command.
+ */
+void
+CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "'play' requires a run number");
+    requireOpen();
+    requireDisabled();
+    if (m_pPlayback) {
+        throw std::logic_error("Playback in progress in 'play' subcommand");
+    }
+    // Now that all that's out of the way create the playback object
+    // The event list and playback the run:
+    
+    int runNumber = objv[2];
+    CEventList eventList;
+    CEvent events[PLAYBACK_SIZE];    // Just statically allocate.
+    m_pPlayback = m_pWriter->playRun(runNumber);
+    
+    SpecTcl* pApi = SpecTcl::getInstance();
+    CEventSinkPipeline& pipeline(*(pApi->GetEventSinkPipeline()));
+    
+    while(m_pPlayback) {
+        for (int i =0; i < PLAYBACK_SIZE; i++) {
+            const CDBEventPlayer::Event& e = m_pPlayback->next();
+            
+            if (e[0].first == -1) {  // End
+                delete m_pPlayback;
+                m_pPlayback = nullptr;
+                break;              // This will submit what we have.
+            } else {                // Data.
+                for (int i =0; i < e.size(); i++) { 
+                    events[i][e[i].first] = e[i].second;
+                }
+                eventList[i] = &(events[i]);
+            }
+        }
+        // Submit the event list, clear it for the next time around
+        // and drain the Tcl event queue.
+        
+        pipeline(eventList);
+        for (int i = 0; i < eventList.size(); i++) {
+            events[i].clear();
+        }
+        eventList.clear();
+        
+        while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
+            ;                             // Drain the event loop..
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 // Private utility methods.
