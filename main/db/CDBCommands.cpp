@@ -82,6 +82,8 @@ CDBCommands::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             dbDisable(interp, objv);
         } else if (sub == "close") {
             dbClose(interp, objv);
+        } else if (sub == "autosave") {
+            dbAutoSave(interp, objv);
         } else {
             std::stringstream msg;
             msg << "Invalid subcommand: '" << sub <<  "'";
@@ -222,6 +224,36 @@ CDBCommands::dbClose(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     m_pEventProcessor = nullptr;
     m_pWriter         = nullptr;
+}
+/**
+ * dbAutoSave
+ *    Set the auto save list.
+ *    Note that this is legal at any time.  If done while analyzing the run,
+ *    the specified spectra will be saved when the end run is seen.
+ * @param interp - interpretr running the command.
+ * @param objv   - Vector of encapsulated command words.
+ */
+void
+CDBCommands::dbAutoSave(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireOpen();                  // Else there's not an event processor etc.
+    requireExactly(objv, 3, "daqdb autosave needs list of spectra (TclList)");
+    std::vector<CTCLObject> nameList = objv[2].getListElements();
+    
+    SpecTcl* api = SpecTcl::getInstance();
+    std::vector<std::string> spectrumNames;
+    for (int i = 0; i < nameList.size(); i++) {
+        std::string specName = nameList[i];
+        if (api->FindSpectrum(specName)) {
+            spectrumNames.push_back(specName);
+        } else {
+            std::stringstream msg;
+            msg << specName << " is not a valid spectrum name";
+            throw std::invalid_argument(msg.str());
+        }
+    }
+    m_pWriter->setAutoSaveSpectra(spectrumNames);
+    
 }
 ///////////////////////////////////////////////////////////////////////////////
 // Private utility methods.

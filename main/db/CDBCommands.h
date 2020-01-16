@@ -43,6 +43,7 @@ class CDBEventWriter;
  *                        database.
  *    - close           - Close the database and teardown the event processor/sink
  *                        this also happens immediately.
+ *    - autosave list   - Sets the list of spectra to autosave - empty list for none.
  *        
  *  @note disable and close should not be performed while a run is open.
  *        the result will be that the events recorded so far will be there,
@@ -69,6 +70,7 @@ protected:
     void dbEnable(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbDisable(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void dbClose(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void dbAutoSave(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     void requireOpen();
     void requireEnabled();
