@@ -453,10 +453,12 @@ void CEventList::clear() {
   // AVOID MEMORY LEAKS! Delete the events.
   // All of the events in the event list are deleted, and the
   // pointers to them set to NULL.
-  for(CEventListIterator p = begin(); p != end(); p++) {
-    delete *p;
-    *p = (CEvent*)kpNULL;
-  }	
+  
+  for (int i =0; i < m_rvEvents.size(); i++) {
+    delete m_rvEvents[i];
+    m_rvEvents[i] = nullptr;
+  }
+
 }
 
 ///////////////////////////////////////////////////////////////////////
