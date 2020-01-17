@@ -31,6 +31,7 @@
 #include <tcl.h>
 #include <EventSinkPipeline.h>
 #include <Event.h>
+#include <iostream>
 
 static const unsigned PLAYBACK_SIZE(500);
 
@@ -342,14 +343,13 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     while(m_pPlayback) {
         for (int i =0; i < PLAYBACK_SIZE; i++) {
             const CDBEventPlayer::Event& e = m_pPlayback->next();
-            
             if (e[0].first == -1) {  // End
                 delete m_pPlayback;
                 m_pPlayback = nullptr;
                 break;              // This will submit what we have.
             } else {                // Data.
-                for (int i =0; i < e.size(); i++) { 
-                    events[i][e[i].first] = e[i].second;
+                for (int j=0; j < e.size(); j++) { 
+                    events[i][e[j].first] = e[j].second;
                 }
                 eventList[i] = &(events[i]);
             }
@@ -358,14 +358,17 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         // and drain the Tcl event queue.
         
         pipeline(eventList);
-        for (int i = 0; i < eventList.size(); i++) {
+	int n = eventList.size() < PLAYBACK_SIZE ? eventList.size() : PLAYBACK_SIZE;
+        for (int i = 0; i < n; i++) {
             events[i].clear();
+            eventList[i] = nullptr;
         }
-        eventList.clear();
+        
         
         while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
             ;                             // Drain the event loop..
     }
+    std::cerr << "Done\n";
 }
 /**
  * dbStopPlayback

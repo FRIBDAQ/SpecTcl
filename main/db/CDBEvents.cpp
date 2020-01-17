@@ -55,6 +55,7 @@ CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
       "SELECT id FROM runs WHERE run_number = :run", -1, &pGetRunId,
       nullptr
   ));
+  CDBEventWriter::checkStatus(sqlite3_bind_int(pGetRunId, 1, run));
   int status = sqlite3_step(pGetRunId);
   if (status == SQLITE_ROW) {
     m_runId = sqlite3_column_int(pGetRunId, 0);
@@ -126,6 +127,7 @@ CDBEventPlayer::next()
   
   m_eventNumber = -1;
   m_firstParam  = {-1, 0.0};
+  return m_currentEvent;
   
 }
 /**
