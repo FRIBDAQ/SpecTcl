@@ -28,6 +28,8 @@
 #include <algorithm>
 #include <SpecTcl.h>
 #include <iostream>
+#include <string.h>
+
 
 ///////////////////////////////////////////////////////////////////
 // CDBEventPlayer implementation.
@@ -65,21 +67,13 @@ CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
     
     CDBEventWriter::checkStatus(sqlite3_prepare(
       m_pDatabase,
-      "SELECT event_number, parameter_num, parameter_value \
+      "SELECT event_number, parameter_count, event_data \
         FROM events WHERE run_id = :id",
         -1, &m_pRetriever, nullptr
     ));
+
     CDBEventWriter::checkStatus(sqlite3_bind_int(m_pRetriever, 1, m_runId));
         
-    // Prime the first parameter of the first event:
-    
-    status = sqlite3_step(m_pRetriever);
-    if (status == SQLITE_ROW) {
-      m_eventNumber = fillParameter();
-    } else {
-      m_firstParam = {-1, 0.0};
-      m_eventNumber = -1;
-    }
     
     // All done.
     
@@ -101,50 +95,29 @@ CDBEventPlayer::~CDBEventPlayer()
  * contents of this will be ovewritten by subsequent calls to next
  * and by destruction of this object.
  * @return CDBEventPlayer::Event
- * @retval Event with one parameter with id -1 indicates end.
+ * @retval Event with 
  */
 const CDBEventPlayer::Event&
 CDBEventPlayer::next()
 {
-  // The first step gives us the event number.  We then pull
-  // data from the row and keep stepping until the
-  // step results in SQLITE_DONE, or we 
   
-  m_currentEvent.clear();
-  m_currentEvent.push_back(m_firstParam);       // Last row from prior or first step.
-  while (sqlite3_step(m_pRetriever) == SQLITE_ROW) {
-    int event = fillParameter();
-    if (event == m_eventNumber) {
-      m_currentEvent.push_back(m_firstParam);  // Same event...
-    } else {
-      m_eventNumber = event;                  // Different event
-      return m_currentEvent;
-    }
-    
+  if (sqlite3_step(m_pRetriever) == SQLITE_ROW) {
+      // How many parameters do we have?
+      
+      int m_eventNumber = sqlite3_column_int(m_pRetriever, 0);
+      int paramCount = sqlite3_column_int(m_pRetriever, 1);
+      m_currentEvent.resize(paramCount);    // make the storage.
+      const void* pBlob = sqlite3_column_blob(m_pRetriever, 2);
+      memcpy(
+        m_currentEvent.data(), pBlob,
+        paramCount*sizeof(DBEvent::blobElement)
+      );
+      
+  }  else {
+    m_currentEvent.clear();   // Empty event signals end of iteration.
   }
-  // If we got here we can return what we have but we've exhausted the
-  // data
-  
-  m_eventNumber = -1;
-  m_firstParam  = {-1, 0.0};
   return m_currentEvent;
-  
 }
-/**
- * fillParameter
- *    called after a successful step to fill in m_firstParam and
- *    give us the event number from the step.
- * @return int - event number the data from this step came from.
- */
-int
-CDBEventPlayer::fillParameter()
-{
-  m_firstParam.first = sqlite3_column_int(m_pRetriever, 1);
-  m_firstParam.second= sqlite3_column_double(m_pRetriever, 2);
-  
-  return sqlite3_column_int(m_pRetriever, 0);   // Event id.
-}
-
 ///////////////////////////////////////////////////////////////////
 //  CDBEventWriter implementation.
 //
@@ -206,8 +179,9 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     checkStatus(
         sqlite3_prepare(
             m_pSqlite,
-            "INSERT INTO events (run_id, event_number,  parameter_num,  parameter_value) \
-                                VALUES (:run, :eno, :pno, :val)",
+            "INSERT INTO events \
+              (run_id, event_number, parameter_count,  event_data) \
+              VALUES (:run, :eno, :nparam, :event)",
             -1,&m_pInsert, nullptr
         )
     ); 
@@ -297,6 +271,7 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
     checkStatus(sqlite3_finalize(pRun));
     
     m_nCurrentRunId = sqlite3_last_insert_rowid(m_pSqlite);
+    checkStatus(sqlite3_bind_int(m_pInsert, 1, m_nCurrentRunId));  // same for all events.
     m_eventInRun    = 0;
   }
   catch (std::exception& e) {
@@ -401,20 +376,27 @@ CDBEventWriter::event(CEvent* pEvent)
             checkStatus(sqlite3_step(m_pTransaction), SQLITE_DONE);
             checkStatus(sqlite3_reset(m_pTransaction));
         }
-        checkStatus(sqlite3_bind_int(m_pInsert, 1, m_nCurrentRunId));
-	checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
+        
+        checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
+        DBEvent::Event  blob;
         for (int i =0; i < n; i++) {
+            DBEvent::blobElement param;
             int pno = dope[i];
-            double value = e[pno];
-            
-            checkStatus(sqlite3_bind_int(m_pInsert, 3, pno));
-            checkStatus(sqlite3_bind_double(m_pInsert, 4, value));
-            
-            checkStatus(sqlite3_step(m_pInsert), SQLITE_DONE);
-            checkStatus(sqlite3_reset(m_pInsert));
+            param.s_parameterNumber = pno;
+            param.s_parameterValue  = e[pno];
+            blob.push_back(param);
         }
+        checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
+        checkStatus(sqlite3_bind_int(m_pInsert, 3, n));
+        checkStatus(sqlite3_bind_blob(
+          m_pInsert, 4, blob.data(), n*sizeof(DBEvent::blobElement),
+          SQLITE_STATIC
+        ));
+        checkStatus(sqlite3_step(m_pInsert), SQLITE_DONE);
+        checkStatus(sqlite3_reset(m_pInsert));
+        
         m_eventsInCurrentTransaction++;
-	m_eventInRun++;
+        m_eventInRun++;
         
         // Commit a batch if appropriate.
         

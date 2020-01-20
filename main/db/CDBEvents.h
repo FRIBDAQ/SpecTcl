@@ -31,6 +31,18 @@ class CTCLInterpreter;
 struct sqlite3;
 struct sqlite3_stmt;
 
+// These structs define the blob  data and how it's presented
+// back to the client.
+
+namespace DBEvent {
+    typedef struct _blobELement {
+        uint32_t s_parameterNumber;
+        double   s_parameterValue;
+    } blobElement, *pBlobelement;
+    
+    typedef std::vector<blobElement>  Event, *pEvent;
+}
+
 /**
  * @class CDBEventPlayer
  *    Provides a class that allows iteration through events.
@@ -43,25 +55,22 @@ struct sqlite3_stmt;
  */
 class CDBEventPlayer {
 public:
-    typedef std::pair<int, double> Parameter, *pParameter;
-    typedef std::vector<Parameter> Event, *pEvent;   
+    typedef DBEvent::Event Event, *pEvent;
 private:
     sqlite3*       m_pDatabase;
     sqlite3_stmt*  m_pRetriever;
     int            m_run;
     int            m_runId;
     
-    Parameter      m_firstParam;
     int            m_eventNumber;
-    Event          m_currentEvent;     // So we can avoid copy.
+    DBEvent::Event m_currentEvent;     // So we can avoid copy.
     
 public:
     CDBEventPlayer(sqlite3* pDatabase, int run);
     ~CDBEventPlayer();
     
     const Event& next();            // Empty means no more in the run.
-private:
-    int fillParameter();
+
 };
 
 /**
