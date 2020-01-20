@@ -1,7 +1,7 @@
 lib_LTLIBRARIES=libSpecTclDb.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
-IMAGES=configuration.png folder.png openfolder.png spectrum.png
+IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
 
 
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \

@@ -37,12 +37,13 @@ namespace eval dbgui {
     
     # Icons used in the treeview:
     
-    variable iconcredits {Icons from Vitaly Gorbachev, Pixel perfect, and Flaticons via flaticon.com}
+    variable iconcredits {Icons from Online Webfonts CC BY 3.0, Vitaly Gorbachev, Pixel perfect, and Flaticons via flaticon.com}
 
     variable folder [image create photo dbgui::folder -format png -file [file join $here folder.png]]
     variable openfolder [image create photo dbgui::openfolder -format png -file [file join $here openfolder.png]]
     variable spectrum   [image create photo dbgui::spectrum   -format png -file [file join $here spectrum.png]]
     variable configuration [image create photo dbgui::configuration -format png -file [file join $here configuration.png]]
+    variable events [image create photo dbgui::events -format png -file [file join $here events.png]]
 }
 puts $dbgui::iconcredits;            # Also in help->about...
 package provide dbgui $dbgui::version
@@ -466,6 +467,9 @@ snit::type dbgui::menubar {
 #    -onspecrestore    - Script run when the UI asks for a spectrum to be restored.
 #    -promptspectrum - Script run to prompt for a spectrum name
 #                      If not supplied a simple dialog with a text entry is used.#
+#    -onplayrun      - Script run to playback a run.
+#    -onstopplayback - script to run to stop playback.
+#
 #  Methods:
 #    All ttk::treeview methods.
 #    setDatabaseCommand - set a new database command.
@@ -485,6 +489,8 @@ snit::widgetadaptor dbgui::dbview {
     option -onconfigrestore -default [list]
     option -onspecsave -default [list]
     option -onspecrestore -default [list]
+    option -onplayrun   -default  [list]
+    option -onstopplayback -default [list]
 
     
     delegate option * to tree
@@ -493,7 +499,7 @@ snit::widgetadaptor dbgui::dbview {
     variable dbcommand [list]
     variable configContextMenu
     variable spectrumContextMenu
-    
+    variable runContextMenu
     
     constructor args {
         installhull using ttk::frame
@@ -521,6 +527,7 @@ snit::widgetadaptor dbgui::dbview {
         
         set configContextMenu [$self _CreateConfigContextMenu]
         set spectrumContextMenu [$self _CreateSpectrumContextMenu]
+        set runContextMenu    [$self _CreateRunContextMenu]
 
         $tree tag bind configuration <ButtonPress-3> \
              [mymethod _PostMenu $configContextMenu  %X %Y %x %y]
@@ -529,9 +536,12 @@ snit::widgetadaptor dbgui::dbview {
         $tree tag bind spectrum      <ButtonPress-3> \
             [mymethod _PostMenu $spectrumContextMenu %X %Y %x %y]
         
+        $tree tag bind events <ButtonPress-3> \
+            [mymethod _PostMenu $runContextMenu %X %Y %x %y]
+        
         bind $tree <Key-Escape> "
             $configContextMenu unpost
-            $spectrumContextMenu unpost
+            $runContextMenu unpost
         "
     }
     #----------------------------------------------------------------
@@ -678,7 +688,7 @@ snit::widgetadaptor dbgui::dbview {
             -image $dbgui::folder -tags configuration                         \
         ]
         $tree set $configid 0 $description
-        
+        set cid [dbconfig::_lookupSaveSet $dbcommand $configName]
         
         #  Now load the sub-elements.  We have a configuration and
         #  0 or more spectrum items.
@@ -690,6 +700,17 @@ snit::widgetadaptor dbgui::dbview {
                 -tags spectrum                                            \
             ]
             $tree set $sid 0 $spectrum
+        }
+        #  If there's run data associated with this configuration
+        #  get the information and add a run element.
+        
+        if {[dbconfig::hasRun $dbcommand $cid]} {
+            set info [dbconfig::getRunInfo $dbcommand $cid]
+            set rid [$tree insert $configid end -image dbgui::events \
+                -tags events \
+                -text [dict get $info number]]
+            $tree set $rid 0 [dict get $info title]
+            
         }
         
     }
@@ -790,6 +811,23 @@ snit::widgetadaptor dbgui::dbview {
         bind $result <Key-Escape> [list $result unpost]
 
                 
+        return $result
+    }
+    ##
+    # _CreateRunContextMenu
+    #
+    #   The context menu associated with a run:
+    # @return menu widget path.
+    #
+    method _CreateRunContextMenu {} {
+        set result [menu $tree.runcontextmenu -tearoff 0 \
+            -postcommand [list tk_menuSetFocus $tree.spectrumcontextmenu] \
+        ]
+        
+        $result add command -label Play... \
+            -command [mymethod _OnPlayback]
+        bind $result <Key-Escape> [list $result unpost]
+        
         return $result
     }
     ##
