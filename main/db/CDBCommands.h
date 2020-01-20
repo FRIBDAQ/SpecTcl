@@ -96,5 +96,9 @@ private:
     );
     Tcl_Obj* stringToObj(const char* pString);
     
+    void setActive(CTCLInterpreter& interp, int run, const char* title="");
+    void setInactive(CTCLInterpreter& interp);
+    void setBuffersAnalyzed(CTCLInterpreter& interp, int n);
+    
 };
 #endif

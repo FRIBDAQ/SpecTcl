@@ -32,6 +32,8 @@
 #include <EventSinkPipeline.h>
 #include <Event.h>
 #include <iostream>
+#include <TCLVariable.h>   
+#include <AttachCommand.h>
 
 static const unsigned PLAYBACK_SIZE(500);
 
@@ -337,9 +339,16 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     CEvent events[PLAYBACK_SIZE];    // Just statically allocate.
     m_pPlayback = m_pWriter->playRun(runNumber);
     
+    std::string source("sqlite3:");
+    source += m_pWriter->getDbPath();
+    CAttachCommand::setAttachString(source.c_str());
+    std::string title = m_pPlayback->getTitle();
+    setActive(interp, runNumber, title.c_str());
+    setBuffersAnalyzed(interp, 0);
+    
     SpecTcl* pApi = SpecTcl::getInstance();
     CEventSinkPipeline& pipeline(*(pApi->GetEventSinkPipeline()));
-    
+    int nEvents;
     while(m_pPlayback) {
         for (int i =0; i < PLAYBACK_SIZE; i++) {
             const DBEvent::Event& e = m_pPlayback->next();
@@ -358,7 +367,9 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         // and drain the Tcl event queue.
         
         pipeline(eventList);
-	int n = eventList.size() < PLAYBACK_SIZE ? eventList.size() : PLAYBACK_SIZE;
+        int n = eventList.size() < PLAYBACK_SIZE ? eventList.size() : PLAYBACK_SIZE;
+        nEvents += n;
+        setBuffersAnalyzed(interp, nEvents);
         for (int i = 0; i < n; i++) {
             events[i].clear();
             eventList[i] = nullptr;
@@ -368,6 +379,7 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
             ;                             // Drain the event loop..
     }
+    setInactive(interp);
     std::cerr << "Done\n";
 }
 /**
@@ -512,4 +524,54 @@ Tcl_Obj*
 CDBCommands::stringToObj(const char* pString)
 {
     return Tcl_NewStringObj(pString, -1);
+}
+/**
+ * setActive
+ *    - Set the Tcl variable ::RunState to 1.
+ *    - Set the Tcl variable ::RunNumber to the run number.
+ *    - Set the Tcl variable ::RunTitle to the title.
+ *    
+ * @param interp - the interpreter that has these globals
+ * @param run    - the run number.
+ * @param title  - the title.
+ */
+void
+CDBCommands::setActive(CTCLInterpreter& interp, int run, const char* title)
+{
+    CTCLVariable state(&interp, "RunState",false);
+    CTCLVariable runNum(&interp, "RunNumber", false);
+    CTCLVariable runTitle(&interp, "RunTitle", false);
+    
+    state.Set("1");
+    runTitle.Set(title);
+    
+    std::stringstream rno;
+    rno << run;
+    runNum.Set(rno.str().c_str());
+}
+/**
+ * setInactive
+ *    Set the Tcl Variable RunState to 0.
+ *  @param interp - interpreter that holds these variables.
+ */
+void
+CDBCommands::setInactive(CTCLInterpreter& interp)
+{
+    CTCLVariable state(&interp, "RunState", false);
+    state.Set("0");
+}
+/**
+ * setBuffersAnalyzed
+ *    Sets the BuffersAnalyzed variable as indicated.
+ *
+ * @param interp - interpreter holding this variable.
+ * @param n      - numeric value to set it to.
+ */
+void
+CDBCommands::setBuffersAnalyzed(CTCLInterpreter& interp, int n)
+{
+    CTCLVariable analyzed(&interp, "BuffersAnalyzed", false);
+    std::stringstream a;
+    a << n;
+    analyzed.Set(a.str().c_str());
 }

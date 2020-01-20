@@ -54,15 +54,16 @@ CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
   sqlite3_stmt* pGetRunId;
   CDBEventWriter::checkStatus(sqlite3_prepare(
       m_pDatabase,
-      "SELECT id FROM runs WHERE run_number = :run", -1, &pGetRunId,
+      "SELECT id, title FROM runs WHERE run_number = :run", -1, &pGetRunId,
       nullptr
   ));
   CDBEventWriter::checkStatus(sqlite3_bind_int(pGetRunId, 1, run));
   int status = sqlite3_step(pGetRunId);
   if (status == SQLITE_ROW) {
     m_runId = sqlite3_column_int(pGetRunId, 0);
+    m_Title = reinterpret_cast<const char*>(sqlite3_column_text(pGetRunId, 1));
     CDBEventWriter::checkStatus(sqlite3_finalize(pGetRunId));
-    
+      
     // Now prepare and bind the m_pRetriever used by next:
     
     CDBEventWriter::checkStatus(sqlite3_prepare(
@@ -71,9 +72,9 @@ CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
         FROM events WHERE run_id = :id",
         -1, &m_pRetriever, nullptr
     ));
-
+  
     CDBEventWriter::checkStatus(sqlite3_bind_int(m_pRetriever, 1, m_runId));
-        
+          
     
     // All done.
     

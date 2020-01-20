@@ -64,12 +64,14 @@ private:
     
     int            m_eventNumber;
     DBEvent::Event m_currentEvent;     // So we can avoid copy.
+    std::string    m_Title;           // Title of current run.
     
 public:
     CDBEventPlayer(sqlite3* pDatabase, int run);
     ~CDBEventPlayer();
     
     const Event& next();            // Empty means no more in the run.
+    std::string getTitle() const {return m_Title; }
 
 };
 
@@ -136,6 +138,7 @@ public:
 
     
     static void checkStatus(int status, int expected=-1);
+    std::string getDbPath() { return m_dbName; }
 private:
     std::string nextCommand();
     

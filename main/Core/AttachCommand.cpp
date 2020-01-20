@@ -77,6 +77,7 @@ using namespace std;
 // Class level members:
 
 CAttachCommand::CDecoderFactory CAttachCommand::m_decoderFactory;
+std::string CAttachCommand::m_AttachedTo("Test Data Source");
 
 // Static data declarations:
 struct SwitchDef {
