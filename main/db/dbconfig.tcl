@@ -1659,5 +1659,82 @@ proc listSavedSpectra {cmd sname} {
     
     return $result
 }
+##
+# listRuns
+#    List the runs in the database.
+# @param cmd - database command.
+# @return list of dicts.  Each dict has the following keys:
+#         id     - the run id.
+#         config -the id of the associated configuration.
+#         number - the run number.
+#         title  - the run title.
+#         start_time - the run start time.
+#         stop_time  - The run stop time (not provided if null).
+# @note the times are in [clock seconds] representation.
+#
+proc listRuns {cmd} {
+    set result [list]
+    $cmd eval {
+        SELECT id, config_id, run_number, title, start_time, stop_time
+        FROM runs
+    } {
+        set item [dict create id $id config $config_id \
+                  number $run_number title $title \
+                  start_time $start_time]
+        if {$stop_time ne ""} {
+            dict set item stop_time $stop_time
+        }
+        lappend result $item
+    }
+    return $result
+    
+}
+
+##
+# hasRun
+#  Returns true if the configuration specified has an associated
+#  run.
+#
+# @param cmd - database command.
+# @param confid - configuration id.
+# @return bool
+#
+proc hasRun {cmd confid} {
+    $cmd eval {
+        SELECT COUNT(*) as result FROM runs
+            WHERE config_id = $confid
+    } {
+        return $result
+    }
+}
+
+##
+# getRunInfo
+#   Get information about a run associated with a configuration
+#   id.
+#
+# @param cmd -- database command
+# @param conf - Configuration id.
+# @return dict (possibily empty if there is no run
+#              See listRuns for the keys/values to this dict.
+# @retval empty dict if there's no associated run.
+#
+proc getRunInfo {cmd conf} {
+    set result [dict create]
+    $cmd eval {
+        SELECT id, config_id, run_number, title, start_time, stop_time
+        FROM runs WHERE config_id = $conf
+    } {
+        set result [dict create                            \
+            id $id config $config_id number $run_number title $title \
+            start_time $start_time
+        ]
+        if {$stop_time ne ""} {
+            dict set result stop_time $stop_time
+        }
+    }
+    
+    return $result
+}
 
 }
