@@ -101,7 +101,7 @@ namespace DAQ {
         DDASHit();
 
         /*! \brief Copy constructor */
-        DDASHit(const DDASHit& obj) = default;
+        DDASHit(const DDASHit& obj); // = default;
 
         /*! \brief Assignment operator */
         DDASHit& operator=(const DDASHit& obj) = default;

@@ -90,7 +90,7 @@ CPipelineEventProcessor::operator()(
 Bool_t
 CPipelineEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
 {
-    try {
+  try {
         std::for_each(m_pPipeline->begin(), m_pPipeline->end(),
             [&rAnalyzer](std::pair<std::string, CEventProcessor*> ep) {
                 if (!(ep.second)->OnAttach(rAnalyzer)) {

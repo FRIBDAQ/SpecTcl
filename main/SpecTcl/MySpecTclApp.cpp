@@ -83,6 +83,7 @@ MyParameters vars = {
 class CFixedEventUnpacker : public  CEventProcessor
 {
 public:
+  virtual CFixedEventUnpacker* clone() { return new CFixedEventUnpacker(*this); }
   virtual Bool_t operator()(const Address_t pEvent,
                 CEvent&         rEvent,
                 CAnalyzer&      rAnalyzer,
@@ -128,6 +129,7 @@ CFixedEventUnpacker::operator()(const Address_t pEvent,
 class CAddFirst2 : public CEventProcessor
 {
 public:
+  virtual CAddFirst2* clone() { return new CAddFirst2(*this); }  
   virtual Bool_t operator()(const Address_t pEvent,
                 CEvent&         rEvent,
                 CAnalyzer&      rAnalyzer,

@@ -45,6 +45,8 @@ private:
 public:
     CPipelineEventProcessor(CTclAnalyzer::EventProcessingPipeline* pipe);
     virtual ~CPipelineEventProcessor();
+
+    virtual CPipelineEventProcessor* clone() { return new CPipelineEventProcessor(*this); }
     
 public:
   virtual Bool_t operator()(const Address_t pEvent,

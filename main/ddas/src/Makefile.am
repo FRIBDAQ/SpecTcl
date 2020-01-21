@@ -3,8 +3,10 @@ FILES =MyParameters.h \
 				MyParameters.cpp \
 				MyParameterMapper.h \
 				MyParameterMapper.cpp \
+				MyPipelineData.cpp \
+				MyPipelineData.h \
 				MySpecTclApp.h \
-				MySpecTclApp.cpp
+				MySpecTclApp.cpp 
 
 DESTDIR = @prefix@/DDASSkel
 

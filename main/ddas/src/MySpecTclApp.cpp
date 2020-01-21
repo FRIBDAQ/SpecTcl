@@ -1,21 +1,17 @@
-
 #include <config.h>
 #include "MySpecTclApp.h"
 #include "DDASBuiltUnpacker.h"
 #include "MyParameterMapper.h"
 #include "MyParameters.h"
-
-// Create the parameter tree
-MyParameters params("raw");
-
-// Create a MyParameterMapper and pass it to the unpacker. The unpacker
-// will take ownership of this object.
-DAQ::DDAS::CDDASBuiltUnpacker Stage1( {0, 1, 2 }, *(new MyParameterMapper(params)));
+#include "MyPipelineData.h"
 
 void 
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
 { 
-    RegisterEventProcessor(Stage1, "Raw");
+  MyParameters* pParams = new MyParameters("raw");
+  MyParameterMapper* pMapper = new MyParameterMapper(*pParams);
+  MyPipelineData* pData = new MyPipelineData();
+  RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltUnpacker({0, 1, 2 }, *pMapper, *pData)), "Raw");
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:

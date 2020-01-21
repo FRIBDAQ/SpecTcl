@@ -111,15 +111,15 @@ Calibunpacktests::makeHit(unsigned c, unsigned s, unsigned a, double e)
 // Empty configuration leads to no exceptions and an empty map.
 
 void Calibunpacktests::emptyconfig() {
-    CCalibratedFileDrivenParameterMapper* pMapper;
-    CPPUNIT_ASSERT_NO_THROW(
-        pMapper = new CCalibratedFileDrivenParameterMapper("/dev/null")
-    );
-    
-    EQ(size_t(0), pMapper->m_map.size());
-    EQ(std::string("/dev/null"), pMapper->m_configFile);
-    
-    delete pMapper;
+  CCalibratedFileDrivenParameterMapper* pMapper;
+  CPPUNIT_ASSERT_NO_THROW(
+			  pMapper = new CCalibratedFileDrivenParameterMapper("/dev/null")
+			  );
+  
+  EQ(size_t(0), pMapper->m_map.size());
+  EQ(std::string("/dev/null"), pMapper->m_configFile);
+  
+  delete pMapper;
 }
 
 // Test configuration of a single line with constant values for calibrations.

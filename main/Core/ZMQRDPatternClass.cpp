@@ -55,6 +55,8 @@ CEventList ZMQRDClass::m_eventList;
 
 double qnan = std::numeric_limits<double>::quiet_NaN();
 
+std::mutex m;
+
 int old_percentage(0);
 uint64_t filesize(0);
 
@@ -95,8 +97,6 @@ typedef struct _HistoEvent {
   Tcl_Event    tclEvent;
   Vpairs*      histoList;
 } HistoEvent, *pHistoEvent;
-
-std::mutex mtx;
 
 void
 ZMQRDClass::ResizeAll()
@@ -349,6 +349,17 @@ ZMQRDClass::marshall(long thread, CEventList& lst, Vpairs& vec)
 }
 
 void
+ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source)
+{
+  // unzip the list and zip it back
+  EventProcessorIterator p;
+  for (p = source->begin(); p != source->end(); p++) {
+    CEventProcessor *pProcessor(p->second);
+    copy->push_back(PipelineElement(p->first, pProcessor->clone()));
+  }  
+}
+
+void
 ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec)
 {
   uint32_t*    pBuffer = reinterpret_cast<uint32_t*>(pData);
@@ -357,8 +368,9 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
 
   CRingFormatHelperFactory* m_factory;
   CRingFormatHelper* pHelper;
-  
+
   EventProcessingPipeline* pipecopy;
+  //  EventProcessingPipeline* pipecopy = new EventProcessingPipeline;   
   BufferTranslator* m_translator;
 
   //////////////////////////////////////
@@ -396,9 +408,21 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
   //////////////////////////////////////
   // Analysis pipeline
   //////////////////////////////////////  
+  
+  m.lock();
   pipecopy = new EventProcessingPipeline(*m_pipeline);
-  if (debug)
-    std::cout << "Created pipecopy " << thread << " of size " << pipecopy->size() << std::endl;      
+  //  ZMQRDClass::clonePipeline(pipecopy, m_pipeline); 
+  m.unlock();
+  
+  if (debug){
+    std::cout << "##################################################" << std::endl;
+    std::cout << "Inside ZMQRDClass::processRingItems for thread " << thread << std::endl;
+    std::cout << "pAnalyzer: " << pAnalyzer << std::endl;
+    std::cout << "pDecoder: " << pDecoder << std::endl;
+    std::cout << "Translator (original): " << m_pTranslator  << " (clone): " << m_translator << std::endl;
+    std::cout << "Pipeline (original): " << m_pipeline << " (clone): " << pipecopy << std::endl;
+    std::cout << "pEventList[thread]: " << &pEventList[thread] << std::endl;
+  }
   
   Address_t    pBody;
   UInt_t       nBodySize;

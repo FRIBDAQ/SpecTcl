@@ -72,7 +72,8 @@ private:
 public:
   CStackUnpacker();
   virtual ~CStackUnpacker();
-
+  virtual CStackUnpacker* clone() { return new CStackUnpacker(*this); }
+  
   // As we have no object data the default canonicals are just fine for us.
 
   // Virtual overrides.

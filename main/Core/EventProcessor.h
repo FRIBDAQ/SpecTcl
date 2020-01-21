@@ -59,6 +59,9 @@ class CEventProcessor {
   CEventProcessor(const CEventProcessor& aCEventProcessor); // Copy Constructor.
   virtual ~CEventProcessor(); //Destructor
 
+  // Clone
+  virtual CEventProcessor* clone() = 0;
+  
   // Operators:
   CEventProcessor& operator= (const CEventProcessor& aCEventProcessor); // Assignment operator.
   int operator==(const CEventProcessor& aCEventProcessor) const; // Equality operator.

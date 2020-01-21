@@ -4,6 +4,8 @@
 #define MYPARAMETERMAPPER_H
 
 #include <ParameterMapper.h>
+#include <MyParameters.h>
+#include <MyPipelineData.h>
 
 #include <map>
 
@@ -21,7 +23,8 @@ class MyParameters;
 class MyParameterMapper : public DAQ::DDAS::CParameterMapper
 {
   private:
-    MyParameters& m_params;           // reference to the tree parameter structure
+    MyParameters  m_params;           // reference to the tree parameter structure
+    MyPipelineData m_data;
     std::map<int, int> m_chanMap;     // global channel index for crates
 
   public:
@@ -29,7 +32,10 @@ class MyParameterMapper : public DAQ::DDAS::CParameterMapper
     //
     //  \param params   the data structure
     MyParameterMapper(MyParameters& params);
-
+    // copy constructor
+    MyParameterMapper(const MyParameterMapper& rhs);    
+    virtual MyParameterMapper* clone() { return new MyParameterMapper(*this); }
+    
     // Map raw hit data to TreeParameters
     //
     // \param channelData   the hit data

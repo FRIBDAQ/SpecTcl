@@ -36,7 +36,8 @@ namespace DAQ {
 
     // Forward declare the parameter mapper
     class CParameterMapper;
-
+    class CPipelineData;
+    
     /*! \brief Raw data unpacker for built DDAS data
      *
      * If attaching SpecTcl to a ring buffer downstream of the event builder,
@@ -72,12 +73,13 @@ namespace DAQ {
     class CDDASBuiltUnpacker : public  CEventProcessor
     {
 
-      private:
+    private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
-	std::vector<DDASHitV> m_VectorList;
 	std::vector<int>      m_threadId;
+	std::vector<DDASHitV> m_VectorList;
 	std::vector<DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
+	CPipelineData*        m_pPipelineData;
 	int max;
 	
       public:
@@ -89,11 +91,20 @@ namespace DAQ {
          *                          ownership transfers to class)
          */
         CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-			   CParameterMapper& rParameterMapper);
+			   CParameterMapper& rParameterMapper, CPipelineData& rPipelineData);
 
+	/**
+	 * Copy constructor
+	 *  Note the user must provide a good copy constructor for their parameter
+	 * mapper
+	 */
+	CDDASBuiltUnpacker(const CDDASBuiltUnpacker& rhs);
+	
         /*! Destructor*/
         ~CDDASBuiltUnpacker();
 
+	virtual CDDASBuiltUnpacker* clone() { return new CDDASBuiltUnpacker(*this); }
+	
         // Setters and getters
         
         /*! \brief Pass in new set of source ids
@@ -118,7 +129,9 @@ namespace DAQ {
          * \param rParameterMapper  the user's parameter mapper
          */
         void setParameterMapper(CParameterMapper& rParameterMapper);
-
+	
+	std::vector<DDASHit> copyChannelList(std::vector<DDASHit>& chnList);
+	
         /*! Retrieve the active mapper   */
         CParameterMapper& getParameterMapper() const;
 
@@ -158,9 +171,8 @@ namespace DAQ {
         void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,
                           CAnalyzer& rAnalyzer, BufferTranslator& trans);
 
-        Bool_t selectivelyParseData(uint16_t* p16, long thread);
-
-        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo, long thread);
+	Bool_t selectivelyParseData(uint16_t* p16, std::vector<DDASHit>& channellist, long thread);
+	Bool_t parseAndStoreFragment(FragmentInfo& fragInfo, std::vector<DDASHit>& channellist, long thread);
     };
 
   } // end DDAS namespace

@@ -189,7 +189,7 @@ CEventBuilderEventProcessor::operator()(
 Bool_t
 CEventBuilderEventProcessor::OnAttach(CAnalyzer& rAnalyzer)
 {
-    try {
+  try {
         std::for_each(
             m_sourceHandlers.begin(), m_sourceHandlers.end(),
             [&rAnalyzer](std::pair<const unsigned, SourceData>& item) {

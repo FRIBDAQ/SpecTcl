@@ -65,7 +65,8 @@ public:
     CCalibratedParameterManager& operator= (const CCalibratedParameterManager& rhs); //!< Assignment.
     int operator== (const CCalibratedParameterManager& rhs) const; //!< == comparison.
     int operator!= (const CCalibratedParameterManager& rhs) const; //!< != comparison.
-
+    virtual CCalibratedParameterManager* clone() { return new CCalibratedParameterManager(*this); }
+    
 // Class operations:
 
 public:

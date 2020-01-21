@@ -152,10 +152,25 @@ void evbunpackCmdTests::create_1() {
 }
 
 // Can't duplicate an existing event processor.
+class DummyProcessor : public CEventProcessor {
+public:
+  bool attached;
+  virtual DummyProcessor* clone() { return new DummyProcessor(*this); }
+  DummyProcessor() : attached(0) {}
+  Bool_t OnAttach(CAnalyzer& rA) {
+    attached = true;
+    return kfTRUE;
+  }
+  Bool_t OnDetach(CAnalyzer& rA) {
+    attached = false;
+    return kfFALSE;
+  }
+};
 
 void evbunpackCmdTests::create_2()
 {
-  m_pMgr->registerEventProcessor("test", new CEventProcessor);
+  DummyProcessor* pDummy = new DummyProcessor;
+  m_pMgr->registerEventProcessor("test", pDummy);
   CPPUNIT_ASSERT_THROW(
     m_pInterp->GlobalEval("evbunpack create test 10.0 testing"),
     CTCLException

@@ -64,7 +64,7 @@ public:
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
 			    CBufferDecoder& rDecoder);
-
+  virtual CCUSBUnpacker* clone() { return new CCUSBUnpacker(*this); }
 
 
 };

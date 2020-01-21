@@ -9,6 +9,7 @@ libDDASUnpacker_la_SOURCES = DDASUnpacker.cpp \
 include_HEADERS = DDASUnpacker.h \
 	DDASBuiltUnpacker.h \
 	ParameterMapper.h \
+	PipelineData.h \
 	DDASHit.h DDASHitUnpacker.h \
 	DDASBitMasks.h CFileDrivenParameterMapper.h \
 	CCalibratedFileDrivenParameterMapper.h

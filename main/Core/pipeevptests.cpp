@@ -21,6 +21,8 @@ public:
   bool   called;
 public:
   SucceedingEventProcessor() : called(false) {}
+
+  virtual SucceedingEventProcessor* clone() { return new SucceedingEventProcessor(*this); }
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,
                             CAnalyzer& rAnalyzer,
@@ -76,6 +78,7 @@ public:
   bool called;
 public:
   FailingEventProcessor() : called(false) {}
+  virtual FailingEventProcessor* clone() { return new FailingEventProcessor(*this); }
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,
                             CAnalyzer& rAnalyzer,

@@ -29,8 +29,9 @@ namespace DAQ {
 namespace DDAS {
 
   class CParameterMapper {
-    public:
-      virtual void mapToParameters(const std::vector<DDASHit>& data, CEvent& rEvent) = 0;
+  public:
+    virtual void mapToParameters(const std::vector<DDASHit>& data, CEvent& rEvent) = 0;
+    virtual CParameterMapper* clone() = 0;
   };
 
 } // end DDAS namespace

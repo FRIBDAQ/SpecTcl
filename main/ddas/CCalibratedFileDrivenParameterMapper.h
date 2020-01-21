@@ -133,6 +133,8 @@ private:
 public:
     CCalibratedFileDrivenParameterMapper(const char* filename);
     virtual ~CCalibratedFileDrivenParameterMapper(); 
+
+    virtual CCalibratedFileDrivenParameterMapper* clone() { return new CCalibratedFileDrivenParameterMapper(*this); }
     
     virtual void mapToParameters(
         const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent

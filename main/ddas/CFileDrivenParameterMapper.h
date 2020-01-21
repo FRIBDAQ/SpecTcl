@@ -57,6 +57,8 @@ public:        // API.
     virtual void mapToParameters(
         const std::vector<DAQ::DDAS::DDASHit>& hits, CEvent& rEvent
     );
+
+    virtual CFileDrivenParameterMapper* clone() { return new CFileDrivenParameterMapper(*this); }
     
 private:
     

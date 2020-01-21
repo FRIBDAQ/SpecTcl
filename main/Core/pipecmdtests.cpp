@@ -270,14 +270,32 @@ void pcmdTests::ls_3()
 }
 
 // Add tests - need a way to register some event processors:
+class DummyProcessor : public CEventProcessor {
+public:
+  bool attached;
+  virtual DummyProcessor* clone() { return new DummyProcessor(*this); }
+  DummyProcessor() : attached(0) {}
+  Bool_t OnAttach(CAnalyzer& rA) {
+    attached = true;
+    return kfTRUE;
+  }
+  Bool_t OnDetach(CAnalyzer& rA) {
+    attached = false;
+    return kfFALSE;
+  }
+};
 
 void pcmdTests::registerProcessors()
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
-  pMgr->registerEventProcessor("evp1", new CEventProcessor);
-  pMgr->registerEventProcessor("evp2", new CEventProcessor);
-  pMgr->registerEventProcessor("evp3", new CEventProcessor);
-  pMgr->registerEventProcessor("aProcessor", new CEventProcessor);}
+  DummyProcessor* pDummy = new DummyProcessor;
+
+  pMgr->registerEventProcessor("evp1", pDummy);
+  pMgr->registerEventProcessor("evp2", pDummy);
+  pMgr->registerEventProcessor("evp3", pDummy);
+  pMgr->registerEventProcessor("aProcessor", pDummy);
+  
+}
 
 // add_1 - add an event processor to default.
 

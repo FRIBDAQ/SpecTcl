@@ -41,7 +41,9 @@ struct ChannelData {
   // rawdata.timestamp.
   //
   // \param name  name of parent in tree structure
+  
   void Initialize(std::string name);
+  void Reset();
 };
 
 //____________________________________________________________
@@ -54,7 +56,7 @@ struct ChannelData {
 //  per event (i.e. the multiplicity)
 struct MyParameters {
 
-  ChannelData          chan[48];
+  ChannelData      chan[400];
   CTreeParameter   multiplicity;
 
   // Constructor
@@ -64,6 +66,9 @@ struct MyParameters {
   //
   // \param name  name of root
   MyParameters(std::string name);
+  // copy ctor
+  MyParameters(const MyParameters& rhs);
+  void Reset();
 };
 
 #endif

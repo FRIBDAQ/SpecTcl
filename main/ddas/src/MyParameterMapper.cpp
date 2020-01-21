@@ -1,26 +1,36 @@
-
 #include "MyParameterMapper.h"
 #include "MyParameters.h"
+#include "MyPipelineData.h"
 
 // Make it possible to write DDASHit instead of DAQ::DDAS::DDASHit.
 using DAQ::DDAS::DDASHit;
 
 ////
 //
-MyParameterMapper::MyParameterMapper(MyParameters& params) 
-  : m_params(params),
-   m_chanMap()
+MyParameterMapper::MyParameterMapper(MyParameters& params) :
+  m_params(params),
+  m_data(),
+  m_chanMap()
 {
   // crate 0 has 2 modules and thus accounts for 32 channels and
   // crate 1 doesnt exist. This means that the first channel index
   // of crate 2 is 32.
   m_chanMap[0] = 0;
-  m_chanMap[2] = 32;
+  m_chanMap[1] = 208;  
+  m_chanMap[2] = 500;
+}
+
+MyParameterMapper::MyParameterMapper(const MyParameterMapper& rhs) :
+  m_params(rhs.m_params),
+  m_data(rhs.m_data),
+  m_chanMap(rhs.m_chanMap)
+{
 }
 
 void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
                                         CEvent& rEvent)
 {
+  m_data.m_chanHit.clear();
   size_t nHits = channelData.size();
 
   // assign number of hits as event multiplicity
@@ -39,7 +49,8 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
     // Assign values to appropriate channel
     m_params.chan[globalChanIdx].energy    = hit.GetEnergy();
     m_params.chan[globalChanIdx].timestamp = hit.GetTime();
-
+    
+    m_data.m_chanHit.push_back(globalChanIdx);
   }
 
 }

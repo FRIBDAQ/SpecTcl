@@ -46,6 +46,7 @@ private:
 public:
     RootEventProcessor();
 
+    virtual RootEventProcessor* clone() { return new RootEventProcessor(*this); }
     // Event processor interface subset we need to implement.
     
     virtual Bool_t OnBegin(CAnalyzer& rA, CBufferDecoder& rB);

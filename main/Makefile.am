@@ -11,7 +11,6 @@ SUBDIRS = Replace \
 					RootInterface \
 					SpecTcl \
 					TreeParam \
-					contrib \
 					TestFiles \
 					Gui \
 					splash \

@@ -76,6 +76,8 @@ private:
 public:
     CEventBuilderEventProcessor(double clockMHz, std::string baseName);
     virtual ~CEventBuilderEventProcessor();
+
+    virtual CEventBuilderEventProcessor* clone() { return new CEventBuilderEventProcessor(*this); }
     
     // Event processor methods we need to override - all of them since we
     // have to pass control over to the registered event processor methods:

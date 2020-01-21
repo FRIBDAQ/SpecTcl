@@ -108,6 +108,8 @@ class ZMQRDClass
   static int HistogramHandler(Tcl_Event* evPtr, int flags);
   static double clock();
   static uint64_t converter(const char* s);
+
+  static void clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source);
   
   static inline uint64_t hrDiff(const timespec& end, const timespec& start)
   {

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 
 using namespace std;
@@ -41,8 +42,37 @@ namespace DAQ {
       m_adcResolution(0),
       m_hdwrRevision(0),
       m_adcOverflowUnderflow(false)
-    {}
+    {
+    }
 
+    DDASHit::DDASHit(const DDASHit& obj) :
+      time(obj.time),
+      coarsetime(obj.coarsetime),
+      energy(obj.energy),
+      timehigh(obj.timehigh),
+      timelow(obj.timelow),
+      timecfd(obj.timecfd),
+      finishcode(obj.finishcode),
+      channellength(obj.channellength),
+      channelheaderlength(obj.channelheaderlength),
+      overflowcode(obj.overflowcode),
+      chanid(obj.chanid),
+      slotid(obj.slotid),
+      crateid(obj.crateid),
+      cfdtrigsourcebit(obj.cfdtrigsourcebit),
+      cfdfailbit(obj.cfdfailbit),
+      tracelength(obj.tracelength),
+      ModMSPS(obj.ModMSPS),
+      energySums(obj.energySums),
+      qdcSums(obj.qdcSums),
+      trace(obj.trace),
+      externalTimestamp(obj.externalTimestamp),
+      m_adcResolution(obj.m_adcResolution),
+      m_hdwrRevision(obj.m_hdwrRevision),
+      m_adcOverflowUnderflow(obj.m_adcOverflowUnderflow)
+    {
+    }
+      
     void DDASHit::Reset() {
       time = 0;
       coarsetime = 0;

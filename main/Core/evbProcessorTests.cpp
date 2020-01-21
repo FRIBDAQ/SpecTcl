@@ -119,7 +119,11 @@ public:
 class noop : public CEventProcessor       // Do nothing event processor.
 {
 public:
-    Bool_t operator()(
+
+  noop(){};
+  virtual noop* clone() { return new noop(*this); }
+  
+  Bool_t operator()(
         const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,
         CBufferDecoder& rDecoder
     ) { return kfTRUE; }
@@ -128,6 +132,9 @@ public:
 class countevents : public CEventProcessor    // Count  operator() calls.
 {
 public:
+
+  virtual countevents* clone() { return new countevents(*this); }
+  
     unsigned m_calls;
     UInt_t   m_type;
     std::string m_name;
@@ -195,7 +202,11 @@ public:
 class failure : public CEventProcessor  // Return kfFALSE from all entries.
 {
 public:
-    Bool_t operator()(
+
+  failure(){};
+  virtual failure* clone() { return new failure(*this); }
+  
+  Bool_t operator()(
         const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,
         CBufferDecoder& rDecoder
     ) {

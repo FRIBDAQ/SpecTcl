@@ -17,6 +17,7 @@ class CAnalyzer;
 class DummyProcessor : public CEventProcessor {
 public:
   bool attached;
+  virtual DummyProcessor* clone() { return new DummyProcessor(*this); }
   DummyProcessor() : attached(0) {}
   Bool_t OnAttach(CAnalyzer& rA) {
     attached = true;

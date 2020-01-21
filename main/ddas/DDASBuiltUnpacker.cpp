@@ -4,15 +4,17 @@
 #include "DDASHit.h"
 #include "DDASHitUnpacker.h"
 
-#include "Globals.h"
-//#include <TCLAnalyzer.h>
+#include "PipelineData.h"
 #include <ThreadAnalyzer.h>
-#include <ZMQRDPatternClass.h>
+
+#include "Globals.h"
 
 #include <algorithm>
 #include <cstdint>
 
 using namespace std;
+
+bool debug = false;
 
 namespace DAQ {
   namespace DDAS {
@@ -20,18 +22,25 @@ namespace DAQ {
     ///////
     ///
     CDDASBuiltUnpacker::CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-					   CParameterMapper& rParameterMapper)
+					   CParameterMapper& rParameterMapper, CPipelineData& rPipelineData)
       : m_sourceIds(validSourceIds),
 	m_channelList(),
 	max(-1),
-	m_pParameterMapper(&rParameterMapper)
-    {
-      m_VectorList.resize(100);
-    }
-
+	m_pParameterMapper(&rParameterMapper),
+	m_pPipelineData(&rPipelineData)
+    {}
+    CDDASBuiltUnpacker::CDDASBuiltUnpacker(const CDDASBuiltUnpacker& rhs) :
+      CEventProcessor(rhs),
+      m_sourceIds(rhs.m_sourceIds),
+      m_channelList(rhs.m_channelList),
+      max(rhs.max),
+      m_pParameterMapper(rhs.m_pParameterMapper->clone()),
+      m_pPipelineData(rhs.m_pPipelineData->clone())
+    {}
     CDDASBuiltUnpacker::~CDDASBuiltUnpacker() {
       // we always pass a parameter mapper in by reference so this is never a nullptr
       delete m_pParameterMapper;
+      delete m_pPipelineData;
     }
 
     //////
@@ -64,6 +73,19 @@ namespace DAQ {
 
     /////////
     ///
+    
+    std::vector<DDASHit>
+    CDDASBuiltUnpacker::copyChannelList(std::vector<DDASHit>& chnList)
+    {
+      std::vector<DDASHit> tmp;
+      for (auto & element : chnList) {
+	tmp.push_back(element);
+      }
+      return tmp;
+    }
+
+    /////////
+    ///    
     Bool_t 
       CDDASBuiltUnpacker::operator()(const Address_t pEvent,
 				     CEvent&         rEvent,
@@ -72,35 +94,30 @@ namespace DAQ {
 				     BufferTranslator& trans,
 				     long thread)
     {
-      bool doesExist = std::find(std::begin(m_threadId), std::end(m_threadId), thread) != std::end(m_threadId);
-      if (!doesExist)
-	{
-	  // add the thread id in the vector
-	  m_threadId.push_back(thread);
-	  // create the element of the vector of vector of DDASHit with a copy of the channelList
-	  m_VectorList[thread] = m_channelList;
-	  // max thread number
-	  if (thread > max)
-	    max = thread;
-	  // once we have the number of threads running it's time to resize the vector of vector
-	  if (m_threadId.size() == max+1)
-	    m_VectorList.resize(max+1);
-	}	
-      
-      m_VectorList[thread].clear();
+      std::vector<DDASHit> tmp;
+      tmp.clear();
+
+      tmp = m_channelList; //copyChannelList(m_channelList);
 
       setEventSize(pEvent, rDecoder, rAnalyzer, trans);
-      
+
       uint16_t* p16 = reinterpret_cast<uint16_t*>(pEvent);
 
       // parse all of the fragments that we care about
-      Bool_t goodToSort = selectivelyParseData(p16, thread);
+      Bool_t goodToSort = selectivelyParseData(p16, tmp, thread);
 
       // Pass the unpacked data to the user for assignment to their data structures
       //
       // note: m_pParameterMapper can never be a nullptr
-      m_pParameterMapper->mapToParameters(m_VectorList[thread], rEvent);
+      if (debug){
+	for (auto & element : tmp) {
+	  std::cout << " energy: " << element.GetEnergy() << " channel length: " << element.GetChannelLength() << " slotID: " << element.GetSlotID()
+		    << " crate ID: " << element.GetCrateID() << " channelID: " << element.GetChannelID() << " ModMSPS: " << element.GetModMSPS() << std::endl;
+	}
+      }
 
+      m_pParameterMapper->mapToParameters(tmp, rEvent);
+      
       return goodToSort;
     }
     
@@ -112,18 +129,11 @@ namespace DAQ {
       TranslatorPointer<uint32_t> p32(trans, pEvent);
       CThreadAnalyzer& rAna = dynamic_cast<CThreadAnalyzer&>(rAnalyzer);
       rAna.SetEventSize(*p32);
-      //      std::cout << rAna.GetEventSize() << std::endl;
-      
-      //      TranslatorPointer<uint32_t> p32(*(rDecoder.getBufferTranslator()), pEvent);
-      //      CTclAnalyzer& rAna = dynamic_cast<CTclAnalyzer&>(rAnalyzer);
-      //      rAna.SetEventSize(*p32); 
-
     }
-
 
     /////////
     ///
-    Bool_t CDDASBuiltUnpacker::selectivelyParseData(uint16_t* p16, long thread)
+    Bool_t CDDASBuiltUnpacker::selectivelyParseData(uint16_t* p16, std::vector<DDASHit>& channellist, long thread)
     {
       // index the fragments
         FragmentIndex parsedFragments(p16);
@@ -133,7 +143,7 @@ namespace DAQ {
 
           // determine whether the user cares about this based on the source id
           if ( binary_search(m_sourceIds.begin(), m_sourceIds.end(), fragInfo.s_sourceId) ) {
-            parseAndStoreFragment(fragInfo, thread);
+            parseAndStoreFragment(fragInfo, channellist, thread);
           }
 
         }
@@ -143,7 +153,7 @@ namespace DAQ {
 
     ////////
     ///
-    Bool_t CDDASBuiltUnpacker::parseAndStoreFragment(FragmentInfo& info, long thread) 
+    Bool_t CDDASBuiltUnpacker::parseAndStoreFragment(FragmentInfo& info, std::vector<DDASHit>& channellist, long thread) 
     {
       DDASHit hit;
       DDASHitUnpacker unpacker;
@@ -154,8 +164,9 @@ namespace DAQ {
       // parse the body of the ring item 
       unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), hit );
 
-      m_VectorList[thread].push_back(hit);
+      channellist.push_back(hit);
     }
 
+    
   } // end DDAS namespace
 } // end DAQ namespace

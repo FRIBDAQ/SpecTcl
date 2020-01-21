@@ -57,7 +57,8 @@ public:
   CRateProcessor& operator=(const CRateProcessor& rhs);
   int operator==(const CRateProcessor& rhs);
   int operator!=(const CRateProcessor& rhs);
-
+  virtual CRateProcessor* clone() { return new CRateProcessor(*this); }
+  
   // Selectors
 
   CSpectrum* getSpectrum();
