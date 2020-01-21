@@ -30,6 +30,7 @@ package require dbconfig
 package require snit
 package require img::png;        # for the icons.
 package require dialogwrapper
+package require SpecTclDb
 
 namespace eval dbgui {
     set here [file dirname [info script]]
@@ -48,22 +49,7 @@ namespace eval dbgui {
 puts $dbgui::iconcredits;            # Also in help->about...
 package provide dbgui $dbgui::version
 
-#------------------------------------------------------------------------------
-###   The GUI is intended to live in a top-level widget as it will want
-#   to create a menubar.
-#
-#   The GUI consists of three components:
-#    *   A menubar supports connecting to databases as well as the creation
-#        of some new databases.  Some less often used functions are also
-#        provided through the menu-bar.
-#    *  A treeview shows the contents of the 'current' database.  Each
-#       save-set is a top-level folder while below them are folders for
-#       configuration and spectra.  Context menus can do restorations from those
-#       and their children (parameters, spectra, gates, applications for the config
-#       individual spectra for the spectra folder).
-#    *  A status bar shows the open file, and the selected dataset if one is
-#       selected.
-#
+
 
 ##
 # prompter for a string.
@@ -242,6 +228,79 @@ proc dbgui::promptList {parent items {mode extended}} {
     destroy $top
     return $result
 }
+
+##
+# Prompter prior to playback provides options to:
+#  -  Reload the configuration associated with the run.
+#  -  Clear the spectra.
+#
+# OPTIONS:
+#    -reload - reload the configuration state.
+#    -clear  - Clear the spectra state.
+#
+snit::widgetadaptor dbgui::PlaybackOptions {
+    option -reload -default 1
+    option -clear  -default 1
+    
+    constructor args {
+        installhull using ttk::frame
+        
+        ttk::checkbutton $win.reload -onvalue 1 -offvalue 0 \
+            -variable [myvar options(-reload)] -text {Reload configuration?}
+        ttk::checkbutton $win.clearspec -onvalue 1 -offvalue 0 \
+            -variable [myvar options(-clear)] -text {Clear all spectra?}
+        
+        grid $win.reload    -sticky w
+        grid $win.clearspec -sticky w
+        
+        $self configurelist $args
+        
+    }
+}
+##
+# Prompt for the playback options:
+#   @param parent the parent of the toplevel the prompter will be constructed
+#                  into.
+#   @param reload - optional parameter 1/0 reload the configuration from the
+#                   database prior to playback (default 0).
+#   @param clear  - Optional parameter 1/0 clear all spectra prior to playback
+#                   (default to 1).
+# @return dict  With keys:
+#      -   reload  value of reload flag.
+#      -   clear   value of clear flag.
+#
+proc dbgui::promptPlaybackOptions {parent {reload 0} {clear 1} } {
+    set top [toplevel $parent.playbackopts    ]
+    set dlg [DialogWrapper $top.dlg]
+    set formParent [$dlg controlarea]
+    
+    set form [dbgui::PlaybackOptions $formParent.form -reload $reload -clear $clear]
+    $dlg configure -form $form
+    pack $dlg -fill both -expand 1 -anchor w
+    set result [$dlg modal]
+    set values [list]
+    if {$result eq "Ok"} {
+        set values [dict create reload [$dlg cget -reload] clear [$dlg cget -clear]]
+    }
+    destroy $top
+    return $values
+}
+#------------------------------------------------------------------------------
+###   The GUI is intended to live in a top-level widget as it will want
+#   to create a menubar.
+#
+#   The GUI consists of three components:
+#    *   A menubar supports connecting to databases as well as the creation
+#        of some new databases.  Some less often used functions are also
+#        provided through the menu-bar.
+#    *  A treeview shows the contents of the 'current' database.  Each
+#       save-set is a top-level folder while below them are folders for
+#       configuration and spectra.  Context menus can do restorations from those
+#       and their children (parameters, spectra, gates, applications for the config
+#       individual spectra for the spectra folder).
+#    *  A status bar shows the open file, and the selected dataset if one is
+#       selected.
+#
 
 ##
 #  @class dbgui::menubar
@@ -476,6 +535,7 @@ snit::type dbgui::menubar {
 #                         regenerates the entire treeview.
 #    getCurrentConfig   - Returns the name of the currently selected configuration
 #                         (empty string if none).
+#    getRunInConfig     - Returns the number of the run in the configuration.
 #    getCurrentSpectrum - Returns name of currently selected spectrum
 #    addConfiguration   - Inform the interface there's a new configuration.
 #    addSpectrum        - Informthe interface there's a new spectrum in a configuration
@@ -570,6 +630,29 @@ snit::widgetadaptor dbgui::dbview {
         }
         return ""
     }
+    ##
+    # getRunInConfig
+    #   Given the name of a configuration, returns the run number of the event
+    #   data stored in that configuration.
+    #
+    # @param config - the configuration name.
+    # @return int - run numbger.
+    # @retval empty string - if there is no run data in the config.
+    #
+    method getRunInConfig config {
+        set configId [dbconfig::_lookupSaveSet $dbcommand $config]
+        if {$configId eq ""} {
+            return ""
+        }
+        set rinfo    [dbconfig::getRunInfo $dbcommand $configId]
+        if {$rinfo eq ""} {
+            return ""
+        } else {
+            return [dict get $rinfo number]
+        }
+    }
+    
+    
     ##
     # getCurrentSpectrum
     #    If a spectrum is selected, returns its name.
@@ -831,6 +914,30 @@ snit::widgetadaptor dbgui::dbview {
         return $result
     }
     ##
+    # _OnPlayback
+    #   Called to play back run data in the database.
+    #   If the -onplayrun script is non null, it is called with the following
+    #   parameters appended:
+    #    - Configuration name.
+    #    - Run number.
+    #    - Database command.
+    #   The code establishing the script is assumed to know the file the database
+    #   command belongs to.
+    #   
+    #
+    method _OnPlayback {} {
+        set script $options(-onplayrun)
+        if {$script ne ""} {
+            set config [$self getCurrentConfig]
+            if {$config ne ""} {
+                set run    [$self getRunInConfig $config]
+                if {$run ne ""} {
+                    uplevel #0 $script $config $run
+                }
+            }
+        }
+    }
+    ##
     # _OnConfigSave
     #   Called when the user wants a configuration file saved.
     #   Pop up a name prompter to get the configuration file saver.
@@ -1073,6 +1180,7 @@ snit::widgetadaptor dbgui::dbgui {
         $view configure -onspecsave  [mymethod _OnSaveSpectrumToConfig]
         $view configure -onconfigrestore [mymethod _OnRestoreConfig]
         $view configure -onspecrestore [mymethod _OnLoadSpectrum]
+        $view configure -onplayrun     [mymethod _OnPlay]
     }
     destructor {
         if {$afterid != -1} {
@@ -1083,6 +1191,35 @@ snit::widgetadaptor dbgui::dbgui {
     
     ############################################################################
     # Private methods
+    
+    ##
+    # _OnPlay
+    #   Respond to the request to play a run.
+    #
+    # @param config - the enclosing configuration name.
+    # @param run    - run number
+    # @note the caller ensures these are truely there in the database, or we don't
+    #        get called.
+    #
+    method _OnPlay {config run} {
+        puts "Playback Run $run in '$config'"
+        
+        # Prompt here for do you want to restore that configuration first?
+        # clear spectra?
+        
+        set pbOptions [dbgui::promptPlaybackOptions $win]
+        if {[dict get $pbOptions reload]} {
+            dbconfig::restoreConfig dbgui::database $config
+            sbind -all
+        }
+        if {[dict get $pbOptions clear]} {
+            clear -all
+        }
+        
+        set dbname $options(-database)
+        daqdb open $dbname
+        daqdb play $run
+    }
     
     ##
     # _UpdateStatusBar
