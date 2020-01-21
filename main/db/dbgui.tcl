@@ -539,6 +539,14 @@ snit::type dbgui::menubar {
 #    getCurrentSpectrum - Returns name of currently selected spectrum
 #    addConfiguration   - Inform the interface there's a new configuration.
 #    addSpectrum        - Informthe interface there's a new spectrum in a configuration
+#    playing            - Indicates a config/run is being played back.
+#    notPlaying         - Indicates a config/run is no longer being played.
+#
+# NOTE:
+#    If playing, the runMenu play entry is disabled and the specified run is given
+#    the playing tag which  sets a distinct background color.
+#    notplaying will revert to the normal background color and enable the play
+#    menubuttton.
 #
 snit::widgetadaptor dbgui::dbview {
     delegate method * to hull
@@ -599,14 +607,41 @@ snit::widgetadaptor dbgui::dbview {
         $tree tag bind events <ButtonPress-3> \
             [mymethod _PostMenu $runContextMenu %X %Y %x %y]
         
+        $tree tag configure playing -background green
+        
+        # Unpost any menu that's active:
+        
         bind $tree <Key-Escape> "
             $configContextMenu unpost
+            $spectrumContextMenu unpost
             $runContextMenu unpost
         "
     }
     #----------------------------------------------------------------
     # Public METHODS:
     #
+    ##
+    # playing
+    #   Specifies that a config/run are being played back.
+    #   - Adds the playing tag to the run element of the tree indicating
+    #     the playback is in progress.
+    #   - Disables the Runcontextmenu 'Play' command.
+    # @param config - the configuration
+    # @param run    - the run in that configuration.
+    #
+    method playing {config run} {
+        $runContextMenu entryconfigure 0 -state disabled
+    }
+    ##
+    # notPlaying
+    #   Specifies that a configu/run are  no longer being played back.
+    #   removes the tag and re-enables the play button.
+    # @param config - the configuration
+    # @param run    - the run in that configuration.
+    #
+    method notPlaying {config run } {
+        $runContextMenu entryconfigure 0 -state normal
+    }
     
     ##
     # getCurrentConfig
@@ -1218,7 +1253,9 @@ snit::widgetadaptor dbgui::dbgui {
         
         set dbname $options(-database)
         daqdb open $dbname
+        $view playing $config $run
         daqdb play $run
+        $view notPlaying $config $run
     }
     
     ##
