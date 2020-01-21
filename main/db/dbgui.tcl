@@ -558,6 +558,7 @@ snit::widgetadaptor dbgui::dbview {
     option -onspecsave -default [list]
     option -onspecrestore -default [list]
     option -onplayrun   -default  [list]
+    option -onstopplay  -default [list]
     option -onstopplayback -default [list]
 
     
@@ -631,6 +632,11 @@ snit::widgetadaptor dbgui::dbview {
     #
     method playing {config run} {
         $runContextMenu entryconfigure 0 -state disabled
+        $runContextMenu entryconfigure 1 -state normal
+        set item [$self _FindRun $config $run]
+        if {$item ne ""} {
+            $tree tag add playing $item
+        }
     }
     ##
     # notPlaying
@@ -641,6 +647,11 @@ snit::widgetadaptor dbgui::dbview {
     #
     method notPlaying {config run } {
         $runContextMenu entryconfigure 0 -state normal
+        $runContextMenu entryconfigure 1 -state disabled
+        set item [$self _FindRun $config $run]
+        if {$item ne ""} {
+            $tree tag remove playing $item
+        }
     }
     
     ##
@@ -763,7 +774,39 @@ snit::widgetadaptor dbgui::dbview {
     #----------------------------------------------------------------
     #  Private methods:
     
+    ##
+    # _FindItem
+    #   Given an item find a child whose -text has the requested value:
+    #
+    # @param parent - parent to search.
+    # @param value  - Value to match with the -text attribute of the item.
+    # @return item  - Item id of the found item or "" if not found.
+    #
+    method _FindItem {parent item} {
+        set children [$tree children $parent]
+        foreach child $children {
+            if {$item eq [$tree item $child -text]} {
+                return $child
+            }
+        }
+        return ""
+    }
     
+    ##
+    # _FindRun
+    #    Locate the item associated with the specified run number.
+    #
+    # @param config - enclosing configuration name.
+    # @param run    - Run Number within the configuration
+    # @return item  - Item name of the found run item or {} if none found.
+    #
+    method _FindRun {config run} {
+        set item [$self _FindItem {} $config];    # Find the configuration
+        if {$item ne ""} {
+            return [$self _FindItem $item $run]
+        }
+        return ""
+    }
     ##
     # _Clear
     #    Removes all entries from the display:
@@ -944,9 +987,20 @@ snit::widgetadaptor dbgui::dbview {
         
         $result add command -label Play... \
             -command [mymethod _OnPlayback]
+        $result add command -label Stop -command [mymethod _OnStopPlayback] -state disabled
         bind $result <Key-Escape> [list $result unpost]
         
         return $result
+    }
+    ##
+    # _OnStopPlayback
+    #    Called to request a stop to playing event data.
+    #
+    #   -onstopplayback is called if not empty.
+    #
+    method _OnStopPlayback {} {
+        set script $options(-onstopplayback)
+        uplevel #0 $script
     }
     ##
     # _OnPlayback
@@ -1216,6 +1270,7 @@ snit::widgetadaptor dbgui::dbgui {
         $view configure -onconfigrestore [mymethod _OnRestoreConfig]
         $view configure -onspecrestore [mymethod _OnLoadSpectrum]
         $view configure -onplayrun     [mymethod _OnPlay]
+        $view configure -onstopplayback [mymethod _OnStopPlay]
     }
     destructor {
         if {$afterid != -1} {
@@ -1256,6 +1311,12 @@ snit::widgetadaptor dbgui::dbgui {
         $view playing $config $run
         daqdb play $run
         $view notPlaying $config $run
+    }
+    ##
+    # stop playback of a playback in progress.
+    #
+    method _OnStopPlay {} {
+        daqdb stop
     }
     
     ##
