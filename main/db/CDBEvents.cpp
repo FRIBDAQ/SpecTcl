@@ -174,21 +174,16 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     // Open the database in C/C++ and create the prepared statements:
     
     checkStatus(sqlite3_open(m_dbName.c_str(), &m_pSqlite));
-    checkStatus(
-        sqlite3_prepare(m_pSqlite, "BEGIN TRANSACTION", -1, &m_pTransaction, nullptr)
-    );
+
     checkStatus(
         sqlite3_prepare(
             m_pSqlite,
             "INSERT INTO events \
               (run_id, event_number, parameter_count,  event_data) \
               VALUES (:run, :eno, :nparam, :event)",
-            -1,&m_pInsert, nullptr
+            -1, &m_pInsert, nullptr
         )
     ); 
-    checkStatus(
-        sqlite3_prepare(m_pSqlite, "COMMIT TRANSACTION", -1, &m_pCommit, nullptr)
-    );
 }
 /**
  * destructor

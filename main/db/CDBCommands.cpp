@@ -145,6 +145,8 @@ CDBCommands::dbOpen(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     std::string filePath = objv[2];
     
+    delete m_pWriter;               // Close off any existing database.
+                                    // delete nullptr is a noop.
     CDBEventWriter* pWriter = new CDBEventWriter(filePath.c_str());
     
     if (!m_pEventProcessor) {            // Not setup yet.
@@ -154,7 +156,6 @@ CDBCommands::dbOpen(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         pApi->AddEventProcessor(*m_pEventProcessor, processorName().c_str());
     } else {                            // Already setup.
         m_pEventProcessor->setWriter(pWriter);
-        delete m_pWriter;
         m_pWriter = pWriter;
     }
     m_enabled = false;           // Open turns off enable.

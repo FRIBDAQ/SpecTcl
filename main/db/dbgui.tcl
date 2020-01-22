@@ -311,6 +311,7 @@ proc dbgui::promptPlaybackOptions {parent {reload 0} {clear 1} } {
 #    Menus:
 #       File:  New... open...
 #       Save:  Configuration, Spectrum.
+#       Recording Enable/Disable, Autosave...
 #       Help:  About
 #
 #  Callback options:
@@ -320,6 +321,9 @@ proc dbgui::promptPlaybackOptions {parent {reload 0} {clear 1} } {
 #                  to the script.
 #     *  -onconfigsave - Save configuration.
 #     *  -onspecsave   - Save spectrum.
+#     * -onenablerecord - Enable recording.
+#     * -ondisablerecord - Disable event recording.
+#     * -onautosave      - requested autosave list update.
 #  Normally, on successful completions, these callbacks should pass a new
 #  database command to the treeview widget, and the filename to the statusbar
 #  widget.
@@ -333,12 +337,16 @@ snit::type dbgui::menubar {
     option -onopen
     option -onconfigsave
     option -onspecsave
+    option -onenablerecord
+    option -ondisablerecord
+    option -onautosave
     
     
     delegate method * to hull
     delegate option * to hull
     
     variable window
+    variable recordingState 0
     ##
     # constructor
     #  install a menu as the hull.
@@ -367,6 +375,14 @@ snit::type dbgui::menubar {
         $window.save add command -label Spectrum...      -command [mymethod _OnSpecSave]
         $window add cascade -label Save -menu $window.save
         
+        menu $window.record -tearoff 0
+        $window.record add checkbutton -label {Enable Recording} -offvalue 0 \
+            -onvalue 1  -command [mymethod _OnToggleRecording] \
+            -state disabled -variable [myvar recordingState]
+        $window.record add command -label {Autosave spectra...} \
+            -command [mymethod _SelectAutoSave] -state disabled
+        $window add cascade -label "Recording" -menu $window.record
+        
         menu $window.help -tearoff 0
         $window.help add command -label About... -command [mymethod _OnAbout]
         $window add cascade -label "Help" -menu $window.help
@@ -378,6 +394,28 @@ snit::type dbgui::menubar {
         puts "My Toplevel is $top"
         $top config -menu $window
     }
+    ##
+    # enableRecordingControls
+    #
+    #   Enables the recording checkbuttons.
+    #
+    method enableRecordingControls {} {
+        $window.record entryconfigure 0 -state normal
+    }
+    
+    ##
+    # disableRecordingControls
+    #
+    method disableRecordingControls {} {
+        $window.record entryconfigure 0 -state disabled
+    }
+    method enableAutosave {} {
+        $window.record entryconfigure 1 -state normal
+    }
+    method disableAutosave {} {
+        $window.record entryconfigure 1 -state disabled
+    }
+    
     ##
     # enableSave
     #    Enable the menu entries in the save menu:
@@ -502,6 +540,34 @@ snit::type dbgui::menubar {
     #
     method _OnSpecSave {} {
         set script $options(-onspecsave)
+        if {$script ne ""} {
+            uplevel #0 $script
+        }
+    }
+    ##
+    # _OnToggleRecording
+    #   Called when the state of the record checkbox changes.
+    #   We get the current state of that box and decide whether to call
+    #   the script in -onenablerecording or -ondisablerecording.
+    #
+    method _OnToggleRecording {} {
+        if {$recordingState} {
+            set option -onenablerecord
+        } else {
+            set option -ondisablerecord
+        }
+        set script $options($option)
+        
+        if {$script ne ""} {
+            uplevel #0 $script
+        }
+    }
+    ##
+    # _SelectAutoSave
+    #   If there is an -onautosave script, it is called now.
+    #
+    method _SelectAutoSave {} {
+        set script $options(-onautosave)
         if {$script ne ""} {
             uplevel #0 $script
         }
@@ -1235,6 +1301,7 @@ snit::widgetadaptor dbgui::dbgui {
     option -onconfigchange -default [list]
     
     variable afterid -1
+    variable recording 0
     
     constructor args {
         installhull using ttk::frame
@@ -1258,6 +1325,7 @@ snit::widgetadaptor dbgui::dbgui {
         $menubar configure -oncreate [mymethod _OnCreateDatabase]
         $menubar configure -onconfigsave [mymethod _OnSaveConfig ignoreme]
         $menubar configure -onspecsave [mymethod _OnSaveSpectrum]
+        $menubar configure -onautosave [mymethod _SetAutoSaveSpectra]
         
         #  Util there's a configuration the save menu must be disabled.
         
@@ -1276,7 +1344,7 @@ snit::widgetadaptor dbgui::dbgui {
         if {$afterid != -1} {
             after cancel $afterid
         }
-        $menubar destroy
+        catch {$menubar destroy}  ;  # In case it's not there yet.
     }
     
     ############################################################################
@@ -1294,6 +1362,20 @@ snit::widgetadaptor dbgui::dbgui {
     method _OnPlay {config run} {
         puts "Playback Run $run in '$config'"
         
+        # To playback data we need to disable recording if that's on:
+        
+         if {$recording} {
+            set reply [tk_messageBox -title {Stop Recording? } -icon questhead \
+                -type yesno \
+                ]
+            -message {Recording is in progress.  To playback a run we need to stop that is that ok?}
+            if {$reply eq "yes"} {
+                daqdb disable;            # Turn off current recording.
+                set recording 0
+            } else {
+                return;                   # Cancel playback request.
+            }
+        }       
         # Prompt here for do you want to restore that configuration first?
         # clear spectra?
         
@@ -1305,12 +1387,13 @@ snit::widgetadaptor dbgui::dbgui {
         if {[dict get $pbOptions clear]} {
             clear -all
         }
+
+        $menubar disableRecordingControls;    # Cannot record when playing back.
         
-        set dbname $options(-database)
-        daqdb open $dbname
         $view playing $config $run
         daqdb play $run
         $view notPlaying $config $run
+        $menubar enableRecordingControls
     }
     ##
     # stop playback of a playback in progress.
@@ -1350,13 +1433,19 @@ snit::widgetadaptor dbgui::dbgui {
         }
 
         sqlite3 ::dbgui::database $optval
+        puts "Opening $optval"
+        daqdb open $optval
+
         
         
         $view setDatabaseCommand dbgui::database
         $statusbar configure -database [file normalize $optval]
         
         set options($optname) $optval
+        
         $menubar enableSave
+        $menubar enableRecordingControls
+        $menubar enableAutosave
     }
     ##
     # _OnNewDatabase
@@ -1386,7 +1475,7 @@ snit::widgetadaptor dbgui::dbgui {
         dbconfig::makeSchema ::dbgui::newdatabase
         ::dbgui::newdatabase close
         $self configure -database $path;    #Takes care of the rest.
-        $menubar enableSave
+        
     }
     
     ##
@@ -1494,6 +1583,16 @@ snit::widgetadaptor dbgui::dbgui {
         return $result
     }
     ##
+    # _SetAutoSaveSpectra
+    #   Sets the autosaved spectrum list for recording.
+    #
+    method _SetAutoSaveSpectra {} {
+
+        set list [$self _GetSaveList  [$self _GetSpectrumList]]
+        daqdb autosave $list
+    }
+    
+    ##
     # _GetSaveList
     #   Get the list of items to save given a list to choose from
     #
@@ -1506,7 +1605,7 @@ snit::widgetadaptor dbgui::dbgui {
     ##
     # _OnRestoreConfig
     #    Processes context menu config restoration.
-    #
+    #F
     # @param db - database command.
     # @param configname - name of the save set to restore.
     #
