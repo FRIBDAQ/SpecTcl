@@ -1481,6 +1481,27 @@ proc makeSchema cmd {
         )
     }
     
+    ##
+    # Scaler data
+    
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS scaler_readouts (
+            id            INTEGER PRIMARY KEY,
+            run_id        INTEGER NOT NULL,      -- fk for runs.
+            start_offset  INTEGER NOT NULL,
+            stop_offset   INTEGER NOT NULL,
+            clock_time    INTEGER NOT NULL
+        )
+    }
+    $cmd eval {
+        CREATE TABLE IF NOT EXISTS scaler_channels (
+            id          INTEGER PRIMARY KEY,
+            readout_id  INTEGER NOT NULL,      -- fk for scaler_readouts.
+            channel     INTEGER NOT NULL,      -- Channel number.
+            value       INTEGER NOT NULL       -- Channel Value.
+        )
+    }
+    
     
 }
 ##
@@ -1735,6 +1756,20 @@ proc getRunInfo {cmd conf} {
     }
     
     return $result
+}
+##
+# getScalers
+#   @param cmd   - database command.
+#   @param conf  - Configuration id.
+#   @returns a list of dicts.  Each dict has the following keys:
+#            -  start - Seconds into the run when a scaler accumulation started
+#            -  stop  - Seconds into the run when a scaler accumulation ended.
+#            -  timestamp - Timestamp at which the readout was done.
+#            -  channels  - This is a list of pairs.  The first element
+#                           of each pair is the channel number/vaule of a scaler
+
+proc getScalers {cmd conf} {
+    return [list]
 }
 
 }
