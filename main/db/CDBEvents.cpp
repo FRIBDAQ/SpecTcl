@@ -183,7 +183,14 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
               VALUES (:run, :eno, :nparam, :event)",
             -1, &m_pInsert, nullptr
         )
-    ); 
+    );
+    // Prepare the transaction/commit statements:
+    checkStatus(
+      sqlite3_prepare(m_pSqlite, "BEGIN TRANSACTION", -1, &m_pTransaction, nullptr)
+    );
+    checkStatus(
+      sqlite3_prepare(m_pSqlite, "COMMIT", -1, &m_pCommit, nullptr)
+    );
 }
 /**
  * destructor

@@ -395,6 +395,22 @@ snit::type dbgui::menubar {
         $top config -menu $window
     }
     ##
+    # abortRecording
+    #   Turn off the recording checkbox without calling any callbacks.
+    #   This is done because the user, or I decided not to record data after all.
+    #
+    method abortRecording {} {
+        set recordingState 0;             # checkbutton follows this.
+    }
+    ##
+    # actuallyRecording
+    #   If the user decided not to stop recording after all we need this hook to
+    #   keep the user interface honest.
+    #
+    method actuallyRecording {} {
+        set recordingState 1
+    }
+    ##
     # enableRecordingControls
     #
     #   Enables the recording checkbuttons.
@@ -615,7 +631,7 @@ snit::type dbgui::menubar {
 #    menubuttton.
 #
 snit::widgetadaptor dbgui::dbview {
-    delegate method * to hull
+
     component tree
     
     
@@ -626,6 +642,8 @@ snit::widgetadaptor dbgui::dbview {
     option -onplayrun   -default  [list]
     option -onstopplay  -default [list]
     option -onstopplayback -default [list]
+    
+    option -state -default normal -configuremethod _SetState
 
     
     delegate option * to tree
@@ -839,6 +857,40 @@ snit::widgetadaptor dbgui::dbview {
     
     #----------------------------------------------------------------
     #  Private methods:
+    
+    ##
+    # _SetState
+    #   Configure method for the -state option.
+    #   While Tk supports normal, disabled, active, we only care about
+    #   disbaled and other.  disabled turns off the context menus while
+    #   other enables them:
+    #
+    method _SetState {optname val} {
+        set options($optname) $val;    # We're lax about the options allowed.
+        
+        if {$val eq "disabled"} {
+            $tree tag bind configuration <ButtonPress-3> \
+                  [list]
+     
+     
+             $tree tag bind spectrum      <ButtonPress-3> \
+                 [list]
+             
+             $tree tag bind events <ButtonPress-3> \
+                [list]
+        } else {
+            $tree tag bind configuration <ButtonPress-3> \
+                 [mymethod _PostMenu $configContextMenu  %X %Y %x %y]
+
+
+            $tree tag bind spectrum      <ButtonPress-3> \
+                [mymethod _PostMenu $spectrumContextMenu %X %Y %x %y]
+        
+            $tree tag bind events <ButtonPress-3> \
+                [mymethod _PostMenu $runContextMenu %X %Y %x %y]
+        }
+        
+    }
     
     ##
     # _FindItem
@@ -1302,6 +1354,7 @@ snit::widgetadaptor dbgui::dbgui {
     
     variable afterid -1
     variable recording 0
+    variable playing   0
     
     constructor args {
         installhull using ttk::frame
@@ -1326,6 +1379,8 @@ snit::widgetadaptor dbgui::dbgui {
         $menubar configure -onconfigsave [mymethod _OnSaveConfig ignoreme]
         $menubar configure -onspecsave [mymethod _OnSaveSpectrum]
         $menubar configure -onautosave [mymethod _SetAutoSaveSpectra]
+        $menubar configure -onenablerecord [mymethod _StartRecording]
+        $menubar configure -ondisablerecord [mymethod _StopRecording]
         
         #  Util there's a configuration the save menu must be disabled.
         
@@ -1351,6 +1406,58 @@ snit::widgetadaptor dbgui::dbgui {
     # Private methods
     
     ##
+    # _StartRecording
+    #   Enables recording data:
+    #   - Warn that we can't join a run in progress to record.
+    #   - If we are playing back stop  it.
+    #   - enable recording.
+    #   
+    method _StartRecording {} {
+        set answer [tk_messageBox                                        \
+            -title "Recording notes" -icon question -type yesno        \
+            -message {If you are in the middle of playing back a run from the database, playback will be stopped
+Furthermore, you cannot join a run in progress.  If a run is in progress, you must either
+stop analyzing it (offline) first or end it (online) before this operation is safe.
+Do you want to continue?}                                                      \
+        ]
+        if {$answer eq "no"} {
+            $menubar abortRecording
+            return
+        }
+        if {$playing} {
+            $self _OnStopPlay;     # Turns off playback from the database.
+        }
+        daqdb enable
+        $view configure -state disabled;#   Most ops fail with locked db.
+        set recording 1
+        
+    }
+    ##
+    # _StopRecording
+    #    Disables event recording:
+    #    Note this is not recommended in the middle of a run:
+    method _StopRecording {} {
+        
+        set answer [tk_messageBox                                        \
+            -title "Stop recording?" -icon question -type yesno        \
+            -message {If you are in the middle of recording a run, this is not
+recommended as the end run data may not be recorded properly.  Do you still want
+to stop event recording at this time?}                                 \
+                    ]
+        if {$answer eq "no"} {
+            $menubar actuallyRecording
+        }
+        
+        daqdb disable
+        set recording 0
+        $view configure -state enabled
+        
+        # Note a new (bunch of) configurations was/were made.  For now just refresh
+        
+        $self configure -database [$self cget -database]
+    }
+    
+    ##
     # _OnPlay
     #   Respond to the request to play a run.
     #
@@ -1365,17 +1472,20 @@ snit::widgetadaptor dbgui::dbgui {
         # To playback data we need to disable recording if that's on:
         
          if {$recording} {
-            set reply [tk_messageBox -title {Stop Recording? } -icon questhead \
+            set reply [tk_messageBox -title {Stop Recording? } -icon question \
                 -type yesno \
                 ]
-            -message {Recording is in progress.  To playback a run we need to stop that is that ok?}
+            -message {Recording is in progress.  To playback a run we need to stop that is that ok?
+(If a run is actively being analyzed this is not recommended).}
+
             if {$reply eq "yes"} {
                 daqdb disable;            # Turn off current recording.
                 set recording 0
             } else {
+                $menubar abortRecording
                 return;                   # Cancel playback request.
             }
-        }       
+        }           
         # Prompt here for do you want to restore that configuration first?
         # clear spectra?
         
@@ -1394,12 +1504,14 @@ snit::widgetadaptor dbgui::dbgui {
         daqdb play $run
         $view notPlaying $config $run
         $menubar enableRecordingControls
+        set playing 1
     }
     ##
     # stop playback of a playback in progress.
     #
     method _OnStopPlay {} {
         daqdb stop
+        set playing 0
     }
     
     ##
