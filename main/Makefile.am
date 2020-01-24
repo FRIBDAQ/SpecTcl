@@ -23,8 +23,9 @@ SUBDIRS = Replace \
 					compress \
 					docs \
 					spectra \
-					qt \
 					scalerWrapper
+#					qt \
+
 
 
 ACLOCAL_AMFLAGS=-I m4
