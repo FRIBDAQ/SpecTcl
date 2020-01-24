@@ -1,0 +1,734 @@
+#!/usr/bin/env python
+import io
+import pickle
+import sys, os
+sys.path.append(os.getcwd())
+
+import json
+import httplib2
+import pandas as pd
+
+import numpy as np
+import matplotlib
+matplotlib.use("Qt5Agg")
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+import CPyConverter as cpy
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.gridspec as gridspec
+from copy import copy
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+##############################
+# GUI class
+##############################            
+            
+class GUIClass(QDialog):
+    def __init__(self, parent=None):
+        super(GUIClass, self).__init__(parent)
+
+        self.timer = QtCore.QTimer()
+        self.setWindowFlags(QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
+        self.originalPalette = QApplication.palette()
+        self.clear = False
+
+        self.yhigh = 1024
+        self.vmin = 0
+        self.vmax = 1024        
+        
+        self.i = 0
+        self.j = 0
+        self.oldrow = 0
+        self.oldcol = 0        
+        
+        # dictionaries for parameters
+        self.param_list = {}
+        # dataframe for spectra
+        self.spectrum_list = pd.DataFrame()
+        
+        ########################
+        # Button creation
+        ########################
+
+        self.exitButton = QPushButton("Exit", self)
+        self.updateButton = QPushButton("Update", self)        
+
+        self.slider_label = QLabel("Refresh Interval (s)")                        
+        self.slider = QSlider(QtCore.Qt.Horizontal, self)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(10)
+        
+        # spectrum type box
+        self.button1D = QRadioButton("1D")
+        self.button2D = QRadioButton("2D")
+        self.button2D_option = QComboBox()
+        self.button2D_option.addItem("Dark")
+        self.button2D_option.addItem("Light")                
+        self.button3D = QRadioButton("3D")        
+        self.button3D_option = QComboBox()
+        self.button3D_option.addItem("Line")
+        self.button3D_option.addItem("Scatter")
+        self.button3D_option.addItem("Contour")                
+        self.button3D_option.addItem("Wireframe")                
+        self.button3D_option.addItem("Surface")                
+        self.button3D_option.addItem("Surface 2") 
+        
+        # spectrum definition box
+        self.spectrum_name_label = QLabel("Spectrum Name")                
+        self.spectrum_name = QLineEdit(self)
+        self.buttonSpectrumCreate = QPushButton("Create/Replace", self)
+        self.buttonSpectrumClear = QPushButton("Clear", self)
+        self.buttonSpectrumDelete = QPushButton("Delete", self)                
+
+        self.listParams_label = []
+        self.listParams_label_low = []
+        self.listParams_label_high = []
+        self.listParams_label_bins = []                                
+        self.listParams = []
+        self.listParams_low = []
+        self.listParams_high = []
+        self.listParams_bins = []
+        for i in range(3):
+            self.listParams_label.append(QLabel("Parameter"))
+            self.listParams_label_low.append(QLabel("Low"))
+            self.listParams_label_high.append(QLabel("High"))            
+            self.listParams_label_bins.append(QLabel("Bins"))
+            self.listParams.append(QComboBox())            
+            self.listParams_low.append(QLineEdit(self))
+            self.listParams_high.append(QLineEdit(self))
+            self.listParams_bins.append(QLineEdit(self))            
+        # disable third variable
+        self.listParams[2].setEnabled(False)
+        self.listParams_low[2].setReadOnly(True)
+        self.listParams_high[2].setReadOnly(True)
+        self.listParams_bins[2].setReadOnly(True)        
+        
+        # spectrum list box
+        self.histo_list_label = QLabel("List of Spectra")
+        self.histo_list = QComboBox()
+        self.histo_geo_label = QLabel("Geometry")        
+        self.histo_geo_row = QComboBox()
+        self.histo_geo_col = QComboBox()        
+        self.histo_geo_add = QPushButton("Add", self)
+        #        self.histo_geo_add.setDisabled(True)
+        self.histo_geo_reset = QPushButton("Update", self)
+        self.histo_geo_delete = QPushButton("Erase", self)                
+        self.gates_name_label = QLabel("Gate name")                
+        self.gates_name = QLineEdit(self)
+        self.gates_list_label = QLabel("List of Gates")
+        self.gates_list = QComboBox()
+        self.gates_create = QPushButton("Create", self)
+        self.gates_apply = QPushButton("Apply", self)
+        self.gates_delete = QPushButton("Delete", self)                
+        self.fit_label = QLabel("Fitting Functions")
+        self.fit_list = QComboBox()
+        self.fit_list.addItem("Gaussian")
+        self.fit_list.addItem("Expo")        
+        self.fit_list.addItem("Pol1")
+        self.fit_list.addItem("Pol2")
+        self.fit_list.addItem("Pol3")                                
+        self.fit_list.addItem("Custom")                                        
+        self.fit_button = QPushButton("Fit", self)
+        self.fit_range_label = QLabel("Fitting Range")
+        self.fit_range_label_min = QLabel("Min")
+        self.fit_range_label_max = QLabel("Max")        
+        self.fit_range_min = QLineEdit(self)
+        self.fit_range_max = QLineEdit(self)                
+        self.fit_results_label = QLabel("Fit Result")
+        self.fit_results = QTextEdit()
+        self.fit_results.setReadOnly(True)
+
+        #######################
+        # Color map
+        #######################
+        '''
+        self.my_cmap = matplotlib.colors.ListedColorMap(['#000200','#020700','#070a00','#0a0f00','#0f1100','#111600','#161900','#191e00',
+                                                         '#1e2300','#232600','#262b00','#2b2d00','#2d3300','#333500','#353a00','#3a3f00',
+                                                         '#3f4200','#424700','#474900','#494f00','#4f5100','#515600','#565900','#595e00',
+                                                         '#5e6300','#636600','#666b00','#6b6d00','#6d7200','#72754c','#757a60','#7a7f75',
+                                                         '#7f8277','#828777','#878977','#898e77','#8e917f','#91967f','#96997f','#999e99',
+                                                         '#9ea3b5','#a3a5b7','#a5aac6','#aaadcc','#adb2d3','#b2b5db','#b5baea','#babffc',
+                                                         '#bfc1ff','#c1c6ff','#c6c9ff','#c9ceff','#ced1ff','#d1d6ff','#d6d8ff','#d8ddff',
+                                                         '#dde2ff','#e2e5ff','#e5eaff','#eaedff','#edf2ff','#f2f4ff','#f4f9ff','#f9ffff'])
+        bounds=[0,5,10]
+        self.norm = matplotlib.colorscolors.BoundaryNorm(bounds, self.cmap.N)
+        '''
+        
+        #######################
+        # Main layout GUI
+        #######################        
+        
+        self.create_spectrumTypeBox()
+        self.create_spectrumListBox()
+        self.create_spectrumCreateBox()
+        self.create_plotGroupBox()
+        
+        topLayout = QHBoxLayout()
+        topLayout.addWidget(self.exitButton)
+        topLayout.addWidget(self.updateButton)        
+        topLayout.addWidget(self.slider_label)        
+        topLayout.addWidget(self.slider)        
+        topLayout.addStretch()
+        
+        layout = QHBoxLayout()
+        layout.addWidget(self.spectrumTypeBox)
+        layout.addWidget(self.spectrumCreateBox)
+        layout.addWidget(self.spectrumListBox)        
+        
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(topLayout)
+        mainLayout.addLayout(layout)
+        mainLayout.addWidget(self.plotGroupBox)
+        
+        self.setLayout(mainLayout)
+
+        #################
+        # Signals
+        #################
+
+        self.exitButton.clicked.connect(self.close)
+        self.updateButton.clicked.connect(self.update)                
+        
+        self.slider.valueChanged.connect(self.self_update)
+        
+        self.plusButton.clicked.connect(lambda: self.zoomIn(self.canvas))
+        self.minusButton.clicked.connect(lambda: self.zoomOut(self.canvas))        
+        
+        self.histo_geo_add.clicked.connect(self.update_selected_spectrum)
+        
+        self.at_startup()
+        self.histo_geo_reset.clicked.connect(self.update_selected_spectrum)
+
+        act1 = self.canvas.mpl_connect("resize_event", self.on_resize)
+        act2 = self.canvas.mpl_connect("button_press_event", self.expand_fig)
+
+    def show_figure(self, fig):
+        # create a dummy figure and use its manager to display "fig"
+        dummy = plt.figure()
+        new_manager = dummy.canvas.manager
+
+        #toolbar = new_manager.toolbar
+        #pButton = QPushButton("+", self)
+        #mButton = QPushButton("-", self)
+        #toolbar.addWidget(pButton)
+        #toolbar.addWidget(mButton)
+
+        new_manager.canvas.figure = fig
+        fig.set_canvas(new_manager.canvas)
+        #return new_manager.canvas, pButton, mButton
+
+    '''
+    def expanded_zoomIn(self, axes):
+        if self.button1D.isChecked():
+            yl, yh = axes.get_ylim()
+            yh /= 2
+            axes.set_ylim(0,yh) 
+        if self.button2D.isChecked():
+            vvmax = self.vmax
+            vvmax /= 2
+            axes.set_clim(vmax=vvmax)
+            
+    def expanded_zoomOut(self, axes):
+        print(axes.get_ylim())
+    '''
+    
+    def expand_fig(self, event):
+        if not event.inaxes: return
+        inx = list(self.figure.axes).index(event.inaxes)
+        buf = io.BytesIO()
+        pickle.dump(self.figure, buf)
+        buf.seek(0)
+        fig2 = pickle.load(buf)
+        
+        for i, ax in enumerate(fig2.axes):
+            if i != inx:
+                fig2.delaxes(ax)
+            else:
+                axes=ax
+
+        axes.change_geometry(1,1,1)
+        self.show_figure(fig2)        
+        #cvs, pB, pM = self.show_figure(fig2)
+        #pB.clicked.connect(lambda: self.expanded_zoomIn(axes))
+        #pM.clicked.connect(lambda: self.expanded_zoomOut(axes))
+        fig2.show()
+        
+    def on_resize(self, event):
+        self.figure.tight_layout()
+        self.canvas.draw()
+
+    def create_plotGroupBox(self):
+
+        self.plotGroupBox = QGroupBox("")
+
+        # plot canvas creation
+        self.figure = plt.figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.plusButton = QPushButton("+", self)
+        self.minusButton = QPushButton("-", self)        
+        self.toolbar.addWidget(self.plusButton)
+        self.toolbar.addWidget(self.minusButton)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.toolbar)        
+        layout.addWidget(self.canvas)
+        self.plotGroupBox.setLayout(layout)
+        
+    def create_spectrumTypeBox(self):
+        self.spectrumTypeBox = QGroupBox("Spectrum Type")
+
+        layout = QVBoxLayout()        
+        layout.addWidget(self.button1D)
+        hl2 = QHBoxLayout()
+        hl2.addWidget(self.button2D)
+        hl2.addWidget(self.button2D_option)        
+        hl = QHBoxLayout()
+        hl.addWidget(self.button3D)
+        hl.addWidget(self.button3D_option)
+        layout.addLayout(hl2)
+        layout.addLayout(hl)        
+        layout.addStretch(1)
+        
+        self.spectrumTypeBox.setLayout(layout)
+        self.spectrumTypeBox.setMaximumHeight(225)
+        self.spectrumTypeBox.setMaximumWidth(200)
+        
+    def create_spectrumListBox(self):
+        self.spectrumListBox = QGroupBox("Spectrum List")
+
+        hl = QHBoxLayout()
+        hl.addWidget(self.histo_geo_add)
+        hl.addWidget(self.histo_geo_reset)
+        hl.addWidget(self.histo_geo_delete)        
+
+        hl2 = QHBoxLayout()
+        hl2.addWidget(self.gates_name)
+        hl2.addWidget(self.gates_create)
+
+        hl3 = QHBoxLayout()
+        hl3.addWidget(self.gates_list)
+        hl3.addWidget(self.gates_apply)
+        hl3.addWidget(self.gates_delete)                                
+
+        hl4 = QHBoxLayout()
+        hl4.addWidget(self.histo_geo_row)
+        for i in range(1,6):
+            self.histo_geo_row.addItem(str(i))
+            self.histo_geo_col.addItem(str(i))            
+        hl4.addWidget(self.histo_geo_col)
+        self.row = int(self.histo_geo_row.currentText())
+        self.col = int(self.histo_geo_col.currentText())        
+        self.oldrow = self.row
+        self.oldcol = self.col        
+        
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(self.histo_list_label)
+        vlayout.addWidget(self.histo_list)
+        vlayout.addWidget(self.histo_geo_label)        
+        vlayout.addLayout(hl4)
+        vlayout.addLayout(hl)
+        vlayout.addWidget(self.gates_name_label)
+        vlayout.addLayout(hl2)
+        vlayout.addWidget(self.gates_list_label)                
+        vlayout.addLayout(hl3)
+        vlayout.addStretch()
+        
+        vlayout2a = QHBoxLayout()
+        vlayout2a.addWidget(self.fit_range_label_min)
+        vlayout2a.addWidget(self.fit_range_label_max)        
+
+        vlayout2b = QHBoxLayout()        
+        vlayout2b.addWidget(self.fit_range_min)
+        vlayout2b.addWidget(self.fit_range_max)        
+        #        self.fit_range_min.setText(self.par_x_low.text())
+        #        self.fit_range_max.setText(self.par_x_high.text())
+        
+        vlayout2 = QVBoxLayout()        
+        vlayout2.addWidget(self.fit_label)
+        vlayout2.addWidget(self.fit_list)
+        vlayout2.addWidget(self.fit_button)
+        vlayout2.addWidget(self.fit_range_label)
+        vlayout2.addLayout(vlayout2a)
+        vlayout2.addLayout(vlayout2b)        
+        vlayout2.addStretch()
+
+        vlayout3 = QVBoxLayout()                
+        vlayout3.addWidget(self.fit_results_label)
+        vlayout3.addWidget(self.fit_results)                                        
+        
+        # fitting
+
+        hlayout = QHBoxLayout()
+        hlayout.addLayout(vlayout)
+        hlayout.addLayout(vlayout2)
+        hlayout.addLayout(vlayout3)        
+        
+        
+        self.spectrumListBox.setLayout(hlayout)
+        self.spectrumListBox.setMaximumHeight(225)
+        
+    def create_spectrumCreateBox(self):
+        self.spectrumCreateBox = QGroupBox("Spectrum Definition")        
+
+        layout = QGridLayout()
+        layout.addWidget(self.spectrum_name_label, 0, 0)
+        layout.addWidget(self.spectrum_name, 1, 0)
+        layout.addWidget(self.buttonSpectrumCreate, 1, 1)
+        layout.addWidget(self.buttonSpectrumClear, 1, 2)                        
+        layout.addWidget(self.buttonSpectrumDelete, 1, 3)                
+        for i in range(3):
+            layout.addWidget(self.listParams_label[i], i*2+2, 0)
+            layout.addWidget(self.listParams_label_low[i] , i*2+2, 1)
+            layout.addWidget(self.listParams_label_high[i] , i*2+2, 2)
+            layout.addWidget(self.listParams_label_bins[i], i*2+2, 3)
+            layout.addWidget(self.listParams[i], i*2+3, 0)
+            layout.addWidget(self.listParams_low[i], i*2+3, 1)
+            layout.addWidget(self.listParams_high[i], i*2+3, 2)
+            layout.addWidget(self.listParams_bins[i], i*2+3, 3)
+        layout.setSpacing(1)
+        
+        self.spectrumCreateBox.setLayout(layout)
+        self.spectrumCreateBox.setMaximumHeight(250)
+        self.spectrumCreateBox.setMaximumWidth(400)
+
+    # At startup we need the full parameter list as dictionary - (id,name) 
+
+    def at_startup(self):
+        self.create_parameter_list()
+
+    def create_parameter_list(self):
+        self.update_parameter_list()
+        for key, value in self.param_list.items():
+            for i in range (3):
+                self.listParams[i].addItem(value)
+        
+    def update_parameter_list(self):
+        tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
+        tmp = json.loads(tmpl.decode())
+        tmpid = []
+        tmpname = []
+        for dic in tmp['detail']:
+            for key in dic:
+                if key == 'id':
+                    tmpid.append(dic[key])
+                elif key == 'name':
+                    tmpname.append(dic[key])
+        ziplst = zip(tmpid, tmpname)
+        self.param_list = dict(ziplst)
+
+
+    def self_update(self):
+        self.slider_label.setText("Refresh interval ({} s)".format(self.slider.value()))
+        if self.slider.value() != 0:
+            self.timer.setInterval(1000*int(self.slider.value()))
+            self.timer.timeout.connect(self.update)
+            self.timer.timeout.connect(self.update_selected_spectrum)            
+            self.timer.start()
+        else:
+            self.timer.stop()
+            
+    # when clicking update we need to access the shared memory and
+    # update the spectrum information in the data frame
+    def update(self):
+        # creates a dataframe for spectrum info
+        s = cpy.CPyConverter().Update()
+        self.spectrum_list = pd.DataFrame(
+            {'id': s[0],
+             'names': s[1],
+             'dim' : s[2],
+             'binx': s[3],
+             'minx': s[4],
+             'maxx': s[5],
+             'biny': s[6],
+             'miny': s[7],
+             'maxy': s[8],
+             'data': s[9]}
+        )
+        # add list of parameters for each spectrum to the dataframe
+        self.create_spectrum_parameters();
+        # update the list of defined spectra
+        self.create_spectrum_list()        
+        # update information for current selected spectrum
+        self.update_spectrum_info()
+        
+    # add list of parameters for each spectrum to the dataframe        
+    def create_spectrum_parameters(self):
+        tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
+        tmp = json.loads(tmpl.decode())
+        tmppar = []
+        for dic in tmp['detail']:
+            for key in dic:
+                if key == 'parameters':
+                   tmppar.append(dic[key]) 
+        # adds list to dataframe           
+        self.spectrum_list['parameters'] = tmppar
+        
+    # update the list of defined spectra
+    def create_spectrum_list(self):
+        for name in self.spectrum_list['names']:
+            if self.histo_list.findText(name) == -1:
+                self.histo_list.addItem(name)
+                
+    # update information for current selected spectrum
+    def update_spectrum_info(self):
+        # access name and id for the current spectrum
+        self.current_spec = str(self.histo_list.currentText())
+        # update info on gui for spectrum name
+        self.spectrum_name.setText(self.current_spec)
+        # extra data from data frame to fill up the gui 
+        select = self.spectrum_list['names'] == self.current_spec
+        df = self.spectrum_list.loc[select]
+        dim = df.iloc[0]['dim']
+        if dim == 1:
+            self.button1D.setChecked(True)
+        else:
+            self.button2D.setChecked(True)
+        self.check_histogram();
+        for i in range(dim):
+            index = self.listParams[i].findText(df.iloc[0]['parameters'][i], QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.listParams[i].setCurrentIndex(index)
+            if i == 0:
+                self.listParams_low[i].setText(str(df.iloc[0]['minx']))
+                self.listParams_high[i].setText(str(df.iloc[0]['maxx']))
+                self.listParams_bins[i].setText(str(df.iloc[0]['binx']))
+            else :
+                self.listParams_low[i].setText(str(df.iloc[0]['miny']))
+                self.listParams_high[i].setText(str(df.iloc[0]['maxy']))
+                self.listParams_bins[i].setText(str(df.iloc[0]['biny']))
+
+    def update_selected_spectrum(self):
+        # updating histogram info
+        self.update_spectrum_info()
+        # create figure 
+        grid = self.create_figure()
+        # add and plot 
+        self.add_figure(grid)
+        # update canvas
+        self.figure.tight_layout()
+        self.canvas.draw()
+        
+    def create_figure(self):
+        self.row = int(self.histo_geo_row.currentText())
+        self.col = int(self.histo_geo_col.currentText())
+        grid = gridspec.GridSpec(ncols=self.col, nrows=self.row, figure=self.figure)
+        return grid
+
+    def add_figure(self, grid):
+        self.i, self.j = self.increment_position()
+        a = self.figure.add_subplot(grid[self.i,self.j])
+        self.plot_histogram(a, self.current_spec)        
+        #self.current_histo = self.plot_histogram(a, self.current_spec)
+        
+    def increment_position(self):
+        if (self.col*self.row == 1):
+            self.figure.clear()
+            self.i = 0
+            self.j = 0            
+            return self.i, self.j
+        else: # geometry case not 1x1
+            if (self.col != self.oldcol or self.row != self.oldrow): # check if it changed, we need to reset the indices
+                self.figure.clear()
+                self.i = 0
+                self.j = 0
+                self.oldcol = self.col
+                self.oldrow = self.row
+                return self.i, self.j
+            else:
+                if (self.j < self.col-1):
+                    self.j += 1
+                    return self.i, self.j
+                else:
+                    if (self.i < self.row-1):
+                        self.i += 1
+                        self.j = 0
+                        return self.i, self.j
+
+                if (self.i == self.row-1 and self.j == self.col-1):
+                    self.figure.clear()
+                    for i, ax in enumerate(self.figure.axes):                    
+                        ax.remove()
+                    self.i = 0
+                    self.j = 0
+                    return self.i, self.j
+
+                
+    def plot_histogram(self, histo, name):
+        if (name == ''):
+            return histo
+        else:
+            select = self.spectrum_list['names'] == name
+            df = self.spectrum_list.loc[select]
+            w = df.iloc[0]['data']
+
+        # check if histogram is empty
+        if self.button1D.isChecked():
+            empty = sum(w)
+        elif self.button2D.isChecked():
+            empty = sum(w[1])
+            
+        if (empty == 0):
+            self.isEmpty = True
+            histo.set_ylim(0,512)
+            QMessageBox.about(self, "Warning", "The shared memory is still empty...")
+        else:
+            self.isEmpty = False
+            dim = df.iloc[0]['dim']        
+            xbins = self.listParams_bins[0].text().replace(' ', '')
+            xmin = self.listParams_low[0].text().replace(' ', '')
+            xmax = self.listParams_high[0].text().replace(' ', '')
+            if (dim == 1):
+                histo.set_ylim(0,self.yhigh)
+                X = self.create_range(int(xbins), float(xmin), float(xmax))
+                histo.hist(X, len(X), weights=w, range=[float(xmin),float(xmax)], histtype='step')
+                plt.xlim(xmin=float(xmin), xmax=float(xmax))
+                x_label = str(df.iloc[0]['parameters'])
+                plt.xlabel(x_label,fontsize=10)
+            elif (dim == 2):
+                ybins = self.listParams_bins[1].text().replace(' ', '')
+                ymin = self.listParams_low[1].text().replace(' ', '')
+                ymax = self.listParams_high[1].text().replace(' ', '')
+                divider = make_axes_locatable(histo)
+                cax = divider.append_axes("right", 0.25, pad=0.05)
+                if (self.button2D_option.currentText() == 'Dark'):
+                    palette = 'plasma'
+                else:
+                    palette = copy(plt.cm.plasma)
+                    w = np.ma.masked_where(w < 0.1, w)
+                    palette.set_bad(color='white')
+                    self.img2d = histo.imshow(w, interpolation='none',
+                                              extent=[float(xmin),float(xmax),float(ymin),float(ymax)],
+                                              aspect='auto', origin='lower',
+                                              vmin=self.vmin, vmax=self.vmax, cmap=palette)
+                #x_label = str(df.iloc[0]['parameters'][0])
+                #y_label = str(df.iloc[0]['parameters'][1])            
+                #plt.xlabel(x_label,fontsize=10)
+                #plt.ylabel(y_label,fontsize=10)                        
+                plt.colorbar(self.img2d, cax=cax, orientation='vertical')
+            return histo
+        
+    def zoomIn(self, canvas):
+        for i, ax in enumerate(self.figure.axes):
+            if self.button1D.isChecked():
+                ylow, self.yhigh = ax.get_ylim()
+                self.yhigh /= 2
+                ax.set_ylim(0,self.yhigh) 
+            if self.button2D.isChecked():
+                self.vmax /= 2
+                self.img2d.set_clim(vmax=self.vmax)
+        canvas.draw()
+            
+        '''
+        if self.button1D.isChecked():
+        ylow, self.yhigh = self.current_histo.get_ylim()
+        self.yhigh /= 2
+        self.current_histo.set_ylim(0,self.yhigh) # this has to become the subplot clicked not the current one
+        if self.button2D.isChecked():
+        self.vmax /= 2
+        self.img2d.set_clim(vmax=self.vmax)
+        canvas.draw()
+        '''
+            
+    def zoomOut(self, canvas):
+        for i, ax in enumerate(self.figure.axes):
+            print("-",i)
+            if self.button1D.isChecked():
+                ylow, self.yhigh = ax.get_ylim()
+                self.yhigh *= 2
+                ax.set_ylim(0,self.yhigh) 
+            if self.button2D.isChecked():
+                self.vmax *= 2
+                self.img2d.set_clim(vmax=self.vmax)
+        canvas.draw()
+            
+    def create_range(self, bins, vmin, vmax):
+        x = []
+        step = (vmax-vmin)/bins
+        for i in np.arange(vmin, vmax, step):
+            x.append(i)
+        return x
+
+    # this function deals with what will be shown and what not
+    def check_histogram(self):
+        if self.button1D.isChecked():
+            self.create_disable2D(True)
+            self.create_disable3D(True)            
+        elif self.button2D.isChecked():
+            self.create_disable2D(False)
+            self.create_disable3D(True)                        
+        else:
+            self.create_disable2D(False)
+            self.create_disable3D(False)
+            
+    def create_disable2D(self, value):
+        if value==True:
+            self.listParams[1].setEnabled(False)
+            self.listParams_low[1].setText("")
+            self.listParams_low[1].setReadOnly(True)
+            self.listParams_high[1].setText("")
+            self.listParams_high[1].setReadOnly(True)
+            self.listParams_bins[1].setText("")
+            self.listParams_bins[1].setReadOnly(True)            
+        else:
+            self.listParams[1].setEnabled(True)
+            self.listParams_low[1].setReadOnly(False)
+            self.listParams_high[1].setReadOnly(False)            
+            self.listParams_bins[1].setReadOnly(False)
+
+    def create_disable3D(self, value):
+        if value==True:
+            self.listParams[2].setEnabled(False)
+            self.listParams_low[2].setText("")
+            self.listParams_low[2].setReadOnly(True)
+            self.listParams_high[2].setText("")
+            self.listParams_high[2].setReadOnly(True)
+            self.listParams_bins[2].setText("")
+            self.listParams_bins[2].setReadOnly(True)                        
+        else:
+            self.listParams[2].setEnabled(True)
+            self.listParams_low[2].setReadOnly(False)
+            self.listParams_high[2].setReadOnly(False)            
+            self.listParams_bins[2].setReadOnly(False)            
+            
+'''
+    ####################
+    # Gate list
+    ####################        
+        
+    def update_gates(self, memory):
+        gates = memory.get_gates();
+        if len(gates) != self.gates_size:
+            GUIClass.create_gatelist(self,gates)
+            self.gates_size = len(gates)        
+
+    def create_gatelist(self, variable):
+        for item in variable:
+            for key in item:
+                if key == 'name':
+                    self.gates_list.addItem(item[key])                                            
+
+
+
+    def get_listParamsIndex(self):
+        for i in range(3):
+            self.index_list.append(self.listParams[i].currentIndex())
+        
+    def update_param(self, variable):
+        GUIClass.get_listParamsIndex(self);
+        for index in self.index_list:
+            for item in variable:
+                for key in item:
+                    if key == 'id' and item[key] == index :
+                        for i in range(3):
+                            self.listParams_low[i].setText(str(item['low']))
+                            self.listParams_high[i].setText(str(item['hi']))
+                            self.listParams_bins[i].setText(str(item['bins']))
+
+
+'''
