@@ -1,11 +1,9 @@
-
-
 #ifndef MYPARAMETERMAPPER_H
 #define MYPARAMETERMAPPER_H
 
 #include <ParameterMapper.h>
 #include <MyParameters.h>
-#include <MyPipelineData.h>
+//#include <MyPipelineData.h>
 
 #include <map>
 
@@ -22,12 +20,11 @@ class MyParameters;
 // does not own it.
 class MyParameterMapper : public DAQ::DDAS::CParameterMapper
 {
-  private:
+  public:
+  
     MyParameters  m_params;           // reference to the tree parameter structure
-    MyPipelineData m_data;
     std::map<int, int> m_chanMap;     // global channel index for crates
 
-  public:
     // Constructor.
     //
     //  \param params   the data structure

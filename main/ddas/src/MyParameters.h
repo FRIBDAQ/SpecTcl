@@ -5,29 +5,23 @@
 #include <config.h>
 #include <TreeParameter.h>
 #include <string>
+#include <PipelineData.h>
+#include <vector>
 
+struct MyPipelineData : public DAQ::DDAS::CPipelineData
+{
+ public:
+  std::vector<int> m_chanHit;
 
-// The tree-like structure of data will be :
-// 
-//  MyParameters
-//  |
-//  +-- multiplicity
-//  |
-//  +-- ChannelData (chan[0])
-//  |   +-- energy
-//  |   \-- timestamp
-//  |
-//  +-- ChannelData (chan[1])
-//  |   +-- energy
-//  |   \-- timestamp
-//  |
-//  ... (45 more channel data objects)
-//  |
-//  \-- ChannelData (chan[47])
-//      +-- energy
-//      \-- timestamp
-//
-//
+  // Constructor.
+  MyPipelineData();
+  // Copy constructor
+  MyPipelineData(const MyPipelineData& rhs);
+  // Clone constructor
+  virtual MyPipelineData* clone() { return new MyPipelineData(*this); }
+
+};
+
 struct ChannelData {
 
   CTreeParameter energy;
@@ -58,7 +52,8 @@ struct MyParameters {
 
   ChannelData      chan[400];
   CTreeParameter   multiplicity;
-
+  MyPipelineData   data;
+  
   // Constructor
   //
   // This is the root of the tree structure. The name of this

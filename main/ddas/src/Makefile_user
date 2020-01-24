@@ -21,7 +21,7 @@ USERLDFLAGS=-lDDASUnpacker
 #   Append your objects to the definitions below:
 #
 
-OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyPipelineData.o
+OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyCalibrator.o
 
 #
 #  Finally the makefile targets.

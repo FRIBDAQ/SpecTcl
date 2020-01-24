@@ -5,7 +5,9 @@ FILES =MyParameters.h \
 				MyParameterMapper.cpp \
 				MyPipelineData.cpp \
 				MyPipelineData.h \
-				MySpecTclApp.h \
+				MyCalibrator.cpp \
+				MyCalibrator.h \	
+				MySpecTclApp.h \	
 				MySpecTclApp.cpp 
 
 DESTDIR = @prefix@/DDASSkel
