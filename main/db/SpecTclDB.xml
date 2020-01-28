@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl Sqlite3 interfaces</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>January 23, 2020</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            This document describes a package distributed with SpecTcl that provides
+            support for saving and restoring data from sqlite3 databases.
+            For more information about Sqlite3 see
+            <link url='http://sqlite.org' /> for information about that database and
+            package.   If you want to extend the database access but don't know SQL,
+            the query language used by Sqlite3, you can have a look at this
+            SQL tutorial online.  <link url='www.w3schools.com/sql' />
+        </para>
+        <para>
+            The remainder of this document describes
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                    What the SpecTcl Sqlite interface provides and how to
+                    incorporate it into your SpecTcl.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                   A description of the Tcl API to the SpecTcl sqlite interface.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                   A description of C++ classes that allow you to program access
+                   the database from C++ both within and outside of SpecTcl.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                   SpecTcl database GUI.
+               </para>
+            </listitem>
+            
+            <listitem>
+               <para>
+                   Appendix A provides a detailed description of the SQL schema
+                   (database organization) of the database files that are
+                   created by this package.  If you do ad-hoc SQL queries or
+                   want to extend what is held in the database, this information
+                   is crucial.
+               </para>
+            </listitem>
+            
+        </itemizedlist>
+        <para>
+            Why use Sqlite instead of some other database library?  Most, though not all, database
+            libraries work in a client server environment.  In this environment, new databases
+            must be created by requesting them from a database administrator.  Sqlite, however
+            stores its database in an ordinary file.  This means no overhead is required to create
+            dabases and you can hand out databases to your collaborators as simply as handing them
+            the database file.
+        </para>
+        <para>
+            All of this comes at one cost.  Sqlite, provides only a single writer and multiple
+            reader model.  With a lot of fancy footwork in detecting and responding to database locked
+            conditions, this can be overcome, however one writer and a single reader is not normally
+            a hindrance in this application.
+        </para>
+    </chapter>
+    <chapter>
+       <title>What you can do with the SpecTcl Sqlite database package.</title>
+       <para>
+        Databases are useful when storing data that has some well defined format and
+        capturing the relationships between those data.  SpecTcl sqlite databases
+        can store the following out of the box:
+       </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+               An arbitrary number of SpecTcl analysis configurations.  This is like
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+               The contents of spectra associated with an analysis configuration.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+               Information about a data acquisition run including the event data
+               from that run.  Note that SpecTcl's GUI allows you to playback
+               data from runs stored in a database far more rapidly than
+               you could if you were replaying the event file.  You can also
+               recover scaler summary data much quicker than you could by
+               replaying the run.
+           </para>
+        </listitem>
+       </itemizedlist>
+    </chapter>
+    <chapter>
+       <title>Tcl APIs to the database.</title>
+       <para>
+        SpecTcl's scripting and the sqlite3 Tcl API provide a very natural interface
+        between SpecTcl and its database.  This Tcl API is realized by  the
+        <literal>dbconfig</literal> package.
+       </para>
+       <para>
+        The first part of this chapter provides a high level organization of the data
+        in the database.  The second part provides reference information for the
+        database itself.  Note that this API Is quite SpecTcl centric, however by
+        providing scripts with mock SpecTcl commands you may be able to use the API
+        in other contexts.  
+       </para>
+       <section>
+          <title>High level view of the database organization.</title>
+          <para>
+            From the user's point of view, the database contains a set of
+            <firstterm>save sets</firstterm>.  Each save set minimally has a name
+            and a time at which it was created.  You must provide the name when
+            creating a save set.  The API automically timestamps the save set
+            when it creates it.
+          </para>
+          <para>
+            The most important bits of information associated with a save set are
+            the current analysis conditions.  These consist of:
+          </para>
+          <variablelist>
+            <varlistentry>
+               <term>Parameter definitions</term>
+               <listitem>
+                   <para>
+                    Parameter definitions include the things SpecTcl understands that
+                    define a parameter,   These include a unique parameter name and a unique
+                    parameter number that is an index into an event array.  
+                   </para>
+                   <para>
+                    If the parameter has an associated tree parameter, the metadata that
+                    describes a parameter is also saved. This consists of the recommended
+                    spectrum axis specification for the parameter and units of measure.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Spectrum definitions</term>
+               <listitem>
+                   <para>
+                    This includes all spectra defined in SpecTcl.  Parameters used by
+                    each spectrum refer to the parameter definitions.  
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Gate definitions</term>
+               <listitem>
+                   <para>
+                    This includes all gate definitions defined in SpecTcl.  This includes
+                    simple as well as compound gates.  Gates are stored in such a way that
+                    they can be restored without needing to restore a gate whose dependencies
+                    have not yet been seen.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Gate applications</term>
+               <listitem>
+                   <para>
+                    These describe which gates conditionalize each
+                    spectrum.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Tree variable values and definitions</term>
+               <listitem>
+                   <para>
+                    Each tree variable's current value and
+                    metadata (units of measure and  name) are stored.
+                   </para>
+                </listitem>
+            </varlistentry>
+          </variablelist>
+          <para>
+            The Tcl API allows you to save and restore these data.
+          </para>
+          <para>
+            In addition to configuations, the database can store
+            the data from a run.  This includes the parameters
+            for each event that were created by an event processsing
+            pipeline and scaler information as well.
+          </para>
+       </section>
+       <section>
+          <title>The Tcl API</title>
+          <para>
+            This API requires that you open the Sqlite database
+            from your own code. This will be show in the examples
+            section of the manual pages.
+          </para>
+          <refentry>
+             <refmeta>
+                <refentrytitle>dbconfig::makeSchema</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+             </refmeta>
+             <refnamediv>
+                <refname>dbconfig::makeSchema</refname>
+                <refpurpose>Create database schema</refpurpose>
+              </refnamediv>
+              <refsynopsisdiv>
+                <cmdsysnopsis>
+                    <command>
+                        package require dbconfig
+                    </command>
+                    <command>
+                        sqlite3 <replaceable>dbcommand filename</replaceable>
+                    </command>
+                    <command>
+                        dbconfig::makeSchema <replaceable>dbcommand</replaceable>
+                    </command>
+                </cmdsysnopsis>
+              </refsynopsisdiv>
+              <refsect1>
+                     <refentrytitle>DESCRIPTION</refentrytitle>
+                     <para>
+                        The <command>makeSchema</command> command
+                        creates the database schema into a database file.
+                        Before a database file can be used it must have
+                        a schema definition created.  This definition
+                        defines tables and indices (structures
+                        that improve the performance of specific
+                        queries).
+                     </para>
+                     <para>
+                        The synopsis shows an sqlite connection being
+                        established to a database file (presumably new)
+                        and the schema being defined in that file.
+                        Note that the schema are defined in a non-
+                        destructive manner.  It's therefore safe for
+                        this to be called on a file that already
+                        contains data.
+                     </para>
+                     <para>
+                        It is a good idea to invoke this if you open a database
+                        you intend to write to even if you know the scheme are
+                        already defined.  Tables are defined using
+                        <literal>CREATE TABLE IF NOT EXISTS ...</literal> so
+                        redefinitions are harmless.  Making the schema again
+                        will create any  new tables that have been added to the
+                        standard schema since the last use.
+                     </para>
+              </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::saveConfig</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::saveConfig</refname>
+                <refpurpose>Save analysis configuration</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>cmd dbfile</replaceable>
+                    </command>
+                    <command>
+dbconfig::saveConfig <replaceable>dbcommand config-name ?save-specflag?</replaceable>
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Creates and saves a new configuration.  The configuration
+                    will contain all parameter definitions, spectrum
+                    definitions, gate definitions, gate applications and
+                    treeparameter definitions and values. Optionally, the
+                    configuration can contain the contents of all spectra
+                    (this can take appreciable time).
+                </para>
+                <para>
+                    <parameter>dbcommand</parameter> is the command you've associated
+                    with an open sqlite3 database.  <parameter>config-name</parameter>
+                    is a unique configuration name.  This will be the name of
+                    the save-set associated with the saved data.
+                    <command>dbconfig::saveConfig</command> will generate a timestamp
+                    to associate with the save set.
+                </para>
+                <para>
+                    If <parameter>save-specflag</parameter> is provided and
+                    non-zero the contents of all spectra will be saved in the
+                    database.  If not provided or zero, spectra are not saved.
+                    Note that since it can take a significant amount of time
+                    to save these spectra, I recommend deciding which spectra you
+                    need saved and using <command>dbconfig::saveSpectrum</command>
+                    to save the individual spectra you need.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+package require dbconfig
+sqlite3 dbcmd ~/analysis/myconfigs.db
+dbconfig::makeSchema dbcmd
+...
+dbconfig::saveconfig dbcmd {base configuration}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This example opens the database
+                    <filename>~/analysis/myconfigs.db</filename>,
+                    ensures the database schema is present in the database and,
+                    at some later time, saves the current SpecTcl definitions
+                    in a configuration named <literal>base configuration</literal>.
+                    Spectra are not saved.
+                </para>
+                <informalexample>
+                    <programlisting>
+                        ...
+dbconfig::saveconfig dbcmd {Final gates} 1
+                        ...
+                    </programlisting>
+                </informalexample>
+                <para>
+                    Saves the current configuration in a new save set named
+                    <literal>Final gates</literal>.  The contents of all spectra
+                    are also saved in this save set.
+                </para>
+            </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::listConfigs</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::listConfigs</refname>
+                <refpurpose></refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynospis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>dbcommand db-file</replaceable>
+                    </command>
+                    <command>
+set <replaceable>configList</replaceable> [dbconfig::listConfigs <replaceable>dbcommand</replaceable>]
+                    </command>
+                </cmdsynospis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Produces a list of the save sets that have been saved in the
+                    database file open on <parameter>dbcommand</parameter>.
+                    The result is a, possibly empty, list of dicts.
+                    Each dict contains the following key/values
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>id : Integer</term>
+                        <listitem>
+                            <para>
+                                The primary key in the save_sets table for this
+                                save set.  See Appendix A for information
+                                about what this means.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>name : String</term>
+                        <listitem>
+                            <para>
+                                The name of the save set this dict describes.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>time : Integer</term>
+                        <listitem>
+                            <para>
+                                The timestamp of the time at which the save set
+                                was created.  This is the Tcl
+                                <command>clock seconds</command> of that time.
+                                You can recover a textual version of this by passing
+                                the value to the Tcl command
+                                <command>clock format</command>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+package require dbconfig
+sqlite3 test test.db
+foreach item [dbconfig::listConfigs test] {
+    set name [dict get $item name]
+    set stamp [dict get $item time]
+    puts "Config $name saved at [clock format $stamp]"
+}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This example lists the names and date/times at which
+                    at which each save set was created in the file
+                    <filename>test.db</filename> in the current working directory.
+                    Possible output might be
+                </para>
+                <literallayout>
+Config config1 saved at Fri Jan 03 08:53:30 EST 2020
+Config config2 saved at Fri Jan 03 09:07:17 EST 2020
+Config params-only saved at Thu Jan 09 12:28:10 EST 2020
+Config params_only saved at Thu Jan 09 12:30:27 EST 2020
+Config full saved at Thu Jan 09 17:17:41 EST 2020
+Config A new configuration saved at Fri Jan 10 09:09:33 EST 2020                    
+                </literallayout>
+            </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::restoreConfig</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::restoreConfig</refname>
+                <refpurpose>Restore analysis configurations</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>dbcommand db-file</replaceable>
+                    </command>
+                    <command>
+dbconfig::restoreConfig <replaceable>dbcommand save-set ?restore-spectra-flag?</replaceable>
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Restores an analysis configuration into SpecTcl.
+                    All parameter definitions, spectrum definitions,
+                    gate defintions and their applications, as well as
+                    tree parameter definitions are restored.
+                    Spectrum contents can optionally be restored.
+                    Note that restoring spectrum contents an take an appreciable
+                    amount of time depending on how many spectra have been
+                    stored in this configuration and their sizes.
+                </para>
+                <para>
+                    <parameter>dbcommand</parameter> is the database command
+                    associated with the database via an <command>sqlite3</command>
+                    command.  <parameter>save-set</parameter> is the
+                    name of the configuration save set to restore.
+                    If the <parameter>restore-spectra-flag</parameter> is
+                    provided and non-zero the contents of
+                    all spectra that were saved into
+                    this configuration will be restore as well.
+                </para>
+            </refsect1>
+            <refsect1>
+                <informalexample>
+                    <programlisting>
+package require dbconfig
+package require Tk
+sqlite3 dbcommand test.db
+toplevel .restore
+set i 0
+foreach config [dbconfig::listConfigs dbcommand]  {
+    set name [dict get $config name]
+    button .restore.b$i -text $name -command [list dbconfig::restoreConfig dbcommand $name]
+    pack .restore.b$i
+    incr i
+}
+
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This rather silly example, needs to be run in SpecTcl,
+                    creates a new toplevel widget and
+                    adds a button for each save set that's been saved in the
+                    <filename>test.db</filename> database.  Note that there
+                    is a pre-built GUI for SpecTcl database manipulations and
+                    use.
+                </para>
+            </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::saveSpectrum</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::saveSpectrum</refname>
+                <refpurpose>Save a single spectrum into a save-set.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>dbcommand db-file</replaceable>
+                    </command>
+                    <command>
+dbconfig::saveSpectrum <replaceable>database-cmd save-set spectrum-name</replaceable>
+                    </command>
+                </cmdsynopsis>                
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Saves the contents of a spectrum into the database connected
+                    to <parameter>database_cmd</parameter> by the
+                    <command>sqlite3</command> command.  The spectrum
+                    <parameter>spectrum-name</parameter>
+                    will be saved into the <parameter>save-set</parameter>
+                    save set.  <parameter>spectrum-name</parameter> must
+                    already have a <firsttimer>compatible</firsttimer>
+                    spectrum definition in the save set.  This means that
+                    the spectrum definition must exist and specify a spectru
+                    with the same dimensionality and all axes having at least
+                    the same number of channels as the
+                    <paramter>spectrum-name</paramter>.
+                </para>
+                <para>
+                    Savine a spectrum defined at the time the save set was
+                    created is always legal.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 test test.db
+dbconfig::saveConfig withsomespec
+foreach spectrum [spectrum -list raw*] {
+    set sname [lindex $spectrum 1]
+    dbconfig::saveSpectrum test withsomespec $sname
+}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    The script above, run in SpecTcl first saves the analysis
+                    configuration to the save set <literal>withsomespec</literal>
+                    It then saves all spectra with names that match the
+                    glob pattern <literal>raw*</literal> to that save set.
+                </para>
+            </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::restoreSpectrum</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::restoreSpectrum</refname>
+                <refpurpose>Read spectrum contents from a save set</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>dbcommand db-file</replaceable>
+                    </command>
+                    <command>
+dbconfig::restoreSpectrum <replaceable>dbcommand save-set spectrum-name</replaceable>
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command restores the contents of a spectrum that is
+                    in a save set.  If the spectrum is defined differently
+                    in the save set than in Spectcl, or not defined, the
+                    spectrum is defined prior to loading its contents.
+                    Once restored, <command>sbind</command> is used to ensure
+                    the spectrum is loaded into the displayer.
+                </para>
+                <para>
+                    <parameter>dbcommand</parameter> is a database connection
+                    command created by the <command>sqlite3</command> command.
+                    <parameter>save-set</parameter> is the name of the save-set
+                    to restore the spectrum from.
+                    <parameter>spectrum-name</parameter> is the name of a
+                    spectrum saved in the save-set whose contents will be
+                    restored.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 test test.db
+dbconfig::saveConfig withsomespec
+foreach spectrum [spectrum -list raw*] {
+    set sname [lindex $spectrum 1]
+    dbconfig::saveSpectrum test withsomespec $sname
+}
+
+clear -all
+
+
+## Sometime later:
+
+spectrum -delete raw.00;     # Not needed...see below.
+dbconfig::restoreSpectrum test withsomespec raw.00
+                    </programlisting>
+                </informalexample>
+                <para>
+                    Assuming the spectrum <literal>raw.00</literal>
+                    was saved in the first section of this example,
+                    the last line restores its contents from the save
+                    set named <literal>withsomespectrum</literal>.
+                    The spectrum is deleted only to illustrate that
+                    <command>dbconfig::restoreSpectrum</command> will define
+                    the spectrum if needed.  It is not necessary to delete a
+                    spectrum before restoring its contents.
+                </para>
+            </refsect1>
+          </refentry>
+          <refentry>
+            <refmeta>
+               <refentrytitle>dbconfig::saveAllSpectrumContents</refentrytitle>
+               <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+               <refname>dbconfig::saveAllSpectrumContents</refname>
+               <refpurpose>Save the contents of all spectra to a save set</refpurpose>
+             </refnamediv>
+             <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>db some-file</replaceable>
+                    </command>
+                    <command>
+dbconfig::saveAllSpectrumContents <replaceable>db save-set</replaceable>
+                    </command>
+                </cmdsynopsis>
+             </refsynopsisdiv>
+             <refsect1>
+                      <title>DESCRIPTION</title>
+                      <para>
+                        Saves the contents of all spectra to the named
+                        save set.  It is important that the spectrum
+                        have a definition in that save set as the
+                        spectrum contents refer back to the spectrum
+                        definitions in the save set.
+                      </para>
+                      <para>
+                        <parameter>db</parameter> is the database
+                        connection command established with the
+                        <command>sqlite3</command> command.
+                        <parameter>save-set</parameter> is the name
+                        of the save set into which the spectrum
+                        contents will be saved.  Note that
+                        depending on the amount of data that must be
+                        saved, this command can take a significant
+                        amount of time to complete.
+                      </para>
+             </refsect1>
+         </refentry>
+          <refentry>
+            <refmeta>
+               <refentrytitle>dbconfig::restoreAllSpectrumContents</refentrytitle>
+               <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+               <refname>dbconfig::restoreAllSpectrumContents</refname>
+               <refpurpose>Restore all spectrum contents from a save set</refpurpose>
+             </refnamediv>
+             <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>db some-file</replaceable>
+                    </command>
+                    <command>
+dbconfig::restoreAllSpectrumContents <replaceable>db save-set</replaceable>
+                    </command>
+                </cmdsynopsis>
+             </refsynopsisdiv>
+             <refsect1>
+                      <title>DESCRIPTION</title>
+                      <para>
+                        This command restores the contents of all
+                        spectra that were saved in the named save set.
+                        Depending on the quantity of data, this can
+                        take a significant amount of time.
+                      </para>
+                      <para>
+                        <parameter>db</parameter> is the
+                        database connection command established via the
+                        <command>sqlite3</command> command.
+                        <parameter>save-set</parameter> is the name
+                        of the save-set to restore from.
+                      </para>
+             </refsect1>
+         </refentry>
+         <refentry>
+            <refmeta>
+               <refentrytitle>dbconfig::listSavedSpectra</refentrytitle>
+               <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+               <refname>dbconfig::listSavedSpectra</refname>
+               <refpurpose></refpurpose>
+             </refnamediv>
+             <refsynopsisdiv>
+                 <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>db some-file</replaceable>
+                    </command>
+                    <command>
+set list [dbconfig::listSavedSpectra <replaceable>db save-set</replaceable>]
+                    </command>
+             </refsynopsisdiv>
+             <refsect1>
+                      <title>DESCRIPTION</title>
+                   <para>
+                     Returns a list of the spectra that are in a
+                     save set.  <parameter>db</parameter> is the
+                     database connection command created by
+                     <command>sqlite3</command> command.
+                     <parameter>save-set</parameter> is the name of the
+                     save-set to list saved spectra from.
+                   </para>
+             </refsect1>
+             <refsect1>
+                <title>
+                    EXAMPLES
+                </title>
+                <informalexample>
+                    <programlisting>
+package require dbconfig
+package require Tk
+sqlite3 db test.db
+set savedSpectra [dbconfig::listSavedSpectra db withsomespec]
+toplevel .restore
+set i 1
+foreach spectrum $savedSpectra {
+    button .restore.b$i -text $spectrum \
+      -command [list dbconfig::restoreSpectrum db withsomespec $spectrum]
+    pack .restore.b$i
+    incr i
+}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This example, creates a new top-level that contains
+                    a button for each spectrum in the
+                    <literal>withsomespec</literal> save set in the
+                    database <filename>test.db</filename>.  Each
+                    button is labeled with a spectrum and programmed
+                    to restore the contents of that spectrum.
+                </para>
+             </refsect1>
+         </refentry>
+        <refentry>
+            <refmeta>
+               <refentrytitle>dbconfig::listRuns</refentrytitle>
+               <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+               <refname>dbconfig::listRuns</refname>
+               <refpurpose>List runs with saved event data</refpurpose>
+             </refnamediv>
+             <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>db some-file</replaceable>
+                    </command>
+                    <command>
+set runs [dbconfig::listRuns <replaceable>db</replaceable>]
+                    </command>
+                </cmdsynopsis>
+             </refsynopsisdiv>
+             <refsect1>
+                      <title>DESCRIPTION</title>
+                   <para>
+                     In addition to analysis configuration information,
+                     databases can configure unpacked event data.
+                     Each event is stored in the database as a
+                     serialized <classname>CEvent</classname> object
+                     and therefore, does not need to be run through
+                     the event processing pipeline to be recovered.
+                     Therefore replaying a run from the database
+                     can be much faster than replaying it from file.
+                   </para>
+                   <para>
+                        This command provides information about runs
+                        that have event data in the database.
+                        <parameter>db</parameter> is the database connection
+                        command that was created via the
+                        <command>sqlite3</command> command.  The
+                        result of the command is a list of Tcl dicts.
+                        Each list element contains information about
+                        one run in the database.  The key/values in the
+                        dict are:
+                   </para>
+                   <variablelist>
+                    <varlistentry>
+                        <term>id : Integer</term>
+                        <listitem>
+                            <para>
+                                The primary key of the run in the
+                                <literal>runs</literal> table. This
+                            </para>
+                         </listitem>
+                     </varlistentry>
+                    <varlistentry>
+                        <term>config : Integer</term>
+                        <listitem>
+                            <para>
+                                The primary key of the configuration
+                                in the <literal>save_sets</literal>
+                                table under which the run was saved.
+                            </para>
+                         </listitem>
+                     </varlistentry>
+                    <varlistentry>
+                       <term>number : Integer</term>
+                       <listitem>
+                           <para>
+                            The run number of the run.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>title : Text</term>
+                        <listitem>
+                            <para>
+                                The title of the run.
+                            </para>
+                         </listitem>
+                     </varlistentry>
+                    <varlistentry>
+                        <term>start_time : Integer</term>
+                        <listitem>
+                            <para>
+                                The <command>clock seconds</command>
+                                at which the run started. You can use
+                                <command>clock format</command> to
+                                recover the textual date and time
+                                at which the run was started.
+                            </para>
+                         </listitem>
+                     </varlistentry>
+                    <varlistentry>
+                        <term>stop_time : Integer</term>
+                        <listitem>
+                            <para>
+                                The <command>clock seconds</command>
+                                at which the run ended.  Note that this
+                                can be an empty string (NULL) if the
+                                run did not end properly or the run was
+                                not completely stored.
+                            </para>
+                         </listitem>
+                     </varlistentry>
+                   </variablelist>
+             </refsect1>
+             <refsect1>
+                <title>EXAMPLES</title>
+                <para>
+                    
+                </para>
+             </refsect1>
+         </refentry>
+       </section>
+    </chapter>
+    <chapter>
+       <title>C++ API to the database </title>
+       <para>
+       </para>
+    </chapter>
+    <appendix>
+        <title>Database schema.</title>
+        <para>
+        </para>
+    </appendix>
+</book>
