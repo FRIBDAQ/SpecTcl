@@ -53,10 +53,10 @@ DAQ::DDAS::FitHitUnpacker::decode(
     uint32_t bodyHeaderSize;                // Number of bytes in the body header.
     if (pItem->s_body.u_noBodyHeader.s_mbz) {
         pBody = reinterpret_cast<const uint8_t*>(
-            pItem->s_body.u_hasBodyHeader.s_body
+            &(pItem->s_body.u_hasBodyHeader.s_bodyHeader)
         );
         bodyHeaderSize = pItem->s_body.u_hasBodyHeader.s_bodyHeader.s_size;
-
+        pBody += bodyHeaderSize;                      // Works in presence of a body header extension
     } else {
         pBody = reinterpret_cast<const uint8_t*>(pItem->s_body.u_noBodyHeader.s_body);
         bodyHeaderSize = sizeof(uint32_t);
