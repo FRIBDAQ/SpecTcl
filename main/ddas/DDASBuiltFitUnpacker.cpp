@@ -126,11 +126,11 @@ namespace DAQ {
       DDASFitHit hit;
       FitHitUnpacker unpacker;
 
-      auto pBody      = reinterpret_cast<uint32_t*>(info.s_itembody);
+      auto pBody      = reinterpret_cast<uint32_t*>(info.s_itemhdr);
       size_t bodySize = *pBody; // # of 16-bit words in body (inclusive)
 
       // parse the body of the ring item 
-      unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), hit );
+      unpacker.decode(pBody,  hit );
 
       m_channelList.push_back(hit);
     }
