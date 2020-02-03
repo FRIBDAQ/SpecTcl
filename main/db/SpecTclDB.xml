@@ -22,10 +22,10 @@
             This document describes a package distributed with SpecTcl that provides
             support for saving and restoring data from sqlite3 databases.
             For more information about Sqlite3 see
-            <link url='http://sqlite.org' /> for information about that database and
+            <ulink url='http://sqlite.org' /> for information about that database and
             package.   If you want to extend the database access but don't know SQL,
             the query language used by Sqlite3, you can have a look at this
-            SQL tutorial online.  <link url='www.w3schools.com/sql' />
+            SQL tutorial online.  <ulink url='www.w3schools.com/sql' />
         </para>
         <para>
             The remainder of this document describes
@@ -219,7 +219,7 @@
                 <refpurpose>Create database schema</refpurpose>
               </refnamediv>
               <refsynopsisdiv>
-                <cmdsysnopsis>
+                <cmdsynopsis>
                     <command>
                         package require dbconfig
                     </command>
@@ -229,10 +229,10 @@
                     <command>
                         dbconfig::makeSchema <replaceable>dbcommand</replaceable>
                     </command>
-                </cmdsysnopsis>
+                </cmdsynopsis>
               </refsynopsisdiv>
               <refsect1>
-                     <refentrytitle>DESCRIPTION</refentrytitle>
+                     <title>DESCRIPTION</title>
                      <para>
                         The <command>makeSchema</command> command
                         creates the database schema into a database file.
@@ -355,7 +355,7 @@ dbconfig::saveconfig dbcmd {Final gates} 1
                 <refpurpose></refpurpose>
             </refnamediv>
             <refsynopsisdiv>
-                <cmdsynospis>
+                <cmdsynopsis>
                     <command>
 package require dbconfig
                     </command>
@@ -365,7 +365,7 @@ sqlite3 <replaceable>dbcommand db-file</replaceable>
                     <command>
 set <replaceable>configList</replaceable> [dbconfig::listConfigs <replaceable>dbcommand</replaceable>]
                     </command>
-                </cmdsynospis>
+                </cmdsynopsis>
             </refsynopsisdiv>
             <refsect1>
                 <title>DESCRIPTION</title>
@@ -484,6 +484,7 @@ dbconfig::restoreConfig <replaceable>dbcommand save-set ?restore-spectra-flag?</
                 </para>
             </refsect1>
             <refsect1>
+                <title>EXAMPLES</title>
                 <informalexample>
                     <programlisting>
 package require dbconfig
@@ -541,12 +542,12 @@ dbconfig::saveSpectrum <replaceable>database-cmd save-set spectrum-name</replace
                     <parameter>spectrum-name</parameter>
                     will be saved into the <parameter>save-set</parameter>
                     save set.  <parameter>spectrum-name</parameter> must
-                    already have a <firsttimer>compatible</firsttimer>
+                    already have a <firstterm>compatible</firstterm>
                     spectrum definition in the save set.  This means that
                     the spectrum definition must exist and specify a spectru
                     with the same dimensionality and all axes having at least
                     the same number of channels as the
-                    <paramter>spectrum-name</paramter>.
+                    <parameter>spectrum-name</parameter>.
                 </para>
                 <para>
                     Savine a spectrum defined at the time the save set was
@@ -740,7 +741,8 @@ dbconfig::restoreAllSpectrumContents <replaceable>db save-set</replaceable>
                <refpurpose></refpurpose>
              </refnamediv>
              <refsynopsisdiv>
-                 <command>
+               <cmdsynopsis>
+                <command>
 package require dbconfig
                     </command>
                     <command>
@@ -749,6 +751,7 @@ sqlite3 <replaceable>db some-file</replaceable>
                     <command>
 set list [dbconfig::listSavedSpectra <replaceable>db save-set</replaceable>]
                     </command>
+                </cmdsynopsis>
              </refsynopsisdiv>
              <refsect1>
                       <title>DESCRIPTION</title>
@@ -900,11 +903,220 @@ set runs [dbconfig::listRuns <replaceable>db</replaceable>]
              </refsect1>
              <refsect1>
                 <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 db config.db
+...
+foreach run [dbconfig::listRuns db] {
+   set title [dict get $run title]
+   set runNo   [dict get $run number]
+   set start [clock format [dict get $run start_time]]
+   set end   "Unknown"
+   if {[dict exists $run stop_time]}  {
+        set end [clock format [dict get $run stop_time]]
+   }
+   puts "Run: $runNo title: '$title' started at: $start ended it: $end"
+}
+                    </programlisting>
+                </informalexample>
                 <para>
-                    
+                    This example lists information about all the runs in the
+                    database in human readable format.
                 </para>
              </refsect1>
          </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::hasRun</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::hasRun</refname>
+                <refpurpose>Determin if a saveset has a run</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+sqlite3 <replaceable>db db-filename</replaceable>
+                    </command>
+                    <command>
+dbconfig::hasRun <replaceable>db saveset-id</replaceable>
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    <command>dbconfig::hasRun</command> returns true if the
+                    the save set with id <parameter>saveset-id</parameter>
+                    has an associated run containing events in the database
+                    attached with the command <parameter>db</parameter>.
+                    Note the <parameter>saveset-id</parameter> is not the
+                    name of the saveset, it's the value returned from
+                    <command>dbconfig::saveConfig</command>.  It is also the
+                    dict key <literal>id</literal> in the list of configurations
+                    returned from <command>dbconfig::listConfigs</command>.
+                </para>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 db configs.db
+...
+foreach config [dbconfig::listConfigs db] {
+    puts -nonewline "Configuration : [dict get $config name] : "
+    if {[dbconfig::hasRun db [dict get $config id]]} {
+        puts "has events associated with it."
+    } else {
+        puts "has no nevents associated with it."
+    }
+}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This scripts lists all the configurations in the database
+                    and informs the user if there are or are not events
+                    associated with the configuration.
+                </para>
+            </refsect1>
+        
+        </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::getRunInfo</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::getRunInfo</refname>
+                <refpurpose>Returns information about events associated with a configuration</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+sqlite3 <replaceable>dbcmd config-file</replaceable>                        
+                    </command>
+                    <command>
+set <replaceable>runInfo</replaceable> [dbconfig::getRunInfo <replaceable>dbcmd conf-id</replaceable>]
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Given the id of a congiguration (<parameter>conf-id</parameter>),
+                    returns the information about run. associated with the
+                    configuration.  Note that if there is no information
+                    associated with a run an empty dict is returned.
+                </para>
+                <para>
+                    The assumption is, as is true at present, that at most one
+                    run is associated with a configuration.   This is the
+                    case because prior to recording events, the event recording
+                    software saves a configuration with which the events
+                    will be associated.  
+                </para>
+                <para>
+                    If a run is associated with this configuration, a dict
+                    is returned with the following keys:
+                </para>
+                <variablelist>
+                 <varlistentry>
+                     <term>id : Integer</term>
+                     <listitem>
+                         <para>
+                             The primary key of the run in the
+                             <literal>runs</literal> table. This
+                         </para>
+                      </listitem>
+                  </varlistentry>
+                 <varlistentry>
+                     <term>config : Integer</term>
+                     <listitem>
+                         <para>
+                             The primary key of the configuration
+                             in the <literal>save_sets</literal>
+                             table under which the run was saved.
+                         </para>
+                      </listitem>
+                  </varlistentry>
+                 <varlistentry>
+                    <term>number : Integer</term>
+                    <listitem>
+                        <para>
+                         The run number of the run.
+                        </para>
+                     </listitem>
+                 </varlistentry>
+                 <varlistentry>
+                     <term>title : Text</term>
+                     <listitem>
+                         <para>
+                             The title of the run.
+                         </para>
+                      </listitem>
+                  </varlistentry>
+                 <varlistentry>
+                     <term>start_time : Integer</term>
+                     <listitem>
+                         <para>
+                             The <command>clock seconds</command>
+                             at which the run started. You can use
+                             <command>clock format</command> to
+                             recover the textual date and time
+                             at which the run was started.
+                         </para>
+                      </listitem>
+                  </varlistentry>
+                 <varlistentry>
+                     <term>stop_time : Integer</term>
+                     <listitem>
+                         <para>
+                             The <command>clock seconds</command>
+                             at which the run ended.  Note that this
+                             can be an empty string (NULL) if the
+                             run did not end properly or the run was
+                             not completely stored.
+                         </para>
+                      </listitem>
+                  </varlistentry>
+                </variablelist>                
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 db config.db
+...
+foreach config [dbconfig::listConfigs db] {
+    if {[dbconfig::hasRun db [dict get $config id]]} {
+        set runInfo [dbconfig::getRunInfo db [dict get $config id]]
+        set configName [dict get $config name]
+        set runNum     [dict get $runInfo number]
+        set title      [dict get $runInfo title]
+        set start      [clock format [dict get $runInfo start_time]]
+        set stopStamp  [dict get $runInfo stop_time]
+        set stop "Unknwon"
+        if {$stopStamp ne ""} {
+            set stop [clock format $stopStamp]
+        }
+        puts "Configuration: $configName has associated events for:"
+        puts "   Run number: $runNum"
+        puts "   Title     : $title"
+        puts "   started   : $start"
+        puts "   stopped   : $stop"
+        
+    }
+}
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This example lists information about the run that's associated
+                    with each configuration save set that has associated
+                    event data.
+                </para>
+            </refsect1>
+        </refentry>
        </section>
     </chapter>
     <chapter>
