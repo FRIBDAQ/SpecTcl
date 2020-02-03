@@ -351,7 +351,77 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
  */
 void
 CDBEventWriter::scaler(const RingItem* pScaler)
-{}
+{
+    // Get the source id... if there's no body header we use zero:
+    
+    uint32_t sourceId = 0;
+    if (pScaler->s_body.u_noBodyHeader.s_mbz != 0) {
+        sourceId = pScaler->s_body.u_hasBodyHeader.s_bodyHeader.s_sourceId;
+    }
+    // Locate the scaler body. Note that while we don't, yet have
+    // scalers with body header extensions, we'll assume that at some point
+    // we might:
+    
+    const uint32_t* pBodyHeaderSize = reinterpret_cast<const uint32_t*>(
+        &(pScaler->s_body.u_noBodyHeader.s_mbz)
+    );
+    const ScalerItemBody* pScalerBody(0);
+    if (*pBodyHeaderSize == 0) {
+        pScalerBody = reinterpret_cast<const ScalerItemBody*>(pBodyHeaderSize+1);
+    } else {
+        uint32_t nBytes = *pBodyHeaderSize;
+        const uint8_t* p8 = reinterpret_cast<const uint8_t*>(pBodyHeaderSize);
+        p8 += nBytes;
+        pScalerBody = reinterpret_cast<const ScalerItemBody*>(p8);
+    }
+    // We're in a transaction pretty gauranteed because event writing puts us
+    // there so we don't need to worry about atomicity:
+    // Scalers are assumed to be at low rate so we prep/bind/execute here.
+    
+    // Root record for the readout:
+    
+    sqlite3_stmt* pRoot;
+    checkStatus(sqlite3_prepare(
+        m_pSqlite,
+        "INSERT INTO scaler_readouts                                          \
+            (run_id, source_id, start_offset, stop_offset, clock_time)      \
+            VALUES(:run, :src, :start, :stop, :clock)",
+        -1, &pRoot, nullptr
+    ));
+    checkStatus(sqlite3_bind_int(pRoot, 1, m_nCurrentRunId));
+    checkStatus(sqlite3_bind_int(pRoot, 2, sourceId));
+    checkStatus(sqlite3_bind_int(pRoot, 3, pScalerBody->s_intervalStartOffset));
+    checkStatus(sqlite3_bind_int(pRoot, 4, pScalerBody->s_intervalEndOffset));
+    checkStatus(sqlite3_bind_int(pRoot, 5, pScalerBody->s_timestamp));
+    checkStatus(sqlite3_step(pRoot), SQLITE_DONE);
+    checkStatus(sqlite3_finalize(pRoot));
+    
+    // Reference id for the scaler items:
+    
+    sqlite3_int64 lastid = sqlite3_last_insert_rowid(m_pSqlite);
+    
+    // Each Scaler Item:
+    
+    sqlite3_stmt* pChannel;
+    checkStatus(sqlite3_prepare(
+        m_pSqlite,
+        "INSERT INTO scaler_channels (readout_id, channel, value)          \
+            VALUES (:rdoid, :channel, :value)", -1, &pChannel, nullptr
+    ));
+    // We can bind the rdo id now and leave it bound through the
+    // loop over channels:
+    
+    checkStatus(sqlite3_bind_int64(pChannel, 1, lastid));
+    const uint32_t* pValues = pScalerBody->s_scalers;
+    
+    for (int i =0; i < pScalerBody->s_scalerCount; i++) {
+        checkStatus(sqlite3_bind_int(pChannel, 2, i));
+        checkStatus(sqlite3_bind_int(pChannel, 3, *pValues++));
+        checkStatus(sqlite3_step(pChannel), SQLITE_DONE);
+        checkStatus(sqlite3_reset(pChannel));
+    }
+    checkStatus(sqlite3_finalize(pChannel));
+}
 
 /**
  * event

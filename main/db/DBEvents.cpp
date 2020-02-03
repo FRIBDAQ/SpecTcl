@@ -205,7 +205,9 @@ CDBProcessor::OnOther(
             dynamic_cast<CRingBufferDecoder*>(&rDecoder);
         if (pDecoder) {
             pRingItem pItem = static_cast<pRingItem>(pDecoder->getItemPointer());
-            m_pWriter->scaler(pItem);
+            if (pItem->s_header.s_type == PERIODIC_SCALERS)  {
+                m_pWriter->scaler(pItem);
+            }
         } else {
             throw std::invalid_argument("Buffer decoder is not a ring item decoder");
         }
