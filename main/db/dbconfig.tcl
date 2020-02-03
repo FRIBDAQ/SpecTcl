@@ -1488,6 +1488,7 @@ proc makeSchema cmd {
         CREATE TABLE IF NOT EXISTS scaler_readouts (
             id            INTEGER PRIMARY KEY,
             run_id        INTEGER NOT NULL,      -- fk for runs.
+            source_id     INTEGER NOT NULL,      -- Event builder source.
             start_offset  INTEGER NOT NULL,
             stop_offset   INTEGER NOT NULL,
             clock_time    INTEGER NOT NULL
@@ -1769,7 +1770,40 @@ proc getRunInfo {cmd conf} {
 #                           of each pair is the channel number/vaule of a scaler
 
 proc getScalers {cmd conf} {
-    return [list]
+    set result [list]
+    set lastid -1
+    set currentDict [list]
+    db eval {
+        SELECT scaler_readouts.id as id, run_id, source_id,
+               start_offset, stop_offset, clock_time, channel, value
+            FROM scaler_readouts
+            INNER JOIN scaler_channels
+                  ON scaler_channels.readout_id = scaler_readouts.id} {
+        # If id changed it's a new readout:
+        # Need a new dict to add.
+        
+        
+        if {$id != $lastid}  {
+            if {$currentDict ne ""} {
+                lappend result $currentDict;   #if there's a prior add it.
+            }
+            set lastid $id
+            
+            # Create the new readout dict.
+            
+            set currentDict [dict create \
+                start $start_offset stop $stop_offset timestamp $clock_time \
+                channels [list]]
+        }
+        #  Add the channel info:
+        
+        dict lappend currentDict channels [list $channel $value]
+    }
+    if {$currentDict ne "" } {
+        lappend result $currentDict
+    }
+    
+    return $result
 }
 
 }
