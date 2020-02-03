@@ -81,12 +81,10 @@ namespace EVB {
     pFragment         s_pFragment;
   } FragmentChain, *pFragmentChain;
 
-
   typedef struct __attribute__((__packed__)) _FlatFragment {
     FragmentHeader s_header;
     uint8_t            s_body[];
   } FlatFragment, *pFlatFragment;
-
 #ifdef __cplusplus
 }
 #endif

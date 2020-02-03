@@ -2,7 +2,7 @@
 
 lib_LTLIBRARIES = libTclGrammerApp.la
 
-libTclGrammerApp_la_CPPFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
+COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
 
 
 Analysis_SRC =  CBufferCallbackList.cpp \
@@ -345,6 +345,7 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 				-I@top_srcdir@/Display \
 				 -I@top_srcdir@/factories \
 				 -I@top_srcdir@/Tape \
+				$(COMMONCXXFLAGS)	\
 				 @LIBTCLPLUS_CFLAGS@ \
 				 @TCL_CPPFLAGS@
 # Removed @top_builddir@/libntape.la
@@ -383,13 +384,13 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					spectclCmdTests evbProcessorTests \
 					gateTests
 
-commonCXXFLAGS = -I@top_srcdir@/Core \
+commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
 				  -I@top_srcdir@/Display \
-									@LIBTCLPLUS_CFLAGS@ \
-									@TCL_CPPFLAGS@ \
-									@CPPUNIT_CFLAGS@ \
+	  			@LIBTCLPLUS_CFLAGS@ \
+				@TCL_CPPFLAGS@ \
+				@CPPUNIT_CFLAGS@ \
 				@ROOT_CFLAGS@
 
 # Removed @top_builddir@/Tape/libtape.la
@@ -401,35 +402,35 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
 
-scalertests_CXXFLAGS = $(commonCXXFLAGS)
+scalertests_CXXFLAGS = $(commonTestCXXFLAGS)
 scalertests_LDADD    = $(commonTestLdFlags)
 scalertests_SOURCES  = TestRunner.cpp \
 			 scalercallbacktests.cpp 	\
 			 controlcallbacktests.cpp
 
-gateTests_CXXFLAGS = $(commonCXXFLAGS)
+gateTests_CXXFLAGS = $(commonTestCXXFLAGS)
 gateTests_LDADD    = $(commonTestLdFlags)
 gateTests_SOURCES  = TestRunner.cpp gateTests.cpp
 
 
-docbuftests_CXXFLAGS = $(commonCXXFLAGS)
+docbuftests_CXXFLAGS = $(commonTestCXXFLAGS)
 docbuftests_LDADD    = $(commonTestLdFlags)
 docbuftests_SOURCES  = TestRunner.cpp \
 			docexceptiontests.cpp \
 			callbacktests.cpp
 
-spectrumPkgTests_CXXFLAGS = $(commonCXXFLAGS)
+spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
 spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp
 
-displayInterfaceTests_CXXFLAGS = $(commonCXXFLAGS)
+displayInterfaceTests_CXXFLAGS = $(commonTestCXXFLAGS)
 displayInterfaceTests_LDADD = $(commonTestLdFlags)
 displayInterfaceTests_SOURCES = TestRunner.cpp \
 				DisplayCollectionTests.cpp \
 				DisplayFactoryTests.cpp \
 				DisplayInterfaceTests.cpp
 
-sorterTests_CXXFLAGS = $(commonCXXFLAGS)
+sorterTests_CXXFLAGS = $(commonTestCXXFLAGS)
 sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
@@ -439,7 +440,7 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				CParameterMappingTest.h CAxisTests.h \
 				m2projtest.cpp factoryTests.cpp
 
-treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
+treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
 	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
@@ -450,28 +451,28 @@ treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreePara
 	TreeTestSupport.h
 
 
-fitTests_CXXFLAGS = $(commonCXXFLAGS)
+fitTests_CXXFLAGS = $(commonTestCXXFLAGS)
 fitTests_LDADD = $(commonTestLdFlags)
 fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 
-xamineTests_CXXFLAGS = $(commonCXXFLAGS)
+xamineTests_CXXFLAGS = $(commonTestCXXFLAGS)
 xamineTests_LDADD = $(commonTestLdFlags)
 xamineTests_SOURCES = TestRunner.cpp TestXamineShMem.cpp TestXamineShMem.h \
 					XamineShMemDisplayImplTests.cpp
 
-spectraDisplayTests_CXXFLAGS = $(commonCXXFLAGS)
+spectraDisplayTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectraDisplayTests_LDADD = $(commonTestLdFlags)
 spectraDisplayTests_SOURCES = TestRunner.cpp \
 			TestXamineShMem.cpp TestXamineShMem.h \
 			SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
 
-spectclCmdTests_CXXFLAGS = $(commonCXXFLAGS)
+spectclCmdTests_CXXFLAGS = $(commonTestCXXFLAGS)
 spectclCmdTests_LDADD    = $(commonTestLdFlags)
 spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp
 
-evbProcessorTests_CXXFLAGS = $(commonCXXFLAGS)
+evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS)
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp

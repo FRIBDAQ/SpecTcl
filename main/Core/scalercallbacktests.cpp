@@ -81,8 +81,9 @@ ScalerTests::ScalerBuffer()
 
   Buffer.body.etime = 200;
   Buffer.body.btime = 190;
+  int32_t* pScalers = Buffer.body.scalers;
   for(INT32 i =0; i < 20; i++) {
-    Buffer.body.scalers[i] = i;	// Since I added 20 more longs at least.
+    *pScalers++  = i;	// Since I added 20 more longs at least.
   }
 
   (*m_pProcessor)(&Buffer);
