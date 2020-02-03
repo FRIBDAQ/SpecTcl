@@ -95,7 +95,17 @@ protected:
 static std::string
 createConfigFile(const std::vector<std::string>& contents)
 {
-    std::string fileName(tempnam(nullptr, "cfg"));
+    
+    char file[100];
+    strcpy(file, "tempfileXXXXXX.dat");
+    int fd = mkstemp(file);
+    if (fd < 0) {
+        perror("Temp file creation failed");
+        exit(EXIT_FAILURE);
+    }
+    close(fd);
+    std::string fileName(file);
+    
     std::ofstream c(fileName.c_str());
     
     for (int i =0; i < contents.size(); i++) {
