@@ -2,7 +2,7 @@ lib_LTLIBRARIES=libSpecTclDb.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
 IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
-DOCS=SpecTclDB.xml
+DOCS=SpecTclDB.xml GUI.png
 
 
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
@@ -25,6 +25,7 @@ install-exec-hook:
 	echo package ifneeded SpecTclDb 1.0 [list load [file join \$$dir libSpecTclDb.so]] >> @prefix@/TclLibs/dbconfig/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/share/database
 	@HTMLDOCBOOK@ @srcdir@/SpecTclDB.xml -o @prefix@/share/database
+	$(INSTALL_DATA) GUI.png @prefix@/share/database
 
 check-TESTS:
 	(cd @srcdir@; tclsh *.test)

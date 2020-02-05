@@ -148,7 +148,9 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
     m_pCommit(nullptr),
     m_nCurrentRunId(-1),
     m_eventsInTransaction(batchSize),
-    m_eventsInCurrentTransaction(0)
+    m_eventsInCurrentTransaction(0),
+    m_eventInRun(0),
+    m_nCurrentRun(0)
 {
     SpecTcl* pApi = SpecTcl::getInstance();
     
@@ -225,6 +227,7 @@ CDBEventWriter::~CDBEventWriter()
  *     -  Clear the statement bindings.
  *     -  Get the last row id and save it in m_currentRunId.
  * @note we can't save the run end time until endRun is called.
+ * 
  * @param pStateTransition - Pointer to the ring item desscribing the begin run.
  * @throw std::invalid_argument if the ring item isnt a begin run.
  */
@@ -237,6 +240,20 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
         static_cast<const StateChangeItemBody*>(getBody(pStateTransition));
         
     // Save the current configuration:
+    
+    // If we've already got a configuration id and the
+    // run number from this state change body matches our current
+    // run number, we assume this is event built data for which
+    // we've already seen the first begin run and ignore this:
+    // If we have a configuration going, however, but this is a
+    // different run number, we assume that the prior run didn't
+    // end with end runs so wwe make a new configuration:
+    
+    if ((m_nConfigId > 0) && (pBody->s_runNumber == m_nCurrentRun)) {
+        return;
+    }
+    
+    m_nCurrentRun = pBody->s_runNumber;        // Update the run number.
     
     int configId;
     {
@@ -298,8 +315,13 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
 {
   try {
     requireItem(pStateTransition, END_RUN);
+    
+    // Note that if we see an end run, with no open run,
+    // we'll just return assuming this is an additional end run from
+    // event built data... or we joined in the middle.
+    
     if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
-        throw std::logic_error("CDBEventWriter::endRun called with no open run");
+        return;
     }
     const StateChangeItemBody* pBody =
         reinterpret_cast<const StateChangeItemBody*>(getBody(pStateTransition));
@@ -352,6 +374,16 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
 void
 CDBEventWriter::scaler(const RingItem* pScaler)
 {
+    // If we don't have a current run id just return
+    // assuming we joined in the middle:
+    
+    if (m_nCurrentRunId < 0) {
+        return;
+    }
+    
+    if (pScaler->s_header.s_type != PERIODIC_SCALERS) {
+      throw std::invalid_argument("Non scaler ring item passed to CDBEventWriter::scaler");
+    }
     // Get the source id... if there's no body header we use zero:
     
     uint32_t sourceId = 0;
@@ -384,15 +416,16 @@ CDBEventWriter::scaler(const RingItem* pScaler)
     checkStatus(sqlite3_prepare(
         m_pSqlite,
         "INSERT INTO scaler_readouts                                          \
-            (run_id, source_id, start_offset, stop_offset, clock_time)      \
-            VALUES(:run, :src, :start, :stop, :clock)",
+            (run_id, source_id, start_offset, stop_offset, divisor, clock_time)      \
+            VALUES(:run, :src, :start, :stop, :divisor, :clock)",
         -1, &pRoot, nullptr
     ));
     checkStatus(sqlite3_bind_int(pRoot, 1, m_nCurrentRunId));
     checkStatus(sqlite3_bind_int(pRoot, 2, sourceId));
     checkStatus(sqlite3_bind_int(pRoot, 3, pScalerBody->s_intervalStartOffset));
     checkStatus(sqlite3_bind_int(pRoot, 4, pScalerBody->s_intervalEndOffset));
-    checkStatus(sqlite3_bind_int(pRoot, 5, pScalerBody->s_timestamp));
+    checkStatus(sqlite3_bind_int(pRoot, 5, pScalerBody->s_intervalDivisor));
+    checkStatus(sqlite3_bind_int(pRoot, 6, pScalerBody->s_timestamp));
     checkStatus(sqlite3_step(pRoot), SQLITE_DONE);
     checkStatus(sqlite3_finalize(pRoot));
     
@@ -441,6 +474,14 @@ CDBEventWriter::event(CEvent* pEvent)
     if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
         throw std::logic_error("CDBEventWriter::event called without a current run");
     }
+    // If we don't have a current id, assume that we joined in the
+    // middle of the run and ignore:
+    //
+    if (m_nCurrentRunId < 0) {
+        return;
+    }
+    
+    
     DopeVector& dope = pEvent->getDopeVector();
     CEvent& e(*pEvent);
     int n = dope.size();

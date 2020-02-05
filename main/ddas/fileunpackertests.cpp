@@ -97,7 +97,7 @@ createConfigFile(const std::vector<std::string>& contents)
 {
     
     char file[100];
-    strcpy(file, "tempfileXXXXXX.dat");
+    strcpy(file, "tempfileXXXXXX");
     int fd = mkstemp(file);
     if (fd < 0) {
         perror("Temp file creation failed");

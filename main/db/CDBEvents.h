@@ -113,6 +113,7 @@ private:
     unsigned           m_eventsInTransaction;     // More efficient to batch
     unsigned           m_eventsInCurrentTransaction; // events into a transaction.
     unsigned           m_eventInRun;             // Event number in the run.
+    int                m_nCurrentRun;            // Current run number.
     
     static int         m_dbCmdIndex;            // uniquifier for database command.
     

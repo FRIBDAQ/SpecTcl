@@ -22,6 +22,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 class Calibunpacktests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(Calibunpacktests);
@@ -92,7 +93,7 @@ void Calibunpacktests::makeConfigFile(const std::vector<const char*>& cfg)
 {
     char fname[100];
     memset(fname, 0, sizeof(fname));
-    strcpy(fname, "tempXXXXXX.dat");
+    strcpy(fname, "tempXXXXXX");
     int fd = mkstemp(fname);
     if (fd < 0) {
         perror("Failed to make temp file");
@@ -269,14 +270,14 @@ void Calibunpacktests::missingFile()
 {
     char file[100];
     memset(file, 0, sizeof(file));
-    strcpy(file, "tempfileXXXXXX.dat");
+    strcpy(file, "tempfileXXXXXX");
     int fd = mkstemp(file);
     if (fd < 0) {
         perror("temp file creation failed");
         exit(EXIT_FAILURE);
     }
     close(fd);
-    
+    unlink(file);       // Remove the file.
     
     CPPUNIT_ASSERT_THROW(
         CCalibratedFileDrivenParameterMapper* p =

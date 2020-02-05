@@ -1490,6 +1490,7 @@ to stop event recording at this time?}                                 \
         # clear spectra?
         
         set pbOptions [dbgui::promptPlaybackOptions $win]
+        if {$pbOptions eq ""} return
         if {[dict get $pbOptions reload]} {
             dbconfig::restoreConfig dbgui::database $config
             sbind -all

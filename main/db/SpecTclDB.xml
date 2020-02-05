@@ -937,6 +937,9 @@ foreach run [dbconfig::listRuns db] {
             <refsynopsisdiv>
                 <cmdsynopsis>
                     <command>
+package require dbconfig
+                    </command>
+                    <command>
 sqlite3 <replaceable>db db-filename</replaceable>
                     </command>
                     <command>
@@ -993,6 +996,9 @@ foreach config [dbconfig::listConfigs db] {
             </refnamediv>
             <refsynopsisdiv>
                 <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
                     <command>
 sqlite3 <replaceable>dbcmd config-file</replaceable>                        
                     </command>
@@ -1117,16 +1123,2798 @@ foreach config [dbconfig::listConfigs db] {
                 </para>
             </refsect1>
         </refentry>
+        <refentry>
+            <refmeta>
+                <refentrytitle>dbconfig::getScalers</refentrytitle>
+                <manvolnum>3SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>dbconfig::getScalers</refname>
+                <refpurpose>Recover event data scaler readouts.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+sqlite3 <replaceable>db  config.b</replaceable>
+                    </command>
+                    <command>
+dbconfig::getScalers <replaceable>db run-id</replaceable>
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    Returns the scaler information for the event data associatd
+                    with the run id given by 
+                    <parameter>run-id</parameter>.  Note this is the
+                    id of the run, not its run number.
+                </para>
+                <para>
+                    The return value is a  list of dicts, one for each readout
+                    that's been done for the requested run.  The dict for
+                    each element of the list has the following key/value pairs:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term>start - integer</term>
+                        <listitem>
+                            <para>
+                                Number of seconds into the run at which this
+                                scaler readout started counting.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>stop - integer</term>
+                        <listitem>
+                            <para>
+                                Number of seconds into the run at which this
+                                scaler readout was performed.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>divisor - integer</term>
+                        <listitem>
+                            <para>
+                                Divide start/stop by this to get seconds.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>timestamp</term>
+                        <listitem>
+                            <para>
+                                The <command>clock seconds</command> at which
+                                this readout was performed, you can
+                                turn this into a human readable time by
+                                passing it to <command>clock format</command>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>sourceid</term>
+                        <listitem>
+                            <para>
+                                The id of the source from which this scaler came.
+                                This is especially important to know for
+                                experiments that use an event builder with multiple
+                                sources.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>channels - list of pairs</term>
+                        <listitem>
+                            <para>
+                                The scalers themselves.  Each elemnt of the list
+                                has, in order, the channel number and the
+                                scaler value.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            <refsect1>
+                <title>EXAMPLES</title>
+                <informalexample>
+                    <programlisting>
+sqlite3 db config.db
+...
+foreach run [dbconfig::listRuns db] {
+    set scalerReadouts [dbconfig::getScalers db [dict get $run id]]
+    puts "Scaler readout for run: [dict get $run number] : [dict get $run title]"
+    foreach readout $scalerReadouts {
+        set start [dict get $readout start]
+        set stop  [dict get $readout stop]
+        set div   [dict get $readout divisor]
+        set start [expr {$start/$div}]
+        set stop  [expr {$stop/$div}]
+        set ts    [dict get $readout timestamp]
+        set data  [dict get $readout channels]
+        puts "   start $start into run, ended $stop seconds at [clock format $ts]"
+        foreach chan $data {
+             set num [lindex $chan 0]
+             set val [lindex $chan 1]
+             puts "     Channel $num : $val"
+         }
+    }
+}
+
+                    </programlisting>
+                </informalexample>
+                <para>
+                    This example iterates over all runs outputting the scaler
+                    readouts from the run.  Run has a header that consist of the
+                    runnumber and title.  Each scaler readout describes the
+                    readout interval and timestamp followed by the channel
+                    number value pairs.
+                </para>
+            </refsect1>
+        
+        </refentry>
        </section>
+       <section>
+        <title>SpecTcl commands </title>
+        <para>
+            A specTcl command ensemble is provided to provide support for
+            accessing databases and recording/recovering data from
+            them.
+        </para>
+        <refentry>
+            <refmeta>
+                <refentrytitle>daqdb</refentrytitle>
+                <manvolnum>1SpecTclDb</manvolnum>
+            </refmeta>
+            <refnamediv>
+                <refname>daqdb</refname>
+                <refpurpose>SpecTcl command ensemble to record/recover data</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <cmdsynopsis>
+                    <command>
+package require dbconfig
+                    </command>
+                    <command>
+daqdb open <replaceable>file-name</replaceable>
+                    </command>
+                    <command>
+daqdb enable 
+                    </command>
+                    <command>
+daqdb disable
+                    </command>
+                    <command>
+daqdb autosave <replaceable>spectrum-list</replaceable>
+                    </command>
+                    <command>
+daqdb close
+                    </command>
+                    <command>
+daqdb play <replaceable>run-number</replaceable>
+                    </command>
+                    <command>
+daqdb stop
+                    </command>
+                </cmdsynopsis>
+            </refsynopsisdiv>
+            <refsect1>
+                <title>DESCRIPTION</title>
+                <para>
+                    This command ensemble is mostly used by the
+                    database GUi which will be described in the next
+                    chapter.  It supports holding a single database
+                    open and interfaces to SpecTcl that allow it
+                    to read and write event data from/to the database.
+                </para>
+                <para>
+                    Note that event data in the database is data created
+                    by the user's full analysis pipeline.  Therefore on
+                    playback, no analysis pipeline is used speeding up
+                    playback tremendously.
+                </para>
+                <para>
+                    The command ensemble has the following subcommands.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><command>open</command> <replaceable>db-file</replaceable></term>
+                        <listitem>
+                            <para>
+                                Opens the database file named <parameter>db-file</parameter>
+                                any previously  open data base file is closed.
+                                Further operations in the ensemble will operate
+                                on <parameter>db-file</parameter>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>enable</command></term>
+                        <listitem>
+                            <para>
+                                Enables event recording to the database.
+                                When a new run is detected the following are done:
+                            </para>
+                            <orderedlist>
+                                <listitem>
+                                    <para>
+                                        A configuration is created and stored
+                                        saving the analysis configuration at the time
+                                        the run starts.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        Event and scalar data are recorded under
+                                        that configuration until an end run is
+                                        seen.
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        Once the end run is seen, the contents of
+                                        any auto-save
+                                        spectra are saved under the configuration.
+                                        See <command>autosave</command>
+                                        below.
+                                    </para>
+                                </listitem>
+                            </orderedlist>
+                            <para>
+                                Note that in order to improve performance,
+                                the database is essentially always in the middle
+                                of a transaction during event recording so most other
+                                accesses will receive a data base locked indication.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>disable</command></term>
+                        <listitem>
+                            <para>
+                                Disables event recording immediately.  This should
+                                not be done in the middle of analyzing a run.
+                                If analysis is in progress, the run will not
+                                have an end time recorded and event recording
+                                is immediately stopped. The contents of
+                                autosaved spectra are not saved.
+                            </para>
+                            
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>close</command></term>
+                        <listitem>
+                            <para>
+                                Closes the database.  Once closed, the only
+                                valid operations are <command>open</command>
+                                and <command>autosave</command>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>autosave</command> <replaceable>spectrum-list</replaceable></term>
+                        <listitem>
+                            <para>
+                                The command's parameter is a Tcl list of spectrum
+                                names.  When events are recorded to the
+                                database, at the end of each run, the contents
+                                of the spectra in that list are stored under the
+                                configuration for which the run was recorded.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>listruns</command></term>
+                        <listitem>
+                            <para>
+                                returns a list of  dictionaries that describe
+                                the event recorded runs in the database.
+                                Each element of the (possibly empty list) is
+                                dict that describes a recorded run. The
+                                key/value pairs are:
+                            </para>
+                            <variablelist>
+                                <varlistentry>
+                                    <term>id : Integer</term>
+                                    <listitem>
+                                        <para>
+                                            The primary key of the run in the
+                                            <literal>runs</literal> table. This
+                                        </para>
+                                     </listitem>
+                                 </varlistentry>
+                                <varlistentry>
+                                    <term>config : Integer</term>
+                                    <listitem>
+                                        <para>
+                                            The primary key of the configuration
+                                            in the <literal>save_sets</literal>
+                                            table under which the run was saved.
+                                        </para>
+                                     </listitem>
+                                 </varlistentry>
+                                <varlistentry>
+                                   <term>number : Integer</term>
+                                   <listitem>
+                                       <para>
+                                        The run number of the run.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                    <term>title : Text</term>
+                                    <listitem>
+                                        <para>
+                                            The title of the run.
+                                        </para>
+                                     </listitem>
+                                 </varlistentry>
+                                <varlistentry>
+                                    <term>start_time : Integer</term>
+                                    <listitem>
+                                        <para>
+                                            The <command>clock seconds</command>
+                                            at which the run started. You can use
+                                            <command>clock format</command> to
+                                            recover the textual date and time
+                                            at which the run was started.
+                                        </para>
+                                     </listitem>
+                                 </varlistentry>
+                                <varlistentry>
+                                    <term>stop_time : Integer</term>
+                                    <listitem>
+                                        <para>
+                                            The <command>clock seconds</command>
+                                            at which the run ended.  Note that this
+                                            can be an empty string (NULL) if the
+                                            run did not end properly or the run was
+                                            not completely stored.
+                                        </para>
+                                     </listitem>
+                                 </varlistentry>
+                               </variablelist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>play</command> <replaceable>run-number</replaceable></term>
+                        <listitem>
+                            <para>
+                                If <parameter>run-number</parameter> has event
+                                data recorded, it will be played back through the
+                                current analysis configuration.  This playback
+                                completely bypasses the event analysis pipeline,
+                                submitting events directly to the event sink pipeline.
+                            </para>
+                            <para>
+                                This command disables any event recording as well.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><command>stop</command></term>
+                        <listitem>
+                            <para>
+                                Aborts any event playback in progress.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+            
+        </refentry>
+       </section>
+    </chapter>
+    <chapter>
+        <title>
+            The SpecTcl database GUI.
+        </title>
+        <para>
+            To use the SpecTcl GUI add the following lines to your SpecTclRC.tcl
+        </para>
+        <informalexample>
+            <programlisting>
+package require dbgui
+            </programlisting>
+        </informalexample>
+        <para>
+            Note that this will also implicitly pull in the
+            <literal>dbconfig</literal> package.
+        </para>
+        <para>
+            The figure below is a screen shot of the database gui with annotations
+            superimposed to show what the various icons mean.
+        </para>
+        <figure>
+            <title>Database GUI</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata align='center' format='PNG' fileref='GUI.png' />
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            Each folder in the GUI represents a database save set.  The name
+            of the save set is just to the righ t of the save set and the
+            time at which the save set was saved is in the description column.
+            Clicking the arrow to the left of the save set folder opens the
+            save set and shows its contents.
+        </para>
+        <para>
+            All save sets will have an analysis configuration. That entity
+            is created when the save set is created.  Save sets may optionally
+            have spectra.  These are shown as
+            histogram icons inside the save-set.  Save sets may also have event
+            data.  These are shown as the tape icons inside the save set.
+            The selected entity is highlighted. 
+        </para>
+        <para>
+            The bottom strip of the GUI shows the status bar.  It shows which
+            database is currently open, the configuration that's selected and,
+            if a spectrum is selected that as well.
+        </para>
+        <para>
+            There are two ways to make the GUI do something:
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    The menu bar at the top of the GUI provides commands
+                    you can select.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    All objects in the GUI have a
+                    <firstterm>context menu</firstterm> that can be
+                    posted using the right mouse button.  These
+                    also have commands that can be executed.
+                </para>
+            </listitem>
+        </orderedlist>
+        <section>
+            <title>File menu items</title>
+            <para>
+                The <guimenu>File</guimenu> menu provides operations at the level of
+                database files:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><guimenuitem>New...</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            Prompts for a new database file.
+                            The database file will be created and
+                            initialized and cleared.  Note that if
+                            the database file already exists, you'll be
+                            prompted to confirm.  Any existing data
+                            will be destroyed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><guimenuitem>Open...</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            Prompts for an existing database file
+                            and opens it.  The GUI is updated
+                            with the contents of the database.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The <guimenu>Save</guimenu> menu allows you to save
+                entities to the database.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><guimenuitem>Configuration...</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            Prompts for the name of a new unique save set.
+                            If confirmed, the new save set is created
+                            and the current analysis configuration is saved
+                            into it.
+                        </para>
+                        <para>
+                            The analysis configuration consist of all
+                            parameter/tree parameter definitions,
+                            all spectrum definitions, all  gate
+                            definitions and applications as well as all
+                            treevariable definitions and values.  Note
+                            that spectrum contents are not saved.
+                            See below, however.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><guimenuitem>Spectrum...</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            Pops up a listbox containing all spectrum
+                            names. Select the spectra you want saved and
+                            click <guibutton>Ok</guibutton> to
+                            save the contents of the
+                            selected spectra to the current
+                            save-set.  Note that you can use shift
+                            click/drag
+                            to select a range of spectrum names and
+                            control-click to add spectra not contiguous
+                            in the list to the list of selected spectra.
+                        </para>
+                        <para>
+                            Saving spectrum contents is a cumulative thing.
+                            If you save spectra that are not already saved,
+                            their contents will be added to the set that
+                            are saved.
+                        </para>
+                        <para>
+                            If you save the contents of a spectrum that
+                            are already saved in the save-set, the
+                            current contents replace the old.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The <guimenu>Recording</guimenu> menu allows you to
+                manage the recording of analyzed event data.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><guimenuitem>Enable Recording</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            This is a checkbutton menu entry. If
+                            checked, event recording is enabled, if not
+                            (the initial default) it is not.
+                        </para>
+                        <para>
+                            Before changing the button state, you are
+                            warned about the pitfalls of changing state
+                            and must confirm that you want to change state.
+                            Note that while recording is active,
+                            the GUI is inactive.  Once recording is
+                            disabled, the configurationas and events
+                            will be made visible in the GUI.
+                        </para>
+                        <para>
+                            Recording data is recommended only for offline
+                            runs of SpecTcl. This is because recording
+                            data significantly impacts the speed at which
+                            SpecTcl can process data.  Online, this will
+                            lead to missing data and incomplete event
+                            records.
+                        </para>
+                        <para>
+                            The intent of recorded data is to provide
+                            stored data that can be rapidly analyzed
+                            using differing analysis configurations.
+                            Recorded data can also be used by other programs.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><guimenuitem>AutoSave Spectra...</guimenuitem></term>
+                    <listitem>
+                        <para>
+                            When the end of data for a recorded run is
+                            encountered, contents of selected
+                            spectra can automatically be
+                            saved to the save-set.  These spectra are
+                            refered to as <firstterm>autosaved spectra</firstterm>.
+                            Clicking on this
+                            menu entry brings up a spectrum chooser which
+                            allows you to specify which spectra will be
+                            saved at the end of the run.  Selecting no
+                            spectra and clicking <guibutton>Ok</guibutton>
+                            means no spectra will be autosaved.
+                            Clicking <guibutton>Cancel</guibutton>
+                            means that no change will be made to the auto
+                            saved spectrum list.
+                        </para>
+                        <para>
+                            Note that saving the contents of spectra
+                            can take a significant amount of time.  Note
+                            as well that autosaving only applies when
+                            recording is enabled.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Context menus</title>
+            <para>
+                The objects listed in the GUI all have associated context
+                menus.  A
+                <firstterm>context menu</firstterm> is a pop up menu
+                that provides operations consistent with a selected item.
+                Context menus are
+                displayed (<firstterm>posted</firstterm>), when the
+                right mouse button is clicked over the object.  It is
+                removed
+                <firstterm>unposted</firstterm>when an item is selected from the menu or the
+                Escape key is hit.
+            </para>
+            <para>
+                Currently there are three context menus;  The configuration
+                context menu, the spectrum context menu and the
+                run context menus.  The following sections will
+                describe each of these and when they post
+            </para>
+            <section>
+                <title>The configuration context menu</title>
+                <para>
+                    This menu is associated with save sets and analysis
+                    configurations.  It has the following operations.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><guimenuitem>Save...</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Saves a new save-set and configuration.
+                                This is identical to the
+                                <menuchoice><guimenu>Save</guimenu><guimenuitem>Configuration...</guimenuitem></menuchoice>
+                                menubar command.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Save Spectrum...</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Saves the contents of spectra
+                                in the currently selected save set.
+                                This is identical to
+                                <menuchoice><guimenu>Save</guimenu><guimenuitem>Spectrum...</guimenuitem></menuchoice>
+                                command on the menu bar.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Load</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Loads the selected analysis configuration
+                                into SpecTcl
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+            <section>
+                <title>Spectrum Menu</title>
+                <para>
+                    This context menu is associated with and posts
+                    for spectrum objects.  It has the following
+                    selections:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><guimenuitem>Resave</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Re-saves the contents of the
+                                currently selected spectrum, over-writing
+                                any previously saved contents for it.
+                                Only the selected spectrum is saved.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Save...</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Prompts for a set of spectra to
+                                save (contents) into the current
+                                configuration.  This is identical to the
+                                <menuchoice><guimenu>Save</guimenu><guimenuitem>Spectrum...</guimenuitem></menuchoice>
+                                entry on the menubar.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Load</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Loads the contents of the selected
+                                spectrum into SpecTcl. Note that if the
+                                spectrum is not yet defined, it will
+                                be defined.  If the spectrum is defined
+                                in a compatible manner its contents will
+                                be overwritten with the data from the
+                                selected spectrum.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Save Configuration...</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Identical to:
+                                <menuchoice>
+                                    <guimenu>Save</guimenu><guimenuitem>Configuration...</guimenuitem>
+                                </menuchoice>
+                                on the menubar.  The user is prompted for
+                                a new saveset name.  The save-set is created
+                                and the analysis configuration saved into
+                                it.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Load Configuration</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                The currently selected analysis configuration
+                                is loaded into SpecTcl.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+            <section>
+                <title>Event context menu</title>
+                <para>
+                    This menu is associated with event data in the
+                    database.  It has the following items:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><guimenuitem>Play...</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                Clicking this brings up a dialog
+                                box that allows you to clear spectra
+                                prior to beginning the playback and to
+                                Reload the analysis configuration
+                                in the save set that contains the
+                                event data.  This save set contains
+                                the analysis configuration when
+                                recording this run started.
+                            </para>
+                            <para>
+                                Clicking <guibutton>Ok</guibutton>
+                                executes the checked options and
+                                begins playback.  Clicking
+                                <guibutton>Cancel</guibutton>
+                                cancels playback.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><guimenuitem>Stop</guimenuitem></term>
+                        <listitem>
+                            <para>
+                                This is only enabled when playback is
+                                in progress.  If clicked playback
+                                is stopped.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+        </section>
     </chapter>
     <chapter>
        <title>C++ API to the database </title>
        <para>
+        The C++ API to the database is provided to support recording
+        and recovering event data.
+        to and from the database.  It consists of several classes that are
+        intended to be used within SpecTcl.  In most cases your applications
+        won't need to use these classes, however documentation is provided
+        for completeness.
        </para>
+       <refentry>
+        <refmeta>
+            <refentrytitle>CDBEventPlayer</refentrytitle>
+            <manvolnum>3daqdb</manvolnum>
+        </refmeta>
+        <refnamediv>
+            <refname>CDBEventPlayer</refname>
+            <refpurpose>Supports playing back events from a database.</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+            <programlisting>
+#include &lt;CDBEvents.h&gt;
+
+class <classname>CDBEventPlayer</classname> {
+public:
+    <constructorsynopsis>
+        <methodname>CDBEventPlayer</methodname>
+        <methodparam>
+            <type>sqlite3*</type><parameter>pDatabase</parameter>
+        </methodparam>
+        <methodparam>
+            <type>int </type><parameter>run</parameter>
+        </methodparam>
+    </constructorsynopsis>
+    <methodsynopsis>
+        <modifier> const </modifier>
+        <type>Event&amp;</type>
+        <methodname>next</methodname>
+        <void />
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>std::string </type>
+        <methodname>getTitle</methodname>
+        <void />
+        <modifier>const</modifier>
+    </methodsynopsis>
+
+};
+            </programlisting>
+        </refsynopsisdiv>
+        <refsect1>
+            <title>DESCRIPTION</title>
+            <para>
+                This class provides an environment neutral method to
+                playback event data in a database file.
+                The playback is modeled like an iterator.
+                The user must have an sqlite3 handle open on the
+                database file and know the number of a run for which
+                there is event data.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>METHODS</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CDBEventPlayer</methodname>
+                            <methodparam>
+                                <type>sqlite3*</type><parameter>pDatabase</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>int </type><parameter>run</parameter>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructs the object.
+                            <parameter>pDatabase</parameter> is
+                            an sqlite3 handle open on a database that
+                            contains the DAQ database schema. See
+                            Appendix A if you're not sure what this means.
+                            <parameter>run</parameter> is the number of a
+                            run that will be played back through this object.
+                        </para>
+                        <para>
+                            If the database is not a valid DAQ
+                            database, an
+                            <classname>std::logic_error</classname>
+                            will be called due to failures in sqlite3
+                            API calls.  If the run does not have
+                            event data, <classname>std::invalid_argument</classname>
+                            is thrown.  It is the caller's
+                            responsibility to close the sqlite3
+                            database when no longer needed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                                <modifier> const </modifier>
+                                <type>Event&amp;</type>
+                                <methodname>next</methodname>
+                                <void />
+                                <modifier></modifier>
+                            </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the next event from the run.  This should
+                            be called repeatedly until the container
+                            referenced by the return value is empty.
+                            See <literal>Data structures</literal> below
+                            for a definition of the <type>Event</type>
+                            data type.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::string </type>
+                            <methodname>getTitle</methodname>
+                            <void />
+                            <modifier>const</modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the run title.  This is fetched and
+                            ready to retrieve as soon as the object
+                            is successfully constructed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+
+        </refsect1>
+        <refsect1>
+            <title>Data structures</title>
+            <para>
+                The <methodname>next</methodname> iterator
+                returns a reference to an
+                <type>DBEvent::Event</type> data type.
+                This is a
+                <classname>std::vector&lt;DBEvent::blobElement&gt;</classname>
+                structs.  Each element of the struct has the following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <type>uint32_t</type> <structfield>s_parameterNumber</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            Contains a parameter number.  This is
+                            is the number of the parameter in the configuration
+                            definition that contains this run.
+                            By "number of the parameter" I mean the
+                            <literal>number</literal> field of the
+                            an entry in the
+                            <literal>parameter_defs</literal> table
+                            of the database whose
+                            <literal>save_id</literal> matches
+                            that of the run. See Appendix A
+                            for more about the schema.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>double</type> <structfield>s_parameterValue</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            Contains the value of that parameter.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Note that an empty vector indicates there are no more
+                events in the run.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>LIMITATIONS and Bugs</title>
+            <orderedlist>
+                <listitem>
+                    <para>
+                        An event that has no parameters set in it
+                        looks identical to an end of run indication.
+                    </para>
+                </listitem>
+            </orderedlist>
+        </refsect1>
+       </refentry>
+       <refentry>
+        <refmeta>
+            <refentrytitle>CDBEventWriter</refentrytitle>
+            <manvolnum>3SpecTclDb</manvolnum>
+        </refmeta>
+        <refnamediv>
+            <refname>CDBEventWriter</refname>
+            <refpurpose>SpecTcl event writer.</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+            <programlisting>
+#include &lt;CDBEvents.h&gt;
+
+class <classname>CDBEventWriter</classname> {
+public:
+    <constructorsynopsis>
+        <methodname>CDBEventWriter</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> char*</type><parameter> databaseFile</parameter>
+        </methodparam>
+        <methodparam>
+            <type>unsigned </type><parameter>batchSize</parameter>
+            <initializer> 500</initializer>
+        </methodparam>
+    </constructorsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>beginRun</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> RingItem*</type><parameter> pStateTransition</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>endRun</methodname>
+        <methodparam>
+            <modifier>const </modifier>
+            <type>RingItem*</type><parameter>pStateTransition</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>scaler</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> RingItem*   </type><parameter>pScaler</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>event</methodname>
+        <methodparam>
+            <type>CEvent*</type><parameter>pEvent</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>setAutoSaveSpectra</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> std::vector&lt;std::string&gt;&amp; </type><parameter>spectra</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>addAutoSaveSpectrum</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> char* </type><parameter>name</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>void </type>
+        <methodname>removeAutoSaveSpectrum</methodname>
+        <methodparam>
+            <modifier>const</modifier>
+            <type> char*</type><parameter> name</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>std::vector&lt;RunInfo&gt; </type>
+        <methodname>listRuns</methodname>
+        <void />
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>CDBEventPlayer* </type>
+        <methodname>playRun</methodname>
+        <methodparam>
+            <type>int</type><parameter> run</parameter>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier>static </modifier>
+        <type>void </type>
+        <methodname>checkStatus</methodname>
+        <methodparam>
+            <type>int </type><parameter>status</parameter>
+        </methodparam>
+        <methodparam>
+            <type> int </type><parameter>expected</parameter>
+            <initializer>-1</initializer>
+        </methodparam>
+        <modifier></modifier>
+    </methodsynopsis>
+    <methodsynopsis>
+        <modifier></modifier>
+        <type>std::string </type>
+        <methodname>getDbPath</methodname>
+        <void />
+        <modifier></modifier>
+    </methodsynopsis>
+};
+            </programlisting>
+        </refsynopsisdiv>
+        <refsect1>
+            <title>DESCRIPTION</title>
+            <para>
+                This class is actually somewhat misnamed.
+                It supports writing data to DAQ databases as well
+                as functions needed to instantiate a playback of a
+                run from the database.
+            </para>
+        </refsect1>
+        <refsect1>
+            <title>METHODS</title>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <constructorsynopsis>
+                            <methodname>CDBEventWriter</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> char*</type><parameter> databaseFile</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type>unsigned </type><parameter>batchSize</parameter>
+                                <initializer> 500</initializer>
+                            </methodparam>
+                        </constructorsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructs a <classname>CDBEventWriter</classname>.
+                            <parameter>databaseFile</parameter>  points to a
+                            null terminated string containing the
+                            database filename.  
+                            <parameter>batchSize</parameter> is
+                            an optional parameter that determines how many
+                            events are written to the database in a single
+                            transaction.  Writing several events in a
+                            transaction is much more time efficient than
+                            writing individual events because
+                            to write an event atomically requires much
+                            of the mechanisms needed to start and
+                            commit a transaction anyway.  Actually
+                            using a transaction amortizes this effort
+                            over several events.
+                        </para>
+                        <para>
+                            Unfortunately I can't give you any guidance
+                            on how large to set this value to get optimal
+                            performance. 
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>beginRun</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> RingItem*</type><parameter> pStateTransition</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Called when a begin run ring item is
+                            encountered in the raw data stream being
+                            written to the database.
+                            <parameter>pStateTransition</parameter>
+                            points to a <literal>BEGIN_RUN</literal>
+                            item.
+                        </para>
+                        <para>
+                            A new save-set is created and the
+                            current SpecTcl configuration is saved
+                            to it.  Everything written will then
+                            be associated with that save-set.
+                        </para>
+                        <para>
+                            A run record is created in the
+                            <literal>run</literal> table without
+                            a <literal>stop_time</literal>.
+                            The subsequent events, and scaler items
+                            are linked back to the id of that record.
+                            See APPENDIX A for more information about
+                            the detailed schema.
+                        </para>
+                        <para>
+                            Several exceptions might be thrown:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                <term><classname>CTCLException</classname></term>
+                                <listitem>
+                                    <para>
+                                        The save set and configuration save
+                                        are done by invoking the procs
+                                        in the dbconfig package.  If
+                                        any of these throw an error,
+                                        the C++ code will throw
+                                        this exception type.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><classname>std::logic_error</classname></term>
+                                <listitem>
+                                    <para>
+                                        All direct sqlite operations are
+                                        statuc checked and failures result
+                                        in this exception.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>std::invalid_argument</term>
+                                <listitem>
+                                    <para>
+                                        If the <parameter>pStateTransition</parameter>
+                                        parameter does not point to a
+                                        <literal>BEGIN_RUN</literal>
+                                        ring item this exception is thrown.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>endRun</methodname>
+                            <methodparam>
+                                <modifier>const </modifier>
+                                <type>RingItem*</type><parameter>pStateTransition</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Saves the end time for the
+                            most recently seen begin run item.
+                            <parameter>pStateTransition</parameter>
+                            points to the ring item that flagged the end
+                            run.  
+                        </para>
+                        <para>
+                            This method writes the end run time in the
+                            <literal>runs</literal> table for the run
+                            and saves the spectra that are on the auto
+                            save list.
+                        </para>
+                        <para>
+                            Several exception types are possible:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                <term><classname>CTCLException</classname></term>
+                                <listitem>
+                                    <para>
+                                        The spectra that are autosaved
+                                        are saved using the dbconfig
+                                        functions to save spectrum contents.
+                                        Any failure of these scripts
+                                        results in this exception.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term><classname>std::logic_error</classname></term>
+                                <listitem>
+                                    <para>
+                                        All direct sqlite operations are
+                                        statuc checked and failures result
+                                        in this exception.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>std::invalid_argument</term>
+                                <listitem>
+                                    <para>
+                                        If the <parameter>pStateTransition</parameter>
+                                        parameter does not point to a
+                                        <literal>END_RUN</literal>
+                                        ring item this exception is thrown.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>scaler</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> RingItem*   </type><parameter>pScaler</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis></term>
+                    <listitem>
+                        <para>
+                            Writes a scaler readout to the database.
+                            This consist of a record in the
+                            <literal>scaler_readouts</literal>
+                            that contains the global information and
+                            a record in the
+                            <literal>scaler_channels</literal>
+                            table for each scaler item in the
+                            <literal>PERIODIC_SCALERS</literal>
+                            item pointed to by
+                            <parameter>pScaler</parameter>
+                        </para>
+                        <para>
+                            The following exception types can be thrown:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                <term>std::logic_error</term>
+                                <listitem>
+                                    <para>
+                                        Thrown for any sqlite3 error.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>std::invalid_argument</term>
+                                <listitem>
+                                    <para>
+                                        If <parameter>pScaler</parameter>
+                                        does not point to a
+                                        <literal>PERIODIC_SCALERS</literal>
+                                        ring item.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>event</methodname>
+                            <methodparam>
+                                <type>CEvent*</type><parameter>pEvent</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Adds an event to the <literal>events</literal>
+                            table.  The event is associated with the
+                            current run.  <parameter>pEvent</parameter>
+                            points to the parameters that have been
+                            unpacked by the event analysis pipeline.
+                            Note that only generated parameters are
+                            actually saved. The dope vector in
+                            the <classname>CEvent</classname> object
+                            makes this on order n in the number of
+                            set parameters.
+                        </para>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>setAutoSaveSpectra</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> std::vector&lt;std::string&gt;&amp; </type><parameter>spectra</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Replaces the current set of auto saved spectra.
+                            <parameter>spectra</parameter> is
+                            a vector of the names of spectra to be
+                            saved at end of run.  These must be SpecTcl
+                            spectrum names that are valid at the end
+                            of the run.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>addAutoSaveSpectrum</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> char* </type><parameter>name</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Appends a list of spectra to the autosave
+                            list. <parameter>name</parameter> is the
+                            name of the spectrum.  The spectrum must be
+                            the name of a valid SpecTcl spectrum when the
+                            run ends.
+                        </para>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>void </type>
+                            <methodname>removeAutoSaveSpectrum</methodname>
+                            <methodparam>
+                                <modifier>const</modifier>
+                                <type> char*</type><parameter> name</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Removes <parameter>name</parameter> from the
+                            set of autosaved spectra.  If that
+                            name is not in the autosave list, nothing
+                            happens and no error is reported.
+                        </para>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::vector&lt;RunInfo&gt; </type>
+                            <methodname>listRuns</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns a vector of runs that are
+                            currently in the database.
+                            See <literal>Data Types</literal>
+                            below for a definition of
+                            <classname>CDBEventWriter::RunInfo</classname>.
+                        </para>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>CDBEventPlayer* </type>
+                            <methodname>playRun</methodname>
+                            <methodparam>
+                                <type>int</type><parameter> run</parameter>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Constructs and returns a pointer to
+                            <classname>CDBEventPlayer</classname> that
+                            can be used to play back the run
+                            numbered 
+                            <parameter>run</parameter> in the database.
+                            The caller owns the returned item and must
+                            <methodname>delete</methodname> it when
+                            no longer needed.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier>static </modifier>
+                            <type>void </type>
+                            <methodname>checkStatus</methodname>
+                            <methodparam>
+                                <type>int </type><parameter>status</parameter>
+                            </methodparam>
+                            <methodparam>
+                                <type> int </type><parameter>expected</parameter>
+                                <initializer>-1</initializer>
+                            </methodparam>
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Generally useful status checking function.
+                            If <parameter>status</parameter> does
+                            not match <parameter>expected</parameter>,
+                            a <classname>std::logic_error</classname>
+                            is thrown.  Note that if
+                            <parameter>expected</parameter> is
+                             not provided, it is assumed to be
+                             <literal>SQLITE_OK</literal>.
+                             The message string in the exception
+                             assumes the failing status is an
+                             sqlite3 function call.
+                        </para>
+                    </listitem>
+                </varlistentry>        
+                <varlistentry>
+                    <term>
+                        <methodsynopsis>
+                            <modifier></modifier>
+                            <type>std::string </type>
+                            <methodname>getDbPath</methodname>
+                            <void />
+                            <modifier></modifier>
+                        </methodsynopsis>
+                    </term>
+                    <listitem>
+                        <para>
+                            Returns the file system path to the database
+                            file that's open.
+                        </para>
+                    </listitem>
+                </varlistentry>          
+            </variablelist>
+        </refsect1>
+        <refsect1>
+            <title>Data Types</title>
+            <para>
+                The class defines a
+                <classname>CDBEventEditor::RunInfo</classname>
+                type.  This is a struct that describes a run in the
+                database.  It has the following fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <type>int</type><structfield>s_runNumber</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            The run number represented by the record.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>std::string</type> <structfield>s_config</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            The name of the save set under which this
+                            run data are saved.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>std::string</type> <structfield>s_title</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            Title of the run.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>time_t</type> <structfield>s_start</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            Timestamp describing the clock time at which
+                            the run started.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>time_t</type> s_end
+                    </term>
+                    <listitem>
+                        <para>
+                            Time at which the run ended.  This will be
+                            undefined if <structfield>s_hasend</structfield>
+                            is <literal>false</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <type>bool</type> <structfield>s_hasEnd</structfield>
+                    </term>
+                    <listitem>
+                        <para>
+                            True if the end time of this run is not null.
+                            The end time can be null recording the run
+                            stopped before an end run was seen.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </refsect1>
+       </refentry>
+       
     </chapter>
     <appendix>
         <title>Database schema.</title>
         <para>
+            Database schema are divided into tables.  Each table
+            usually has a field called its <firstterm>primary key</firstterm>.
+            The value of the primary key is a unique identifier for
+            records in the table.  It is normally very quick to look up
+            a record by its primary key.
         </para>
+        <para>
+            In a relational databae, such as sqlite3, it is normal
+            for records in one table to refer to records in another table.
+            This reference is expressed by having fields that contain
+            <firstterm>foreign keys</firstterm> to the other table.
+            A foreign key is a field whose values are primary keys in
+            another table.
+        </para>
+        <para>
+            Foreign keys express a belonging/ownership relationship.
+            The ownership, in turn may express a 'has many' or a
+             'has one' relationship depending on the multiplicity of the
+             relationship.   This multiplicity is defined by the
+             logic that populates the database.
+        </para>
+        <para>
+            This appendix will describe the set of tables
+            defined by a daq database and their relationships.
+        </para>
+        <para>
+            The top level table is the <literal>save_sets</literal>
+            table.  It contains one entry for each save set in the
+            database. All other tables are owned either directly or indirectly
+            by a row in the <literal>save_set</literal> table.
+            The schema of this table is:
+        </para>
+        <informalexample>
+            <programlisting>
+CREATE TABLE IF NOT EXISTS  save_sets 
+        (id  INTEGER PRIMARY KEY,
+         name TEXT UNIQUE,
+         timestamp INTEGER)
+            </programlisting>
+        </informalexample>
+        <para>
+            The fields have the following meaning:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>integer</type> <structfield>id</structfield></term>
+                <listitem>
+                    <para>
+                        The primary key for the row.  Our convention is
+                        that each table's primary key is an integer named
+                        <literal>id</literal> and is the first field
+                        declared in the table.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type> <structfield>name</structfield></term>
+                <listitem>
+                    <para>
+                        Contains the name of the save-set.  Sqlite3 does
+                        not require us to declare lengths of text items.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type> timestamp</term>
+                <listitem>
+                    <para>
+                        The time at which the record was created.
+                        This is a unix timestamp.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The primary purpose of save sets is to store the analysis
+            configuration of SpecTcl.  This consists of parameter/treeparameter
+            definitions, Spectrum definitions, gate definitions,
+            gate applications and tree variables.  At present,
+            pseudo parameter definitions are not stored. If there
+            is a need for that, please contact us as these can be
+            added.
+        </para>
+        <para>
+            Parameter definitions require a single table:
+            <literal>parameter_defs</literal>.  This table
+            contains the base SpecTcl parameter definition as well
+            as any optional metadata supplied by a treeparameter that
+            might wrap it.  If a tree parameter is not wrapping
+            the parameter, then the metadata values are NULL.
+        </para>
+        <para>
+            Here's the table definition for the <literal>parameter_defs</literal>
+            table:
+        </para>
+        <informalexample>
+            <programlisting>
+CREATE TABLE IF NOT EXISTS parameter_defs
+        (id      INTEGER PRIMARY KEY,                    
+         save_id INTEGER NOT NULL,  -- foreign key to save_sets.id
+         name    TEXT NOT NULL,
+         number  INTEGER NOT NULL,
+         low     REAL,
+         high    REAL,
+         bins    INTEGER,
+         units   TEXT)
+            </programlisting>
+        </informalexample>
+        <para>
+            As with all tables, by convention, <structfield>id</structfield>
+            is the primary key and is an integer.  Here are the
+            definitions for the remaining fields of the table:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>integer</type> <structfield>save_id</structfield></term>
+                <listitem>
+                    <para>
+                        This is a foreign key that contains the
+                        <literal>id</literal> of the <literal>save_set</literal>
+                        to which this parameter definition belongs.
+                        We can say that a parameter definition belongs
+                        to a save set and a save set has many
+                        parameter definitions.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type> <structfield>name</structfield></term>
+                <listitem>
+                    <para>
+                        This field contains the name of the spectcl
+                        parameter.  It is never null as all SpecTcl
+                        parameter must have unique names.  The
+                        field is not marked as unique because different
+                        save sets may have parameter definitions with the
+                        same name.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type> number</term>
+                <listitem>
+                    <para>
+                        This is the SpecTcl parameter number.
+                        Each parameter in SpecTcl has a unique number
+                        that defines it's slot in <classname>CEvent</classname>
+                        objects containing unpacked event data.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>real</type> <structfield>low</structfield></term>
+                <listitem>
+                    <para>
+                        This field is not null if there is a tree
+                        parameter wrapping of the parameter.  In that
+                        case, the field will contain the tree parameter's
+                        suggested low limit for the parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>real</type> <structfield>high</structfield></term>
+                <listitem>
+                    <para>
+                        As with <structfield>low</structfield>, is
+                        not null if the parameter is wrapped by a tree
+                        parameter.  In that case, this field contains
+                        the suggested high limit for this parameter.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type> <structfield>bins</structfield></term>
+                <listitem>
+                    <para>
+                        If the parameter is wrapped with  a tree parameter,
+                        this contains the suggested binning for this
+                        parameter.  Otherwise, this field is null.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type> <structfield>units</structfield></term>
+                <listitem>
+                    <para>
+                        If the parameter is wrapped by a tree parameter,
+                        this field contains the units of measure of that
+                        parameter.  It can be an empty string as well as
+                        NULL.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            The next set of tables hold information about spectrum definitions
+            and spectrum contents.  These tables are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><literal>spectrum_defs</literal></term>
+                <listitem>
+                    <para>
+                        The top level (or <firstterm>root</firstterm>) table
+                        for spectrum definitions.  This table has
+                        one entry per spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>axis_defs</literal></term>
+                <listitem>
+                    <para>
+                        Depending on the dimensionality of the spectrum,
+                        each record in <literal>spectrum_defs</literal>
+                        will have one or two records in this table.
+                        Each entry describes a spectrum axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>spectrum_params</literal></term>
+                <listitem>
+                    <para>
+                        Each spectrum depends one or more parameters.
+                        Thus <literal>spectrum_defs</literal> has many
+                        <literal>spectrum_params</literal> each
+                        describing a parameter the spectrum depends on.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>spectrum_contents</literal></term>
+                <listitem>
+                    <para>
+                        If a spectrum has contents stored, this
+                        table will contain the spectrum contents.
+                        There will be a record in this table for
+                        every non-zero channel in the spectrum.
+                    </para>
+                    <para>
+                        Note in the special case were an empty spectrum
+                        is being saved, there will be one record for
+                        the spectrum with a channel value of 0.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Let's look at these tables in detail.
+        </para>
+        <para>
+            <literal>spectrum_defs</literal> is the top level table
+            for capturing spectrum definitions and contents.  All of
+            the other tables involved in spectrum definitions have
+            foreign keys linking them back to this table.  This
+            table, in turn, has a foreign key that links it back
+            to the save set it belongs to.
+        </para>
+        <para>
+            The defintion of <literal>spectrum_defs</literal> is:
+        </para>
+        <informalexample>
+            <programlisting>
+CREATE TABLE IF NOT EXISTS spectrum_defs
+        (id      INTEGER PRIMARY KEY,
+         save_id INTEGER NOT NULL,     -- Foreign key to save_sets.id
+         name    TEXT NOT NULL,
+         type    TEXT NOT NULL,
+         datatype TEXT NOT NULL
+        )
+            </programlisting>
+        </informalexample>
+        <para>
+            Besides the <structfield>id</structfield> which is the
+            usual primary keh and the <structfield>save_id</structfield>
+            which is the foreign key pointing back to the
+            <literal>save_sets</literal> table, the following fields
+            are defined:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>text</type> <structfield>name</structfield></term>
+                <listitem>
+                    <para>
+                        SpecTcl's name for the spectrum.  Each spectrum
+                        in a save set has a unique name. Usually
+                        humans refer to the spectrum using that name.
+                        While SpecTcl assigns an integer number to that
+                        spectrum, that number is actually not used
+                        at all externally or internally and is, therefore,
+                        not stored.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type> <structfield>type</structfield></term>
+                <listitem>
+                    <para>
+                        Each spectrum has a type that determines how
+                        it is incremented by the parameters it depends on.
+                        In SpecTcl, these types are represented by short
+                        textual type codes.  This field contains the
+                        type code for the spectrum.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type><structfield>datatype</structfield></term>
+                <listitem>
+                    <para>
+                        Histograms storing a spectrum have a data type
+                        that can be one of
+                        byte (uint8_t), word (uint16_t) or
+                        long (uint32_t).  This field captures that
+                        datatype.  By default, given that memory is much
+                        cheaper than when SpecTcl was originally written,
+                        a spectrum's data type is long.  Regardless,
+                        this field explicitly stores the spectrum's
+                        datatype.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Each spectrum has one or two axes (SpecTcl does not support 3d
+            spectra).  These axes are described in the
+            <literal>axis_defs</literal> table.   When fetching from
+            this table, it's important to order the results by the
+            <structfield>id</structfield> field.  When this is done,
+            the first (or only) axis for a spectrum is the X axis
+            and the second, if it exists is the Y axis definition.
+        </para>
+        <para>
+            Here is the definitino of the <literal>axis+defs</literal>
+            table:
+        </para>
+        <informalexample>
+            <programlisting>
+CREATE TABLE IF NOT EXISTS axis_defs
+        (
+            id           INTEGER PRIMARY KEY,
+            spectrum_id  INTEGER NOT NULL,  -- FK to spectrum_defs.id
+            low          REAL NOT NULL,
+            high         REAL NOT NULL,
+            bins         INTEGER NOT NULL
+        )
+            </programlisting>
+        </informalexample>
+        <para>
+            As usual, <structfield>id</structfield> is the primary
+            key.  It also serves to order axis definitions for a spectrum.
+            <structfield>spectrum_id</structfield> is a foreign key
+            to the <structfield>id</structfield> field of the
+            <literal>spectrum_defs</literal> table.  Its value
+            indicates which spectrum in the <literal>spectrum_defs</literal>
+            table, a record in this table belongs to.
+        </para>
+        <para>
+            The remaining fields in this table are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>real</type><structfield>low</structfield></term>
+                <listitem>
+                    <para>
+                        The low limit of the axis.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>real</type><structfield>high</structfield></term>
+                <listitem>
+                    <para>
+                        The high limit of the axis.  The axis is
+                        considered to run over the interval
+                        [low, high).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type><structfield>bins</structfield></term>
+                <listitem>
+                    <para>
+                        Number of bins into which the axis is divided.
+                        Note that in SpecTcl bins are all equal sized.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Spectra are defined on  parameters.  The values of parameters
+            in an event can increment a spectrum depending on that
+            spectrum's type and whether or not parameters needed are
+            present.  The number of parameters a spectrum may have
+            are dependent on may be anywhere from 1 to unbounded depending
+            on the spectrum type (e.g. gamma spectra). 
+        </para>
+        <para>
+             Where parameter
+            ordering is important, ordering the retrieval of parameters
+            from the <literal>spectrum_params</literal> table
+            recovers that ordering.  
+        </para>
+        <para>
+            The contents of this table consist of the primary key
+            <structfield>id</structfield>, and two foreign keys:
+            <structfield>spectrum_id</structfield> which ties the
+            record back to the spectrum it belongs to and
+            <structfield>parameter_id</structfield> which ties the
+            entry back to the parameter in the
+            <literal>parameter_defs</literal> table that defines
+            the parameter.
+        </para>
+        <para>
+            In this way, it is not necessary to actually repeat
+            the parameter definitions.  This point is an important
+            concept in database design. This sort of table is also
+            sometimes called a <firstterm>join table</firstterm>
+            because you can use the SQL join operation to marry the
+            <literal>spectrum_defs</literal> table to the
+            <literal>parameter_defs</literal> table through this
+            table.
+        </para>
+        <para>
+            Finlly,
+            If the contents of the spectrum have been saved in a
+            save set there will be several entries in the
+            <literal>spectrum_contents</literal> table to
+            represent this.  With the exception of the special case
+            of a spectrum with no counts, the table will contain one
+            entry for each  non-zero channel.  If the spectrum is empty,
+            it will contain a single entry for a valid channel in the
+            spectrum containing a value of zero.
+        </para>
+        <para>
+            The table contains the usual <structfield>id</structfield>
+            primary key column.  It also has a
+            <structfield>spectrum_id</structfield> foreign key into the
+            <literal>spectrum_defs</literal> table that ties each
+            record back to a spectrum definition which, in turn, ties the
+            entry back to a save set.
+        </para>
+        <para>
+            The remaining fields are:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>integer</type><structfield>xbin</structfield></term>
+                <listitem>
+                    <para>
+                        This value is a bin number on the X axis
+                        of the spectrum.  If the spectrum is one-dimensional,
+                        this value is the only coordinate needed
+                        to specify a spectrum bin.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type><structfield>ybin</structfield></term>
+                <listitem>
+                    <para>
+                        If the spectrum is two dimensional (for this purpose,
+                        summary spectra are two dimensional),
+                        this value is the y bin coordinate of a channel
+                        in the spectrum.   If the spectrum is
+                        one dimensional, the value  of this field is NULL.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>integer</type><structfield>value</structfield></term>
+                <listitem>
+                    <para>
+                        This field is the value that was stored in the
+                        channel designated by the
+                        <structfield>xbin</structfield> and possibly
+                        <structfield>ybin</structfield> fields.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            SpecTcl provides a very rich set of gate types.  For database
+            definition purposes, these actually fall into three categories:
+        </para>
+        <orderedlist>
+            <listitem>
+                <para>
+                    <firstterm>Parameter/point</firstterm>; these gates
+                    depend on parameters and points in parameter space.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <firstterm>Parameter/mask</firstterm>; these gates
+                    depend on parameters and a bitmask.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <firstterm>Compound</firstterm>; these gates depend on
+                    other gates.
+                </para>
+            </listitem>
+        </orderedlist>
+        <para>
+            There are also the special cases of True and False gates
+            that depend on nothing.
+        </para>
+        <para>
+            This richness in gate types and dependecies leads to a root
+            <literal>gate_defs</literal> table and quite a few
+            subordinate tables some of which are used and other not used
+            for any given gate type:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><literal>gate_defs</literal></term>
+                <listitem>
+                    <para>
+                        This is the root table.  Every gate has an
+                        entry in this table.  All subordinate tables
+                        have foreign keys pointing back to this table.
+                    </para>
+                    <para>
+                        Note that if you fetch gate definitions from this table
+                        ordered by primary key, the API ensures that
+                        you will not encounter a gate definition that
+                        for a compound gate that depends on a gate you
+                        have not already seen previously in the
+                        retrieval.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>gate_points</term>
+                <listitem>
+                    <para>
+                        This table is used by Parameter/point gates to
+                        store the points that define the region of
+                        interest that makes up the gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>component_gates</literal></term>
+                <listitem>
+                    <para>
+                        This table is used by Compound gates to store the
+                        gates a compound gate depends on.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>gate_parameters</literal></term>
+                <listitem>
+                    <para>
+                        This table stores the parameters a Parameter/point
+                        or Parameter/mask gate depends on.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><literal>gate_masks</literal></term>
+                <listitem>
+                    <para>
+                        This table stores the mask values for
+                        Parameter/mask gates.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            Let's starg going over the contents of each of these
+            tables one at a time.  The
+            <literal>gate_defs</literal> table, as expected,
+            has the <structfield>id</structfield> primary key
+            and <structfield>saveset_id</structfield>  foreign key
+            fields, uniquely defining the entry and which save set
+            the gate definition belongs to.
+        </para>
+        <para>
+            Additionally, each record of this table has the following
+            fields:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>text</type><structfield>name</structfield></term>
+                <listitem>
+                    <para>
+                        Each gate has a unique name.  This
+                        field contains that name. While SpecTcl
+                        assigns gates numbers, these numbers are not
+                        used internally or externally and, therefore,
+                        are not stored.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type><structfield>type</structfield></term>
+                <listitem>
+                    <para>
+                        SpecTcl uses short textual strings to
+                        describe the gate type.  This field
+                        stores that gate type.  The gate type
+                        is going to determine which other tables
+                        have data for this gate.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            For Parameter/Points gates, the <literal>gate_points</literal>
+            table defines a region of interest in parameter space in
+            which the gate is true.  These gates will also have
+            entries in the <literal>gate_parameters</literal> table.
+            Where point ordering is important (e.g contours and bands),
+            ordering the retrieval by <structfield>id</structfield>
+            recovers that order.
+        </para>
+        <para>
+            In addition to the <structfield>id</structfield> primary
+            key, this table contains a
+            <structfield>gate_id</structfield> field which is a
+            foreign key into the <literal>gate_defs</literal> table
+            identifying the gate each point belongs to.
+        </para>
+        <para>
+            Real <structfield>x</structfield> and possibly
+            null <structfield>y</structfield> fields identify the
+            point coordinates.  One dimensional regions of interest
+            (e.g. slices) have null y values.
+        </para>
+        <para>
+            Compound gates require a list of dependent gates.
+            These are stored in the join table
+            <literal>component_gates</literal>.  In addition to the
+            <structfield>id</structfield> primary key and
+            <structfield>parent_gate</structfield> foreign key back to the
+            <literal>gate_defs</literal> table indicating the gate
+            each record belongs to, a <structfield>child_gate</structfield>
+            foreign key back to the <literal>gate_defs</literal>
+            table points to the dependent gate.
+        </para>
+        <para>
+            Compound gates need not have ordering, however for some
+            gate types (and, or gates), the ordering could be chosen
+            to improve the efficiency of gate computation if the
+            frequency with which a dependent gate is satisfied is known.
+            This s because these gates do short-circuit evaluation,
+            where possible to avoid checking all dependent gates.
+            Once more retrieving from this table ordered by
+            <structfield>id</structfield> will recover the original
+            order of dependent gates.
+        </para>
+        <para>
+            Parameter/point and parameter/mask gates require
+            entrie(s) in the <literal>gate_params</literal> table.
+            This is a join table with primary key
+            <structfield>id</structfield> and
+            <structfield>parent_gate</structfield> pointing to
+            the owning gate in the <literal>gate_defs</literal> table
+            and <structfield>parameter_id</structfield> pointing to the
+            parameter in the <literal>parameter_defs</literal> table.
+        </para>
+        <para>
+            As usual, retrieving the data from this table ordered by
+            primary key will recover any required ordering of these parameters
+            (for example band aand contour gates require the first
+            parameter be the X parameter and second the Y).
+        </para>
+        <para>
+            Finally, the <literal>gate_masks</literal> table stores the
+            mask values for gates Parameter/Mask gate types.
+            This table, in addition to the primary key
+            <structfield>id</structfield>, and foreign key
+            <structfield>parent_gate</structfield> that refers
+            back to the <literal>gate_defs</literal> table
+            has an integer <structfield>mask</structfield> parameter
+            that contains the mask value.
+        </para>
+        <para>
+            Defined gates can be applied to a spectrum in SpecTcl.
+            When applied, that gate acts as a condition that is
+            checked, event by event, and must be true for the
+            spectrum to be incremented.  Actually all spectra
+            have gates applied to them. When a spectrum is created
+            it has a True gate applied to it so that it is always
+            incremented.
+        </para>
+        <para>
+            Gate applications are captured in a join table called,
+            <literal>gate_applications</literal> in addition to the
+            primary key <structfield>id</structfield>, this table
+            has two foreign keys:
+            <structfield>spectrum_id</structfield> that indicates which spectrum
+            is being conditionalized by the gate that is
+            indicated by <structfield>gate_id</structfield>.
+        </para>
+        <para>
+            The final analysis cofiguration item we need to describe
+            in the database are tree variables.  These map to Tcl
+            variables and <classname>CTreeVariable</classname> objects
+            that are used to steer computations performed by the
+            user's event analysis pipeline.
+        </para>
+        <para>
+            Tree variable definitions are captured in the
+            <literal>treevariables</literal> table:
+        </para>
+        <informalexample>
+            <programlisting>
+CREATE TABLE IF NOT EXISTS treevariables (
+            id             INTEGER PRIMARY KEY,
+            save_id        INTEGER NOT NULL,
+            name           TEXT NOT NULL,
+            value          DOUBLE NOT NULL,
+            units          TEXT
+        )
+            </programlisting>
+        </informalexample>
+        <para>
+            In addition to the <structfield>id</structfield> primary
+            key and <structfield>save_id</structfield> foreign
+            key into the <literal>save_sets</literal> table,
+            the following fields are present in this table:
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><type>text</type><structfield>name</structfield></term>
+                <listitem>
+                    <para>
+                        Contains the name of the tree variable.  This
+                        is also the name of the Tcl global variable
+                        the tree variable maps to.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>double</type><structfield>value</structfield></term>
+                <listitem>
+                    <para>
+                        Contains the value of the tree variable.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><type>text</type><structfield>units</structfield></term>
+                <listitem>
+                    <para>
+                        Contains the units of measure metadata for
+                        this tree variable.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <section>
+            <title>Storing event data</title>
+            <para>
+                The event data for a single run can also be
+                stored in a save-set. At present, only
+                run state transitions, event data and scaler
+                readouts can be stored.
+            </para>
+            <para>
+                The SpecTcl code that
+                can write event data into the database creates
+                a new save set when the run begins, and saves
+                the analysis configuration.  It then puts data
+                into a set of additional tables.
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>runs</literal></term>
+                    <listitem>
+                        <para>
+                            Contains the root information for
+                            event and scaler data. All event
+                            like data for the run are linked back
+                            to this table.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>events</literal></term>
+                    <listitem>
+                        <para>
+                            Stores the parameters for each event
+                            that were produced by the user's event
+                            analysis pipeline.  
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>scaler_readouts</literal></term>
+                    <listitem>
+                        <para>
+                            Stores information about when a scaler
+                            readout occured and on which source id
+                            it occured.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>scaler_channels</literal></term>
+                    <listitem>
+                        <para>
+                            Stores the data  from each channel
+                            of a scaler ring item
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The <literal>runs</literal> table has the following definition
+            </para>
+            <informalexample>
+                <programlisting>
+        CREATE TABLE IF NOT EXISTS runs (    -- Runs that were saved.
+            id         INTEGER PRIMARY KEY,
+            config_id  INTEGER,              -- Configuration at begin of run.
+            run_number INTEGER UNIQUE NOT NULL,
+            title      TEXT NOT NULL,
+            start_time INTEGER,
+            stop_time  INTEGER              -- End of run time
+        )
+                </programlisting>
+            </informalexample>
+            <para>
+                As expected, the <structfield>config_id</structfield>
+                is a foreign key into the <literal>save_sets</literal>
+                table indicating which save set this run was saved in.
+                <structfield>id</structfield> is a primary key which
+                provides a handle for dependent data to link back to.
+            </para>
+            <para>
+                In addition to these fields, we store:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>integer</type><structfield>run_number</structfield></term>
+                    <listitem>
+                        <para>
+                            The run number for the run captured
+                            by this data.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>text</type><structfield>title</structfield></term>
+                    <listitem>
+                        <para>
+                            The title of the run.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>start_time</structfield></term>
+                    <listitem>
+                        <para>
+                            The unix <type>time_t</type> at which the
+                            run begun. In Tcl this can be turned into
+                            a human readable time with
+                            <command>clock format</command>, in
+                            C/C++ with <function>strftime</function>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>stop_time</structfield></term>
+                    <listitem>
+                        <para>
+                            The unix <type>time_t</type> at which
+                            the run was ended. Note that if the run
+                            does not have a valid end run item,
+                            this will be NULL
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The <literal>events</literal> table is a bit odd.
+                A normal database definition for it would look like
+                this:
+            </para>
+            <informalexample>
+                <programlisting>
+CREATE TABLE IF NOT EXISTS events (
+    id          INTEGER PRIMARY KEY,
+    run_id      INTEGER NOT NULL,
+    event_number INTEGER_NOT NULL,
+    parameter_id INTEGER NOT NULL,
+    parameter_value REAL NOT NULL
+)
+                </programlisting>
+            </informalexample>
+            <para>
+                Each parameter of each event would have an entry in the
+                table that would contain its parameter id
+                (foreign key to the <literal>parameter_defs</literal>
+                table), and its value.  In fact this was the first
+                try to implement this table.  What we found, however,
+                was that while this table would have made some interesting
+                queries to support data analysis possible, reconstructing
+                events from it was not time-efficient.
+            </para>
+            <para>
+                We therefore wound up settling on this compromise
+                definition:
+            </para>
+            <informalexample>
+                <programlisting>
+CREATE TABLE IF NOT EXISTS events (
+            id         INTEGER PRIMARY KEY,
+            run_id     INTEGER NOT NULL,   -- fk to runs(id).
+            event_number INTEGER NOT NULL, -- Event number in the run.
+            parameter_count INTEGER NOT NULL, -- Hints at the event blob size.
+            event_data  BLOB NOT NULL
+        )
+                </programlisting>
+            </informalexample>
+            <para>
+                As in the first attempt, in addition to the
+                primary key <structfield>id</structfield>,
+                the <structfield>run_id</structfield>, a foreign key
+                tying the event back to the run it belongs to
+                and the <structfield>event_number</structfield>,
+                which represents the trigger number in the run;
+                we have:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>integer</type><structfield>parameter_count</structfield></term>
+                    <listitem>
+                        <para>
+                            Contains the number of parameters
+                            that have values in this event.  SpecTcl
+                            provides a <classname>CEvent</classname>
+                            data type that is an array like object
+                            whose values know if they've been assigned
+                            values or not.  This
+                            count represents the count of parameters
+                            that have been assigned values.
+                        </para>
+                        <para>
+                            Some event processing pipelines initialize
+                            all parameters to some value.
+                            While this avoids having to
+                            check the validity of parameters, it also
+                            throws away a major SpecTcl optimization
+                            at histogramming time.  This is not
+                            recommended practice.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>blob</type><structfield>event_data</structfield></term>
+                    <listitem>
+                        <para>
+                            This contains the actual parameters that
+                            were given values in the event.  So first,
+                            what does <firstterm>blob</firstterm> mean?
+                            <literal>blob</literal> is an acronym for
+                            <literal>Binary Large Object</literal>.
+                            Blobs allows arbitrary binary data to
+                            occupy a field in the database.
+                        </para>
+                        <para>
+                            In this case the blob stores a sequence
+                            of <structfield>parameter_count</structfield>
+                            <type>DBEvent::blobElement</type> structs. Where
+                            this struct contains the following fields:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                                <term>
+                                    <type>uint32_t</type>
+                                    <structfield>s_parameterNumber</structfield>
+                                </term>
+                                <listitem>
+                                    <para>
+                                        The number/id of a parameter
+                                        (foreign key into
+                                        <literal>parameter_defs</literal>).
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>
+                                    <type>double</type>
+                                    <structfield>s_parameterValue</structfield>
+                                </term>
+                                <listitem>
+                                    <para>
+                                        The value of that parameter for
+                                        this event.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            
+                        </variablelist>
+                        <para>
+                            The SpecTclHeader
+                            <filename>CDBEvents.h</filename>
+                            contains a definition of the
+                            <type>DBEvent::blobElement</type>
+                            data type.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Scaler data is captured in two tables.
+                The first, <literal>scaler_readouts</literal>
+                contains one record per
+                <literal>PERIODIC_SCALERS</literal>
+                ring item SpecTcl sees.  The second,
+                <literal>scaler_channels</literal> contains the
+                actual values of the scaler contained by that
+                ring item.
+            </para>
+            <para>
+                The <literal>scaler_readouts</literal> table looks like
+                this:
+            </para>
+            <informalexample>
+                <programlisting>
+        CREATE TABLE IF NOT EXISTS scaler_readouts (
+            id            INTEGER PRIMARY KEY,
+            run_id        INTEGER NOT NULL,      -- fk for runs.
+            source_id     INTEGER NOT NULL,      -- Event builder source.
+            start_offset  INTEGER NOT NULL,
+            stop_offset   INTEGER NOT NULL,
+            divisor       INTEGER NOT NULL,
+            clock_time    INTEGER NOT NULL
+        )                    
+                </programlisting>
+            </informalexample>
+            <para>
+                The <structfield>id</structfield>
+                field is the primary key
+                value and <structfield>run_id</structfield>
+                is a foreign key into the <literal>runs</literal>
+                table that indicates which run this readout belongs to.
+            </para>
+            <para>
+                The remainder of the fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>integer</type><structfield>source_id</structfield></term>
+                    <listitem>
+                        <para>
+                            This is the source id from the body header
+                            of the ring item. In event built data
+                            it indicates which event source produced
+                            this scaler item.  If the scaler item
+                            does not have a body header, this wil
+                            contain the value <literal>0</literal>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>start_offset</structfield></term>
+                    <listitem>
+                        <para>
+                            Scaler data represents scaler counts over
+                            some interval in the run.  This value
+                            contains the time offset into the run
+                            at which that interval began.  See, however
+                            <structfield>divisor</structfield> below.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>stop_offset</structfield></term>
+                    <listitem>
+                        <para>
+                            Describes the time offset into the run
+                            at which the counting intervale ended.
+                            Again see the <structfield>divisor</structfield>
+                            field below.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>divisor</structfield></term>
+                    <listitem>
+                        <para>
+                            In order to allow for sub-second timing in
+                            scaler readout, either for higher precision,
+                            or for cases when readouts must happen more
+                            often than once per second, this field is
+                            supplied.  This field represents the number
+                            of seconds per <firstterm>tick</firstterm>
+                            in the start and stop offset fields.
+                            That is, dividing those fields by this value
+                            (in floating point) results in seconds into
+                            the run.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>clock_time</structfield></term>
+                    <listitem>
+                        <para>
+                            The unix <type>time_t</type>
+                            at which this scaler readout happened.
+                            This can be converted to a humann readable
+                            time in Tcl using
+                            <command>clock format</command>
+                            and in C/C++ using
+                            <function>strftime</function>.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Associated with each scaler channel in the ring item
+                that resulted in an entry in <literal>scaler_readouts</literal>
+                is a record in the <literal>scaler_channels</literal>
+                table.  This table has the usual
+                <structfield>id</structfield> primary key.
+                A foreign key pointing it back to an entry in the
+                <literal>scaler_readouts</literal> table named
+                <structfield>readout_id</structfield> and the following
+                additional fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><type>integer</type><structfield>channel</structfield></term>
+                    <listitem>
+                        <para>
+                            The channel number of this entry.
+                            This is the index into the array of scalers
+                            that was readout.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><type>integer</type><structfield>value</structfield></term>
+                    <listitem>
+                        <para>
+                            The number of counts in that scaler
+                            channel for
+                            the asssociated readout.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </appendix>
 </book>

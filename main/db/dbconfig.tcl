@@ -1491,6 +1491,7 @@ proc makeSchema cmd {
             source_id     INTEGER NOT NULL,      -- Event builder source.
             start_offset  INTEGER NOT NULL,
             stop_offset   INTEGER NOT NULL,
+            divisor       INTEGER NOT NULL,
             clock_time    INTEGER NOT NULL
         )
     }
@@ -1507,8 +1508,7 @@ proc makeSchema cmd {
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
-#
-#  @param cmd  - the databsae command.
+##  @param cmd  - the databsae command.
 #  @param name - Name of the configuration.
 #  @param spectra - optional.  If true, saves all spectrum contents as well.
 #  @return int - The id of the save's root record.
@@ -1761,7 +1761,7 @@ proc getRunInfo {cmd conf} {
 ##
 # getScalers
 #   @param cmd   - database command.
-#   @param conf  - Configuration id.
+#   @param run  - Rim id.
 #   @returns a list of dicts.  Each dict has the following keys:
 #            -  start - Seconds into the run when a scaler accumulation started
 #            -  stop  - Seconds into the run when a scaler accumulation ended.
@@ -1769,16 +1769,17 @@ proc getRunInfo {cmd conf} {
 #            -  channels  - This is a list of pairs.  The first element
 #                           of each pair is the channel number/vaule of a scaler
 
-proc getScalers {cmd conf} {
+proc getScalers {cmd run} {
     set result [list]
     set lastid -1
     set currentDict [list]
     db eval {
         SELECT scaler_readouts.id as id, run_id, source_id,
-               start_offset, stop_offset, clock_time, channel, value
+               start_offset, stop_offset, divisor, clock_time, channel, value
             FROM scaler_readouts
             INNER JOIN scaler_channels
-                  ON scaler_channels.readout_id = scaler_readouts.id} {
+                  ON scaler_channels.readout_id = scaler_readouts.id
+            WHERE run_id = $run} {
         # If id changed it's a new readout:
         # Need a new dict to add.
         
@@ -1792,7 +1793,8 @@ proc getScalers {cmd conf} {
             # Create the new readout dict.
             
             set currentDict [dict create \
-                start $start_offset stop $stop_offset timestamp $clock_time \
+                start $start_offset stop $stop_offset divisor $divisor timestamp $clock_time \
+                sourceid $source_id                                           \
                 channels [list]]
         }
         #  Add the channel info:
