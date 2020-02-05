@@ -77,7 +77,7 @@ Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
-	NSCLJumboBufferDecoder.h DopeVector.h ZMQRDPatternClass.h ThreadAPI.h CRingFileBlockReader.h ThreadAnalyzer.h
+	NSCLJumboBufferDecoder.h DopeVector.h ZMQRDPatternClass.h ThreadAPI.h CRingFileBlockReader.h ThreadAnalyzer.h zhelpers.hpp
 
 # Removed TapeException.cpp, Tapefile
 
@@ -342,7 +342,8 @@ libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
 				 -I@top_srcdir@/factories \
-				 -I@top_srcdir@/Tape \
+				-I@top_srcdir@/ddas \
+				-I@top_srcdir@/Tape \
 				 @LIBTCLPLUS_CFLAGS@ \
 				 @TCL_CPPFLAGS@
 # Removed @top_builddir@/libntape.la
@@ -381,6 +382,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					spectclCmdTests evbProcessorTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
+				-I@top_srcdir@/ddas \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
 				  -I@top_srcdir@/Display \

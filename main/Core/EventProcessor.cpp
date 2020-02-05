@@ -264,3 +264,4 @@ CEventProcessor::OnInitialize()
 {
     return kfTRUE;
 }
+

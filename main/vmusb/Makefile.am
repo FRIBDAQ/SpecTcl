@@ -54,6 +54,7 @@ MySpecTclApp.h
 
 VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core  \
+	-I@top_srcdir@/ddas  \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \

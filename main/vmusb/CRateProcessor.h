@@ -58,6 +58,9 @@ public:
   int operator==(const CRateProcessor& rhs);
   int operator!=(const CRateProcessor& rhs);
   virtual CRateProcessor* clone() { return new CRateProcessor(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
   
   // Selectors
 

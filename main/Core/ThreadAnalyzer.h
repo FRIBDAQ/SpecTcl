@@ -37,8 +37,10 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <ParameterMapper.h>
 
 class CEventProcessor;
+class CParameterMapper;
 
 class CThreadAnalyzer : public CAnalyzer {
 
@@ -69,7 +71,7 @@ public:
 
   // The following override base class members:
   virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long thread);
-  virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst);
+  virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map);
   virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnScaler(CBufferDecoder& rDecoder);
   virtual void OnEndFile();
@@ -90,7 +92,7 @@ public:
   
  protected:
   
-  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread);
+  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map);
 
  private:
   CEvent* CreateEvent() {

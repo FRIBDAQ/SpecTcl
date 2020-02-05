@@ -87,6 +87,10 @@ class ZMQRDClass
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
 
+  void* m_data;
+  void  RegisterData(void*);
+  void* GetData();
+  
   static std::vector<float> tmpBytes;
   static std::vector<size_t> threadBytes;
   static std::vector<size_t> threadItems;
@@ -109,6 +113,7 @@ class ZMQRDClass
   static double clock();
   static uint64_t converter(const char* s);
 
+  static EventProcessingPipeline* getPipeline();
   static void clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source);
   
   static inline uint64_t hrDiff(const timespec& end, const timespec& start)

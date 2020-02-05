@@ -47,10 +47,12 @@
 #include "BufferTranslator.h"
 #include <histotypes.h>
 #include <string>
+#include "ParameterMapper.h"
 
 class CAnalyzer;
 class CBufferDecoder;
 class CEvent;
+class CParameterMapper;
 
 class CEventProcessor {
  public:
@@ -61,6 +63,7 @@ class CEventProcessor {
 
   // Clone
   virtual CEventProcessor* clone() = 0;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) = 0;
   
   // Operators:
   CEventProcessor& operator= (const CEventProcessor& aCEventProcessor); // Assignment operator.

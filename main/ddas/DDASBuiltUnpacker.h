@@ -36,7 +36,6 @@ namespace DAQ {
 
     // Forward declare the parameter mapper
     class CParameterMapper;
-    class CPipelineData;
     
     /*! \brief Raw data unpacker for built DDAS data
      *
@@ -79,7 +78,6 @@ namespace DAQ {
 	std::vector<DDASHitV> m_VectorList;
 	std::vector<DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
-	CPipelineData*        m_pPipelineData;
 	int max;
 	
       public:
@@ -90,8 +88,7 @@ namespace DAQ {
          * \param rParameterMapper  user's mapper (must be dynamically allocated, 
          *                          ownership transfers to class)
          */
-        CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-			   CParameterMapper& rParameterMapper, CPipelineData& rPipelineData);
+        CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds);
 
 	/**
 	 * Copy constructor
@@ -166,6 +163,7 @@ namespace DAQ {
 				  BufferTranslator& trans,
 				  long thread);
 
+	
         // Utility methods
       protected:
         void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,

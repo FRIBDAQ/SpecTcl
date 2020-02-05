@@ -316,8 +316,13 @@ void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
 
   ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
   zmqAPI->addEventProcessor(rEventProcessor, name);
-  
 }  
+
+void CTclGrammerApp::RegisterData(void* map)
+{
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->RegisterData(map);
+}
 
 //  Function:
 //    void BindTCLVariables(CTCLInterpreter& rInterp)

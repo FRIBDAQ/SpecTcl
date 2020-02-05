@@ -39,6 +39,7 @@
 #include "RingFormatHelper.h"
 #include "RingFormatHelper11Creator.h"
 #include "RingFormatHelperFactory.h"
+#include <ParameterMapper.h>
 
 int status;
 bool isDone = false;
@@ -98,6 +99,9 @@ typedef struct _HistoEvent {
   Vpairs*      histoList;
 } HistoEvent, *pHistoEvent;
 
+static EventProcessingPipeline* pipecopy;
+static std::vector<DAQ::DDAS::CParameterMapper*> data(NBR_WORKERS);
+
 void
 ZMQRDClass::ResizeAll()
 {
@@ -106,13 +110,15 @@ ZMQRDClass::ResizeAll()
   threadItems.resize(NBR_WORKERS);
   physicsItems.resize(NBR_WORKERS);
   entityItems.resize(NBR_WORKERS);
-
+  data.resize(NBR_WORKERS);
+  
   for (int i=0; i<NBR_WORKERS; ++i){
     tmpBytes[i] = 0;
     threadBytes[i] = 0;
     threadItems[i] = 0;
     physicsItems[i] = 0;
-    entityItems[i] = 0;    
+    entityItems[i] = 0;
+    data[i] = 0;
   }
   
 }
@@ -165,6 +171,8 @@ ZMQRDClass::ZMQRDClass()
   // Create event list
   pEventList = new CEventList[NBR_WORKERS];
 
+  pipecopy = new EventProcessingPipeline[NBR_WORKERS];
+  
   wDone = new int[NBR_WORKERS];
 
   // TCL Variables for GUI
@@ -285,7 +293,6 @@ ZMQRDClass::createTranslator(uint32_t* pBuffer)
 {
   pRingItem pItem = reinterpret_cast<pRingItem>(pBuffer);
 
-  //  delete m_pTranslator;
   if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(pBuffer);
   }
@@ -323,41 +330,76 @@ ZMQRDClass::addEventProcessor(CEventProcessor& eventProcessor, const char* name_
   MapEventProcessors::iterator evp  = m_processors.find(name_proc);
   m_pipeline->push_back(PipelineElement(evp->first, evp->second));
 
+  std::cout << "Registered processor: " << name_proc << std::endl;
+
+}
+
+void
+ZMQRDClass::RegisterData(void* map)
+{
+  m_data = map;
+  std::cout << "Register map: " << m_data << std::endl;
+}
+
+void*
+ZMQRDClass::GetData()
+{
+  return m_data;
 }
 
 void
 ZMQRDClass::marshall(long thread, CEventList& lst, Vpairs& vec)
 {
-  DopeVector dp;
   CEventVector& evlist(lst.getVector());
   CEventListIterator p = evlist.begin();
+  DopeVector* dp;
   for(; p != evlist.end(); p++) {
     if(*p) {
       CEvent* pEvent = *p;
-      dp = pEvent->getDopeVector();
+      dp = new DopeVector(pEvent->getDopeVector());
       // add size of the dope vector and id
-      vec.push_back(std::make_pair(dp.size(), qnan));
-      for (int i =0; i < dp.size(); i++){ 
-	unsigned int n = dp[i];
-	double value = (*pEvent)[n];
-	if (debug)
-	  std::cout << n << " " << value << std::endl;
-	vec.push_back(std::make_pair(n, value));
+      if (dp->size()) {
+	vec.push_back(std::make_pair(dp->size(), qnan));
+	for (int i =0; i < dp->size(); i++){ 
+	  unsigned int n = (*dp)[i];
+	  double value = (*pEvent)[n];
+	  if (debug)
+	    std::cout << n << " " << value << std::endl;
+	  vec.push_back(std::make_pair(n, value));
+	}
       }
     }
   }
+  delete dp;
+  dp = NULL;
+}
+
+EventProcessingPipeline*
+ZMQRDClass::getPipeline()
+{
+  return m_pipeline;
 }
 
 void
 ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source)
 {
-  // unzip the list and zip it back
-  EventProcessorIterator p;
-  for (p = source->begin(); p != source->end(); p++) {
-    CEventProcessor *pProcessor(p->second);
-    copy->push_back(PipelineElement(p->first, pProcessor->clone()));
-  }  
+  for (int i=0; i<NBR_WORKERS; i++){    
+    data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
+    std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
+    // unzip the list and zip it back
+    EventProcessorIterator p;
+    for (p = source->begin(); p != source->end(); p++) {
+      CEventProcessor *pProcessor(p->second);
+      CEventProcessor* cloneProc = pProcessor->clone();
+      cloneProc->setParameterMapper(*data[i]);
+      copy[i].push_back(PipelineElement(p->first, cloneProc));      
+      //      copy[i].push_back(PipelineElement(p->first, pProcessor->clone()));
+      //      std::cout << p->first << " clone " << &copy[i] << " " << p->second << std::endl;
+    }
+  }
 }
+
+
 
 void
 ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec)
@@ -369,10 +411,8 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
   CRingFormatHelperFactory* m_factory;
   CRingFormatHelper* pHelper;
 
-  EventProcessingPipeline* pipecopy;
-  //  EventProcessingPipeline* pipecopy = new EventProcessingPipeline;   
   BufferTranslator* m_translator;
-
+  
   //////////////////////////////////////
   // Buffer translator
   //////////////////////////////////////  
@@ -408,28 +448,23 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
   //////////////////////////////////////
   // Analysis pipeline
   //////////////////////////////////////  
-  
-  m.lock();
-  pipecopy = new EventProcessingPipeline(*m_pipeline);
-  //  ZMQRDClass::clonePipeline(pipecopy, m_pipeline); 
-  m.unlock();
-  
+
   if (debug){
     std::cout << "##################################################" << std::endl;
     std::cout << "Inside ZMQRDClass::processRingItems for thread " << thread << std::endl;
     std::cout << "pAnalyzer: " << pAnalyzer << std::endl;
     std::cout << "pDecoder: " << pDecoder << std::endl;
     std::cout << "Translator (original): " << m_pTranslator  << " (clone): " << m_translator << std::endl;
-    std::cout << "Pipeline (original): " << m_pipeline << " (clone): " << pipecopy << std::endl;
+    std::cout << "Pipeline (original): " << m_pipeline << " (clone): " << &pipecopy[thread] << std::endl;
     std::cout << "pEventList[thread]: " << &pEventList[thread] << std::endl;
   }
-  
+    
   Address_t    pBody;
   UInt_t       nBodySize;
 
   std::string  m_title;         // Last title gotten from a transition event.
   UInt_t       m_runNumber;     // Last run number   ""    ""
-  UInt_t       m_nCurrentItemType;
+  UInt_t*       m_nCurrentItemType = new UInt_t;
 
   while(nResidual) {
 
@@ -446,7 +481,7 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
     pBody = pHelper->getBodyPointer(pItem);
     nBodySize = size - (reinterpret_cast<uint8_t*>(pBody) - reinterpret_cast<uint8_t*>(pItem));
 
-    m_nCurrentItemType     = mapType(type);
+    *m_nCurrentItemType = mapType(type);
     switch (type) {
     case BEGIN_RUN:
       {
@@ -495,7 +530,7 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
       {
 	entityItems[thread] = 1;
 	physicsItems[thread]++;
-	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, *pipecopy, *m_translator, pEventList[thread]);	
+	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, pipecopy[thread], *m_translator, pEventList[thread], *data[thread]);
 	marshall(thread, pEventList[thread], vec);
       }
       break;
@@ -515,12 +550,11 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
     delete m_factory;
     delete pHelper;
   }
-  
+
   delete m_translator;
-  delete pipecopy;
   delete pAnalyzer;
   delete pDecoder;
-  
+
 }
 
 UInt_t
@@ -735,7 +769,6 @@ ZMQRDClass::worker_task(void *args)
 	    
 	    ZMQRDClass::processRingItems(thread, pDescriptor, pRingItems, *tmp); 
 	    ZMQRDClass::histoData(thread, *tmp);
-
 	  } else {
 	    std::cerr << "Worker " << thread << " got a bad work item type " << type << std::endl;
 	    break;
@@ -911,6 +944,9 @@ ZMQRDClass::sender_task(void* arg)
   int fd = api->getFd();
 
   filesize = FdGetFileSize(fd);
+
+  // copy of the analysis pipeline
+  ZMQRDClass::clonePipeline(pipecopy, m_pipeline);
   
   CRingFileBlockReader reader(fd);  
   int workers_fired = 0;

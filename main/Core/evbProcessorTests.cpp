@@ -119,9 +119,12 @@ public:
 class noop : public CEventProcessor       // Do nothing event processor.
 {
 public:
-
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  
   noop(){};
   virtual noop* clone() { return new noop(*this); }
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
   
   Bool_t operator()(
         const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,
@@ -132,8 +135,10 @@ public:
 class countevents : public CEventProcessor    // Count  operator() calls.
 {
 public:
-
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  
   virtual countevents* clone() { return new countevents(*this); }
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
   
     unsigned m_calls;
     UInt_t   m_type;
@@ -205,6 +210,8 @@ public:
 
   failure(){};
   virtual failure* clone() { return new failure(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
   
   Bool_t operator()(
         const Address_t p, CEvent& rEvent, CAnalyzer& rAnalyzer,

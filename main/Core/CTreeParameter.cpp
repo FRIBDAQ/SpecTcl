@@ -39,6 +39,9 @@
 #include  <Parameter.h>
 #include  <SpecTcl.h>
 #include <iostream>
+#include <mutex>
+
+std::mutex mu;
 
 #include "ZMQRDPatternClass.h"
 

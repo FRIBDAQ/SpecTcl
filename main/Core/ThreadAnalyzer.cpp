@@ -89,7 +89,7 @@ void CThreadAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long
   calling each processor and giving it a chance to process the event.
   Returns the value of m_nEventSize.  Aborts the event if necessary.
 */
-UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread) {
+UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map) {
 
   EventProcessorIterator p = pipecopy.begin();
 
@@ -105,6 +105,7 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
     CEventProcessor* pProcessor(p->second);
     Bool_t success;
     try {
+      //      pProcessor->setParameterMapper(map);
       success = pProcessor->operator()(pRawData, anEvent, *this, *pDecoder, trans, thread);
     } 
     catch (string msg) {
@@ -252,7 +253,7 @@ void CThreadAnalyzer::OnResume(CBufferDecoder* rDecoder, long thread) {
 // Operation Type:
 //    override for default behavior (extension).
 //
-void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst) {
+void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map) {
   // Processes a buffer of physics data.  The
   // default assumes an NSCL buffer format and,
   // for each event in the data buffer, calls the
@@ -296,7 +297,7 @@ void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nB
       try {
 	
 	m_fAbort = kfFALSE;
-	nEventSize = OnEvent(pData, *pEvent, rDecoder, pipeline, trans, thread);
+	nEventSize = OnEvent(pData, *pEvent, rDecoder, pipeline, trans, thread, map);
 	if(!m_fAbort) {
 	  eventList[nEventNo] = pEvent;
 	  lst[nEventNo] = pEvent;

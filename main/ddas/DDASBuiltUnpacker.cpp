@@ -6,41 +6,42 @@
 
 #include "PipelineData.h"
 #include <ThreadAnalyzer.h>
+#include <ZMQRDPatternClass.h>
 
 #include "Globals.h"
 
 #include <algorithm>
 #include <cstdint>
+#include <mutex>
+
 
 using namespace std;
 
 bool debug = false;
+std::mutex m;
 
 namespace DAQ {
   namespace DDAS {
 
     ///////
     ///
-    CDDASBuiltUnpacker::CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-					   CParameterMapper& rParameterMapper, CPipelineData& rPipelineData)
+    CDDASBuiltUnpacker::CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds)
       : m_sourceIds(validSourceIds),
 	m_channelList(),
-	max(-1),
-	m_pParameterMapper(&rParameterMapper),
-	m_pPipelineData(&rPipelineData)
-    {}
+	max(-1)
+    {
+    }
     CDDASBuiltUnpacker::CDDASBuiltUnpacker(const CDDASBuiltUnpacker& rhs) :
       CEventProcessor(rhs),
       m_sourceIds(rhs.m_sourceIds),
       m_channelList(rhs.m_channelList),
-      max(rhs.max),
-      m_pParameterMapper(rhs.m_pParameterMapper->clone()),
-      m_pPipelineData(rhs.m_pPipelineData->clone())
-    {}
+      max(rhs.max)
+    {
+      std::cout << "Copy ctor CDDASBuiltUnpacker" << std::endl;
+    }
     CDDASBuiltUnpacker::~CDDASBuiltUnpacker() {
       // we always pass a parameter mapper in by reference so this is never a nullptr
       delete m_pParameterMapper;
-      delete m_pPipelineData;
     }
 
     //////
@@ -61,6 +62,7 @@ namespace DAQ {
     ///
     void CDDASBuiltUnpacker::setParameterMapper(CParameterMapper& rParameterMapper) 
     {
+      std::cout << "CDDASBuiltUnpacker::setParameterMapper" << std::endl;
       m_pParameterMapper = &rParameterMapper;
     }
 
