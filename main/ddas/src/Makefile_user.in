@@ -15,13 +15,13 @@ USERCCFLAGS=$(USERCXXFLAGS)
 
 #  If you have any switches you need to add to the link add them below:
 
-USERLDFLAGS=-lDDASUnpacker 
+USERLDFLAGS=-lDDASUnpacker -lzmq
 
 #
 #   Append your objects to the definitions below:
 #
 
-OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o
+OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyPipelineData.o MyParameters2.o MyVariables.o MyCalibrator.o
 
 #
 #  Finally the makefile targets.
