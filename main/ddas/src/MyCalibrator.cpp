@@ -2,20 +2,22 @@
 #include "MyCalibrator.h"
 #include "MyParameterMapper.h"
 #include "MyParameters.h"
+#include <ZMQRDPatternClass.h>
 
-MyCalibrator::MyCalibrator(MyParameterMapper& rParameterMapper, MyPipelineData& rPipelineData) :
-  m_pParameterMapper(&rParameterMapper),
-  m_pPipelineData(&rPipelineData)
+MyCalibrator::MyCalibrator()
 {}
 
-MyCalibrator::MyCalibrator(const MyCalibrator& rhs) :
-  m_pParameterMapper(rhs.m_pParameterMapper->clone()),
-  m_pPipelineData(rhs.m_pPipelineData->clone())
+MyCalibrator::MyCalibrator(const MyCalibrator& rhs) 
 {}
 
 MyCalibrator::~MyCalibrator() {
   delete m_pParameterMapper;
-  delete m_pPipelineData;
+}
+
+void
+MyCalibrator::setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper)
+{
+  m_pParameterMapper = reinterpret_cast<MyParameterMapper*>(&rParameterMapper);
 }
 
 Bool_t
@@ -28,8 +30,23 @@ MyCalibrator::operator()(const Address_t pEvent,
 {
   auto& params = m_pParameterMapper->m_params;
 
-  //  std::cout << params.data.m_chanHit.size() << std::endl;
-  
+  // loop over hits  
+  for(int i= 0; i<params.data.m_chanHit.size(); i++){
+
+    int id = params.data.m_chanHit[i];
+    double ran = ( static_cast<double>(rand())) / (static_cast<double>(RAND_MAX));
+
+    if( id == 341) {
+      if (rEvent[params.chan[id].energy.getId()].isValid()){
+	params.example.ex1.energy = (params.chan[id].energy + ran) + 0.0;
+	params.example.ex1.ecal = params.example.ex1.energy*params.example.var.var1.c1;
+      }
+      if (rEvent[params.chan[id].timestamp.getId()].isValid())
+	params.example.ex1.time = params.chan[id].timestamp + 10.0;
+    }
+
+  } 
+
   return kfTRUE; 
   
 };

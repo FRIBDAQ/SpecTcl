@@ -1,4 +1,3 @@
-
 #ifndef MYPARAMETERS_H
 #define MYPARAMETERS_H
 
@@ -7,20 +6,8 @@
 #include <string>
 #include <PipelineData.h>
 #include <vector>
-
-struct MyPipelineData : public DAQ::DDAS::CPipelineData
-{
- public:
-  std::vector<int> m_chanHit;
-
-  // Constructor.
-  MyPipelineData();
-  // Copy constructor
-  MyPipelineData(const MyPipelineData& rhs);
-  // Clone constructor
-  virtual MyPipelineData* clone() { return new MyPipelineData(*this); }
-
-};
+#include "MyPipelineData.h"
+#include "MyParameters2.h"
 
 struct ChannelData {
 
@@ -35,7 +22,9 @@ struct ChannelData {
   // rawdata.timestamp.
   //
   // \param name  name of parent in tree structure
-  
+
+  ChannelData();
+  ChannelData(const ChannelData& rhs);
   void Initialize(std::string name);
   void Reset();
 };
@@ -43,26 +32,20 @@ struct ChannelData {
 //____________________________________________________________
 // Struct for top-level events
 // 
-//  This contains 48 channels of data because we have 3 modules
-//  in our system, each with 16 channels a piece.
-//
-//  We also want to keep some information for the number of ddas hits
-//  per event (i.e. the multiplicity)
 struct MyParameters {
 
-  ChannelData      chan[400];
+  ChannelData      chan[1000];
   CTreeParameter   multiplicity;
   MyPipelineData   data;
+  MyParameters2    example;
   
-  // Constructor
-  //
-  // This is the root of the tree structure. The name of this
-  // will be used to name the branches of the tree.
-  //
-  // \param name  name of root
+  // Ctor
   MyParameters(std::string name);
-  // copy ctor
+  // Dtor
+  ~MyParameters(){};
+  // Copy Ctor
   MyParameters(const MyParameters& rhs);
+
   void Reset();
 };
 

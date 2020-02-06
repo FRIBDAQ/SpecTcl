@@ -37,7 +37,6 @@ namespace DAQ {
       m_channelList(rhs.m_channelList),
       max(rhs.max)
     {
-      std::cout << "Copy ctor CDDASBuiltUnpacker" << std::endl;
     }
     CDDASBuiltUnpacker::~CDDASBuiltUnpacker() {
       // we always pass a parameter mapper in by reference so this is never a nullptr
@@ -62,7 +61,6 @@ namespace DAQ {
     ///
     void CDDASBuiltUnpacker::setParameterMapper(CParameterMapper& rParameterMapper) 
     {
-      std::cout << "CDDASBuiltUnpacker::setParameterMapper" << std::endl;
       m_pParameterMapper = &rParameterMapper;
     }
 

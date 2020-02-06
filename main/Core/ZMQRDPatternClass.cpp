@@ -330,7 +330,8 @@ ZMQRDClass::addEventProcessor(CEventProcessor& eventProcessor, const char* name_
   MapEventProcessors::iterator evp  = m_processors.find(name_proc);
   m_pipeline->push_back(PipelineElement(evp->first, evp->second));
 
-  std::cout << "Registered processor: " << name_proc << std::endl;
+  if (debug)
+    std::cout << "Registered processor: " << name_proc << std::endl;
 
 }
 
@@ -338,7 +339,8 @@ void
 ZMQRDClass::RegisterData(void* map)
 {
   m_data = map;
-  std::cout << "Register map: " << m_data << std::endl;
+  if (debug)
+    std::cout << "Register map: " << m_data << std::endl;
 }
 
 void*
@@ -383,9 +385,12 @@ ZMQRDClass::getPipeline()
 void
 ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source)
 {
+  std::string msg = "Start setting up the workers...";
+  std::cout << msg << std::endl;
   for (int i=0; i<NBR_WORKERS; i++){    
     data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
-    std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
+    if (debug)
+      std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
     // unzip the list and zip it back
     EventProcessorIterator p;
     for (p = source->begin(); p != source->end(); p++) {
@@ -393,10 +398,11 @@ ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline
       CEventProcessor* cloneProc = pProcessor->clone();
       cloneProc->setParameterMapper(*data[i]);
       copy[i].push_back(PipelineElement(p->first, cloneProc));      
-      //      copy[i].push_back(PipelineElement(p->first, pProcessor->clone()));
-      //      std::cout << p->first << " clone " << &copy[i] << " " << p->second << std::endl;
     }
+    std::cout << "Worker " << i << " ready!" << std::endl;
   }
+  msg = msg + "done!";
+  std::cout << msg << std::endl;  
 }
 
 

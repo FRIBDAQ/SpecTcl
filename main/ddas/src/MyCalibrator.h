@@ -6,19 +6,19 @@
 #include <TCLAnalyzer.h>
 
 class MyParameterMapper;
-class MyPipelineData;
 
 class MyCalibrator : public  CEventProcessor
 {
  public:
-  MyParameterMapper*     m_pParameterMapper; 
-  MyPipelineData*        m_pPipelineData;
+  MyParameterMapper* m_pParameterMapper; 
 
-  MyCalibrator(MyParameterMapper& rParameterMapper, MyPipelineData& rPipelineData);
+  MyCalibrator();
   MyCalibrator(const MyCalibrator& rhs);
   ~MyCalibrator();
   virtual MyCalibrator* clone() { return new MyCalibrator(*this); }
 
+  void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper);
+  
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
