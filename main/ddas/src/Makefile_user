@@ -1,4 +1,4 @@
-INSTDIR=/user/cerizza/zmqS.install
+INSTDIR=/scratch/cerizza/zmqS.install
 # Skeleton makefile for 3.1
 
 include $(INSTDIR)/etc/SpecTcl_Makefile.include
@@ -15,13 +15,13 @@ USERCCFLAGS=$(USERCXXFLAGS)
 
 #  If you have any switches you need to add to the link add them below:
 
-USERLDFLAGS=-L/usr/opt/ddas/3.1/lib -lDDASUnpacker -lddasformat -Wl,-rpath=/usr/opt/ddas/3.1/lib -lzmq
+USERLDFLAGS=-lDDASUnpacker -lzmq
 
 #
 #   Append your objects to the definitions below:
 #
 
-OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyPipelineData.o MyParameters2.o MyVariables.o MyCalibrator.o 
+OBJECTS=MySpecTclApp.o MyParameters.o MyParameterMapper.o MyPipelineData.o MyParameters2.o MyVariables.o MyCalibrator.o
 
 #
 #  Finally the makefile targets.
