@@ -84,17 +84,6 @@ CTKRunControl::Start()
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
 
-  /*
-    }
-  else {
-    ThreadAPI* api = ThreadAPI::getInstance();
-    //    api->Test1();
-    //    api->Test2();
-    //    api->Test3();
-    api->Test4();    
-    OnEnd();
-  }
-  */
 }
 //////////////////////////////////////////////////////////////////////////
 //

@@ -70,17 +70,17 @@ class CThreadAnalyzer : public CAnalyzer {
 public:
 
   // The following override base class members:
-  virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long thread);
+  virtual void OnStateChange(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map);
-  virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
-  virtual void OnScaler(CBufferDecoder& rDecoder);
+  virtual void OnOther(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder);
+  virtual void OnScaler(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnEndFile();
 
   // Extensions to base class functionality:
-  virtual void OnBegin(CBufferDecoder* rDecoder, long thread);
-  virtual void OnEnd(CBufferDecoder*   rDecoder, long thread);
-  virtual void OnPause(CBufferDecoder* rDecoder, long thread);
-  virtual void OnResume(CBufferDecoder* rDecoder, long thread);
+  virtual void OnBegin(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
+  virtual void OnEnd(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
+  virtual void OnPause(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
+  virtual void OnResume(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnInitialize();
 
   // Handling object tuning parameters:

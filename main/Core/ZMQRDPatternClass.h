@@ -103,7 +103,8 @@ class ZMQRDClass
   static void* worker_task(void *args);
 
   uint32_t*    pBuffer;
-  
+
+  void OnInitialize();
   void addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
   static void createTranslator(uint32_t* pBuffer);
   static void processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec);

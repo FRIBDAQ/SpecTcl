@@ -56,26 +56,23 @@ CThreadAnalyzer::~CThreadAnalyzer()
 {
 }
 
-void CThreadAnalyzer::OnStateChange(UInt_t nType, CBufferDecoder& rDecoder, long thread) {
-  /*
-  CAnalyzer::OnStateChange(nType, rDecoder);
+void CThreadAnalyzer::OnStateChange(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
   switch(nType) {
   case BEGRUNBF:
-    OnBegin(&rDecoder, thread);
+    OnBegin(source, rDecoder);
     break;
   case ENDRUNBF:
-    OnEnd(&rDecoder, thread);
+    OnEnd(source, rDecoder);
     break;
   case PAUSEBF:
-    OnPause(&rDecoder, thread);
+    OnPause(source, rDecoder);
     break;
   case RESUMEBF:
-    OnResume(&rDecoder, thread);
+    OnResume(source, rDecoder);
     break;
   default:
     break;
   }
-  */
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -105,7 +102,6 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
     CEventProcessor* pProcessor(p->second);
     Bool_t success;
     try {
-      //      pProcessor->setParameterMapper(map);
       success = pProcessor->operator()(pRawData, anEvent, *this, *pDecoder, trans, thread);
     } 
     catch (string msg) {
@@ -132,146 +128,95 @@ UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDeco
 ////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnBegin(CBufferDecoder* rDecoder)
-// Operation Type:
-//   Behavioral default.
-//
-/*
-  Gains control when SpecTcl recieves a begin run buffer.
-  The action is to:
-  1. Zero m_pBuffers Analyzed.
-  2. Zero Last Sequence.
-  3. Set the run number and
-  4. Set run title variables.
-  5. Set the runstate to active.
-  6. Increment Statistics(RunsAnalyzed).
-  7. Clear the appropriate set of counters.
-*/
-void CThreadAnalyzer::OnBegin(CBufferDecoder* pDecoder, long thread) {
-
-  // Iterate through the pipeline's OnBegin() members.
-  // The loop is broken on the first false return from a processor.
-  //
-  /*
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-  while(p != pMgr->getCurrentPipeline()->end()) {
+//   virtual void OnBegin(EventProcessingPipeline& source) 
+void CThreadAnalyzer::OnBegin(EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
     CEventProcessor *pProcessor(p->second);
-    if(!(pProcessor->OnBegin(*this, *pDecoder))) break;
-    p++;
+    pProcessor->OnBegin(*this, rDecoder);
   }
-  */
 }
 
 ////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnEnd(CBufferDecoder*   rDecoder)
-// Operation type:
-//   Default behavior.
-//
-/*
-  Gets control when an end run buffer is received action is to:
-  1. Set the run state to Halted.
-  
-*/
-void CThreadAnalyzer::OnEnd(CBufferDecoder* rDecoder, long thread) {
-
-  // Iterate through the pipeline's OnEnd() members.
-  // The loop is broken on the first false return from a processor.
-  //
-  /*
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  
-  EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-  while(p != pMgr->getCurrentPipeline()->end()) {
+//   virtual void OnEnd(EventProcessingPipeline& source) 
+void CThreadAnalyzer::OnEnd(EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
     CEventProcessor *pProcessor(p->second);
-    if(!(pProcessor->OnEnd(*this, *rDecoder))) break;
-    p++;
+    pProcessor->OnEventSourceEOF();
   }
-  */
 }
 
 /////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnPause(CBufferDecoder*   rDecoder)
-// Operation Type:
-//   Default behavior.
-/*
-  This function gains control when a pause run buffer is recieved.
-  Action is to set the run state to paused.
-*/
-void CThreadAnalyzer::OnPause(CBufferDecoder* rDecoder, long thread) {
-
-  // Iterate through the pipeline's OnPause() members.
-  // The loop is broken on the first false return from a processor.
-  //
-  /*
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  
-  EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-  while(p != pMgr->getCurrentPipeline()->end()) {
+//   virtual void OnPause(EventProcessingPipeline& source) 
+void CThreadAnalyzer::OnPause(EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
     CEventProcessor *pProcessor(p->second);
-    if(!(pProcessor->OnPause(*this, *rDecoder))) break;
-    p++;
+    pProcessor->OnPause(*this, rDecoder);
   }
-  */
 }
 
 ///////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnResume(CBufferDecoder* rDecoder)
-// Operation Type:
-//   Default behavior
-//
-/*
-  Gains control when the run is resumed.
-  Action is to set the run state to Active.
-*/
-void CThreadAnalyzer::OnResume(CBufferDecoder* rDecoder, long thread) {
-
-  // Iterate through the pipeline's OnResume() members.
-  // The loop is broken on the first false return from a processor.
-  //
-  /*
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-  while(p != pMgr->getCurrentPipeline()->end()) {
+//   virtual void OnResume(EventProcessingPipeline& source) 
+void CThreadAnalyzer::OnResume(EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
     CEventProcessor *pProcessor(p->second);
-    if(!(pProcessor->OnResume(*this, *rDecoder))) break;
-    p++;
+    pProcessor->OnResume(*this, rDecoder);
   }
-  */
+}
+
+///////////////////////////////////////////////////////////////////
+//
+// Function:
+//   virtual void OnOther(UInt_t nType, EventProcessingPipeline& source)
+void CThreadAnalyzer::OnOther(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
+    CEventProcessor *pProcessor(p->second);
+    pProcessor->OnOther(nType, *this, rDecoder);
+  }
+}
+
+///////////////////////////////////////////////////////////////////
+//
+//  Called for scaler buffers, we delegate to onOther..
+//
+void
+CThreadAnalyzer::OnScaler(EventProcessingPipeline& source, CBufferDecoder& rDecoder) {
+}
+
+///////////////////////////////////////////////////////////////////
+//
+// Function:
+//   virtual void OnInitialize()
+void
+CThreadAnalyzer::OnInitialize() {
+}
+
+///////////////////////////////////////////////////////////////////
+//
+// Function:
+//   virtual void OnEndFile()
+void
+CThreadAnalyzer::OnEndFile() {
 }
 
 /////////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnPhysics(CBufferDecoder& rDecoder)
+//   virtual void OnPhysics(...)
 // Operation Type:
 //    override for default behavior (extension).
 //
 void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map) {
-  // Processes a buffer of physics data.  The
-  // default assumes an NSCL buffer format and,
-  // for each event in the data buffer, calls the
-  // EventUnPacker with a CEvent object for
-  // it to fill.
-  //
-  // Formal Parameters:
-  //        CBufferDecoder& rDecoder:
-  //            Refers to the buffer decoder responsible for
-  //            knowing about the global buffer structure.
-  //
-  //   Action is null if:
-  //     1. There is no event decoder.
-  //     2. There is no buffer decoder.  //
-  //  If there is no event sink, the buffers are decoded just not
-  //  sent to the sink.
-  //    This may be useful to derived classes in other environments.
-  //
   UInt_t    nEvents     = 1;
   UInt_t    nEventNo    = 0;
   UInt_t    nOffset     = 0;
@@ -354,100 +299,6 @@ void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nB
     cerr << "Attempting to continue processing with next buffer\n";
     cerr << "---------------------------------------------------------\n";
   }
-}
-
-void CThreadAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
-
-  /*
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-
-  //int i = 0;
-  while(p != pMgr->getCurrentPipeline()->end()) {
-    CEventProcessor* pProcessor(p->second);
-    if(!pProcessor->OnOther(nType, *this, rDecoder)) {
-      break ;
-    }
-    p++;
-    //i++;
-  }
-  */
-  
-}
-
-/*!
-  Called for scaler buffers, we delegate to onOther..
-*/
-void
-CThreadAnalyzer::OnScaler(CBufferDecoder& rDecoder)
-{
-  /*
-  OnOther(rDecoder.getBufferType(), rDecoder);
-  */
-}
-
-/**
- * OnInitialize
- *
- * Called after all SpecTcl initialization is done.
- * Iterates through the event processors invoking OnInitialize in each.
- */
-void
-CThreadAnalyzer::OnInitialize()
-{
-  /*
-    SpecTcl* api = SpecTcl::getInstance();
-    
-    CPipelineManager* mgr = CPipelineManager::getInstance();
-    CTclAnalyzer::EventProcessorIterator p = mgr->getCurrentPipeline()->begin();
-    m_initialized = true;
-    
-    std::vector<std::string> processorsToRemove;
-    
-    while (p != mgr->getCurrentPipeline()->end()) {
-        CEventProcessor* pProcessor = p->second;
-        if (!pProcessor->OnInitialize()) {
-            // An event processor failed  OnInitialze - complain and remove.
-            
-            std::cerr << "****ERROR*****\nEvent processor " << p->first << " failed OnInitialize.";
-            std::cerr << " (returned kfFalse) will be removed\n";
-            processorsToRemove.push_back(p->first);
-        }
-        p++;
-    }
-    // Now remove any failed even processors:
-    
-    std::string pipeName  = api->GetCurrentPipeline();
-    for (int i=0; i < processorsToRemove.size(); i++) {
-      
-        api->RemoveEventProcessor(pipeName.c_str(), processorsToRemove[i].c_str());
-    }
-  */
-}
-
-/*!
-   Called when the event source hit an end file.
-    call the OnEventSourceEOF member for each event processing pipeline
-    element.
-*/
-
-void
-CThreadAnalyzer::OnEndFile()
-{
-  /*
-  SpecTcl* api = SpecTcl::getInstance();
-  CPipelineManager* pMgr = CPipelineManager::getInstance();
-  CTclAnalyzer::EventProcessorIterator p = pMgr->getCurrentPipeline()->begin();
-
-  while (p != pMgr->getCurrentPipeline()->end()) {
-    CEventProcessor *pProcessor = p->second;
-    if (!pProcessor->OnEventSourceEOF()) break;
-    p++;
-  }
-  // Set the Run State to Halted:
-
-  m_pRunState->Set("Halted");    // <-- Added this line
-  */
 }
 
 void

@@ -954,16 +954,11 @@ int CTclGrammerApp::operator()() {
   SourceFunctionalScripts(*gpInterpreter);
   
   // Now that SpecTcl is essentially set up, we can initialize the analyzer
-  
-  //  SpecTcl*      pApi      = SpecTcl::getInstance();
-  //  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
-  //  pAnalyzer->OnInitialize();
+  ZMQRDClass::getInstance()->OnInitialize();
   
   // Set up the first incantaion of TimedUpdates.
   
   Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
-
-
   
   // Additional credits.
 

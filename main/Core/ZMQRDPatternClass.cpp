@@ -45,6 +45,7 @@ int status;
 bool isDone = false;
 bool debug = false;
 bool isStart = true;
+bool isDDAS = false;
 ZMQRDClass* ZMQRDClass::m_pInstance = 0;
 int ZMQRDClass::m_threadState = 0;
 
@@ -302,6 +303,13 @@ ZMQRDClass::createTranslator(uint32_t* pBuffer)
 }
 
 void
+ZMQRDClass::OnInitialize()
+{
+  // copy of the analysis pipeline
+  ZMQRDClass::clonePipeline(pipecopy, m_pipeline);
+}
+
+void
 ZMQRDClass::addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc)
 {
 
@@ -338,6 +346,7 @@ ZMQRDClass::addEventProcessor(CEventProcessor& eventProcessor, const char* name_
 void
 ZMQRDClass::RegisterData(void* map)
 {
+  isDDAS = true;
   m_data = map;
   if (debug)
     std::cout << "Register map: " << m_data << std::endl;
@@ -388,15 +397,19 @@ ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline
   std::string msg = "Start setting up the workers...";
   std::cout << msg << std::endl;
   for (int i=0; i<NBR_WORKERS; i++){    
-    data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
-    if (debug)
-      std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
+    if (isDDAS){
+      data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
+      if (debug)
+	std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
+    }
     // unzip the list and zip it back
     EventProcessorIterator p;
     for (p = source->begin(); p != source->end(); p++) {
       CEventProcessor *pProcessor(p->second);
       CEventProcessor* cloneProc = pProcessor->clone();
-      cloneProc->setParameterMapper(*data[i]);
+      if (isDDAS)
+	cloneProc->setParameterMapper(*data[i]);
+      cloneProc->OnInitialize();
       copy[i].push_back(PipelineElement(p->first, cloneProc));      
     }
     std::cout << "Worker " << i << " ready!" << std::endl;
@@ -499,16 +512,19 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
 	  ZMQRDClass::SetVariable(*m_pRunNumber, m_runNumber);
 	  m_pRunTitle->Set(m_title.c_str());
 	}
+	pAnalyzer->OnBegin(pipecopy[thread], *pDecoder);
       }
       break;
     case END_RUN:
       {
 	m_pRunState->Set("Halted");
+	pAnalyzer->OnEnd(pipecopy[thread], *pDecoder);	
       }
       break;
     case PAUSE_RUN:
       {
 	m_pRunState->Set("Paused");
+	pAnalyzer->OnPause(pipecopy[thread], *pDecoder);	
       }
       break;
     case RESUME_RUN:
@@ -518,7 +534,8 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
 	m_title        = pHelper->getTitle(pItem);
 	m_runNumber    = pHelper->getRunNumber(pItem, m_translator);	
 	ZMQRDClass::SetVariable(*m_pRunNumber, m_runNumber);
-	m_pRunTitle->Set(pDecoder->getTitle().c_str());		
+	m_pRunTitle->Set(pDecoder->getTitle().c_str());
+	pAnalyzer->OnResume(pipecopy[thread], *pDecoder);		
       }
       break;
     case PACKET_TYPES:
@@ -951,9 +968,6 @@ ZMQRDClass::sender_task(void* arg)
 
   filesize = FdGetFileSize(fd);
 
-  // copy of the analysis pipeline
-  ZMQRDClass::clonePipeline(pipecopy, m_pipeline);
-  
   CRingFileBlockReader reader(fd);  
   int workers_fired = 0;
   bool done = false;
