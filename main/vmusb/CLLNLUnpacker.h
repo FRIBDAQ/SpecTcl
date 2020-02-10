@@ -21,6 +21,7 @@
 #include <TranslatorPointer.h>
 #include <list>
 #include <stdint.h>
+#include <CMutex.h>
 
 /*!
   This class unpacks data from the LLNL neutron data taking system
@@ -100,7 +101,8 @@ private:
   std::list<uint16_t> m_event;	      // Super event data.
   UInt_t              m_size;	      // Full size of superevent (words).
 
-
+  CMutex                                 m_observerGuard;
+  
 public:
   // Canonicals:  
   CLLNLUnpacker();

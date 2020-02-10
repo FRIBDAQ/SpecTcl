@@ -306,7 +306,9 @@ void
 ZMQRDClass::OnInitialize()
 {
   // copy of the analysis pipeline
+  m.lock();
   ZMQRDClass::clonePipeline(pipecopy, m_pipeline);
+  m.unlock();  
 }
 
 void
@@ -409,13 +411,17 @@ ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline
       CEventProcessor* cloneProc = pProcessor->clone();
       if (isDDAS)
 	cloneProc->setParameterMapper(*data[i]);
-      cloneProc->OnInitialize();
+      try {
+	cloneProc->OnInitialize();
+      }
+      catch (...) {}      
       copy[i].push_back(PipelineElement(p->first, cloneProc));      
     }
     std::cout << "Worker " << i << " ready!" << std::endl;
   }
   msg = msg + "done!";
   std::cout << msg << std::endl;  
+
 }
 
 
@@ -816,6 +822,7 @@ ZMQRDClass::worker_task(void *args)
   free(p);
   
   worker.close();
+  std::cout << "end of worker " << thread << std::endl;
   
   return NULL;
 }

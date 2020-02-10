@@ -145,8 +145,10 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   // We've established this is our module.  We need to get the information
   // associated with this TDC.
 
+  CriticalSection c(m_observerGuard);
   TdcInfo&  info = getInfo(pMap); // Get our TDC specific junk.
-
+  c.~CriticalSection();
+  
   // Now unpack the data:
 
   offset += 2;			// 2 words / long

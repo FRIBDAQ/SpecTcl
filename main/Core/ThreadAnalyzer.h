@@ -81,7 +81,7 @@ public:
   virtual void OnEnd(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnPause(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnResume(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
-  virtual void OnInitialize();
+  static void OnInitialize(EventProcessingPipeline& source);
 
   // Handling object tuning parameters:
   void SetEventSize(UInt_t nSize) {m_nEventSize = nSize; }

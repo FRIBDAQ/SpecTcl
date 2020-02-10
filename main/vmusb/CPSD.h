@@ -5,12 +5,15 @@
 #define CPSD_H
 
 #include "CModuleUnpacker.h"
+#include <CMutex.h>
 
 class CTreeParameterArray;
 
 class CPSD :  public CModuleUnpacker
 {
 public:
+
+  CMutex                                 m_observerGuard;
   // Canonicals:
 
   CPSD();

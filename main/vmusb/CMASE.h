@@ -23,6 +23,7 @@
 #include "CParamMapCommand.h"
 #include <vector>
 #include <stdint.h>
+#include "CMutex.h"
 
 // Forward definitions.
 
@@ -61,7 +62,9 @@ private:
 private:
   state      m_state;
   uint32_t   m_longsRemaining;
-public:
+  CMutex                                 m_observerGuard;
+
+ public:
   // Supported anonicals.
 
   CMASE();

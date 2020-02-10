@@ -83,8 +83,10 @@ CMASE::operator()(CEvent&                       rEvent,
 				  unsigned int                  offset,
 				  CParamMapCommand::AdcMapping* pMap)
 {
- 
+  CriticalSection c(m_observerGuard);
   COBVector& trees = getInfo(pMap);
+  c.~CriticalSection();
+  
   //
   // In the initial state we need to get the number of words 
   // in the block of triggers we have..then transition to the internal state

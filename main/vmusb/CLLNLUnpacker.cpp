@@ -149,7 +149,9 @@ CLLNLUnpacker::operator()(const Address_t pEvent,
     fetchSuperEvent(p);
     m_state = Internal;		// Want it to fall through to unpack.
   case Internal:
+    CriticalSection c(m_observerGuard);
     unpackModule(rEvent);
+    c.~CriticalSection();
     break;			// Don't want to fall through for exception.
   default:
     throw CEventFormatError(static_cast<int>(CEventFormatError::knBadPacketContents),

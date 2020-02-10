@@ -22,6 +22,7 @@
 #include "CParamMapCommand.h"
 #include <vector>
 #include <stdint.h>
+#include <CMutex.h>
 
 // Forward definitions.
 
@@ -64,6 +65,8 @@ private:
   // Canonicals:
 
 public:
+  CMutex                                 m_observerGuard;
+  
   CV1x90Unpacker();
   virtual ~CV1x90Unpacker();
 

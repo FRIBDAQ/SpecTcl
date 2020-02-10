@@ -37,8 +37,10 @@ CPSD::operator()(CEvent& rEvent,
 		  unsigned int            offset,
 		  CParamMapCommand::AdcMapping* pMap)
 {
+  CriticalSection c(m_observerGuard);
   CTreeParameterArray*** myParameters = getTree(pMap, rEvent);
-
+  c.~CriticalSection();
+  
   uint32_t  channelId, timeStamp[2], channelCount;
   uint32_t          wordCount = getLong(event, offset);
   offset+=2;

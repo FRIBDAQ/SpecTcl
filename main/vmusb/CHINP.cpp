@@ -38,6 +38,8 @@ CHINP::operator()(CEvent& rEvent,
 		  unsigned int            offset,
 		  CParamMapCommand::AdcMapping* pMap)
 {
+
+  CriticalSection c(m_observerGuard);
   CTreeParameterArray*** myParameters = getTree(pMap, rEvent);
 
   vector<uint32_t>  channelIds;

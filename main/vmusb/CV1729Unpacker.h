@@ -18,7 +18,7 @@
 #define CV1729UNPACKER_H
 
 #include "CModuleUnpacker.h"
-
+#include <CMutex.h>
 
 class CSpectrum;
 
@@ -43,6 +43,8 @@ private:
   } Info, *pInfo;
 
 public:
+
+  CMutex                                 m_observerGuard;
   // Canonicals:
 
   CV1729Unpacker();

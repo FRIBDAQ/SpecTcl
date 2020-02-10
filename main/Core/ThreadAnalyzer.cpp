@@ -196,9 +196,14 @@ CThreadAnalyzer::OnScaler(EventProcessingPipeline& source, CBufferDecoder& rDeco
 ///////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnInitialize()
+//   virtual void OnInitialize(EventProcessingPipeline& source)
 void
-CThreadAnalyzer::OnInitialize() {
+CThreadAnalyzer::OnInitialize(EventProcessingPipeline& source) {
+  EventProcessorIterator p;
+  for (p = source.begin(); p != source.end(); p++) {
+    CEventProcessor *pProcessor(p->second);
+    pProcessor->OnInitialize();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////

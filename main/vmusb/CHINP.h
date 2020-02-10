@@ -5,12 +5,15 @@
 #define CHINP_H
 
 #include "CModuleUnpacker.h"
+#include "CMutex.h"
 
 class CTreeParameterArray;
 
 class CHINP :  public CModuleUnpacker
 {
 public:
+
+  CMutex                                 m_observerGuard;
   // Canonicals:
 
   CHINP();

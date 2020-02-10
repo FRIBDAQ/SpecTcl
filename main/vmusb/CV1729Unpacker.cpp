@@ -124,7 +124,9 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
     first = false;
   }
 
+  CriticalSection c(m_observerGuard);
   Info& info = *(findSpectra(*pMap));
+  c.~CriticalSection();
   
   // get the two header words:
 
