@@ -8,6 +8,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/pgmref
 	$(mkinstalldirs) @prefix@/share/DDAS
 	$(mkinstalldirs) @prefix@/share/parallel
+	$(mkinstalldirs) @prefix@/share/batch
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
@@ -21,7 +22,7 @@ install-exec-local:
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
-	 parallel.xml
+	 parallel.xml batch.xml
 
 
 BUILT_SOURCES = @builddir@/docs_built
@@ -35,4 +36,5 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/pgmref.xml           -o @builddir@/pgmref
 	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
 	@HTMLDOCBOOK@ @srcdir@/parallel.xml	    -o @builddir@/parallel
+	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
 
