@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Parallel SpecTcl: an introduction</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Parallel SpecTcl (version 6.0-dev)"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Introduction"
+HREF="c13.html"><LINK
+REL="NEXT"
+TITLE="How to create your thread-safe analysis pipeline"
+HREF="c46.html"></HEAD
+><BODY
+CLASS="chapter"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Parallel SpecTcl (version 6.0-dev)</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c13.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c46.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="chapter"
+><H1
+><A
+NAME="AEN25"
+></A
+>Chapter 2. Parallel SpecTcl: an introduction</H1
+><P
+>&#13;	The idea of developing a version of SpecTcl that could take advantage of the now common multi-core machines came from basic need of being able to handle high data rates experiment
+	in perspective of the upcoming FRIB era. In alternative to Batch/MPI SpecTcl, which doesn't offer interactivity, Parallel SpecTcl allows to monitor online parameters just like the normal
+	SpecTcl. Furthermore, it adds computation flexibility when needed (see later for details on worker-driven load-balancing pattern) and speeds up by order of magnitudes offline analyses
+	when recorded files are loaded. The whole phylosophy behind this choice followed the efforts to upgrade the whole DAQ readout/analysis to a more modular and parallel system.
+      </P
+><P
+>&#13;	To understand how Parallel SpecTcl works, let's schematize how the "normal" SpecTcl works (see Figure 2-1). Underneath SpecTcl, a Tcl loop defines the "time" in which events are analyzed.
+	Every second, on an event-by-event base, a buffer of data goes through the SpecTcl analysis engine, is read, unpacked, and histogrammed. What I call engine is a trifecta of C++ classes that
+	interact with each other: a buffer decoder, an event unpacker, and an analyzer. Being a single-core application, the processing speed is defined both by the processor itself and the I/O
+	throughput. It is possible to analyze up to 100 MB/s of data, with the side note that this number is highly dependent on the complexity of the analysis pipeline. In this version of SpecTcl,
+	the Tcl timing loop and the buffer size dictate the analysis and histogramming speed.
+	<DIV
+CLASS="figure"
+><A
+NAME="AEN29"
+></A
+><P
+><B
+>Figure 2-1. Schematic representation of the working components of Spectcl 5.</B
+></P
+><DIV
+CLASS="mediaobject"
+><P
+><IMG
+SRC="figure1.jpg"></P
+></DIV
+></DIV
+>
+      </P
+><P
+>&#13;	Figure 2-2 shows the working components of Parallel SpecTcl. As one can see, the main components are still the same. A regrouping of the processing operations and the introduction of a "sender"
+	determine the work flow. Also, the main noticeable difference is the proliferation of "engine" units. Contrary to SpecTcl, Parallel SpecTcl does not run on a single thread. To be able to run
+	an analysis pipeline one needs at least three threads: 1) the main thread that deals with starting the app, attaching the datasource (either online or evt file), and finally histograms
+	the spectrum 2) the "sender" thread that handles and sends the events to the worker units 3) the worker unit with the "engine" that performs the analysis.
+	Another major different with SpecTcl is the fact that there is not Tcl loop dictating the timing. The whole analysis process is driven by the workers, so the computation speed is
+	determined by the disk/memory access to read buffers of data and the number of the worker units instantiated. The average processing speed varies from hundreds of megabytes per second
+	to gigabytes per second (if memory caching effects kick in). 
+	<DIV
+CLASS="figure"
+><A
+NAME="AEN35"
+></A
+><P
+><B
+>Figure 2-2. Schematic representation of the working components of Parallel Spectcl.</B
+></P
+><DIV
+CLASS="mediaobject"
+><P
+><IMG
+SRC="figure2.jpg"></P
+></DIV
+></DIV
+>
+      </P
+><P
+>&#13;	The event handling between the sender and the worker units occurs via an asyncronous messaging library (ZeroMQ). The design pattern of choice for the communication is a router-dealer one,
+	which allows a worker-driven load-balance between all the workers allocated without wasting computational resources. The router-dealer messaging pattern algorithm is showed in Figure 2-3.
+	Each worker unit, when instantiated, sends a "ready" message to the sender. Upon receiving, the sender reads a "chunk" of data (configurable via SpecTclInit.tcl - see later for details),
+	formats it as a message, and pushes it to the worker on a first-come-first-served base. Each worker then attaches to the main thread for histogramming. The process goes on until no data is
+	available: at this point the sender sends and "end" message to the workers that will automatically shutdown. The elapsed time, the average processing rate, and the total number of processed
+	events is displayed in the gui in real time.
+	<DIV
+CLASS="figure"
+><A
+NAME="AEN41"
+></A
+><P
+><B
+>Figure 2-3. Schematic representation of router-dealer messaging pattern algorithm.</B
+></P
+><DIV
+CLASS="mediaobject"
+><P
+><IMG
+SRC="figure3.jpg"></P
+></DIV
+></DIV
+>
+      </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c13.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c46.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Introduction</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>How to create your thread-safe analysis pipeline</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

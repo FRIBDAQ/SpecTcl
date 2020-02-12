@@ -7,6 +7,11 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/pgmguide
 	$(mkinstalldirs) @prefix@/share/pgmref
 	$(mkinstalldirs) @prefix@/share/DDAS
+<<<<<<< HEAD
+=======
+	$(mkinstalldirs) @prefix@/share/batch
+	$(mkinstalldirs) @prefix@/share/parallel
+>>>>>>> 8119787... Parallel SpecTcl docs
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
@@ -14,10 +19,20 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
 	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
+<<<<<<< HEAD
 
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml
+=======
+	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
+	$(INSTALL_DATA) @builddir@/parallel/*    @prefix@/share/parallel
+
+
+EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
+	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
+	batch.xml parallel.xml
+>>>>>>> 8119787... Parallel SpecTcl docs
 
 BUILT_SOURCES = @builddir@/docs_built
 
@@ -29,5 +44,10 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/ProgrammingGuide.xml -o @builddir@/pgmguide
 	@HTMLDOCBOOK@ @srcdir@/pgmref.xml           -o @builddir@/pgmref
 	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
+<<<<<<< HEAD
 
+=======
+	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
+	@HTMLDOCBOOK@ @srcdir@/parallel.xml	    -o @builddir@/parallel
+>>>>>>> 8119787... Parallel SpecTcl docs
 

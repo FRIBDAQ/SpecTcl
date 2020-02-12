@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Introduction</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Parallel SpecTcl (version 6.0-dev)"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Parallel SpecTcl (version 6.0-dev)"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="Parallel SpecTcl: an introduction"
+HREF="c25.html"></HEAD
+><BODY
+CLASS="chapter"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Parallel SpecTcl (version 6.0-dev)</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c25.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="chapter"
+><H1
+><A
+NAME="AEN13"
+></A
+>Chapter 1. Introduction</H1
+><P
+>&#13;	  This manual describes the parallel feature of SpecTcl that was introduced in version 6.0. Parallel SpecTcl supports both interactive and offline processing of event files.
+	  When run on a multi-core machine, Parallel Spectcl performs multi-threaded unpacking and histogramming being limited only by the I/O throughput.
+        </P
+><P
+>&#13;	  This document is organized as follows:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>&#13;		  Brief description of the design pattern and warnings of Parallel SpecTcl.
+                </P
+></LI
+><LI
+><P
+>&#13;		  How to prepare to use it (thread-safe skeletons) to steer your analisis pipelines.
+                </P
+></LI
+><LI
+><P
+>&#13;		  How to configure Parallel SpecTcl to run over multi-core systems.
+                </P
+></LI
+></UL
+><P
+>&#13;	  Some notes before diving into the details. Parallel SpecTcl is an extended version of SpecTcl. It parallelizes the analysis pipelines speeding up the unpacking and histogramming process.
+	  Just like the normal SpecTcl, to use Parallel SpecTcl you'll need to define and register an analysis pipeline.  The same even processors you use in Spectcl can be used in the parallel
+	  alternative, although they have to be setup and implement differently. Thread safety is the principle behind the new implementation. Thread-safe code only manipulates shared data
+	  structures in a manner that ensures that all threads behave properly and fulfill their design specifications without unintended interaction. Examples of implementation for VMUSB and DDAS
+	  analyses will be provided.
+	  Once implemented correctly, set of parameters, spectra, gates and gate applications can be applied just like the normal SpecTcl.
+        </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c25.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Parallel SpecTcl (version 6.0-dev)</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Parallel SpecTcl: an introduction</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
