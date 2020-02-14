@@ -1,0 +1,2225 @@
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+#    This software is Copyright by the Board of Trustees of Michigan
+#    State University (c) Copyright 2014.
+#
+#    You may use this software under the terms of the GNU public license
+#    (GPL).  The terms of this license are described at:
+#
+#     http://www.gnu.org/licenses/gpl.txt
+#
+#    Authors:
+#             Ron Fox
+#             Giordano Cerriza
+#	     NSCL
+#	     Michigan State University
+#	     East Lansing, MI 48824-1321
+
+
+##
+# @file names.test
+# @brief Test for saveset names in dbconfig.tcl
+# @author Ron Fox <fox@nscl.msu.edu>
+#
+
+package require tcltest
+package require sqlite3
+
+
+set here [file dirname [info script]]
+source [file join $here dbconfig.tcl];  # pull in the package.
+
+
+proc sbind args {
+    
+}
+proc clear args {
+    
+}
+
+proc createdb {} {
+    sqlite3 config :memory:
+}
+
+
+
+set dummyParamDefs     [list]
+set dummyTreeParamDefs [list]
+set dummySpectrumDefs  [list]
+
+array set dummyContents [list]
+set channelSetHistory [list]
+
+set applications [list]
+
+proc apply {op args} {
+    if {$op eq "-list"} {
+        return $::applications
+    } else {
+        lappend ::applications [list $op $args];    #gate spectrum.
+    }
+}
+
+set gateDefs [list]
+
+proc gate {op args} {
+    if {$op eq "-list"} {
+        return $::gateDefs
+    } elseif {$op eq "-new"} {
+        lappend ::gateDefs $args
+    }
+}
+
+
+set treevariables [list]
+
+proc treevariable {op args} {
+     if {$op eq "-list"} {
+        return $::treevariables
+     } elseif {$op eq "-set"} {
+        lappend ::treevariables $args
+     }
+}
+
+proc channel {op args} {
+    if {$op eq "-set"} {
+        lappend ::channelSetHistory $args;    # Name, channel-spec, value
+        
+    }
+}
+
+proc scontents name {
+
+    set result [list]
+    if {[array names ::dummyContents $name] eq $name} {
+        set result $::dummyContents($name)
+    }
+    return $result
+} 
+
+proc parameter {op args} {
+    if {$op eq "-list"} {
+        set pat [lindex $args 0]
+        set result [list]
+        foreach def $::dummyParamDefs {
+            set pName [lindex $def 0]
+            if {[string match $pat $pName]} {
+                lappend result $def
+            }
+        }
+        return $result
+    } elseif {$op eq "-new"} {
+        set name [lindex $args 0]
+        set id   [lindex $args 1]
+        lappend ::dummyParamDefs [list $name $id]
+    } elseif {$op eq "-delete"} {
+        set i [lsearch -exact -index 0 $::dummyParamDefs [lindex  $args 0]]
+        if {$i != -1} {
+            set ::dummyParamDefs [lreplace  $::dummyParamDefs $i $i]
+        }
+    }
+    
+}
+proc treeparameter {op argv} {
+    if {$op eq "-list"} {
+        set pat $argv
+        set result [list]
+        foreach def $::dummyTreeParamDefs {
+            set pName [lindex $def 0]
+            if {[string match $pat $pName]} {
+                lappend result $def
+            }
+        }
+        return $result
+    }
+}
+proc spectrum {op args} {
+    if {$op eq "-list"} {
+        set pat $args
+        set result [list]
+        foreach def $::dummySpectrumDefs {
+            set name [lindex $def 1]
+            if {[string match $pat $name]} {
+                lappend result $def
+            }
+        }
+        return $result
+    } elseif {$op eq "-delete"} {
+        set name $args
+        set i [lsearch -exact -index 1 $::dummySpectrumDefs $name]
+        if {$i != -1} {
+            set ::dummySpectrumDefs [lreplace $::dummySpectrumDefs $i $i]
+        }
+    } elseif {$op eq "-new"} {
+        # We'll make them all have id 1:
+        
+        set id 1
+        set def [list $id {*}$args]
+        lappend ::dummySpectrumDefs $def
+    }
+        
+}
+
+###############################################################################
+#  Schema creation.
+#
+tcltest::test create_1 {Test creation} \
+-setup {createdb }                      \
+-cleanup {config close}                \
+-body {
+    set status [catch {dbconfig::makeSchema config}]
+} -result 0
+
+tcltest::test create_2 {test double creation} \
+-setup {createdb }                            \
+-cleanup {config close}                       \
+-body {
+    dbconfig::makeSchema config;             # Should work fine given create_2
+    catch {dbconfig::makeSchema config}
+} -result 0
+
+
+#############################################################################
+## save with names
+#
+tcltest::test save_1 {A single save should be just fine} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::saveConfig config {TestConfig}
+    set rows 0
+    set last [list]
+    config eval {SELECT * FROM save_sets} {
+        incr rows
+        set last [list $rows $id $name]
+    }
+    set last
+} -result {1 1 TestConfig}
+
+tcltest::test save_2 {Save of two items should also be fine:} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::saveConfig config {TestConfig}
+    dbconfig::saveConfig config {SecondConfig}
+    
+    set rows [list]
+    config eval {SELECT * FROM save_sets ORDER BY id ASC} {
+        lappend rows [list $id $name]
+    }
+    set rows
+} -result [list [list 1 TestConfig] [list 2 SecondConfig]]
+
+tcltest::test save_3 {Duplicate save set name is no good} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::saveConfig config {TestConfig}
+    dbconfig::saveConfig config {TestConfig}
+} -returnCodes 1 \
+-result * -match glob
+
+##############################################################################
+#  List configs.
+
+tcltest::test list_1 {Initially there are no configurations to list} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::listConfigs config
+} -result [list]
+
+tcltest::test list_2 {Can list a single one correctly} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::saveConfig config {Testconfig}
+    set d [dbconfig::listConfigs config]
+    set d [lindex $d 0]
+    set result [list [dict get $d id] [dict get $d name]]
+} -result [list 1 Testconfig]
+
+tcltest::test list_3 {Can list a few correctly} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                        \
+-cleanup {
+    config close
+}                                                       \
+-body {
+    dbconfig::saveConfig config Testconfig1
+    dbconfig::saveConfig config Testconfig2
+    dbconfig::saveConfig config Testconfig3;    # -result gets painful nere.
+    
+    set result [list]
+    foreach item [dbconfig::listConfigs config] {
+        lappend result [list [dict get $item  id] [dict get $item name]]
+    }
+    set result
+} -result [list                                          \
+    [list 1 Testconfig1] [list 2 Testconfig2] [list 3 Testconfig3] \
+]
+
+##############################################################################
+## Parameter definitions.
+#  Note that we don't change the default null value so it's "".
+#
+
+tcltest::test psave_1 {No parmaeters defined so empty parameter_defs table} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+}                                                                 \
+-body {
+    ::dbconfig::saveConfig config ptest1;              # will be save set 1:
+    
+    # parameter_defs is empty:
+    
+    config eval {
+        SELECT COUNT(*) as nrows FROM parameter_defs
+    } {}
+    set nrows
+} -result 0
+
+tcltest::test psave_2 {Some parameters but no matching tree parameters} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+}                                                                   \
+-body {
+    set dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    dbconfig::saveConfig config ptest1;    #save id 1.
+    
+    # There should be three rows  - all parameters have only
+    # id, save_id, name, number as nonempty strings -- we don't care about id.
+    
+    set result [list]
+    config eval {
+        SELECT name, number, low, high , bins, units FROM parameter_defs
+        WHERE save_id = 1 
+    } {
+        lappend result [list $name $number $low $high $bins $units]
+    }
+    
+    set result
+} -result [list                                             \
+    [list param1 10 "" "" "" ""]                            \
+    [list param2 11 "" "" "" ""]                            \
+    [list param-something 100 "" "" "" ""]                  \
+]
+
+tcltest::test psave_3 {all parameters are also tree parameters} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+}                                                                   \
+-body {
+    set dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set dummyTreeParamDefs [list                                     \
+        [list param1 1024 0.0 1023 1.0 arbitrary]                     \
+        [list param2 100 -1.0 1.0 0.001 cm]                          \
+        [list param-something 360 0 360 1.0 degrees]                 \
+    ]
+    dbconfig::saveConfig config ptest2;         # Gauranteed to be save id 1.
+    
+    set result [list]
+    config eval {
+        SELECT name, number, low, high , bins, units FROM parameter_defs
+       WHERE save_id = 1 
+    } {
+        lappend result [list $name $number $low $high $bins $units]
+    }
+    
+    set result
+} -result [list                                                   \
+    [list param1 10 0.0 1023.0 1024 arbitrary]                      \
+    [list param2 11 -1.0 1.0 100 cm]                              \
+    [list param-something 100 0.0 360.0 360 degrees]                      \
+]
+    
+tcltest::test psave_4 {Some, not all parameters are tree params} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+
+}                                                                   \
+-body {
+    set dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set dummyTreeParamDefs [list                                     \
+        [list param1 1024 0.0 1023 1.0 arbitrary]                     \
+    ]
+    dbconfig::saveConfig config ptest2;         # Gauranteed to be save id 1.
+    
+    set result [list]
+    config eval {
+        SELECT name, number, low, high , bins, units FROM parameter_defs
+        WHERE save_id = 1 
+    } {
+        lappend result [list $name $number $low $high $bins $units]
+    }
+    
+    set result
+} -result [list                                               \
+    [list param1 10 0.0 1023.0 1024 arbitrary]                      \
+    [list param2 11 "" "" "" ""]                            \
+    [list param-something 100 "" "" "" ""]                  \
+]
+
+#############################################################################
+##
+#  Saves for spectrum definitions.
+
+tcltest::test specdef_1 {Initially all of the spectrum def tables are empty}  \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    config eval {
+       SELECT COUNT(*) AS count FROM spectrum_defs
+    } {
+       lappend result $count
+    }
+    
+    config  eval {
+        SELECT COUNT(*) AS count FROM axis_defs
+    } {
+        lappend result $count
+    }
+    
+    config eval {
+        SELECT COUNT(*) AS count FROM spectrum_params
+    } {
+        lappend result $count
+    }
+    set result
+} -result [list 0 0 0]
+
+
+tcltest::test specdef_2 {One spectrum definition for a 2d with existing params} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    # need some params note these are id 1,2,3 in order.
+    
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+    ]
+    
+    dbconfig::saveConfig config spec1
+    
+    # This is save set1, spectrum 1 parameters 1 and 3:
+    
+    # Spectrum root record:
+    
+    config eval {
+        SELECT save_id, name, type, datatype FROM spectrum_defs WHERE id=1
+    } {
+        lappend result [list $save_id $name  $type $datatype]
+    }
+    # parameter records:
+    
+    config eval {
+        SELECT * FROM spectrum_params ORDER BY id ASC
+    } {
+        lappend result $parameter_id
+    }
+    # Axis definitions:
+    
+    config eval {
+        SELECT * from axis_defs ORDER BY id ASC
+    } {
+        lappend result [list $low $high $bins]
+    }
+    
+    set result
+    
+} -result [list                                         \
+    [list 1 testspec 2 long]                            \
+    1                                                   \
+    3                                                   \
+    [list 0.0 1023.0 1024]                              \
+    [list 0.0 4095.0 4096]                            \
+]
+
+tcltest::test specdef_3 {A few spectra and they are kept ok} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    # need some params note these are id 1,2,3 in order.
+    
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    dbconfig::saveConfig config spec1
+    
+    ## One query should get us spectra and their axes:
+    ## another should get us the params
+    
+    set result [list]
+    config eval {
+        SELECT spectrum_defs.id AS id, name, type, datatype,         -- Root record.
+               low, high, bins                  -- axes.
+        FROM spectrum_defs
+        INNER JOIN axis_defs ON spectrum_defs.id = axis_defs.spectrum_id
+        ORDER BY spectrum_defs.id, axis_defs.id ASC
+    } {
+        lappend result [list $id $name $type $datatype $low $high $bins]
+    }
+    
+    config eval {
+        SELECT spectrum_defs.id AS id, parameter_id  FROM spectrum_defs
+        INNER JOIN spectrum_params ON spectrum_defs.id = spectrum_params.spectrum_id
+        ORDER by spectrum_defs.id, spectrum_params.id ASC
+    } {
+        lappend result [list $id $parameter_id]
+    }
+    
+    set result
+} -result [list                                                      \
+    [list 1 testspec 2 long 0.0 1023.0 1024]                         \
+    [list 1 testspec 2 long 0.0 4095.0 4096]                         \
+    [list 2 param1   1 long 0.0 1023.0 512]                          \
+    [list 3 param2   1 long 0.0 511.0 512]                           \
+    [list 1 1] [list 1 3] [list 2 1] [list 3 2]                     \
+]
+##########################################################################
+#  Spectrum contents tests.
+
+
+
+tcltest::test scontents_1 {Definitions with out contents is empty table} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    dbconfig::saveConfig config spec1
+    
+    config eval {
+        SELECT COUNT(*) AS count FROM spectrum_contents
+    } {}
+    set count
+        
+} -result 0
+
+
+tcltest::test scontents_2 {Definitions and put contents into one of the spectra} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    set ::dummyContents(param1) [list                       \
+        [list 1 2] [list 3 4] [list 5 6] [list 7 8]             \
+    ]
+    
+    dbconfig::saveConfig config sc1;        # save set 1.
+    dbconfig::saveSpectrum config sc1 param1
+    
+    # We know our speactrum will have id 2:
+    
+    config eval {
+        SELECT xbin, ybin, value FROM spectrum_contents
+        WHERE spectrum_id=2 ORDER BY xbin ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    set result
+    
+} -result [list                                                        \
+    [list 1 "" 2] [list 3 "" 4] [list 5 "" 6] [list 7 ""  8]           \
+]
+
+tcltest::test scontents_3 {2-d spectrum with data} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    
+    dbconfig::saveConfig config test
+    dbconfig::saveSpectrum config test testspec
+    
+    config eval {
+        SELECT * FROM spectrum_contents
+        WHERE spectrum_id = 1 ORDER BY xbin, ybin ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    set result
+} -result [list                                     \
+    [list 1 2 3] [list 3 4 5 ] [list 6 7 8] [list 9 10 11]            \
+]
+
+tcltest::test scontents_4 {All spectra have data} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    # ID 2.
+    set ::dummyContents(param1) [list                               \
+        [list 100 5] [list 110 660] [list 250 780]                  \
+    ]
+    # ID 3:
+    set dummyContents(param2) [list                                 \
+        [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
+    ]
+    dbconfig::saveConfig config a
+    dbconfig::saveSpectrum config a testspec
+    dbconfig::saveSpectrum config a param1
+    dbconfig::saveSpectrum config a param2
+    
+    
+    config eval {
+        SELECT * FROM spectrum_contents
+            ORDER BY spectrum_id, xbin, ybin ASC
+    } {
+        lappend result [list $spectrum_id $xbin $ybin $value]
+    }
+    set result
+} -result [list                                                        \
+        [list 1 1 2 3] [list 1 3 4 5] [list 1 6 7 8] [list 1 9 10 11]  \
+        [list 2 100 "" 5] [list 2 110 "" 660] [list 2 250 "" 780]      \
+        [list 3 10 "" 5] [list 3 11 "" 6] [list 3 20 "" 8] [list 3 100 "" 12] \
+]
+
+################################################################################
+#  Restore tests.
+
+tcltest::test restore_1 {No such save set is an error} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [catch {dbconfig::restoreConfig config test}]
+    set result
+} -result 1
+
+tcltest::test restore_2 {The parameters we saved get restored no delete- no concern about tree params} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    dbconfig::saveConfig config test
+    
+    set dummyParamDefs [list] ;     # Don't test replacement of existing.sa
+    dbconfig::restoreConfig config test
+    
+    set dummyParamDefs
+} -result [list                                             \
+    [list param1 10] [list param2 11] [list param-something 100] \
+]
+
+tcltest::test restore_3 {Parameter deleted if duplicate: } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    dbconfig::saveConfig config test
+    
+    set ::dummyParamDefs [list                                   \
+         [list param1 10]                                        \
+   ]
+    
+    dbconfig::restoreConfig config test
+    
+    #  param1 should have become last:
+    
+    set ::dummyParamDefs
+} -result [list                                             \
+    [list param1 10]  [list param2 11] [list param-something 100]   \
+]
+
+tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    # need some params note these are id 1,2,3 in order.
+    
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    dbconfig::saveConfig config spec1;   # three spectra are now saved.
+    
+    set ::dummySpectrumDefs [list];      # clear the existing defs.
+    
+    dbconfig::restoreConfig config spec1
+    
+    set ::dummySpectrumDefs
+} -result [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0.0 1023.0 1024} {0.0 4095.0 4096}} long] \
+        [list 1 param1 1 param1 {{0.0 1023.0 512}} long]         \
+        [list 1 param2 1 param2 {{0.0 511.0 512}} long]          \
+    ]
+    
+tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+}                                                                   \
+-body {
+    set result [list]
+    
+    # need some params note these are id 1,2,3 in order.
+    
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    dbconfig::saveConfig config spec1;   # three spectra are now saved.
+    
+    
+    dbconfig::restoreConfig config spec1
+    
+    set ::dummySpectrumDefs
+} -result [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0.0 1023.0 1024} {0.0 4095.0 4096}} long] \
+        [list 1 param1 1 param1 {{0.0 1023.0 512}} long]         \
+        [list 1 param2 1 param2 {{0.0 511.0 512}} long]          \
+    ]
+
+###############################################################################
+#  Test spectrum contents restored.
+#
+
+tcltest::test restore-contents_1 {Restore spectrum contents} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::channelSetHistory [list]
+}                                                                   \
+-cleanup {
+    config close
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dumySpectrumDefs [list]
+    
+    array unset ::dummyContents *
+    set ::channelSetHistory [list]
+}                                                                   \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    # The 2d spectrum has id 1.
+    
+    set ::dummyContents(testspec) [list                               \
+        [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
+    ]
+    # ID 2.
+    set ::dummyContents(param1) [list                               \
+        [list 100 5] [list 110 660] [list 250 780]                  \
+    ]
+    # ID 3:
+    set dummyContents(param2) [list                                 \
+        [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
+    ]
+    dbconfig::saveConfig config a
+    dbconfig::saveSpectrum config a testspec
+    dbconfig::saveSpectrum config a param1
+    dbconfig::saveSpectrum config a param2
+    
+    dbconfig::restoreConfig config a
+    dbconfig::restoreSpectrum config a testspec
+    dbconfig::restoreSpectrum config a param1
+    dbconfig::restoreSpectrum config a param2
+    
+    set ::channelSetHistory
+} -result [list                                                 \
+    [list testspec [list 1 2] 3]                                \
+    [list testspec [list 3 4] 5]                                \
+    [list testspec [list 6 7] 8]                                \
+    [list testspec [list 9 10] 11]                                \
+    [list param1   100 5]                                       \
+    [list param1   110 660]                                       \
+    [list param1   250 780]                                       \
+    [list param2   10 5]                                           \
+    [list param2   11 6]                                           \
+    [list param2   20 8]                                           \
+    [list param2   100 12]                                           \
+]
+    
+#-----------------------------------------------------------------------
+# gates
+
+tcltest::test gates_1 {Save a gate top level}                       \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 1 s [list param1 10 20]]
+    ]
+    dbconfig::saveConfig config Gates
+    
+    config eval {
+        SELECT saveset_id, name, type FROM gate_defs
+    } {
+        lappend result [list $saveset_id $name $type]
+    }
+    
+    set result
+    
+} -result [list [list 1 gate1 s]]
+
+tcltest::test gates_2 {Save with two gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 1 s [list param1 10 20]]                         \
+        [list True 2 T [list]]                                       \
+    ]
+    dbconfig::saveConfig config Gates
+    
+    config eval {
+        SELECT saveset_id, name, type FROM gate_defs
+    } {
+        lappend result [list $saveset_id $name $type]
+    }
+    
+    set result
+    
+} -result [list                      \
+    [list 1 gate1 s]                 \
+    [list 1 True T]                  \
+]
+
+tcltest::test gates_3 {can leading parameters get saved?} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 1 s [list param1 10 20]]                         \
+        [list gate2 2 c [list {param1 param2} {100 200} {300 400} {50 50}]]    \
+        [list gate3 3 b [list {param-something param2} {100 200} {300 400} {50 50}]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_parameters ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $parameter_id]
+    }
+    set result
+} -result [list                                                     \
+    [list 1 1]                                                      \
+    [list 2 1] [list 2 2]                                           \
+    [list 3 3] [list 3 2]                                           \
+]
+
+tcltest::test gate_4 {Can trailing parameter get saved?}           \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                           \
+        [list gate1 1 gb [list {{100 200} {500 20} {700 80}} [list param1 param2]]] \
+        [list gate2 2 gc [list {{100 200} {500 20} {700 80}} [list param-something param2]]] \
+        [list gate3 3 gs [list [list 100 200] [list param2 param-something]]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_parameters ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $parameter_id]
+    }
+    set result
+    
+} -result [list                                                           \
+    [list 1 1] [list 1 2]                                                 \
+    [list 2 3] [list 2 2]                                                 \
+    [list 3 2] [list 3 3]                                                 \
+]
+
+tcltest::test gate_5 {Save gate points for bands and contours}    \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    # Just put a slice gate there:
+    
+    set ::gateDefs [list                                          \
+        [list gate1 1 b [list {param1 param2} {10 10} {100 100}]] \
+        [list gate2 2 c [list {param2 param-something} {10 10} {100 100} {50 50}]] \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x $y]
+    }
+    set result
+    
+} -result [list                                                   \
+    [list 1 10.0 10.0] [list 1 100.0 100.0]                               \
+    [list 2 10.0 10.0] [list 2 100.0 100.0] [list 2 50.0 50.0]                \
+]
+
+tcltest::test gate_6 {Saving mask gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                         \
+        [list gate1  1 em [list param1 1234]]                       \
+        [list gate2  2 am [list param1 456]]                        \
+        [list gate3  3 nm [list param1 789]]                        \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_masks ORDER BY ID ASC
+    } {
+        lappend result [list $parent_gate $mask]
+    }
+    set result
+} -result [list                                               \
+    [list 1 1234] [list 2 456] [list 3 789]                  \
+]
+   
+tcltest::test gate_7 {gamma contour/band points}               \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                                   \
+        [list gate1 1 gb [list [list {100 200} {300 400} ] {param1 param2}]] \
+        [list gate2 2 gc [list [list {100 200} {300 400} {50 20}] {param2 param-something}]] \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x $y]
+    }
+    set result
+} -result   [list                                                     \
+    [list 1 100.0 200.0] [list 1 300.0 400.0]                                \
+    [list 2 100.0 200.0] [list 2 300.0 400.0] [list 2 50.0 20.0]                 \
+]
+
+tcltest::test gate_8 {gamma slice point}                   \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+
+    set ::gateDefs [list                                         \
+        [list gate 1 gs [list [list 10 20] param1]]               \
+    ]
+    
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        select * from gate_points ORDER BY id ASC
+    } {
+        lappend result [list $gate_id $x]
+    }
+    set result
+} -result [list [list 1 10.0 ] [list 1 20.0]]
+
+
+tcltest::test gate_9 {Dependent gate ids} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+
+    # We need to have some simple gates and then we can have compound gates:
+    # Simple gates will just be slices for simplicity.
+    # At this stage of testing, we don't assume the gate dependency re-ordering
+    # is working yet.
+    #
+    set ::gateDefs [list                                               \
+        [list gate1 1 s [list param1 10 20]]                             \
+        [list gate2 2 s [list param2 100 500]]                           \
+        [list gate3 3 s [list param-something 0 1023]]                   \
+                                                                       \
+        [list andgate 4 * [list gate1 gate2 gate3]]                      \
+        [list orgate  5 + [list gate2 gate3]]                            \
+        [list notgate 6 - [list gate3]]                                 \
+    ]
+    dbconfig::saveConfig config gates
+    
+    config eval {
+        SELECT * FROM  component_gates ORDER BY id ASC
+    } {
+        lappend result [list $parent_gate $child_gate]
+    }
+    set result
+} -result [list                                                       \
+    [list 4 1] [list 4 2] [list 4 3]                                  \
+    [list 5 2] [list 5 3]                                             \
+    [list 6 3]                                                       \
+]
+    
+    
+###############################################################################
+#  Gate dependency re-ordering.
+
+tcltest::test deps_1 {Two gates in reverse order}                   \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list not 1 - [list slice]]                             \
+        [list slice 2 s [list param1 [list 10 100]]]            \
+    ]
+    
+    dbconfig::saveConfig config deptest
+} -result 1 -returnCodes [list 0]
+
+tcltest::test deps_2 {Several gates with varying dependencies} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list not 1 - [list slice]]                            \
+        [list slice 2 s [list param1 [list 10 100]]]             \
+        [list s1 3 s   [list param1 [list 20 30]]]             \
+        [list and 4 * [list slice s1 s2]]                      \
+        [list s2  5 s [list param2 [list 100 200]]]            \
+    ]
+    
+    dbconfig::saveConfig config deps
+} -result 1 -returnCodes [list 0]
+
+tcltest::test deps_3 {multilevel dependencies}              \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or 3  + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
+    ]
+    
+    dbconfig::saveConfig config deps
+} -result 1 -returnCodes [list 0]
+
+tcltest::test deps_4 {cyclical dependencies}            \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummyParamDefs [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list and]]                                \
+        [list or  3 + [list and not]]                            \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 300 400]]]              \
+    ]
+    
+    dbconfig::saveConfig config deps;            #Cycle detected failure
+} -returnCodes [list 1] -result "Gate dependency cycle detected!!!"
+    
+#############################################################################
+# Gate application tests.
+
+tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db entries get made} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
+    ]
+
+    dbconfig::saveConfig config apply
+    
+    config eval {
+        SELECT * FROM gate_applications ORDER BY id ASC
+    } {
+        lappend result $spectrum_id $gate_id
+    }
+    set result
+} -result [list]
+    
+tcltest::test apply_2 {Gate applications for -TRUE- get suppressed } \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
+    ]
+    set applications [list                                 \
+        [list testspec [list -TRUE- T {}]]                 \
+        [list param1   [list -TRUE- T {}]]                 \
+        [list param2   [list -TRUE- T {}]]                 \
+    ]
+    dbconfig::saveConfig config apply
+    
+    config eval {
+        SELECT * FROM gate_applications ORDER BY id ASC
+    } {
+        lappend result $spectrum_id $gate_id
+    }
+    set result
+} -result [list]
+
+tcltest::test apply_3  {A spectrum has a gate} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 2 - [list s3]]                                \
+        [list or  3 + [list s1 s2 not]]                         \
+        [list s1 4 s [list param1 [list 100 200]]]              \
+        [list s2 5 s [list param2 [list 400 700]]]            \
+        [list s3 6 s [list param-something [list 100 200]]]   \
+    ]
+    set applications [list                                 \
+        [list testspec [list -TRUE- T {}]]                 \
+        [list param1   [list or  + [list s1 s2 not]]]       \
+        [list param2   [list -TRUE- T {}]]                 \
+    ]
+    dbconfig::saveConfig config apply
+    
+    # Because of the gate reordering we need a bit more complex query so that we
+    # get the spectrum and gate names:
+    
+    config eval {
+        SELECT spectrum_defs.name AS spname, gate_defs.name AS gname FROM gate_applications
+        INNER JOIN  spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
+        INNER JOIN  gate_defs     ON gate_applications.gate_id     = gate_defs.id
+        ORDER BY gate_applications.id ASC
+    } {
+        lappend result [list $spname $gname]
+    }
+    
+    set result
+} -result [list                                                    \
+    [list param1 or]                                               \
+]
+tcltest::test apply_4 {Bunch of spectra have gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+
+    
+    set ::gateDefs [list                                      \
+        [list and 1 * [list or s1 s2 not]]                      \
+        [list not 3 - [list s3]]                                \
+        [list or  4 + [list s1 s2 not]]                         \
+        [list s1 5 s [list param1 [list 100 200]]]              \
+        [list s2 6 s [list param2 [list 400 700]]]            \
+        [list s3 7 s [list param-something [list 100 200]]]   \
+    ]
+    set applications [list                                 \
+        [list testspec [list s1 s [list param1 [list 100 200]]]]                 \
+        [list param1   [list or  + [list s1 s2 not]]]       \
+        [list param2   [list not - [list s3]]]                 \
+    ]
+    dbconfig::saveConfig config apply
+    
+    # Because of the gate reordering we need a bit more complex query so that we
+    # get the spectrum and gate names:
+    
+    config eval {
+        SELECT spectrum_defs.name AS spname, gate_defs.name AS gname FROM gate_applications
+        INNER JOIN  spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
+        INNER JOIN  gate_defs     ON gate_applications.gate_id     = gate_defs.id
+        ORDER BY gate_applications.id ASC
+    } {
+        lappend result [list $spname $gname]
+    }
+    
+    set result
+} -result [list                                                    \
+    [list testspec s1]                                             \
+    [list param1 or]                                               \
+    [list param2 not]                                              \
+]
+##############################################################################
+# Gate restoration.
+
+tcltest::test grestore_1 {If there are no gates in the db nothing gets restored} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list];                  #Empty the defs.
+    
+    dbconfig::restoreConfig config grestore
+    
+    set ::gateDefs
+} -result [list]
+
+tcltest::test grestore_2 {Slices get restored}             \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list slice 1 s [list param1 [list 10 20]]]
+    ]
+        
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+    
+} -result [list [list slice s [list param1 [list 10.0 20.0]]]]
+
+tcltest::test grestore_3 {bands and contours get restored}   \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list contour 1 c [list {param1 param2} {10 10} {20 30} {40 70}]]            \
+        [list band 2 b    [list {param2 param-something}  {700 40} {800 900}]]       \
+    ]
+        
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+    
+} -result [list                                                \
+    [list contour c [list param1 param2 [list {10.0 10.0} {20.0 30.0} {40.0 70.0}]]] \
+    [list band b    [list param2 param-something [list {700.0 40.0} {800.0 900.0}]]]  \
+]
+
+tcltest::test grestore_4 {Gamma bands and contours can be restored} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list contour 1 gc [list [list {10 10} {20 30} {40 70}] [list param1 param2]]]            \
+        [list band 2 gb    [list  [list {700 40} {800 900}] [list param2 param-something]]]       \
+    ]
+        
+    dbconfig::saveConfig config grestore
+    
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+} -result [list                                                        \
+    [list contour  gc [list [list {10.0 10.0} {20.0 30.0} {40.0 70.0}] [list param1 param2]]] \
+    [list band  gb [list  [list {700.0 40.0} {800.0 900.0}] [list param2 param-something]]]
+]
+
+tcltest::test grestore_5 {Restore gamma slice} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                                        \
+        [list gs 1 gs [list [list 100 200] [list param1 param2]]]               \
+    ]
+    dbconfig::saveConfig config grestore
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    
+    set ::gateDefs
+} -result [list                                                         \
+    [list gs gs [list [list 100.0 200.0] [list param1 param2]]]       \
+]
+    
+tcltest::test grestore_6 {Restore T/F gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                       \
+        [list true 1 T [list]]                                 \
+        [list false 2 F [list]]                                \
+    ]
+    
+    dbconfig::saveConfig config grestore
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+} -result [list                                                  \
+    [list true T [list] ]      \
+    [list false F [list]]   \
+]
+
+tcltest::test grestore_8 {restore compound gates} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    set ::gateDefs [list                                       \
+        [list true 1 T [list]]                                 \
+        [list false 2 F [list]]                                \
+        [list not  3 - {true}]                             \
+        [list or 4 + {true false}]                         \
+        [list and 5 * {true not}]                          \
+    ]
+    
+    dbconfig::saveConfig config grestore
+    set ::gateDefs [list]
+    
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+} -result [list                                                  \
+    [list true T [list]]                                       \
+    [list false F [list]]                                       \
+    [list not - true]                                              \
+    [list or  + {true false}]                              \
+    [list and * {true not}]                                \
+]
+tcltest::test grestore_9 {bitmask gate restores} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+        
+    set ::gateDefs [list                                     \
+        [list equal 1 em [list param1 1234]]                  \
+        [list and   2 am [list param2 455]]                   \
+        [list notm  3 nm [list param-something 2134]]         \
+    ]
+    
+    dbconfig::saveConfig config grestore
+    set ::gateDefs [list]
+    dbconfig::restoreConfig config grestore
+    set ::gateDefs
+} -result [list                                               \
+    [list equal em [list param1 1234]]                       \
+    [list and   am [list param2 455]]                        \
+    [list notm  nm [list param-something 2134]]              \
+]
+#############################################################################
+# Restore gate applications:
+
+tcltest::test apprestore_1 {Restore some applications} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::gateDefs [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
+} \
+-body {
+    set result [list]
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    
+        set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long]  \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+        
+    set ::gateDefs [list                                     \
+        [list equal 1 em [list param1 1234]]                  \
+        [list and   2 am [list param2 455]]                   \
+        [list notm  3 nm [list param-something 2134]]         \
+    ]
+    
+    set ::applications [list                                  \
+        [list testspec [list equal 1 em [list param1 1234]]] \
+        [list param1  [list and   2 am [list param2 455]]]   \
+    ]
+    dbconfig::saveConfig config apply
+    set ::applications [list]
+    dbconfig::restoreConfig config apply
+    set ::applications
+} -result [list                                            \
+    [list equal testspec] [list  and param1]                 \
+]
+
+###########################################################################
+#
+#  Treevariable saves:
+
+tcltest::test treevar_1 {Save no tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    dbconfig::saveConfig config treevars
+    
+    set count [config eval {
+        select COUNT(*) AS count FROM treevariables
+    }]
+    
+} -result 0
+
+tcltest::test treevar_2 {save some tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    set ::treevariables [list                                        \
+        [list treevar1 123 ""]                                      \
+        [list treevar2 10 furlongs]                                \
+        [list t.a.b    10 cm]                                       \
+    ]
+    dbconfig::saveConfig config treevar
+    
+    config eval {
+        SELECT * FROM treevariables ORDER BY id ASC
+    } {
+        lappend result [list $save_id $name $value $units]
+    }
+    set result
+} -result [list                                           \
+    [list 1 treevar1 123.0 ""]                              \
+    [list 1 treevar2 10.0 furlongs ]                        \
+    [list 1 t.a.b 10.0 cm]                                  \
+]
+
+tcltest::test treevar_3 {Restore tree variables} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+    set ::treevariables [list]
+}                                                                 \
+-cleanup {
+    config close
+    set ::treevariables [list]
+} \
+-body {
+    set result [list]
+    
+    set ::treevariables [list                                        \
+        [list treevar1 123 ""]                                      \
+        [list treevar2 10 furlongs]                                \
+        [list t.a.b    10 cm]                                       \
+    ]
+    dbconfig::saveConfig config treevar
+    set ::treevariables [list]
+    dbconfig::restoreConfig config treevar
+    
+    set ::treevariables
+} -result [list                                           \
+    [list treevar1 123.0 ""]                              \
+    [list treevar2 10.0 furlongs ]                        \
+    [list t.a.b 10.0 cm]                                  \
+]
+########################################################################
+# Test for the associated run data:
+
+tcltest::test run_1 {No initial runs} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    dbconfig::listRuns config
+} -result [list]
+
+tcltest::test run_2 {There's a run} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time, stop_time)
+            VALUES (10, 1234, 'This is a title', 11111, 22222)
+    }
+    
+    dbconfig::listRuns config
+} -result [list                                            \
+    [dict create id 1 config 10 number 1234 title {This is a title} \
+        start_time 11111 stop_time 22222]                           \
+]
+
+tcltest::test run_3 {Theres a pair of runs} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time, stop_time)
+            VALUES (10, 1234, 'This is a title', 11111, 22222)
+    }
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time)
+            VALUES (11, 1235, 'A second title', 1234)
+    }
+    
+    dbconfig::listRuns config
+} -result [list                                            \
+    [dict create id 1 config 10 number 1234 title {This is a title} \
+        start_time 11111 stop_time 22222]                         \
+    [dict create id 2 config 11 number 1235 title {A second title} \
+     start_time 1234]                                             \
+]
+
+tcltest::test run_4 {Check has run when there isn't one} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    dbconfig::hasRun config 1
+} -result 0
+
+tcltest::test run_5 {Check has run when there is one} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    config eval {
+        INSERT INTO runs (config_id, run_number, title, start_time)
+        VALUES (1, 20, 'junk', 0)
+    }
+    dbconfig::hasRun config 1
+} -result 1
+
+tcltest::test run_6 {Get run info for selected config id without end time} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time, stop_time)
+            VALUES (10, 1234, 'This is a title', 11111, 22222)
+    }
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time)
+            VALUES (11, 1235, 'A second title', 1234)
+    }
+
+    dbconfig::getRunInfo config 11
+} -result [dict create                                             \
+   id 2 config 11 number 1235 title {A second title} start_time 1234 \
+]
+
+tcltest::test run_7 {Get run info when config id has end} \
+-setup {
+    createdb
+    dbconfig::makeSchema config
+} -cleanup {
+    config close
+} -body {
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time, stop_time)
+            VALUES (10, 1234, 'This is a title', 11111, 22222)
+    }
+    config eval {
+        INSERT INTO runs
+            (config_id, run_number, title, start_time)
+            VALUES (11, 1235, 'A second title', 1234)
+    }
+
+    dbconfig::getRunInfo config 10
+} -result [dict create                                             \
+   id 1 config 10 number 1234 title {This is a title}  \
+   start_time 11111 stop_time 22222 \
+]
+
+
+#############################################################################
+#  End of tests - set the exit code to bad if there are failed tests and
+#  report the test results to output:
+
+proc tcltest::cleanupTestsHook {} {
+    variable numTests
+    set ::exitCode [expr {$numTests(Failed) > 0}]
+}
+
+tcltest::cleanupTests
+
+exit $::exitCode

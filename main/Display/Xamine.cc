@@ -109,7 +109,7 @@ extern "C" {
 static void
 desribeSpectraDisplayer(XMWidget& parent)
 {
-    bool showDialog = true;
+    bool showDialog = false;
     const char* pHome = getenv("HOME");
     std::string filename;
     if (pHome) {

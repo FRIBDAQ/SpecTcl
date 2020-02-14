@@ -54,25 +54,25 @@ snit::widget gateSelBar {
     # @args - option name/value pairs.
     #
     constructor args {
-	$self configurelist $args
+        $self configurelist $args
+    
+        #  Create the widgets...where possible ttk widgets are used.
+        #
+        ttk::button $win.update  -text "Update Gate List" -command [mymethod dispatch -updatecmd]
+        ttk::label  $win.masklbl -text "Gate Mask"
+        ttk::entry  $win.mask    -width 32 
+        ttk::button $win.clear   -text Clear -command [mymethod clearMask]
+    
+        # All key releases in the mask dispatch to -maskcmd.
+    
+        bind $win.mask <KeyRelease> [mymethod dispatch -maskcmd]
+    
+        # Layout the widget geometry.
+    
+        grid $win.update $win.masklbl $win.mask $win.clear  -sticky ew
 
-	#  Create the widgets...where possible ttk widgets are used.
-	#
-	ttk::button $win.update  -text "Update Gate List" -command [mymethod dispatch -updatecmd]
-	ttk::label  $win.masklbl -text "Gate Mask"
-	ttk::entry  $win.mask    -width 32 
-	ttk::button $win.clear   -text Clear -command [mymethod clearMask]
 
-	# All key releases in the mask dispatch to -maskcmd.
-
-	bind $win.mask <KeyRelease> [mymethod dispatch -maskcmd]
-
-	# Layout the widget geometry.
-
-	grid $win.update $win.masklbl $win.mask $win.clear  -sticky ew
-
-
-	# Set initial entry value:
+        # Set initial entry value:
 
 	$win.mask insert 0 *
     }
@@ -85,7 +85,14 @@ snit::widget gateSelBar {
     # @param option - the option to retrieve ..must be -mask
     #
     method GetMask option {
-	return [$win.mask get]
+        return [$win.mask get]
+    }
+    ##
+    # update
+    #   Force an update callout:
+    #
+    method update {} {
+        $self dispatch -updatecmd
     }
     #--------------------------------------------------------------------------
     #  Event handlers:
@@ -96,7 +103,7 @@ snit::widget gateSelBar {
     # @param option The name of the option that holds the script we are dispatching.
     #
     method dispatch option {
-	::treeutility::dispatch $options($option) %M [list [list [$win.mask get]]]
+        ::treeutility::dispatch $options($option) %M [list [list [$win.mask get]]]
     }
     ##
     # Called when the clear button is clicked.  Clears the mask back to "*" and
@@ -104,9 +111,9 @@ snit::widget gateSelBar {
     #
 
     method clearMask {} {
-	$win.mask delete 0 end
-	$win.mask insert 0 *
-
-	$self dispatch -maskcmd
+        $win.mask delete 0 end
+        $win.mask insert 0 *
+    
+        $self dispatch -maskcmd
     }
 }

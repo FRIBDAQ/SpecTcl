@@ -158,7 +158,7 @@ if {[catch {source $Config(main)} message]} then {
     error $error
 }
 
-
+return $Config(port)
 
 # vwait forever
 }

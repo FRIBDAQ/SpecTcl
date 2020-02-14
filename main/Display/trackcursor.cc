@@ -50,6 +50,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "spcdisplay.h"
 #include "dispshare.h"
 #include "mapcoord.h"
+
+
+
+#include <iostream>
+
 /*
 ** External references:
 */

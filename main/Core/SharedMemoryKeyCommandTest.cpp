@@ -66,8 +66,8 @@ public:
         CSpecTclDisplayInterface interface;
         api.SetDisplayInterface(interface);
 
-        interface.createDisplay("spectra", "spectra");
-        interface.setCurrentDisplay("spectra");
+        interface.createDisplay("xamine", "xamine");
+        interface.setCurrentDisplay("xamine");
 
         CSharedMemoryKeyCommand cmd(interp, api);
 
@@ -88,8 +88,8 @@ public:
         CSpecTclDisplayInterface interface;
         api.SetDisplayInterface(interface);
 
-        interface.createDisplay("spectra", "spectra");
-        interface.setCurrentDisplay("spectra");
+        interface.createDisplay("xamine", "xamine");
+        interface.setCurrentDisplay("xamine");
 
         CSharedMemoryKeyCommand cmd(interp, api);
 

@@ -684,9 +684,11 @@ CSpectrum::adjustedLimits(UInt_t dim)
   Size_t chans = Dimension(dim);            // Includes the fake channels.
   
   Float_t chanWidth = (high - low)/(chans - 2);
-  
-  low -= chanWidth;
-  high += chanWidth;
+
+  //  12/11/19 giordano - this fixes the problem with spectrum limits
+  //  low -= chanWidth;
+  //  high += chanWidth;
+
   return std::pair<Float_t, Float_t>(low, high);
 }
 

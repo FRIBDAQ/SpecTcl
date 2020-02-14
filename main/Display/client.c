@@ -109,7 +109,8 @@ static char *(env[8]) = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 static pid_t Xamine_Pid = 0;
 static int   Xamine_Memid = -1;
-
+static void* Xamine_LastMemory = NULL;           /* So we can detach ... */
+static pid_t Memwatcher_Pid;
 
 
 /*
@@ -130,9 +131,24 @@ void killmem()
 {
   if(Xamine_Memid > 0) {
      struct shmid_ds stat;
-     shmctl(Xamine_Memid, IPC_STAT, &stat);
-     printf("killing mem\n");
-     shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
+     if (Xamine_LastMemory) {
+       int status;
+       int stat;
+       fprintf(stderr, "detatching previously attached memory %d\n", Xamine_Memid) ;
+       shmdt(Xamine_LastMemory);	/* Detach to stop the watcher. */
+       Xamine_LastMemory = NULL;
+       do {
+	 fprintf(stderr, "Reaping %d\n", Memwatcher_Pid);
+	 stat =  waitpid(Memwatcher_Pid,  &status, 0);
+	 if (stat == -1) {
+	   fprintf(stderr, "Waitpid failed %d\n", errno);
+	   break;
+	 }
+	 sleep(1);		/*  System cleanup deletion of memory is async(?) */
+       } while(!WIFEXITED(stat));
+     }
+
+     Xamine_Memid = -1;
 
   }
 }
@@ -249,7 +265,17 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   int   memid;
   char *base;
   pid_t pid;
+
+  /* If we're already attached to a memory region detach.  That let's our forked guy die: */
+
+  if (Xamine_LastMemory) {
+    shmdt(Xamine_LastMemory);
+    Xamine_Memid=-1;
+    Xamine_LastMemory = NULL;
+  }
+  
   /* Create the shared memory region: */
+
 
   memcpy(&key, name, sizeof(key));
 
@@ -258,29 +284,31 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   if(memid == -1) {
     return 0;
   }
-
+  fprintf(stderr, "Created %d\n", memid);
+  
   /*
     spawn a daemon that will clean up shared memory when no more processes
     are attached to it.
   */
   pid = fork();
   if (pid == 0) {
-      /* child */
+      struct shmid_ds stat;
+
+    /* child */
 
       /* detach the child from the parent */
       int sid = setsid();
-
-      struct shmid_ds stat;
       shmctl(memid, IPC_STAT, &stat);
 
       while (stat.shm_nattch != 0) {
           sleep(1);
           shmctl(memid, IPC_STAT, &stat);
       }
+      fprintf(stderr, "killing mem %d\n", memid);
       shmctl(memid, IPC_RMID, 0);
       exit(EXIT_SUCCESS);
   }
-
+  Memwatcher_Pid = pid;
   /* Attach to the shared memory region: */
 
   base = (char *)shmat(memid, NULL, 0);
@@ -289,6 +317,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   }
 
   Xamine_Memid = memid;		/* Save the memory id. for Atexit<. */
+  Xamine_LastMemory = base;
 
 
   *ptr = (void *)base;

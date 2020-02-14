@@ -1587,7 +1587,8 @@ CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName,
     
     ULong_t nOldValue = (*pSpec)[pIds];
     pSpec->set(pIds, nValue);
-
+    delete []pIds;                      // Was a memory leak!!
+    
     // Result code will be the old value.
     
     char sValue[20];
@@ -2325,8 +2326,9 @@ CSpectrumPackage::ValidateIndices(CSpectrum* pSpec,
 		      "Range checking indices in channel get");
   }
   for(UInt_t i = 0; i < rIndices.size(); i++) {
-    if(rIndices[i] >= pSpec->Dimension(i)) {
-      throw CRangeError(0, pSpec->Dimension(i), rIndices[i],
+    int size =  pSpec->Dimension(i) - 2;
+    if(rIndices[i] >= size) { // -2 for root under/overflow.
+      throw CRangeError(0, size, rIndices[i],
 			"Range Checking indices in channel get");
     }    
   }

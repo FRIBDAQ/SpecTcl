@@ -79,6 +79,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CUnpackEvbCommand.h"
 
 #include "ProductionXamineShMem.h"
+#include "CHttpdServer.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -152,6 +153,7 @@ static const char* ProtectedVariables[] = {
   "TKConsoleBufferSize",
   "NoPromptForNewGui",
   "splashImage",
+  "HTTPDPort",          
   0
 };
 
@@ -437,6 +439,7 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
      - splashImage       - File containg the Tk Splash image displayed during
                            SpecTclRC.tcl execution.  Must be a supported
                            Tk image/photo type.
+     - HTTPDPort   - HTTPD Server port.
   */
   for (const char** pVarName = ProtectedVariables; *pVarName != 0; pVarName++) {
     protectVariable(getInterpreter(), *pVarName);
@@ -524,6 +527,7 @@ void CTclGrammerApp::CreateDisplays()
         throw std::runtime_error("Failed to cast to a CXamineCreator");
     }
 
+#ifdef USE_SPECTRA
     // Set up the Xamine display to use the appropriate display size
     pCreator = gpDisplayInterface->getFactory().getCreator("spectra");
     Spectra::CSpectraLocalDisplayCreator* pSpectraCreator
@@ -533,11 +537,13 @@ void CTclGrammerApp::CreateDisplays()
     } else {
         throw std::runtime_error("Failed to cast to a CSpectraLocalDisplayCreator");
     }
-
+#endif    
     // Create the displays so they can chosen.
     m_pDisplayInterface->createDisplay("xamine",  "xamine");
     m_pDisplayInterface->createDisplay("batch",   "null");
+#ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
+#endif
 }
 
 /*! \brief CTclGrammerApp::SelectDisplayer()
@@ -900,7 +906,31 @@ int CTclGrammerApp::operator()() {
   // Create the available displays
   CreateDisplays();
 
-  // Setup the histogram displayer:
+  // Setup the histogram displayer.. note here's where we also
+  // handle the case where a use has specified
+  // HTTDPort in their init file:
+  
+  CTCLVariable http(gpInterpreter, "HTTPDPort", false);
+  const char* httpdPort = http.Get();
+  if (httpdPort) {
+    // This must be an integer in the non privileged port range:
+    
+    int nPort = atoi(httpdPort);
+    if (nPort < 1024) {
+        std::cerr << "The HTTPDPort SpecTclInit.tcl variable must be an integer > 1023"
+            << " it was: '" << httpdPort << "'\n";
+        exit(EXIT_FAILURE);
+    }
+    CHttpdServer server(gpInterpreter);
+    try {
+        if(!server.isRunning()) server.start(nPort);
+    }
+    catch (std::exception& e) {
+        std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+  }
+  
   SelectDisplayer();
 
   // Set up the display that was picked

@@ -48,6 +48,19 @@ integrate spectrum2d   [list [list x1 y1] [list x2 y2] ...]
 class CIntegrateCommand : public CTCLObjectProcessor
 {
 public:
+    typedef struct _integration1d {
+        double s_sum;
+        double s_centroid;
+        double s_fwhm;
+    } Integration1d, *pIntegration1d;
+    typedef struct _integration2d {
+        double s_sum;
+        double s_xCentroid;
+        double s_yCentroid;
+        double s_xFwhm;
+        double s_yFwhm;
+    } Integration2d, *pIntegration2d;
+public:
 
   CIntegrateCommand(CTCLInterpreter& interp);
   virtual ~CIntegrateCommand();
@@ -63,6 +76,9 @@ public:
   
   virtual int operator()(CTCLInterpreter& interp,
 			STD(vector)<CTCLObject>& objv);
+ 
+  static Integration1d integrate1d(CSpectrum* spectrum, std::vector<int> limits);
+  static Integration2d integrate2d(CSpectrum* spectrum, std::vector<CPoint> points);
   
 protected:
   STD(vector)<CPoint> contourPoints(CGateContainer& gate, CSpectrum& spec);
@@ -80,11 +96,12 @@ protected:
   int integrate1d(CTCLInterpreter&    interp,
 		  CSpectrum&          spectrum,
 		  STD(vector)<int> limits);
+  
   int integrate2d(CTCLInterpreter&    interp,
 	      CSpectrum&          spectrum,
 	      STD(vector)<CPoint> points);
   
-
+ 
 };
 
 

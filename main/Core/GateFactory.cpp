@@ -107,6 +107,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <SpecTcl.h>
 #include <sstream>
+#include <stdexcept>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -903,4 +904,53 @@ UInt_t
 CGateFactory::AssignId()
 {
   return m_nGateId++;
+}
+/**
+ * stringToGateType
+ *    Returns the gate type for a given gate type string.
+ *  @param sType -string type e.g. "*".
+ *  @return CGateFactory::GateType - corresponding gate type.
+ *  @throw std::invalid_argument - if there's no matching type.
+ */
+CGateFactory::GateType
+CGateFactory::stringToGateType(const std::string& sType)
+{
+    if (sType == "*") {
+        return And;
+    } else if (sType == "b") {
+        return band;
+    } else if (sType == "c2band") {
+        return bandcontour;
+    } else if (sType == "c") {
+        return contour;
+    } else if (sType == "s") {
+        return cut;
+    } else if (sType == "F") {
+        return falseg;
+    } else if (sType == "-") {
+        return Not;
+    } else if (sType == "+") {
+        return Or;
+    } else if (sType == "T") {
+        return trueg;
+    } else if (sType == "gs") {
+        return gammacut;
+    } else if (sType == "gb") {
+        return gammaband;
+    } else if (sType == "gc") {
+        return gammacontour;
+    } else if (sType == "em") {
+        return em;
+    } else if (sType == "am") {
+        return am;
+    } else if (sType == "nm") {
+        return nm;
+    } else {
+        std::stringstream msg;
+        msg << "Invalid gate type string: " << sType;
+        throw std::invalid_argument(msg.str());
+    }
+    // Should not land here:
+    
+    return deleted;
 }

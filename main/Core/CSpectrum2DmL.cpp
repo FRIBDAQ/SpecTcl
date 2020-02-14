@@ -142,14 +142,7 @@ CSpectrum2DmL::operator[](const UInt_t* pIndices) const
   
   Int_t  x      = pIndices[0];
   Int_t  y      = pIndices[1];
-  if (x + 2>= Dimension(0)) {
-    throw CRangeError(0, Dimension(0) - 1, x,
-		      string("Indexing 2m spectrum (x)"));
-  }
-  if (y + 2>= Dimension(1)) {
-    throw CRangeError(0, Dimension(1) - 1, y,
-		      string("Indexing 2m Spectrum (y)"));
-  }
+  
   const TH1* pRootSpectrum = getRootSpectrum();
   return static_cast<ULong_t>(pRootSpectrum->GetBinContent(
     pRootSpectrum->GetBin(x + 1, y + 1)

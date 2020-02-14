@@ -23,9 +23,9 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					spectra \
-					scalerWrapper
-
+					scalerWrapper \
+					packaged \
+					Python db
 
 ACLOCAL_AMFLAGS=-I m4
 

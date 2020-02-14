@@ -93,27 +93,17 @@ class Xamine_Location : public XMForm {
    void Xpos(int x) {
      if(x != (int)xpos) {
        xpos = x;
-       if(x < 0) {
-	 xposvalue->SetLabel(" ");
-       }
-       else {
-	 char string[100];
-	 sprintf(string, "%5d", x);
-	 xposvalue->SetLabel(string);
-       }
+       char string[100];
+       sprintf(string, "%5d", x);
+       xposvalue->SetLabel(string);
      }
    }
    void Ypos(int y) {
      if(y != (int)ypos) {
-       ypos = y;
-       if(y < 0) {
-	 yposvalue->SetLabel(" ");
-       }
-       else {
-	 char string[100];
-	 sprintf(string, "%6d", y);
-	 yposvalue->SetLabel(string);
-       }
+
+       char string[100];
+       sprintf(string, "%6d", y);
+       yposvalue->SetLabel(string);
      }
    }
    void XMappedPos(float x) {

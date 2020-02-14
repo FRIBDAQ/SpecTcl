@@ -784,7 +784,15 @@ CProjectionCommand::parameterOrder(int* orderArray, CSpectrum* pSource,
 			xparams.insert(allparameters[i]);
 			yparams.insert(allparameters[i+1]);
 		}
-		CCompoundGate* pActualGate = reinterpret_cast<CCompoundGate*>(pGate->getGate());
+		CCompoundGate* pActualGate = dynamic_cast<CCompoundGate*>(pGate->getGate());
+        
+        // If this is not a compound gate - presumably it's a true gate or false
+        // gate and the input order is correct:
+        
+        if (!pActualGate) {
+            return;
+        }
+        
 		CGateContainer* pFirstGate = pActualGate->GetConstituents().front();
 		CPointListGate *pActFirstGate =
 			reinterpret_cast<CPointListGate*>(pFirstGate->getGate());

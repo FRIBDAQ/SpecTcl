@@ -201,14 +201,7 @@ CGamma2DB::operator[] (const UInt_t* pIndices) const
   
   Double_t nx = pIndices[0];
   Double_t ny = pIndices[1];
-  if (nx >= Dimension(0)) {
-    throw CRangeError(0, Dimension(0)-1, nx,
-		      std::string("Indexing 2DB gamma spectrum x axis"));
-  }
-  if (ny >= Dimension(1)) {
-    throw CRangeError(0, Dimension(1)-1, ny,
-		      std::string("Indexing 2DB gamma spectrum y axis"));
-  }
+  
   Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
   

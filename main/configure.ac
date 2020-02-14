@@ -1,5 +1,7 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,5.1-deb10, scientificsoftware@nscl.msu.edu)
+
+AC_INIT(SpecTcl,5.3-003, scientificsoftware@nscl.msu.edu)
+
 
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
@@ -40,6 +42,8 @@ AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
+
+AX_PYTHON
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
@@ -142,6 +146,7 @@ AC_ARG_WITH([nscldaq-root],
 DAQROOT=$daqroot
 
 AC_SUBST(DAQROOT)
+
 
 
 # -------------------- X11 tests
@@ -544,6 +549,33 @@ esac
 
 AX_TCL
 
+#--------------------- sqlite3 tests - needed for dbconfig:
+
+AX_LIB_SQLITE3			dnl The base library.
+
+
+AC_MSG_CHECKING([For sqlite3 Tcl package])
+
+sqlitefile=`tempfile`
+
+echo package require sqlite3 >$sqlitefile
+
+
+
+$TCLSH $sqlitefile 2>/dev/null
+
+status=$?
+
+if test  $status -ne 0 
+then
+	rm -f $sqlitefile
+	AC_MSG_RESULT([no])
+	AC_MSG_FAILURE([Missing sqlite3 TCL Package required to buid SpecTcl],1)
+fi
+rm -f $sqlitefile
+AC_MSG_RESULT([yes])
+
+
 # Look for image magick convert
 
 # Try to find ImageMagick's convert program, used for converting postscript
@@ -845,7 +877,7 @@ else
 fi
 
 ROOT_CFLAGS=`$ROOTCONFIG --cflags`
-ROOT_LDFLAGS="`$ROOTCONFIG --glibs` -lQtGSI -Wl,-rpath=`$ROOTCONFIG --libdir` "
+ROOT_LDFLAGS="`$ROOTCONFIG --glibs`  -Wl,-rpath=`$ROOTCONFIG --libdir` "
 ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)
 AC_SUBST(ROOT_LDFLAGS)
@@ -954,13 +986,12 @@ AC_OUTPUT(Makefile
           Utility/daqdefs.tcl 
           vmusb/Makefile
           vmusb/MakefileSkel 
-          spectra/Makefile
-          spectra/src/Makefile
-          spectra/test/Makefile
-          spectra/spectcljson/Makefile
-          spectra/Xamine2Root/Makefile
+          Python/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user
+	  packaged/Makefile
+	  packaged/Makefile_skel
+	  db/Makefile
 	  )
           

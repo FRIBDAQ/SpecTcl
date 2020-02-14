@@ -80,14 +80,13 @@ public:
   typedef CCreator<CBufferDecoder>            CDecoderCreator;
   typedef CExtensibleFactory<CBufferDecoder>  CDecoderFactory;
 private:
-  std::string    m_AttachedTo;
+  static std::string    m_AttachedTo;
   static CDecoderFactory m_decoderFactory;
   
 public:
   //Constructor with arguments
   CAttachCommand(CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage) :
-    CTCLPackagedCommand("attach", pInterp, rPackage),
-    m_AttachedTo("Test Data Source")
+    CTCLPackagedCommand("attach", pInterp, rPackage)
   {}
   virtual ~CAttachCommand() {} //Destructor
 	
@@ -101,7 +100,9 @@ private:
   int operator==(const CAttachCommand& rhs) const;
   int operator!=(const CAttachCommand& rhs) const;
 public:
-
+    static void setAttachString(const char* attached) {
+        m_AttachedTo = attached;
+    }
 
   // Operations on the class:
 public:
@@ -123,7 +124,7 @@ public:
 protected:
   static void Usage(CTCLResult& rResult);
   static Switch_t ParseSwitch(char* pSwitch);
-private:
+public:
   static CBufferDecoder* createDecoder(std::string type);
 
 };

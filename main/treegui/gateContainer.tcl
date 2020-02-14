@@ -113,6 +113,7 @@ snit::widget gateContainer {
     # Methods delegated to gateTable:
 
     delegate method getsel to gatetable
+    delegate method updateGates to gatemask as update
     delegate method * to hull
 
 
@@ -143,7 +144,6 @@ snit::widget gateContainer {
 
 	$self configurelist $args
     }
-
 
 
 }

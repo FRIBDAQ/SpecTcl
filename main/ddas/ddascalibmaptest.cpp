@@ -20,6 +20,9 @@
 #include <fstream>
 #include <stdio.h>
 #include <vector>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 class Calibunpacktests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(Calibunpacktests);
@@ -88,7 +91,16 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Calibunpacktests);
 // cfg is a vector of lines to write the file.
 void Calibunpacktests::makeConfigFile(const std::vector<const char*>& cfg)
 {
-    m_fileName = tmpnam(nullptr);
+    char fname[100];
+    memset(fname, 0, sizeof(fname));
+    strcpy(fname, "tempXXXXXX");
+    int fd = mkstemp(fname);
+    if (fd < 0) {
+        perror("Failed to make temp file");
+        exit(EXIT_FAILURE);
+    }
+    close(fd);
+    m_fileName = fname;
     std::ofstream c(m_fileName);
     for (auto i = 0; i < cfg.size(); i++) {
         c << cfg[i] << std::endl;
@@ -256,7 +268,16 @@ void Calibunpacktests::multilinemixed()
 
 void Calibunpacktests::missingFile()
 {
-    const char* file = tmpnam(nullptr);   // Get a name but don't create...
+    char file[100];
+    memset(file, 0, sizeof(file));
+    strcpy(file, "tempfileXXXXXX");
+    int fd = mkstemp(file);
+    if (fd < 0) {
+        perror("temp file creation failed");
+        exit(EXIT_FAILURE);
+    }
+    close(fd);
+    unlink(file);       // Remove the file.
     
     CPPUNIT_ASSERT_THROW(
         CCalibratedFileDrivenParameterMapper* p =

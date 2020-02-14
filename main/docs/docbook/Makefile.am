@@ -16,6 +16,7 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
 	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
+	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
 
 
 
@@ -23,7 +24,6 @@ install-exec-local:
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
 	 parallel.xml batch.xml
-
 
 BUILT_SOURCES = @builddir@/docs_built
 
