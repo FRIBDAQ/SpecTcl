@@ -62,6 +62,7 @@
 #include <TCLAnalyzer.h>
 #include <DisplayInterface.h>
 #include <CPipelineManager.h>
+#include <iostream>
 #include <sstream>
 
 #include <Globals.h>
@@ -2045,9 +2046,12 @@ SpecTcl::AddEventProcessor(CEventProcessor& eventProcessor, const char* name_pro
 
   static unsigned evp_nameSerial(0);
   std::stringstream nameStream;
+  std::string       nameString;
   if(!name_proc) {
     nameStream << "_anonymous_event_processor_" << evp_nameSerial++;
-    name_proc = nameStream.str().c_str();
+    nameString = nameStream.str();
+    name_proc = nameString.c_str();
+    std::cerr << "Assigning event processor name: " <<name_proc <<std::endl;
   }
   
    CPipelineManager* pMgr = CPipelineManager::getInstance();

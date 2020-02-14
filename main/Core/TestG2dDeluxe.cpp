@@ -84,7 +84,7 @@ Test2dM::fillB(std::vector<int> xs, std::vector<int> ys, unsigned nx, unsigned n
 {
     std::vector<CParameter> ps;
     CEvent e;
-    int pno;
+    int pno = 0;
     
     // Create the parameters and event
     
@@ -111,7 +111,7 @@ Test2dM::fillW(std::vector<int> xs, std::vector<int> ys, unsigned nx, unsigned n
 {
     std::vector<CParameter> ps;
     CEvent e;
-    int pno;
+    int pno = 0;
     
     // Create the parameters and event
     
@@ -137,7 +137,7 @@ Test2dM::fillL(std::vector<int> xs, std::vector<int> ys, unsigned nx, unsigned n
 {
     std::vector<CParameter> ps;
     CEvent e;
-    int pno;
+    int pno = 0;
     
     // Create the parameters and event
     

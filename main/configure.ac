@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,5.1-005, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.1-deb10, scientificsoftware@nscl.msu.edu)
 
 
 #AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
@@ -941,6 +941,7 @@ AC_OUTPUT(Makefile
           filtsplit/Makefile
           Gui/Makefile
           Replace/Makefile
+	  scalerWrapper/Makefile
           Scripts/Makefile 
           SpecTcl/Makefile
           splash/Makefile
