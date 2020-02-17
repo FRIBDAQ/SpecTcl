@@ -25,7 +25,7 @@ install-exec-hook:
 	echo package ifneeded SpecTclDb 1.0 [list load [file join \$$dir libSpecTclDb.so]] >> @prefix@/TclLibs/dbconfig/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/share/database
 	@HTMLDOCBOOK@ @srcdir@/SpecTclDB.xml -o @prefix@/share/database
-	$(INSTALL_DATA) GUI.png @prefix@/share/database
+	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 
 check-TESTS:
 	(cd @srcdir@; tclsh *.test)
