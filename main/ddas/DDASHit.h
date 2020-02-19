@@ -119,7 +119,7 @@ namespace DAQ {
 
 
         /*! \brief Destructor  */
-        ~DDASHit(); 
+        virtual ~DDASHit(); 
 
         /*! \brief Resets the state of all member data to that of initialization
          *
