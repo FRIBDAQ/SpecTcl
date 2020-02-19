@@ -98,13 +98,25 @@ namespace DAQ {
          *
          * All member data are zero initialized.
          */
-        DDASHit();
-
+      DDASHit();
+    private:
+      void copyIn(const DDASHit& rhs);
+    public:
+      
         /*! \brief Copy constructor */
-        DDASHit(const DDASHit& obj) = default;
-
+      DDASHit(const DDASHit& obj) {
+	copyIn(obj);
+      }
         /*! \brief Assignment operator */
-        DDASHit& operator=(const DDASHit& obj) = default;
+
+      DDASHit& operator=(const DDASHit& obj) {
+	if (this != &obj) {
+	  copyIn(obj);
+	}
+	return *this;
+      }
+
+
 
         /*! \brief Destructor  */
         ~DDASHit(); 

@@ -31,7 +31,7 @@ libDDASUnpacker_la_CXXFLAGS = -I@top_srcdir@/Core \
 
 libDDASUnpacker_la_LIBADD = @top_builddir@/Core/libTclGrammerApp.la \
 	@ROOT_LDFLAGS@						\
-	@LIBEXCEPTION_LDFLAGS@  @TCL_LIBS@ 
+	-lgsl @LIBEXCEPTION_LDFLAGS@  @TCL_LIBS@ 
 
 
 noinst_PROGRAMS = unittests

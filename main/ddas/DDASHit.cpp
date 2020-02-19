@@ -102,5 +102,32 @@ namespace DAQ {
     void DDASHit::setExternalTimestamp(uint64_t value) { externalTimestamp = value; }
     void DDASHit::setADCOverflowUnderflow(bool state) { m_adcOverflowUnderflow = state; }
 
+    void DDASHit::copyIn(const DDASHit& rhs) {
+      time = rhs.time;
+      coarsetime = rhs.coarsetime;
+      energy= rhs.energy;
+      timehigh = rhs.timehigh;
+      timelow = rhs.timelow;
+      timecfd = rhs.timecfd;
+      finishcode = rhs.finishcode;
+      channellength = rhs.channellength;
+      channelheaderlength = rhs.channelheaderlength;
+      overflowcode = rhs.overflowcode;
+      chanid = rhs.chanid;
+      slotid= rhs.slotid;
+      crateid = rhs.crateid;
+      cfdtrigsourcebit = rhs.cfdtrigsourcebit;
+      cfdfailbit = rhs.cfdfailbit;
+      tracelength =rhs.tracelength;
+      ModMSPS = rhs.ModMSPS;
+      energySums = rhs.energySums;
+      qdcSums =rhs.qdcSums;
+      trace = rhs.trace;
+      externalTimestamp= rhs.externalTimestamp;
+      m_hdwrRevision = rhs.m_hdwrRevision;
+      m_adcResolution= rhs.m_adcResolution;
+      m_adcOverflowUnderflow = rhs.m_adcOverflowUnderflow;
+      
+    }
   } // end DDAS namespace
 } // end DAQ namespace
