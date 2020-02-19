@@ -130,7 +130,7 @@ CFileDrivenParameterMapper::makeMap()
     
     std::ifstream cfg(m_configFile);
     if (cfg.rdstate() & std::ifstream::failbit) {
-        formatStandardMessage("Open failed on configuration file");
+        throw formatStandardMessage("Open failed on configuration file");
     }
     
     // In order to report the file line for errors,we first read entire lines
