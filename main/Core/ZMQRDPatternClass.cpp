@@ -559,8 +559,8 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
       {
 	entityItems[thread] = 1;
 	physicsItems[thread]++;
-	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, pipecopy[thread], *m_translator, pEventList[thread], *data[thread]);
-	marshall(thread, pEventList[thread], vec);
+	//	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, pipecopy[thread], *m_translator, pEventList[thread], *data[thread]);
+	//	marshall(thread, pEventList[thread], vec);
       }
       break;
     case PHYSICS_EVENT_COUNT:
@@ -820,9 +820,10 @@ ZMQRDClass::worker_task(void *args)
   
   pthread_setspecific(glob_var_key, NULL);
   free(p);
-  
+
+  if (debug)
+    std::cout << "end of worker " << thread << std::endl;
   worker.close();
-  std::cout << "end of worker " << thread << std::endl;
   
   return NULL;
 }
@@ -1010,4 +1011,5 @@ ZMQRDClass::sender_task(void* arg)
   }
 
   broker.close();
+  return NULL;
 }

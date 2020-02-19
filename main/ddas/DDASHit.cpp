@@ -9,7 +9,6 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <sstream>
-#include <iostream>
 #include <iomanip>
 
 using namespace std;
@@ -42,37 +41,8 @@ namespace DAQ {
       m_adcResolution(0),
       m_hdwrRevision(0),
       m_adcOverflowUnderflow(false)
-    {
-    }
+    {}
 
-    DDASHit::DDASHit(const DDASHit& obj) :
-      time(obj.time),
-      coarsetime(obj.coarsetime),
-      energy(obj.energy),
-      timehigh(obj.timehigh),
-      timelow(obj.timelow),
-      timecfd(obj.timecfd),
-      finishcode(obj.finishcode),
-      channellength(obj.channellength),
-      channelheaderlength(obj.channelheaderlength),
-      overflowcode(obj.overflowcode),
-      chanid(obj.chanid),
-      slotid(obj.slotid),
-      crateid(obj.crateid),
-      cfdtrigsourcebit(obj.cfdtrigsourcebit),
-      cfdfailbit(obj.cfdfailbit),
-      tracelength(obj.tracelength),
-      ModMSPS(obj.ModMSPS),
-      energySums(obj.energySums),
-      qdcSums(obj.qdcSums),
-      trace(obj.trace),
-      externalTimestamp(obj.externalTimestamp),
-      m_adcResolution(obj.m_adcResolution),
-      m_hdwrRevision(obj.m_hdwrRevision),
-      m_adcOverflowUnderflow(obj.m_adcOverflowUnderflow)
-    {
-    }
-      
     void DDASHit::Reset() {
       time = 0;
       coarsetime = 0;
@@ -132,5 +102,32 @@ namespace DAQ {
     void DDASHit::setExternalTimestamp(uint64_t value) { externalTimestamp = value; }
     void DDASHit::setADCOverflowUnderflow(bool state) { m_adcOverflowUnderflow = state; }
 
+    void DDASHit::copyIn(const DDASHit& rhs) {
+      time = rhs.time;
+      coarsetime = rhs.coarsetime;
+      energy= rhs.energy;
+      timehigh = rhs.timehigh;
+      timelow = rhs.timelow;
+      timecfd = rhs.timecfd;
+      finishcode = rhs.finishcode;
+      channellength = rhs.channellength;
+      channelheaderlength = rhs.channelheaderlength;
+      overflowcode = rhs.overflowcode;
+      chanid = rhs.chanid;
+      slotid= rhs.slotid;
+      crateid = rhs.crateid;
+      cfdtrigsourcebit = rhs.cfdtrigsourcebit;
+      cfdfailbit = rhs.cfdfailbit;
+      tracelength =rhs.tracelength;
+      ModMSPS = rhs.ModMSPS;
+      energySums = rhs.energySums;
+      qdcSums =rhs.qdcSums;
+      trace = rhs.trace;
+      externalTimestamp= rhs.externalTimestamp;
+      m_hdwrRevision = rhs.m_hdwrRevision;
+      m_adcResolution= rhs.m_adcResolution;
+      m_adcOverflowUnderflow = rhs.m_adcOverflowUnderflow;
+      
+    }
   } // end DDAS namespace
 } // end DAQ namespace

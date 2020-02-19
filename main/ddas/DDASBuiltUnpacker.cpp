@@ -155,16 +155,15 @@ namespace DAQ {
     ///
     Bool_t CDDASBuiltUnpacker::parseAndStoreFragment(FragmentInfo& info, std::vector<DDASHit>& channellist, long thread) 
     {
-      DDASHit hit;
       DDASHitUnpacker unpacker;
 
       auto pBody      = reinterpret_cast<uint32_t*>(info.s_itembody);
       size_t bodySize = *pBody; // # of 16-bit words in body (inclusive)
 
-      // parse the body of the ring item 
-      unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), hit );
-
-      channellist.push_back(hit);
+      // parse the body of the ring item
+      m_channelList.emplace(m_channelList.end());
+      unpacker.unpack(pBody, pBody+bodySize/sizeof(uint16_t), m_channelList.back() );
+      return kfTRUE;
     }
 
     
