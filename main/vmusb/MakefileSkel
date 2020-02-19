@@ -1,4 +1,4 @@
-INSTDIR=/scratch/cerizza/zmqS.install
+INSTDIR=/usr/opt/spectcl/zmqSpecTcl
 
 
 include $(INSTDIR)/etc/SpecTcl_Makefile.include
@@ -44,7 +44,7 @@ CV1x90Unpacker.o \
 CV977Unpacker.o \
 LICENCE.o \
 CMutex.o \
-CMyProcessor.o \
+CMyProcessor.o \ 
 MySpecTclApp.o 
 
 #
