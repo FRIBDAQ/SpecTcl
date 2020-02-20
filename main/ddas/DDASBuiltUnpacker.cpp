@@ -94,6 +94,21 @@ namespace DAQ {
 				     BufferTranslator& trans,
 				     long thread)
     {
+      m_channelList.clear();
+
+      setEventSize(pEvent, rDecoder, rAnalyzer, trans);
+      
+      uint16_t* p16 = reinterpret_cast<uint16_t*>(pEvent);
+      
+      // parse all of the fragments that we care about
+      Bool_t goodToSort = selectivelyParseData(p16, m_channelList, thread);
+      
+      // Pass the unpacked data to the user for assignment to their data structures
+      //
+      // note: m_pParameterMapper can never be a nullptr
+      m_pParameterMapper->mapToParameters(m_channelList, rEvent);
+      
+      /*
       std::vector<DDASHit> tmp;
       tmp.clear();
 
@@ -117,6 +132,7 @@ namespace DAQ {
       }
 
       m_pParameterMapper->mapToParameters(tmp, rEvent);
+      */
       
       return goodToSort;
     }

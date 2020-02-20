@@ -30,9 +30,10 @@ MyParameters::MyParameters(std::string name)
   // create the 1000 channels even though they are 624
   for (size_t i=0; i<1000; ++i) {
     //chan[i].Initialize(name + to_string(i));
-    Char_t detname[11];
+    char detname[11];
     sprintf(detname,".raw.chan%03d",i);
-    chan[i].Initialize(name+detname);
+    std::string chn(detname);
+    chan[i].Initialize(name+chn);
   }
 
   // initialize the multiplicity

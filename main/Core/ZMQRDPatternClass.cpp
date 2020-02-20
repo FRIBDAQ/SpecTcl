@@ -559,8 +559,8 @@ ZMQRDClass::processRingItems(long thread, CRingFileBlockReader::pDataDescriptor 
       {
 	entityItems[thread] = 1;
 	physicsItems[thread]++;
-	//	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, pipecopy[thread], *m_translator, pEventList[thread], *data[thread]);
-	//	marshall(thread, pEventList[thread], vec);
+	pAnalyzer->OnPhysics(thread, *pDecoder, nBodySize, pBody, pipecopy[thread], *m_translator, pEventList[thread], *data[thread]);
+	marshall(thread, pEventList[thread], vec);
       }
       break;
     case PHYSICS_EVENT_COUNT:
