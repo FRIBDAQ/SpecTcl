@@ -1,3 +1,0 @@
-target = CPyConverter
-sources = sipCPyConvertercmodule.cpp sipCPyConverterstdstring.cpp sipCPyConverterstdvector2600.cpp sipCPyConverterstdvector2100.cpp sipCPyConverterstdvector2000.cpp sipCPyConverterstdvector1900.cpp sipCPyConverterstdvector1800.cpp sipCPyConverterstdvector2200.cpp sipCPyConverterstdvector2400.cpp sipCPyConverterCPyConverter.cpp
-headers = sipAPICPyConverter.h

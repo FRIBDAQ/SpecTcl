@@ -1,4 +1,4 @@
-INSTDIR=/scratch/cerizza/zmqS.install
+INSTDIR=/usr/opt/spectcl/zmqSpecTcl
 # Skeleton makefile for 3.1
 
 include $(INSTDIR)/etc/SpecTcl_Makefile.include

@@ -961,6 +961,9 @@ AC_OUTPUT(Makefile
           spectra/test/Makefile
           spectra/spectcljson/Makefile
           spectra/Xamine2Root/Makefile
+	  qt_dev/Makefile
+	  qt_dev/CPyLibrary/Makefile
+	  qt_dev/gui/Makefile
 	  ddas/Makefile
 	  ddas/src/Makefile
 	  ddas/src/Makefile_user

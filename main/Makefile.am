@@ -22,6 +22,7 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
+					qt_dev \
 					spectra \
 					scalerWrapper
 
