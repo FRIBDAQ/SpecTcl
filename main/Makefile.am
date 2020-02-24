@@ -22,9 +22,9 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					qt_dev \
 					spectra \
-					scalerWrapper
+					scalerWrapper \
+					PyQtGUI 
 
 
 ACLOCAL_AMFLAGS=-I m4

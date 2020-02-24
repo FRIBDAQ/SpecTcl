@@ -25,5 +25,4 @@ config:
 .PHONY: clean
 
 clean:
-	rm $(TARGET) $(OBJECTS) && $(MAKE) clean && rm Makefile sip* *.sbf
-
+	if [ -f $(TARGET) ]; then rm $(TARGET) $(OBJECTS) && $(MAKE) clean && rm Makefile sip* *.sbf; fi;
