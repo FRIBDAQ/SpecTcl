@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.gridspec as gridspec
-from copy import copy
+import pickle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pandas as pd
@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
         self.Start = False        
         self.forAll = False
         self.isLoaded = False
+        self.isZoomed = False
         
         # tools for selected plots
         self.rec = 0
@@ -154,15 +155,34 @@ class MainWindow(QMainWindow):
         self.selected_row, self.selected_col = self.plot_position(self.inx)
         if event.dblclick:
             # select plot
-            if isZoomed == False:
-                print("selected row, col", self.selected_row, self.selected_col)
-                print("self.h_dict[",self.inx,"]:", self.h_dict[self.inx])
-                # create a zoomed window
-                self.zoomed = Plot()
-                self.grid = gridspec.GridSpec(ncols=1, nrows=1, figure=self.zoomed.figure)
+            if self.isZoomed == False:
+                # clear existing figure
+                self.wPlot.figure.clear()
+                self.wPlot.canvas.draw()
+                # create selected figure
+                try:
+                    a = self.wPlot.figure.add_subplot(111)
+                    self.plot_histogram(a, self.inx)
+                    self.wPlot.canvas.draw()
+                    # we are in zoomed mode
+                    self.isZoomed = True
+                except:
+                    QMessageBox.about(self, "Warning", "There are no histograms defined...")
+                    self.initialize_canvas(self.wConf.row, self.wConf.col)
             else:
-                #draw the original canvas
-                print("test")
+                #draw the back the original canvas
+                self.wPlot.figure.clear()
+                for index, value in self.h_dict_output.items():
+                    a = self.select_plot(index)
+                    x,y = self.plot_position(index)
+                    a = self.wPlot.figure.add_subplot(self.grid[x,y])
+                    self.plot_histogram(a, index)
+                    
+                self.wPlot.figure.tight_layout()
+                self.wPlot.canvas.draw()
+                    
+                self.isZoomed = False
+
         # single click selects the subplot
         else:
             for i, plot in enumerate(self.wPlot.figure.axes):
@@ -202,7 +222,7 @@ class MainWindow(QMainWindow):
         for key, value in self.param_list.items():
             for i in range(2):            
                 self.wConf.listParams[i].addItem(value)
-        
+                    
     def initialize_canvas(self, row, col):
         # everytime a new pane geometry is created the histogram
         # dictionary and the index of the plot has to be reset
@@ -247,41 +267,49 @@ class MainWindow(QMainWindow):
             self.isHidden = False
 
     def update_parameter_list(self):
-        tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
-        tmp = json.loads(tmpl.decode())
-        tmpid = []
-        tmpname = []
-        for dic in tmp['detail']:
-            for key in dic:
-                if key == 'id':
-                    tmpid.append(dic[key])
-                elif key == 'name':
-                    tmpname.append(dic[key])
-        ziplst = zip(tmpid, tmpname)
-        self.param_list = dict(ziplst)
+        try:
+            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
+            tmp = json.loads(tmpl.decode())
+            tmpid = []
+            tmpname = []
+            for dic in tmp['detail']:
+                for key in dic:
+                    if key == 'id':
+                        tmpid.append(dic[key])
+                    elif key == 'name':
+                        tmpname.append(dic[key])
+            ziplst = zip(tmpid, tmpname)
+            self.param_list = dict(ziplst)
+        except:
+            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
 
     # when clicking update we need to access the shared memory and
     # update the spectrum information in the data frame
     def update(self):
-        # creates a dataframe for spectrum info
-        s = cpy.CPyConverter().Update()
-        self.spectrum_list = pd.DataFrame(
-            {'id': s[0],
-             'names': s[1],
-             'dim' : s[2],
-             'binx': s[3],
-             'minx': s[4],
-             'maxx': s[5],
-             'biny': s[6],
-             'miny': s[7],
-             'maxy': s[8],
-             'data': s[9]}
-        )
-        # add list of parameters for each spectrum to the dataframe
-        self.create_spectrum_parameters();
-        # update the list of defined spectra
-        self.create_spectrum_list()        
-        
+        # this snippet tests if the rest server is up and running
+        try:
+            self.update_parameter_list()
+            # creates a dataframe for spectrum info
+            s = cpy.CPyConverter().Update()
+            self.spectrum_list = pd.DataFrame(
+                {'id': s[0],
+                 'names': s[1],
+                 'dim' : s[2],
+                 'binx': s[3],
+                 'minx': s[4],
+                 'maxx': s[5],
+                 'biny': s[6],
+                 'miny': s[7],
+                 'maxy': s[8],
+                 'data': s[9]}
+            )
+            # add list of parameters for each spectrum to the dataframe
+            self.create_spectrum_parameters();
+            # update the list of defined spectra
+            self.create_spectrum_list()        
+        except:
+            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
+            
     def select_plot(self, index):
         for i, plot in enumerate(self.wPlot.figure.axes):
             # retrieve the subplot from the click
@@ -328,7 +356,6 @@ class MainWindow(QMainWindow):
                 self.h_dict_output = infoGeo["geo"]
                 if len(self.h_dict_output) == 0:
                     QMessageBox.about(self, "Warning", "You saved an empty pane geometry...")
-
             self.isLoaded = True
             self.update_plot()
 
@@ -340,27 +367,30 @@ class MainWindow(QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","Window Files (*.win);;All Files (*)", options=options)
         if fileName:
-            return fileName;
+            return fileName
         
     def saveFileDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","Window Files (*.win);;All Files (*)", options=options)
         if fileName:
-            return fileName
+            return fileName+".win"
             
     # add list of parameters for each spectrum to the dataframe        
     def create_spectrum_parameters(self):
-        tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
-        tmp = json.loads(tmpl.decode())
-        tmppar = []
-        for dic in tmp['detail']:
-            for key in dic:
-                if key == 'parameters':
-                   tmppar.append(dic[key]) 
-        # adds list to dataframe           
-        self.spectrum_list['parameters'] = tmppar
-        
+        try:
+            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
+            tmp = json.loads(tmpl.decode())
+            tmppar = []
+            for dic in tmp['detail']:
+                for key in dic:
+                    if key == 'parameters':
+                        tmppar.append(dic[key]) 
+                        # adds list to dataframe           
+            self.spectrum_list['parameters'] = tmppar
+        except:
+            QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
+            
     # update the list of defined spectra
     def create_spectrum_list(self):
         for name in self.spectrum_list['names']:
@@ -396,7 +426,6 @@ class MainWindow(QMainWindow):
         index_list = []
         for key, value in my_dict.items():
             index = self.wConf.histo_list.findText(value, QtCore.Qt.MatchFixedString)
-            print(key, value, index)
             if index >= 0:
                 index_list.append(index)
 
@@ -553,7 +582,7 @@ class MainWindow(QMainWindow):
                                               weights=w,
                                               range=[minx,maxx],
                                               histtype='step')
-                plt.xlim(xmin=minx, xmax=maxx)
+                plt.xlim(left=minx, right=maxx)
                 x_label = str(df.iloc[0]['parameters'])
                 plt.xlabel(x_label,fontsize=10)
                 self.h_zoom_max[index] = self.yhigh
