@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(SpecTcl,3.3-022,scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,3.3-023,scientificsoftware@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
@@ -520,7 +520,7 @@ esac
 #        number specifiers.
 #
 
-tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
+tcl_versions="8.6 8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
 
 
 #  The TCL Shell - used to run tests... must be in path.
