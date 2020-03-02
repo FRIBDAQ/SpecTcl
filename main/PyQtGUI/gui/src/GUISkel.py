@@ -11,14 +11,16 @@ import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.lines as mlines
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.gridspec as gridspec
-import pickle
+from itertools import chain, compress, zip_longest
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pandas as pd
@@ -29,7 +31,10 @@ import CPyConverter as cpy
 from menu import Menu
 from plot import Plot
 from configuration import Configuration
+from output import outputPopup
 
+        
+        
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -50,6 +55,9 @@ class MainWindow(QMainWindow):
         self.h_dict = {}
         self.h_dict_output = {}  # for saving pane geometry
 
+        #dictionary for gates
+        self.region_dict = {}
+        
         # index of the histogram
         self.index = 0
         self.idx = 0 
@@ -65,7 +73,10 @@ class MainWindow(QMainWindow):
         self.h_lst = []
         self.h_lst_cb = {} # this is a dictionary because we have non-consecutive entries
         self.h_zoom_max = []
-
+        # gates 1d
+        self.xCoord = [] # list of x coordinates
+        self.listLine = [] # list of correspoing lines
+        
         # for zooming 
         self.yhigh = 1024
         self.vmin = 0
@@ -80,6 +91,7 @@ class MainWindow(QMainWindow):
         self.forAll = False
         self.isLoaded = False
         self.isZoomed = False
+        self.toCreateGate = False
         
         # tools for selected plots
         self.rec = 0
@@ -113,6 +125,10 @@ class MainWindow(QMainWindow):
         
         self.setCentralWidget(widget)
 
+        # output popup window
+        self.resPopup = outputPopup()
+        self.table_row = []
+        
         #################
         # Signals
         #################
@@ -124,7 +140,12 @@ class MainWindow(QMainWindow):
 
         self.wTop.configButton.clicked.connect(self.configure)                        
         self.wTop.saveButton.clicked.connect(self.saveGeo)
-        self.wTop.loadButton.clicked.connect(self.loadGeo)          
+        self.wTop.loadButton.clicked.connect(self.loadGeo)
+        #self.wTop.applyGate.clicked.connect(self.applyGate)
+        self.wTop.sumRegion.clicked.connect(self.sumRegion)
+
+        #self.wTop.intRegion.clicked.connect(self.intRegion)                                  
+        self.wTop.intRegion.clicked.connect(self.resultPopup)
         
         # configuration signals
         self.at_startup()
@@ -137,6 +158,9 @@ class MainWindow(QMainWindow):
         self.wConf.histo_geo_delete.clicked.connect(self.delete_plot)        
         self.wConf.button2D_option.activated.connect(self.change_bkg)        
         self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
+
+        # gate
+        #self.wConf.gates_create.clicked.connect(self.createGate)
         
         # plotting signals
         self.wPlot.plusButton.clicked.connect(lambda: self.zoomIn(self.wPlot.canvas))
@@ -144,7 +168,7 @@ class MainWindow(QMainWindow):
 
         self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
         self.wPlot.canvas.mpl_connect("button_press_event", self.interact_fig)
-
+        
     def on_resize(self, event):
         self.wPlot.figure.tight_layout()
         self.wPlot.canvas.draw()
@@ -153,16 +177,20 @@ class MainWindow(QMainWindow):
         if not event.inaxes: return
         self.inx = list(self.wPlot.figure.axes).index(event.inaxes)
         self.selected_row, self.selected_col = self.plot_position(self.inx)
+        # double click zoom in subplot
         if event.dblclick:
             # select plot
             if self.isZoomed == False:
+                # update info on selected spectrum
+                self.wConf.histo_list.setCurrentIndex(self.inx)
+                self.update_spectrum_info()
                 # clear existing figure
                 self.wPlot.figure.clear()
                 self.wPlot.canvas.draw()
                 # create selected figure
                 try:
-                    a = self.wPlot.figure.add_subplot(111)
-                    self.plot_histogram(a, self.inx)
+                    self.a = self.wPlot.figure.add_subplot(111)
+                    self.plot_histogram(self.a, self.inx)
                     self.wPlot.canvas.draw()
                     # we are in zoomed mode
                     self.isZoomed = True
@@ -185,17 +213,26 @@ class MainWindow(QMainWindow):
 
         # single click selects the subplot
         else:
-            for i, plot in enumerate(self.wPlot.figure.axes):
-                # retrieve the subplot from the click
-                if (i == self.inx):
-                    if self.isSelected == True:
-                        self.isSelected= False
-                        self.rec.remove()
+            if self.isZoomed == False:
+                for i, plot in enumerate(self.wPlot.figure.axes):
+                    # retrieve the subplot from the click
+                    if (i == self.inx):
+                        if self.isSelected == True:
+                            self.isSelected= False
+                            self.rec.remove()
+                        else:
+                            self.rec = self.create_rectangle(plot)
+                            self.isSelected= True
+                self.wPlot.canvas.draw()
+            else:
+                if self.toCreateGate == True:
+                    # create summing region
+                    if self.wConf.button1D.isChecked():
+                        self.createSumReg(event)
                     else:
-                        self.rec = self.create_rectangle(plot)
-                        self.isSelected= True
-            self.wPlot.canvas.draw()
-
+                        print("TBD")
+                self.wPlot.canvas.draw()
+                        
     def create_rectangle(self, plot):
         autoAxis = plot.axis()
         percentTB = 0.04;
@@ -534,6 +571,7 @@ class MainWindow(QMainWindow):
             self.forAll = True
         else:
             self.forAll = False
+
     '''
     def self_update(self):
         self.wTop.slider_label.setText("Refresh interval ({} s)".format(self.wTop.slider.value()))
@@ -577,11 +615,11 @@ class MainWindow(QMainWindow):
                 axis.set_ylim(0,self.yhigh)
                 X = self.create_range(binx, minx, maxx)
                 # create histogram
-                self.h_lst[index] = axis.hist(X,
-                                              len(X),
-                                              weights=w,
-                                              range=[minx,maxx],
-                                              histtype='step')
+                self.h_lst[index], self.bins, _ = axis.hist(X,
+                                                            len(X),
+                                                            weights=w,
+                                                            range=[minx,maxx],
+                                                            histtype='step')
                 plt.xlim(left=minx, right=maxx)
                 x_label = str(df.iloc[0]['parameters'])
                 plt.xlabel(x_label,fontsize=10)
@@ -627,6 +665,7 @@ class MainWindow(QMainWindow):
     def zoomIn(self, canvas):
         for i, ax in enumerate(self.wPlot.figure.axes):
             if (i == self.inx):
+                # change axes
                 ymax = self.get_histo_zoomMax(i)
                 ymax /= 2                
                 if self.h_dim[i] == 1:
@@ -636,9 +675,10 @@ class MainWindow(QMainWindow):
                     self.h_lst[i].set_clim(vmax=ymax)
                     self.set_histo_zoomMax(i, ymax)
                 # redraw rectangle for new axis
-                if (self.isSelected == True):
-                    self.rec.remove()
-                    self.rec = self.create_rectangle(ax)
+                if self.isZoomed == False:
+                    if (self.isSelected == True):
+                        self.rec.remove()
+                        self.rec = self.create_rectangle(ax)
         canvas.draw()
             
     def zoomOut(self, canvas):
@@ -653,9 +693,10 @@ class MainWindow(QMainWindow):
                     self.h_lst[i].set_clim(vmax=ymax)
                     self.set_histo_zoomMax(i, ymax)
                 # redraw rectangle for new axis
-                if (self.isSelected == True):
-                    self.rec.remove()
-                    self.rec = self.create_rectangle(ax)
+                if self.isZoomed == False:
+                    if (self.isSelected == True):
+                        self.rec.remove()
+                        self.rec = self.create_rectangle(ax)
         canvas.draw()
 
     def create_range(self, bins, vmin, vmax):
@@ -787,4 +828,184 @@ class MainWindow(QMainWindow):
     def set_histo_zoomMax(self, index, value):
         self.h_zoom_max[index] = value
 
+    #############################
+    # Gates and Summing Region
+    #############################
 
+    def sumRegion(self):
+        # check for histogram existance
+        name = self.wConf.histo_list.currentText()
+        if (name==""):
+            return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
+        else:
+            text, okPressed = QInputDialog.getText(self, "Summing Region", "Please choose a name for the region:", QLineEdit.Normal, "")
+            if okPressed and text != "":
+                region_name = text
+            else:
+                region_name = "Summing_region_"+str(self.wTop.regionList.currentIndex()+2)
+                self.wTop.regionList.addItem(region_name)
+                # change index
+                index = self.wTop.regionList.findText(region_name, QtCore.Qt.MatchFixedString)
+                if index >= 0:
+                    self.wTop.regionList.setCurrentIndex(index)
+                
+            self.toCreateGate = True;
+
+    def resultPopup(self):
+        self.resPopup.setGeometry(100,100,724,500)
+        #calculating integral, centroids, fwhm
+        try:
+            self.intRegion()
+        except:
+            pass
+        self.resPopup.show()
+            
+    def intRegion(self):
+        x = []
+        y = []
+        fwhm = 0
+        tmp = np.array(self.bins)
+        try:
+            if len(self.xCoord) == 2:
+                self.xCoord.sort()
+                for i in range(len(tmp)):
+                    if (tmp[i] > self.xCoord[0] and tmp[i]< self.xCoord[1]):                    
+                        x.append(tmp[i])
+                        y.append((self.h_lst[self.inx])[i])
+        except:
+            pass
+
+        area = sum(y)
+        centroid_x, centroid_y = self.centroid(x, y)
+        fwhm = self.fwhm(x, y)
+        # print to output window and file
+        self.addRegion(area, centroid_x, centroid_y, fwhm)
+
+    def addRegion(self, area, centx, centy, fwhm):
+        #["ID", "Spectrum", "Name", "centroid X", "centroid Y", "FWHM", "Area"]
+        self.resPopup.tableWidget.setRowCount(0);
+        self.table_row.append([str(self.wTop.regionList.currentIndex()),
+                               str(self.wConf.histo_list.currentText()),
+                               str(self.wTop.regionList.currentText()),
+                               centx,
+                               centy,
+                               fwhm,
+                               area])
+        for row in self.table_row:
+            inx = self.table_row.index(row)
+            self.resPopup.tableWidget.insertRow(inx)
+            for i in range(len(row)):
+                self.resPopup.tableWidget.setItem(inx,i,QTableWidgetItem(str(row[i])))
+        header = self.resPopup.tableWidget.horizontalHeader()       
+        header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)        
+        self.resPopup.tableWidget.resizeColumnsToContents()
+        
+    def fwhm(self, xx, yy):
+        max_y = max(yy)  # Find the maximum y value
+        xs = []
+        i = 0
+        while i < len(xx):
+            if yy[i] > max_y/2.0:
+                xs.append(xx[i])
+            i += 1            
+        diff = max(xs)-min(xs)
+        return round(diff,2)
+            
+    def centroid(self, x, y):
+        length = len(x)
+        sum_x = np.sum(x)
+        sum_y = np.sum(y)
+        return round(sum_x/length,2), round(sum_y/length,2)
+    
+    def centeroidnp(self, arr):
+        length, dim = arr.shape
+        return np.array([np.sum(arr[:, i])/length for i in range(dim)])
+        
+    def removeLine(self):
+        ax = plt.gca()
+        l = self.listLine[0]
+        self.xCoord.pop(0) # remove the first element of the list and shift all the others
+        self.listLine.pop(0) 
+        l.remove()
+        
+    def addLine(self, pos):
+        ax = plt.gca()
+        ymin, ymax = ax.get_ybound()        
+        l = mlines.Line2D([pos,pos], [ymin,ymax])
+        ax.add_line(l)
+        l.set_color('r')
+        return l
+
+    def createSumReg(self, event):
+        click = [int(float(event.xdata)), int(float(event.ydata))]
+        xpos = click[0]
+        line = self.addLine(xpos)
+        self.xCoord.append(click[0])
+        self.listLine.append(line)
+        #self.region_dict[name] = ["1D", self.listLine]
+        if len(self.listLine) > 2:
+            self.removeLine()
+
+    '''
+    def applyGate(self):
+        print("Applying the selected gate...")
+
+    def createGate(self):
+        # check for histogram existance
+        name = self.wConf.histo_list.currentText()
+        if (name==""):
+            return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
+        else:
+            gate_name = self.wConf.gates_name.text()
+            if gate_name=="" :
+                text, okPressed = QInputDialog.getText(self, "Gate name", "Please choose a name for the gate:", QLineEdit.Normal, "")
+                if okPressed and text != "":
+                    gate_name = text
+                else:
+                    gate_name = "default_gate"
+                    self.wConf.gates_name.setText(gate_name)
+
+        # creating entry in combobox if it doesn't exist
+        allItems = [self.wTop.listGate.itemText(i) for i in range(self.wTop.listGate.count())]
+        result = gate_name in chain(*allItems)
+        if result==False:
+            self.wTop.listGate.addItem(gate_name)
+            # update boxes
+            self.wTop.listGate.setCurrentText(gate_name)
+
+        if gate_name in self.gate_dict:
+            print("plot the gate")
+        else:
+            #flag to start creating a gate
+            self.toCreateGate = True;
+
+    def addLine(self, pos):
+        ax = plt.gca()
+        ymin, ymax = ax.get_ybound()        
+        print(ymin,ymax)
+        l = mlines.Line2D([pos,pos], [ymin,ymax])
+        ax.add_line(l)
+        l.set_color('r')
+        return l
+
+    def removeLine(self):
+        ax = plt.gca()
+        l = self.listLine[0]
+        self.xCoord.pop(0) # remove the first element of the list and shift all the others
+        self.listLine.pop(0) 
+        l.remove()
+        
+    def create_1D_gate(self, gate, event):
+        click = [int(float(event.xdata)), int(float(event.ydata))]
+        xpos = click[0]
+        line = self.addLine(xpos)            
+        self.xCoord.append(click[0])
+        self.listLine.append(line)
+        self.gate_dict[gate] = ["1D", self.listLine]
+        if len(self.listLine) > 2:
+            self.removeLine()
+        print(self.gate_dict)
+            
+    def create_2D_gate(self, gate_name, ax):
+        print("draw 2d gate")        
+    '''
