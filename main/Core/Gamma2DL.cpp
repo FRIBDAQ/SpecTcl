@@ -209,7 +209,7 @@ CGamma2DL::operator[] (const UInt_t* pIndices) const
   Double_t nx = pIndices[0];
   Double_t ny = pIndices[1];
 
-  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  Int_t bin = m_pRootSpectrum->GetBin(nx, ny);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
@@ -235,7 +235,7 @@ CGamma2DL::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  Int_t bin = m_pRootSpectrum->FindBin(nx, ny);
+  Int_t bin = m_pRootSpectrum->GetBin(nx, ny);
   m_pRootSpectrum->SetBinContent(nx, ny, static_cast<Double_t>(nValue));
 }
 

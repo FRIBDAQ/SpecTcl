@@ -482,11 +482,8 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   rStream << '(' << xlow << " " << xhigh << ") ";
   if(rSpectrum.Dimensionality() == 2) {
     UInt_t nymap = 1;		// By default second axis is second map..
-    if(sType == keG2D) {
-      nymap = Parameters.size(); // All x maps are first in gamma 2ds.
-    } 
     if(sType == keG2DD) {
-      nymap = spectrumDef.vyParameters[0];
+      nymap = spectrumDef.vyParameters[0]; // Really only has one axis def.
     }
     xlow = spectrumDef.fLows[nymap];
     xhigh= spectrumDef.fHighs[nymap];
