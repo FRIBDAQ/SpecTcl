@@ -212,7 +212,7 @@ CGamma1DW::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(0)-1, n, 
 		      std::string("Indexing 1DL gamma spectrum"));
   }
-  Int_t bin = m_pRootSpectrum->FindBin(n);
+  Int_t bin = m_pRootSpectrum->GetBin(n);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
@@ -234,7 +234,7 @@ CGamma1DW::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing 1DL gamma spectrum"));
   }
-  Int_t bin = m_pRootSpectrum->FindBin(n);
+  Int_t bin = m_pRootSpectrum->GetBin(n);
   m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
 }
 

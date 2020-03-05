@@ -221,7 +221,7 @@ CGamma1DL::operator[] (const UInt_t* pIndices) const
   UInt_t* pStorage = (UInt_t*)getStorage();
   Double_t n = pIndices[0];
   
-  Int_t bin = m_pRootSpectrum->FindBin(n);
+  Int_t bin = m_pRootSpectrum->GetBin(n);
   return static_cast<ULong_t>(m_pRootSpectrum->GetBinContent(bin));
 }
 
@@ -239,7 +239,7 @@ CGamma1DL::set (const UInt_t* pIndices, ULong_t nValue)
 {
   UInt_t* pStorage = (UInt_t*)getStorage();
   Double_t n = pIndices[0];
-  Int_t  bin = m_pRootSpectrum->FindBin(n);
+  Int_t  bin = m_pRootSpectrum->GetBin(n);
   m_pRootSpectrum->SetBinContent(n, static_cast<Double_t>(nValue));
 }
 
