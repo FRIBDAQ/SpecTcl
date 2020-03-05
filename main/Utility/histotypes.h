@@ -178,70 +178,35 @@ operator<<(std::ostream& out, SpectrumType_t t)
 inline std::istream& 
 operator>>(std::istream& in, SpectrumType_t& t)
 {
-  char c;
-  in >> c;
-  switch(c) {
-  case '1':
+  std::string type;
+  in >> type;
+  if (type == "1") {
     t = ke1D;
-    break;
-  case '2':
-    {
-      std::string rest;
-      in >> rest;
-      if (rest == "") {
-        t = ke2D;
-      } else if (rest == "dmproj") {
-        t = ke2DmProj;
-      } else {
-        t = keUnknown;
-      }
-    }
-    break;
-  case 'b':
+  } else if (type == "2") {
+    t = ke2D;
+  } else if (type == "2dmproj") {
+    t = ke2DmProj;
+  } else if (type == "b") {
     t = keBitmask;
-    break;
-  case 's':
+  } else if (type == "s") {
     t = keSummary;
-    break;
-  case 'S':
+  } else if (type == "S") {
     t = keStrip;
-    break;
-  case 'g':
-    in >> c;
-    switch(c) {
-    case '1':
-      t = keG1D;
-      break;
-    case '2':
-      t = keG2D;
-      break;
-    case 'd':
-      t = keG2DD;
-      break;
-    case 's':
-      t = keGSummary;
-      break;
-    default:
-      t = keUnknown;
-      break;
-    }
-    break;
-  case 'm':
-    in >>c;
-    if (c == '2') {
-      t = ke2Dm;
-    }
-    else {
-      t= keUnknown;
-    }
-    break;
-
-  case '?':
-  default:
-    t = keUnknown;
-    break;
+  } else if (type == "g1") {
+    t = keG1D;
+  } else if (type == "g2") {
+    t = keG2D;
+  } else if (type == "gd") {
+    t = keG2DD;
+  } else if (type == "gs") {
+    t = keGSummary;
+  } else if (type == "m2") {
+    t = ke2Dm;
+  } else {
+    t =keUnknown;
   }
   return in;
+
 }
 
 
