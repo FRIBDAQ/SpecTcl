@@ -73,6 +73,7 @@ public:
     setStorageType(m_rActualSpectrum.StorageType());
   }      
   virtual ~CSnapshotSpectrum() {
+    setRootSpectrum(nullptr);                 // Prevent double deletion.
     if(m_fOwnSpectrum) delete &m_rActualSpectrum;
     m_fOwnSpectrum = 0;
     setOwnStorage(kfFALSE);	// In case this was modified.
