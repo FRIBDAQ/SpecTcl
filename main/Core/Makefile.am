@@ -27,24 +27,26 @@ Analysis_INCLUDES =  CBufferCallback.h \
 
 
 DecoderRing_SRC = CRingBufferDecoder.cpp \
-											RingFormatHelper.cpp \
-											RingFormatHelper10.cpp \
-											RingFormatHelper11.cpp \
-											RingFormatHelperFactory.cpp \
-											RingFormatHelperCreator.cpp \
-											RingFormatHelper10Creator.cpp \
-											RingFormatHelper11Creator.cpp
+		RingFormatHelper.cpp \
+		RingFormatHelper10.cpp \
+		RingFormatHelper11.cpp \
+		RingFormatHelperFactory.cpp \
+		RingFormatHelperCreator.cpp \
+		RingFormatHelper10Creator.cpp \
+		RingFormatHelper11Creator.cpp 
+
 
 DecoderRing_INCLUDES = CRingBufferDecoder.h \
-											RingFormatHelper.h \
-											RingFormatHelper10.h \
-											RingFormatHelper11.h \
-											RingFormatHelperFactory.h \
-											RingFormatHelperCreator.h \
-											RingFormatHelper10Creator.h \
-											RingFormatHelper11Creator.h
+			RingFormatHelper.h \
+			RingFormatHelper10.h \
+			RingFormatHelper11.h \
+			RingFormatHelperFactory.h \
+			RingFormatHelperCreator.h \
+			RingFormatHelper10Creator.h \
+			RingFormatHelper11Creator.h \
+			DataFormatPre11.h DataFormat.h	
 
-DecoderRing_noinst_INCLUDES = DataFormatPre11.h DataFormat.h
+DecoderRing_noinst_INCLUDES = 
 
 DisplayInterface_SRC = Display.cpp \
 			DisplayFactory.cpp \
