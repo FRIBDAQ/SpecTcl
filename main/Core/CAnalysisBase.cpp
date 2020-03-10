@@ -103,4 +103,6 @@ void CAnalysisBase::onStringLists(
  *  @return unsigned   - Number of bytes in the event.
  */
 unsigned CAnalysisBase::onEvent(void* pEvent, void* clientData)
-{}
+{
+  return 0;
+}
