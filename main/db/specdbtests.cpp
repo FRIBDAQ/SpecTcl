@@ -33,13 +33,57 @@
 #include <stdexcept>
 #include <errno.h>
 #include <sstream>
+#include <set>
 
+// Database should have these tables:
+
+static const char* expectedTables[] {
+        "save_sets",
+        "parameter_defs",
+        "spectrum_defs",
+        "axis_defs",
+        "spectrum_params",
+        "spectrum_contents",
+        "gate_defs",
+        "gate_points",
+        "gate_parameters",
+        "component_gates",
+        "gate_masks",
+        "gate_applications",
+        "treevariables",
+        "runs",
+        "events",
+        "scaler_readouts",
+        "scaler_channels",
+    nullptr
+};
+
+// Database should have these indices:
+
+static const char* expectedIndices[] {
+        "pdef_save_id",
+        "pdef_name",
+        "sdef_save_id",
+        "adef_specid",
+        "sparams_spectrum_id",
+        "scontents_spectrum_id",
+        "gate_points_gatidx",
+        "gate_params_parentidx",
+        "gate_params_paramidx",
+        "component_gates_parentidx",
+        "gate_mask_parentix",
+        "treevariables_saveidx",
+        "run_num_idx",
+        nullptr
+};
 
 class specdbtest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(specdbtest);
     CPPUNIT_TEST(create_1);
     CPPUNIT_TEST(create_2);
     CPPUNIT_TEST(create_3);
+    CPPUNIT_TEST(create_4);
+    CPPUNIT_TEST(create_5);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -68,6 +112,8 @@ protected:
     void create_1();
     void create_2();
     void create_3();
+    void create_4();
+    void create_5();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(specdbtest);
@@ -98,4 +144,63 @@ void specdbtest::create_3()
     CPPUNIT_ASSERT_NO_THROW(
         SpecTcl::CDatabase::create(m_dbfile.c_str())
     );
+    
+}
+void specdbtest::create_4()
+{
+    // make sure all the tables are present.  We'll trust that
+    // the structures are correct for now:
+    
+    SpecTcl::CDatabase::create(m_dbfile.c_str());
+    
+    // Throw all the table names in set and then look for them:
+    
+    CSqlite c(m_dbfile.c_str());
+    CSqliteStatement s(
+        c,
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    );
+    ++s;
+    std::set<std::string> tables;
+    while(!s.atEnd()) {
+        tables.insert(
+            std::string(reinterpret_cast<const char*>(s.getText(0)))
+        );
+        ++s;
+    }
+    const char** t = expectedTables;    
+    while (*t) {
+        std::string table = *t;
+        EQMSG(table, size_t(1), tables.count(table));
+        t++;
+    }
+}
+void specdbtest::create_5()
+{
+    // make sure all the indices are present.  We'll trust that
+    // the structures are correct for now:
+    
+    SpecTcl::CDatabase::create(m_dbfile.c_str());
+    
+    // Throw all the indices names in set and then look for them:
+    
+    CSqlite c(m_dbfile.c_str());
+    CSqliteStatement s(
+        c,
+        "SELECT name FROM sqlite_master WHERE type='index'"
+    );
+    ++s;
+    std::set<std::string> indices;
+    while(!s.atEnd()) {
+        indices.insert(
+            std::string(reinterpret_cast<const char*>(s.getText(0)))
+        );
+        ++s;
+    }
+    const char** t = expectedIndices;    
+    while (*t) {
+        std::string index = *t;
+        EQMSG(index, size_t(1), indices.count(index));
+        t++;
+    }
 }
