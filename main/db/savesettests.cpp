@@ -25,6 +25,8 @@
 #define private public
 #include "SaveSet.h"
 #undef private
+#include "CSqlite.h"
+#include "CSqliteStatement.h"
 
 #include <string>
 #include <string.h>
@@ -33,20 +35,25 @@
 #include <stdexcept>
 #include <errno.h>
 #include <sstream>
+#include <time.h>
 
 class savesettest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(savesettest);
     CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
     CSqlite*    m_pDatabase;
     std::string m_file;
+    time_t      m_savesetTime;
 public:
     void setUp() {
         makeTempFile();
         makeDatabase();
         m_pDatabase = new CSqlite(m_file.c_str());
+        
     }
     void tearDown() {
         delete m_pDatabase;
@@ -54,9 +61,13 @@ public:
     }
 protected:
     void construct_1();
+    void construct_2();
+    void construct_3();
+    
 private:
     void makeTempFile();
     void makeDatabase();
+    void makeEmptySet(const char* name);
 };
 /**
  * use mkstemp to make temporary file.
@@ -87,7 +98,24 @@ savesettest::makeDatabase()
 {
     SpecTcl::CDatabase::create(m_file.c_str());
 }
-
+/**
+ * makeEmptySet
+ *   Make an empty save set and squirrel away the timestamp.
+ * @param const char* name - name of the saveset.
+ */
+void
+savesettest::makeEmptySet(const char* name)
+{
+    time_t now = time(nullptr);
+    CSqliteStatement s(
+        *m_pDatabase,
+        "INSERT INTO save_sets (name, timestamp) VALUES(?,?)"
+    );
+    s.bind(1, name, -1, SQLITE_STATIC);
+    s.bind(2, now);
+    ++s;
+    m_savesetTime = now;
+}
 CPPUNIT_TEST_SUITE_REGISTRATION(savesettest);
 
 void savesettest::construct_1()
@@ -95,7 +123,26 @@ void savesettest::construct_1()
     // Construcing on a nonexistent saveset fails:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::SaveSet s,
-        std::Logic_error
+        SpecTcl::SaveSet set(*m_pDatabase, m_file.c_str()),
+        std::logic_error
     );
+}
+void savesettest::construct_2()
+{
+    // constructing an existing one is ok:
+    
+    makeEmptySet("set");
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::SaveSet set(*m_pDatabase, "set");
+    );
+}
+void savesettest::construct_3()
+{
+    // the info element of the save set is correctly built:
+    
+    makeEmptySet("set");
+    SpecTcl::SaveSet set(*m_pDatabase, "set");
+    EQ(std::string("set"), set.m_Info.s_name);
+    EQ(1, set.m_Info.s_id);
+    EQ(m_savesetTime, set.m_Info.s_stamp);
 }
