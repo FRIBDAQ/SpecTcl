@@ -26,6 +26,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <time.h>
 
 namespace SpecTcl{
 /**
@@ -104,6 +105,38 @@ SaveSet::exists(CSqlite& conn, const char* name)
         m << "While checking for existence of save_set: " << name
             << " an unexpected exception was caught";
         throw std::logic_error(m.str());
+    }
+}
+/**
+ * create
+ *    Creates a new save set and returns a pointer to it.
+ *    The save set must not yet exist in the database.
+ * 
+ * @param conn - database connection
+ * @param name - save set name.
+ * @return SaveSet* - pointer to dynamically created save set.
+ * @throw std::invalid_argument - save set exists.
+ */
+SaveSet*
+SaveSet::create(CSqlite& conn, const char* name)
+{
+    if (exists(conn, name)) {
+        std::stringstream s;
+        s << "The save set: " << name << " already exists";
+        throw std::invalid_argument(s.str());
+    } else {
+        CSqliteStatement stmt(
+            conn,
+            "INSERT INTO save_sets (name, timestamp) VALUES(?,?)"
+        );
+        // Create the saveset in the database
+        stmt.bind(1, name, -1, SQLITE_STATIC);
+        stmt.bind(2, time_t(nullptr));
+        ++stmt;
+        
+        // Return a new object.
+        
+        return new SaveSet(conn, name);
     }
 }
 

@@ -48,6 +48,9 @@ class savesettest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(exists_1);
     CPPUNIT_TEST(exists_2);
+    
+    CPPUNIT_TEST(create_1);
+    CPPUNIT_TEST(create_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -75,6 +78,9 @@ protected:
     
     void exists_1();
     void exists_2();
+    
+    void create_1();
+    void create_2();
 private:
     void makeTempFile();
     void makeDatabase();
@@ -197,4 +203,25 @@ void savesettest::exists_2()
     
     makeEmptySet("set");
     ASSERT(SpecTcl::SaveSet::exists(*m_pDatabase, "set"));
+}
+void savesettest::create_1()
+{
+    // no problem if it does not already exist:
+    
+    SpecTcl::SaveSet* pSet;
+    CPPUNIT_ASSERT_NO_THROW(
+        pSet = SpecTcl::SaveSet::create(*m_pDatabase, "set")
+    );
+    EQ(std::string("set"), pSet->m_Info.s_name);
+    delete pSet;
+}
+void savesettest::create_2()
+{
+    // Fails if it exists:
+    
+    delete SpecTcl::SaveSet::create(*m_pDatabase, "set");
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::SaveSet::create(*m_pDatabase, "set"),
+        std::invalid_argument
+    );
 }
