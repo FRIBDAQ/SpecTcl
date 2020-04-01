@@ -58,9 +58,9 @@ namespace SpecTcl {
     
     // Static methods:
     public:
-        bool exists(CSqlite& conn, const char* name);
-        SaveSet* create(CSqlite& conn, const char* name);
-        std::vector<Info> list(CSqlite& conn);
+        static bool exists(CSqlite& conn, const char* name);
+        static SaveSet* create(CSqlite& conn, const char* name);
+        static std::vector<Info> list(CSqlite& conn);
     // Utilities:
     
     private:

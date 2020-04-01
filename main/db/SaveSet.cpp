@@ -76,6 +76,38 @@ SaveSet::SaveSet(CSqlite& conn, int id) :
 }
 
 ////////////////////////////////////////////////////////////
+// Static methods
+
+/**
+ * exists
+ *   Find out if a save set exists (by name).  This is normally
+ *   used to avoid collisions with existing save sets.
+ * @param conn - the connection
+ * @param name - the name to look for.
+ */
+bool
+SaveSet::exists(CSqlite& conn, const char* name)
+{
+    // Simple way is to construct one and if it throws
+    // false if not true:
+    
+    try {
+        SaveSet s(conn, name);
+        return true;                 // No exception.
+    } catch (std::invalid_argument& a) {
+        return false;
+    }
+    catch (...) {
+        // Something _Bad_  -- we don't know how to test this branch.
+        
+        std::stringstream m;
+        m << "While checking for existence of save_set: " << name
+            << " an unexpected exception was caught";
+        throw std::logic_error(m.str());
+    }
+}
+
+////////////////////////////////////////////////////////////
 // Private utilities
 //
 
