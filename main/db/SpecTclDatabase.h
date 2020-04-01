@@ -36,7 +36,7 @@ namespace SpecTcl {
     class CDatabase {
     private:
     public:
-        static create(const char* database);
+        static void create(const char* database);
     };
 }
 

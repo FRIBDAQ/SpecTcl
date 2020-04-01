@@ -17,7 +17,8 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 
-libSpecTclDb_la_SOURCES=CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
+libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp \
+	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
