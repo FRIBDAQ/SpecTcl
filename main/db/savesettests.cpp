@@ -22,29 +22,74 @@
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 #include "SpecTclDatabase.h"
+#define private public
 #include "SaveSet.h"
+#undef private
 
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdexcept>
+#include <errno.h>
+#include <sstream>
 
-class aTestSuite : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(aTestSuite);
-    CPPUNIT_TEST(test_1);
+class savesettest : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(savesettest);
+    CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
-
+    CSqlite*    m_pDatabase;
+    std::string m_file;
 public:
     void setUp() {
-        
+        makeTempFile();
+        makeDatabase();
+        m_pDatabase = new CSqlite(m_file.c_str());
     }
     void tearDown() {
-        
+        delete m_pDatabase;
+        unlink(m_file.c_str());
     }
 protected:
-    void test_1();
+    void construct_1();
+private:
+    void makeTempFile();
+    void makeDatabase();
 };
+/**
+ * use mkstemp to make temporary file.
+ */
+void
+savesettest::makeTempFile()
+{
+    const char* dbtemplate="savesettestXXXXXX";
+    char filename[200];
+    strcpy(filename, dbtemplate);
+    int fd = mkstemp(filename);
+    if (fd < 0) {
+        int e = errno;
+        std::stringstream msg;
+        msg << "Unable to make temp file: " << dbtemplate
+            << " : " << strerror(e);
+        throw std::logic_error(msg.str());
+    }
+    close(fd);
+    m_file = filename;
+}
+/**
+ * makeDatabase
+ *    Create the database in the file m_file.
+ */
+void
+savesettest::makeDatabase()
+{
+    SpecTcl::CDatabase::create(m_file.c_str());
+}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(aTestSuite);
+CPPUNIT_TEST_SUITE_REGISTRATION(savesettest);
 
-void aTestSuite::test_1()
+void savesettest::construct_1()
 {
 }
