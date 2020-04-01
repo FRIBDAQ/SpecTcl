@@ -21,6 +21,7 @@
 #ifndef SPECTCLDATABASE_H
 #define SPECTCLDATABASE_H
 
+#include "CSqlite.h"
 
 // Time we started putting SpecTcl stuff in it's own namespace.
 
@@ -35,9 +36,29 @@ namespace SpecTcl {
      */
     class CDatabase {
     private:
+        CSqlite m_connection;
+        
     public:
         static void create(const char* database);
+        
+        
+    public:
+        CDatabase(const char* database);
+        virtual ~CDatabase() {};
+        
+        // Forbidden canonicals.
+        
+    private:
+        CDatabase(const CDatabase&);
+        CDatabase& operator=(const CDatabase&);
+        int operator==(const CDatabase&);
+        int operator!=(const CDatabase&);
+        
+        // utilities:
+        
+        void checkTables();
     };
+    
 }
 
 

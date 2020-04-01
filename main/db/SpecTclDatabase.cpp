@@ -23,6 +23,7 @@
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteException.h"
+#include <stdexcept>
 
 namespace SpecTcl {
     
@@ -303,5 +304,36 @@ CDatabase::create(const char* database)
     
 
 }
+/////////////////////////////////////////////////////////
+// Object metods.
 
+/**
+ * constructor
+ *    Make a connection to the database.
+ *    For now we don't check that the schema are correct.
+ * @database - path to the database file.
+ * @note the database file must already exist.
+ * 
+ */
+CDatabase::CDatabase(const char* database) :
+    m_connection(database) {
+        checkTables();
+    }
+//////////////////////////////////////////////////////////
+// Private utilities
+
+/**
+ * checkTables
+ *   Ensure the database has at least one of the required tables.
+ * @throw std::logic_error if not
+ */
+void
+CDatabase::checkTables()
+{
+    if (!m_connection.tableExists("save_sets")) {
+        throw std::logic_error(
+            "Required table 'save_sets' does not exist"
+        );
+    }
 }
+}                     // SpecTcl namespace.

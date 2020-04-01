@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <sstream>
 #include <set>
+#include <stdexcept>
 
 // Database should have these tables:
 
@@ -84,6 +85,9 @@ class specdbtest : public CppUnit::TestFixture {
     CPPUNIT_TEST(create_3);
     CPPUNIT_TEST(create_4);
     CPPUNIT_TEST(create_5);
+    
+    CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -114,6 +118,9 @@ protected:
     void create_3();
     void create_4();
     void create_5();
+    
+    void construct_1();
+    void construct_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(specdbtest);
@@ -203,4 +210,20 @@ void specdbtest::create_5()
         EQMSG(index, size_t(1), indices.count(index));
         t++;
     }
+}
+void specdbtest::construct_1()
+{
+    // Can't construct on nonexistent:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::CDatabase nosuch(m_dbfile.c_str()),
+        std::logic_error
+    );
+}
+void specdbtest::construct_2()
+{
+    // Can construct on existing though:
+    
+    SpecTcl::CDatabase::create(m_dbfile.c_str());
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::CDatabase ok(m_dbfile.c_str()));
 }
