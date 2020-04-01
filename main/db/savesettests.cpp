@@ -92,4 +92,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(savesettest);
 
 void savesettest::construct_1()
 {
+    // Construcing on a nonexistent saveset fails:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::SaveSet s,
+        std::Logic_error
+    );
 }
