@@ -51,6 +51,10 @@ class savesettest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(create_1);
     CPPUNIT_TEST(create_2);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -81,6 +85,10 @@ protected:
     
     void create_1();
     void create_2();
+    
+    void list_1();
+    void list_2();
+    void list_3();
 private:
     void makeTempFile();
     void makeDatabase();
@@ -224,4 +232,52 @@ void savesettest::create_2()
         SpecTcl::SaveSet::create(*m_pDatabase, "set"),
         std::invalid_argument
     );
+}
+
+void savesettest::list_1()
+{
+    // Empty list:
+    
+    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    EQ(size_t(0), v.size());
+    
+}
+void savesettest::list_2()
+{
+    // single item:
+    
+    makeEmptySet("set1");
+    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    EQ(size_t(1), v.size());
+    EQ(1, v[0].s_id);
+    EQ(std::string("set1"), v[0].s_name);
+    EQ(m_savesetTime, v[0].s_stamp);
+}
+void savesettest::list_3()
+{
+    // A few items.
+    
+    std::vector<std::string> names;
+    std::vector<time_t>      stamps;
+    
+    makeEmptySet("set1");
+    names.push_back("set1");
+    stamps.push_back(m_savesetTime);
+    
+    makeEmptySet("set2");
+    names.push_back("set2");
+    stamps.push_back(m_savesetTime);
+    
+    makeEmptySet("set3");
+    names.push_back("set3");
+    stamps.push_back(m_savesetTime);
+    
+    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    EQ(size_t(3), v.size());
+    for (int i =0; i < v.size(); i++) {
+        int id = i+1;
+        EQ(id, v[i].s_id);
+        EQ(names[i], v[i].s_name);
+        EQ(stamps[i], v[i].s_stamp);
+    }
 }

@@ -139,6 +139,29 @@ SaveSet::create(CSqlite& conn, const char* name)
         return new SaveSet(conn, name);
     }
 }
+/**
+ * list
+ *    List the set of save sets that have already been created.
+ *  @param conn -sqlite connection
+ *  @return std::vector<SaveSet::Info> - descriptions of
+ *          save sets.
+ */
+std::vector<SaveSet::Info>
+SaveSet::list(CSqlite& conn)
+{
+    std::vector<Info> result;
+    
+    CSqliteStatement s(
+        conn,
+        "SELECT id, name, timestamp FROM save_sets"
+    );
+    while(!((++s).atEnd())) {
+        Info i;
+        getInfo(i, s);
+        result.push_back(i);
+    }
+    return result;
+}
 
 ////////////////////////////////////////////////////////////
 // Private utilities

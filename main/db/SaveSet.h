@@ -64,7 +64,7 @@ namespace SpecTcl {
     // Utilities:
     
     private:
-        void getInfo(Info& result, CSqliteStatement& stmt);
+        static void getInfo(Info& result, CSqliteStatement& stmt);
     };
 }
 
