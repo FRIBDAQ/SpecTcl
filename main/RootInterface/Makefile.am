@@ -33,6 +33,6 @@ unittests_LDADD = libRootInterface_la-TreeBuilder.lo \
 unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core \
 	-I@top_srcdir@/Utility
 
-
+TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS=unittests
 
