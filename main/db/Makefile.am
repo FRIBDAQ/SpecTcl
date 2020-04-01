@@ -13,8 +13,10 @@ libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	-I@top_srcdir@/Utility @ROOT_CFLAGS@ @TCL_CPPFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
 	-DTCLLIBS=@prefix@/TclLibs
-libSpecTclDb_la_LDFLAGS= @builddir@/../Core/libTclGrammerApp.la   \
+libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
+	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
+
 libSpecTclDb_la_SOURCES=CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
@@ -34,10 +36,29 @@ install-exec-hook:
 	@HTMLDOCBOOK@ @srcdir@/SpecTclDB.xml -o @prefix@/share/database
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 
-check-TESTS:
-	(cd @srcdir@; tclsh *.test)
+################################################################
+#  unit tests:
 
-check: check-TESTS
+noinst_PROGRAMS=unittests
+noinst_HEADERS=Asserts.h
+
+unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
+			statementTest.cpp transactionTest.cpp filtertests.cpp \
+			savepttests.cpp \
+			$(libSqlite3pp_la_SOURCES)
+unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@
+unittests_LDFLAGS=@SQLITE3_LDFLAGS@ @CPPUNIT_LIBS@
+
+
+TEST_EXTENSIONS=.test
+TEST_LOG_COMPILER=@TCLSH@
+TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH;
+
+TESTS=unittests names.test
+#check-TESTS:
+#	(cd @srcdir@; tclsh *.test)
+
+#check: check-TESTS
 
 EXTRA_DIST=names.test $(TCLSCRIPTS) $(IMAGES) $(DOCS)
 
