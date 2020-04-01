@@ -6,19 +6,20 @@ DOCS=SpecTclDB.xml GUI.png
 
 libSqlite3pp_la_SOURCES=CSqlite.cpp CSqliteException.cpp CSqliteStatement.cpp \
 	CSqliteTransaction.cpp CSqliteWhere.cpp
-libSqlite3pp_la_CXXFLAGS=@SQLITE3_CFLAGS@
+libSqlite3pp_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g
 libSqlite3pp_la_LDFLAGS=@SQLITE3_LDFLAGS@
 
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	-I@top_srcdir@/Utility @ROOT_CFLAGS@ @TCL_CPPFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
-	-DTCLLIBS=@prefix@/TclLibs
+	-DTCLLIBS=@prefix@/TclLibs -g
 libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp \
 	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
+libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
@@ -49,8 +50,8 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			savepttests.cpp specdbtests.cpp \
 			SpecTclDatabase.cpp  \
 			$(libSqlite3pp_la_SOURCES)
-unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@
-unittests_LDFLAGS=@SQLITE3_LDFLAGS@ @CPPUNIT_LIBS@
+unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g
+unittests_LDFLAGS=@SQLITE3_LDFLAGS@ @CPPUNIT_LIBS@ -g
 
 
 TEST_EXTENSIONS=.test

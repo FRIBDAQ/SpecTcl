@@ -43,7 +43,9 @@ namespace SpecTcl {
 void
 CDatabase::create(const char* database)
 {
-    CSqlite connection(database);
+    CSqlite connection(
+        database, CSqlite::readwrite | CSqlite::create
+    );
     
       // Top level savesets table:
       
@@ -60,7 +62,7 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS parameter_defs        \
         (id      INTEGER PRIMARY KEY,                     \
-         save_id INTEGER NOT NULL,  -- foreign key to save_sets.id \
+         save_id INTEGER NOT NULL,                       \
          name    TEXT NOT NULL,                           \
          number  INTEGER NOT NULL,                        \
          low     REAL,                                    \
@@ -83,7 +85,7 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS spectrum_defs   \
         (id      INTEGER PRIMARY KEY,               \
-         save_id INTEGER NOT NULL,     -- Foreign key to save_sets.id \
+         save_id INTEGER NOT NULL,                  \
          name    TEXT NOT NULL,                     \
          type    TEXT NOT NULL,                     \
          datatype TEXT NOT NULL                     \
@@ -99,7 +101,7 @@ CDatabase::create(const char* database)
         connection,
         " CREATE TABLE IF NOT EXISTS axis_defs     \
         (   id           INTEGER PRIMARY KEY,      \
-            spectrum_id  INTEGER NOT NULL,  -- FK to spectrum_defs.id \
+            spectrum_id  INTEGER NOT NULL,         \
             low          REAL NOT NULL,            \
             high         REAL NOT NULL,            \
             bins         INTEGER NOT NULL          \
@@ -115,8 +117,8 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS spectrum_params   \
         (   id          INTEGER PRIMARY KEY,          \
-            spectrum_id INTEGER NOT NULL,    -- FK to spectrum_defs.id \
-            parameter_id INTEGER NOT NULL    -- Fk to parameter_defs.id \
+            spectrum_id INTEGER NOT NULL,             \
+            parameter_id INTEGER NOT NULL             \
         )"
     );
     CSqliteStatement::execute(
@@ -131,7 +133,7 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS spectrum_contents   \
         (   id             INTEGER PRIMARY KEY,         \
-            spectrum_id    INTEGER NOT NULL,      -- FK to spectrum_defs.id. \
+            spectrum_id    INTEGER NOT NULL,            \
             xbin           INTEGER NOT NULL,            \
             ybin           INTEGER,                     \
             value          INTEGER NOT NULL             \
@@ -149,7 +151,7 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS gate_defs       \
             (   id          INTEGER PRIMARY KEY,    \
-                saveset_id  INTEGER NOT NULL,   -- FK to save_sets.id \
+                saveset_id  INTEGER NOT NULL,       \
                 name        TEXT NOT NULL,          \
                 type        TEXT NOT NULL           \
             )"
@@ -160,9 +162,9 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS gate_points    \
             (   id          INTEGER PRIMARY KEY,   \
-                gate_id     INTEGER NOT NULL,           -- FK to gate_defs.id \
-                x           REAL,                       -- Point x coordinate. \
-                y           REAL                        -- Point y coords.     \
+                gate_id     INTEGER NOT NULL,      \
+                x           REAL,                  \
+                y           REAL                   \
             )"
     );
     CSqliteStatement::execute(
@@ -175,8 +177,8 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS gate_parameters \
             (   id   INTEGER PRIMARY KEY,           \
-                parent_gate INTEGER NOT NULL,     -- FK to gate_defs.id \
-                parameter_id INTEGER NOT NULL     -- FK for parameter_defs.id \
+                parent_gate INTEGER NOT NULL,       \
+                parameter_id INTEGER NOT NULL       \
             )"
     );
     CSqliteStatement::execute(
@@ -197,8 +199,8 @@ CDatabase::create(const char* database)
         "CREATE TABLE IF NOT EXISTS component_gates       \
             (                                             \
                 id          INTEGER PRIMARY KEY,          \
-                parent_gate INTEGER NOT NULL,      -- gate_defs.id of owner. \
-                child_gate  INTEGER NOT NULL       -- Gate parent_gate depends on. \
+                parent_gate INTEGER NOT NULL,            \
+                child_gate  INTEGER NOT NULL              \
             )"
     );
     CSqliteStatement::execute(
@@ -229,8 +231,8 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS gate_applications ( \
                 id                INTEGER PRIMARY KEY,  \
-                spectrum_id       INTEGER NOT NULL,      -- fk to spectrum_defs \
-                gate_id           INTEGER NOT NULL       -- fk to gate_defs \
+                spectrum_id       INTEGER NOT NULL,      \
+                gate_id           INTEGER NOT NULL       \
             )"
     );
     // Tree Variables:
@@ -254,13 +256,13 @@ CDatabase::create(const char* database)
     
     CSqliteStatement::execute(
         connection,
-        " CREATE TABLE IF NOT EXISTS runs (    -- Runs that were saved. \
-                id         INTEGER PRIMARY KEY,                         \
-                config_id  INTEGER,              -- Configuration at begin of run. \
-                run_number INTEGER UNIQUE NOT NULL,                     \
-                title      TEXT NOT NULL,                               \
-                start_time INTEGER,                                     \
-                stop_time  INTEGER              -- End of run time      \
+        " CREATE TABLE IF NOT EXISTS runs (         \
+                id         INTEGER PRIMARY KEY,     \
+                config_id  INTEGER,                 \
+                run_number INTEGER UNIQUE NOT NULL, \
+                title      TEXT NOT NULL,           \
+                start_time INTEGER,                 \
+                stop_time  INTEGER                  \
             )"
     );
     CSqliteStatement::execute(
@@ -269,11 +271,11 @@ CDatabase::create(const char* database)
     );
     CSqliteStatement::execute(
         connection,
-        "REATE TABLE IF NOT EXISTS events (      \
+        "CREATE TABLE IF NOT EXISTS events (      \
                 id         INTEGER PRIMARY KEY,  \
-                run_id     INTEGER NOT NULL,   -- fk to runs(id). \
-                event_number INTEGER NOT NULL, -- Event number in the run. \
-                parameter_count INTEGER NOT NULL, -- Hints at the event blob size. \
+                run_id     INTEGER NOT NULL,     \
+                event_number INTEGER NOT NULL,   \
+                parameter_count INTEGER NOT NULL, \
                 event_data  BLOB NOT NULL        \
             )"
     );
@@ -281,8 +283,8 @@ CDatabase::create(const char* database)
         connection,
         "CREATE TABLE IF NOT EXISTS scaler_readouts (   \
                 id            INTEGER PRIMARY KEY,      \
-                run_id        INTEGER NOT NULL,      -- fk for runs. \
-                source_id     INTEGER NOT NULL,      -- Event builder source. \
+                run_id        INTEGER NOT NULL,         \
+                source_id     INTEGER NOT NULL,          \
                 start_offset  INTEGER NOT NULL,         \
                 stop_offset   INTEGER NOT NULL,         \
                 divisor       INTEGER NOT NULL,         \
@@ -293,9 +295,9 @@ CDatabase::create(const char* database)
         connection,
         " CREATE TABLE IF NOT EXISTS scaler_channels (   \
                 id          INTEGER PRIMARY KEY,         \
-                readout_id  INTEGER NOT NULL,      -- fk for scaler_readouts. \
-                channel     INTEGER NOT NULL,      -- Channel number.         \
-                value       INTEGER NOT NULL       -- Channel Value.          \
+                readout_id  INTEGER NOT NULL,            \
+                channel     INTEGER NOT NULL,            \
+                value       INTEGER NOT NULL             \
             )"
     );
     
