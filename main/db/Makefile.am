@@ -1,9 +1,13 @@
-lib_LTLIBRARIES=libSpecTclDb.la
+lib_LTLIBRARIES=libSpecTclDb.la libSqlite3pp.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
 IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
 DOCS=SpecTclDB.xml GUI.png
 
+libSqlite3pp_la_SOURCES=CSqlite.cpp CSqliteException.cpp CSqliteStatement.cpp \
+	CSqliteTransaction.cpp CSqliteWhere.cpp
+libSqlite3pp_la_CXXFLAGS=@SQLITE3_CFLAGS@
+libSqlite3pp_la_LDFLAGS=@SQLITE3_LDFLAGS@
 
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	-I@top_srcdir@/Utility @ROOT_CFLAGS@ @TCL_CPPFLAGS@ \
@@ -12,7 +16,10 @@ libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 libSpecTclDb_la_LDFLAGS= @builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 libSpecTclDb_la_SOURCES=CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
-include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h
+
+include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
+	CSqlite.h CSqliteException.h CSqliteStatement.h \
+	 CSqliteTransaction.h CSqliteWhere.h
 
 
 install-exec-hook:
