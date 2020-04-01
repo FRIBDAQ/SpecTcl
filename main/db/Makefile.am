@@ -21,7 +21,8 @@ libSpecTclDb_la_SOURCES=CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cp
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
-	 CSqliteTransaction.h CSqliteWhere.h
+	 CSqliteTransaction.h CSqliteWhere.h  \
+	SpecTclDatabase.h
 
 
 install-exec-hook:
@@ -52,7 +53,7 @@ unittests_LDFLAGS=@SQLITE3_LDFLAGS@ @CPPUNIT_LIBS@
 
 TEST_EXTENSIONS=.test
 TEST_LOG_COMPILER=@TCLSH@
-TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH;
+TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH;LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@
 
 TESTS=unittests names.test
 #check-TESTS:
