@@ -52,6 +52,28 @@ SaveSet::SaveSet(CSqlite& conn, const char* name) :
     }
     getInfo(m_Info, s);
 }
+/**
+ * constructor
+ *   Same as above but we know the id:
+ * @param id - the id of the save set.
+ */
+SaveSet::SaveSet(CSqlite& conn, int id) :
+    m_connection(conn)
+{
+    CSqliteStatement s(
+        conn,
+        "SELECT id,name,timestamp from save_sets WHERE id=?"
+    );
+    s.bind(1, id);
+    
+    ++s;
+    if(s.atEnd()) {
+        std::stringstream e;
+        e << "There is no save-set with the id : " << id;
+        throw std::invalid_argument(e.str());
+    }
+    getInfo(m_Info, s);
+}
 
 ////////////////////////////////////////////////////////////
 // Private utilities

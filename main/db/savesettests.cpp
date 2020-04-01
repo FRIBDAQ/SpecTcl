@@ -41,7 +41,10 @@ class savesettest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(savesettest);
     CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST(construct_2);
-    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+    CPPUNIT_TEST(construct_5);
+    CPPUNIT_TEST(construct_6);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -60,10 +63,12 @@ public:
         unlink(m_file.c_str());
     }
 protected:
-    void construct_1();
+    void construct_1();   // Construct by name.
     void construct_2();
     void construct_3();
-    
+    void construct_4();   // construct by id.
+    void construct_5();
+    void construct_6();
 private:
     void makeTempFile();
     void makeDatabase();
@@ -142,6 +147,34 @@ void savesettest::construct_3()
     
     makeEmptySet("set");
     SpecTcl::SaveSet set(*m_pDatabase, "set");
+    EQ(std::string("set"), set.m_Info.s_name);
+    EQ(1, set.m_Info.s_id);
+    EQ(m_savesetTime, set.m_Info.s_stamp);
+}
+void savesettest::construct_4()
+{
+    // construct by id with no such fails.
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::SaveSet set(*m_pDatabase, 1),
+        std::logic_error
+    );
+}
+void savesettest::construct_5()
+{
+    // Construt by id for existing one does not fail:
+    
+    makeEmptySet("set");   // id=1.
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::SaveSet  set(*m_pDatabase, 1)
+    );
+}
+void savesettest::construct_6()
+{
+    // Construct by id loads the right info.
+    
+    makeEmptySet("set");
+    SpecTcl::SaveSet set(*m_pDatabase, 1);
     EQ(std::string("set"), set.m_Info.s_name);
     EQ(1, set.m_Info.s_id);
     EQ(m_savesetTime, set.m_Info.s_stamp);
