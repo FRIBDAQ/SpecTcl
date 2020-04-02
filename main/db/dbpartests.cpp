@@ -28,27 +28,56 @@
 #include "SaveSet.h"
 #include "DBParameter.h"
 
+#include <sstream>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <string>
+#include <set>
+#include <errno.h>
+#include <stdexcept>
 
-class aTestSuite : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(aTestSuite);
-    CPPUNIT_TEST(test_1);
+class dbpartest : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(dbpartest);
+    CPPUNIT_TEST(exists_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
-
+    std::string         m_dbfile;
+    SpecTcl::CDatabase* m_pDb;
+    SpecTcl::SaveSet*   m_pSet;
 public:
     void setUp() {
+        const char* fileTemplate="dbpartestsXXXXXX";
+        char fname[200];
+        strcpy(fname, fileTemplate);
+        int fd = mkstemp(fname);
+        if (fd < 0) {
+            int e = errno;
+            std::stringstream msg;
+            msg << "Unable to create tempfile: " << fileTemplate
+                << " : " << strerror(e);
+            throw std::logic_error(msg.str());
+        }
+        close(fd);
         
+        m_dbfile = fname;
+        SpecTcl::CDatabase::create(fname);
+        m_pDb = new SpecTcl::CDatabase(fname);
+        m_pSet = m_pDb->createSaveSet("set1");
+    
     }
     void tearDown() {
-        
+        delete m_pSet;
+        delete m_pDb;
+        unlink(m_dbfile.c_str());
     }
 protected:
-    void test_1();
+    void exists_1();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(aTestSuite);
+CPPUNIT_TEST_SUITE_REGISTRATION(dbpartest);
 
-void aTestSuite::test_1()
+void dbpartest::exists_1()
 {
 }
