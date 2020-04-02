@@ -17,14 +17,14 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 
-libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp \
+libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
 	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
-	SpecTclDatabase.h SaveSet.h
+	SpecTclDatabase.h SaveSet.h DBParameter.h
 
 
 install-exec-hook:
