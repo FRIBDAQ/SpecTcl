@@ -48,6 +48,7 @@ noinst_HEADERS=Asserts.h
 unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			statementTest.cpp transactionTest.cpp filtertests.cpp \
 			savepttests.cpp specdbtests.cpp savesettests.cpp \
+			dbpartests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp \
 			$(libSqlite3pp_la_SOURCES)
 unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g
