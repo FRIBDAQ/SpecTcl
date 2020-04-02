@@ -56,6 +56,7 @@ namespace SpecTcl {
         
     // Object methods:
     
+    
     // Static methods:
     public:
         static bool exists(CSqlite& conn, const char* name);

@@ -55,10 +55,17 @@ class savesettest : public CppUnit::TestFixture {
     CPPUNIT_TEST(list_1);
     CPPUNIT_TEST(list_2);
     CPPUNIT_TEST(list_3);
+    
+    // CR via a SpecTcl::Database.
+    
+    CPPUNIT_TEST(db_1);      // Create
+    CPPUNIT_TEST(db_2);      // retrieve by name.
+    CPPUNIT_TEST(db_3);      // retrieve by id.
     CPPUNIT_TEST_SUITE_END();
     
 private:
     CSqlite*    m_pDatabase;
+    SpecTcl::CDatabase* m_pSpecDb;
     std::string m_file;
     time_t      m_savesetTime;
 public:
@@ -66,10 +73,11 @@ public:
         makeTempFile();
         makeDatabase();
         m_pDatabase = new CSqlite(m_file.c_str());
-        
+        m_pSpecDb   = new SpecTcl::CDatabase(m_file.c_str());
     }
     void tearDown() {
         delete m_pDatabase;
+        delete m_pSpecDb;
         unlink(m_file.c_str());
     }
 protected:
@@ -89,6 +97,10 @@ protected:
     void list_1();
     void list_2();
     void list_3();
+
+    void db_1();
+    void db_2();
+    void db_3();
 private:
     void makeTempFile();
     void makeDatabase();
@@ -280,4 +292,49 @@ void savesettest::list_3()
         EQ(names[i], v[i].s_name);
         EQ(stamps[i], v[i].s_stamp);
     }
+}
+
+void savesettest::db_1()
+{
+    // Create new save set via db:
+    
+    SpecTcl::SaveSet* pSet;
+    CPPUNIT_ASSERT_NO_THROW(
+        pSet = m_pSpecDb->createSaveSet("myset")
+    );
+    ASSERT(pSet);
+    EQ(std::string("myset"), pSet->m_Info.s_name);
+    EQ(1, pSet->m_Info.s_id);
+    // Take the timestamp on faith if we're this good.
+    
+    delete pSet;
+}
+void savesettest::db_2()
+{
+    // Retrieve by name.
+    
+    delete m_pSpecDb->createSaveSet("set1");
+    delete m_pSpecDb->createSaveSet("set2");
+    
+    SpecTcl::SaveSet* p2 = m_pSpecDb->getSaveSet("set2");
+    SpecTcl::SaveSet* p1 = m_pSpecDb->getSaveSet("set1");
+    
+    EQ(std::string("set2"), p2->m_Info.s_name);
+    EQ(std::string("set1"), p1->m_Info.s_name);
+    
+    delete p1;
+    delete p2;
+}
+void savesettest::db_3()
+{
+    // retrieve by id.
+    
+    delete m_pSpecDb->createSaveSet("set1");  // id = 1
+    delete m_pSpecDb->createSaveSet("set2");  // id = 2
+    
+    SpecTcl::SaveSet* p = m_pSpecDb->getSaveSet(2);
+    EQ(std::string("set2"), p->m_Info.s_name);
+    EQ(2, p->m_Info.s_id);
+    
+    delete p;
 }

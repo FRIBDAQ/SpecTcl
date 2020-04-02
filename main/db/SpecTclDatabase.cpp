@@ -23,6 +23,8 @@
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteException.h"
+#include "SaveSet.h"
+
 #include <stdexcept>
 
 namespace SpecTcl {
@@ -316,9 +318,43 @@ CDatabase::create(const char* database)
  * 
  */
 CDatabase::CDatabase(const char* database) :
-    m_connection(database) {
-        checkTables();
-    }
+    m_connection(database)
+{
+    checkTables();
+}
+/**
+ * createSaveSet
+ *    Creates a new savet
+ * @param name - name of the new saveset
+ * @return SaveSet*  - pointer to the new saveset.
+ *
+ * @note just delegates to the SaveSet::create static method
+ */
+SaveSet*
+CDatabase::createSaveSet(const char* name) {
+    return SaveSet::create(m_connection, name);
+}
+/**
+ * getSaveSet  (overloaded)
+ *    Retrieves a saveset from the database by name or id
+ * @param name - name of the saveset.
+ * @param id   - id of the saveset.
+ * @return SaveSet* - pointer to the retrieved save set.
+ * @note delegates to a save set constructor.
+ */
+SaveSet*
+CDatabase::getSaveSet(const char* name)
+{
+    return new SaveSet(m_connection, name);
+}
+SaveSet*
+CDatabase::getSaveSet(int id)
+{
+    return new SaveSet(m_connection, id);
+}
+
+/**
+ * 
 //////////////////////////////////////////////////////////
 // Private utilities
 

@@ -26,6 +26,8 @@
 // Time we started putting SpecTcl stuff in it's own namespace.
 
 namespace SpecTcl {
+    class SaveSet;
+    
     /**
      * @class CDataBase
      *     This class is the top level API into a SpecTcl configuration
@@ -41,7 +43,11 @@ namespace SpecTcl {
     public:
         static void create(const char* database);
         
+        // Create/Retreive save sets from the database:
         
+        SaveSet* createSaveSet(const char* name);
+        SaveSet* getSaveSet(const char* name);
+        SaveSet* getSaveSet(int id);
     public:
         CDatabase(const char* database);
         virtual ~CDatabase() {};
