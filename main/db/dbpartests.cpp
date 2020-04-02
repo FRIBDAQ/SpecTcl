@@ -36,6 +36,7 @@
 #include <set>
 #include <errno.h>
 #include <stdexcept>
+#include <map>
 
 class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(dbpartest);
@@ -55,6 +56,11 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(construct_4);
     CPPUNIT_TEST(construct_5);
     CPPUNIT_TEST(construct_6);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
+    
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -106,6 +112,10 @@ protected:
     void construct_4();
     void construct_5();
     void construct_6();
+    
+    void list_1();
+    void list_2();
+    void list_3();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -346,6 +356,50 @@ void dbpartest::construct_6()
     );
     CPPUNIT_ASSERT_THROW(
         new SpecTcl::DBParameter(*m_pConn, 1, 1),
+        std::invalid_argument
+    );
+}
+void dbpartest::list_1()
+{
+    // Emtpy list at first:
+    
+    auto pars = SpecTcl::DBParameter::list(*m_pConn, 1);
+    EQ(size_t(0), pars.size());
+}
+void dbpartest::list_2()
+{
+    // Make some.. .should see them in the list.
+    
+    const char* names[] = {
+        "parameter1",
+        "another1",
+        "the.last.one",
+        nullptr
+    };
+    std::set<std::string> expectedNames;
+    int i =0;
+    const char** p = names;
+    while (*p) {
+        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        expectedNames.insert(*p);
+        p++;
+        i++;
+    }
+    // Get the list and see that all our names are there.
+    
+    auto v = SpecTcl::DBParameter::list(*m_pConn, 1);
+    EQ(expectedNames.size(), v.size());
+    for (int i =0; i < v.size(); i++) {
+        EQ(size_t(1), expectedNames.count(v[i]->getInfo().s_name));
+        delete v[i];              // Done with it.
+    }    
+}
+void dbpartest::list_3()
+{
+    // It's an error to list an nonexisting save set:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBParameter::list(*m_pConn, 2),
         std::invalid_argument
     );
 }

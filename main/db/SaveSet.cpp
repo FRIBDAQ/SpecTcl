@@ -75,6 +75,14 @@ SaveSet::SaveSet(CSqlite& conn, int id) :
     }
     loadInfo(m_Info, s);
 }
+/**
+ * listParameters
+ *    Return a vector of pointers to all defined parameters.
+ *    Note that the pointers are to dynamically created objects
+ *    that must be deleted when the caller is done with them.
+ * @return std::vector<DBParameter*>  the list of parameters.
+ */
+
 
 ////////////////////////////////////////////////////////////
 // Static methods

@@ -112,7 +112,7 @@ namespace SpecTcl {
             CSqlite& connection, int sid, const char* name, int number,
             double low, double high, int bins, const char* units
         );
-        static std::vector<DBParameter*> list(CSqlite& connection);
+        static std::vector<DBParameter*> list(CSqlite& connection, int sid);
     
     private:
         static void checkCreateOk(

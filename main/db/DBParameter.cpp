@@ -241,6 +241,33 @@ DBParameter::create(
     return new DBParameter(conn, i);
     
 }
+/**
+ * list
+ *    Return a list of the parameters in a save set:
+ * @param conn - the connection object.
+ * @param number - Save set number
+ * @return std::vector<DBParameter*>
+ */
+std::vector<DBParameter*>
+DBParameter::list(CSqlite& connection, int sid)
+{
+    // This next line throws if the save set is invalid:
+    
+    SaveSet set(connection, sid);
+    
+    std::vector<DBParameter*> result;
+    CSqliteStatement s(
+        connection,
+        "SELECT number FROM parameter_defs WHERE save_id = ?"
+    );
+    s.bind(1, sid);
+    while(!((++s).atEnd())) {
+        int number = s.getInt(0);
+        result.push_back(new DBParameter(connection, sid, number));
+    }
+    
+    return result;
+}
 //////////////////////////////////////////////////////////////////////////
 // Utilities
  

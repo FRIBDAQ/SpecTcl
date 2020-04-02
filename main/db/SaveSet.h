@@ -27,6 +27,8 @@ class CSqlite;
 class CSqliteStatement;
 
 namespace SpecTcl {
+    class DBParameter;
+    
     /**
      * @class SaveSet
      *    This class encapsulates a save set and all the things
@@ -70,6 +72,14 @@ namespace SpecTcl {
     // Object methods:
     public:
         const Info& getInfo() {return m_Info;}
+        std::vector<DBParameter*> listParameters();
+        DBParameter* createParameter(const char* name, int number);
+        DBParameter* createParameter(
+            const char* name, int number,
+            double low, double high, int bins, const char* units
+        );
+        DBParameter* findParam(const char* name);
+        DBParameter* findParam(int number);
     
     // Static methods:
     public:
