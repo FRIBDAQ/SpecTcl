@@ -68,8 +68,8 @@ namespace SpecTcl {
         int operator!=(const SaveSet&);
         
     // Object methods:
-    
-    const Info& getInfo() {return m_Info;}
+    public:
+        const Info& getInfo() {return m_Info;}
     
     // Static methods:
     public:

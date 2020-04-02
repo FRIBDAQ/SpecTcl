@@ -72,7 +72,7 @@ namespace SpecTcl {
         // Constructors retrieve.
         
         DBParameter(CSqlite& conn, int saveid, const char* name);
-        virtual ~DBParameter();
+        virtual ~DBParameter() {};
        // Construct from info (used internally).
         
     private:
@@ -98,6 +98,8 @@ namespace SpecTcl {
         
     public:
         static bool exists(CSqlite& connection, int sid, const char* name);
+        static bool exists(CSqlite& connection, int sid, int id);
+        
         static DBParameter* create(
             CSqlite& connection, int sid, const char* name, int number
         );
@@ -106,6 +108,9 @@ namespace SpecTcl {
             double low, double high, int bins, const char* units
         );
         static std::vector<DBParameter*> list(CSqlite& connection);
+    
+    
+    
         
     };
 }
