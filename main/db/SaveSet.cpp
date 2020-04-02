@@ -89,6 +89,19 @@ SaveSet::listParameters()
 {
     return DBParameter::list(m_connection, m_Info.s_id);
 }
+/**
+ * createParameter
+ *    Wrapper for DBParameter::create  simple parameter.
+ * @param name - name of the parameter.
+ * @param number - parameter number.
+ * @return DBParameter* - pointer to a dynamically allocated new parameter
+ *         that wraps what we created.
+ */
+DBParameter*
+SaveSet::createParameter(const char* name, int number)
+{
+    return DBParameter::create(m_connection, m_Info.s_id, name, number);
+}
 
 ////////////////////////////////////////////////////////////
 // Static methods
