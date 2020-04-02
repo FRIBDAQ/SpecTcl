@@ -63,6 +63,8 @@ class dbpartest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(save_1);      // Test save set wrappings.
     CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
+    CPPUNIT_TEST(save_4);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -121,6 +123,8 @@ protected:
     
     void save_1();
     void save_2();
+    void save_3();
+    void save_4();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -421,10 +425,37 @@ void dbpartest::save_1()
 }
 void dbpartest::save_2()
 {
-    auto p = m_pSet->createParameter("pname", 12);
+    // make simple parameter
+    
+    delete m_pSet->createParameter("pname", 12);
     auto v = m_pSet->listParameters();
     EQ(size_t(1), v.size());
     EQ(std::string("pname"), v[0]->getInfo().s_name);
     EQ(12, v[0]->getInfo().s_number);
     delete v[0];
+}
+
+void dbpartest::save_3()
+{
+    // make param with metadata:
+    
+    delete m_pSet->createParameter(
+        "pname", 34, -10.0, 10.0, 125, "cm"
+    );
+    auto v = m_pSet->listParameters();
+    EQ(size_t(1), v.size());
+    EQ(std::string("pname"), v[0]->getInfo().s_name);
+    EQ(true, v[0]->getInfo().s_haveMetadata);
+    delete v[0];
+}
+void dbpartest::save_4()
+{
+    // retrieve parameter given name.
+    
+    delete m_pSet->createParameter(
+        "pname", 34, -10.0, 10.0, 125, "cm"
+    );
+    auto p = m_pSet->findParameter("pname");
+    EQ(std::string("pname"), p->getInfo().s_name);
+    delete p;
 }

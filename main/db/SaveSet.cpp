@@ -123,6 +123,17 @@ SaveSet::createParameter(
         low, high, bins, units
     );
 }
+/**
+ * findParameter
+ *    Retrieve a paramete from our save set given its name
+ *  @param name - parameter name.
+ *  @return DBParameter*
+ */
+DBParameter*
+SaveSet::findParameter(const char* name)
+{
+    return new DBParameter(m_connection, m_Info.s_id, name);
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 
