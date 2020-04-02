@@ -27,7 +27,36 @@
 #include <stdexcept>
 
 namespace SpecTcl {
-
+/**
+ * constructor (public)
+ *    Fetches information about a parameter in a save set
+ *    given its name.
+ *  @param connection - sqlite connection
+ *  @param saveid     - save set id.
+ *  @param name       - Name of the parameter.
+ */
+DBParameter::DBParameter(CSqlite& connection, int saveid, const char* name) :
+    m_connection(connection)
+{
+    CSqliteStatement s(
+        m_connection,
+        "SELECT * FROM parameter_defs WHERE save_id = ? AND name = ?"
+    );
+    s.bind(1, saveid);
+    s.bind(2, name, -1, SQLITE_STATIC);
+    ++s;
+    if(s.atEnd()) {
+        SaveSet set(m_connection, saveid);
+        auto i = set.getInfo();
+        // no match!
+        
+        std::stringstream msg;
+        msg << "There is no parameter named " << name << " in saveset named: "
+            << i.s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    fillInfo(s);
+}
 /**
  * constructor (Private)
  *    This is a private constructor that constructs the
@@ -40,7 +69,9 @@ namespace SpecTcl {
 DBParameter::DBParameter(CSqlite& connection, const Info& info) :
     m_connection(connection),
     m_Info(info)
-{}
+{
+        
+}
 
 
 ///////////////////////////////////////////////////////////////////
@@ -210,5 +241,27 @@ DBParameter::checkCreateOk(CSqlite& conn, int sid, const char* name, int number)
             << " in the save set " << info.s_name;
         throw std::invalid_argument(msg.str());
     }    
+}
+/**
+ * fillInfo
+ *    Fill our info block from the results of a SELECT * FROM parameter_defs
+ * @param stmt - the statment doing the fetch
+ */
+void
+DBParameter::fillInfo(CSqliteStatement& stmt)
+{
+    m_Info.s_id        = stmt.getInt(0);
+    m_Info.s_savesetId = stmt.getInt(1);
+    m_Info.s_name      = reinterpret_cast<const char*>(stmt.getText(2));
+    m_Info.s_number    = stmt.getInt(3);
+    if (stmt.columnType(4) == CSqliteStatement::null) {
+        m_Info.s_haveMetadata = false;
+    } else {
+        m_Info.s_haveMetadata = true;
+        m_Info.s_low   = stmt.getDouble(4);
+        m_Info.s_high  = stmt.getDouble(5);
+        m_Info.s_bins  = stmt.getInt(6);
+        m_Info.s_units = reinterpret_cast<const char*>(stmt.getText(7));
+    }
 }
 }                                // SpecTcl namespace.

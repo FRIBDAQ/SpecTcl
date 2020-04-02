@@ -48,6 +48,12 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(create_4);
     CPPUNIT_TEST(create_5);
     CPPUNIT_TEST(create_6);
+    
+    CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+    
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -92,6 +98,11 @@ protected:
     void create_4();
     void create_5();
     void create_6();
+    
+    void construct_1();
+    void construct_2();
+    void construct_3();
+    void construct_4();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -244,4 +255,63 @@ void dbpartest::create_6()
         std::string(reinterpret_cast<const char*>(s.getText(5)))
     );
 
+}
+
+void dbpartest::construct_1()
+{
+    // good retrieval.
+    
+    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
+    SpecTcl::DBParameter* p;
+    CPPUNIT_ASSERT_NO_THROW(
+        p = new SpecTcl::DBParameter(*m_pConn, 1, "test")
+    );
+    // Check the info.
+    
+    auto& i = p->getInfo();
+    EQ(1, i.s_id);
+    EQ(1, i.s_savesetId);
+    EQ(std::string("test"), i.s_name);
+    EQ(2, i.s_number);
+    EQ(false, i.s_haveMetadata);
+    
+    delete p;
+}
+void dbpartest::construct_2()
+{
+    // No such parameter exception.
+    
+    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
+    CPPUNIT_ASSERT_THROW(
+        new SpecTcl::DBParameter(*m_pConn, 1, "testing"),
+        std::invalid_argument
+    );
+}
+void dbpartest::construct_3()
+{
+    // Parameter is in another save set.
+    
+    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
+    CPPUNIT_ASSERT_THROW(
+        new SpecTcl::DBParameter(*m_pConn, 2, "test"),
+        std::invalid_argument
+    );
+    
+}
+void dbpartest::construct_4()
+{
+    // fetch parameter with metadata.
+    
+    delete SpecTcl::DBParameter::create(
+        *m_pConn, 1, "test", 2,
+        -100.0, 100.0, 400, "cm"
+    );
+    SpecTcl::DBParameter p(*m_pConn, 1, "test");
+    auto& i = p.getInfo();
+    
+    ASSERT(i.s_haveMetadata);
+    EQ(-100.0, i.s_low);
+    EQ(100.0, i.s_high);
+    EQ(400, i.s_bins);
+    EQ(std::string("cm"), i.s_units);
 }

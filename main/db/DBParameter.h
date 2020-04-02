@@ -24,6 +24,8 @@
 #include <vector>
 
 class CSqlite;
+class CSqliteStatement;
+
 namespace SpecTcl {
     class SaveSet;
     
@@ -73,6 +75,8 @@ namespace SpecTcl {
         // Constructors retrieve.
         
         DBParameter(CSqlite& conn, int saveid, const char* name);
+        DBParameter(CSqlite& conn, int saveid, int id);
+        
         virtual ~DBParameter() {};
        // Construct from info (used internally).
         
@@ -114,7 +118,7 @@ namespace SpecTcl {
         static void checkCreateOk(
             CSqlite& conn, int sid, const char* name, int number
         );
-    
+        void fillInfo(CSqliteStatement& stmt);
         
     };
 }
