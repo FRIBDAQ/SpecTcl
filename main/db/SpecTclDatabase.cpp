@@ -352,6 +352,22 @@ CDatabase::getSaveSet(int id)
 {
     return new SaveSet(m_connection, id);
 }
+/**
+ * getAllSaveSets
+ *    Returns a vector of dynamically allocated save set objects.
+ * @return std::vector<SaveSet*>
+ */
+std::vector<SaveSet*>
+CDatabase::getAllSaveSets()
+{
+    auto info = SaveSet::list(m_connection);
+    std::vector<SaveSet*> result;
+    for (int i =0; i < info.size(); i++ ) {
+        result.push_back(
+            new SaveSet(m_connection, info[i].s_name.c_str()));
+    }
+    return result;
+}
 
 /**
  * 

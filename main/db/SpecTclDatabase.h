@@ -22,6 +22,7 @@
 #define SPECTCLDATABASE_H
 
 #include "CSqlite.h"
+#include <vector>
 
 // Time we started putting SpecTcl stuff in it's own namespace.
 
@@ -48,6 +49,7 @@ namespace SpecTcl {
         SaveSet* createSaveSet(const char* name);
         SaveSet* getSaveSet(const char* name);
         SaveSet* getSaveSet(int id);
+        std::vector<SaveSet*> getAllSaveSets();
     public:
         CDatabase(const char* database);
         virtual ~CDatabase() {};

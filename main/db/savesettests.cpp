@@ -56,11 +56,14 @@ class savesettest : public CppUnit::TestFixture {
     CPPUNIT_TEST(list_2);
     CPPUNIT_TEST(list_3);
     
+    CPPUNIT_TEST(info_1);
+    
     // CR via a SpecTcl::Database.
     
     CPPUNIT_TEST(db_1);      // Create
     CPPUNIT_TEST(db_2);      // retrieve by name.
     CPPUNIT_TEST(db_3);      // retrieve by id.
+    CPPUNIT_TEST(db_4);      // list all savesets.
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -97,10 +100,13 @@ protected:
     void list_1();
     void list_2();
     void list_3();
+    
+    void info_1();
 
     void db_1();
     void db_2();
     void db_3();
+    void db_4();
 private:
     void makeTempFile();
     void makeDatabase();
@@ -294,6 +300,19 @@ void savesettest::list_3()
     }
 }
 
+void savesettest::info_1()
+{
+    // Test getinfo:
+    
+    makeEmptySet("set1");
+    SpecTcl::SaveSet s(*m_pDatabase, "set1");
+    auto i = s.getInfo();
+    
+    EQ(std::string("set1"), i.s_name);
+    EQ(1, i.s_id);
+    
+}
+
 void savesettest::db_1()
 {
     // Create new save set via db:
@@ -337,4 +356,20 @@ void savesettest::db_3()
     EQ(2, p->m_Info.s_id);
     
     delete p;
+}
+void savesettest::db_4()
+{
+    // Check getAll Savesets
+    
+    delete SpecTcl::SaveSet::create(*m_pDatabase, "set1");
+    delete SpecTcl::SaveSet::create(*m_pDatabase, "set2");
+    
+    auto sets = m_pSpecDb->getAllSaveSets();
+    
+    EQ(size_t(2), sets.size());
+    EQ(std::string("set1"), sets[0]->getInfo().s_name);
+    EQ(std::string("set2"), sets[1]->getInfo().s_name);
+    
+    delete sets[0];
+    delete sets[1];
 }

@@ -56,6 +56,7 @@ namespace SpecTcl {
         
     // Object methods:
     
+    const Info& getInfo() {return m_Info;}
     
     // Static methods:
     public:
@@ -65,7 +66,7 @@ namespace SpecTcl {
     // Utilities:
     
     private:
-        static void getInfo(Info& result, CSqliteStatement& stmt);
+        static void loadInfo(Info& result, CSqliteStatement& stmt);
     };
 }
 

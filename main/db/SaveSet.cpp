@@ -51,7 +51,7 @@ SaveSet::SaveSet(CSqlite& conn, const char* name) :
         e << "There is no save-set named: " << name;
         throw std::invalid_argument(e.str());
     }
-    getInfo(m_Info, s);
+    loadInfo(m_Info, s);
 }
 /**
  * constructor
@@ -73,7 +73,7 @@ SaveSet::SaveSet(CSqlite& conn, int id) :
         e << "There is no save-set with the id : " << id;
         throw std::invalid_argument(e.str());
     }
-    getInfo(m_Info, s);
+    loadInfo(m_Info, s);
 }
 
 ////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ SaveSet::list(CSqlite& conn)
     );
     while(!((++s).atEnd())) {
         Info i;
-        getInfo(i, s);
+        loadInfo(i, s);
         result.push_back(i);
     }
     return result;
@@ -176,7 +176,7 @@ SaveSet::list(CSqlite& conn)
  * @param stmt - Sqlite statement iterated to the row we want.
  */
 void
-SaveSet::getInfo(Info& result, CSqliteStatement& stmt)
+SaveSet::loadInfo(Info& result, CSqliteStatement& stmt)
 {
     result.s_id   = stmt.getInt(0);
     result.s_name = reinterpret_cast<const char*>(stmt.getText(1));
