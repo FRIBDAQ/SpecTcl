@@ -37,8 +37,21 @@ namespace SpecTcl {
     public:
         struct Info {
             int         s_id;
-            std::string s_name;
+            std::string s_name;   // requires copy construction etc.
             time_t      s_stamp;
+        Info() {}
+        Info(const Info& rhs) {
+            copyIn(rhs);
+        }
+        Info& operator=(const Info& rhs) {
+            copyIn(rhs);
+            return *this;
+        }
+        void copyIn(const Info& rhs) {
+            s_id = rhs.s_id;
+            s_name = rhs.s_name;
+            s_stamp = rhs.s_stamp;
+        }
         };
     private:
         CSqlite& m_connection;
