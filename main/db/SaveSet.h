@@ -81,8 +81,8 @@ namespace SpecTcl {
             const char* name, int number,
             double low, double high, int bins, const char* units
         );
-        DBParameter* findParam(const char* name);
-        DBParameter* findParam(int number);
+        DBParameter* findParameter(const char* name);
+        DBParameter* findParameter(int number);
     
     // Static methods:
     public:

@@ -62,6 +62,7 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(list_3);
     
     CPPUNIT_TEST(save_1);      // Test save set wrappings.
+    CPPUNIT_TEST(save_2);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -119,6 +120,7 @@ protected:
     void list_3();
     
     void save_1();
+    void save_2();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -415,4 +417,14 @@ void dbpartest::save_1()
     auto v = m_pSet->listParameters();
     EQ(size_t(1), v.size());
     EQ(std::string("test"), v[0]->getInfo().s_name);
+    delete v[0];
+}
+void dbpartest::save_2()
+{
+    auto p = m_pSet->createParameter("pname", 12);
+    auto v = m_pSet->listParameters();
+    EQ(size_t(1), v.size());
+    EQ(std::string("pname"), v[0]->getInfo().s_name);
+    EQ(12, v[0]->getInfo().s_number);
+    delete v[0];
 }

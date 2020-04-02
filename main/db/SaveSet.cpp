@@ -102,7 +102,27 @@ SaveSet::createParameter(const char* name, int number)
 {
     return DBParameter::create(m_connection, m_Info.s_id, name, number);
 }
-
+/**
+ * createParameter
+ *    wrapper for DBParameter::create with metadata.
+ *  @param name - parameter name.
+ *  @param number - parameter number.
+ *  @param low  - parameter low limit.
+ *  @param high - parameter high glimit.
+ *  @param bins - parameter bins.
+ *  @param units - parameter units.
+ */
+DBParameter*
+SaveSet::createParameter(
+    const char* name, int number,
+    double low, double high, int bins, const char* units
+)
+{
+    return DBParameter::create(
+        m_connection, m_Info.s_id, name, number,
+        low, high, bins, units
+    );
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 
