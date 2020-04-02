@@ -103,21 +103,8 @@ DBParameter::exists(CSqlite& connection, int sid, int number)
 DBParameter*
 DBParameter::create(CSqlite& conn, int sid, const char* name, int number)
 {
-    SaveSet set(conn, sid);               // Checks existence of saveset.
-    if (exists(conn, sid, name) ) {
-        std::stringstream msg;
-        auto info = set.getInfo();
-        msg << "A parameter named: " << name << " is already defined in"
-            << " the save set: " << info.s_name;
-        throw std::invalid_argument(msg.str());
-    }
-    if (exists(conn, sid, number)) {
-        std::stringstream msg;
-        auto info = set.getInfo();
-        msg << "There's already a parameter numbered " << number
-            << " in the save set " << info.s_name;
-        throw std::invalid_argument(msg.str());
-    }
+    checkCreateOk(conn, sid, name, number);
+    
     // Insert the database record:
     
     CSqliteStatement s(
@@ -136,5 +123,36 @@ DBParameter::create(CSqlite& conn, int sid, const char* name, int number)
     i.s_number = number;
     i.s_haveMetadata = false;
     return new DBParameter(conn, i);
+}
+//////////////////////////////////////////////////////////////////////////
+// Utilities
+ 
+/**
+ * checkCreateOk
+ *    Checks that it's ok to create a parameter in a saveset.
+ *    throws std::invalid_argument if not.
+ * @param conn -the connection.
+ * @param sid - the save set id.
+ * @param name -the parameter name.
+ * @param number - the parameter number
+ */
+void
+DBParameter::checkCreateOk(CSqlite& conn, int sid, const char* name, int number)
+{
+    SaveSet set(conn, sid);               // Checks existence of saveset.
+    if (exists(conn, sid, name) ) {
+        std::stringstream msg;
+        auto info = set.getInfo();
+        msg << "A parameter named: " << name << " is already defined in"
+            << " the save set: " << info.s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    if (exists(conn, sid, number)) {
+        std::stringstream msg;
+        auto info = set.getInfo();
+        msg << "There's already a parameter numbered " << number
+            << " in the save set " << info.s_name;
+        throw std::invalid_argument(msg.str());
+    }    
 }
 }                                // SpecTcl namespace.
