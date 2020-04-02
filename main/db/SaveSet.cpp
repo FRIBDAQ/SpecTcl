@@ -19,6 +19,7 @@
  *  @brief:  Implementation of the SpecTcl::SaveSet class.
  */
 #include "SaveSet.h"
+#include "DBParameter.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -81,8 +82,13 @@ SaveSet::SaveSet(CSqlite& conn, int id) :
  *    Note that the pointers are to dynamically created objects
  *    that must be deleted when the caller is done with them.
  * @return std::vector<DBParameter*>  the list of parameters.
+ * @note delegates to DBParameters::list
  */
-
+std::vector<DBParameter*>
+SaveSet::listParameters()
+{
+    return DBParameter::list(m_connection, m_Info.s_id);
+}
 
 ////////////////////////////////////////////////////////////
 // Static methods

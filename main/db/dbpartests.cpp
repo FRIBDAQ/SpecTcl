@@ -61,6 +61,7 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(list_2);
     CPPUNIT_TEST(list_3);
     
+    CPPUNIT_TEST(save_1);      // Test save set wrappings.
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -116,6 +117,8 @@ protected:
     void list_1();
     void list_2();
     void list_3();
+    
+    void save_1();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -402,4 +405,14 @@ void dbpartest::list_3()
         SpecTcl::DBParameter::list(*m_pConn, 2),
         std::invalid_argument
     );
+}
+
+void dbpartest::save_1()
+{
+    // Save set wrapping of DBParameter::list.
+    
+    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 234);
+    auto v = m_pSet->listParameters();
+    EQ(size_t(1), v.size());
+    EQ(std::string("test"), v[0]->getInfo().s_name);
 }

@@ -72,6 +72,9 @@ namespace SpecTcl {
     // Object methods:
     public:
         const Info& getInfo() {return m_Info;}
+        
+        // Parameter API:
+        
         std::vector<DBParameter*> listParameters();
         DBParameter* createParameter(const char* name, int number);
         DBParameter* createParameter(
