@@ -86,7 +86,7 @@ namespace SpecTcl {
             BaseInfo   s_base;
             Parameters s_parameters;
             Axes       s_axes;
-            
+            Info() {}
             Info(const Info& rhs) {
                 copyIn(rhs);
             }
@@ -131,18 +131,18 @@ namespace SpecTcl {
                 const char* datatype="long"
             );
         private:
-            static std::vector<int> fetchParameters(
+            Parameters fetchParameters(
                 CSqlite& connection, int sid, const std::vector<const char*>& parameterNames
             );
-            static void validateBaseInfo(CSqlite& connection, int sid, const BaseInfo& base);
-            static void validateParameterCount(
-                CSqlite& connection,  const char* spType, const Parameters& params
+            static void validateBaseInfo(
+                CSqlite& connection, int sid, const BaseInfo& base
             );
-            static void validateAxisCont(const char* spType, const Axes& axes);
+            static void validateParameterCount(const char* spType, size_t n);
+            static void validateAxisCount(const char* spType, size_t n);
             static void validateSpectrumType(const char* spType);
             static void validateDataType(const char* dtype);
             static void fetchInfo(CSqlite& connection, int sid, const char* name);
-            
+            static void enterSpectrum(CSqlite& connection, Info& info);
         
     };
 }                                         // namespace SpecTcl.
