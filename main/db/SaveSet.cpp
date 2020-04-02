@@ -134,6 +134,17 @@ SaveSet::findParameter(const char* name)
 {
     return new DBParameter(m_connection, m_Info.s_id, name);
 }
+/**
+ * findParameter
+ *    Same as above but find by parameter number.
+ * @param number - parameter number to retrieve.
+ * @return DBParameter*
+ */
+DBParameter*
+SaveSet::findParameter(int number)
+{
+    return new DBParameter(m_connection, m_Info.s_id, number);
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 

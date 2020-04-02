@@ -65,6 +65,7 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(save_2);
     CPPUNIT_TEST(save_3);
     CPPUNIT_TEST(save_4);
+    CPPUNIT_TEST(save_5);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -125,6 +126,7 @@ protected:
     void save_2();
     void save_3();
     void save_4();
+    void save_5();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -456,6 +458,17 @@ void dbpartest::save_4()
         "pname", 34, -10.0, 10.0, 125, "cm"
     );
     auto p = m_pSet->findParameter("pname");
+    EQ(std::string("pname"), p->getInfo().s_name);
+    delete p;
+}
+void dbpartest::save_5()
+{
+    // retrieve parameter given number:
+    
+    delete m_pSet->createParameter(
+        "pname", 34, -10.0, 10.0, 125, "cm"
+    );
+    auto p = m_pSet->findParameter(34);
     EQ(std::string("pname"), p->getInfo().s_name);
     delete p;
 }
