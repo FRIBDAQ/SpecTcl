@@ -53,7 +53,8 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(construct_2);
     CPPUNIT_TEST(construct_3);
     CPPUNIT_TEST(construct_4);
-    
+    CPPUNIT_TEST(construct_5);
+    CPPUNIT_TEST(construct_6);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -103,6 +104,8 @@ protected:
     void construct_2();
     void construct_3();
     void construct_4();
+    void construct_5();
+    void construct_6();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -314,4 +317,35 @@ void dbpartest::construct_4()
     EQ(100.0, i.s_high);
     EQ(400, i.s_bins);
     EQ(std::string("cm"), i.s_units);
+}
+void dbpartest::construct_5()
+{
+    // successful construct by parameter number.
+    
+    delete SpecTcl::DBParameter::create(
+        *m_pConn, 1, "test", 2,
+        -100.0, 100.0, 400, "cm"
+    );
+    SpecTcl::DBParameter* p;
+    CPPUNIT_ASSERT_NO_THROW(
+        p = new SpecTcl::DBParameter(*m_pConn, 1, 2)
+    );
+    // If we get the name correct in the info block I believe all because
+    // that block is filled with common code.
+    
+    auto& i = p->getInfo();
+    EQ(std::string("test"), i.s_name);
+    
+    delete p;
+}
+void dbpartest::construct_6()
+{
+    delete SpecTcl::DBParameter::create(
+        *m_pConn, 1, "test", 2,
+        -100.0, 100.0, 400, "cm"
+    );
+    CPPUNIT_ASSERT_THROW(
+        new SpecTcl::DBParameter(*m_pConn, 1, 1),
+        std::invalid_argument
+    );
 }

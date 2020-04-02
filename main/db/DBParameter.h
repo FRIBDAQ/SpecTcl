@@ -75,7 +75,7 @@ namespace SpecTcl {
         // Constructors retrieve.
         
         DBParameter(CSqlite& conn, int saveid, const char* name);
-        DBParameter(CSqlite& conn, int saveid, int id);
+        DBParameter(CSqlite& conn, int saveid, int number);
         
         virtual ~DBParameter() {};
        // Construct from info (used internally).

@@ -57,6 +57,36 @@ DBParameter::DBParameter(CSqlite& connection, int saveid, const char* name) :
     }
     fillInfo(s);
 }
+/*
+ * constructor
+ *   Fetches information about a parameter by number.  I'd love to factor out
+ *   the common logic for the this and the constructor above but the
+ *   error message for the exception is dynamic and I don't want to always
+ *   build it as that's probably time consuming.
+ * @param conn - connection object.
+ * @param sid  - save set id.
+ * @param number - the parameter number (not id).
+ */
+DBParameter::DBParameter(CSqlite& conn, int sid, int number) :
+    m_connection(conn)
+{
+    CSqliteStatement s(
+        m_connection,
+        "SELECT * FROM parameter_defs WHERE save_id = ? AND number = ?"
+    );
+    s.bind(1, sid);
+    s.bind(2, number);
+    ++s;
+    if (s.atEnd()) {
+        SaveSet set(m_connection, sid);
+        auto& i = set.getInfo();
+        std::stringstream msg;
+        msg << "There is no parameter numbered: " << number
+            << " in saveset: " << i.s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    fillInfo(s);
+}
 /**
  * constructor (Private)
  *    This is a private constructor that constructs the
