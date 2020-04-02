@@ -125,23 +125,23 @@ namespace SpecTcl {
         
         public:
             DBSpectrum* create(
-                Sqlite& connection, int sid, const char* name, const char* type,
+                CSqlite& connection, int sid, const char* name, const char* type,
                 const std::vector<const char*>& parameterNames,
                 const Axes& axes,
                 const char* datatype="long"
             );
         private:
             static std::vector<int> fetchParameters(
-                Sqlite& connection, int sid, const std::vector<const char*>& parameterNames
+                CSqlite& connection, int sid, const std::vector<const char*>& parameterNames
             );
-            static void validateBaseInfo(Sqlite& connection, int sid, const BaseInfo& base);
+            static void validateBaseInfo(CSqlite& connection, int sid, const BaseInfo& base);
             static void validateParameterCount(
-                Sqlite& connection,  const char* spType, const Parameters& params
+                CSqlite& connection,  const char* spType, const Parameters& params
             );
             static void validateAxisCont(const char* spType, const Axes& axes);
             static void validateSpectrumType(const char* spType);
             static void validateDataType(const char* dtype);
-            static void fetchInfo(Sqlite& connection, int sid, const char* name);
+            static void fetchInfo(CSqlite& connection, int sid, const char* name);
             
         
     };

@@ -18,6 +18,7 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
+	DBSpectrum.cpp \
 	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
