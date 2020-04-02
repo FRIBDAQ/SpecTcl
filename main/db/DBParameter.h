@@ -61,6 +61,7 @@ namespace SpecTcl {
                 if(s_haveMetadata) {    // Don't matter if it doesn't.
                     s_low = rhs.s_low;
                     s_high = rhs.s_high;
+                    s_bins = rhs.s_bins;
                     s_units = rhs.s_units;
                 }
             }

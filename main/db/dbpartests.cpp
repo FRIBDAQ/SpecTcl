@@ -47,6 +47,7 @@ class dbpartest : public CppUnit::TestFixture {
     CPPUNIT_TEST(create_3);
     CPPUNIT_TEST(create_4);
     CPPUNIT_TEST(create_5);
+    CPPUNIT_TEST(create_6);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -90,6 +91,7 @@ protected:
     void create_3();
     void create_4();
     void create_5();
+    void create_6();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -196,4 +198,50 @@ void dbpartest::create_5()
         std::invalid_argument
     );
     
+}
+void dbpartest::create_6()
+{
+    // Create with full metadata. note that we believe the edge cases
+    // will work because we factored them into createCheckOk.
+    
+    SpecTcl::DBParameter* p;
+    CPPUNIT_ASSERT_NO_THROW(
+        p = SpecTcl::DBParameter::create(
+            *m_pConn, 1, "Name", 2, -10.0, 10.0, 100, "inches"
+        )
+    );
+    // Check the info struct:
+    
+    auto i = p->getInfo();
+    EQ(1, i.s_id);
+    EQ(1, i.s_savesetId);
+    EQ(std::string("Name"), i.s_name);
+    EQ(2, i.s_number);
+    EQ(true, i.s_haveMetadata);
+    EQ(-10.0, i.s_low);
+    EQ(10.0, i.s_high);
+    EQ(100, i.s_bins);
+    EQ(std::string("inches"), i.s_units);
+    
+    delete p;
+    
+    // Check the database:
+    //
+    CSqliteStatement s(
+        *m_pConn,
+        "SELECT id,number,low,high,bins,units FROM parameter_defs \
+            WHERE save_id = 1 AND name = 'Name'"
+
+    );
+    ++s;
+    EQ(1, s.getInt(0));
+    EQ(2, s.getInt(1));
+    EQ(-10.0, s.getDouble(2));
+    EQ(10.0, s.getDouble(3));
+    EQ(100, s.getInt(4));
+    EQ(
+        std::string("inches"),
+        std::string(reinterpret_cast<const char*>(s.getText(5)))
+    );
+
 }

@@ -124,6 +124,62 @@ DBParameter::create(CSqlite& conn, int sid, const char* name, int number)
     i.s_haveMetadata = false;
     return new DBParameter(conn, i);
 }
+/**
+ * create
+ *    Create parameter with full metadata
+ *
+ * @param conn      - connection to the database.
+ * @param sid        - Save set id to make the parameter in.
+ * @param name       - name of the new parameter.
+ * @param number     - parameter number
+ * @param low        - parameter low limit.
+ * @param high       - parameter high limit.
+ * @param bins       - suggested parametr binning.
+ * @param units      - parameter units of measure.
+ * @return SpecTcl::DBParameter*  - pointer to the object describing this thing.
+ * @throw std::invalid_argument if the parameter name already exists in the saveset.
+ * @note we can use the private Info based constructor to create the parameter
+ * @note The returned parameter object was created with new and therefore the
+ *       caller must delete it when they're done with that.
+ * @note destroying DBParameter objects does nothing to the underlying database
+ */
+DBParameter*
+DBParameter::create(
+    CSqlite& conn, int sid, const char* name, int number,
+    double low, double high, int bins, const char* units
+)
+{
+    checkCreateOk(conn, sid, name, number);
+    
+    CSqliteStatement s(
+        conn,
+        "INSERT INTO parameter_defs \
+            (save_id, name, number, low, high, bins, units) \
+            VALUES (?,?,?,?,?,?,?)"
+    );
+    s.bind(1, sid);
+    s.bind(2, name, -1, SQLITE_STATIC);
+    s.bind(3, number);
+    s.bind(4, low);
+    s.bind(5, high);
+    s.bind(6, bins);
+    s.bind(7, units, -1, SQLITE_STATIC);
+    ++s;
+    
+    Info i;
+    i.s_id        = s.lastInsertId();
+    i.s_savesetId = sid;
+    i.s_name      = name;
+    i.s_number    = number;
+    i.s_haveMetadata = true;
+    i.s_low       = low;
+    i.s_high      = high;
+    i.s_bins      = bins;
+    i.s_units     = units;
+    
+    return new DBParameter(conn, i);
+    
+}
 //////////////////////////////////////////////////////////////////////////
 // Utilities
  
