@@ -46,7 +46,7 @@ namespace SpecTcl {
             copyIn(rhs);
         }
         Info& operator=(const Info& rhs) {
-            copyIn(rhs);
+            if (&rhs != this) copyIn(rhs);
             return *this;
         }
         void copyIn(const Info& rhs) {
