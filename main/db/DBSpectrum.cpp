@@ -230,7 +230,7 @@ DBSpectrum::validateParameterCount(const char* type, size_t n)
             ) {
         // For gd, 2dmproj and m2, there must be an even number of params:
         
-        if (type == "gd" || type == "m2" || type == "2dmproj") {
+        if (type == "m2" || type == "2dmproj") {
             ok == ((n % 2) == 0);
         } else {
             ok = true;
@@ -254,7 +254,7 @@ DBSpectrum::validateParameterCount(const char* type, size_t n)
 void
 DBSpectrum::validateAxisCount(const char* type, size_t n)
 {
-    std::string specType;         // Easier to compare.
+    std::string specType = type;         // Easier to compare.
     bool ok(false); 
     if (n > 2) {
         ok = false;               // 2 is the maximum number of axes we allow.

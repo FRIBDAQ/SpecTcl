@@ -98,6 +98,13 @@ public:
     CPPUNIT_TEST(valdtype_2);
     CPPUNIT_TEST(valdtype_3);
     CPPUNIT_TEST(valdtype_4);
+    
+    CPPUNIT_TEST(valsptype_1);
+    CPPUNIT_TEST(valsptype_2);
+    
+    CPPUNIT_TEST(valaxiscount_1);
+    CPPUNIT_TEST(valaxiscount_2);
+    
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -113,6 +120,13 @@ protected:
     void valdtype_2();
     void valdtype_3();
     void valdtype_4();
+    
+    void valsptype_1();
+    void valsptype_2();
+    
+    void valaxiscount_1();
+    void valaxiscount_2();
+
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -256,6 +270,96 @@ void dbspectest::valdtype_4()
     
     CPPUNIT_ASSERT_THROW(
         SpecTcl::DBSpectrum::validateDataType("uint32_t"),
+        std::invalid_argument
+    );
+}
+void dbspectest::valsptype_1()
+{
+    // try all the legal ones:
+    
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("1"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("b"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("s"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("g1"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("S"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("g2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("gd"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("gs"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("m2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("2dmproj"));
+}
+void dbspectest::valsptype_2()
+{
+    // Illegal spectrum type:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateSpectrumType("2d"),
+        std::invalid_argument
+    );
+}
+void dbspectest::valaxiscount_1()
+{
+    // All good numbers:
+    
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("1", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("b", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("s", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("g1", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("S", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("g2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("gd", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("gs", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("m2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("2dmproj",1));
+}
+void dbspectest::valaxiscount_2()
+{
+    // Invalid:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("1", 2),
+            std::invalid_argument
+        );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("2", 1),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("b", 2),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("s", 2),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("g1", 2),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("S", 2),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("g2", 1),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("gd", 1),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("gs", 2),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("m2", 1),
+        std::invalid_argument
+    );
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateAxisCount("2dmproj",2),
         std::invalid_argument
     );
 }
