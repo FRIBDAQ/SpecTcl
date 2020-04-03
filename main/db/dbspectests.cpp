@@ -105,6 +105,10 @@ public:
     CPPUNIT_TEST(valaxiscount_1);
     CPPUNIT_TEST(valaxiscount_2);
     
+    CPPUNIT_TEST(valbinfo_1);
+    CPPUNIT_TEST(valbinfo_2);
+    CPPUNIT_TEST(valbinfo_3);
+    CPPUNIT_TEST(valbinfo_4);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -126,7 +130,11 @@ protected:
     
     void valaxiscount_1();
     void valaxiscount_2();
-
+    
+    void valbinfo_1();
+    void valbinfo_2();
+    void valbinfo_3();
+    void valbinfo_4();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -361,5 +369,61 @@ void dbspectest::valaxiscount_2()
     CPPUNIT_ASSERT_THROW(
         SpecTcl::DBSpectrum::validateAxisCount("2dmproj",2),
         std::invalid_argument
+    );
+}
+
+void dbspectest::valbinfo_1()
+{
+    // The name must not yet exist:
+    
+    addDummySpectrum("test" , "1", "long");
+    SpecTcl::DBSpectrum::BaseInfo info;
+    info.s_saveset=m_pSaveSet->getInfo().s_id;
+    info.s_name = "test";
+    info.s_type = "1";
+    info.s_dataType = "long";
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        std::invalid_argument
+    );
+    
+}
+void dbspectest::valbinfo_2()
+{
+    SpecTcl::DBSpectrum::BaseInfo info;
+    info.s_saveset=m_pSaveSet->getInfo().s_id;
+    info.s_name = "test";
+    info.s_type = "1d";
+    info.s_dataType = "long";
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        std::invalid_argument
+    );
+}
+void dbspectest::valbinfo_3()
+{
+    SpecTcl::DBSpectrum::BaseInfo info;
+    info.s_saveset=m_pSaveSet->getInfo().s_id;
+    info.s_name = "test";
+    info.s_type = "1";
+    info.s_dataType = "short";
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        std::invalid_argument
+    );
+}
+void dbspectest::valbinfo_4()
+{
+    SpecTcl::DBSpectrum::BaseInfo info;
+    info.s_saveset=m_pSaveSet->getInfo().s_id;
+    info.s_name = "test";
+    info.s_type = "1";
+    info.s_dataType = "word";
+    
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info)
     );
 }
