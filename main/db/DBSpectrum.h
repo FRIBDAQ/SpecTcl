@@ -124,24 +124,24 @@ namespace SpecTcl {
         //  static methods:
         
         public:
-            DBSpectrum* create(
+            static bool exists(CSqlite& connection, int sid, const char* name);
+            static DBSpectrum* create(
                 CSqlite& connection, int sid, const char* name, const char* type,
                 const std::vector<const char*>& parameterNames,
                 const Axes& axes,
                 const char* datatype="long"
             );
         private:
-            Parameters fetchParameters(
+            static Parameters fetchParameters(
                 CSqlite& connection, int sid, const std::vector<const char*>& parameterNames
             );
             static void validateBaseInfo(
-                CSqlite& connection, int sid, const BaseInfo& base
+                CSqlite& connection,  const BaseInfo& base
             );
             static void validateParameterCount(const char* spType, size_t n);
             static void validateAxisCount(const char* spType, size_t n);
             static void validateSpectrumType(const char* spType);
             static void validateDataType(const char* dtype);
-            static void fetchInfo(CSqlite& connection, int sid, const char* name);
             static void enterSpectrum(CSqlite& connection, Info& info);
         
     };
