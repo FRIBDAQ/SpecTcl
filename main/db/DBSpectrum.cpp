@@ -39,7 +39,8 @@ namespace SpecTcl {
  */
 DBSpectrum::DBSpectrum(CSqlite& connection, const Info& info) :
     m_conn(connection), m_Info(info)
-{}
+{     
+}
 
 
 //////////////////////////////////////////////////////////////
@@ -220,17 +221,17 @@ DBSpectrum::validateParameterCount(const char* type, size_t n)
     // spectra with 2 parameters (e.g. 2d)
     // spectra with no limit (e.g. summary).
     std::string stype = type;
-    if (type == "1" || type == "b") {
+    if (stype == "1" || stype == "b") {
         ok = (n == 1);
-    } else if (type =="2" || type == "S") {
+    } else if (stype =="2" || stype == "S") {
         ok = (n == 2);
-    } else if (type == "s" || type == "g1" || type == "g2" ||
-               type == "gd"  || type == "gs" || type == "m2" ||
-               type == "2dmproj"
+    } else if (stype == "s" || stype == "g1" || stype == "g2" ||
+               stype == "gd"  || stype == "gs" || stype == "m2" ||
+               stype == "2dmproj"
             ) {
         // For gd, 2dmproj and m2, there must be an even number of params:
         
-        if (type == "m2" || type == "2dmproj") {
+        if (stype == "m2" || stype == "2dmproj") {
             ok == ((n % 2) == 0);
         } else {
             ok = true;

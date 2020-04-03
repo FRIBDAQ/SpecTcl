@@ -109,6 +109,10 @@ public:
     CPPUNIT_TEST(valbinfo_2);
     CPPUNIT_TEST(valbinfo_3);
     CPPUNIT_TEST(valbinfo_4);
+    
+    CPPUNIT_TEST(enter_1);
+    CPPUNIT_TEST(enter_2);
+    CPPUNIT_TEST(enter_3);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -135,10 +139,15 @@ protected:
     void valbinfo_2();
     void valbinfo_3();
     void valbinfo_4();
+    
+    void enter_1();
+    void enter_2();
+    void enter_3();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
     );
+    void makeStandardParams();
 };
 
 void
@@ -156,6 +165,14 @@ dbspectest::addDummySpectrum(
     s.bind(3, type, -1, SQLITE_STATIC);
     s.bind(4, dtype, -1, SQLITE_STATIC);
     ++s;
+}
+void dbspectest::makeStandardParams()
+{
+    for (int i =0; i < 10; i++) {
+        std::stringstream p;
+        p << "param." << i;
+        delete m_pSaveSet->createParameter(p.str().c_str(), i);
+    }
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(dbspectest);
@@ -426,4 +443,78 @@ void dbspectest::valbinfo_4()
     CPPUNIT_ASSERT_NO_THROW(
         SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info)
     );
+}
+void dbspectest::enter_1()
+{
+    // The theory is that all the error checking has been tested.
+    // except the save set.
+    
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    CPPUNIT_ASSERT_NO_THROW(
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
+            pnames, axes            // default type is long
+        )
+    );
+}
+void dbspectest::enter_2()
+{
+    // make in bad saveset.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    CPPUNIT_ASSERT_THROW(
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id+1, "test-spectrum", "1",
+            pnames, axes            // default type is long
+        ),
+        std::invalid_argument
+    );
+}
+void dbspectest::enter_3()
+{
+    // Check the spectrum is made with correct info:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
+            pnames, axes            // default type is long
+    );
+    
+    
+    // Don't check the ids but check everything else:
+    
+    auto info = pSpec->getInfo();
+    SpecTcl::DBParameter param(*m_pDb, m_pSaveSet->getInfo().s_id, "param.0");
+    
+    // base:
+    
+    EQ(m_pSaveSet->getInfo().s_id, info.s_base.s_saveset);
+    EQ(std::string("test-spectrum"), info.s_base.s_name);
+    EQ(std::string("1"), info.s_base.s_type);
+    EQ(std::string("long"), info.s_base.s_dataType);
+    
+    // Parameters
+    
+    EQ(size_t(1), info.s_parameters.size());
+    EQ(param.getInfo().s_id, info.s_parameters[0]);
+    
+    // axes:
+    
+    EQ(size_t(1), info.s_axes.size());
+    ASSERT(info.s_axes[0].s_id != -1);     // Should have been overwritten!
+    EQ(-10.0, info.s_axes[0].s_low);
+    EQ(10.0, info.s_axes[0].s_high);
+    EQ(100, info.s_axes[0].s_bins);
+    
+    delete pSpec;
 }

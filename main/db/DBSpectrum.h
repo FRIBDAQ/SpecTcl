@@ -95,9 +95,9 @@ namespace SpecTcl {
                 return *this;
             }
             void copyIn(const Info& rhs) {
-                s_base       = s_base;
-                s_parameters = s_parameters;
-                s_axes       = s_axes;
+                s_base       = rhs.s_base;
+                s_parameters = rhs.s_parameters;
+                s_axes       = rhs.s_axes;
             }
         };
         private:
@@ -120,6 +120,9 @@ namespace SpecTcl {
         //   Internally used constructor:
         private:
             DBSpectrum(CSqlite& connection, const Info& info);
+        // Object methods:
+        
+        const Info& getInfo() const { return m_Info; }
         
         //  static methods:
         
