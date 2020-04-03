@@ -113,6 +113,9 @@ public:
     CPPUNIT_TEST(enter_1);
     CPPUNIT_TEST(enter_2);
     CPPUNIT_TEST(enter_3);
+    CPPUNIT_TEST(enter_4);
+    CPPUNIT_TEST(enter_5);
+    CPPUNIT_TEST(enter_6);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -143,6 +146,9 @@ protected:
     void enter_1();
     void enter_2();
     void enter_3();
+    void enter_4();
+    void enter_5();
+    void enter_6();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -516,5 +522,119 @@ void dbspectest::enter_3()
     EQ(10.0, info.s_axes[0].s_high);
     EQ(100, info.s_axes[0].s_bins);
     
+    delete pSpec;
+}
+void dbspectest::enter_4()
+{
+    // ensure that:
+    // 1.  The root table entry in spectrum_defs is made.
+    // 2.  Its id gets propagated into info.s_base.s_id
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
+            pnames, axes            // default type is long
+    );
+    
+    
+    // Don't check the ids but check everything else:
+    
+    auto& info = pSpec->getInfo();
+    CSqliteStatement f(
+        *m_pDb,
+        "SELECT * FROM spectrum_defs WHERE name='test-spectrum' AND save_id=?"
+    );
+    f.bind(1, m_pSaveSet->getInfo().s_id);
+    ++f;
+    
+    EQ(false, f.atEnd());
+    EQ(info.s_base.s_id, f.getInt(0));
+    EQ(m_pSaveSet->getInfo().s_id, f.getInt(1));
+    EQ(
+        std::string("test-spectrum"),
+        std::string(reinterpret_cast<const char*>(f.getText(2)))
+    );
+    EQ(
+        std::string("1"),
+        std::string(reinterpret_cast<const char*>(f.getText(3)))
+    );
+    EQ(
+        std::string("long"),
+        std::string(reinterpret_cast<const char*>(f.getText(4)))
+    );
+    
+    delete pSpec;
+    
+    ++f;
+    EQ(true, f.atEnd());    // There can be only one.
+}
+void dbspectest::enter_5()
+{
+    // Check that the correct parameter database entry was made:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
+            pnames, axes            // default type is long
+    );
+    auto pParam = m_pSaveSet->findParameter("param.2");
+    auto& sinfo   = pSpec->getInfo();
+    
+    CSqliteStatement f(
+        *m_pDb,
+        "SELECT pd.id, pd.name FROM spectrum_params AS sp \
+        INNER JOIN parameter_defs AS pd ON pd.id = sp.parameter_id \
+        WHERE sp.spectrum_id =?"
+    );
+    f.bind(1, sinfo.s_base.s_id);
+    ++f;
+    EQ(false, f.atEnd());
+    
+    EQ(pParam->getInfo().s_id, f.getInt(0));
+    EQ(
+        std::string("param.2"),
+        std::string(reinterpret_cast<const char*>(f.getText(1)))
+    );
+    
+    ++f;
+    EQ(true, f.atEnd());
+    delete pSpec;
+    delete pParam;
+}
+void dbspectest::enter_6()
+{
+    // Check the axis is right:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
+            pnames, axes            // default type is long
+    );
+    auto& sinfo   = pSpec->getInfo();
+    
+    CSqliteStatement f(
+        *m_pDb,
+        "SELECT id, low, high, bins FROM axis_defs WHERE spectrum_id = ?"
+    );
+    f.bind(1, sinfo.s_base.s_id);
+    ++f;
+    EQ(false, f.atEnd());
+    
+    EQ(sinfo.s_axes[0].s_id, f.getInt(0));
+    EQ(sinfo.s_axes[0].s_low, f.getDouble(1));
+    EQ(sinfo.s_axes[0].s_high, f.getDouble(2));
+    EQ(sinfo.s_axes[0].s_bins, f.getInt(3));
+    
+    ++f;
+    EQ(true, f.atEnd());
     delete pSpec;
 }
