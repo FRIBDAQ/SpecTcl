@@ -312,7 +312,7 @@ DBSpectrum::validateDataType(const char* type)
 {
     std::string dtype = type;
     bool ok = false;
-    if (type == "byte" || type == "word" || type == "long") ok = true;
+    if (dtype == "byte" || dtype == "word" || dtype == "long") ok = true;
     
     if (!ok) {
         std::stringstream msg;

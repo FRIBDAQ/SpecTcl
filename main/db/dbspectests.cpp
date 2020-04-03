@@ -28,6 +28,8 @@
 
 #include "SpecTclDatabase.h"
 #include "SaveSet.h"
+#include "DBParameter.h"
+
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 
@@ -86,11 +88,31 @@ public:
     CPPUNIT_TEST(exists_1);
     CPPUNIT_TEST(exists_2);
     CPPUNIT_TEST(exists_3);
+    
+    CPPUNIT_TEST(fetchpar_1);    // note private method.
+    CPPUNIT_TEST(fetchpar_2);
+    CPPUNIT_TEST(fetchpar_3);
+    CPPUNIT_TEST(fetchpar_4);
+    
+    CPPUNIT_TEST(valdtype_1);
+    CPPUNIT_TEST(valdtype_2);
+    CPPUNIT_TEST(valdtype_3);
+    CPPUNIT_TEST(valdtype_4);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
     void exists_2();
     void exists_3();
+    
+    void fetchpar_1();
+    void fetchpar_2();
+    void fetchpar_3();
+    void fetchpar_4();
+    
+    void valdtype_1();
+    void valdtype_2();
+    void valdtype_3();
+    void valdtype_4();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -139,5 +161,101 @@ void dbspectest::exists_3()
     EQ(
         true,
         SpecTcl::DBSpectrum::exists(*m_pDb, m_pSaveSet->getInfo().s_id, "test")
+    );
+}
+
+void dbspectest::fetchpar_1()
+{
+    // Fetching a parameter when there are no parameters fails:
+
+    std::vector<const char*> pnames = {
+        "p1"
+    };
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::fetchParameters(
+            *m_pDb, m_pSaveSet->getInfo().s_id, pnames
+        ),
+        std::invalid_argument
+    );
+}
+void dbspectest::fetchpar_2()
+{
+    // One missing parameter in the group still makes a failure:
+    // make some parameters:
+    
+    delete m_pSaveSet->createParameter("p1", 1);
+    delete m_pSaveSet->createParameter("p2", 2);
+    
+    std::vector<const char*> pnames = {"p1", "p2", "p3"};
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::fetchParameters(
+            *m_pDb, m_pSaveSet->getInfo().s_id, pnames
+        ),
+        std::invalid_argument
+    );
+}
+void dbspectest::fetchpar_3()
+{
+    // all ok if all parameters exist.
+    
+    delete m_pSaveSet->createParameter("p1", 1);
+    delete m_pSaveSet->createParameter("p2", 2);
+    delete m_pSaveSet->createParameter("p3", 3);
+    
+    std::vector<const char*> pnames = {"p1", "p2", "p3"};
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::DBSpectrum::fetchParameters(
+            *m_pDb, m_pSaveSet->getInfo().s_id, pnames
+        )
+    );
+}
+void dbspectest::fetchpar_4()
+{
+    // I get the right answers back too:
+    
+    SpecTcl::DBParameter* p1 = m_pSaveSet->createParameter("p1", 1);
+    SpecTcl::DBParameter* p2 = m_pSaveSet->createParameter("p2", 2);
+    SpecTcl::DBParameter* p3 = m_pSaveSet->createParameter("p3", 3);
+    
+    
+    std::vector<const char*> pnames = {"p1", "p2", "p3"};
+    
+    auto params = SpecTcl::DBSpectrum::fetchParameters(
+        *m_pDb, m_pSaveSet->getInfo().s_id, pnames
+    );
+    EQ(size_t(3), params.size());
+    EQ(p1->getInfo().s_id, params[0]);
+    EQ(p2->getInfo().s_id, params[1]);
+    EQ(p3->getInfo().s_id, params[2]);
+    
+    delete p1;
+    delete p2;
+    delete p3;
+}
+void dbspectest::valdtype_1()
+{
+    // "byte" is ok
+    
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("byte"));
+}
+void dbspectest::valdtype_2()
+{
+    // "word" is ok
+    
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("word"));
+}
+void dbspectest::valdtype_3()
+{
+    // "long is ok"
+    
+    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("long"));
+}
+void dbspectest::valdtype_4()
+{
+    // uint32_t is not valid
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBSpectrum::validateDataType("uint32_t"),
+        std::invalid_argument
     );
 }

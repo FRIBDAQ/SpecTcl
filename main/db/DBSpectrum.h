@@ -133,7 +133,8 @@ namespace SpecTcl {
             );
         private:
             static Parameters fetchParameters(
-                CSqlite& connection, int sid, const std::vector<const char*>& parameterNames
+                CSqlite& connection, int sid,
+                const std::vector<const char*>& parameterNames
             );
             static void validateBaseInfo(
                 CSqlite& connection,  const BaseInfo& base
