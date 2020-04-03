@@ -120,9 +120,13 @@ namespace SpecTcl {
         //   Internally used constructor:
         private:
             DBSpectrum(CSqlite& connection, const Info& info);
+        public:
+            DBSpectrum(CSqlite& connection, int sid, const char* name);
+            
         // Object methods:
         
         const Info& getInfo() const { return m_Info; }
+        std::vector<std::string> getParameterNames();
         
         //  static methods:
         
@@ -147,7 +151,8 @@ namespace SpecTcl {
             static void validateSpectrumType(const char* spType);
             static void validateDataType(const char* dtype);
             static void enterSpectrum(CSqlite& connection, Info& info);
-        
+      
+            void loadInfo(int sid, const char* name);  
     };
 }                                         // namespace SpecTcl.
 

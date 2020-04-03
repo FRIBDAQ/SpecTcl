@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <assert.h>
 
 namespace SpecTcl {
 /**
@@ -40,6 +41,19 @@ namespace SpecTcl {
 DBSpectrum::DBSpectrum(CSqlite& connection, const Info& info) :
     m_conn(connection), m_Info(info)
 {     
+}
+/**
+ * constructor (public)
+ *     Construct a spectrum by encapsulating an existing spectrum
+ *     in an existing save-set.
+ * @param connection - sqlite connection object.
+ * @param sid        - saveset that holds the spectrum.
+ * @param name       - name of the spectrum.
+ */
+DBSpectrum::DBSpectrum(CSqlite& connection, int sid, const char* name) :
+    m_conn(connection)
+{
+    loadInfo(sid, name);
 }
 
 
@@ -385,6 +399,94 @@ DBSpectrum::enterSpectrum(CSqlite& connection, Info& info)
         info.s_axes[i].s_id = axis.lastInsertId();
         
         axis.reset();
+    }
+}
+/**
+ * loadInfo
+ *    Used in the process of looking up a spectrum in a
+ *    save set to load the info block of a spectrum being
+ *    constructed from an existing spectrum.
+ *    If there are errors, this reports them as exceptions
+ * @param sid  - save set id.
+ * @param name - Spectrum name.
+ * @note While this method is a bit long, it's straightforward so
+ *       we're not going to break it up (yet).
+ */
+void
+DBSpectrum::loadInfo(int sid, const char* name)
+{
+    // Make sure the spectrum exists:
+    
+    if (!exists(m_conn, sid, name)) {
+        std::stringstream msg;
+        SaveSet set(m_conn, sid);
+        msg << "There is no spectrum named " << name << " in save set "
+            << set.getInfo().s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    // The join below allows us to load the axes and the
+    // base part of the info block.  We might load the
+    // base part twice (two axes) but that's no real problem.
+    
+    CSqliteStatement f1(
+        m_conn,
+        "SELECT sp.id, type, datatype, a.id, low, high, bins \
+        INNER JOIN axis_defs AS a ON  a.spectrum_id = sp.id \
+        WHERE name = ? AND save_id ?"
+    );
+    f1.bind(1, name, -1, SQLITE_STATIC);
+    f1.bind(2, sid);
+    while (!(++f1).atEnd()) {
+        m_Info.s_base.s_id = f1.getInt(0);
+        m_Info.s_base.s_saveset = sid;
+        m_Info.s_base.s_name = name;
+        m_Info.s_base.s_type = reinterpret_cast<const char*>(f1.getText(1));
+        m_Info.s_base.s_dataType =
+            reinterpret_cast<const char*>(f1.getText(2));
+            
+        Axis a;
+        a.s_id = f1.getInt(3);
+        a.s_low = f1.getDouble(4);
+        a.s_high = f1.getDouble(5);
+        a.s_bins = f1.getInt(6);
+        m_Info.s_axes.push_back(a);
+    }
+    // There must be at least one entry:
+    
+    if (m_Info.s_axes.empty()) {
+            
+        // *** BUGCHECK: 
+        
+        std::stringstream msg;
+        SaveSet set(m_conn, sid);
+        msg << "Unable to find any matching records for spec/axes "
+        << " name: " << name << " saveset: " << set.getInfo().s_name;
+        
+        throw std::logic_error(msg.str());
+    }
+
+    // Now the parameters (again there should be at least one):
+    
+    CSqliteStatement f2(
+        m_conn,
+        "SELECT parameter_id FROM spectrum_params WHERE spectrum_id = ?"
+    );
+    f2.bind(1, m_Info.s_base.s_id);
+    while(!(++f2).atEnd()) {
+        m_Info.s_parameters.push_back(f2.getInt(0));
+    }
+    // There must be one!
+    
+    if (m_Info.s_parameters.empty()) {
+        // *** BUGCHECK: 
+        
+        std::stringstream msg;
+        SaveSet set(m_conn, sid);
+        
+        msg << "Spectrum" << name << " in save set "
+            << set.getInfo().s_name
+            << " has no associated parameter records!!!";
+        throw std::logic_error(msg.str());
     }
 }
 
