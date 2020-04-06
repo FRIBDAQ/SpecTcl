@@ -145,6 +145,20 @@ SaveSet::findParameter(int number)
 {
     return new DBParameter(m_connection, m_Info.s_id, number);
 }
+/**
+ * getParameter
+ *   Get a parameter given its id.  This differs from the
+ *   version of findParameter above because find fetches the
+ *   parameter by its parameter number while we are fetching it
+ *   by its primary key (id field).
+ * @param id - the id to fetch.
+ * @return DBPararmeter* - pointer to dynamically allocated parameter.
+ */
+DBParameter*
+SaveSet::getParameter(int id)
+{
+    return DBParameter::get(m_connection, m_Info.s_id, id);
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 

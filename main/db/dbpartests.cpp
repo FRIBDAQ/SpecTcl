@@ -104,6 +104,7 @@ private:
     CPPUNIT_TEST(save_3);
     CPPUNIT_TEST(save_4);
     CPPUNIT_TEST(save_5);
+    CPPUNIT_TEST(save_6);
     
     CPPUNIT_TEST_SUITE_END();
 
@@ -129,15 +130,16 @@ protected:
     void list_2();
     void list_3();
     
+    void get_1();
+    void get_2();
+    void get_3();
+    
     void save_1();
     void save_2();
     void save_3();
     void save_4();
     void save_5();
-    
-    void get_1();
-    void get_2();
-    void get_3();
+    void save_6();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -558,6 +560,17 @@ void dbpartest::save_5()
         "pname", 34, -10.0, 10.0, 125, "cm"
     );
     auto p = m_pSet->findParameter(34);
+    EQ(std::string("pname"), p->getInfo().s_name);
+    delete p;
+}
+void dbpartest::save_6()
+{
+    // retrieve parameter given id.
+    
+    delete m_pSet->createParameter(
+        "pname", 34, -10.0, 10.0, 125, "cm"
+    );
+    auto p = m_pSet->getParameter(1);
     EQ(std::string("pname"), p->getInfo().s_name);
     delete p;
 }

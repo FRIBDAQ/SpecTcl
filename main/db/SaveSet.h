@@ -84,7 +84,7 @@ namespace SpecTcl {
         );
         DBParameter* findParameter(const char* name);
         DBParameter* findParameter(int number);
-        
+        DBParameter* getParameter(int id);
         // Spectrum API:
 #ifdef SPECTRUM_API        
         bool spectrumExists(const char* name);
@@ -95,7 +95,7 @@ namespace SpecTcl {
         );
         std::vector<DBSpectrum*> listSpectra();
         DBSpectrum* lookupSpectrum(const char* name);
-        DBSpectrum* lookupSpectrum(int id);
+        DBSpectrum* getSpectrum(int id);
 #endif        
     // Static methods:
     public:
