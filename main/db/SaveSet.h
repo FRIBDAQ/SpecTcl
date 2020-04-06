@@ -95,6 +95,7 @@ namespace SpecTcl {
         );
         std::vector<DBSpectrum*> listSpectra();
         DBSpectrum* lookupSpectrum(const char* name);
+        DBSpectrum* lookupSpectrum(int id);
 #endif        
     // Static methods:
     public:

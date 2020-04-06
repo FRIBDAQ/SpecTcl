@@ -82,6 +82,7 @@ namespace SpecTcl {
         
     private:
         DBParameter(CSqlite& connection, const Info& info);
+        DBParameter(CSqlite& connection) : m_connection(connection) {}
         
         // Object methods:
     public:
@@ -112,6 +113,7 @@ namespace SpecTcl {
             CSqlite& connection, int sid, const char* name, int number,
             double low, double high, int bins, const char* units
         );
+        static DBParameter* get(CSqlite& connection, int sid, int id);
         static std::vector<DBParameter*> list(CSqlite& connection, int sid);
     
     private:

@@ -760,10 +760,14 @@ void dbspectest::construct_4()
     SpecTcl::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
     auto& params(spec.getInfo().s_parameters);
     EQ(size_t(1), params.size());
-    auto names = spec.getParameterNames();
-    std::string name = names.at(0);
+    auto param = SpecTcl::DBParameter::get(
+        *m_pDb, m_pSaveSet->getInfo().s_id, params[0]
+    );
+    
+    std::string name = param->getInfo().s_name;
     EQ(std::string("param.2"), name);
 
+    delete param;
 }
 
 void dbspectest::construct_5()

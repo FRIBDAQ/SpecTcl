@@ -242,6 +242,37 @@ DBParameter::create(
     
 }
 /**
+ * get
+ *    Return the parameter that has the given id.
+ *    @note throws std::invalid_argument for most errors.
+ *  @param conn -connection object.
+ *  @param sid  - Save set id.
+ *  @param id   - id (primary key) of the parameter.
+ *  @return DBParameter* - dynamically allocated parameter object.
+ */
+DBParameter*
+DBParameter::get(CSqlite& conn, int sid, int id)
+{
+    SaveSet s(conn, sid);              // Checks the save set exists.
+    CSqliteStatement f(
+        conn,
+        "SELECT * FROM parameter_defs WHERE id = ?"
+    );
+    f.bind(1, id);
+    ++f;
+    if (f.atEnd()) {
+        std::stringstream msg;
+        msg << "There is no parameter with the id " << id
+            << " in the save set " << s.getInfo().s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    DBParameter* result = new DBParameter(conn);
+    result->fillInfo(f);
+    
+    return result;
+}
+
+/**
  * list
  *    Return a list of the parameters in a save set:
  * @param conn - the connection object.
