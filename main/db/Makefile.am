@@ -25,7 +25,8 @@ libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
-	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h
+	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
+	DBGate.h
 
 
 install-exec-hook:
