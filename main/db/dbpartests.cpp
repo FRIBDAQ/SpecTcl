@@ -39,34 +39,6 @@
 #include <map>
 
 class dbpartest : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(dbpartest);
-    CPPUNIT_TEST(exists_1);
-    CPPUNIT_TEST(exists_2);
-    
-    CPPUNIT_TEST(create_1);
-    CPPUNIT_TEST(create_2);
-    CPPUNIT_TEST(create_3);
-    CPPUNIT_TEST(create_4);
-    CPPUNIT_TEST(create_5);
-    CPPUNIT_TEST(create_6);
-    
-    CPPUNIT_TEST(construct_1);
-    CPPUNIT_TEST(construct_2);
-    CPPUNIT_TEST(construct_3);
-    CPPUNIT_TEST(construct_4);
-    CPPUNIT_TEST(construct_5);
-    CPPUNIT_TEST(construct_6);
-    
-    CPPUNIT_TEST(list_1);
-    CPPUNIT_TEST(list_2);
-    CPPUNIT_TEST(list_3);
-    
-    CPPUNIT_TEST(save_1);      // Test save set wrappings.
-    CPPUNIT_TEST(save_2);
-    CPPUNIT_TEST(save_3);
-    CPPUNIT_TEST(save_4);
-    CPPUNIT_TEST(save_5);
-    CPPUNIT_TEST_SUITE_END();
     
 private:
     std::string         m_dbfile;
@@ -100,6 +72,41 @@ public:
         delete m_pConn;
         unlink(m_dbfile.c_str());
     }
+private:
+    CPPUNIT_TEST_SUITE(dbpartest);
+    CPPUNIT_TEST(exists_1);
+    CPPUNIT_TEST(exists_2);
+    
+    CPPUNIT_TEST(create_1);
+    CPPUNIT_TEST(create_2);
+    CPPUNIT_TEST(create_3);
+    CPPUNIT_TEST(create_4);
+    CPPUNIT_TEST(create_5);
+    CPPUNIT_TEST(create_6);
+    
+    CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+    CPPUNIT_TEST(construct_5);
+    CPPUNIT_TEST(construct_6);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
+    
+    CPPUNIT_TEST(get_1);
+    CPPUNIT_TEST(get_2);
+    CPPUNIT_TEST(get_3);
+    
+    CPPUNIT_TEST(save_1);      // Test save set wrappings.
+    CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
+    CPPUNIT_TEST(save_4);
+    CPPUNIT_TEST(save_5);
+    
+    CPPUNIT_TEST_SUITE_END();
+
 protected:
     void exists_1();
     void exists_2();
@@ -127,6 +134,10 @@ protected:
     void save_3();
     void save_4();
     void save_5();
+    
+    void get_1();
+    void get_2();
+    void get_3();
 private:
     void makeMinimalParameter(int set, const char* name, int num);
 };
@@ -413,6 +424,84 @@ void dbpartest::list_3()
         SpecTcl::DBParameter::list(*m_pConn, 2),
         std::invalid_argument
     );
+}
+
+
+void dbpartest::get_1() {
+    // illegal save set throws.
+    // Make some..
+    
+    const char* names[] = {
+        "parameter1",
+        "another1",
+        "the.last.one",
+        nullptr
+    };
+   
+    int i =0;
+    const char** p = names;
+    while (*p) {
+        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        p++;
+        i++;
+    }    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBParameter::get(*m_pConn, 2, 1),
+        std::invalid_argument
+    );
+    
+}
+void dbpartest::get_2() {
+    // No such parameter throws.
+    // illegal save set throws.
+    // Make some..
+    
+    const char* names[] = {
+        "parameter1",
+        "another1",
+        "the.last.one",
+        nullptr
+    };
+   
+    int i =0;
+    const char** p = names;
+    while (*p) {
+        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        p++;
+        i++;
+    }    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBParameter::get(*m_pConn, 1, 16),
+        std::invalid_argument
+    );
+
+}
+void dbpartest::get_3() {
+    // good get.
+
+    // illegal save set throws.
+    // Make some..
+    
+    const char* names[] = {
+        "parameter1",
+        "another1",
+        "the.last.one",
+        nullptr
+    };
+   
+    int i =0;
+    const char** p = names;
+    while (*p) {
+        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        p++;
+        i++;
+    }
+    SpecTcl::DBParameter* param;
+    CPPUNIT_ASSERT_NO_THROW(param = SpecTcl::DBParameter::get(*m_pConn, 1, 1));
+    
+    EQ(std::string("parameter1"), param->getInfo().s_name);
+    
+    delete param;
 }
 
 void dbpartest::save_1()
