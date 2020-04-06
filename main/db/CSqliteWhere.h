@@ -212,18 +212,21 @@ private:
     public:
         CItem(double value);
         CItem(std::string value);
+        CItem(int value);
         virtual std::string toString();
     };
     std::vector<CItem*> m_items;
     std::string         m_field;
 public:
     CInFilter(std::string field);
-    CInFilter(std::string field, std::vector<double>& values);
-    CInFilter(std::string field, std::vector<std::string>& values);
+    CInFilter(std::string field, const std::vector<double>& values);
+    CInFilter(std::string field, const std::vector<std::string>& values);
+    CInFilter(std::string field, const std::vector<int>& values);
     virtual ~CInFilter();
     
     void addItem(double value);
     void addItem(std::string value);
+    void addItem(int value);
     
     virtual std::string toString();
     

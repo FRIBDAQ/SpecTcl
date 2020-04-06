@@ -116,6 +116,8 @@ public:
     CPPUNIT_TEST(enter_4);
     CPPUNIT_TEST(enter_5);
     CPPUNIT_TEST(enter_6);
+    
+    CPPUNIT_TEST(getpar_1);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -149,6 +151,8 @@ protected:
     void enter_4();
     void enter_5();
     void enter_6();
+    
+    void getpar_1();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -636,5 +640,28 @@ void dbspectest::enter_6()
     
     ++f;
     EQ(true, f.atEnd());
+    delete pSpec;
+}
+void dbspectest::getpar_1()
+{
+    // get parameters from a spectrum.
+    
+        // Check the axis is right:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "s",
+            pnames, axes            // default type is long
+    );
+    
+    auto params = pSpec->getParameterNames();
+    EQ(pnames.size(), params.size());
+    for (int i = 0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), params[i]);
+    }
+    
     delete pSpec;
 }

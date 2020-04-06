@@ -375,6 +375,16 @@ CInFilter::CItem::CItem(std::string value)
     m_value += "'";
 }
 /**
+ * constructor(int)
+ *  @param  value - integer value.
+ */
+CInFilter::CItem::CItem(int value)
+{
+  std::ostringstream s;
+  s << value;
+  m_value = s.str();
+}
+/**
  * toString
  *   @return std::string - stringified item value:
  */
@@ -399,12 +409,11 @@ CInFilter::CInFilter(std::string field) : m_field(field)
  *   @param field - the field where applying the IN clause to.
  *   @param values - the input vector.
  */
-CInFilter::CInFilter(std::string field, std::vector<double>& values) :
+CInFilter::CInFilter(std::string field, const std::vector<double>& values) :
     m_field(field)
 {
     for(int i =0; i < values.size(); i++) {
-        CItem* pItem = new CItem(values[i]);
-        m_items.push_back(pItem);
+      addItem(values[i]);
     }
 }
 /**
@@ -412,12 +421,24 @@ CInFilter::CInFilter(std::string field, std::vector<double>& values) :
  *   @param field - the field where applying the IN clause to.
  *   @param values - the input vector.
  */
-CInFilter::CInFilter(std::string field, std::vector<std::string>& values) :
+CInFilter::CInFilter(std::string field, const std::vector<std::string>& values) :
     m_field(field)
 {
     for (int i = 0; i < values.size(); i++) {
-        CItem* pItem = new CItem(values[i]);
-        m_items.push_back(pItem);
+      addItem(values[i]);
+    }
+}
+/**
+ * constructor with vector of ints.
+ *   @param field - field to do the in on.
+ *   @param values - vector of values.
+ */
+CInFilter::CInFilter(std::string field, const std::vector<int>& values) :
+  m_field(field)
+{
+    for (int i =0; i < values.size(); i++) {
+      addItem(values[i]);
+      
     }
 }
 /**
@@ -454,6 +475,16 @@ CInFilter::addItem(std::string value)
 {
     CItem* p = new CItem(value);
     m_items.push_back(p);
+}
+/**
+ * addItem(int)
+ *   @param value -new item value to add.
+ */
+void
+CInFilter::addItem(int value)
+{
+  CItem* p = new CItem(value);
+  m_items.push_back(p);
 }
 
 /**

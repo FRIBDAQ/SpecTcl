@@ -23,6 +23,7 @@
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
+#include "CSqliteWhere.h"
 #include <histotypes.h>
 
 
@@ -55,7 +56,39 @@ DBSpectrum::DBSpectrum(CSqlite& connection, int sid, const char* name) :
 {
     loadInfo(sid, name);
 }
-
+/**
+ * getParameterNames
+ *    Gets the names of the parameters used by the spectrum.
+ *    Parameters are returned in order of original definition.
+ *
+ * @return std::vector<std::string>
+ */
+std::vector<std::string>
+DBSpectrum::getParameterNames()
+{
+    std::vector<std::string> result;
+    
+    // We'll construct our query here using an IN to capture all the
+    // parameters in the spectrum:
+    
+    std::string query =
+        "SELECT name FROM parameter_defs AS pd \
+         INNER JOIN spectrum_params As sp ON sp.parameter_id = pd.id \
+         WHERE ";
+    CInFilter ids("parameter_id", m_Info.s_parameters);
+    query += ids.toString();
+    query += " ORDER BY sp.id";              // definition order.
+    
+    CSqliteStatement f(
+        m_conn,
+        query.c_str()
+    );
+    while (!(++f).atEnd()) {
+        result.push_back(reinterpret_cast<const char*>(f.getText(0)));
+    }
+    
+    return result;
+}
 
 //////////////////////////////////////////////////////////////
 // Static methods:
