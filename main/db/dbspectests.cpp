@@ -79,10 +79,11 @@ public:
         m_pSaveSet = m_pSDb->createSaveSet("test-save-set");
     }
     void tearDown() {
+        unlink(m_filename.c_str());
         delete m_pSaveSet;
         delete m_pSDb;
         delete  m_pDb;
-        unlink(m_filename.c_str());
+        
     }
     // tests:
     CPPUNIT_TEST_SUITE(dbspectest);
@@ -130,6 +131,12 @@ public:
     CPPUNIT_TEST(list_2);
     CPPUNIT_TEST(list_3);
     CPPUNIT_TEST(list_4);
+    
+    CPPUNIT_TEST(save_1);              // Save set api.
+    CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
+    CPPUNIT_TEST(save_4);
+    CPPUNIT_TEST(save_5);
     CPPUNIT_TEST_SUITE_END();
     
 protected:
@@ -178,6 +185,12 @@ protected:
     void list_2();
     void list_3();
     void list_4();
+    
+    void save_1();
+    void save_2();
+    void save_3();
+    void save_4();
+    void save_5();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -856,4 +869,112 @@ void dbspectest::list_4()
         EQ(size_t(1), names.count(spectra[i]->getInfo().s_base.s_name));
         delete spectra[i];
     }
+}
+void dbspectest::save_1()
+{
+        // Multiple spectra:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    std::set<std::string> names;  // List has no gaurantees about order.
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "spectrum-" << i;
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
+            pnames, axes            // default type is long
+        );
+        names.insert(sname.str());    
+    }
+    
+    EQ(false, m_pSaveSet->spectrumExists("junk"));
+}
+void dbspectest::save_2()
+{
+          // Multiple spectra:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    std::set<std::string> names;  // List has no gaurantees about order.
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "spectrum-" << i;
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
+            pnames, axes            // default type is long
+        );
+        names.insert(sname.str());    
+    }
+    EQ(true, m_pSaveSet->spectrumExists("spectrum-5"));
+}
+void dbspectest::save_3()
+{
+    // Create new spectrum.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes ={{-10.0, 10.0, 100}};
+    
+    SpecTcl::DBSpectrum* pSpec;
+    CPPUNIT_ASSERT_NO_THROW(
+        pSpec = m_pSaveSet->createSpectrum("test-spec", "s", pnames, axes)
+    );
+    
+    EQ(std::string("test-spec"), pSpec->getInfo().s_base.s_name);
+    
+    delete pSpec;
+}
+void dbspectest::save_4()
+{
+    // listSpectra
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    std::set<std::string> names;  // List has no gaurantees about order.
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "spectrum-" << i;
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
+            pnames, axes            // default type is long
+        );
+        names.insert(sname.str());    
+    }
+    
+    auto spectra = m_pSaveSet->listSpectra();
+    EQ(names.size(), spectra.size());
+    for (int i =0; i < spectra.size(); i++) {
+        EQ(size_t(1), names.count(spectra[i]->getInfo().s_base.s_name));
+        delete spectra[i];
+    }
+}
+void dbspectest::save_5()
+{
+    // lookup
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    std::set<std::string> names;  // List has no gaurantees about order.
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream sname;
+        sname << "spectrum-" << i;
+        delete SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
+            pnames, axes            // default type is long
+        );
+        names.insert(sname.str());    
+    }
+    SpecTcl::DBSpectrum* spec;
+    CPPUNIT_ASSERT_NO_THROW(spec = m_pSaveSet->lookupSpectrum("spectrum-3"));
+    EQ(std::string("spectrum-3"), spec->getInfo().s_base.s_name);
+    
+    delete spec;
 }

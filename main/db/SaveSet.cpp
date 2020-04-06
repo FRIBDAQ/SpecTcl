@@ -20,6 +20,7 @@
  */
 #include "SaveSet.h"
 #include "DBParameter.h"
+#include "DBSpectrum.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -76,6 +77,9 @@ SaveSet::SaveSet(CSqlite& conn, int id) :
     }
     loadInfo(m_Info, s);
 }
+
+////////////////////////////////
+// Parameter API implementation
 /**
  * listParameters
  *    Return a vector of pointers to all defined parameters.
@@ -159,6 +163,78 @@ SaveSet::getParameter(int id)
 {
     return DBParameter::get(m_connection, m_Info.s_id, id);
 }
+///////////////////////////////
+// Spectrum API implementation
+
+/**
+ * spectrumExists
+ *  Wraps the DBSpectrum::exists method.
+ * @param name - name of the spectrum to check on
+ * @return bool
+ */
+bool
+SaveSet::spectrumExists(const char* name)
+{
+    return DBSpectrum::exists(m_connection, m_Info.s_id, name);
+}
+/**
+ * createSpectrum
+ *   Wraps the DBSpectrum::create static method.
+ * @param name - name of the spectrum being created.
+ * @param type - type of spectrum.
+ * @param parmeterNames - names of the parameters the spectrum needs.
+ * @param axes - axis specifications.
+ * @param datatype - datatype for each channel.
+ * @return DBSpectrum* - pointer to a dynamically created spectrum.
+ */
+DBSpectrum*
+SaveSet::createSpectrum(
+    const char* name, const char* type,
+    const std::vector<const char*>& parameterNames,
+    const std::vector<SpectrumAxis>& axes,
+    const char* datatype
+)
+{
+    // We needed to define SpectrumAxis becaus we can't declare
+    // DBSpectrum::Axis forward e.g.
+    
+    DBSpectrum::Axes a;
+    for (int i =0; i < axes.size(); i++) {
+        DBSpectrum::Axis ax;
+        ax.s_low  = axes[i].s_low;
+        ax.s_high = axes[i].s_high;
+        ax.s_bins = axes[i].s_bins;
+        a.push_back(ax);
+    }
+    
+    return DBSpectrum::create(
+        m_connection, m_Info.s_id,
+        name, type, parameterNames, a, datatype
+    );
+}
+/**
+ * listSpectra
+ *    Jacked for DBSpectra::list
+ *
+ * @return std::vector<DBSpectrum*> -the spectra in the saveset.
+ */
+std::vector<DBSpectrum*>
+SaveSet::listSpectra()
+{
+    return DBSpectrum::list(m_connection, m_Info.s_id);
+}
+/**
+ * lookupSpectrum
+ *   Wrapper for spectrum loopu (name based constructor)
+ * @param name - name of the spectrum.
+ * @return DBSpectrum*
+ */
+DBSpectrum*
+SaveSet::lookupSpectrum(const char* name)
+{
+    return new DBSpectrum(m_connection, m_Info.s_id, name);
+}
+
 ////////////////////////////////////////////////////////////
 // Static methods
 

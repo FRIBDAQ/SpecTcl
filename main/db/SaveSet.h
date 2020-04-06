@@ -29,6 +29,7 @@ class CSqliteStatement;
 namespace SpecTcl {
     class DBParameter;
     class DBSpectrum;
+   
     
     /**
      * @class SaveSet
@@ -55,6 +56,11 @@ namespace SpecTcl {
             s_name = rhs.s_name;
             s_stamp = rhs.s_stamp;
         }
+        };
+        struct SpectrumAxis {
+            double s_low;
+            double s_high;
+            int    s_bins;
         };
     private:
         CSqlite& m_connection;
@@ -86,17 +92,19 @@ namespace SpecTcl {
         DBParameter* findParameter(int number);
         DBParameter* getParameter(int id);
         // Spectrum API:
-#ifdef SPECTRUM_API        
+        
         bool spectrumExists(const char* name);
-        DBSpectrum* create(const char* name, const char* type,
+        DBSpectrum* createSpectrum(const char* name, const char* type,
                 const std::vector<const char*>& parameterNames,
-                const Axes& axes,
+                const std::vector<SpectrumAxis>& axes,
                 const char* datatype="long"
         );
+
         std::vector<DBSpectrum*> listSpectra();
+
         DBSpectrum* lookupSpectrum(const char* name);
-        DBSpectrum* getSpectrum(int id);
-#endif        
+
+
     // Static methods:
     public:
         static bool exists(CSqlite& conn, const char* name);
