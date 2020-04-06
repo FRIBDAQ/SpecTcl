@@ -22,10 +22,8 @@
 #define DBGATE_H
 #include <string>
 #include <vector>
-#include <CSqlite.h>
-#include <CSqlieStatement.h>
-#include <CSqliteTransaction.h>
 
+class Sqlite;
 
 namespace SpecTcl {
    
@@ -79,16 +77,16 @@ class DBGate {
             // We need some canonicals to properly copy the strings.
             
             BaseInfo(){}
-            BaseInfo(&BaseInfo rhs) {
+            BaseInfo(const BaseInfo& rhs) {
                 copyIn(rhs);
             }
-            BaseInfo& operator=(&BaseInfo rhs) {
+            BaseInfo& operator=(const BaseInfo& rhs) {
                 if (this != &rhs) {
-                    copyIn(&rhs);
+                    copyIn(rhs);
                 }
                 return *this;
             }
-            void copyIn(&BaseInfo rhs) {
+            void copyIn(const BaseInfo& rhs) {
                 s_id       = rhs.s_id;
                 s_saveset  = rhs.s_saveset;
                 s_name     = rhs.s_name;
@@ -103,11 +101,12 @@ class DBGate {
         
         // Points:
         //   Note 1d slices, gamma slices only x is meaningful.
-        typedef struct Point {
+        
+        struct Point {
             double    s_x;
             double    s_y;
-        }
-        std::vector<Point> Points;
+        };
+        typedef std::vector<Point> Points;
         
         // Ok here's the gate information:
         
@@ -143,10 +142,10 @@ class DBGate {
         
         
         private:                            // Disallowed:
-            DBGate(const& DBGate);
-            DBGate& operator=(const& DBGate);
-            int operator==(const& DBGate);
-            int operator!=(const& DBGate);
+            DBGate(const DBGate&);
+            DBGate& operator=(const DBGate&);
+            int operator==(const DBGate&);
+            int operator!=(const DBGate&);
             
             // Constructor used by creational methods:
             
@@ -166,7 +165,7 @@ class DBGate {
         // Utility methods:
         
         private:
-            static void EnterBase(Sqlite& conn,  Base& baseInfo);
+            static void EnterBase(Sqlite& conn,  BaseInfo& baseInfo);
             static IdList
                 EnterParams(Sqlite& conn, int gid, const NameList& params);
             static void EnterPoints(Sqlite& conn, int gid, const Points& pts);

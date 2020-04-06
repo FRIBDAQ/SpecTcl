@@ -18,7 +18,7 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@
 
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
-	DBSpectrum.cpp \
+	DBSpectrum.cpp DBGate.cpp \
 	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
@@ -52,7 +52,7 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			savepttests.cpp specdbtests.cpp savesettests.cpp \
 			dbpartests.cpp dbspectests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp DBParameter.cpp \
-			DBSpectrum.cpp \
+			DBSpectrum.cpp DBGate.cpp \
 			$(libSqlite3pp_la_SOURCES)
 unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g -I@top_srcdir@/Utility \
 	@ROOT_CFLAGS@
