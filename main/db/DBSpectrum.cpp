@@ -176,6 +176,37 @@ DBSpectrum::create(
     
     return new DBSpectrum(connection, specinfo);
 }
+/**
+ * list
+ *   Return all of the spectra in a saveset.
+ * @param  connection - Sqlite connection object.
+ * @param  sid        - Save set id.
+ * @return std::vector<DBSpectrum*>  - Result, vector of dynamically allocated
+ *                      spectrum objects.  Caller must delete these.
+ */
+std::vector<DBSpectrum*>
+DBSpectrum::list(CSqlite& connection, int sid)
+{
+    // This is a simple way to throw if there's no such saveset:
+    
+    SaveSet s(connection, sid);
+    
+    std::vector<DBSpectrum*> result;
+    
+    // Get all the names then construct a new spectrum for each name.
+    
+    CSqliteStatement n(
+        connection,
+        "SELECT name FROM spectrum_defs WHERE save_id = ?"
+    );
+    n.bind(1, sid);
+    while (!(++n).atEnd()) {
+        const char* name = reinterpret_cast<const char*>(n.getText(0));
+        result.push_back(new DBSpectrum(connection, sid, name));
+    }
+    
+    return result;
+}
 //////////////////////////////////////////////////////////////////////////////
 // Private utility methods.
 
@@ -464,8 +495,9 @@ DBSpectrum::loadInfo(int sid, const char* name)
     CSqliteStatement f1(
         m_conn,
         "SELECT sp.id, type, datatype, a.id, low, high, bins \
+         FROM spectrum_defs AS sp \
         INNER JOIN axis_defs AS a ON  a.spectrum_id = sp.id \
-        WHERE name = ? AND save_id ?"
+        WHERE name = ? AND save_id = ?"
     );
     f1.bind(1, name, -1, SQLITE_STATIC);
     f1.bind(2, sid);

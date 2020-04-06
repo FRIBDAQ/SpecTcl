@@ -125,8 +125,9 @@ namespace SpecTcl {
             
         // Object methods:
         
-        const Info& getInfo() const { return m_Info; }
-        std::vector<std::string> getParameterNames();
+        public:
+            const Info& getInfo() const { return m_Info; }
+            std::vector<std::string> getParameterNames();
         
         //  static methods:
         
@@ -138,6 +139,7 @@ namespace SpecTcl {
                 const Axes& axes,
                 const char* datatype="long"
             );
+            static std::vector<DBSpectrum*> list(CSqlite& connection, int sid);
         private:
             static Parameters fetchParameters(
                 CSqlite& connection, int sid,

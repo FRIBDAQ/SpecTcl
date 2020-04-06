@@ -28,6 +28,7 @@ class CSqliteStatement;
 
 namespace SpecTcl {
     class DBParameter;
+    class DBSpectrum;
     
     /**
      * @class SaveSet
@@ -83,7 +84,18 @@ namespace SpecTcl {
         );
         DBParameter* findParameter(const char* name);
         DBParameter* findParameter(int number);
-    
+        
+        // Spectrum API:
+#ifdef SPECTRUM_API        
+        bool spectrumExists(const char* name);
+        DBSpectrum* create(const char* name, const char* type,
+                const std::vector<const char*>& parameterNames,
+                const Axes& axes,
+                const char* datatype="long"
+        );
+        std::vector<DBSpectrum*> listSpectra();
+        DBSpectrum* lookupSpectrum(const char* name);
+#endif        
     // Static methods:
     public:
         static bool exists(CSqlite& conn, const char* name);
