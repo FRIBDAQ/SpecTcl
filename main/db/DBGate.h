@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-class Sqlite;
+class CSqlite;
 
 namespace SpecTcl {
    
@@ -135,8 +135,8 @@ class DBGate {
             }
         };
         private:
-            Sqlite&  m_connection;
-            Info&    m_info;
+            CSqlite&  m_connection;
+            Info     m_Info;
         
         // Canonicals:
         
@@ -149,15 +149,17 @@ class DBGate {
             
             // Constructor used by creational methods:
             
-            DBGate(Sqlite& conn, const Info& info);
+            DBGate(CSqlite& conn, const Info& info);
         
         // Object methods:
         
+        const Info& getInfo() const { return m_Info; }
         
         // Static methods:
         
+        bool exists(CSqlite& conn, int saveid, const char* name);
         DBGate* create1dGate(
-            Sqlite& conn, int saveid,
+            CSqlite& conn, int saveid,
             const char* name, const char* type,
             const NameList& params, double low, double high
         );
@@ -165,10 +167,11 @@ class DBGate {
         // Utility methods:
         
         private:
-            static void EnterBase(Sqlite& conn,  BaseInfo& baseInfo);
+            static int gateId(CSqlite& conn, int saveid, const char* name);
+            static void enterBase(CSqlite& conn,  BaseInfo& baseInfo);
             static IdList
-                EnterParams(Sqlite& conn, int gid, const NameList& params);
-            static void EnterPoints(Sqlite& conn, int gid, const Points& pts);
+                enterParams(CSqlite& conn, int sid, int gid, const NameList& params);
+            static void enterPoints(CSqlite& conn, int gid, const Points& pts);
 };
 }                                                   //namespace SpecTcl.
 
