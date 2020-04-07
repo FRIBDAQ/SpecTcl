@@ -144,7 +144,61 @@ DBGate::create2dGate(
     
     return createPointGate(conn, saveid, name, type, params, points);
 }
-
+/**
+ * createCompoundGate
+ *    Create a gate that depends on other gates.
+ *
+ * @param conn - the database connection object.
+ * @param saveid  - Saveset into which the gate will be entered.
+ * @param type    - Gate type.
+ * @param gates   - Name of dependent gates.
+ * @return DBGate*  - Pointer to the dynamically allocated gate object.
+ */
+DBGate*
+DBGate::createCompoundGate(
+    CSqlite& conn, int saveid,
+    const char* name, const char* type,
+    const NameList& gates
+)
+{
+    // Check against legal type:
+    
+    std::set<std::string> allowedTypes = {
+        "T", "F", "-", "+", "*"
+    };
+    if (allowedTypes.count(std::string(type)) == 0) {
+        std::stringstream msg;
+        msg << type << " is not a compound gate";
+        throw std::invalid_argument(msg.str());
+    }
+    checkName(conn, saveid, name);
+    
+    // Fill in the info record
+    
+    Info info;
+    info.s_info.s_id      = -1;
+    info.s_info.s_saveset = saveid;
+    info.s_info.s_name    = name;
+    info.s_info.s_type    = type;
+    info.s_info.s_basictype = compound;
+    
+    // enter the gate inside a transaction:
+    
+    {
+        CSqliteTransaction t(conn);
+        try {
+            enterBase(conn, info.s_info);
+            info.s_gates = enterDependentGates(
+                conn, saveid, info.s_info.s_id, gates
+            );
+        }
+        catch (...) {
+            t.rollback();
+            throw;                // Let the callers handle the actual error.
+        }
+    }                             // commits here.
+    return new DBGate(conn, info);
+}
 //////////////////////////////////////////////////////////////
 // Utility method implementations.
 
@@ -169,14 +223,8 @@ DBGate::createPointGate(
     const NameList& params, const Points& points
 )
 {
-    if (exists(conn, saveid, name) ) {    // Throws if bad saveset.
-        SaveSet sset(conn, saveid);
-        std::stringstream msg;
-        msg << name << " Is a gate that's already defined in " 
-            << sset.getInfo().s_name;
-            
-        throw std::invalid_argument(msg.str());
-    }    
+    
+    checkName(conn, saveid, name);
     // Create the info block:
     
     Info info;
@@ -191,7 +239,7 @@ DBGate::createPointGate(
         try {
            enterBase(conn, info.s_info);
            info.s_parameters =
-            enterParams(conn, saveid, info.s_info.s_id, params);
+           enterParams(conn, saveid, info.s_info.s_id, params);
            enterPoints(conn, info.s_info.s_id, info.s_points);
            
         } catch(...) {             // something failed.
@@ -204,7 +252,26 @@ DBGate::createPointGate(
     return new DBGate(conn, info);
     
 }
-
+/**
+ * checkName
+ *    Throws an exception if the proposed gate name already exists in the
+ *    saveset.
+ * @param conn   - Sqlite connection.
+ * @param saveid - save set.
+ * @param name   - proposed name
+ */
+void
+DBGate::checkName(CSqlite& conn, int saveid, const char* name)
+{
+    if (exists(conn, saveid, name) ) {    // Throws if bad saveset.
+        SaveSet sset(conn, saveid);
+        std::stringstream msg;
+        msg << name << " Is a gate that's already defined in " 
+            << sset.getInfo().s_name;
+            
+        throw std::invalid_argument(msg.str());
+    }
+}
 
 /**
  * gateId
@@ -317,5 +384,47 @@ DBGate::enterPoints(CSqlite& conn, int gid, const Points& pts)
         ++s;
         s.reset();
     }
+}
+/**
+ * enterDependentGates
+ *    This enters the gates a compound gate depends on into  the
+ *    component_gates table.  This method should be called inside
+ *    a transaction so that all of the operations needed to
+ *    enter a gate are an atomic group.
+ *
+ *  @param conn - the connection
+ *  @param sid  - save set id.
+ *  @param gates - names of all the gates.
+ *  @return IdList - list of the entered gates.
+ */
+DBGate::IdList
+DBGate::enterDependentGates(
+    CSqlite& conn, int sid, int gid, const NameList& gates    
+)
+{
+    // Generate the list of ids:
+    
+    IdList result;
+    for (int i = 0; i < gates.size(); i++) {
+        result.push_back(gateId(conn, sid, gates[i]));
+    }
+    
+    // enter the gate ids in component_gates
+    
+    CSqliteStatement ins(
+        conn,
+        "INSERT INTO component_gates (parent_gate, child_gate)   \
+            VALUES (?,?)"
+    );
+    ins.bind(1, gid);                  // Fixed for all insertions.
+    for (int i =0; i < result.size(); i++) {
+        ins.bind(2, result[i]);
+        ++ins;
+        ins.reset();
+    }
+    
+    // Return the id list to the caller.
+    
+    return result;
 }
 }                                           // SpecTcl namespace.

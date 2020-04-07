@@ -168,7 +168,11 @@ class DBGate {
             const char* name, const char* type,
             const NameList& params, const Points& points
         );
-        
+        static DBGate* createCompoundGate(
+            CSqlite& conn, int saveid,
+            const char* name, const char* type,
+            const NameList& gates
+        );
         // Utility methods:
         
         private:
@@ -177,12 +181,16 @@ class DBGate {
                 const char* name, const char* type,
                 const NameList& params, const Points& points
             );
+            static void checkName(CSqlite& conn, int saveid, const char* name);
             static int gateId(CSqlite& conn, int saveid, const char* name);
             static void enterBase(CSqlite& conn,  BaseInfo& baseInfo);
             static IdList
                 enterParams(CSqlite& conn, int sid, int gid, const NameList& params);
             static void enterPoints(CSqlite& conn, int gid, const Points& pts);
-};
+            static IdList enterDependentGates(
+                CSqlite& conn, int sid, int gid, const NameList& gates    
+            );
+};      
 }                                                   //namespace SpecTcl.
 
 

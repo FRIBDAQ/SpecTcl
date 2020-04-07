@@ -89,6 +89,18 @@ private:
     CPPUNIT_TEST(create1_7);
     CPPUNIT_TEST(create1_8);
     CPPUNIT_TEST(create1_9);
+    
+    CPPUNIT_TEST(create2_1);    // Create 2d gates.
+    CPPUNIT_TEST(create2_2);
+    CPPUNIT_TEST(create2_3);
+    
+    CPPUNIT_TEST(createc_1);   // createCompoundGate.
+    CPPUNIT_TEST(createc_2);
+    CPPUNIT_TEST(createc_3);
+    CPPUNIT_TEST(createc_4);
+    CPPUNIT_TEST(createc_5);
+    CPPUNIT_TEST(createc_6);
+    CPPUNIT_TEST(createc_7);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -105,8 +117,21 @@ protected:
     void create1_7();
     void create1_8();
     void create1_9();
+    
+    void create2_1();
+    void create2_2();
+    void create2_3();
+    
+    void createc_1();
+    void createc_2();
+    void createc_3();
+    void createc_4();
+    void createc_5();
+    void createc_6();
+    void createc_7();
 private:
     void makeSomeParams();
+    void makeSome1dGates();
 };
 
 void dbgtest::makeSomeParams()
@@ -120,6 +145,20 @@ void dbgtest::makeSomeParams()
         );
     }
     // commit when going out of scope.
+}
+
+void dbgtest::makeSome1dGates()
+{
+    makeSomeParams();
+    SpecTcl::DBGate::NameList param = {"param.0"};
+    for (int i =0; i < 10; i++) {
+        std::stringstream name;
+        name << "gate." << i;
+        delete SpecTcl::DBGate::create1dGate(
+            *m_pConn, m_pSaveset->getInfo().s_id, name.str().c_str(),
+            "s", param, 10, 20
+        );
+    }
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(dbgtest);
@@ -339,7 +378,7 @@ void dbgtest::create1_7()
     // invalid saveset.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
+    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
     
     CPPUNIT_ASSERT_THROW(
         SpecTcl::DBGate::create1dGate(
@@ -381,6 +420,223 @@ void dbgtest::create1_9()
         SpecTcl::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test", "gb",
             params, 100.0, 200.0),
+        std::invalid_argument
+    );
+}
+// 2d gates share most of their action code with 1d gates (createPOint Gate).
+// the extensive testing of thta logic in the create1_n tests means our
+// tests for 2d gates are simpler in scope:
+
+void dbgtest::create2_1()
+{
+    // Good creation.
+    
+    makeSomeParams();
+    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
+    SpecTcl::DBGate::Points pts = {
+        {100.0, 100.0},
+        {200.0, 100.0},
+        {200.0, 200.0},
+        {100.0, 200.0}
+    };                            // Nice rectangle.
+    
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_NO_THROW(
+        pGate = SpecTcl::DBGate::create2dGate(
+            *m_pConn, m_pSaveset->getInfo().s_id, "test2", "gb",
+            params, pts
+        )
+    );
+    
+    delete pGate;
+}
+void dbgtest::create2_2()
+{
+    // invalid gate type exception.
+    
+    makeSomeParams();
+    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
+    SpecTcl::DBGate::Points pts = {
+        {100.0, 100.0},
+        {200.0, 100.0},
+        {200.0, 200.0},
+        {100.0, 200.0}     // Nice rectangle.
+    };
+    SpecTcl::DBGate* pGate;
+   
+    CPPUNIT_ASSERT_THROW(
+        pGate = SpecTcl::DBGate::create2dGate(
+            *m_pConn, m_pSaveset->getInfo().s_id, "test2", "T",
+            params, pts
+        ),
+        std::invalid_argument
+    );
+}
+
+void dbgtest::create2_3()
+{
+    // invalid parameter in the list throws.
+}
+
+
+void dbgtest::createc_1()
+{
+    // Good insert.
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::DBGate::createCompoundGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "orgate", "+", components
+        )
+    );
+    
+    delete pGate;
+}
+void dbgtest::createc_2()
+{
+    // check info
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "orgate", "+", components
+    );
+    
+    auto& info = pGate->getInfo();
+    auto& base = info.s_info;
+    
+    EQ(11, base.s_id);             // makeSome1dGates made 10 gates.
+    EQ(m_pSaveset->getInfo().s_id, base.s_saveset);
+    EQ(std::string("orgate"), base.s_name);
+    EQ(std::string("+"), base.s_type);
+    EQ(SpecTcl::DBGate::compound, base.s_basictype);
+    
+    EQ(components.size(), info.s_gates.size());
+    for (int i =0; i < components.size(); i++) {
+        int gid = SpecTcl::DBGate::gateId(
+            *m_pConn, m_pSaveset->getInfo().s_id, components[i]
+        );
+         EQ(gid, info.s_gates[i]);   
+    }
+    
+    delete pGate;
+}
+
+void dbgtest::createc_3()
+{
+    // Check gates in table.
+    
+    // check info
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "orgate", "+", components
+    );
+    
+    CSqliteStatement fetch(
+        *m_pConn,
+        "SELECT child_gate FROM component_gates   \
+            WHERE parent_gate = ?                 \
+            ORDER BY id ASC"
+    );
+    fetch.bind(1, pGate->getInfo().s_info.s_id);
+    for (int i = 0; i < components.size(); i++) {
+        ++fetch;
+        EQ(false, fetch.atEnd());
+        int dbid = fetch.getInt(0);
+        int gid  = SpecTcl::DBGate::gateId(
+            *m_pConn, m_pSaveset->getInfo().s_id, components[i]
+        );
+        EQ(gid, dbid);
+    }
+    
+    ++fetch;
+    EQ(true, fetch.atEnd());
+    delete pGate;
+}
+void dbgtest::createc_4()
+{
+    // Bad saveset.
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_THROW(
+        pGate = SpecTcl::DBGate::createCompoundGate(
+            *m_pConn, m_pSaveset->getInfo().s_id + 1, 
+            "orgate", "+", components
+        ),
+        std::invalid_argument
+    );
+}
+void dbgtest::createc_5()
+{
+    // duplicate name.
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "orgate", "+", components
+    );
+    
+    CPPUNIT_ASSERT_THROW(
+        pGate = SpecTcl::DBGate::createCompoundGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "orgate", "+", components
+        ),
+        std::invalid_argument
+    );
+    
+    delete pGate;
+}
+void dbgtest::createc_6()
+{
+    // bad type
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "gate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_THROW(
+        pGate = SpecTcl::DBGate::createCompoundGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "orgate", "s", components
+        ),
+        std::invalid_argument
+    );
+}
+void dbgtest::createc_7()
+{
+    // Bad dependent gate.
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList components = {
+        "gate.1", "ggate.2", "gate.4"
+    };
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_THROW(
+        pGate = SpecTcl::DBGate::createCompoundGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "orgate", "+", components
+        ),
         std::invalid_argument
     );
 }
