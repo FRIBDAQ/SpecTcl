@@ -163,10 +163,20 @@ class DBGate {
             const char* name, const char* type,
             const NameList& params, double low, double high
         );
+        static DBGate* create2dGate(
+            CSqlite& conn, int saveid,
+            const char* name, const char* type,
+            const NameList& params, const Points& points
+        );
         
         // Utility methods:
         
         private:
+            static DBGate* createPointGate(
+                CSqlite& conn, int saveid,
+                const char* name, const char* type,
+                const NameList& params, const Points& points
+            );
             static int gateId(CSqlite& conn, int saveid, const char* name);
             static void enterBase(CSqlite& conn,  BaseInfo& baseInfo);
             static IdList

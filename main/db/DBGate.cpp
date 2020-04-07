@@ -90,16 +90,6 @@ DBGate::create1dGate(
     const NameList& params, double low, double high
 )
 {
-    // Gate must not exist and save set must exist:
-    
-    
-    if (exists(conn, saveid, name) ) {    // Throws if bad saveset.
-        std::stringstream msg;
-        msg << name << " Is a gate that's already defined in " 
-            << sset.getInfo().s_name;
-            
-        throw std::invalid_argument(msg.str());
-    }
     // Type must be either "s" or "gs"
     
     if (std::string("s") != type && std::string("gs") != type) {
@@ -110,6 +100,83 @@ DBGate::create1dGate(
                         
     }
     
+    // Marshall the low/high into points:
+    
+    Points pts;
+    pts.push_back({low, 0.0});
+    pts.push_back({high, 0.0});
+    return createPointGate(conn, saveid, name, type, params, pts);
+    
+}
+/**
+ * create2dGate
+ *   Create a gate on a 2-dimenstional space.   This is
+ *   essentially create1dGate with
+ *   - more legal gate types.
+ *   - an arbitrary number of points.
+ * @param conn - Sqlite databae connection object.
+ * @param saveid - Id of save set in which the gate will be saved.
+ * @param name    - Name of the new gate.
+ * @param type    - Type of the new gate.
+ * @param params  - Parameters involved in the gate.
+ * @param points  - Points involved in the gate.
+ * @return DBGate* - pointer to the dynamically created new gate.
+ */
+DBGate*
+DBGate::create2dGate(
+    CSqlite& conn, int saveid,
+    const char* name, const char* type,
+    const NameList& params, const Points& points
+)
+{
+    // Check the gate type and then use the common code
+    // with 1d gates (createPointGate).
+    
+    static std::set<std::string> allowedTypes = {
+        "c", "gc", "b", "gb"
+    };                         // note c2band is a contour.
+    
+    if( allowedTypes.count(std::string(type)) == 0) {
+        std::stringstream msg;
+        msg << type << " is not an allowed 2d gate type";
+        throw std::invalid_argument(msg.str());
+    }
+    
+    return createPointGate(conn, saveid, name, type, params, points);
+}
+
+//////////////////////////////////////////////////////////////
+// Utility method implementations.
+
+
+/**
+ * createPointGate
+ *    Common code to create a point gate once the gate type has been
+ *    verified as good:
+ *
+ * @param conn - connection object.
+ * @param saveid  - save set into which the gate is being entered.
+ * @param type    - type of gate.
+ * @param params  - parameters the gate depends on.
+ * @param points  - gate points.
+ * @return dynamically created gate object.
+ * 
+ */
+DBGate*
+DBGate::createPointGate(
+    CSqlite& conn, int saveid,
+    const char* name, const char* type,
+    const NameList& params, const Points& points
+)
+{
+    if (exists(conn, saveid, name) ) {    // Throws if bad saveset.
+        SaveSet sset(conn, saveid);
+        std::stringstream msg;
+        msg << name << " Is a gate that's already defined in " 
+            << sset.getInfo().s_name;
+            
+        throw std::invalid_argument(msg.str());
+    }    
     // Create the info block:
     
     Info info;
@@ -118,8 +185,7 @@ DBGate::create1dGate(
     info.s_info.s_name    = name;
     info.s_info.s_type    = type;
     info.s_info.s_basictype = point;
-    info.s_points.push_back({low, 0.0});
-    info.s_points.push_back({high, 0.0});
+    info.s_points = points;
     {
         CSqliteTransaction t(conn);         // All enters are atomic:
         try {
@@ -136,10 +202,9 @@ DBGate::create1dGate(
     
     
     return new DBGate(conn, info);
+    
 }
 
-//////////////////////////////////////////////////////////////
-// Utility method implementations.
 
 /**
  * gateId
@@ -216,12 +281,12 @@ DBGate::enterParams(CSqlite& conn, int sid, int gid, const NameList& params)
     IdList result;
     CSqliteStatement ins(
         conn,
-        "INSERT INTO gate_parameters (parent_gate, parameter_id), VALUES (?,?)"
+        "INSERT INTO gate_parameters (parent_gate, parameter_id) VALUES (?,?)"
     );
     ins.bind(1, gid);                 // Constant.
     for (int i =0; i < params.size(); i++) {
         DBParameter p(conn, sid, params[i]);     // Throws if no such.
-        ins.bind(2, params[i], -1, SQLITE_STATIC);
+        ins.bind(2, p.getInfo().s_id);
         ++ins;
         result.push_back(ins.lastInsertId());
         ins.reset();
@@ -243,7 +308,7 @@ DBGate::enterPoints(CSqlite& conn, int gid, const Points& pts)
 {
     CSqliteStatement s(
         conn,
-        "INSERT INTO gate_points (gate_id, x, y), VALUES(?,?,?)"
+        "INSERT INTO gate_points (gate_id, x, y) VALUES(?,?,?)"
     );
     s.bind(1, gid);
     for (int i =0; i < pts.size(); i++) {
