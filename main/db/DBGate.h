@@ -157,8 +157,8 @@ class DBGate {
         
         // Static methods:
         
-        bool exists(CSqlite& conn, int saveid, const char* name);
-        DBGate* create1dGate(
+        static bool exists(CSqlite& conn, int saveid, const char* name);
+        static DBGate* create1dGate(
             CSqlite& conn, int saveid,
             const char* name, const char* type,
             const NameList& params, double low, double high

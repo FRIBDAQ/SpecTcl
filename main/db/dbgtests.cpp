@@ -29,6 +29,8 @@
 #undef private
 
 #include "DBParameter.h"
+#include "CSqlite.h"
+#include "CSqliteStatement.h"
 
 #include <string>
 #include <stdlib.h>
@@ -39,15 +41,12 @@
 #include <errno.h>
 
 class dbgtest : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(dbgtest);
-    CPPUNIT_TEST(test_1);
-    CPPUNIT_TEST_SUITE_END();
     
 private:
     std::string        m_name;
     SpecTcl::CDatabase* m_pDb;
     SpecTcl::SaveSet*  m_pSaveset;
-    
+    CSqlite*           m_pConn;
 public:
     void setUp() {
         // Make a temp file, database and saveset:
@@ -68,17 +67,59 @@ public:
         SpecTcl::CDatabase::create(name);
         m_pDb = new SpecTcl::CDatabase(name);
         m_pSaveset =  m_pDb->createSaveSet("my-saveset");
+        m_pConn      =  &m_pDb->m_connection;
     }
     void tearDown() {
         delete m_pSaveset;
         delete m_pDb;
     }
+private:
+    CPPUNIT_TEST_SUITE(dbgtest);
+    CPPUNIT_TEST(exists_1);
+    CPPUNIT_TEST(exists_2);
+    CPPUNIT_TEST(exists_3);
+    CPPUNIT_TEST_SUITE_END();
+
 protected:
-    void test_1();
+    void exists_1();
+    void exists_2();
+    void exists_3();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(dbgtest);
 
-void dbgtest::test_1()
+void dbgtest::exists_1()
 {
+    // Exists initially false:
+    
+    EQ(
+        false,
+        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
+    );
+}
+void dbgtest::exists_2()
+{
+    // If I create a minimal gate, exists says it exists:
+    
+    CSqliteStatement ins(
+        *m_pConn,
+        "INSERT INTO gate_defs (saveset_id, name, type)     \
+            VALUES (?, 'junk', 'F')"
+    );
+    ins.bind(1, m_pSaveset->getInfo().s_id);
+    ++ins;
+    
+    EQ(
+        true,
+        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
+    );
+}
+void dbgtest::exists_3()
+{
+    // If i use a bad save set, exists throws:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id + 1, "junk"),
+        std::invalid_argument
+    );
 }

@@ -53,10 +53,12 @@ DBGate::DBGate(CSqlite& conn, const Info& info) :
  *   @param sid  - save set id.
  *   @param name - Name of the gate.
  *   @return bool - true if the gate exists.
+ *   @throw std::invalid_argument - if the save set does not exist.
  */
 bool
 DBGate::exists(CSqlite& conn, int saveid, const char* name)
 {
+    SaveSet s(conn, saveid);           // Throws if no such saveset.
      try {
         gateId(conn, saveid, name);
         return true;
@@ -90,8 +92,8 @@ DBGate::create1dGate(
 {
     // Gate must not exist and save set must exist:
     
-    SaveSet sset(conn, saveid);          // Throws if bad saveset.
-    if (exists(conn, saveid, name) ) {
+    
+    if (exists(conn, saveid, name) ) {    // Throws if bad saveset.
         std::stringstream msg;
         msg << name << " Is a gate that's already defined in " 
             << sset.getInfo().s_name;
