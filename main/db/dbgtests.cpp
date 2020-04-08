@@ -109,6 +109,10 @@ private:
     CPPUNIT_TEST(createm_5);
     CPPUNIT_TEST(createm_6);
     CPPUNIT_TEST(createm_7);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -145,6 +149,10 @@ protected:
     void createm_5();
     void createm_6();
     void createm_7();
+    
+    void list_1();
+    void list_2();
+    void list_3();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -806,4 +814,109 @@ void dbgtest::createm_7() {
     
     
     delete pGate;
+}
+void dbgtest::list_1()
+{
+    // Empty to begin with.
+    
+    auto result =
+        SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
+    EQ(size_t(0), result.size());
+}
+void dbgtest::list_2()
+{
+    // I can list gates and get the correct results.
+    
+    // Make one of each type of gate so we chan check out how
+    // the info gets loaded for each
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    auto gatelist = SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
+    
+    EQ(size_t(3), gatelist.size());
+    
+    // The infos for our created gates should match the listed gates:
+    
+    // 0 - should be the points gate.
+    
+    auto& ptsInfo = ptsGate->getInfo();
+    auto& info0   = gatelist[0]->getInfo();
+    
+    EQ(ptsInfo.s_info.s_id, info0.s_info.s_id);
+    EQ(ptsInfo.s_info.s_saveset, info0.s_info.s_saveset);
+    EQ(ptsInfo.s_info.s_name, info0.s_info.s_name);
+    EQ(ptsInfo.s_info.s_type, info0.s_info.s_type);
+    EQ(ptsInfo.s_info.s_basictype, info0.s_info.s_basictype);
+    
+    EQ(ptsInfo.s_parameters.size(), info0.s_parameters.size());
+    EQ(ptsInfo.s_parameters[0], info0.s_parameters[0]);
+    
+    EQ(ptsInfo.s_points.size(), info0.s_points.size());
+    EQ(ptsInfo.s_points[0].s_x, info0.s_points[0].s_x);
+    EQ(ptsInfo.s_points[0].s_y, info0.s_points[0].s_y);
+    EQ(ptsInfo.s_points[1].s_x, info0.s_points[1].s_x);
+    EQ(ptsInfo.s_points[1].s_y, info0.s_points[1].s_y);
+    
+    // 1 should be the mask gate.
+    
+    auto& maskInfo = maskGate->getInfo();
+    auto& info1    = gatelist[1]->getInfo();
+    
+    EQ(maskInfo.s_info.s_id, info1.s_info.s_id);
+    EQ(maskInfo.s_info.s_saveset, info1.s_info.s_saveset);
+    EQ(maskInfo.s_info.s_name, info1.s_info.s_name);
+    EQ(maskInfo.s_info.s_type, info1.s_info.s_type);
+    EQ(maskInfo.s_info.s_basictype, info1.s_info.s_basictype);
+    
+    EQ(maskInfo.s_parameters.size(), info1.s_parameters.size());
+    EQ(maskInfo.s_parameters[0], info1.s_parameters[0]);
+    
+    EQ(maskInfo.s_mask, info1.s_mask);
+    
+    // 2 should be the compound gate:
+    
+    auto& cInfo = compound->getInfo();
+    auto& info2 = gatelist[2]->getInfo();
+    
+    EQ(cInfo.s_info.s_id, info2.s_info.s_id);
+    EQ(cInfo.s_info.s_saveset, info2.s_info.s_saveset);
+    EQ(cInfo.s_info.s_name, info2.s_info.s_name);
+    EQ(cInfo.s_info.s_type, info2.s_info.s_type);
+    EQ(cInfo.s_info.s_basictype, info2.s_info.s_basictype);
+    
+    EQ(size_t(2), info2.s_gates.size());
+    EQ(cInfo.s_gates[0], info2.s_gates[0]);
+    EQ(cInfo.s_gates[1], info2.s_gates[1]);
+    
+    for (int i =0; i < gatelist.size(); i++) {
+        delete gatelist[i];
+    }
+    delete compound;
+    delete maskGate;
+    delete ptsGate;
+}
+void dbgtest::list_3()
+{
+    // bad saveset throws:
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id+1),
+        std::invalid_argument
+    );
 }

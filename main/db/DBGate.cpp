@@ -265,7 +265,34 @@ DBGate::createMaskGate(
     }
     return new DBGate(conn, info);
 }
-
+/**
+ * listGates
+ *    Returns a list of the gates for the specified save set id.
+ * @param conn   - sqlite connection object.
+ * @param saveid - Id of the saveset we're querying.
+ * @return std::vector<DBGate*>  - vector of dynamically allocated gates
+ *                 that are in the saveset.
+ */
+std::vector<DBGate*>
+DBGate::listGates(CSqlite& conn, int saveid)
+{
+    SaveSet s(conn, saveid);              // validates the saveset.
+    std::vector<DBGate*> result;
+    CSqliteStatement lister(
+        conn,
+        "SELECT * FROM gate_defs WHERE saveset_id = ? ORDER BY id ASC"
+    );
+    lister.bind(1, saveid);
+    while(!(++lister).atEnd()) {
+        Info gateInfo;
+        loadBase(lister, gateInfo.s_info);
+        loadInfo(conn, gateInfo);
+        
+        result.push_back(new DBGate(conn, gateInfo));
+    }
+    return result;
+}
+ 
 //////////////////////////////////////////////////////////////
 // Utility method implementations.
 
@@ -537,5 +564,139 @@ DBGate::basicType(const char* gateType)
     std::stringstream msg;
     msg << t << "is not a recognized gate type";
     throw std::invalid_argument(msg.str());
+}
+/**
+ * loadBase
+ *    Given an sqlite statement of the form
+ *    SELECT * from gate_defs... loads
+ *    the base part of info struct from the data
+ *    in the current row of the statement.
+ * @param stmt - The Sqlite statement object.
+ * @param[out] info - the struct to load.
+ */
+void
+DBGate::loadBase(CSqliteStatement& stmt, BaseInfo& info)
+{
+    info.s_id      = stmt.getInt(0);
+    info.s_saveset = stmt.getInt(1);
+    info.s_name    = std::string(reinterpret_cast<const char*>(stmt.getText(2)));
+    info.s_type    = std::string(reinterpret_cast<const char*>(stmt.getText(3)));
+    info.s_basictype = basicType(info.s_type.c_str());
+}
+/**
+ * loadPointGate
+ *    Given an info struct whos base info was filled in previously,
+ *    and is known to be a point gate, fill in the rest of the
+ *    struct (specifically the parameters and Points).
+ *
+ * @param conn - sqlite connection object.
+ * @param[inout] info - The gate information struct.
+ */
+void
+DBGate::loadPointGate(CSqlite& conn, Info& info)
+{
+    int id  = info.s_info.s_id;             // Gate id is a fine lookup key.
+    
+    CSqliteStatement par(
+        conn,
+        "SELECT parameter_id FROM gate_parameters WHERE parent_gate = ?"
+    );
+    par.bind(1, id);
+    while(!(++par).atEnd()) {
+        info.s_parameters.push_back(par.getInt(0));
+    }
+    // Now the points:
+    
+    CSqliteStatement pts(
+        conn,
+        "SELECT x,y FROM gate_points WHERE gate_id = ?"
+    );
+    pts.bind(1, id);
+    while (!(++pts).atEnd()) {
+        Point p = {pts.getDouble(0), pts.getDouble(1)};
+        info.s_points.push_back(p);
+    }
+}
+/**
+ * loadCompoundGate
+ *   GIven an info struct with the base part filled in that has been
+ *   determined to be for a compound gate, fills in the rest of the
+ *   struct (specifically the gates the compound depends on).
+ *
+ * @param conn - Sqlite connection object.
+ * @param[inout] info - the info object.
+ */
+void
+DBGate::loadCompoundGate(CSqlite& conn, Info& info)
+{
+    int id = info.s_info.s_id;            // Gate id is a fine lookup key.
+    
+    CSqliteStatement gates(
+        conn,
+        "SELECT child_gate FROM component_gates WHERE parent_gate = ?"
+    );
+    gates.bind(1, id);
+    while(!(++gates).atEnd()) {
+        info.s_gates.push_back(gates.getInt(0));
+    }
+}
+/**
+ * loadMask
+ *    Given an info struct with the base part filled in,
+ *    that has been determined to be a mask gate, retrieves
+ *    the rest of that struct; specifically the parameter and
+ *    the mask
+ * @param conn  - The database connection object.
+ * @param[inout] info  - The partially filled in info struct.
+ */
+void
+DBGate::loadMaskGate(CSqlite& conn, Info& info)
+{
+    int id = info.s_info.s_id;
+    
+    CSqliteStatement par(
+        conn,
+        "SELECT parameter_id FROM gate_parameters WHERE parent_gate = ?"
+    );
+    par.bind(1, id);
+    ++par;
+    info.s_parameters.push_back(par.getInt(0));
+    
+    CSqliteStatement mask(
+        conn,
+        "SELECT mask FROM gate_masks WHERE parent_gate = ?"
+    );
+    mask.bind(1, id);
+    ++mask;
+    info.s_mask = mask.getInt(0);
+}
+/**
+ * loadInfo
+ *    Given an info block that's got it's base part filled in, invokes
+ *    the gate type dependent code to load the rest of the info struct.
+ * @param conn - sqlite connection object.
+ * @param[inout] info - info block.
+ */
+void
+DBGate::loadInfo(CSqlite& conn, Info& info)
+{
+    switch (info.s_info.s_basictype) {
+    case point:
+        loadPointGate(conn, info);
+        break;
+    case compound:
+        loadCompoundGate(conn, info);
+        break;
+    case mask:
+        loadMaskGate(conn, info);
+        break;
+    default:
+        {
+            std::stringstream msg;
+            msg << "Unclassifiable gate type: " << info.s_info.s_type
+                << "  while trying to load information about that gate";
+            throw std::invalid_argument(msg.str());
+        }
+    }
 }
 }                                           // SpecTcl namespace.

@@ -24,6 +24,7 @@
 #include <vector>
 
 class CSqlite;
+class CSqliteStatement;
 
 namespace SpecTcl {
    
@@ -191,6 +192,8 @@ class DBGate {
         // Utility methods:
         
         private:
+            // Creation support.
+            
             static DBGate* createPointGate(
                 CSqlite& conn, int saveid,
                 const char* name, const char* type,
@@ -208,10 +211,18 @@ class DBGate {
             static void enterMask(
                 CSqlite& conn, int gid, int mask
             );
+            // For lookups:
+            
             static BasicGateType basicType(const char* gateType);
+            static void loadBase(CSqliteStatement& stmt, BaseInfo& info);
+            static void loadPointGate(CSqlite& conn, Info& info);
+            static void loadCompoundGate(CSqlite& conn, Info& info);
+            static void loadMaskGate(CSqlite& conn, Info& info);
+            
             static void loadInfo(
                 CSqlite& conn, Info& info
             );
+            
 };      
 }                                                   //namespace SpecTcl.
 
