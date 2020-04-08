@@ -101,6 +101,14 @@ private:
     CPPUNIT_TEST(createc_5);
     CPPUNIT_TEST(createc_6);
     CPPUNIT_TEST(createc_7);
+    
+    CPPUNIT_TEST(createm_1);   // createMaskGate
+    CPPUNIT_TEST(createm_2);
+    CPPUNIT_TEST(createm_3);
+    CPPUNIT_TEST(createm_4);
+    CPPUNIT_TEST(createm_5);
+    CPPUNIT_TEST(createm_6);
+    CPPUNIT_TEST(createm_7);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -129,6 +137,14 @@ protected:
     void createc_5();
     void createc_6();
     void createc_7();
+    
+    void createm_1();
+    void createm_2();
+    void createm_3();
+    void createm_4();
+    void createm_5();
+    void createm_6();
+    void createm_7();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -639,4 +655,155 @@ void dbgtest::createc_7()
         ),
         std::invalid_argument
     );
+}
+void dbgtest::createm_1() {
+    // Successful insert.
+    
+    makeSomeParams();
+    SpecTcl::DBGate* pGate;
+    CPPUNIT_ASSERT_NO_THROW(
+        pGate = SpecTcl::DBGate::createMaskGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "testgate", "em", "param.1", 0xaaaaaaaa
+        )
+    );
+    
+    delete pGate;
+}
+void dbgtest::createm_2() {
+    // Info struct is correct.
+    
+    makeSomeParams();
+    SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "testgate", "em", "param.1", 0xaaaaaaaa
+    );
+    
+    auto& info = pGate->getInfo();
+    auto& base = info.s_info;
+    
+    EQ(1, base.s_id);
+    EQ(m_pSaveset->getInfo().s_id, base.s_saveset);
+    EQ(std::string("testgate"), base.s_name);
+    EQ(std::string("em"), base.s_type);
+    EQ(SpecTcl::DBGate::mask, base.s_basictype);
+    
+    EQ(size_t(1), info.s_parameters.size());
+    auto param = m_pSaveset->findParameter("param.1");
+    EQ(param->getInfo().s_id, info.s_parameters.at(0));
+    
+    EQ(size_t(0), info.s_gates.size());
+    EQ(size_t(0), info.s_points.size());
+    EQ(int(0xaaaaaaaa), info.s_mask);
+    
+    delete param;
+    delete pGate;
+}
+void dbgtest::createm_3() {
+    // Root record is correct.
+ 
+     makeSomeParams();
+     SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "testgate", "em", "param.1", 0xaaaaaaaa
+    );
+
+    CSqliteStatement fet(
+        *m_pConn,
+        "SELECT saveset_id, type FROM gate_defs WHERE name = 'testgate'"
+    );
+    ++fet;
+    EQ(false, fet.atEnd());
+    
+    EQ(m_pSaveset->getInfo().s_id, fet.getInt(0));
+    EQ(
+        std::string("em"),
+        std::string(reinterpret_cast<const char*>(fet.getText(1)))
+    );
+    
+    ++fet;
+    EQ(true, fet.atEnd());
+    
+    delete pGate;
+       
+    
+}
+void dbgtest::createm_4() {
+    // Parameters record(s) are correct.
+    
+     makeSomeParams();
+     SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "testgate", "em", "param.1", 0xaaaaaaaa
+    );
+    auto param = m_pSaveset->findParameter("param.1");
+
+    CSqliteStatement fet(
+        *m_pConn,
+        "SELECT parameter_id FROM gate_parameters WHERE parent_gate = ?"
+    );
+    fet.bind(1, pGate->getInfo().s_info.s_id);
+    ++fet;
+    EQ(false, fet.atEnd());
+    
+    EQ(param->getInfo().s_id, fet.getInt(0));
+    
+    ++fet;
+    EQ(true, fet.atEnd());
+    delete param;
+    delete pGate;    
+}
+void dbgtest::createm_5() {
+    // Mask record is correct.
+    
+    makeSomeParams();
+    SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "testgate", "em", "param.1", 0xaaaaaaaa
+    );
+ 
+    CSqliteStatement fet(
+        *m_pConn,
+        "SELECT mask from gate_masks WHERE parent_gate = ?"
+    );
+    fet.bind(1, pGate->getInfo().s_info.s_id);
+    ++fet;
+    EQ(false, fet.atEnd());
+
+    EQ(int(0xaaaaaaaa), fet.getInt(0));
+    
+    ++fet;
+    EQ(true, fet.atEnd());
+
+}
+void dbgtest::createm_6() {
+    // invalid type throws.
+    
+    makeSomeParams();
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate::createMaskGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "testgate", "c", "param.1", 0xaaaaaaaa
+        ),
+        std::invalid_argument
+    );
+}
+void dbgtest::createm_7() {
+    // Duplicate name throws.
+    makeSomeParams();
+    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "testgate", "em", "param.1", 0xaaaaaaaa
+    );
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate::createMaskGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "testgate", "em", "param.1", 0xaaaaaaaa
+        ),
+        std::invalid_argument 
+    );
+    
+    
+    delete pGate;
 }

@@ -115,6 +115,7 @@ class DBGate {
             IdList         s_parameters;
             IdList         s_gates;
             Points         s_points;
+            int            s_mask;
             // We need some canonicals because of the vectors and strings in info.
             
             Info(){}
@@ -132,6 +133,7 @@ class DBGate {
                 s_parameters = rhs.s_parameters;
                 s_gates      = rhs.s_gates;
                 s_points     = rhs.s_points;
+                s_mask       = rhs.s_mask;
             }
         };
         private:
@@ -173,6 +175,11 @@ class DBGate {
             const char* name, const char* type,
             const NameList& gates
         );
+        static DBGate* createMaskGate(
+            CSqlite& conn, int saveid,
+            const char* name, const char* type,
+            const char* pName, int imask
+        );
         // Utility methods:
         
         private:
@@ -189,6 +196,9 @@ class DBGate {
             static void enterPoints(CSqlite& conn, int gid, const Points& pts);
             static IdList enterDependentGates(
                 CSqlite& conn, int sid, int gid, const NameList& gates    
+            );
+            static void enterMask(
+                CSqlite& conn, int gid, int mask
             );
 };      
 }                                                   //namespace SpecTcl.

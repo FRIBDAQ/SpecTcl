@@ -163,7 +163,7 @@ DBGate::createCompoundGate(
 {
     // Check against legal type:
     
-    std::set<std::string> allowedTypes = {
+    static std::set<std::string> allowedTypes = {
         "T", "F", "-", "+", "*"
     };
     if (allowedTypes.count(std::string(type)) == 0) {
@@ -199,6 +199,68 @@ DBGate::createCompoundGate(
     }                             // commits here.
     return new DBGate(conn, info);
 }
+/**
+ * createMaskGate
+ *    Create a gate with a mask value.
+ * @param conn - Sqlite connection object.
+ * @param saveid - the save set id.
+ * @param name   - name of the new gate.
+ * @param pName  - Name of the parameter.
+ * @paran imask   - Mask value.
+ * @return DBGate* - pointer to the dynamically created gate encapsulation.
+ */
+DBGate*
+DBGate::createMaskGate(
+    CSqlite& conn, int saveid,
+    const char* name, const char* type,
+    const char* pName, int imask
+)
+{
+    // Do the necessary error checking
+    
+    static std::set<std::string> allowedTypes = {
+        "em", "am", "nm"
+    };
+    if (allowedTypes.count(std::string(type)) == 0) {
+        std::stringstream msg;
+        msg << type << " is not an allowed mask gate type";
+        throw std::invalid_argument(msg.str());
+    }
+    checkName(conn, saveid, name);
+    
+    // Fill in the base info struct:
+    
+    Info info;
+    info.s_info.s_id        = -1;
+    info.s_info.s_saveset   = saveid;
+    info.s_info.s_name      = name;
+    info.s_info.s_type      = type;
+    info.s_info.s_basictype = mask;
+    info.s_mask             = imask;
+    
+    // Create a NameList containing the one parameter:
+    
+    NameList params = {pName};
+    
+    // Do the gate entry  in a transaction:
+    
+    {
+        CSqliteTransaction t(conn);
+        try {
+            enterBase(conn, info.s_info);
+            info.s_parameters = enterParams (
+                conn, saveid, info.s_info.s_id, params
+            );
+            enterMask(conn, info.s_info.s_id, imask);
+        }
+        catch (...) {
+            t.rollback();
+            throw;
+        }
+    }
+    return new DBGate(conn, info);
+}
+
 //////////////////////////////////////////////////////////////
 // Utility method implementations.
 
@@ -339,6 +401,7 @@ DBGate::enterBase(CSqlite& conn, BaseInfo& baseInfo)
  * @param sid  - save set id (needed to lookup parametes sensibly).
  * @param gid  - Gate id to associate with the parameters.
  * @param params - vector of paramter _names_
+ * @return IdList - list of parameter ids corresponding to params. names.
  * @note this should be called within a transaction usually so that all
  *        insertion operations related to making a gate are atomic.
  */
@@ -355,7 +418,7 @@ DBGate::enterParams(CSqlite& conn, int sid, int gid, const NameList& params)
         DBParameter p(conn, sid, params[i]);     // Throws if no such.
         ins.bind(2, p.getInfo().s_id);
         ++ins;
-        result.push_back(ins.lastInsertId());
+        result.push_back(p.getInfo().s_id);
         ins.reset();
     }
     
@@ -426,5 +489,23 @@ DBGate::enterDependentGates(
     // Return the id list to the caller.
     
     return result;
+}
+/**
+ * enterMask
+ *    For a gate with masks, enter the mask in the gate_masks table.
+ *  @param conn - SQLITE connection object.
+ *  @param gid  - Gate's id.
+ *  @param mask - mask value.
+ */
+void
+DBGate::enterMask(CSqlite& conn, int gid, int mask)
+{
+    CSqliteStatement insert(
+        conn,
+        "INSERT INTO gate_masks (parent_gate, mask) VALUES (?,?)"
+    );
+    insert.bind(1, gid);
+    insert.bind(2, mask);
+    ++insert;
 }
 }                                           // SpecTcl namespace.
