@@ -32,6 +32,17 @@
 
 namespace SpecTcl {
 
+static std::set<std::string> allowed1dTypes  = {"s", "gs"};
+static std::set<std::string> allowed2dTypes = {
+        "c", "gc", "b", "gb"
+    };  
+static std::set<std::string> allowedCompoundTypes = {
+        "T", "F", "-", "+", "*"
+    };
+static std::set<std::string> allowedMaskTypes = {
+        "em", "am", "nm"
+    };
+
 /**
  * private constructor.
  *   This constructor is used by the creationals.  It is not
@@ -92,7 +103,7 @@ DBGate::create1dGate(
 {
     // Type must be either "s" or "gs"
     
-    if (std::string("s") != type && std::string("gs") != type) {
+    if (allowed1dTypes.count(std::string(type)) != 1) {
         std::stringstream msg;
         msg << "creat1dGate must have either  's' or a 'gs' type. Got: "
             << type;
@@ -132,11 +143,9 @@ DBGate::create2dGate(
     // Check the gate type and then use the common code
     // with 1d gates (createPointGate).
     
-    static std::set<std::string> allowedTypes = {
-        "c", "gc", "b", "gb"
-    };                         // note c2band is a contour.
+                           // note c2band is a contour.
     
-    if( allowedTypes.count(std::string(type)) == 0) {
+    if( allowed2dTypes.count(std::string(type)) == 0) {
         std::stringstream msg;
         msg << type << " is not an allowed 2d gate type";
         throw std::invalid_argument(msg.str());
@@ -163,10 +172,8 @@ DBGate::createCompoundGate(
 {
     // Check against legal type:
     
-    static std::set<std::string> allowedTypes = {
-        "T", "F", "-", "+", "*"
-    };
-    if (allowedTypes.count(std::string(type)) == 0) {
+    
+    if (allowedCompoundTypes.count(std::string(type)) == 0) {
         std::stringstream msg;
         msg << type << " is not a compound gate";
         throw std::invalid_argument(msg.str());
@@ -218,10 +225,8 @@ DBGate::createMaskGate(
 {
     // Do the necessary error checking
     
-    static std::set<std::string> allowedTypes = {
-        "em", "am", "nm"
-    };
-    if (allowedTypes.count(std::string(type)) == 0) {
+    
+    if (allowedMaskTypes.count(std::string(type)) == 0) {
         std::stringstream msg;
         msg << type << " is not an allowed mask gate type";
         throw std::invalid_argument(msg.str());
@@ -507,5 +512,30 @@ DBGate::enterMask(CSqlite& conn, int gid, int mask)
     insert.bind(1, gid);
     insert.bind(2, mask);
     ++insert;
+}
+/**
+ * basicType
+ *    Given a gate type string returns the enum that
+ *    provides the basic gate type.
+ *
+ * @param gateType - the gate type (e.g. "c" for contour)
+ * @return BasicGateType - the type of gate from the database point of view.
+ */
+DBGate::BasicGateType
+DBGate::basicType(const char* gateType)
+{
+    std::string t(gateType);
+    if ((allowed1dTypes.count(t) == 1) || (allowed2dTypes.count(t) == 1)) {
+        return point;
+    }
+    if (allowedCompoundTypes.count(t) == 1) {
+        return compound;
+    }
+    if (allowedMaskTypes.count(t) ==1) {
+        return mask;
+    }
+    std::stringstream msg;
+    msg << t << "is not a recognized gate type";
+    throw std::invalid_argument(msg.str());
 }
 }                                           // SpecTcl namespace.

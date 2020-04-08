@@ -149,9 +149,15 @@ class DBGate {
             int operator==(const DBGate&);
             int operator!=(const DBGate&);
             
-            // Constructor used by creational methods:
+        // Constructor used by creational methods:
             
             DBGate(CSqlite& conn, const Info& info);
+            
+        // Public constructors are lookups:
+        
+        public:
+            DBGate(CSqlite& conn, int saveid, const char* name);
+            DBGate(CSqlite& conn, int saveid, int id);
         
         // Object methods:
         
@@ -180,6 +186,8 @@ class DBGate {
             const char* name, const char* type,
             const char* pName, int imask
         );
+        static std::vector<DBGate*> listGates(CSqlite& conn, int saveid);
+        
         // Utility methods:
         
         private:
@@ -199,6 +207,10 @@ class DBGate {
             );
             static void enterMask(
                 CSqlite& conn, int gid, int mask
+            );
+            static BasicGateType basicType(const char* gateType);
+            static void loadInfo(
+                CSqlite& conn, Info& info
             );
 };      
 }                                                   //namespace SpecTcl.
