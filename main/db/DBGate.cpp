@@ -54,7 +54,66 @@ DBGate::DBGate(CSqlite& conn, const Info& info) :
     m_connection(conn), m_Info(info) {}
     
 
+/**
+ * public constructor (retrieval)
+ *    Wraps an existing gate in an object.
+ *
+ *  @praam connn - sqlite connection object.
+ *  @param saveid  - saveid Save set id.
+ *  @param name    -  name of the gate.
+ */
+DBGate::DBGate(CSqlite& conn, int saveid, const char* name) :
+    m_connection(conn)
+{
+    // Validate the saveset:
     
+    SaveSet s(conn, saveid);       // Throws if no such.
+    CSqliteStatement retrieve(
+        conn,
+        "SELECT * from gate_defs WHERE name = ? AND saveset_id = ?"
+    );
+    retrieve.bind(1, name, -1, SQLITE_STATIC);
+    retrieve.bind(2, saveid);
+    ++retrieve;
+    
+    // If we're at the end there's no such gate:
+    
+    if (retrieve.atEnd()) {
+        std::stringstream msg;
+        msg << "Save set " << s.getInfo().s_name
+            << " does not have a gate named: " << name;
+        throw std::invalid_argument(msg.str());
+    }
+    loadBase(retrieve, m_Info.s_info);
+    loadInfo(conn, m_Info);
+}
+/**
+ * public constructor (retrieve).
+ *    Same as above but retrieves by the id of the gate.
+ * @param conn - sqlite connection object.
+ * @param id     - id of the gate to retrieve from that saveset.
+ * @note the id implies a save-set since it's globally unique
+ */
+DBGate::DBGate(CSqlite& conn, int id) :
+    m_connection(conn)
+{
+
+    CSqliteStatement retrieve(
+        conn,
+        "SELECT * from gate_defs WHERE id = ?"
+    );
+    retrieve.bind(1, id);
+    ++retrieve;
+    // If we're at the end there's no such gate:
+    
+    if (retrieve.atEnd()) {
+        std::stringstream msg;
+        msg << "There is no gate with the id " << id;
+        throw std::invalid_argument(msg.str());
+    }
+    loadBase(retrieve, m_Info.s_info);
+    loadInfo(conn, m_Info);
+}
 /////////////////////////////////////////////////////////////
 //  static methods implementations
 

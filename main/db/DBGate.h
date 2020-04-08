@@ -158,11 +158,15 @@ class DBGate {
         
         public:
             DBGate(CSqlite& conn, int saveid, const char* name);
-            DBGate(CSqlite& conn, int saveid, int id);
+            DBGate(CSqlite& conn, int id);
         
         // Object methods:
         
         const Info& getInfo() const { return m_Info; }
+        NameList getParameters();
+        NameList getGates();
+        Points   getPoints();
+        int      getMask();
         
         // Static methods:
         

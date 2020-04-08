@@ -113,6 +113,14 @@ private:
     CPPUNIT_TEST(list_1);
     CPPUNIT_TEST(list_2);
     CPPUNIT_TEST(list_3);
+    
+    CPPUNIT_TEST(construct_1);  // Construct from name.
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+    CPPUNIT_TEST(construct_5);
+    
+    
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -153,6 +161,12 @@ protected:
     void list_1();
     void list_2();
     void list_3();
+    
+    void construct_1();
+    void construct_2();
+    void construct_3();
+    void construct_4();
+    void construct_5();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -919,4 +933,234 @@ void dbgtest::list_3()
         SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id+1),
         std::invalid_argument
     );
+}
+// Note that all the construction tests will make the
+// same set of gates just so I can copy /paste.
+
+void dbgtest::construct_1()
+{
+    // good retrieval. point gate.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
+    auto& expected = ptsGate->getInfo();
+    auto& actual   = g.getInfo();
+    
+    // Base part.
+    
+    EQ(expected.s_info.s_id, actual.s_info.s_id);
+    EQ(expected.s_info.s_saveset, actual.s_info.s_saveset);
+    EQ(expected.s_info.s_name, actual.s_info.s_name);
+    EQ(expected.s_info.s_type, actual.s_info.s_type);
+    EQ(expected.s_info.s_basictype, actual.s_info.s_basictype);
+    
+    // Parameters.
+    
+    EQ(expected.s_parameters.size(), actual.s_parameters.size());
+    EQ(expected.s_parameters[0], actual.s_parameters[0]);
+    
+    
+    // There are no gates.
+    
+    EQ(size_t(0), actual.s_gates.size());
+    
+    // Points.
+    
+    EQ(expected.s_points.size(), actual.s_points.size());
+    EQ(expected.s_points[0].s_x, actual.s_points[0].s_x);
+    EQ(expected.s_points[0].s_y, actual.s_points[0].s_y);
+    EQ(expected.s_points[1].s_x, actual.s_points[1].s_x);
+    EQ(expected.s_points[1].s_y, actual.s_points[1].s_y);
+    
+    // Free storage.
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+}
+void dbgtest::construct_2()
+{
+    // good retrieval compound gate.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    SpecTcl::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
+    
+    auto& expected = compound->getInfo();
+    auto& actual   = gate.getInfo();
+    
+    // Base.
+    EQ(expected.s_info.s_id, actual.s_info.s_id);
+    EQ(expected.s_info.s_saveset, actual.s_info.s_saveset);
+    EQ(expected.s_info.s_name, actual.s_info.s_name);
+    EQ(expected.s_info.s_type, actual.s_info.s_type);
+    EQ(expected.s_info.s_basictype, actual.s_info.s_basictype);
+        
+    // no parameters.
+    
+    EQ(size_t(0), actual.s_parameters.size());
+    
+    // Gates
+    
+    EQ(expected.s_gates.size(), actual.s_gates.size());
+    for (int i = 0; i < expected.s_gates.size(); i++) {
+        EQ(expected.s_gates[i], actual.s_gates[i]);
+    }
+
+    // No points.
+    
+    EQ(size_t(0), actual.s_points.size());
+       
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+}
+void dbgtest::construct_3()
+{
+    // good retrieval mask gate.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    
+    SpecTcl::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
+    auto& expected = maskGate->getInfo();
+    auto& actual   = gate.getInfo();
+    
+    // Base.
+    EQ(expected.s_info.s_id, actual.s_info.s_id);
+    EQ(expected.s_info.s_saveset, actual.s_info.s_saveset);
+    EQ(expected.s_info.s_name, actual.s_info.s_name);
+    EQ(expected.s_info.s_type, actual.s_info.s_type);
+    EQ(expected.s_info.s_basictype, actual.s_info.s_basictype);
+        
+    // no parameters.
+    
+    EQ(expected.s_parameters.size(), actual.s_parameters.size());
+    EQ(expected.s_parameters[0], actual.s_parameters[0]);
+    
+    // Gates
+   
+   EQ(size_t(0), expected.s_gates.size());
+
+    // No points.
+    
+    EQ(size_t(0), actual.s_points.size());
+    
+    // mask
+    
+    EQ(expected.s_mask, actual.s_mask);
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+}
+void dbgtest::construct_4()
+{
+    // no such saveset.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate g(
+            *m_pConn, m_pSaveset->getInfo().s_id+1, "compound"
+        ),
+        std::invalid_argument
+    );
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+}
+void dbgtest::construct_5()
+{
+    // No such gate.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBGate gate(
+            *m_pConn, m_pSaveset->getInfo().s_id, "nope"
+        ),
+        std::invalid_argument
+    );
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
 }
