@@ -126,6 +126,10 @@ private:
     CPPUNIT_TEST(getpars_1);
     CPPUNIT_TEST(getpars_2);
     CPPUNIT_TEST(getpars_3);
+    
+    CPPUNIT_TEST(getgates_1);
+    CPPUNIT_TEST(getgates_2);
+    CPPUNIT_TEST(getgates_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -178,6 +182,10 @@ protected:
     void getpars_1();
     void getpars_2();
     void getpars_3();
+    
+    void getgates_1();
+    void getgates_2();
+    void getgates_3();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -1262,6 +1270,11 @@ void dbgtest::construct_7()
         std::invalid_argument
     );
     
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
+    
 }
 void dbgtest::getpars_1()
 {
@@ -1288,6 +1301,11 @@ void dbgtest::getpars_1()
     auto params = g.getParameters();
     EQ(size_t(1), params.size());
     EQ(std::string("param.5"), params[0]);
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
 }
 void dbgtest::getpars_2()
 {
@@ -1314,6 +1332,11 @@ void dbgtest::getpars_2()
     auto params = g.getParameters();
     EQ(size_t(1), params.size());
     EQ(std::string("param.3"), params[0]);
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
 }
 void dbgtest::getpars_3()
 {
@@ -1342,4 +1365,100 @@ void dbgtest::getpars_3()
         g.getParameters(),
         std::invalid_argument
     );
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
+}
+
+void dbgtest::getgates_1()
+{
+    // Point gate fails.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
+    CPPUNIT_ASSERT_THROW(g.getGates(), std::invalid_argument);
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
+}
+void dbgtest::getgates_2()
+{
+    // mask gate fails.
+
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
+    CPPUNIT_ASSERT_THROW(g.getGates(), std::invalid_argument);
+
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
+}
+void dbgtest::getgates_3()
+{
+    // Compound gate works.
+    
+    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    makeSomeParams();
+    auto ptsGate = SpecTcl::DBGate::create1dGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "1d", "s", p1d, 100.0, 200.
+    );                                // id 1.
+    auto maskGate = SpecTcl::DBGate::createMaskGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "mask", "em", "param.3", 0x12345678
+    );
+    
+    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTcl::DBGate::createCompoundGate(
+        *m_pConn, m_pSaveset->getInfo().s_id,
+        "compound", "+", gates
+    );
+    
+    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
+    auto dgates = g.getGates();
+    
+    EQ(size_t(2), dgates.size());
+    EQ(std::string("mask"), dgates[0]);
+    EQ(std::string("1d"), dgates[1]);
+    
+    delete ptsGate;
+    delete maskGate;
+    delete compound;
+    
 }

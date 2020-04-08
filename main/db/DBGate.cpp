@@ -155,6 +155,41 @@ DBGate::getParameters()
     }
     return result;
 }
+/**
+ * getGates
+ *   Returns the names of all of the gates that this gate depends on.
+ *   Throws an exception if this gate does not depend on other gates.
+ * @return std::vector<std::string>
+ */
+std::vector<std::string>
+DBGate::getGates()
+{
+    std::vector<std::string> result;
+    
+    // Only compound gates depend on gates:
+    
+    if (m_Info.s_info.s_basictype != compound) {
+        std::stringstream msg;
+        msg << "Gate: " << m_Info.s_info.s_name
+            <<  " is a " << m_Info.s_info.s_type << " gate."
+            <<  " This gate type does not depend on other gates";
+        throw std::invalid_argument(msg.str());
+    }
+    std::string query =
+        "SELECT gd.name FROM component_gates AS cg \
+            INNER JOIN gate_defs AS gd ON gd.id = cg.child_gate\
+            WHERE ";
+    CInFilter in("cg.child_gate", m_Info.s_gates);
+    query += in.toString();
+    query += " ORDER BY cg.id ASC";           // Same as defined order.
+    CSqliteStatement q(m_connection, query.c_str());
+    
+    while(!(++q).atEnd()) {
+        result.push_back(reinterpret_cast<const char*>(q.getText(0)));
+    }
+    
+    return result;
+}
 /////////////////////////////////////////////////////////////
 //  static methods implementations
 
