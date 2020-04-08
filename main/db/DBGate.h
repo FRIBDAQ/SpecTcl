@@ -163,8 +163,8 @@ class DBGate {
         // Object methods:
         
         const Info& getInfo() const { return m_Info; }
-        NameList getParameters();
-        NameList getGates();
+        std::vector<std::string> getParameters();
+        std::vector<std::string> getGates();
         Points   getPoints();
         int      getMask();
         

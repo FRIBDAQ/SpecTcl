@@ -25,6 +25,7 @@
 #include <CSqlite.h>
 #include <CSqliteStatement.h>
 #include <CSqliteTransaction.h>
+#include <CSqliteWhere.h>
 #include <set>
 #include <stdexcept>
 #include <sstream>
@@ -113,6 +114,46 @@ DBGate::DBGate(CSqlite& conn, int id) :
     }
     loadBase(retrieve, m_Info.s_info);
     loadInfo(conn, m_Info);
+}
+/**
+ * getParameters
+ *    Return a String vector. containing the names of the parameters
+ *    the gateNameList depends on.  If the gate does not depend on
+ *    parameters an std::invalid_argument exception is thrown.
+ * @return std::vector<std::string>
+ */
+std::vector<std::string>
+DBGate::getParameters()
+{
+   std::vector<std::string> result;
+    
+    // Does this gate have parameters:
+    
+    auto btype = m_Info.s_info.s_basictype;
+    if (btype != point && btype != mask) {
+        std::stringstream msg;
+        msg << "Gate " << m_Info.s_info.s_name << " is of type "
+            << m_Info.s_info.s_type << " which does not depend on parameters";
+        throw std::invalid_argument(msg.str());
+    }
+    // Fetch the parameter names:
+    // We're going to do the query based on the parameter ids present in the
+    // info struct.  This is proof against some other weirdness in how
+    // these associate with the gate.
+    
+    std::string query =
+        "SELECT name FROM gate_parameters AS gp\
+         INNER JOIN parameter_defs AS pd ON pd.id = gp.parameter_id \
+         WHERE ";
+    CInFilter in("gp.parameter_id", m_Info.s_parameters);
+    query += in.toString();
+    query += " ORDER BY gp.id ASC";  // Same order as in the definition.
+    
+    CSqliteStatement fetch(m_connection, query.c_str());
+    while (!(++fetch).atEnd()) {
+        result.push_back(reinterpret_cast<const char*>(fetch.getText(0)));
+    }
+    return result;
 }
 /////////////////////////////////////////////////////////////
 //  static methods implementations
