@@ -220,6 +220,37 @@ DBGate::getPoints()
     
     return result;
 }
+/**
+ * getMask
+ *   Retrieve the mask for a mask gate
+ * @return int
+ */
+int
+DBGate::getMask()
+{
+    // Only mask types have a mask:
+    
+    if (m_Info.s_info.s_basictype != mask) {
+        std::stringstream msg;
+        msg << "The gate: " << m_Info.s_info.s_name <<  " is of type "
+            << m_Info.s_info.s_type << " which does not have an associated bitmask";
+        throw std::invalid_argument(msg.str());
+    }
+    CSqliteStatement fetch(
+        m_connection,
+        "SELECT mask FROM gate_masks WHERE parent_gate = ?"
+    );
+    fetch.bind(1, m_Info.s_info.s_id);
+    ++fetch;
+    if (fetch.atEnd()) {
+        std::stringstream msg;
+        msg << "The gate " << m_Info.s_info.s_name
+            << " is of type " << m_Info.s_info.s_type
+            << " it should have but does not have an associated mask";
+        throw std::logic_error(msg.str());
+    }
+    return fetch.getInt(0);
+}
 /////////////////////////////////////////////////////////////
 //  static methods implementations
 
