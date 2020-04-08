@@ -190,6 +190,36 @@ DBGate::getGates()
     
     return result;
 }
+/**
+ * getPoints
+ *    Get the points from a point gate.
+ * @return SpecTcl::DBGate::Points
+ */
+DBGate::Points
+DBGate::getPoints()
+{
+    Points result;
+    
+    // Validate gate type:
+    
+    if (m_Info.s_info.s_basictype != point) {
+        std::stringstream msg;
+        msg << "The gate: " << m_Info.s_info.s_name <<  " is of type "
+            << m_Info.s_info.s_type << " which does not have associated points";
+        throw std::invalid_argument(msg.str());
+    }
+    CSqliteStatement fetch(
+        m_connection,
+        "SELECT x,y from gate_points WHERE gate_id = ? ORDER BY id ASC"
+    );
+    fetch.bind(1, m_Info.s_info.s_id);
+    
+    while(!(++fetch).atEnd()) {
+        result.push_back({fetch.getDouble(0), fetch.getDouble(1)});
+    }
+    
+    return result;
+}
 /////////////////////////////////////////////////////////////
 //  static methods implementations
 
