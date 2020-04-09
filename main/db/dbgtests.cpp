@@ -141,6 +141,7 @@ private:
     CPPUNIT_TEST(getmask_3);
     
     CPPUNIT_TEST(save_1);    // Save set API tests.
+    CPPUNIT_TEST(save_2);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -207,6 +208,7 @@ protected:
     void getmask_3();
     
     void save_1();
+    void save_2();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -1676,4 +1678,14 @@ void dbgtest::save_1()
     makeSome1dGates();
     EQ(false, m_pSaveset->gateExists("nosuchgate"));
     EQ(true, m_pSaveset->gateExists("gate.1"));
+}
+
+void dbgtest::save_2()
+{
+    // SaveSet::create1dGate
+    makeSomeParams();
+    std::vector<const char*> pars = {"param.1"};
+    auto p = m_pSaveset->create1dGate("test", "s", pars, 100.0, 200.0);
+    ASSERT(p);
+    delete p;
 }

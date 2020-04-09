@@ -249,6 +249,30 @@ SaveSet::gateExists(const char* name)
 {
     return DBGate::exists(m_connection, m_Info.s_id, name);
 }
+/**
+ * create1dGate
+ *    Creates a 1d gate in this saveset.
+ * @param name - name of the new gate.
+ * @param type - gate type (e.g. "s").
+ * @param params - vector of pointers to parameter names the gate needs.
+ * @param low,   - gate low limit.
+ * @param high   - gate high limit.
+ * @return DBGate* - pointer to the new gate object that was entered in
+ *                   the database.
+ * @note the return value is dynamically generated and must be
+ *        deleted by the caller
+ */
+DBGate*
+SaveSet::create1dGate(
+     const char* name, const char* type,
+    const std::vector<const char*>& params, double low, double high
+)
+{
+    return DBGate::create1dGate(
+        m_connection, m_Info.s_id,
+        name, type, params, low, high
+    );
+}
 
 ////////////////////////////////////////////////////////////
 // Static methods
