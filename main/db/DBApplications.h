@@ -20,6 +20,8 @@
  */
 #ifndef DBAPPLICATIONS_H
 #define DBAPPLICATIONS_H
+#include <vector>
+
 
 namespace SpecTcl {
 class CSqlite;    
@@ -56,7 +58,7 @@ private:
     // Forbidden constructors:
 private:
     DBApplication(const DBApplication&);
-    DBAppliction& operator=(const DBApplication&);
+    DBApplication& operator=(const DBApplication&);
     int operator==(const DBApplication&);
     int operator!=(const DBApplication&);
     
