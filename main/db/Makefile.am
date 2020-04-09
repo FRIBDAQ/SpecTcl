@@ -26,7 +26,7 @@ include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
-	DBGate.h
+	DBGate.h DBApplications.h
 
 
 install-exec-hook:
