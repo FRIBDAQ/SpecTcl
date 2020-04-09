@@ -65,7 +65,7 @@ DBApplication::applyGate(
     
     CSqliteStatement ins(
         conn,
-        "INSERR INTO gate_applications (spectrum_id, gate_id) VALUES (?,?)"
+        "INSERT INTO gate_applications (spectrum_id, gate_id) VALUES (?,?)"
     );
     ins.bind(1, info.s_spectrumid);
     ins.bind(2, info.s_gateid);
