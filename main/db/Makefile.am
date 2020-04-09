@@ -52,6 +52,7 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			statementTest.cpp transactionTest.cpp filtertests.cpp \
 			savepttests.cpp specdbtests.cpp savesettests.cpp \
 			dbpartests.cpp dbspectests.cpp dbgtests.cpp \
+			gapptests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp DBParameter.cpp \
 			DBSpectrum.cpp DBGate.cpp DBApplications.cpp \
 			$(libSqlite3pp_la_SOURCES)

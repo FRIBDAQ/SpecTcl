@@ -21,10 +21,10 @@
 #ifndef DBAPPLICATIONS_H
 #define DBAPPLICATIONS_H
 #include <vector>
-
+class CSqlite;
 
 namespace SpecTcl {
-class CSqlite;    
+    
 /**
  * @class DBApplication
  *    Gates by themselves are simply conditions that return a boolean
@@ -41,20 +41,24 @@ class CSqlite;
 class DBApplication {
 public:
     struct Info {
-        unsigned s_id;
-        unsigned s_gateid;
-        unsigned s_spectrumid;
+        int s_id;
+        int s_gateid;
+        int s_spectrumid;
     };
 private:
     CSqlite& m_connection;
     Info     m_Info;
 public:
     // constructors
-    
+
+    DBApplication(
+        CSqlite& conn, int saveid,
+        const char* gateName, const char* spectrumName
+    );    
     // Constructors used internally:
 private:
     DBApplication(CSqlite& conn, const Info& info);
-    DBApplication(CSqlite& conn, int saveid, const char* gate, const char* spectrum);
+    
     // Forbidden constructors:
 private:
     DBApplication(const DBApplication&);
