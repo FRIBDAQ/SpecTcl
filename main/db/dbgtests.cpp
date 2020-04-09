@@ -142,6 +142,11 @@ private:
     
     CPPUNIT_TEST(save_1);    // Save set API tests.
     CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
+    CPPUNIT_TEST(save_4);
+    CPPUNIT_TEST(save_5);
+    CPPUNIT_TEST(save_6);
+    CPPUNIT_TEST(save_7);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -209,6 +214,11 @@ protected:
     
     void save_1();
     void save_2();
+    void save_3();
+    void save_4();
+    void save_5();
+    void save_6();
+    void save_7();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -1182,7 +1192,7 @@ void dbgtest::construct_5()
     makeSomeParams();
     auto ptsGate = SpecTcl::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
-        "1d", "s", p1d, 100.0, 200.
+        "1d", "s", p1d, 100.0, 200.0
     );                                // id 1.
     auto maskGate = SpecTcl::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
@@ -1688,4 +1698,69 @@ void dbgtest::save_2()
     auto p = m_pSaveset->create1dGate("test", "s", pars, 100.0, 200.0);
     ASSERT(p);
     delete p;
+}
+void dbgtest::save_3()
+{
+    // create compound gate via saveset.
+    
+    makeSome1dGates();
+    SpecTcl::DBGate::NameList gates = {
+        "gate.1", "gate.2", "gate.3", "gate.4"
+    };
+    
+    auto p = m_pSaveset->createCompoundGate(
+        "testing", "*", gates
+    );
+    ASSERT(p);
+    
+    delete p;
+}
+void dbgtest::save_4()
+{
+    // Create a mask gate via saveset:
+    
+    makeSomeParams();
+    
+    auto p = m_pSaveset->createMaskGate("testgate", "em", "param.1", 0x55555555);
+    ASSERT(p);
+    delete p;
+}
+void dbgtest::save_5()
+{
+    // lookup a gate by name:
+    
+    makeSome1dGates();
+    auto p = m_pSaveset->lookupGate("gate.2");
+    ASSERT(p);
+    delete p;
+}
+void dbgtest::save_6()
+{
+    // lookup a gate by id.
+    
+    makeSome1dGates();
+    auto p = m_pSaveset->lookupGate(2);
+    ASSERT(p);
+    delete p;
+}
+void dbgtest::save_7()
+{
+    // List all the gates.
+    
+    makeSome1dGates();
+    
+    std::set<std::string> gateNames;
+    for (int i= 0; i < 10; i++) {
+        std::stringstream s;
+        s << "gate." << i;
+        gateNames.insert(s.str());
+    }
+    
+    auto gates = m_pSaveset->listGates();
+    EQ(gateNames.size(), gates.size());
+    for (int i =0; i < gates.size(); i++) {
+        auto info = gates[i]->getInfo();
+        EQ(size_t(1), gateNames.count(info.s_info.s_name));
+        delete gates[i];
+    }
 }

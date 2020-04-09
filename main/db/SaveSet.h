@@ -126,7 +126,9 @@ namespace SpecTcl {
             const char* name, const char* type,
             const char* parameter, int imask
         );
-        std::vector<DBGate*> listGatea();
+        DBGate* lookupGate(const char* name);
+        DBGate* lookupGate(int id);
+        std::vector<DBGate*> listGates();
 
     // Static methods:
     public:

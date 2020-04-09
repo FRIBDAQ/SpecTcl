@@ -273,7 +273,119 @@ SaveSet::create1dGate(
         name, type, params, low, high
     );
 }
+/**
+ * create2dGate
+ *   Cretes a 2d gate in this saveset.
+ * @param name -name of the new gate.
+ * @param type -gate type (e.g. "c").
+ * @param parms - parameters the gate depends on.
+ * @param points - The x/y points in the gate.
+ * @return DBGate* - pointer to the newly created/entered gate object.
+ * @note caller must eventually delete the returned pointer.
+ */
+DBGate*
+SaveSet::create2dGate(
+    const char* name, const char* type,
+    const std::vector<const char*>& params,
+    const std::vector<std::pair<double, double>>& points
+    
+)
+{
+    // Need to marshallthe points into the correct struct:
+    
+    DBGate::Points pts;
+    for (int i =0; i < points.size(); i++) {
+        pts.push_back({points[i].first, points[i].second});
+    }
+    return DBGate::create2dGate(
+        m_connection, m_Info.s_id,
+        name, type, params, pts
+    );
+}
 
+/**
+ * createCompoundGate
+ *    Creates a gate that depends on other gates (e.g. "*" type)
+ *     in this saveset.
+ *
+ *   @param name -new gate name.
+ *   @param type - new gate type (e.g. *).
+ *   @param gates - Gates this gate depends on.
+ *   @return DBGate* - pointer to the gate object that encapsulates
+ *                 the newly entered gate.
+ *   @note The caller must eventually delete the return value.
+ *   @note False and True gates are treated as compound gates
+ *         that don't depend on any other gates.  Enter them using
+ *         an empy gates vector
+ */
+DBGate*
+SaveSet::createCompoundGate(
+    const char* name, const char* type,
+    const std::vector<const char*>& gates
+)
+{
+    return DBGate::createCompoundGate(
+        m_connection, m_Info.s_id,
+        name, type, gates
+    );
+}
+/**
+ * createMaskGate
+ *    Creates a new bitmask gate in this save set.
+ *
+ *  @param name - name of the new gate,
+ *  @param type - Type of the new gate.
+ *  @param parameter - name of the one parameter to check.
+ *  @param imask     - bitmask to check it against.
+ */
+DBGate*
+SaveSet::createMaskGate(
+    const char* name, const char* type,
+    const char* parameter, int imask
+)
+{
+    return DBGate::createMaskGate(
+        m_connection, m_Info.s_id,
+        name, type, parameter, imask
+    );
+}
+
+/**
+ * lookupGate (overloaded)
+ *    These methods lookup a gate and return its object encapsulation.
+ * @param name - name of the gate.
+ * @param id   - Id of the gate.
+ * @return DBGate* pointer to the encaspulted gate.
+ * @note The returned pointer must eventually be deleted by the caller.
+ * @note Looking up a gate will return a matching gate even though
+ *       it may not be in the save set described.  The gate information
+ *       will, however provide the save set id which can be compared
+ *       against the save set's id.
+ */
+DBGate*
+SaveSet::lookupGate(const char* name)
+{
+    return new DBGate(m_connection, m_Info.s_id, name);
+}
+DBGate*
+SaveSet::lookupGate(int id)
+{
+    return new DBGate(m_connection, id);   // id implies the save_set
+}
+/**
+ * listGates
+ *
+ *    Returns a list of the gate objects that have been entered
+ *    into this saveset.
+ *  @return std::vector<DBGate*>
+ *  @note the gate pointers point to objects that must eventually
+ *     be deleted by the caller.
+ */
+std::vector<DBGate*>
+SaveSet::listGates()
+{
+    return DBGate::listGates(m_connection, m_Info.s_id);
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 
