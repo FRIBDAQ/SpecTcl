@@ -1,4 +1,4 @@
-lib_LTLIBRARIES=libSpecTclDb.la libSqlite3pp.la
+lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la 
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
 IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
