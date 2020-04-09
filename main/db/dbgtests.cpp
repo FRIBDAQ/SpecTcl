@@ -73,6 +73,7 @@ public:
     void tearDown() {
         delete m_pSaveset;
         delete m_pDb;
+        unlink(m_name.c_str());
     }
 private:
     CPPUNIT_TEST_SUITE(dbgtest);
@@ -138,6 +139,8 @@ private:
     CPPUNIT_TEST(getmask_1);
     CPPUNIT_TEST(getmask_2);
     CPPUNIT_TEST(getmask_3);
+    
+    CPPUNIT_TEST(save_1);    // Save set API tests.
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -202,6 +205,8 @@ protected:
     void getmask_1();
     void getmask_2();
     void getmask_3();
+    
+    void save_1();
 private:
     void makeSomeParams();
     void makeSome1dGates();
@@ -1662,4 +1667,13 @@ void dbgtest::getmask_3()
     delete ptsGate;
     delete maskGate;
     delete compound;
+}
+
+void dbgtest::save_1()
+{
+    // SaveSet::exists.
+    
+    makeSome1dGates();
+    EQ(false, m_pSaveset->gateExists("nosuchgate"));
+    EQ(true, m_pSaveset->gateExists("gate.1"));
 }

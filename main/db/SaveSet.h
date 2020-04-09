@@ -29,6 +29,7 @@ class CSqliteStatement;
 namespace SpecTcl {
     class DBParameter;
     class DBSpectrum;
+    class DBGate;
    
     
     /**
@@ -91,6 +92,7 @@ namespace SpecTcl {
         DBParameter* findParameter(const char* name);
         DBParameter* findParameter(int number);
         DBParameter* getParameter(int id);
+        
         // Spectrum API:
         
         bool spectrumExists(const char* name);
@@ -103,7 +105,28 @@ namespace SpecTcl {
         std::vector<DBSpectrum*> listSpectra();
 
         DBSpectrum* lookupSpectrum(const char* name);
-
+    
+        // Gate api:
+        
+        bool gateExists(const char* name);
+        DBGate*  create1dGate(
+            const char* name, const char* type,
+            const std::vector<const char*>& params, double low, double high
+        );
+        DBGate* create2dGate(
+            const char* name, const char* type,
+            const std::vector<const char*>& params,
+            const std::vector<std::pair<double, double>>& points
+        );
+        DBGate* createCompoundGate(
+            const char* name, const char* type,
+            const std::vector<const char*>& gates
+        );
+        DBGate* createMaskGate(
+            const char* name, const char* type,
+            const char* parameter, int imask
+        );
+        std::vector<DBGate*> listGatea();
 
     // Static methods:
     public:

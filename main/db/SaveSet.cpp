@@ -21,6 +21,7 @@
 #include "SaveSet.h"
 #include "DBParameter.h"
 #include "DBSpectrum.h"
+#include "DBGate.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -233,6 +234,20 @@ DBSpectrum*
 SaveSet::lookupSpectrum(const char* name)
 {
     return new DBSpectrum(m_connection, m_Info.s_id, name);
+}
+
+//////////////////////
+// Gate api:
+
+/**
+ * gateExists
+ *   @const char* name - name of the gate to check out.
+ *   @return bool - true if that gate exists in this save set.
+ */
+bool
+SaveSet::gateExists(const char* name)
+{
+    return DBGate::exists(m_connection, m_Info.s_id, name);
 }
 
 ////////////////////////////////////////////////////////////
