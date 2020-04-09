@@ -79,7 +79,13 @@ public:
     CProductionXamineShMem(size_t nBytes);
     ~CProductionXamineShMem();
 
-
+  // Disallowee canonicals:
+private:
+  CProductionXamineShMem(const CProductionXamineShMem&);
+  CProductionXamineShMem& operator=(const CProductionXamineShMem&);
+  
+  
+public:
   void setManaged(bool value) {
       m_fManaged = value;
   }

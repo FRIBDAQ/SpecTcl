@@ -46,10 +46,11 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate,
     if(pDisplay->spectrumBound(&rSpectrum)) {
 
         pDisplay->setTitle(rSpectrum, rSpectrum.getName());
-        pDisplay->setInfo(rSpectrum,
-                          pDisplay->createTitle(rSpectrum,
-                                                pDisplay->getTitleSize(),
-                                                rSorter));
+        UInt_t titleSize = pDisplay->getTitleSize();
+        std::string newTitle = pDisplay->createTitle(rSpectrum,
+                                                titleSize,
+                                                rSorter);
+        pDisplay->setInfo(rSpectrum, newTitle);
       }
 }
 

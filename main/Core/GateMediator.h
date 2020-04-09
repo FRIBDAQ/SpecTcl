@@ -44,10 +44,11 @@ class CGateMediator
     { }
 
   // Assignment operator
-  CGateMediator operator= (const CGateMediator& aCGateMediator)
+  CGateMediator& operator= (const CGateMediator& aCGateMediator)
     {
       m_rGate = aCGateMediator.m_rGate;
       m_pSpec = aCGateMediator.m_pSpec;
+      return *this;
     }
 
   ~CGateMediator() { }
