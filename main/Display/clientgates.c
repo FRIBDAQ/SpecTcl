@@ -539,10 +539,10 @@ typedef struct {  int numgates;
 **      Note that unless the value of this is Success (0), the
 **      return context value is useless.
 ** Returns:
-**    integerized (cast) pointer to the a GateContext or NULL
+**     pointer to the a GateContext or NULL
 **    if there's a problem.
 */
-long
+void*
 Xamine_StartSearch(int spectrum, int *status)
 {
   struct msg_command    cmd = { Inquire }; /* Command msg packet. */
@@ -617,7 +617,7 @@ Xamine_StartSearch(int spectrum, int *status)
     }
   }
   *status = Success;
-  return (long)ctx;
+  return (void*)ctx;
 }
 
 /*
@@ -640,7 +640,7 @@ Xamine_StartSearch(int spectrum, int *status)
 **    1  - If there is a next gate or
 **    0  - If there is no next gate.
 */
-int Xamine_NextGate(long context, int *id, Xamine_gatetype *type,
+int Xamine_NextGate(void* context, int *id, Xamine_gatetype *type,
 		    int *npts, Xamine_point *pts)
 {
   GateContextPtr ctx = (GateContextPtr)context;
@@ -678,7 +678,7 @@ int Xamine_NextGate(long context, int *id, Xamine_gatetype *type,
 **      Really a GatesContextPtr in disguise.
 */
 void
-Xamine_EndSearch(long context)
+Xamine_EndSearch(void* context)
 {
   GateContextPtr ctx = (GateContextPtr)context;
   if(context == 0) {
@@ -824,18 +824,18 @@ int f77xamine_readgate_(int *spectrum, Xamine_gatetype *type, char *name,
   return Xamine_ReadGate(spectrum, type, name, npts, pts);
 }
 
-void f77xamine_endsearch_(long *context)
+void f77xamine_endsearch_(void* *context)
 {
   Xamine_EndSearch(*context);
 }
 
-int f77xamine_nextgate_(long *context, int *id, Xamine_gatetype *type, 
+int f77xamine_nextgate_(void* *context, int *id, Xamine_gatetype *type, 
 			int *npts, Xamine_point *pts)
 {
   return Xamine_NextGate(*context, id, type, npts, pts);
 }
 
-long f77xamine_startsearch_(int *spec, int *status)
+void* f77xamine_startsearch_(int *spec, int *status)
 {
   return Xamine_StartSearch(*spec, status);
 }
