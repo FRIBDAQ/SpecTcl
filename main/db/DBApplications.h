@@ -72,8 +72,8 @@ private:
     
 public:
     const Info& getInfo() const { return m_Info; }
-    std::vector<std::string> getGateName();
-    std::vector<std::string> getSpectrumName();
+    std::string getGateName();
+    std::string getSpectrumName();
     
     // Static methods:
 

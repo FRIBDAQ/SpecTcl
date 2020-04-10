@@ -92,6 +92,44 @@ DBApplication::DBApplication(
     m_Info.s_gateid = ins.getInt(2);
     
 }
+/**
+ * getGateName
+ *    Returns the name associated with the gate we're holding.
+ * @return std::string - name of applied gate.
+ */
+std::string
+DBApplication::getGateName()
+{
+    CSqliteStatement f(
+        m_connection,
+        "SELECT name FROM gate_defs WHERE id = ?"
+    );
+    f.bind(1, m_Info.s_gateid);
+    ++f;
+    if (f.atEnd()) {
+        throw std::logic_error("Can't find gate name for gate id");
+    }
+    return std::string(reinterpret_cast<const char*>(f.getText(0)));
+}
+/**
+ * getSpectrumName
+ *
+ * @return std::string - name of the spectrum the gate is applied on.
+ */
+std::string
+DBApplication::getSpectrumName()
+{
+    CSqliteStatement f(
+        m_connection,
+        "SELECT name FROM spectrum_defs WHERE id = ?"
+    );
+    f.bind(1, m_Info.s_spectrumid);
+    ++f;
+    if (f.atEnd()) {
+        throw std::logic_error("Can't find spectrum name for gate id");
+    }
+    return std::string(reinterpret_cast<const char*>(f.getText(0)));
+}
 /////////////////////////////////////////////////////////////////
 // Static methods:
 

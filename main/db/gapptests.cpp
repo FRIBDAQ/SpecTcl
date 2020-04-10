@@ -61,6 +61,9 @@ class gapptest : public CppUnit::TestFixture {
     CPPUNIT_TEST(construct_3);
     CPPUNIT_TEST(construct_4);
     CPPUNIT_TEST(construct_5);
+    
+    CPPUNIT_TEST(gatename_1);
+    CPPUNIT_TEST(specname_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -115,6 +118,9 @@ protected:
     void construct_3();
     void construct_4();
     void construct_5();
+    
+    void gatename_1();
+    void specname_1();
 private:
     void makeSomePars();
     void makeSomeSpectra();
@@ -142,12 +148,15 @@ void gapptest::makeSome1dGates()
     for (int i =0; i < 10; i++) {           // tranactions don't nest.
         std::stringstream pname;
         pname << "param." << i;
+        std::string paramName = pname.str();
         SpecTcl::DBGate::NameList param;
-        param.push_back(pname.str().c_str());
+        param.push_back(paramName.c_str());
         std::stringstream name;
         name << "gate." << i;
+        std::string gname = name.str();
+        
         delete SpecTcl::DBGate::create1dGate(
-            *m_pConn, m_pSaveset->getInfo().s_id, name.str().c_str(),
+            *m_pConn, m_pSaveset->getInfo().s_id, gname.c_str(),
             "s", param, 10, 20
         );
     }    
@@ -155,18 +164,22 @@ void gapptest::makeSome1dGates()
 void gapptest::makeSomeSpectra()
 {
     SpecTcl::SaveSet::SpectrumAxis a = {-10.0, 10.0, 20};
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {a};
+    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes;
+    axes.push_back(a);
                                               // spectrum entry uses transactions
                                               // and those don't nest.
     for (int i=0; i < 10; i++) {
         std::stringstream pname;
         pname << "param." << i;
-        std::vector<const char*> pnames = {pname.str().c_str()};
+        std::string parname = pname.str();
+        std::vector<const char*> pnames;
+        pnames.push_back(parname.c_str());
         
         std::stringstream sname;
         sname << "spectrum." << i;
+        std::string specname = sname.str();
         delete m_pSaveset->createSpectrum(
-            sname.str().c_str(), "1", pnames, axes
+            specname.c_str(), "1", pnames, axes
         );
     }
 }
@@ -372,10 +385,11 @@ void gapptest::list_3()
         gname << "gate." << i;
         std::stringstream spname;
         spname << "spectrum." << i;
-        
+        std::string gate = gname.str();
+        std::string spec = spname.str();
         delete SpecTcl::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
-            gname.str().c_str(), spname.str().c_str()
+            gate.c_str(), spec.c_str()
         );
     }
     auto l = SpecTcl::DBApplication::listApplications(
@@ -570,4 +584,37 @@ void gapptest::construct_5()
         std::invalid_argument
     );
     
+}
+void gapptest::gatename_1()
+{
+    // Get gate name from application.
+    makeSomePars();
+    makeSome1dGates();
+    makeSomeSpectra();
+    
+    auto papp =  SpecTcl::DBApplication::applyGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "gate.1", "spectrum.5"
+    );
+    
+    EQ(std::string("gate.1"), papp->getGateName());
+
+    delete papp;
+}
+
+void gapptest::specname_1()
+{
+    // get spectrum name from application.
+    
+    makeSomePars();
+    makeSome1dGates();
+    makeSomeSpectra();
+    
+    auto papp =  SpecTcl::DBApplication::applyGate(
+            *m_pConn, m_pSaveset->getInfo().s_id,
+            "gate.1", "spectrum.5"
+    );
+    
+    EQ(std::string("spectrum.5"), papp->getSpectrumName());
+    delete papp;
 }
