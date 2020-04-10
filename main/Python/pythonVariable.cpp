@@ -199,6 +199,7 @@ firetraces(PyObject* self, PyObject* Py_UNUSED(ignored))
 {
     CTreeVariableProperties* props = getProperties(self);
     props->fireTraces();
+    Py_RETURN_NONE;
 }
 //////////////////////////////////////////////////////////////////////////////
 // Attribute getters and setters.

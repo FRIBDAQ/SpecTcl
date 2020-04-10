@@ -70,7 +70,7 @@ class spcin : public spcbin{
  private:
   void put(int a, int b) {}
   void put(int a, int b, int c) {}
-  bool writeout(std::ostream& a) {}
+  bool writeout(std::ostream& a) {return true;}
   
 };
 
@@ -190,8 +190,8 @@ class spcout : public spcbin{
     return (x*y-1)/8192+1;
   }
  private:
-  long get(int a, int b) {}
-  int readin(std::istream& a) {}
+  long get(int a, int b) {return 0;}
+  int readin(std::istream& a) {return 0;}
   
   
 };

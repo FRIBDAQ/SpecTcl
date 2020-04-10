@@ -188,7 +188,7 @@ double pulseAmplitude(double A, double k1, double k2,double x0)
         std::cerr << "It should be called as DDAS::pulseAmplitude(...);\n";
         warned = true;
     }
-    DDAS::pulseAmplitude(A, k1, k2, x0);
+    return DDAS::pulseAmplitude(A, k1, k2, x0);
 }
 
 

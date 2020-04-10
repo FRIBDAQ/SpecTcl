@@ -208,10 +208,10 @@ CDBEventWriter::~CDBEventWriter()
     m_pInterp->GlobalEval(closecmd);
     
     
-    checkStatus(sqlite3_finalize(m_pTransaction));
-    checkStatus(sqlite3_finalize(m_pInsert));
-    checkStatus(sqlite3_finalize(m_pCommit));
-    checkStatus(sqlite3_close(m_pSqlite));
+    sqlite3_finalize(m_pTransaction);
+    sqlite3_finalize(m_pInsert);
+    sqlite3_finalize(m_pCommit);
+    sqlite3_close(m_pSqlite);
 
     sqlite3_close(m_pSqlite);
     

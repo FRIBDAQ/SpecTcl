@@ -43,6 +43,9 @@ int Xamine_AcceptPipeConnections();
 
 void Xamine_Closepipes();
 
+int Xamine_WritePipe_(int id, void *buffer, int size);
+int Xamine_ReadPipe_(int id, int timeout, void *buffer, int size);
+
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #endif

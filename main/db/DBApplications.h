@@ -21,6 +21,8 @@
 #ifndef DBAPPLICATIONS_H
 #define DBAPPLICATIONS_H
 #include <vector>
+#include <string>
+
 class CSqlite;
 
 namespace SpecTcl {
@@ -70,6 +72,8 @@ private:
     
 public:
     const Info& getInfo() const { return m_Info; }
+    std::vector<std::string> getGateName();
+    std::vector<std::string> getSpectrumName();
     
     // Static methods:
 
@@ -77,7 +81,9 @@ public:
     static DBApplication* applyGate(
         CSqlite& conn, int saveid, const char* gate, const char* spectrum
     );
-    static std::vector<DBApplication*> listApplications(CSqlite& conn, int saveid);
+    static std::vector<DBApplication*> listApplications(
+        CSqlite& conn, int saveid
+    );
     
     // private utilities:
 private:

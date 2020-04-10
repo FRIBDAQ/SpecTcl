@@ -74,6 +74,9 @@ public:
      * \param rhs   object whose state will be copied
      */
     CXamineShMemDisplayImpl( const CXamineShMemDisplayImpl& rhs );
+private:
+    CXamineShMemDisplayImpl& operator=(const CXamineShMemDisplayImpl&);
+public:
 
     /*!
      * Empty implementation

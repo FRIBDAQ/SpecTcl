@@ -133,6 +133,7 @@ namespace DAQ {
       unpacker.decode(pBody,  hit );
 
       m_channelList.push_back(hit);
+      return kfTRUE;
     }
 
   } // end DDAS namespace

@@ -579,7 +579,7 @@ void dbgtest::createc_1()
     };
     SpecTcl::DBGate* pGate;
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBGate::createCompoundGate(
+        pGate=SpecTcl::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "orgate", "+", components
         )

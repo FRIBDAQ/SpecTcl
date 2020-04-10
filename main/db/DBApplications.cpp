@@ -20,10 +20,14 @@
  */
 
 #include "DBApplications.h"
+#include "SaveSet.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "DBSpectrum.h"
 #include "DBGate.h"
+
+#include <sstream>
+#include <stdexcept>
 
 namespace SpecTcl {
 
@@ -37,6 +41,57 @@ DBApplication::DBApplication(CSqlite& conn, const Info& info) :
     m_connection(conn), m_Info(info)
 {}
 
+/**
+ * constructor (public)
+ *    Retrieve an appliction's information and wrap it in
+ *    a DBApplication object.
+ * @param conn  - database connection object.
+ * @param savid - saveset id.
+ * @param gateName - name of the gate.
+ * @param specName - Name of the spectrum.
+ */
+DBApplication::DBApplication(
+    CSqlite& conn, int saveid,
+    const char* gateName, const char* spectrumName
+) :
+    m_connection(conn)
+{
+    // Get the spectrum and gate name information:
+    
+    SaveSet s(conn, saveid);
+    auto spectrum = s.lookupSpectrum(spectrumName);
+    DBGate* gate(nullptr);
+    try {
+        gate    = s.lookupGate(gateName);
+    }
+    catch (...) {
+        delete spectrum;      // No memory leak here.
+        throw;
+    }
+    
+    CSqliteStatement ins(
+        conn,
+        "SELECT id, spectrum_id, gate_id FROM  gate_applications \
+        WHERE spectrum_id = ? AND gate_id = ?"
+         
+    );
+    ins.bind(1, spectrum->getInfo().s_base.s_id);
+    ins.bind(2, gate->getInfo().s_info.s_id);
+    delete spectrum;
+    delete gate;
+    ++ins;
+    if (ins.atEnd()) {
+        std::stringstream msg;
+        msg << " The saveset " << s.getInfo().s_name
+            << " does not have an application of "
+            << gateName << " to " << spectrumName;
+        throw std::invalid_argument(msg.str());
+    }
+    m_Info.s_id = ins.getInt(0);
+    m_Info.s_spectrumid = ins.getInt(1);
+    m_Info.s_gateid = ins.getInt(2);
+    
+}
 /////////////////////////////////////////////////////////////////
 // Static methods:
 
@@ -74,4 +129,40 @@ DBApplication::applyGate(
     
     return new DBApplication(conn, info);
 }
+/**
+ * listApplications
+ *    List the gate applications that are relevant for a specific
+ *    save set.  This means requiring that the gate and spectrum
+ *    live in the selected save set.  This can be assured by
+ *    doing a join on the spectrum_defs table and applying that
+ *    requirement there.
+ *
+ *  @param conn    Database connectoin object.
+ *  @param sid     saveid   Save set id.
+ *  @return std::vector<DBApplication*> - vector of matching
+ *                 application objects.
+ *  @note the elements of the vector must be deleted.
+ */
+std::vector<DBApplication*>
+DBApplication::listApplications(CSqlite& conn, int saveid)
+{
+    SaveSet set(conn, saveid);     // Throws if bad saveset.
+    std::vector<DBApplication*> result;
+    
+    CSqliteStatement fetch(
+        conn,
+        "SELECT ga.id, gate_id, spectrum_id FROM gate_applications AS ga \
+         INNER JOIN spectrum_defs AS sd ON sd.id = ga.spectrum_id       \
+         WHERE sd.save_id = ? ORDER BY ga.id ASC"
+    );
+    fetch.bind(1, saveid);
+    
+    while(!(++fetch).atEnd()) {
+        Info info = {fetch.getInt(0), fetch.getInt(1), fetch.getInt(2)};
+        result.push_back(new DBApplication(conn, info));
+    }
+    
+    return result;
+}
+
 }                            // SpecTcl namespace.

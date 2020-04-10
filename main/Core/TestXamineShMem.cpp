@@ -43,12 +43,12 @@ const std::map<int, CXamineGate>& CTestXamineShMem::getGates() const
 
 void CTestXamineShMem::setManaged(bool value) {}
 
-bool CTestXamineShMem::isManaged() const {}
+bool CTestXamineShMem::isManaged() const {return false;}
 
 void CTestXamineShMem::attach() {}
 void CTestXamineShMem::detach() {}
 
-size_t CTestXamineShMem::getSize() const {}
+size_t CTestXamineShMem::getSize() const {return 1024*1024;}
 
 UInt_t CTestXamineShMem::addSpectrum(CSpectrum& spec, CHistogrammer& sorter) {
 
@@ -81,7 +81,7 @@ DisplayBindings CTestXamineShMem::getDisplayBindings() const {
 CXamineSpectrum& CTestXamineShMem::operator[](UInt_t n) {}
 
 Int_t CTestXamineShMem::findDisplayBinding(std::string name) {
-
+    return 10;
 }
 Int_t CTestXamineShMem::findDisplayBinding(CSpectrum& rSpectrum) { return 0;}
 
@@ -132,7 +132,7 @@ void CTestXamineShMem::removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eTyp
 void CTestXamineShMem::removeGate(UInt_t ns, UInt_t gid) {}
 
 CXamineGates* CTestXamineShMem::GetGates (UInt_t nSpectrum)  {
-
+    return nullptr;
 }
 
 void CTestXamineShMem::setUnderflows(unsigned slot, unsigned x, unsigned y)

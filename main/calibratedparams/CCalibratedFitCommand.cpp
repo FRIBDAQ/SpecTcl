@@ -89,7 +89,9 @@ bool CreateListResult::operator()(pair<string, CFit*> Item)
   CTCLString name(Item.first);
   if(name.Match(m_sPattern)) {
     m_listListing.AppendElement(FormatFit(Item.first, Item.second));
+    return true;
   }
+  return false;
 }
 /*!
    Return the current list result string.

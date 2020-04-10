@@ -48,6 +48,7 @@
 #ifndef XAMIENDATATYPES_H
 #include "xamineDataTypes.h"
 #endif
+#include "clientgates.h"
 
 #include <Xamine.h>
 

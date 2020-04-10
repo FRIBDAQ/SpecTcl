@@ -81,6 +81,7 @@ public:
       type= rhs.type;
       for (int i =0; i < 256; i++) map[i] = rhs.map[i];
       extraData = rhs.extraData;
+      return *this;
     }
     int& operator[](int i) { return map[i]; }
 

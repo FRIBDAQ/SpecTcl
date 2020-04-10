@@ -58,7 +58,6 @@ CCalibratedParameter::CCalibratedParameter (int nTargetId, int nRawId,
 */
  CCalibratedParameter::~CCalibratedParameter ( )
 {
-	REQUIRE(m_pFit, "Fit pointer became null somehow");
 	delete m_pFit;
 	m_pFit = (CFit*)NULL;
 }

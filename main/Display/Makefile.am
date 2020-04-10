@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 bin_PROGRAMS = Xamine colorset
 
 lib_LTLIBRARIES = libXamine.la 

@@ -92,7 +92,6 @@ CXdrInputStream::~CXdrInputStream()
 */
 void
 CXdrInputStream::Connect() 
-  throw (string)
 {
   if(m_sConnectionId == string("")) {
     throw string("Empty filename in CXdrInputStream::Connect");
@@ -129,7 +128,7 @@ CXdrInputStream::Connect()
    exception.
 */
 void
-CXdrInputStream::Get(void* item, xdrproc_t cvt) throw (string)
+CXdrInputStream::Get(void* item, xdrproc_t cvt) 
 {
   if(!m_fIsOpen) {
     throw string("Stream is not open at CXdrInputStream::Get");
@@ -161,7 +160,7 @@ CXdrInputStream::Read(void* pBuffer)
    Disconnect a stream from the input file.
 */
 void
-CXdrInputStream::Disconnect() throw (string)
+CXdrInputStream::Disconnect() 
 {
   if(!m_fIsOpen) {
     throw 
@@ -188,7 +187,7 @@ CXdrInputStream::Disconnect() throw (string)
      In the event the Read member returns an error.
 */
 void
-CXdrInputStream::DoRead() throw (string)
+CXdrInputStream::DoRead() 
 {
   int nRead = Read(m_pBuffer);
   if(nRead < 0) {
@@ -212,7 +211,7 @@ CXdrInputStream::DoRead() throw (string)
       through us/
 */
 void
-CXdrInputStream::ConditionalRead() throw (string)
+CXdrInputStream::ConditionalRead() 
 {
   int pos = xdr_getpos(&m_Xdr);
   if(pos >= m_nSize) {

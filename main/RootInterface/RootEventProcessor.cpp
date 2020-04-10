@@ -216,6 +216,7 @@ RootEventProcessor::OnEventSourceOpen(std::string name)
         delete m_pFile;
         m_pFile = nullptr;
     }
+    return kfTRUE;
 }
 
 

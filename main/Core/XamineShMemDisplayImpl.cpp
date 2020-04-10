@@ -133,7 +133,7 @@ CXamineShMemDisplayImpl::createTitle(CSpectrum& rSpectrum,
 UInt_t
 CXamineShMemDisplayImpl::getTitleSize() const
 {
-    m_pMemory->getTitleSize();
+    return m_pMemory->getTitleSize();
 }
 
 /*!

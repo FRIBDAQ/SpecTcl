@@ -234,12 +234,13 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
     if (m_originalValue != std::string(pNewValue)) {
       Set(m_originalValue.c_str());
       sprintf(
-	msg, "%s can only be set in SpecTclInit.tcl", getVariableName().c_str()
+        msg, "%s can only be set in SpecTclInit.tcl", getVariableName().c_str()
       );
       m_errorMessage = msg;
       return const_cast<char*>(m_errorMessage.c_str());
     }
   }
+  return nullptr;
 }
 
 // Constructors, destructors and other replacements for compiler cannonicals:

@@ -65,6 +65,8 @@
 #include "clientgates.h"
 #include "prccheck.h" 
 #include "allocator.h"
+
+#include <sys/wait.h>
 /*
 ** Definitions.
 */

@@ -182,7 +182,9 @@ CRingBlockReader::read(size_t nBytes)
  */
 ssize_t
 CRingBlockReader::readBlock(void* pBuffer, size_t maxBytes)
-{}
+{
+    return 0;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Private methods:

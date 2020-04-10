@@ -121,12 +121,10 @@ CDBProcessor::~CDBProcessor()
 {
     SpecTcl* pApi = SpecTcl::getInstance();
     auto p = pApi->FindEventSink(*m_pSink);
-    if (p == pApi->EventSinkPipelineEnd()) {
-        throw std::logic_error(
-            "BUGCHECK CDBProcessor destructor can't find sink to destroy it"
-        );
+    if (p != pApi->EventSinkPipelineEnd()) {
+        pApi->RemoveEventSink(p);
     }
-    pApi->RemoveEventSink(p);
+    
     delete m_pSink;
     
     // We don't own the writer.

@@ -49,7 +49,7 @@ CXdrMemInputStream::~CXdrMemInputStream()
    stream to connected.
 */
 void
-CXdrMemInputStream::Connect() throw (string)
+CXdrMemInputStream::Connect() 
 {
   setOpen(true);		// Set state to open and
   DoRead();			// do the one and only read.
@@ -59,7 +59,7 @@ CXdrMemInputStream::Connect() throw (string)
   to closed.
 */
 void
-CXdrMemInputStream::Disconnect() throw (string)
+CXdrMemInputStream::Disconnect()
 {
   setOpen(false);
 }
