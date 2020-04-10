@@ -82,14 +82,14 @@ int f77xamine_entergate_(int *spec, int *id, Xamine_gatetype *type,
 			 char *name, int *npts, Xamine_point *pts);
 int Xamine_RemoveGate(int spec, int id, Xamine_gatetype ntype);
 int f77xamine_removegate_(int *spec, int *id, Xamine_gatetype *ntype);
-long Xamine_StartSearch(int spec, int *status);
-long f77xamine_startsearch_(int *spec, int *status);
-int Xamine_NextGate(long context, int *id, Xamine_gatetype *type, 
+void* Xamine_StartSearch(int spec, int *status);
+void* f77xamine_startsearch_(int *spec, int *status);
+int Xamine_NextGate(void* context, int *id, Xamine_gatetype *type, 
 		    int *npts, Xamine_point *pts);
-int f77xamine_nextgate_(long *context, int *id, Xamine_gatetype *type, 
+int f77xamine_nextgate_(void* *context, int *id, Xamine_gatetype *type, 
 			int *npts, Xamine_point *pts);
-void  Xamine_EndSearch(long context);
-void f77xamine_endsearch_(long *context);
+void  Xamine_EndSearch(void* context);
+void f77xamine_endsearch_(void* *context);
 int Xamine_ReadGate(int *spectrum, Xamine_gatetype *type , char *name,
 		    int *npts, Xamine_point *pts);
 int f77xamine_readgate_(int *spectrum, Xamine_gatetype *type, char *name,
