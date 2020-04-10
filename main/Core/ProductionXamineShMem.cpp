@@ -433,7 +433,7 @@ CProductionXamineShMem::removeGate(UInt_t spslot, UInt_t gateid)
 {
   int status;
   
-  int context = Xamine_StartSearch(spslot, &status);
+  void* context = Xamine_StartSearch(spslot, &status);
   if (status) return;                       // Failed.
   
   int gid;
