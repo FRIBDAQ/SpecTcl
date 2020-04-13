@@ -30,7 +30,7 @@ AC_C_CONST
 # Checks for header files.
 
 
-tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
+tcl_versions="8.6 8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
 
 
 
