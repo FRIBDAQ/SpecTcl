@@ -81,9 +81,9 @@ private:
     // object methods:
 public:
     const Info& getInfo() const { return m_Info; }
-    std::string getName() const;
-    double      getValue() const;
-    std::string getUnits() const;
+    std::string getName() const { return m_Info.s_name; }
+    double      getValue() const {return m_Info.s_value; } 
+    std::string getUnits() const {return m_Info.s_units; }
     
     // Static methods:
     

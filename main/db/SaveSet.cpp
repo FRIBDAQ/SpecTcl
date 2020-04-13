@@ -23,6 +23,7 @@
 #include "DBSpectrum.h"
 #include "DBGate.h"
 #include "DBApplications.h"
+#include "DBTreeVariable.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -429,6 +430,54 @@ SaveSet::listApplications()
     return DBApplication::listApplications(
         m_connection, m_Info.s_id
     );
+}
+
+///////////////////////////////////////////////////////////////
+// API for treevariables:
+
+/**
+ * createVariable
+ *    Create an entry for a tree variable in this saveset.
+ *  @param name -name of the variable
+ *  @param value- variable value.
+ *  @param units  - units.
+ *  @return DBTreeVariable* - pointer to dynamically created tree variable.
+ */
+DBTreeVariable*
+SaveSet::createVariable(const char* name, double value, const char* units)
+{
+    return DBTreeVariable::create(m_connection, m_Info.s_id, name, value, units);
+}
+/**
+ * lookupVariable
+ *    Return encapsulation of an existing variable.
+ * @param name
+ * @return DBTreeVariable*
+ */
+DBTreeVariable*
+SaveSet::lookupVariable(const char* name)
+{
+    return new DBTreeVariable(m_connection, m_Info.s_id, name);
+}
+/**
+ * exists
+ *   @param name -name of the variable.
+ *   @return bool - true if there's a variable with this name in the saveset.
+ */
+bool
+SaveSet::variableExists(const char* name)
+{
+    return DBTreeVariable::exists(m_connection, m_Info.s_id, name);
+    
+}
+/**
+ * listVariables
+ * @return std::vector<DBTreeVariable*> variables in the curent saveset.
+ */
+std::vector<DBTreeVariable*>
+SaveSet::listVariables()
+{
+    return DBTreeVariable::list(m_connection, m_Info.s_id);
 }
 ////////////////////////////////////////////////////////////
 // Static methods

@@ -94,6 +94,12 @@ private:
     CPPUNIT_TEST(construct_3);
     CPPUNIT_TEST(construct_4);
 
+    CPPUNIT_TEST(getters_1);
+
+    CPPUNIT_TEST(save_1);
+    CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
+    CPPUNIT_TEST(save_4);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -114,6 +120,13 @@ protected:
     void construct_2();
     void construct_3();
     void construct_4();
+    
+    void getters_1();
+    
+    void save_1();
+    void save_2();
+    void save_3();
+    void save_4();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(dbvtest);
@@ -359,5 +372,75 @@ void dbvtest::construct_4()
         SpecTcl::DBTreeVariable v(
             *m_pConn, m_pSaveset->getInfo().s_id , "test"
         ), std::invalid_argument
+ 
     );
+}
+
+void dbvtest::getters_1()
+{
+    // The getters return the right values:
+    
+    auto p =  SpecTcl::DBTreeVariable::create(
+        *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
+    );
+    
+    EQ(std::string("test"), p->getName());
+    EQ(1.234, p->getValue());
+    EQ(std::string("inches"), p->getUnits());
+    
+    delete p;
+}
+
+void dbvtest::save_1()
+{
+    // check creation via save set api
+    
+    auto p = m_pSaveset->createVariable("one", 1.0, "furlong");
+    auto& info = p->getInfo();
+    
+    EQ(std::string("one"), info.s_name);
+    EQ(1.0, info.s_value);
+    EQ(std::string("furlong"), info.s_units);
+    
+    delete p;
+}
+void dbvtest::save_2()
+{
+    // Test lookup variable:
+    
+    delete m_pSaveset->createVariable("one", 1.0, "furlong");
+    
+    auto* p = m_pSaveset->lookupVariable("one");
+    auto info = p->getInfo();
+    
+    EQ(std::string("one"), info.s_name);
+    EQ(1.0, info.s_value);
+    EQ(std::string("furlong"), info.s_units);
+    
+    delete p;
+
+}
+void dbvtest::save_3()
+{
+    // Test exists
+    
+    delete m_pSaveset->createVariable("one", 1.0, "furlong");
+    EQ(false, m_pSaveset->variableExists("two"));
+    EQ(true, m_pSaveset->variableExists("one"));
+}
+void dbvtest::save_4()
+{
+    // test list
+    
+    delete m_pSaveset->createVariable("one", 1.0, "furlong");
+    delete m_pSaveset->createVariable("two", 2.0, "miles");
+    
+    
+    auto l = m_pSaveset->listVariables();
+    EQ(size_t(2), l.size());
+    EQ(std::string("one"), l[0]->getInfo().s_name);
+    EQ(std::string("two"), l[1]->getInfo().s_name);
+    
+    delete l[0];
+    delete l[1];
 }

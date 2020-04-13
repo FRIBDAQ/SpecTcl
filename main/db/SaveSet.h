@@ -31,6 +31,7 @@ namespace SpecTcl {
     class DBSpectrum;
     class DBGate;
     class DBApplication;   
+    class DBTreeVariable;
     
     /**
      * @class SaveSet
@@ -135,7 +136,17 @@ namespace SpecTcl {
         DBApplication* applyGate(const char* gate, const char* spectrum);
         DBApplication* lookupApplication(const char* gate, const char* spectrum);
         std::vector<DBApplication*> listApplications();
+        
+        // Treevariable API
 
+        DBTreeVariable* createVariable(
+            const char* name, double value, const char* units=""
+        );
+        DBTreeVariable* lookupVariable(const char* name);
+        bool variableExists(const char* name);
+        std::vector<DBTreeVariable*> listVariables();
+        
+        
     // Static methods:
     public:
         static bool exists(CSqlite& conn, const char* name);
