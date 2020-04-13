@@ -329,7 +329,7 @@ CXamineGates::CXamineGates(UInt_t spec)
 {
   int status;
 
-  long context = Xamine_StartSearch(spec, &status);
+  void*  context = Xamine_StartSearch(spec, &status);
   if(status != Success) return;	// All errors lead to an empty gate list.
 
 

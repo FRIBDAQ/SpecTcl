@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 DEFS = @WCHAR_T_DEF@
 INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
