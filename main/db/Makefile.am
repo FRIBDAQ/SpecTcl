@@ -1,4 +1,4 @@
-lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la 
+lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la libSpecTclDbTcl.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
 IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
@@ -29,6 +29,13 @@ include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
 	DBGate.h DBApplications.h DBTreeVariable.h
 
+libSpecTclDbTcl_la_DEPENDENCIES = libSpecTclDb.la libSqlite3pp.la
+libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
+libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
+        @builddir@/../Core/libTclGrammerApp.la   \
+        @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@
+
+libSpecTclDbTcl_la_SOURCES = SpecTclDbTCLPackage.cpp
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/TclLibs/dbconfig
@@ -41,6 +48,10 @@ install-exec-hook:
 	$(mkinstalldirs) @prefix@/share/database
 	@HTMLDOCBOOK@ @srcdir@/SpecTclDB.xml -o @prefix@/share/database
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
+	$(mkinstalldirs) @prefix@/TclLibs/database
+	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
+	echo "pkg_mkIndex @prefix@/TclLibs/database *.so" |@TCLSH@
+
 
 ################################################################
 #  unit tests:
