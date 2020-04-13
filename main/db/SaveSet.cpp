@@ -22,6 +22,7 @@
 #include "DBParameter.h"
 #include "DBSpectrum.h"
 #include "DBGate.h"
+#include "DBApplications.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
 #include "CSqliteTransaction.h"
@@ -386,6 +387,38 @@ SaveSet::listGates()
 {
     return DBGate::listGates(m_connection, m_Info.s_id);
 }
+
+///////////////////////
+// Applications API.
+
+/**
+ * applyGate
+ *   Save a gate application in this save set.
+ * @param gatename - name of an existing gate.
+ * @param spectrum - name of an existing spectrum
+ * @return DBApplication* - pointer to the encapsulating object.
+ */
+DBApplication*
+SaveSet::applyGate(const char* gate, const char* spectrum)
+{
+    return DBApplication::applyGate(m_connection, m_Info.s_id, gate, spectrum);
+
+}
+/**
+ * lookupApplication
+ *    Look up an appliction in the save set and return
+ *    its encapsulating object if found.
+ *  @param gatename - name of the gate applied
+ *  @param spectrum - name of the spectrum its applied to.
+ *  @return DBApplication* pointer to the application object.
+ */
+DBApplication*
+SaveSet::lookupApplication(const char* gate, const char* spectrum)
+{
+    return new DBApplication(m_connection, m_Info.s_id, gate, spectrum);
+}
+
+
 ////////////////////////////////////////////////////////////
 // Static methods
 

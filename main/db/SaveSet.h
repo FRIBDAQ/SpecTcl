@@ -30,7 +30,7 @@ namespace SpecTcl {
     class DBParameter;
     class DBSpectrum;
     class DBGate;
-   
+    class DBApplication;   
     
     /**
      * @class SaveSet
@@ -129,6 +129,12 @@ namespace SpecTcl {
         DBGate* lookupGate(const char* name);
         DBGate* lookupGate(int id);
         std::vector<DBGate*> listGates();
+        
+        // Gate application api:
+        
+        DBApplication* applyGate(const char* gate, const char* spectrum);
+        DBApplication* lookupApplication(const char* gate, const char* spectrum);
+        std::vector<DBApplication*> listApplications();
 
     // Static methods:
     public:
