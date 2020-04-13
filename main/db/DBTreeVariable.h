@@ -86,12 +86,12 @@ public:
     
     // Static methods:
     
-    bool exists(CSqlite conn, int saveid, const char* name);
+    static bool exists(CSqlite& conn, int saveid, const char* name);
     static DBTreeVariable* create(
         CSqlite& conn, int saveid, const char* name, double value,
         const char* units=""
     );
-   std::vector<DBTreeVariable*> list(CSqlite& conn, int saveid);
+   static std::vector<DBTreeVariable*> list(CSqlite& conn, int saveid);
    
    // Private utilities:
 
