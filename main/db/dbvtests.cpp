@@ -84,6 +84,16 @@ private:
     CPPUNIT_TEST(create_3);
     CPPUNIT_TEST(create_4);
     CPPUNIT_TEST(create_5);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
+    
+    CPPUNIT_TEST(construct_1);
+    CPPUNIT_TEST(construct_2);
+    CPPUNIT_TEST(construct_3);
+    CPPUNIT_TEST(construct_4);
+
     CPPUNIT_TEST_SUITE_END();
 protected:
     void exists_1();
@@ -95,6 +105,15 @@ protected:
     void create_3();
     void create_4();
     void create_5();
+    
+    void list_1();
+    void list_2();
+    void list_3();
+    
+    void construct_1();
+    void construct_2();
+    void construct_3();
+    void construct_4();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(dbvtest);
@@ -226,6 +245,119 @@ void dbvtest::create_5()
     CPPUNIT_ASSERT_THROW(
         SpecTcl::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id, "pi", 3.14159, "unitless"
+        ), std::invalid_argument
+    );
+}
+
+void dbvtest::list_1()
+{
+    // Initially empty.
+    
+    EQ(
+        size_t(0),
+        SpecTcl::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id).size()
+    );
+}
+void dbvtest::list_2()
+{
+    // Return existing variables.
+    
+    // Enter some:
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream name;
+        std::stringstream units;
+        name << "Variable." << i;
+        units << "Units." << i;
+        
+        std::string n = name.str();
+        std::string u = units.str();
+        
+        delete SpecTcl::DBTreeVariable::create(
+            *m_pConn, m_pSaveset->getInfo().s_id, n.c_str(),
+            double(i), u.c_str()
+        );
+    }
+    auto listing = SpecTcl::DBTreeVariable::list(
+        *m_pConn, m_pSaveset->getInfo().s_id
+    );
+    EQ(size_t(10), listing.size());
+    
+    for (int i =0; i < 10; i++) {
+        std::stringstream name;
+        std::stringstream units;
+        name << "Variable." << i;
+        units << "Units." << i;
+        
+        std::string n = name.str();
+        std::string u = units.str();
+        
+        auto& info = listing[i]->getInfo();
+        
+        EQ(i+1, info.s_id);
+        EQ(m_pSaveset->getInfo().s_id, info.s_saveset);
+        EQ(n, info.s_name);
+        EQ(double(i), info.s_value);
+        EQ(u, info.s_units);
+    }
+    
+}
+void dbvtest::list_3()
+{
+    // bad saveset throws.
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id+1),
+        std::invalid_argument
+    );
+}
+
+void dbvtest::construct_1()
+{
+    // Good lookup.
+    
+    delete SpecTcl::DBTreeVariable::create(
+        *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
+    );
+    
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test")
+    );
+}
+void dbvtest::construct_2()
+{
+    // Good info from the lookup.
+    delete SpecTcl::DBTreeVariable::create(
+        *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
+    );
+    
+    
+    SpecTcl::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test");
+    
+    auto& info = v.getInfo();
+    EQ(1, info.s_id);
+    EQ(m_pSaveset->getInfo().s_id, info.s_saveset);
+    EQ(std::string("test"), info.s_name);
+    EQ(1.234, info.s_value);
+    EQ(std::string("inches"), info.s_units);
+}
+void dbvtest::construct_3()
+{
+    // bad saveset
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBTreeVariable v(
+            *m_pConn, m_pSaveset->getInfo().s_id + 1, "test"
+        ), std::invalid_argument
+    );
+}
+void dbvtest::construct_4()
+{
+    // No such variable.
+    
+    CPPUNIT_ASSERT_THROW(
+        SpecTcl::DBTreeVariable v(
+            *m_pConn, m_pSaveset->getInfo().s_id , "test"
         ), std::invalid_argument
     );
 }

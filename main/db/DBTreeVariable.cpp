@@ -42,6 +42,37 @@ DBTreeVariable::DBTreeVariable(CSqlite& conn, const Info& info) :
     m_connection(conn), m_Info(info)
 {}
 
+/**
+ * constructor - retrieval
+ *   Retrieves a record from the tree variables in a save set
+ *   and wraps it in an object.
+ * @param conn   - sqlite connection object.
+ * @param saveid - Save set id.
+ * @param name   - variable name.
+ * @throw std::invalid_argument if the save id is invalid or the variable
+ *       is not saved in it.
+ */
+DBTreeVariable::DBTreeVariable(
+    CSqlite& connection, int saveid, const char* varname
+) : m_connection(connection)
+{
+    SaveSet s(connection, saveid);
+    CSqliteStatement retrieve(
+        connection,
+        "SELECT * from treevariables WHERE save_id = ? and name= ?"
+    );
+    retrieve.bind(1, saveid);
+    retrieve.bind(2, varname, -1, SQLITE_STATIC);
+    
+    ++retrieve;
+    if (retrieve.atEnd()) {
+        std::stringstream msg;
+        msg << "There is no variable named; " << varname
+            << " in the save set named; " << s.getInfo().s_name;
+        throw std::invalid_argument(msg.str());
+    }
+    loadInfo(retrieve, m_Info);
+}
 ///////////////////////////////////////////////////////////////
 // Object methods.
 
@@ -118,5 +149,51 @@ DBTreeVariable::create(
     info.s_units   = units;
     
     return new DBTreeVariable(conn, info);
+}
+/**
+ * list
+ *    Returns a vector of pointers to dynamically created DBTreeVariables
+ *    that encapsulate all of the tree variables saved in a saveset:
+ * @param conn - Sqlite connection object.
+ * @param saveid - Save set id.
+ * @return std::vector<SpecTcl::DBTreeVariable*> -
+ * @note The caller must, at some point, execute a delete on the
+ *        pointers in the vector returned by this method.
+ */
+std::vector<DBTreeVariable*>
+DBTreeVariable::list(CSqlite& conn, int saveid)
+{
+    SaveSet saveset(conn, saveid);         // Throws if invalid saveset.
+    std::vector<DBTreeVariable*> result;
+    CSqliteStatement s(
+        conn,
+        "SELECT * from treevariables WHERE save_id =? ORDER BY id ASC"
+    );
+    s.bind(1, saveid);
+    while(!(++s).atEnd()) {
+        Info i;
+        loadInfo(s, i);
+        
+        
+        result.push_back(new DBTreeVariable(conn, i));
+    }
+    return result;
+}
+///////////////////////////////////////////////////////////////
+// Private utilities.
+
+/**
+ * loadInfo
+ *    Loads an info struct with the data from the current
+ *    cursor position of a SELECT* FROM treevariables ... statement
+ */
+void
+DBTreeVariable::loadInfo(CSqliteStatement& stmt, Info& info)
+{
+        info.s_id      = stmt.getInt(0);
+        info.s_saveset = stmt.getInt(1);
+        info.s_name    = reinterpret_cast<const char*>(stmt.getText(2));
+        info.s_value   = stmt.getDouble(3);
+        info.s_units   = reinterpret_cast<const char*>(stmt.getText(4));
 }
 }                         // namespace SpecTcl

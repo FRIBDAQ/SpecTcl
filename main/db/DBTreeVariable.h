@@ -24,6 +24,7 @@
 #include <string>
 
 class CSqlite;
+class CSqliteStatement;
 
 namespace SpecTcl {
     
@@ -96,7 +97,7 @@ public:
    // Private utilities:
 
 private:
-    
+    static void loadInfo(CSqliteStatement& stmt, Info& info);
 };
 }                              // namespace SpecTcl
 
