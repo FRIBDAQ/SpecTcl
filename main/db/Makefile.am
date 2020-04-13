@@ -20,14 +20,14 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
 	DBSpectrum.cpp DBGate.cpp \
 	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp \
-	DBApplications.cpp
+	DBApplications.cpp DBTreeVariable.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
 include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
-	DBGate.h DBApplications.h
+	DBGate.h DBApplications.h DBTreeVariable.h
 
 
 install-exec-hook:
@@ -55,6 +55,7 @@ unittests_SOURCES = TestRunner.cpp exceptionTest.cpp connectionTest.cpp \
 			gapptests.cpp \
 			SpecTclDatabase.cpp  SaveSet.cpp DBParameter.cpp \
 			DBSpectrum.cpp DBGate.cpp DBApplications.cpp \
+			DBTreeVariable.cpp \
 			$(libSqlite3pp_la_SOURCES)
 unittests_CXXFLAGS=@SQLITE3_CFLAGS@ @CPPUNIT_CFLAGS@ -g -I@top_srcdir@/Utility \
 	@ROOT_CFLAGS@
