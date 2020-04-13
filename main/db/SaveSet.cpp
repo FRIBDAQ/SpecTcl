@@ -418,7 +418,18 @@ SaveSet::lookupApplication(const char* gate, const char* spectrum)
     return new DBApplication(m_connection, m_Info.s_id, gate, spectrum);
 }
 
-
+/**
+ * listApplications
+ *     Returns a list of application objects stored in
+ *     the current saveset.
+ */
+std::vector<DBApplication*>
+SaveSet::listApplications()
+{
+    return DBApplication::listApplications(
+        m_connection, m_Info.s_id
+    );
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 

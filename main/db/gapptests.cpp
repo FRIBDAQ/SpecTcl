@@ -64,6 +64,10 @@ class gapptest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(gatename_1);
     CPPUNIT_TEST(specname_1);
+    
+    CPPUNIT_TEST(save_1);        // Tests for SaveSet's api wrapping
+    CPPUNIT_TEST(save_2);
+    CPPUNIT_TEST(save_3);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -121,6 +125,10 @@ protected:
     
     void gatename_1();
     void specname_1();
+    
+    void save_1();
+    void save_2();
+    void save_3();
 private:
     void makeSomePars();
     void makeSomeSpectra();
@@ -618,3 +626,66 @@ void gapptest::specname_1()
     EQ(std::string("spectrum.5"), papp->getSpectrumName());
     delete papp;
 }
+
+void gapptest::save_1()
+{
+    // test SaveSet::applyGate
+    
+    makeSomePars();
+    makeSome1dGates();
+    makeSomeSpectra();
+    
+    auto papp = m_pSaveset->applyGate("gate.1", "spectrum.5");
+
+    CPPUNIT_ASSERT_NO_THROW(
+        SpecTcl::DBApplication gate(
+            *m_pConn, m_pSaveset->getInfo().s_id, "gate.1", "spectrum.5"
+        )
+    );
+    EQ(std::string("gate.1"), papp->getGateName());
+    EQ(std::string("spectrum.5"), papp->getSpectrumName());
+    
+    delete papp;
+}
+void gapptest::save_2()
+{
+    // SaveSet::lookupApplication
+    
+    makeSomePars();
+    makeSome1dGates();
+    makeSomeSpectra();
+    
+    auto papp = m_pSaveset->applyGate("gate.1", "spectrum.5");
+    SpecTcl::DBApplication* papp1;
+    CPPUNIT_ASSERT_NO_THROW(
+        papp1 = m_pSaveset->lookupApplication("gate.1", "spectrum.5")
+    );
+    delete papp;
+    delete papp1;
+    
+}
+void gapptest::save_3()
+{
+    // test listapplications
+    
+    makeSomePars();
+    makeSome1dGates();
+    makeSomeSpectra();
+    
+    delete m_pSaveset->applyGate("gate.1", "spectrum.5");
+    delete m_pSaveset->applyGate("gate.2", "spectrum.1");
+    
+    
+    auto listing = m_pSaveset->listApplications();
+    EQ(size_t(2), listing.size());
+    EQ(std::string("gate.1"), listing[0]->getGateName());
+    EQ(std::string("spectrum.5"), listing[0]->getSpectrumName());
+    
+    EQ(std::string("gate.2"), listing[1]->getGateName());
+    EQ(std::string("spectrum.1"), listing[1]->getSpectrumName());
+    
+    delete listing[0];
+    delete listing[1];
+}
+
+
