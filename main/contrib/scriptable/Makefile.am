@@ -1,3 +1,4 @@
+.NOTPARALLEL:
 DEFS = @WCHAR_T_DEF@
 AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \

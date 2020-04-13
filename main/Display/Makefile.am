@@ -1,3 +1,4 @@
+.NOTPARALLEL:
 bin_PROGRAMS = Xamine colorset
 
 HOMEDEF = -DHOME='"$(prefix)"'
