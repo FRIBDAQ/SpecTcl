@@ -21,6 +21,7 @@
 #include <tcl.h>
 #include <TCLInterpreter.h>
 #include <iostream>
+#include "DBTcl.h"
 
 const char* version="1.0";
 
@@ -29,7 +30,8 @@ extern "C" {
     {
         Tcl_PkgProvide(pRaw, "SpecTclDB", version);
         CTCLInterpreter* pInterp = new CTCLInterpreter(pRaw);
-        
+
+        new SpecTcl::DBTcl(*pInterp);        
         
         return TCL_OK;
     }

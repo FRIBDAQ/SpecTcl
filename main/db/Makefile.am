@@ -50,7 +50,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 	$(mkinstalldirs) @prefix@/TclLibs/database
 	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
-	echo "pkg_mkIndex @prefix@/TclLibs/database *.so" |@TCLSH@
+	echo "pkg_mkIndex -verbose  @prefix@/TclLibs/database *.so" |@TCLSH@
 
 
 ################################################################
@@ -77,11 +77,11 @@ TEST_EXTENSIONS=.test
 TEST_LOG_COMPILER=@TCLSH@
 TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH;LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@
 
-TESTS=unittests names.test
+TESTS=unittests names.test dbtcl.test
 #check-TESTS:
 #	(cd @srcdir@; tclsh *.test)
 
 #check: check-TESTS
 
-EXTRA_DIST=names.test $(TCLSCRIPTS) $(IMAGES) $(DOCS)
+EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS)
 
