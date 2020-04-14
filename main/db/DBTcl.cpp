@@ -22,6 +22,7 @@
 
 #include "SpecTclDatabase.h"
 #include "SaveSet.h"
+#include  "DBParameter.h"
 
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
@@ -29,6 +30,16 @@
 #include <stdexcept>
 #include <sstream>
 #include <string>
+
+//
+//  A little dictionary API:
+
+static void InitDict(CTCLInterpreter& interp, CTCLObject& objv);
+static void AddKey(CTCLObject& dict, const char* key, int value);
+static void AddKey(CTCLObject& dict, const char* key, const char* value);
+static void AddKey(CTCLObject& dict, const char* key, double value);
+static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value);
+
 
 namespace SpecTcl {
 ///////////////////////////////////////////////////////////
@@ -206,6 +217,7 @@ int DBTclInstance::operator()(
 {
     int status = TCL_OK;
     try {
+        bindAll(interp, objv);
         requireAtLeast(objv, 2, "Database Command instances require a subcommand");
         std::string  command = objv[1];
         
@@ -390,7 +402,21 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     int status =TCL_OK;
     try {
+        bindAll(interp, objv);
         requireAtLeast(objv, 2, "Save set commands need a subcommand");
+        std::string command = objv[1];
+        
+        if (command == "destroy") {
+            destroy();
+        } else if (command == "info") {
+            getInfo(interp, objv);
+        } else  if (command == "createParameter") {
+            createParameter(interp, objv);
+        } else {
+            std::stringstream msg;
+            msg << command << " is not a legal save set subcommand";
+            throw std::invalid_argument(msg.str());
+        }
     }
     catch (std::string msg) {
         interp.setResult(msg);
@@ -403,4 +429,152 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     return status;
 }
+/**
+ * destroy
+ *    Called to destroy the saveset object/command.
+ */
+void
+TclSaveSet::destroy()
+{
+    delete this;
+}
+/**
+ * getInfo
+ *   Format:
+ *
+ *   saveset-command info
+ *
+ *   Returns the saveset info as the command result.
+ *   This is a dict with the following keys:
+ *   -  id - the id of the saveset in the save_sets table.
+ *   - name - the saveset name.
+ *   - timestamp - the saveset creation time for e.g. clock -format.
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ */
+void
+TclSaveSet::getInfo(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "Saveset's info subcommand reqires no parameters");
+    auto info = m_pSaveSet->getInfo();
+    
+    CTCLObject result;
+    InitDict(interp, result);
+    AddKey(result, "id", info.s_id);
+    AddKey(result, "name", info.s_name.c_str());
+    AddKey(result, "timestamp", int((info.s_stamp)));
+    
+    interp.setResult(result);
+}
+
+/**
+ * createParameter
+ *    Creates a new parameter definition in the saveset.
+ *
+ *   Form 1:
+ *
+ *    saveset-command createParameter name number
+ *
+ *  Form 2 (treeparameter):
+ *
+ *    saveset-command createParameter name number low high bins ?units?
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::createParameter(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    // If there are 4 paramters it's a simple parmameter:
+    
+    if (objv.size() == 4) {
+        std::string name   = objv[2];
+        int         number = objv[3];
+        delete m_pSaveSet->createParameter(name.c_str(), number);
+        
+    } else if ((objv.size() == 7) || (objv.size() == 8)) {  //treeparameter
+        std::string name   = objv[2];
+        int         number = objv[3];
+        double      low    = objv[4];
+        double      high   = objv[5];
+        int         bins   = objv[6];
+        std::string units;
+        if (objv.size() == 8) units = std::string(objv[7]);
+        m_pSaveSet->createParameter(
+            name.c_str(), number, low, high, bins, units.c_str()
+        );
+    } else {
+        throw std::string("The saveset createParameter command must have 4, 7 or 8 command line words");
+    }
+}
+
 }                          // SpecTcl namespace.
+
+////////////////////////////////////////////////////////////////
+// Unbound static functions
+
+/// Dictionary mainpulation:
+
+/**
+ * InitDict
+ *    Given a CTCLObject sets it to an initialized empty dict.
+ * @param interp - intepreter.
+ * @param obj    - object to so initialize.
+ */
+
+static void InitDict(CTCLInterpreter& interp, CTCLObject& obj)
+{
+    Tcl_Obj* o = Tcl_NewDictObj();
+    
+    obj   = o;
+    obj.Bind(interp);
+}
+/**
+ * AddKey
+ *   overloads to add key/value pairs to the dictionary.
+ * @param dict - dict object from e.g. InitDIct.
+ * @param key  - key to add.
+ * @param value - value to associated with the key.
+ */
+
+static void AddKey(CTCLObject& dict, const char* key, int value)
+{
+    
+    
+    CTCLObject oValue;
+    oValue.Bind(*dict.getInterpreter());
+    oValue = value;
+    
+    AddKey(dict, key, oValue);
+    
+}
+static void AddKey(CTCLObject& dict, const char* key, const char* value)
+{
+    CTCLObject oValue;
+    oValue.Bind(*dict.getInterpreter());
+    oValue = value;
+    
+    AddKey(dict, key, oValue);
+}
+static void AddKey(CTCLObject& dict, const char* key, double value)
+{
+    CTCLObject oValue;
+    oValue.Bind(*dict.getInterpreter());
+    oValue = value;
+    
+    AddKey(dict, key, oValue);
+}
+
+static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value)
+{
+    CTCLObject okey;
+    okey.Bind(*dict.getInterpreter());
+    okey = key;
+    
+    Tcl_DictObjPut(
+        dict.getInterpreter()->getInterpreter(),
+        dict.getObject(), okey.getObject(), value.getObject()
+    );
+}

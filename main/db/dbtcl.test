@@ -237,6 +237,7 @@ tcltest::test dbtcl_instance_crsvset_3 {create saveset creates a database savese
     db eval {SELECT COUNT(*) c FROM save_sets WHERE name='testing'} {
         set count $c
     }
+    db close 
     set count
 } -result 1
 
@@ -361,6 +362,8 @@ tcltest::test dbtcl_instance_list_4 {several savesets} \
 } -result [list test_0 test_1 test_2 test_3 test_4 test_5 test_6 \
            test_7 test_8 test_9]
 
+
+
 #########################
 # Save set tests
 
@@ -382,6 +385,169 @@ tcltest::test saveset_1 {saveset instance commands need a subcommand} \
     catch $svcmd
 } -result 1
 
+tcltest::test saveset_2 {saveset instance command illegal subcommand} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset test]
+} \
+-cleanup {
+    #$svcmd destroy
+    $cmd destroy
+    file delete $fname
+    
+} \
+-body {
+    catch {$svcmd junk}
+} -result 1
+
+tcltest::test saveset_2 {saveset instance destroy works} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset test]
+} \
+-cleanup {
+    #$svcmd destroy
+    $cmd destroy
+    file delete $fname
+    
+} \
+-body {
+    $svcmd destroy
+    info command $svcmd
+} -result ""
+
+tcltest::test saveset_info_1 {info does not take arguments} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset test]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+    
+} \
+-body {
+    catch {$svcmd info bad}
+    
+} -result 1
+
+
+tcltest::test saveset_info_2 {info value is correct} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset test]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+    
+} \
+-body {
+    set result [$svcmd info]
+    set id [dict get $result id]
+    set name [dict get $result name]
+    
+    list $id $name
+} -result [list 1 test]
+
+## parameter api
+
+tcltest::test dbtcl_crparam_1 {Create parameter requires more than the subcommand} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd createParameter}
+} -result 1
+
+tcltest::test dbtcl_crparam_2 {Create simple parameter} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd createParameter param.1 1
+    sqlite3 db $fname
+    db eval {SELECT id, number, low, high, bins, units FROM parameter_defs
+             WHERE name = 'param.1'} {
+        set result [list $id $number $low $high $bins $units]            
+    }
+    db close
+    set result
+} -result [list 1 1 "" ""  "" "" ]
+
+tcltest::test dbtcl_crparam_3 {need at lease 7 params if treeparam} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd createParameter param-bad 2 0 100}
+} -result 1
+
+tcltest::test dbtcl_crparam4 {tree parameter with no units} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    unset result
+    $svcmd createParameter param-tree 12 -10.0 10.0 100
+    sqlite3 db $fname
+    db eval {SELECT id, number, low, high, bins, units FROM parameter_defs
+             WHERE name = 'param-tree'} {
+        set result [list $id $number $low $high $bins $units]            
+    }
+    db close
+    set result
+} -result [list 1 12 -10.0 10.0 100 ""]
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
