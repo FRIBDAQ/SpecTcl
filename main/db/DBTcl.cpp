@@ -28,6 +28,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <string>
 
 namespace SpecTcl {
 ///////////////////////////////////////////////////////////
@@ -73,9 +74,54 @@ int
 DBTcl::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
     int status = TCL_OK;
-    
+    try {
+        bindAll(interp, objv);
+        requireAtLeast(objv, 2, "Need at least a subcommand");
+        
+        std::string sub = objv[1];
+        if (sub == "create") {
+            create(interp, objv);
+        } else if (sub == "connect") {
+            
+        } else {
+            std::stringstream msg;
+            msg << sub << " Is an invalid subcommand. "
+                << "Must be 'create' or 'connect'";
+            throw std::invalid_argument(msg.str());
+        }
+    }
+    catch (std::string s) {
+        interp.setResult(s);
+        status = TCL_ERROR;
+    }
+    catch (std::exception& e) {
+        interp.setResult(e.what());
+        status = TCL_ERROR;
+    }
     
     return status;
+}
+/**
+ * create (protected)
+ *    Create a new, properly formatted data base file:
+ *
+ *  <pre>
+ *      DBTcl create filename
+ *  </pre>
+ *
+ *  where filelname is the name of the database file.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ */
+void
+DBTcl::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "The create sub command only takes a filename");
+    std::string filename = objv[2];
+    
+    SpecTcl::CDatabase::create(filename.c_str());
 }
 
 

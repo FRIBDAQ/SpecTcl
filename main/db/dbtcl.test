@@ -32,12 +32,45 @@ package require sqlite3
 
 package require SpecTclDB
 
+##################################################
+## Basic dbtcl tests:
+
 tcltest::test info_1 {Check the existence of the command} \
 -body {
     info command DBTcl
 } -result DBTcl
 
+tcltest::test dbtcl_1 {Command needs a subcommand} \
+-body {
+    catch {DBTcl}
+} -result 1
 
+tcltest::test dbtcl_2 {Subcommand must be legal } \
+-body {
+    catch {DBTcl junk}
+} -result 1
+
+######################################################
+# Dbtcl subcommands.
+
+tcltest::test dbtcl_create_1 {Create needs a filename} \
+-body {
+    catch {DBTcl create} msg
+} -result 1
+
+tcltest::test dbtcl_create_2 {Create makes a new file} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    file delete $fname;              # should get remade.
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    DBTcl create $fname
+    file exists $fname
+} -result 1
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
@@ -47,6 +80,7 @@ proc tcltest::cleanupTestsHook {} {
     variable numTests
     set ::exitCode [expr {$numTests(Failed) > 0}]
 }
+
 
 tcltest::cleanupTests
 
