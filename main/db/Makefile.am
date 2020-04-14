@@ -35,7 +35,7 @@ libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
         @builddir@/../Core/libTclGrammerApp.la   \
         @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@
 
-libSpecTclDbTcl_la_SOURCES = SpecTclDbTCLPackage.cpp
+libSpecTclDbTcl_la_SOURCES = SpecTclDbTCLPackage.cpp DBTcl.h DBTcl.cpp
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/TclLibs/dbconfig
