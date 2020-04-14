@@ -72,6 +72,317 @@ tcltest::test dbtcl_create_2 {Create makes a new file} \
     file exists $fname
 } -result 1
 
+tcltest::test dbtcl_create_3 {The database file should have a parameter_defs table} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    file delete $fname;              # should get remade.
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    DBTcl create $fname
+    sqlite3 db $fname
+    set found 0
+    db eval {SELECT name FROM sqlite_master WHERE type='table' AND
+                    name='parameter_defs'} {
+        set found 1        
+    }
+    db close
+    set found
+} -result 1
+
+
+    
+tcltest::test dbtcl_connect_1 {The connect command needs a filename} \
+-body {
+    catch {DBTcl connect}
+} -result 1
+
+
+tcltest::test dbtcl_connect2 {The connect command needs a real database} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    catch {DBTcl connect $fname}
+} -result 1
+
+tcltest::test dbtcl_connect3 {If a database was made the command works} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    catch {DBTcl connect $fname}
+} -result 0
+
+tcltest::test dbtcl_connect4 {If a database was made, I get back a command} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    set cmd [DBTcl connect $fname]
+    info command $cmd
+    string is space $cmd
+} -result 0
+
+###########################
+# db instance tests.
+
+tcltest::test dbtcl_instance_1 {database instance commands need a subcommand } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    catch $cmd
+} -result 1
+
+tcltest::test dbtcl_instance_2 {database illegal instance command } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+} \
+-body {
+    catch {$cmd junk}
+} -result 1
+
+tcltest::test dbtcl_instance_destroy {database instance destroy wipes cmd} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+    
+} \
+-body {
+    $cmd destroy
+    info command $cmd
+} -result ""
+
+tcltest::test dbtcl_instance_crsvset_1 {create saveset needs a name} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+    $cmd destroy
+} \
+-body {
+    catch $cmd createSaveset
+} -result 1
+
+tcltest::test dbtcl_instance_crsvset_2 {create save set returns a command} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    file delete $fname
+    $cmd destroy
+} \
+-body {
+    set scmd [$cmd createSaveset testing]
+    string is space [info command $scmd]
+} -result 0
+
+tcltest::test dbtcl_instance_crsvset_3 {create saveset creates a database saveset} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    set scmd [$cmd createSaveset testing]
+    sqlite3 db $fname
+    db eval {SELECT COUNT(*) c FROM save_sets WHERE name='testing'} {
+        set count $c
+    }
+    set count
+} -result 1
+
+
+
+tcltest::test dbtcl_instance_get_1 {Get saveset needs a saveset param} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {cmd getSaveset}
+} -result 1
+
+tcltest::test dbtcl_instance_get_2 {Get saveset saveset must exist} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch  {cmd getSaveset test}
+} -result 1
+
+tcltest::test dbtcl_instance_get_3 {Get saveset with existing makes a cmd} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $cmd createSaveset test
+    set svcmd [$cmd getSaveset test]
+    
+    string is space [info command $svcmd]
+} -result 0
+
+
+tcltest::test dbtcl_instance_list_1 {listSavesets can't have more params} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$cmd listSavesets junk}
+} -result 1
+
+tcltest::test dbtcl_instance_list_2 {empty list if no savesets} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    set l [$cmd listSavesets]
+    llength $l
+} -result 0
+
+tcltest::test dbtcl_instance_list_3 {single save set lists} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $cmd createSaveset test
+    set l [$cmd listSavesets]
+    set n [llength $l]
+    lappend n $l
+    set n
+} -result [list 1 test]
+
+tcltest::test dbtcl_instance_list_4 {several savesets} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+} \
+-cleanup {
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    for {set i 0} {$i < 10} {incr i} {
+        $cmd createSaveset test_$i
+    }
+    set l [$cmd listSavesets];  #in definition order.
+        
+} -result [list test_0 test_1 test_2 test_3 test_4 test_5 test_6 \
+           test_7 test_8 test_9]
+
+#########################
+# Save set tests
+
+tcltest::test saveset_1 {saveset instance commands need a subcommand} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset test]
+} \
+-cleanup {
+    #$svcmd destroy
+    $cmd destroy
+    file delete $fname
+    
+} \
+-body {
+    catch $svcmd
+} -result 1
+
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

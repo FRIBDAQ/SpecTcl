@@ -77,6 +77,7 @@ protected:
 class DBTclInstance : public CTCLObjectProcessor
 {
 private:
+    static int m_serialNumber;
     CDatabase* m_pDatabase;
 public:
     DBTclInstance(
@@ -89,8 +90,10 @@ public:
 protected:
     void createSaveset(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void getSaveset(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
-    void getSavesetById(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void listSavesets(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void destroy();
+private:
+    std::string wrapSaveSet(SaveSet* pSaveSet);
 };
 
 /**
@@ -127,6 +130,7 @@ public:
         CTCLInterpreter& interp, const char* cmd,
         SaveSet*  pSaveset
     );
+    virtual ~TclSaveSet();
     
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 protected:
@@ -157,6 +161,7 @@ protected:
     void findVariable(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void variableExists(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void listVariables(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void destroy();
     
     // Utility methods.
 private:    
