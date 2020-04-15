@@ -32,6 +32,7 @@ namespace SpecTcl {
 class CDatabase;
 class SaveSet;
 class DBParameter;
+class DBSpectrum;
 /**
  * @class DBTcl
  *    This command ensemble defines commands that
@@ -169,6 +170,16 @@ private:
     void paramDefToObj(CTCLInterpreter& interp, CTCLObject& obj, DBParameter* param);
     std::vector<const char*> listObjToConstCharVec(CTCLObject& obj);
     std::vector<SaveSet::SpectrumAxis> listObjToAxes(CTCLObject& obj);
+    
+    void makeSpectrumDict(CTCLObject& obj, DBSpectrum* spec);
+    void stringVectorToList(
+        CTCLInterpreter& interp, CTCLObject& obj,
+        const std::vector<std::string> & strings
+    );
+    void makeAxisDict(
+        CTCLInterpreter& interp, CTCLObject& obj,
+        const SaveSet::SpectrumAxis& axis
+    );
 };
 
 

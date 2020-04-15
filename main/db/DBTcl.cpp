@@ -419,6 +419,10 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             findParameter(interp, objv);
         } else if (command == "createSpectrum") {
             createSpectrum(interp, objv);
+        } else if (command == "spectrumExists") {
+            spectrumExists(interp, objv);
+        } else if (command == "findSpectrum") {
+            findSpectrum(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -625,7 +629,60 @@ TclSaveSet::createSpectrum(
     );
 }
 
-
+/**
+ * spectrumExists
+ *    Sets the result with true of false depending on whether or not
+ *    a spectrum exists:
+ *    Format:
+ *
+ *    instance-cmd spectrumExists specname
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::spectrumExists(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 3, "spectrumExists takes a spectrum name only");
+    
+    std::string name = objv[2];
+    bool result = m_pSaveSet->spectrumExists(name.c_str());
+    
+    interp.setResult(result ? "1" : "0");
+}
+/**
+ * findSpectrum
+ *    Returns the attributes of an existing spectrum.  This is a dict
+ *    with the following keys:
+ *    -  id     - spectrum_defs table id of root records
+ *    -  name   - Name of spectrum.
+ *    -  type   - spectrum type code.
+ *    -  parameters - list of parameter names.
+ *    -  axes   - list of axis definitions.  Each axis is a dict
+ *                with the keys low, high and bins.
+ *    - datatype - data type string.s
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::findSpectrum(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "findSpectrum needs only a spectrum name");
+    std::string specname = objv[2];
+    auto pSpec = m_pSaveSet->lookupSpectrum(specname.c_str());
+    
+    CTCLObject result;
+    result.Bind(interp);
+    makeSpectrumDict(result, pSpec);
+    
+    
+    interp.setResult(result);
+}
 ////
 // TclSaveSet private utilities:
 //
@@ -739,6 +796,89 @@ TclSaveSet::listObjToAxes(CTCLObject& obj)
     return result;
 }
 
+/**
+ * makeSpectrumDict
+ *    Given a spectrum object pointer, creates a dict that
+ *    describes the spectrum.  See findSpectrum for the structure
+ *    of that dict.
+ * @param[out] obj - the object into which the dict is built.  Must be
+ *                   bound into an inteprreter.
+ * @param pSpec    - Pointer to the spectrum object to describe.
+ */
+void
+TclSaveSet::makeSpectrumDict(CTCLObject& obj, DBSpectrum* spec)
+{
+    InitDict(*obj.getInterpreter(), obj);
+    
+    // WE need the info object and the parameter names
+    
+    auto info   = spec->getInfo();
+    auto pNames = spec->getParameterNames();
+    
+    AddKey(obj, "id", info.s_base.s_id);
+    AddKey(obj, "name", info.s_base.s_name.c_str());
+    AddKey(obj, "type", info.s_base.s_type.c_str());
+    
+    CTCLObject parameterNames;
+    parameterNames.Bind(*obj.getInterpreter());
+    stringVectorToList(*obj.getInterpreter(), parameterNames, pNames);
+    AddKey(obj, "parameters", parameterNames);
+    
+    CTCLObject axes;
+    axes.Bind(*obj.getInterpreter());
+    for (int i =0; i < info.s_axes.size(); i++) {
+        SaveSet::SpectrumAxis spaxis;
+        spaxis.s_low = info.s_axes[i].s_low;
+        spaxis.s_high= info.s_axes[i].s_high;
+        spaxis.s_bins= info.s_axes[i].s_bins;
+        CTCLObject axis;
+        axis.Bind(*obj.getInterpreter());
+        makeAxisDict(*obj.getInterpreter(), axis, spaxis);
+        axes += axis;
+    }
+    AddKey(obj, "axes", axes);
+    
+    AddKey(obj, "datatype", info.s_base.s_dataType.c_str());
+}
+/**
+ * stringVectorToList
+ *    Takes a vector of strings and makes a list object out of them.
+ * @param[out] obj   - Object the list will be lappended to must be bound.
+ * @param strings    - Vector of strigns to append.
+ */
+void
+TclSaveSet::stringVectorToList(
+    CTCLInterpreter& interp, CTCLObject& obj,
+    const std::vector<std::string>& strings
+)
+{
+    for (int i =0; i < strings.size(); i++) {
+        CTCLObject element;
+        element.Bind(*obj.getInterpreter());
+        element = strings[i];
+        obj += element;
+        
+    }
+}
+/**
+ * makeAxisDict
+ *    Given a spectrum axis struct, produces a spectrum axis dict.
+ *
+ *  @param interp   - intepreter object to use to create the dict.
+ *  @param[out] obj - object to turn inot the dict.
+ *  @param  axes    - Vector of axis struct.
+ */
+void
+TclSaveSet::makeAxisDict(
+    CTCLInterpreter& interp, CTCLObject& obj,
+    const SaveSet::SpectrumAxis& axis
+)
+{
+    InitDict(interp, obj);
+    AddKey(obj, "low", axis.s_low);
+    AddKey(obj, "high", axis.s_high);
+    AddKey(obj, "bins", axis.s_bins);
+}
 //////
 
 }                          // SpecTcl namespace.
