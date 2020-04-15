@@ -1219,6 +1219,174 @@ tcltest::test dbtcl_listspec_3 {No extra parameters allowed} \
     if {[info exists result]} { unset result}
     catch {$svcmd listSpectra raw.1}
 } -result 1
+
+
+### gate tests:
+
+tcltest::test dbtcl_cr1dgate_1 {Create a 1d gate successfully} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    $svcmd create1dGate agate gs [list param.0 param.1 param.2] 10 20
+    
+    sqlite3 db $fname
+    db eval {
+        SELECT id, type FROM gate_defs WHERE name = 'agate'
+    } {
+        set result [list $id $type]
+    }
+    
+    db close
+    set result
+} -result [list 1 gs]
+
+tcltest::test dbtcl_cr1dgate_2 {Insufficient gate parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    catch {$svcmd create1dGate agate gs [list param.0 param.1 param.2] 10 }
+} -result 1
+
+tcltest::test dbtcl_cr1dgate_3 {Too many gate parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    catch {$svcmd create1dGate agate gs [list param.0 param.1 param.2] 10 20 5}
+} -result 1
+
+tcltest::test dbtcl_cr2dgate_3 {make a 2d gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    set points [list {10 10} {100 10} {100 100} {10 100}]
+    $svcmd create2dGate agate gc [list param.0 param.1 param.2] $points
+    
+    sqlite3 db $fname
+    db eval {
+        SELECT id, type FROM gate_defs WHERE name = 'agate'
+    } {
+        set result [list $id $type]
+    }
+    
+    db close
+    set result
+} -result [list 1 gc]
+
+tcltest::test cr2dgate_2 {too many command parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    set points [list {10 10} {100 10} {100 100} {10 100}]
+    catch {$svcmd create2dGate agate gc [list param.0 param.1 param.2] $points junk}
+} -result 1
+
+tcltest::test cr2dgate_3 {Too vew command parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    set points [list {10 10} {100 10} {100 100} {10 100}]
+    catch {$svcmd create2dGate agate gc [list param.0 param.1 param.2] }
+} -result 1
+    
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

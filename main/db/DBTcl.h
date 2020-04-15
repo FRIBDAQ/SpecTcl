@@ -180,7 +180,9 @@ private:
         CTCLInterpreter& interp, CTCLObject& obj,
         const SaveSet::SpectrumAxis& axis
     );
-};
+    std::vector<std::pair<double, double>> pointsFromObj(CTCLObject& obj);
+};  
+
 
 
 

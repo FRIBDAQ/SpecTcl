@@ -24,6 +24,10 @@
 #include "SaveSet.h"
 #include "DBParameter.h"
 #include "DBSpectrum.h" 
+#include "DBGate.h"
+#include "DBApplications.h"
+#include "DBTreeVariable.h"
+
 
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
@@ -425,6 +429,10 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             findSpectrum(interp, objv);
         } else if (command == "listSpectra") {
             listSpectra(interp, objv);
+        } else if (command == "create1dGate") {
+            create1dGate(interp, objv);
+        } else if (command == "create2dGate") {
+            create2dGate(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -718,6 +726,71 @@ TclSaveSet::listSpectra(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     interp.setResult(result);
     
 }
+
+/**
+ * create1dGate
+ *    Create a 1d gate (slice or gamma slice e.g.).
+ *
+ *
+ *    Format:
+ *
+ *    instance-cmd create1dGate name type parameter-list low high
+ *
+ *    Where parameter-list is a Tcl list of parameter names.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::create1dGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(
+        objv, 7, "create1dGate needs name, type, parameter-list, low, high"
+    );
+    std::string name = objv[2];
+    std::string type = objv[3];
+    std::vector<const char*> parameterNames =
+        listObjToConstCharVec(objv[4]);
+    double low = objv[5];
+    double high= objv[6];
+    
+    delete m_pSaveSet->create1dGate(
+        name.c_str(), type.c_str(), parameterNames, low, high
+    );
+    
+}
+/**
+ * create2dGate
+ *    Create a 2d gate (e.g. gc).
+ *
+ *    Format:
+ *
+ *    instance-cmd create2dGate name type parameter-list point-list
+ *
+ *    Where point-list is a list of xy pairs e.g.
+ *    [list {1.0 5.0} {5.0 70.)...]
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::create2dGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(
+        objv, 6, "create2dGate needs name, type, parameters and points"
+    );
+    std::string name = objv[2];
+    std::string type = objv[3];
+    std::vector<const char*> parameterNames =
+        listObjToConstCharVec(objv[4]);
+    std::vector<std::pair<double, double>> pts = pointsFromObj(objv[5]);
+    
+    delete m_pSaveSet->create2dGate(
+        name.c_str(), type.c_str(), parameterNames, pts
+    );
+}
 ////
 // TclSaveSet private utilities:
 //
@@ -913,6 +986,40 @@ TclSaveSet::makeAxisDict(
     AddKey(obj, "low", axis.s_low);
     AddKey(obj, "high", axis.s_high);
     AddKey(obj, "bins", axis.s_bins);
+}
+
+/**
+ * pointsFromObj
+ *    Given a Tcl object that's a list of 2 element sublists,
+ *    each pair representing a coordinate point, decodes
+ *    all of this into a vector of points.
+ *
+ *
+ * @param obj   - object to decode
+ * @return std::vector<std::pair<double, double> >- points
+ */
+std::vector<std::pair<double,double>>
+TclSaveSet::pointsFromObj(CTCLObject& obj)
+{
+    std::vector<std::pair<double, double>> result;
+    for (int i=0; i < obj.llength(); i++) {
+        CTCLObject elobj = obj.lindex(i);
+        elobj.Bind(*obj.getInterpreter());
+        if (elobj.llength() != 2) {
+            std::stringstream msg;
+            msg << std::string(elobj)
+                << " is not a 2 element list and therefore can't be a point";
+            throw std::invalid_argument(msg.str());
+        }
+        CTCLObject xpt = elobj.lindex(0);
+        CTCLObject ypt = elobj.lindex(1);
+        xpt.Bind(*obj.getInterpreter());
+        ypt.Bind(*obj.getInterpreter());
+        
+        std::pair<double, double> pt = {double(xpt), double(ypt)};
+        result.push_back(pt);
+    }
+    return result;
 }
 //////
 
