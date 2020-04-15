@@ -423,6 +423,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             spectrumExists(interp, objv);
         } else if (command == "findSpectrum") {
             findSpectrum(interp, objv);
+        } else if (command == "listSpectra") {
+            listSpectra(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -682,6 +684,39 @@ TclSaveSet::findSpectrum(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     
     interp.setResult(result);
+}
+/**
+ * listSpectra
+ *    List the characteristics of all spectra in the saveset.
+ *    The result is set to a (possibly empty).  Each list element
+ *    is a dict of the form descibed in findSpectrum.
+ *
+ *    Format:
+ *
+ *    instance-cmd listSpectra
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::listSpectra(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "listSpectra does not take any parameters");
+    auto spectra = m_pSaveSet->listSpectra();
+    
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i =0; i < spectra.size(); i++) {
+        CTCLObject element;
+        element.Bind(interp);
+        makeSpectrumDict(element, spectra[i]);
+        result += element;
+        delete spectra[i];
+    }
+    
+    interp.setResult(result);
+    
 }
 ////
 // TclSaveSet private utilities:
