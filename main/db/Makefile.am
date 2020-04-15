@@ -50,7 +50,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 	$(mkinstalldirs) @prefix@/TclLibs/database
 	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
-	echo "pkg_mkIndex -verbose  @prefix@/TclLibs/database *.so" |@TCLSH@
+	echo "pkg_mkIndex -verbose  @prefix@/TclLibs/database *.so" |LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@  @TCLSH@
 
 
 ################################################################
@@ -75,7 +75,7 @@ unittests_LDFLAGS=@SQLITE3_LDFLAGS@ @CPPUNIT_LIBS@ -g
 
 TEST_EXTENSIONS=.test
 TEST_LOG_COMPILER=@TCLSH@
-TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH;LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@
+AM_TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH; LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@; export LD_LIBRARY_PATH;
 
 TESTS=unittests names.test dbtcl.test
 #check-TESTS:
