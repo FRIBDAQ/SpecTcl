@@ -22,7 +22,8 @@
 #define DBTCL
 
 #include <TCLObjectProcessor.h>
-
+#include <vector>
+#include "SaveSet.h"
 
 
 
@@ -30,7 +31,7 @@ namespace SpecTcl {
 
 class CDatabase;
 class SaveSet;
-
+class DBParameter;
 /**
  * @class DBTcl
  *    This command ensemble defines commands that
@@ -164,7 +165,10 @@ protected:
     void destroy();
     
     // Utility methods.
-private:    
+private:
+    void paramDefToObj(CTCLInterpreter& interp, CTCLObject& obj, DBParameter* param);
+    std::vector<const char*> listObjToConstCharVec(CTCLObject& obj);
+    std::vector<SaveSet::SpectrumAxis> listObjToAxes(CTCLObject& obj);
 };
 
 

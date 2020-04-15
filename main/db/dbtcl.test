@@ -549,6 +549,372 @@ tcltest::test dbtcl_crparam4 {tree parameter with no units} \
     set result
 } -result [list 1 12 -10.0 10.0 100 ""]
 
+tcltest::test dbtcl_listparams_1 {list empty initially} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    unset result
+    set result [$svcmd listParameters]
+    
+    llength $result
+} -result 0
+
+tcltest::test dbtcl_listparams_2 {list a few primitive params} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+    set result [$svcmd listParameters]
+    lappend result [llength $result]
+    set result
+} -result [list                                              \
+           [dict create id 1 name param.0 number 1]           \
+           [dict create id 2 name param.1 number 2]           \
+           [dict create id 3 name param.2 number 3]           \
+           [dict create id 4 name param.3 number 4]           \
+           [dict create id 5 name param.4 number 5]           \
+           [dict create id 6 name param.5 number 6]           \
+           [dict create id 7 name param.6 number 7]           \
+           [dict create id 8 name param.7 number 8]           \
+           [dict create id 9 name param.8 number 9]           \
+           [dict create id 10 name param.9 number 10]           \
+           10                                                 \
+        ]    
+
+tcltest::test dbtcl_listparams_3 {list some params with metadat} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    for {set i 0} {$i < 3} {incr i} {
+        set low [expr $i*100]
+        $svcmd createParameter name.$i [expr $i+1]  \
+            $low [expr {$low+100}] 200 furlongs
+    }
+    set result [$svcmd listParameters]
+} -result [list                                              \
+[dict create id 1 name name.0 number 1 low 0.0 high 100.0 bins 200 units furlongs]  \
+[dict create id 2 name name.1 number 2 low 100.0 high 200.0 bins 200 units furlongs]  \
+[dict create id 3 name name.2 number 3 low 200.0 high 300.0 bins 200 units furlongs]  \
+]
+  
+tcltest::test dbtcl_listparams_3       {Extra command params not allowed} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd listParameters junk}
+} -result 1
+    
+tcltest::test dbtcl_findparam_1  {Find a simple parameter} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createParameter testing 1
+    $svcmd findParameter testing
+} -result [dict create id 1 name testing number 1]
+
+tcltest::test dbtcl_findparam_2 {Find parameter with metadata} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createParameter testing 1 100 200 200 some-units
+    $svcmd findParameter testing
+} -result \
+[dict create id 1 name testing number 1 low 100.0 high 200.0 bins 200 units some-units]
+
+tcltest::test dbtcl_findparam_3 {no such parameter is exception} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    
+    catch {$svcmd findParameter testing}
+} -result 1
+
+tcltest::test dbtcl_findparam_4  {need a parameter name} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createParameter testing 1 100 200 200 some-units
+    catch {$svcmd findParameter}
+} -result 1
+
+tcltest::test dbtcl_findparam_5 {too many cmd line params with lisparams} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createParameter testing 1 100 200 200 some-units
+    catch {$svcmd findParameter testing bad}
+} -result 1
+
+tcltest::test dbtcl_createspec_1 {Create spectrum 1-d} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+        
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createSpectrum spec 1 [list param.0] [list [list -100 100 200]]
+    
+    # Should be an entry for it in spectrum_defs.
+        
+    sqlite3 db $fname
+    db eval {SELECT COUNT(*) count FROM  spectrum_defs WHERE name='spec'} {
+        set n $count
+    }
+    
+    db close
+    set n
+} -result 1
+
+tcltest::test dbtcl_createspec_2 {Create 2d spectrum} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+        
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createSpectrum spec 2 [list param.0 param.5] [list [list 0 50 100] [list -100 100 200]]
+    
+    # Should be an entry for it in spectrum_defs.
+        
+    sqlite3 db $fname
+    db eval {SELECT COUNT(*) count FROM  spectrum_defs WHERE name='spec'} {
+        set n $count
+    }
+    
+    db close
+    set n
+} -result 1
+
+tcltest::test dbtcl_createspec_3 {Bad parameter is problem} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+        
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {
+        $svcmd createSpectrum spec 2 [list param.0 param.12] \
+            [list [list 0 50 100] [list -100 100 200]]
+    }
+} -result 1
+
+tcltest::test  dbtcl_createspec_4 {Specify data type} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createSpectrum spec 2 [list param.0 param.5] [list [list 0 50 100] [list -100 100 200]] word
+    
+    # Data type should propagate into database.
+        
+    sqlite3 db $fname
+    db eval {SELECT datatype  FROM  spectrum_defs WHERE name='spec'} {
+        set dtype $datatype
+    }
+    
+    db close
+    set datatype
+} -result word
+
+tcltest::test dbtcl_createspec_5 {too few parameters throws } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {
+        createSpectrum spec 2 [list param.0 param.5]
+    }
+} -result 1
+
+tcltest::test dbtcl_createspec_6 {Too many parameters throws} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+    }
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {
+        $svcmd createSpectrum spec 2 [list param.0 param.5] \
+            [list [list 0 50 100] [list -100 100 200]] word junk
+    }
+} -result 1
+ 
+        
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

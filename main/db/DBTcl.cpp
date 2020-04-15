@@ -22,7 +22,8 @@
 
 #include "SpecTclDatabase.h"
 #include "SaveSet.h"
-#include  "DBParameter.h"
+#include "DBParameter.h"
+#include "DBSpectrum.h" 
 
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
@@ -412,6 +413,12 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             getInfo(interp, objv);
         } else  if (command == "createParameter") {
             createParameter(interp, objv);
+        } else if (command == "listParameters") {
+            listParameters(interp, objv);
+        } else if (command == "findParameter") {
+            findParameter(interp, objv);
+        } else if (command == "createSpectrum") {
+            createSpectrum(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -509,6 +516,230 @@ TclSaveSet::createParameter(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
         throw std::string("The saveset createParameter command must have 4, 7 or 8 command line words");
     }
 }
+
+/**
+ *  listParameters
+ *
+ *  Form:
+ *
+ *     instance-command listParameters
+ *
+ *  Sets the result with a list of parameters.  Each parameter is dict
+ *  that contains the following keys:
+ *  - id     - data base table id of the parameter record.
+ *  - name   - parameter name
+ *  - number - Number of the parameter.
+ *  - low    - (optionally)  low limit on parameter.
+ *  - high   - (optionally)  high limit on parameter.
+ *  - bins   - (optionally)  suggested binning for parameter.
+ *  - units  - (optionally)  units of measure for the parameter.
+ *
+ *  @note The optional dictionary keys are only present on parameters with
+ *        metadata stored.
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::listParameters(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "The listParmeters subcommand takes no additional parameters");
+    auto listing = m_pSaveSet->listParameters();
+    
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i = 0; i < listing.size(); i++) {
+        CTCLObject dict;
+        paramDefToObj(interp, dict, listing[i]);
+        result += dict;
+        delete listing[i];
+    }
+    interp.setResult(result);
+}
+/**
+ * findParameter
+ *    Lookup the information about a parameter.
+ *    See listParameters for the structure of the dict that is
+ *    returned.  Note that in this case only a single dict
+ *    is returned, not a list.
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::findParameter(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "findParameter needs a parameter name");
+    std::string paramName = objv[2];
+    auto param = m_pSaveSet->findParameter(paramName.c_str());
+    CTCLObject result;
+    paramDefToObj(interp, result, param);
+    delete param;
+    interp.setResult(result);
+}
+
+/**
+ * createSpectrum:
+ *    Format:
+ *
+ *    instance-cmd createSpectrum name type parameters axes ?datatype?
+ *
+ * Where
+ *    - parameters is a list of parameter names.
+ *    - axes is a list of axis definitions of the form [list low high bins]
+ *    - datatype is one of 'byte', 'word' or 'long'
+ *
+ *  @note that we're helped along by the fact that all the error
+ *        checking gets done by DBSpectrum's methods, and that it throws
+ *        an std::exception derived object on error.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::createSpectrum(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireAtLeast(
+        objv, 6,
+        "createSpectrum needs at least name, type, parameters and axes"
+    );
+    requireAtMost(
+        objv, 7,
+        "createSpectrum needs at most name, type, parameters, axes, and datatype"
+    );
+    
+    std::string name = objv[2];
+    std::string type = objv[3];
+    std::vector<const char*> params = listObjToConstCharVec(objv[4]);
+    auto axes = listObjToAxes(objv[5]);
+    std::string dtype = "long";
+    if (objv.size() == 7) dtype = std::string(objv[6]);
+    
+    delete m_pSaveSet->createSpectrum(
+        name.c_str(), type.c_str(), params, axes, dtype.c_str()
+    );
+}
+
+
+////
+// TclSaveSet private utilities:
+//
+/**
+*  paramDefToObj
+*     Create a parameter definition dict obj from a parameter
+*     object pointer.
+*  @param interp - interpreter reference
+*  @param[out] obj - The result object
+*  @param param - pointer to the parameter definition.
+*/
+void
+TclSaveSet::paramDefToObj(
+    CTCLInterpreter& interp, CTCLObject& obj, DBParameter* param
+)
+{
+    InitDict(interp, obj);
+    auto& info = param->getInfo();
+    AddKey(obj, "id", info.s_id);
+    AddKey(obj, "name", info.s_name.c_str());
+    AddKey(obj, "number", info.s_number);
+    
+    if (info.s_haveMetadata) {
+        AddKey(obj, "low", info.s_low);
+        AddKey(obj, "high", info.s_high);
+        AddKey(obj, "bins", info.s_bins);
+        AddKey(obj, "units", info.s_units.c_str());
+    }    
+}
+/**
+ * listObjToConstCharVec
+ *  Takes a CTCLObject reference and produces a vector of const char*
+ *  that point to their string representations.
+ *
+ *  -  The CTCLObject must remain in scope for the duration of the
+ *     use of that vector.
+ *  -  Object shimmering is not a factor since all CTCLObject's
+ *     underlying Tcl_Obj always has a string representation that's stored
+ *     as a char*
+ *
+ * @note if the object is not a valid list there will be an exception.
+ * @note the object must be bound to an interpreter.
+ * @note we make use of the fact that Tcl_Obj is a copy on write beast.
+ *
+ * @param obj  - Reference to the object to decode.
+ * @return std::vector<const char*>
+ */
+std::vector<const char*>
+TclSaveSet::listObjToConstCharVec(CTCLObject& obj)
+{
+    std::vector<const char*> result;
+    std::vector<CTCLObject> list = obj.getListElements(); // shimmers obj ->list
+    
+    // The const char*'s below only stay in scope because unless I
+    // write to elmeents of list, they share data with obj, specifically
+    // the string representation of each element of the list representation
+    // of obj.
+    
+    for (int i = 0; i < list.size(); i++) {
+        Tcl_Obj* el = list[i].getObject();
+        result.push_back(Tcl_GetString(el));
+    }
+    
+    return result;
+    
+}
+/**
+ * listObjToAxes
+ *    Converts a  list object to an axis specification.
+ *    This requires that each element of the list is a
+ *    3 element list containing two objects with double representation
+ *    and one with integer representation.
+ *
+ *  @param obj  - the object containing axis specifications.
+ *  @return std::vector<SpectrumAxis>
+ */
+std::vector<SaveSet::SpectrumAxis>
+TclSaveSet::listObjToAxes(CTCLObject& obj)
+{
+    std::vector<SaveSet::SpectrumAxis> result;
+    CTCLInterpreter* pInterp = obj.getInterpreter();
+    
+    // Get the vector of axis objects:
+    
+    auto axes = obj.getListElements();
+    for (int i =0; i < axes.size(); i++) {  // not sure this is needed but..
+        axes[i].Bind(*pInterp);
+    }
+    // Each of those objects, in turn is a list that contains
+    // in order low, high, bins.
+    
+    for (int  i = 0; i < axes.size(); i++) {
+        auto axis = axes[i].getListElements();
+        for (int j = 0; j < axis.size(); j++) {
+            axis[i].Bind(*pInterp);
+        }
+        if (axis.size() != 3) {
+            std::stringstream msg;
+            msg << std::string(axis[i]) << " Is not a valid axis specification";
+            throw std::invalid_argument(msg.str());
+        }
+        
+        SaveSet::SpectrumAxis def;
+        def.s_low =  double(axis[0]);
+        def.s_high = double(axis[1]);
+        def.s_bins = int(axis[2]);
+        
+        result.push_back(def);
+    }
+    
+    return result;
+}
+
+//////
 
 }                          // SpecTcl namespace.
 
