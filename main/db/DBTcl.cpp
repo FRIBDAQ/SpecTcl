@@ -433,6 +433,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             create1dGate(interp, objv);
         } else if (command == "create2dGate") {
             create2dGate(interp, objv);
+        } else if (command == "createCompoundGate") {
+            createCompoundGate(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -791,6 +793,30 @@ TclSaveSet::create2dGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         name.c_str(), type.c_str(), parameterNames, pts
     );
 }
+/**
+ * createCompoundGate
+ *    Creates a gate that depends on other gates (e.g. a * gate).
+ *
+ *    Format:
+ *
+ *    instance-cmd createCompoundGate name type gate-list
+ *
+* @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::createCompoundGate(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 5, "createCompoundGate needs name, type, gate-list");
+    std::string name = objv[2];
+    std::string type = objv[3];
+    std::vector<const char*> gateNames = listObjToConstCharVec(objv[4]);
+    
+    delete m_pSaveSet->createCompoundGate(name.c_str(), type.c_str(), gateNames);
+}
 ////
 // TclSaveSet private utilities:
 //
@@ -820,6 +846,7 @@ TclSaveSet::paramDefToObj(
         AddKey(obj, "units", info.s_units.c_str());
     }    
 }
+
 /**
  * listObjToConstCharVec
  *  Takes a CTCLObject reference and produces a vector of const char*
