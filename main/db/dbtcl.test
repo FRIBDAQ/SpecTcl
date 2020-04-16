@@ -1872,6 +1872,105 @@ tcltest::test findgate_7 {need only a gate} \
     if {[info exists result]} { unset result}
     catch {$svcmd findGate mask extra}
 } -result 1
+
+tcltest::test listgates_1 {list when there are no gates} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd listGates
+} -result [list]
+
+tcltest::test listgates_2 {list when there are gates} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd listGates
+} -result [list                                                      \
+[dict create                                      \
+   id 1 name oned type s classification point parameters param.0 points          \
+    [list [dict create x 100.0 y 0.0] [dict create x 200.0 y 0.0 ] ]] \
+[dict create      id 2                                \
+    name twod  type c classification point parameters [list param.1 param.2] \
+    points [list                                                       \
+    [dict create x 100.0 y 100.0] [dict create x 200.0 y 100.0]         \
+    [dict create x 200.0 y 200.0] [dict create x 100.0 y 200.0]         \
+    ] ] \
+[dict create  id 3 name and type * classification compound \
+           gates [list oned twod] ] \
+[dict create  id 4 name mask type em classification mask \
+           parameters param.3 mask 12345] \
+]
+
+tcltest::test listgate_3 {No extra parameters are allowed} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd listGates oned}
+} -result 1
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

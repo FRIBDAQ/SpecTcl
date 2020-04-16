@@ -449,6 +449,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             gateExists(interp, objv);
         } else if (command == "findGate") {
             findGate(interp, objv);
+        } else if (command == "listGates") {
+            listGates(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -915,8 +917,35 @@ TclSaveSet::findGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     interp.setResult(result);
 }
-                    
-
+/**
+ *  listGates
+ *     List the gates in the save set. The result is set with a list
+ *     of dicts.  Each dict has the form described by the comments
+ *     in findGate.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::listGates(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "listGates requires no additional parametes");
+    
+    auto gates = m_pSaveSet->listGates();
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i =0; i < gates.size(); i++) {
+        CTCLObject gate;
+        gate.Bind(interp);
+        makeGateDict(interp, gate, gates[i]);
+        delete gates[i];
+        
+        result += gate;
+    }
+    
+    interp.setResult(result);
+}
 ////
 // TclSaveSet private utilities:
 //
