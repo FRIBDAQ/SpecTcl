@@ -457,6 +457,10 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             findApplication(interp, objv);
         } else if (command == "listApplications") {
             listApplications(interp, objv);
+        } else if (command == "createVariable") {
+            createVariable(interp, objv);
+        } else if (command == "variableExists") {
+            variableExists(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1021,6 +1025,10 @@ TclSaveSet::findApplication(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
  *    currently made.
  *    The result is a list of dicts where each dict is described in
  *    findApplication's comments above.
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
  */
 void
 TclSaveSet::listApplications(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
@@ -1039,6 +1047,68 @@ TclSaveSet::listApplications(CTCLInterpreter& interp, std::vector<CTCLObject>& o
     
     interp.setResult(result);
 }
+/**
+ * createVariable
+ *    Creats a tree variable definition in the saveset.
+ *    Command format:
+ *
+ *    instance-cmd createVariable name value ?units?
+ *
+ *    Where the units field will be empty if no units are proviced.
+ *    The value must be able to be coerced to a valid double.
+ *    
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
+*/
+void
+TclSaveSet::createVariable(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+        requireAtLeast(
+            objv, 4, "createVariable requires at least a name and value"
+        );
+        requireAtMost(
+            objv, 5, "createVariable requires at most a name, value and units"
+        );
+        
+        std::string name = objv[2];
+        double      value= objv[3];
+        std::string units;
+        if (objv.size() == 5) units = std::string(objv[4]);
+        
+        m_pSaveSet->createVariable(name.c_str(), value, units.c_str());
+        
+}
+/**
+ * variableExists
+ *   Format:
+ *
+ *   instance-cmd variableExists varname
+ *
+ *   sets the result to boolean true if there's a tree variable with that
+ *   name. otherwise sets it to false.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
+*/
+void
+TclSaveSet::variableExists(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 3, "variableExists requires a variable name only");
+    std::string varname = objv[2];
+    
+    bool result = m_pSaveSet->variableExists(varname.c_str());
+    
+    interp.setResult(result? "1" : "0");
+}
+
 ////
 // TclSaveSet private utilities:
 //

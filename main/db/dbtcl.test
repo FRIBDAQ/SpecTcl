@@ -2385,6 +2385,166 @@ tcltest::test listapp_3 {No extra parameters allowd} \
     catch {$svcmd listApplications oned} 
 }  -result 1
 
+tcltest::test crvariable_1  {Create unitless variable} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createVariable pi 3.1416
+    
+    sqlite3 db $fname
+    db eval {
+        SELECT id, save_id, value, units FROM treevariables
+           WHERE name = 'pi'
+    } {
+        set result [list $id $save_id $value $units]
+    }
+    db close
+    set result
+    
+} -result [list 1 1 3.1416 ""]
+
+
+tcltest::test crvariable_2  {Create variable with units} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createVariable pi 3.1416 radians
+    sqlite3 db $fname
+    db eval {
+        SELECT id, save_id, value, units FROM treevariables
+           WHERE name = 'pi'
+    } {
+        set result [list $id $save_id $value $units]
+    }
+    db close
+    set result        
+} -result [list 1 1 3.1416 radians]
+
+tcltest::test crvariable_3 {Too few parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd createVariable pi}
+} -result 1
+
+tcltest::test crvariable_4 {too many parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd createVariable pi 3.1416 radians and-stuff}
+} -result 1
+    
+tcltest::test varexist_1  {nonexistent returns false} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd variableExists e
+} -result 0
+tcltest::test varexist_2  {existing returnst true} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd variableExists pi
+} -result 1
+
+tcltest::test varexist_3 {Needs a varname} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd variableExists}
+} -result 1
+
+tcltest::test varexist_4 {needs only a varname} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd variableExists pi e}
+} -result 1
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

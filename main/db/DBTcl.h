@@ -166,6 +166,7 @@ protected:
     void findVariable(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void variableExists(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void listVariables(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    
     void destroy();
     
     // Utility methods.
