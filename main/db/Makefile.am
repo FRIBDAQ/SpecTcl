@@ -77,7 +77,7 @@ TEST_EXTENSIONS=.test
 TEST_LOG_COMPILER=@TCLSH@
 AM_TESTS_ENVIRONMENT=TCLLIBPATH=@prefix@/TclLibs; export TCLLIBPATH; LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@; export LD_LIBRARY_PATH;
 
-TESTS=unittests names.test dbtcl.test
+TESTS=unittests dbtcl.test names.test
 #check-TESTS:
 #	(cd @srcdir@; tclsh *.test)
 
