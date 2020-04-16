@@ -33,6 +33,9 @@ class CDatabase;
 class SaveSet;
 class DBParameter;
 class DBSpectrum;
+class DBApplication;
+class DBTreeVariable;
+
 /**
  * @class DBTcl
  *    This command ensemble defines commands that
@@ -183,6 +186,9 @@ private:
     std::vector<std::pair<double, double>> pointsFromObj(CTCLObject& obj);
     
     void makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate);
+    void makeApplicationDict(
+        CTCLInterpreter& interap, CTCLObject& obj, DBApplication* pApp
+    );
 };  
 
 

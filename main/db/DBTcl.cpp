@@ -455,6 +455,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             applyGate(interp, objv);
         } else if (command == "findApplication") {
             findApplication(interp, objv);
+        } else if (command == "listApplications") {
+            listApplications(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1007,13 +1009,32 @@ TclSaveSet::findApplication(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
     // Didn't throw so we've got one.
     
     CTCLObject result;
+    
+    makeApplicationDict(interp, result, pApp);
+    
+    
+    interp.setResult(result);
+}
+/**
+ * listApplications
+ *    Makes a list of dicts that describe all of the gate applications
+ *    currently made.
+ *    The result is a list of dicts where each dict is described in
+ *    findApplication's comments above.
+ */
+void
+TclSaveSet::listApplications(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    auto applications = m_pSaveSet->listApplications();
+    CTCLObject result;
     result.Bind(interp);
-    InitDict(interp, result);
     
-    AddKey(result, "id", pApp->getInfo().s_id);
-    AddKey(result, "gate", gate.c_str());
-    AddKey(result, "spectrum", spec.c_str());
-    
+    for (int i = 0; i < applications.size(); i++) {
+        CTCLObject app;
+        makeApplicationDict(interp, app, applications[i]);
+        result += app;
+        delete applications[i];
+    }
     
     interp.setResult(result);
 }
@@ -1315,7 +1336,29 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
         AddKey(obj, "mask", info.s_mask);
     }
 }
+/**
+ * makeApplicationDict
+ *    Fill an object in with the dictionary that describes an application.
+ *
+ * @param interp - interpreter used to bind objects.
+ * @param[out] objv - the object to fill in.
+ * @param pApp     - pointer to the application object.
+ */
+void
+DBTcl::makeApplicationDict(
+    CTCLInterpreter& interp, CTCLObject& obj, DBApplication* pApp
+)
+{
+    obj.Bind(interp);
+    std::string gate = pApp->getGateName();
+    std::string spec = pApp->getSpectrumName();
+    InitDict(interp, obj);
+    
+    AddKey(obj, "id", pApp->getInfo().s_id);
+    AddKey(obj, "gate", gate.c_str());
+    AddKey(obj, "spectrum", spec.c_str());
 
+}
 //////
 
 }                          // SpecTcl namespace.
