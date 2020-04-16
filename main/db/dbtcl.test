@@ -2145,8 +2145,141 @@ tcltest::test applygate_5 {too many paramrs} \
 } -result 1
 
 
+tcltest::test find_application_1 {Find an applied gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
 
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd applyGate and raw.2
+    $svcmd findApplication and raw.2
+} -result [dict create id 1 gate and spectrum raw.2]
 
+tcltest::test  find_application_2 {no such application} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+        $svcmd applyGate and raw.2
+        catch {$svcmd findApplication and spec.2}
+} -result 1
+
+tcltest::test find_application_3 {Too few parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd applyGate mask raw.5
+    catch {$svcmd findApplication em}
+} -result 1
+
+tcltest::test find_application_4 {Too  many parameters } \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd applyGate mask raw.5
+    catch {$svcmd findApplication em raw.5 junk}
+} -result 1
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and

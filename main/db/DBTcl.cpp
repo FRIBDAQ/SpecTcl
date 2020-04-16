@@ -453,6 +453,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             listGates(interp, objv);
         } else if (command == "applyGate") {
             applyGate(interp, objv);
+        } else if (command == "findApplication") {
+            findApplication(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -972,6 +974,48 @@ TclSaveSet::applyGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     std::string spectrumName = objv[3];
     
     delete m_pSaveSet->applyGate(gateName.c_str(), spectrumName.c_str());
+}
+
+/**
+ * findApplication
+ *   Returns information about a gate application.
+ *   Command Format:
+ *
+ *   instance_cmd findApplication gate-name spectrum-name
+ *
+ * sets the result to be a dict that describes the application.
+ * Keys:
+ *    - id   id of the application in the table.
+ *    - gate  name of the gate.
+ *    - spectrum name of the spectrum the gate is applied to.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
+*/
+void
+TclSaveSet::findApplication(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 4, "findApplication needs gate name and spectrum name only");
+    
+    std::string gate = objv[2];
+    std::string spec = objv[3];
+    
+    auto pApp = m_pSaveSet->lookupApplication(gate.c_str(), spec.c_str());
+    
+    // Didn't throw so we've got one.
+    
+    CTCLObject result;
+    result.Bind(interp);
+    InitDict(interp, result);
+    
+    AddKey(result, "id", pApp->getInfo().s_id);
+    AddKey(result, "gate", gate.c_str());
+    AddKey(result, "spectrum", spec.c_str());
+    
+    
+    interp.setResult(result);
 }
 ////
 // TclSaveSet private utilities:
