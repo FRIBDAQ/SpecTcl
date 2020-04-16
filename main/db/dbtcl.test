@@ -1473,7 +1473,405 @@ tcltest::test crcompcgate_3 {too many parameters} \
     if {[info exists result]} { unset result}
     catch {$svcmd createCompoundGate and * [list agate bgate] junk}
 } -result 1
+
+tcltest::test crmaskgate_1 {Create a valid mask gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createMaskGate agate em param.8 0x55555555
+    
+    sqlite3 db $fname
+    db eval {
+        select id, type FROM gate_defs WHERE name ='agate'
+    } {
+        set result [list $id $type]
+    }
+    db close
+    set result
+} -result [list 1 em]
+
+tcltest::test crmaskgate_2 {too few parameters for  command} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd createMaskGate agate em param.8}
+    
+} -result 1
+    
+tcltest::test crmaskgate_3 {too few parameters for command} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd createMaskGate agate em param.8 0x12345678 hello}
+    
+} -result 1
+    
+tcltest::test gateexists_1 {gate does exist} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createMaskGate agate em param.8 0x12345678
+    $svcmd gateExists agate
+} -result 1
+
+tcltest::test gateexists_2 {Gate does not exist} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createMaskGate agate em param.8 0x12345678
+    $svcmd gateExists agates
+} -result 0
+
+tcltest::test gateexists_3 {gateExists needs a gate-name} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createMaskGate agate em param.8 0x12345678
+    catch {$svcmd gateExists }
+} -result 1
+
+tcltest::test gateexists_4 {gateExists only needs a gate-name} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd createMaskGate agate em param.8 0x12345678
+    catch {$svcmd gateExists agate b }
+} -result 1
+
+tcltest::test findgate_1 {Find a point gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findGate oned
+} -result [dict create                                      \
+   id 1 name oned type s classification point parameters param.0 points          \
+    [list [dict create x 100.0 y 0.0] [dict create x 200.0 y 0.0 ] ] \
+]
+    
+tcltest::test findgate_2 {Find a 2 d gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findGate twod
+} -result [dict create      id 2                                \
+    name twod  type c classification point parameters [list param.1 param.2] \
+    points [list                                                       \
+    [dict create x 100.0 y 100.0] [dict create x 200.0 y 100.0]         \
+    [dict create x 200.0 y 200.0] [dict create x 100.0 y 200.0]         \
+    ] \
+]
+
+tcltest::test findgate_3  {Find a compound gate} \
+ -setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findGate and
+} -result [dict create  id 3 name and type * classification compound \
+           gates [list oned twod]                                    \
+]
+
+tcltest::test findgate_4 {Find a mask gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findGate mask
+} -result [dict create  id 4 name mask type em classification mask \
+           parameters param.3 mask 12345                           \
+]
+
+tcltest::test findgate_5 {No such gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findGate twonky}
+} -result 1
+
+tcltest::test findgate_6 {need a gate name} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findGate}
+} -result 1
+
+tcltest::test findgate_7 {need only a gate} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+    
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findGate mask extra}
+} -result 1
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

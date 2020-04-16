@@ -45,6 +45,14 @@ static void AddKey(CTCLObject& dict, const char* key, const char* value);
 static void AddKey(CTCLObject& dict, const char* key, double value);
 static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value);
 
+// other unbound static utiltities:
+
+static std::string
+    gateClassificationToString(SpecTcl::DBGate::BasicGateType c);
+static void gatePointsToDictList(
+    CTCLInterpreter& interp, CTCLObject& obj,
+    const SpecTcl::DBGate::Points& pts
+);
 
 namespace SpecTcl {
 ///////////////////////////////////////////////////////////
@@ -435,6 +443,12 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             create2dGate(interp, objv);
         } else if (command == "createCompoundGate") {
             createCompoundGate(interp, objv);
+        } else if (command == "createMaskGate") {
+            createMaskGate(interp, objv);
+        } else if (command == "gateExists") {
+            gateExists(interp, objv);
+        } else if (command == "findGate") {
+            findGate(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -801,7 +815,7 @@ TclSaveSet::create2dGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *
  *    instance-cmd createCompoundGate name type gate-list
  *
-* @param interp - interpreter executing the command.
+ * @param interp - interpreter executing the command.
  * @param objv   - vector command paranmeters - including
  *                 the command name.
 */
@@ -817,6 +831,92 @@ TclSaveSet::createCompoundGate(
     
     delete m_pSaveSet->createCompoundGate(name.c_str(), type.c_str(), gateNames);
 }
+/**
+ * createMaskGate
+ *    Create a bitmask (e.g. em) gate.
+ *    Format:
+ *
+ *    instance-cmd createMaskGate name type parameter mask
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::createMaskGate(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(
+        objv, 6, "createMaskGate needs name, type, parameter and mask-value"   
+    );
+    std::string name = objv[2];
+    std::string type = objv[3];
+    std::string param = objv[4];
+    int         value = objv[5];
+    
+    delete m_pSaveSet->createMaskGate(
+        name.c_str(), type.c_str(), param.c_str(), value
+    );
+}
+/**
+ * gateExists
+ *   Sets the result to a boolean true or false depending on whether
+ *   or not a gate exists:
+ *
+ *    Format:
+ *
+ *    instance-cmd gateExists gate-name.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::gateExists(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "gateExists needs a gate name");
+    std::string name = objv[2];
+    
+    interp.setResult(m_pSaveSet->gateExists(name.c_str()) ? "1" : "0");
+}
+
+/**
+ *  findGate
+ *    Returns information about an existing gate as a dict.
+ *    Command format:
+ *
+ *    instance-cmd findGate gate-name
+ *
+ *   The result is set with  a dict that has the following keys:
+ *
+ *   -   id   - gate id.
+ *   -   name - gate name.
+ *   -   type - gate type.
+ *   -   classification - gate classification: point, compound, mask.
+ *   -   parameters (optional) List of names of parameters the gate needs.
+ *   -   gates (optional) list of names of gates the gate depends on.
+ *   -   points (optional) list of dicts containing x, y point coordinates.
+ *   -   mask   (optional)  contains the mask value for bit masks.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::findGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "findGate needs a gate name");
+    std::string name = objv[2];
+    DBGate* pGate    = m_pSaveSet->lookupGate(name.c_str());
+    
+    CTCLObject result;
+    makeGateDict(interp, result, pGate);
+    delete pGate;
+    
+    interp.setResult(result);
+}
+                    
+
 ////
 // TclSaveSet private utilities:
 //
@@ -1048,6 +1148,74 @@ TclSaveSet::pointsFromObj(CTCLObject& obj)
     }
     return result;
 }
+/**
+ * makeGateDict
+ *   Given a reference to an object and the pointer to a gate description,
+ *   fills the object with a dict that describes the gate:
+ *
+ *   The result is set with  a dict that has the following keys:
+ *
+ *   -   id   - gate id.
+ *   -   name - gate name.
+ *   -   type - gate type.
+ *   -   classification - gate classification: point, compound, mask.
+ *   -   parameters (optional) List of names of parameters the gate needs.
+ *   -   gates (optional) list of names of gates the gate depends on.
+ *   -   points (optional) list of dicts containing x, y point coordinates.
+ *   -   mask   (optional)  contains the mask value for bit masks.
+ * @param interp  the interpreter to which objects will be bound.
+ * @param obj[out] the object that will get the gate description.
+ * @param pGate   pointer to the gate object.
+ */
+void
+TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate)
+{
+    auto info = pGate->getInfo();
+    obj.Bind(interp);
+    InitDict(interp, obj);
+    AddKey(obj, "id", info.s_info.s_id);
+    AddKey(obj, "name", info.s_info.s_name.c_str());
+    AddKey(obj, "type", info.s_info.s_type.c_str());
+    std::string classification =
+        gateClassificationToString(info.s_info.s_basictype);
+    AddKey(obj, "classification", classification.c_str());
+    
+    // Only point and mask gates have parameters:
+    
+    if ((info.s_info.s_basictype == SpecTcl::DBGate::point)   ||
+        (info.s_info.s_basictype == SpecTcl::DBGate::mask)
+        ) {
+        auto parameterNames = pGate->getParameters();
+        CTCLObject params;
+        params.Bind(interp);
+        
+        stringVectorToList(interp, params, parameterNames);
+        AddKey(obj, "parameters", params);
+        
+    }
+    // Only compound gates have gate membes:
+    
+    if (info.s_info.s_basictype == SpecTcl::DBGate::compound) {
+        auto gateNames = pGate->getGates();
+        CTCLObject gates;
+        gates.Bind(interp);
+        stringVectorToList(interp, gates, gateNames);
+        AddKey(obj, "gates", gates);
+    }
+    // only point gates have points:
+    
+    if (info.s_info.s_basictype == SpecTcl::DBGate::point) {
+        CTCLObject pts;
+        gatePointsToDictList(interp, pts, info.s_points);
+        AddKey(obj, "points", pts);
+    }
+    // Mask gates have a mask:
+    
+    if (info.s_info.s_basictype == SpecTcl::DBGate::mask) {
+        AddKey(obj, "mask", info.s_mask);
+    }
+}
+
 //////
 
 }                          // SpecTcl namespace.
@@ -1117,4 +1285,57 @@ static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value)
         dict.getInterpreter()->getInterpreter(),
         dict.getObject(), okey.getObject(), value.getObject()
     );
+}
+
+/**
+ * gateClassificationToString
+ *    Convert a gate clasification to a string.
+ *  @param c - classification from the BaseInfo s_basictype field.
+ *  @return std::string
+ */
+std::string
+gateClassificationToString(SpecTcl::DBGate::BasicGateType c)
+{
+    std::string result;
+    
+    switch (c) {
+    case SpecTcl::DBGate::point:
+        result = "point";
+        break;
+    case SpecTcl::DBGate::compound:
+        result = "compound";
+        break;
+    case SpecTcl::DBGate::mask:
+        result = "mask";
+        break;
+    default:
+        throw std::logic_error(
+            "Invalid gate classification in gateClassificationToString"
+        );
+    }
+    
+    return result;
+}
+/**
+ * Turns a vector of gate points  to a list of dicts with x,y keys.
+ *
+ *  @param interp      - interpreter that will be used to bind objects.
+ *  @param[out] obj    - Object that will get the dict written into it.
+ *  @param pts         - Gate points.
+ */
+void gatePointsToDictList(
+    CTCLInterpreter& interp, CTCLObject& obj,
+    const SpecTcl::DBGate::Points& pts
+)
+{
+    obj.Bind(interp);
+    for (int i =0; i < pts.size(); i++) {
+        CTCLObject point;
+        point.Bind(interp);
+        InitDict(interp, point);
+        AddKey(point, "x", pts[i].s_x);
+        AddKey(point, "y", pts[i].s_y);
+        obj += point;
+    }
+    
 }

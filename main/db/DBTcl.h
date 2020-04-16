@@ -181,6 +181,8 @@ private:
         const SaveSet::SpectrumAxis& axis
     );
     std::vector<std::pair<double, double>> pointsFromObj(CTCLObject& obj);
+    
+    void makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate);
 };  
 
 
