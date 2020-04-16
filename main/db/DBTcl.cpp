@@ -1025,6 +1025,7 @@ TclSaveSet::findApplication(CTCLInterpreter& interp, std::vector<CTCLObject>& ob
 void
 TclSaveSet::listApplications(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
+    requireExactly(objv, 2, "listApplications takes no additional parameters");
     auto applications = m_pSaveSet->listApplications();
     CTCLObject result;
     result.Bind(interp);
@@ -1345,7 +1346,7 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
  * @param pApp     - pointer to the application object.
  */
 void
-DBTcl::makeApplicationDict(
+TclSaveSet::makeApplicationDict(
     CTCLInterpreter& interp, CTCLObject& obj, DBApplication* pApp
 )
 {

@@ -2281,6 +2281,110 @@ tcltest::test find_application_4 {Too  many parameters } \
     catch {$svcmd findApplication em raw.5 junk}
 } -result 1
 
+tcltest::test listapp_1 {Empty list if no applications made} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd listApplications
+} -result [list]
+
+tcltest::test listapp_2 {applications get listed correctly} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd applyGate twod raw.0
+    $svcmd applyGate oned raw.1
+    $svcmd listApplications
+} -result [list                          \
+    [dict create id 1 gate twod spectrum raw.0] \
+    [dict create id 2 gate oned spectrum raw.1] \
+]
+
+tcltest::test listapp_3 {No extra parameters allowd} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+    # Make some gates:
+    
+    $svcmd create1dGate oned s param.0 100 200
+    set points [list {100 100 } {200 100} {200 200} {100 200}]
+    $svcmd create2dGate twod c [list param.1 param.2] $points
+    $svcmd createCompoundGate and * [list oned twod]
+    $svcmd createMaskGate mask em param.3 12345
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd listApplications oned} 
+}  -result 1
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
