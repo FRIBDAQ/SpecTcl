@@ -451,6 +451,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             findGate(interp, objv);
         } else if (command == "listGates") {
             listGates(interp, objv);
+        } else if (command == "applyGate") {
+            applyGate(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -922,6 +924,9 @@ TclSaveSet::findGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *     List the gates in the save set. The result is set with a list
  *     of dicts.  Each dict has the form described by the comments
  *     in findGate.
+ *     Command format:
+ *
+ *     instance-cmd listGates
  *
  * @param interp - interpreter executing the command.
  * @param objv   - vector command paranmeters - including
@@ -945,6 +950,28 @@ TclSaveSet::listGates(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     }
     
     interp.setResult(result);
+}
+/**
+ * applyGate
+ *    Store a gate application to a spectrum.
+ *    Command Format:
+ *
+ *    instance-cmd applyGate gate-name spectrum-name
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+*/
+void
+TclSaveSet::applyGate(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(
+        objv, 4, "applyGate requires onliy a gate name and a spectrum name"
+    );
+    std::string gateName     = objv[2];
+    std::string spectrumName = objv[3];
+    
+    delete m_pSaveSet->applyGate(gateName.c_str(), spectrumName.c_str());
 }
 ////
 // TclSaveSet private utilities:
