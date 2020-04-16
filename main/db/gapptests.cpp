@@ -138,7 +138,7 @@ private:
 
 void gapptest::makeSomePars()
 {
-    CSqliteTransaction t(*m_pConn);      // faster in transactionl.
+    CSqliteSavePoint t(*m_pConn, "gateparams");      // faster in transactionl.
     for (int i =0; i < 100; i++) {
         std::stringstream name;
         name << "param." << i;

@@ -26,7 +26,7 @@
 #include "DBTreeVariable.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
-#include "CSqliteTransaction.h"
+
 #include <sqlite3.h>
 
 #include <sstream>

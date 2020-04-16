@@ -162,7 +162,7 @@ DBSpectrum::create(
     // If an exception is thrown, rollback otherwise commit:
     
     {
-        CSqliteTransaction t(connection);
+        CSqliteSavePoint t(connection, "enterspectrum");
         try {
             enterSpectrum(connection, specinfo);
         }

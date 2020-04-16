@@ -388,7 +388,7 @@ DBGate::createCompoundGate(
     // enter the gate inside a transaction:
     
     {
-        CSqliteTransaction t(conn);
+        CSqliteSavePoint t(conn, "entergate");
         try {
             enterBase(conn, info.s_info);
             info.s_gates = enterDependentGates(
@@ -446,7 +446,7 @@ DBGate::createMaskGate(
     // Do the gate entry  in a transaction:
     
     {
-        CSqliteTransaction t(conn);
+        CSqliteSavePoint t(conn, "entergate");
         try {
             enterBase(conn, info.s_info);
             info.s_parameters = enterParams (
@@ -525,7 +525,7 @@ DBGate::createPointGate(
     info.s_info.s_basictype = point;
     info.s_points = points;
     {
-        CSqliteTransaction t(conn);         // All enters are atomic:
+        CSqliteSavePoint t(conn, "entergate");         // All enters are atomic:
         try {
            enterBase(conn, info.s_info);
            info.s_parameters =
