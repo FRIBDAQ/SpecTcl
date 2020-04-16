@@ -191,7 +191,7 @@ private:
         CTCLInterpreter& interp, CTCLObject& obj, DBApplication* pApp
     );
     void makeVarDict(
-        CTCLInterpreter& interp, CTCLObject& objv, DBTreeVariable* pVar
+        CTCLInterpreter& interp, CTCLObject& obj, DBTreeVariable* pVar
     );
 };  
 

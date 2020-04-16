@@ -2636,6 +2636,63 @@ tcltest::test findvar_5    {too many parameters} \
     catch {$svcmd findVariable pi junk}
 } -result 1
 
+tcltest::test listvars_1  {Empty list if no vars} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd listVariables
+} -result [list]
+
+tcltest::test listvars_2  {Can correctly list both unitless and united vars} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians;   #units
+    $svcmd createVariable sqrt2 1.4142;        # no units.
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd listVariables
+} -result [list \
+   [dict create id 1 name pi value 3.1416 units radians]    \
+   [dict create id 2 name sqrt2 value 1.4142 units ""]      \
+]
+tcltest::test listvars_3  {too many command parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd listVariables pi}
+} -result 1
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

@@ -463,6 +463,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             variableExists(interp, objv);
         } else if (command == "findVariable") {
             findVariable(interp, objv);
+        } else if (command == "listVariables") {
+            listVariables(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1146,7 +1148,42 @@ TclSaveSet::findVariable(
     interp.setResult(result);
     
 }
-
+/*
+ * listVariables
+ *    Format:
+ *
+ *    instance-cmd listVariables
+ *
+ *    Sets the result to a list of dicts that describe all variables
+ *    defined in the save set. See findVariables for the contents of each
+ *    dict.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
+*/
+void
+TclSaveSet::listVariables(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "listVariables does not require any other parameters");
+    
+    auto vars = m_pSaveSet->listVariables();
+    CTCLObject result;
+    result.Bind(interp);
+    
+    for (int i =0; i < vars.size(); i++) {
+        CTCLObject dict;
+        dict.Bind(interp);
+        makeVarDict(interp, dict, vars[i]);
+        delete vars[i];
+        result += dict;
+    }
+    
+    interp.setResult(result);
+}
 ////
 // TclSaveSet private utilities:
 //
