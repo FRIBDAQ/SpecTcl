@@ -2545,6 +2545,97 @@ tcltest::test varexist_4 {needs only a varname} \
     catch {$svcmd variableExists pi e}
 } -result 1
 
+tcltest::test findvar_1    {No such variable error} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findVariable e}
+} -result 1
+
+tcltest::test findvar_2    {Variable with no units} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findVariable pi
+} -result [dict create id 1 name pi value 3.1416 units ""]
+
+tcltest::test findvar_3    {Variable with units} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    $svcmd findVariable pi
+} -result [dict create id 1 name pi value 3.1416 units radians]
+
+tcltest::test findvar_4    {need a varname} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findVariable}
+} -result 1
+
+
+tcltest::test findvar_5    {too many parameters} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    $svcmd createVariable pi 3.1416 radians
+} -cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    if {[info exists result]} { unset result}
+    catch {$svcmd findVariable pi junk}
+} -result 1
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

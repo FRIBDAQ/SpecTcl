@@ -461,6 +461,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             createVariable(interp, objv);
         } else if (command == "variableExists") {
             variableExists(interp, objv);
+        } else if (command == "findVariable") {
+            findVariable(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1108,6 +1110,42 @@ TclSaveSet::variableExists(
     
     interp.setResult(result? "1" : "0");
 }
+/**
+ * findVariable
+ *   Format:
+ *
+ *   instance-variable findVariable varname
+ *
+ *   Sets the result with a dict that describes the variable.  The dict
+ *   has the following keys:
+ *
+ *   -   id      - id of the variable in the treevariables table.
+ *   -   name    - name of the variable
+ *   -   value   - value of the variable.
+ *   -   units   - units of the variable.  This is an empty string
+ *                 if there are no units.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @note if there is no application an exception is thrown.
+*/
+void
+TclSaveSet::findVariable(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 3, "findVariable requires only a variable name");
+    std::string name = objv[2];
+    
+    SpecTcl::DBTreeVariable* pVar = m_pSaveSet->lookupVariable(name.c_str());
+    
+    CTCLObject result;
+    makeVarDict(interp, result, pVar);
+    
+    interp.setResult(result);
+    
+}
 
 ////
 // TclSaveSet private utilities:
@@ -1412,7 +1450,7 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
  *    Fill an object in with the dictionary that describes an application.
  *
  * @param interp - interpreter used to bind objects.
- * @param[out] objv - the object to fill in.
+ * @param[out] obj - the object to fill in.
  * @param pApp     - pointer to the application object.
  */
 void
@@ -1430,6 +1468,32 @@ TclSaveSet::makeApplicationDict(
     AddKey(obj, "spectrum", spec.c_str());
 
 }
+
+/**
+ * makeVarDict
+ *    Make a dict describing a single treevariable.
+ *    See findVariable's comment string for information about
+ *    what's in the dict.
+ * @param interp - TCL Interpreter that will be used to bind
+ *                 objects.
+ * @param[out] obj - object that will have the dict written into it.
+ * @parm pVar      - Pointer to the variable description to be described
+ *                   in the dict.
+ */
+void
+TclSaveSet::makeVarDict(
+    CTCLInterpreter& interp, CTCLObject& obj, DBTreeVariable* pVar
+)
+{
+    obj.Bind(interp);
+    InitDict(interp, obj);
+    
+    auto info = pVar->getInfo();
+    AddKey(obj, "id", info.s_id);
+    AddKey(obj, "name", info.s_name.c_str());
+    AddKey(obj, "value", info.s_value);
+    AddKey(obj, "units", info.s_units.c_str());
+} 
 //////
 
 }                          // SpecTcl namespace.

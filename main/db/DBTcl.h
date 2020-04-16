@@ -188,7 +188,10 @@ private:
     
     void makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate);
     void makeApplicationDict(
-        CTCLInterpreter& interap, CTCLObject& obj, DBApplication* pApp
+        CTCLInterpreter& interp, CTCLObject& obj, DBApplication* pApp
+    );
+    void makeVarDict(
+        CTCLInterpreter& interp, CTCLObject& objv, DBTreeVariable* pVar
     );
 };  
 
