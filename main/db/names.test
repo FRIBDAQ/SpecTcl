@@ -170,18 +170,18 @@ tcltest::test create_1 {Test creation} \
 -setup {createdb }                      \
 -cleanup {config close}                \
 -body {
-    set status [catch {dbconfig::makeSchema config}]
+    set status [catch {dbconfig::makeSchema :memory:}]
 } -result 0
 
 tcltest::test create_2 {test double creation} \
 -setup {createdb }                            \
 -cleanup {config close}                       \
 -body {
-    dbconfig::makeSchema config;             # Should work fine given create_2
-    catch {dbconfig::makeSchema config}
+    dbconfig::makeSchema :memory:;             # Should work fine given create_2
+    catch {dbconfig::makeSchema :memory:}
 } -result 0
 
-
+if 0 {
 #############################################################################
 ## save with names
 #
@@ -2210,7 +2210,7 @@ tcltest::test run_7 {Get run info when config id has end} \
    start_time 11111 stop_time 22222 \
 ]
 
-
+}
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
