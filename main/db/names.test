@@ -2073,19 +2073,20 @@ tcltest::test grestore_9 {bitmask gate restores} \
 ]
 #############################################################################
 # Restore gate applications:
-if 0 {
+
 tcltest::test apprestore_1 {Restore some applications} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -2109,9 +2110,9 @@ tcltest::test apprestore_1 {Restore some applications} \
         [list testspec [list equal 1 em [list param1 1234]]] \
         [list param1  [list and   2 am [list param2 455]]]   \
     ]
-    dbconfig::saveConfig config apply
+    [dbconfig::saveConfig $config apply] destroy
     set ::applications [list]
-    dbconfig::restoreConfig config apply
+    dbconfig::restoreConfig $config apply
     set ::applications
 } -result [list                                            \
     [list equal testspec] [list  and param1]                 \
@@ -2120,7 +2121,7 @@ tcltest::test apprestore_1 {Restore some applications} \
 ###########################################################################
 #
 #  Treevariable saves:
-
+if 0 {
 tcltest::test treevar_1 {Save no tree variables} \
 -setup {
     createdb
