@@ -176,20 +176,24 @@ DBGate::getGates()
             <<  " This gate type does not depend on other gates";
         throw std::invalid_argument(msg.str());
     }
-    std::string query =
-        "SELECT gd.name FROM component_gates AS cg \
-            INNER JOIN gate_defs AS gd ON gd.id = cg.child_gate\
-            WHERE parent_gate = ? AND ";
-    CInFilter in("cg.child_gate", m_Info.s_gates);
-    query += in.toString();
-    query += " ORDER BY cg.id ASC";           // Same as defined order.
-    CSqliteStatement q(m_connection, query.c_str());
-    q.bind(1, m_Info.s_info.s_id);
-    while(!(++q).atEnd()) {
-        result.push_back(reinterpret_cast<const char*>(q.getText(0)));
-    }
+    // T/F gates don't have gate name dependencies:
     
-    return result;
+   if (m_Info.s_gates.size() > 0) {
+      
+      std::string query =
+          "SELECT gd.name FROM component_gates AS cg \
+              INNER JOIN gate_defs AS gd ON gd.id = cg.child_gate\
+              WHERE parent_gate = ? AND ";
+      CInFilter in("cg.child_gate", m_Info.s_gates);
+      query += in.toString();
+      query += " ORDER BY cg.id ASC";           // Same as defined order.
+      CSqliteStatement q(m_connection, query.c_str());
+      q.bind(1, m_Info.s_info.s_id);
+      while(!(++q).atEnd()) {
+          result.push_back(reinterpret_cast<const char*>(q.getText(0)));
+      }
+    }
+   return result;
 }
 /**
  * getPoints
