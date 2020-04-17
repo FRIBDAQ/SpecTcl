@@ -991,7 +991,7 @@ proc listConfigs cmd {
 #
 proc restoreConfig {cmd savename {restoreSpectra 0}} {
     
-    set saveset [$cmd gestSaveset $savename]
+    set saveset [$cmd getSaveset $savename]
     
     
     #  Now restore the bits and pieces:
@@ -1008,7 +1008,7 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
     #    _restoreSpectrumContents $cmd $saveId    
     #}
     
-
+    $saveset destroy
 }
 ##
 # saveSpectrum

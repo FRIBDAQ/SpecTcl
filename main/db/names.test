@@ -468,7 +468,7 @@ tcltest::test specdef_1 {Initially all of the spectrum def tables are empty}  \
     $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
 }                                                                   \
 -body {
     set result [list]
@@ -507,7 +507,7 @@ tcltest::test specdef_2 {One spectrum definition for a 2d with existing params} 
     $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
 }                                                                   \
 -body {
     set result [list]
@@ -569,7 +569,7 @@ tcltest::test specdef_3 {A few spectra and they are kept ok} \
     $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
 }                                                                   \
 -body {
     set result [list]
@@ -632,7 +632,7 @@ tcltest::test scontents_1 {Definitions with out contents is empty table} \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -665,7 +665,7 @@ tcltest::test scontents_2 {Definitions and put contents into one of the spectra}
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -710,7 +710,7 @@ tcltest::test scontents_3 {2-d spectrum with data} \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -753,7 +753,7 @@ tcltest::test scontents_4 {All spectra have data} \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -801,35 +801,37 @@ tcltest::test scontents_4 {All spectra have data} \
 }
 ################################################################################
 #  Restore tests.
-if 0 {
+
 tcltest::test restore_1 {No such save set is an error} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
 -body {
-    set result [catch {dbconfig::restoreConfig config test}]
+    set result [catch {dbconfig::restoreConfig $config test}]
     set result
 } -result 1
 
 tcltest::test restore_2 {The parameters we saved get restored no delete- no concern about tree params} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -839,10 +841,10 @@ tcltest::test restore_2 {The parameters we saved get restored no delete- no conc
         [list param1 10] [list param2 11] [list param-something 100] \
     ]
     
-    dbconfig::saveConfig config test
+    [dbconfig::saveConfig $config test] destroy
     
     set dummyParamDefs [list] ;     # Don't test replacement of existing.sa
-    dbconfig::restoreConfig config test
+    dbconfig::restoreConfig $config test
     
     set dummyParamDefs
 } -result [list                                             \
@@ -852,13 +854,14 @@ tcltest::test restore_2 {The parameters we saved get restored no delete- no conc
 tcltest::test restore_3 {Parameter deleted if duplicate: } \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
 }                                                                   \
@@ -868,13 +871,13 @@ tcltest::test restore_3 {Parameter deleted if duplicate: } \
         [list param1 10] [list param2 11] [list param-something 100] \
     ]
     
-    dbconfig::saveConfig config test
+    [dbconfig::saveConfig $config test] destroy
     
     set ::dummyParamDefs [list                                   \
          [list param1 10]                                        \
    ]
     
-    dbconfig::restoreConfig config test
+    dbconfig::restoreConfig $config test
     
     #  param1 should have become last:
     
@@ -882,7 +885,7 @@ tcltest::test restore_3 {Parameter deleted if duplicate: } \
 } -result [list                                             \
     [list param1 10]  [list param2 11] [list param-something 100]   \
 ]
-
+if 0 {
 tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
 -setup {
     createdb
@@ -892,7 +895,7 @@ tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
 }                                                                   \
 -body {
     set result [list]
@@ -930,7 +933,7 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
 }                                                                   \
 -body {
     set result [list]
@@ -972,7 +975,7 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
     config close
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
-    set ::dumySpectrumDefs [list]
+    set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
     set ::channelSetHistory [list]
