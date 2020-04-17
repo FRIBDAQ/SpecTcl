@@ -49,6 +49,15 @@ namespace SpecTcl {
     public:
         // Data structures:
         
+        //   Channel contents.
+        
+        struct ChannelSpec {
+            int  s_x;
+            int  s_y;
+            int  s_value;
+        };
+        // Spectrum information
+        
         struct BaseInfo {
             int         s_id;       
             int         s_saveset;  
@@ -128,6 +137,7 @@ namespace SpecTcl {
         public:
             const Info& getInfo() const { return m_Info; }
             std::vector<std::string> getParameterNames();
+            void storeValues(const std::vector<ChannelSpec>& data);
         
         //  static methods:
         

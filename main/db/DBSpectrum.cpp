@@ -90,6 +90,49 @@ DBSpectrum::getParameterNames()
     
     return result;
 }
+/**
+ * storeValues
+ *    Store the values of a spectrum in the the spectrum_contents
+ *    table.
+ *  @param contents - describe the data to store.
+ *  @note  Any existing data is deleted.
+ *  @note  If contents is empty a single record with coordinates 0,0 and
+ *         value 0 is stored as a placehold to indicate the spectrum was stored.
+ */
+void DBSpectrum::storeValues(const std::vector<ChannelSpec>& data)
+{
+    // Destroy any existing data:
+    
+    CSqliteStatement del (
+        m_conn,
+        "DELETE FROM spectrum_contents WHERE spectrum_id = ?"
+    );
+    del.bind(1, m_Info.s_base.s_id);
+    ++del;
+    
+    // Insertion statement.. which gets bound to the spectrum id:
+    
+    CSqliteStatement ins(
+        m_conn,
+        "INSERT INTO spectrum_contents (spectrum_id, xbin, ybin, value) \
+            VALUES (?,?,?,?)"
+    );
+    ins.bind(1, m_Info.s_base.s_id);
+
+    if (data.size() == 0) {
+        ins.bind(2, 0);
+        ins.bind(3, 0);       // Placeholder.
+        ins.bind(4, 0);
+        ++ins;
+    } else {
+        for (int  i =0; i < data.size(); i++) {
+            ins.bind(2, data[i].s_x);
+            ins.bind(3, data[i].s_y);
+            ins.bind(4, data[i].s_value);
+            ++ins;
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////
 // Static methods:
