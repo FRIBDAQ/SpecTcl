@@ -1508,20 +1508,19 @@ tcltest::test deps_4 {cyclical dependencies}            \
     
 #############################################################################
 # Gate application tests.
-if 0 {
+
 tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db entries get made} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
-    set ::dummySpectrumDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-    set ::applications [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1544,29 +1543,30 @@ tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db 
         [list s3 6 s [list param-something [list 100 200]]]   \
     ]
 
-    dbconfig::saveConfig config apply
+    [dbconfig::saveConfig $config apply] destroy
+    sqlite3 db $database
     
-    config eval {
+    db eval {
         SELECT * FROM gate_applications ORDER BY id ASC
     } {
         lappend result $spectrum_id $gate_id
     }
+    db close
     set result
 } -result [list]
     
 tcltest::test apply_2 {Gate applications for -TRUE- get suppressed } \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
-    set ::dummySpectrumDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-    set ::applications [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1593,29 +1593,31 @@ tcltest::test apply_2 {Gate applications for -TRUE- get suppressed } \
         [list param1   [list -TRUE- T {}]]                 \
         [list param2   [list -TRUE- T {}]]                 \
     ]
-    dbconfig::saveConfig config apply
+    [dbconfig::saveConfig $config apply] destroy
     
-    config eval {
+    sqlite db $database
+    
+    db eval {
         SELECT * FROM gate_applications ORDER BY id ASC
     } {
         lappend result $spectrum_id $gate_id
     }
+    db close
     set result
 } -result [list]
 
 tcltest::test apply_3  {A spectrum has a gate} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
-    set ::dummySpectrumDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-    set ::applications [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1642,12 +1644,13 @@ tcltest::test apply_3  {A spectrum has a gate} \
         [list param1   [list or  + [list s1 s2 not]]]       \
         [list param2   [list -TRUE- T {}]]                 \
     ]
-    dbconfig::saveConfig config apply
+    [dbconfig::saveConfig $config apply] destroy
     
     # Because of the gate reordering we need a bit more complex query so that we
     # get the spectrum and gate names:
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT spectrum_defs.name AS spname, gate_defs.name AS gname FROM gate_applications
         INNER JOIN  spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
         INNER JOIN  gate_defs     ON gate_applications.gate_id     = gate_defs.id
@@ -1655,6 +1658,7 @@ tcltest::test apply_3  {A spectrum has a gate} \
     } {
         lappend result [list $spname $gname]
     }
+    db close
     
     set result
 } -result [list                                                    \
@@ -1663,16 +1667,15 @@ tcltest::test apply_3  {A spectrum has a gate} \
 tcltest::test apply_4 {Bunch of spectra have gates} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
-    set ::dummySpectrumDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-    set ::applications [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1699,12 +1702,12 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
         [list param1   [list or  + [list s1 s2 not]]]       \
         [list param2   [list not - [list s3]]]                 \
     ]
-    dbconfig::saveConfig config apply
+    [dbconfig::saveConfig $config apply] destroy
     
     # Because of the gate reordering we need a bit more complex query so that we
     # get the spectrum and gate names:
-    
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT spectrum_defs.name AS spname, gate_defs.name AS gname FROM gate_applications
         INNER JOIN  spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
         INNER JOIN  gate_defs     ON gate_applications.gate_id     = gate_defs.id
@@ -1721,7 +1724,7 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
 ]
 ##############################################################################
 # Gate restoration.
-
+if 0 {
 tcltest::test grestore_1 {If there are no gates in the db nothing gets restored} \
 -setup {
     createdb

@@ -282,7 +282,9 @@ proc _saveGateApplications {saveset} {
     foreach application $applications {
         set spname [lindex $application 0]
         set gname  [lindex [lindex $application 1] 0]
-        $saveset createApplication $gname $spname
+        if {$gname ne "-TRUE-"} {
+            $saveset applyGate $gname $spname
+        }
     }
     
 }
