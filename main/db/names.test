@@ -255,30 +255,32 @@ tcltest::test save_3 {Duplicate save set name is no good} \
 
 ##############################################################################
 #  List configs.
-if 0 {
+
 tcltest::test list_1 {Initially there are no configurations to list} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::listConfigs config
+    dbconfig::listConfigs $config
 } -result [list]
 
 tcltest::test list_2 {Can list a single one correctly} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::saveConfig config {Testconfig}
-    set d [dbconfig::listConfigs config]
+    dbconfig::saveConfig $config {Testconfig}
+    set d [dbconfig::listConfigs $config]
     set d [lindex $d 0]
     set result [list [dict get $d id] [dict get $d name]]
 } -result [list 1 Testconfig]
@@ -286,18 +288,19 @@ tcltest::test list_2 {Can list a single one correctly} \
 tcltest::test list_3 {Can list a few correctly} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::saveConfig config Testconfig1
-    dbconfig::saveConfig config Testconfig2
-    dbconfig::saveConfig config Testconfig3;    # -result gets painful nere.
+    dbconfig::saveConfig $config Testconfig1
+    dbconfig::saveConfig $config Testconfig2
+    dbconfig::saveConfig $config Testconfig3;    # -result gets painful nere.
     
     set result [list]
-    foreach item [dbconfig::listConfigs config] {
+    foreach item [dbconfig::listConfigs $config] {
         lappend result [list [dict get $item  id] [dict get $item name]]
     }
     set result
@@ -309,7 +312,7 @@ tcltest::test list_3 {Can list a few correctly} \
 ## Parameter definitions.
 #  Note that we don't change the default null value so it's "".
 #
-
+if 0 {
 tcltest::test psave_1 {No parmaeters defined so empty parameter_defs table} \
 -setup {
     createdb
