@@ -1029,21 +1029,22 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
     [list param2   20 8]                                           \
     [list param2   100 12]                                           \
 ]
-    
+}
 #-----------------------------------------------------------------------
 # gates
 
 tcltest::test gates_1 {Save a gate top level}                       \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1054,14 +1055,15 @@ tcltest::test gates_1 {Save a gate top level}                       \
     set ::gateDefs [list                                           \
         [list gate1 1 s [list param1 10 20]]
     ]
-    dbconfig::saveConfig config Gates
+    [dbconfig::saveConfig $config Gates] destroy
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT saveset_id, name, type FROM gate_defs
     } {
         lappend result [list $saveset_id $name $type]
     }
-    
+    db close
     set result
     
 } -result [list [list 1 gate1 s]]
@@ -1069,14 +1071,15 @@ tcltest::test gates_1 {Save a gate top level}                       \
 tcltest::test gates_2 {Save with two gates} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1088,14 +1091,15 @@ tcltest::test gates_2 {Save with two gates} \
         [list gate1 1 s [list param1 10 20]]                         \
         [list True 2 T [list]]                                       \
     ]
-    dbconfig::saveConfig config Gates
+    [dbconfig::saveConfig $config Gates] destroy
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT saveset_id, name, type FROM gate_defs
     } {
         lappend result [list $saveset_id $name $type]
     }
-    
+    db close
     set result
     
 } -result [list                      \
@@ -1106,14 +1110,15 @@ tcltest::test gates_2 {Save with two gates} \
 tcltest::test gates_3 {can leading parameters get saved?} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1127,13 +1132,14 @@ tcltest::test gates_3 {can leading parameters get saved?} \
         [list gate3 3 b [list {param-something param2} {100 200} {300 400} {50 50}]] \
     ]
     
-    dbconfig::saveConfig config gates
-    
-    config eval {
+    dbconfig::saveConfig $config gates
+    sqlite db $database
+    db eval {
         SELECT * FROM gate_parameters ORDER BY id ASC
     } {
         lappend result [list $parent_gate $parameter_id]
     }
+    db close
     set result
 } -result [list                                                     \
     [list 1 1]                                                      \
@@ -1144,14 +1150,15 @@ tcltest::test gates_3 {can leading parameters get saved?} \
 tcltest::test gate_4 {Can trailing parameter get saved?}           \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1165,13 +1172,14 @@ tcltest::test gate_4 {Can trailing parameter get saved?}           \
         [list gate3 3 gs [list [list 100 200] [list param2 param-something]]] \
     ]
     
-    dbconfig::saveConfig config gates
-    
-    config eval {
+    [dbconfig::saveConfig $config gates] destroy
+    sqlite3 db $database
+    db eval {
         SELECT * FROM gate_parameters ORDER BY id ASC
     } {
         lappend result [list $parent_gate $parameter_id]
     }
+    db close
     set result
     
 } -result [list                                                           \
@@ -1183,14 +1191,15 @@ tcltest::test gate_4 {Can trailing parameter get saved?}           \
 tcltest::test gate_5 {Save gate points for bands and contours}    \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1203,13 +1212,14 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
         [list gate2 2 c [list {param2 param-something} {10 10} {100 100} {50 50}]] \
     ]
     
-    dbconfig::saveConfig config gates
-    
-    config eval {
+    dbconfig::saveConfig $config gates
+    sqlite3 db $database
+    db eval {
         SELECT * FROM gate_points ORDER BY id ASC
     } {
         lappend result [list $gate_id $x $y]
     }
+    db close
     set result
     
 } -result [list                                                   \
@@ -1220,14 +1230,15 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
 tcltest::test gate_6 {Saving mask gates} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1239,13 +1250,15 @@ tcltest::test gate_6 {Saving mask gates} \
         [list gate2  2 am [list param1 456]]                        \
         [list gate3  3 nm [list param1 789]]                        \
     ]
-    dbconfig::saveConfig config gates
-    
-    config eval {
+    dbconfig::saveConfig $config gates
+    sqlite3 db $database
+    db eval {
         SELECT * FROM gate_masks ORDER BY ID ASC
     } {
         lappend result [list $parent_gate $mask]
     }
+    db close
+    
     set result
 } -result [list                                               \
     [list 1 1234] [list 2 456] [list 3 789]                  \
@@ -1254,14 +1267,15 @@ tcltest::test gate_6 {Saving mask gates} \
 tcltest::test gate_7 {gamma contour/band points}               \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1272,13 +1286,17 @@ tcltest::test gate_7 {gamma contour/band points}               \
         [list gate1 1 gb [list [list {100 200} {300 400} ] {param1 param2}]] \
         [list gate2 2 gc [list [list {100 200} {300 400} {50 20}] {param2 param-something}]] \
     ]
-    dbconfig::saveConfig config gates
+    [dbconfig::saveConfig $config gates] destroy
     
-    config eval {
+    sqlite3 db $database
+    
+    db eval {
         SELECT * FROM gate_points ORDER BY id ASC
     } {
         lappend result [list $gate_id $x $y]
     }
+    db close
+    
     set result
 } -result   [list                                                     \
     [list 1 100.0 200.0] [list 1 300.0 400.0]                                \
@@ -1288,14 +1306,15 @@ tcltest::test gate_7 {gamma contour/band points}               \
 tcltest::test gate_8 {gamma slice point}                   \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1306,13 +1325,16 @@ tcltest::test gate_8 {gamma slice point}                   \
         [list gate 1 gs [list [list 10 20] param1]]               \
     ]
     
-    dbconfig::saveConfig config gates
+    dbconfig::saveConfig $config gates
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         select * from gate_points ORDER BY id ASC
     } {
         lappend result [list $gate_id $x]
     }
+    db close
+    
     set result
 } -result [list [list 1 10.0 ] [list 1 20.0]]
 
@@ -1320,14 +1342,15 @@ tcltest::test gate_8 {gamma slice point}                   \
 tcltest::test gate_9 {Dependent gate ids} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1348,13 +1371,16 @@ tcltest::test gate_9 {Dependent gate ids} \
         [list orgate  5 + [list gate2 gate3]]                            \
         [list notgate 6 - [list gate3]]                                 \
     ]
-    dbconfig::saveConfig config gates
+    [dbconfig::saveConfig $config gates] destroy
     
-    config eval {
+    sqlite3 db $database
+    db  eval {
         SELECT * FROM  component_gates ORDER BY id ASC
     } {
         lappend result [list $parent_gate $child_gate]
     }
+    db close
+    
     set result
 } -result [list                                                       \
     [list 4 1] [list 4 2] [list 4 3]                                  \
@@ -1365,7 +1391,7 @@ tcltest::test gate_9 {Dependent gate ids} \
     
 ###############################################################################
 #  Gate dependency re-ordering.
-
+if 0 {
 tcltest::test deps_1 {Two gates in reverse order}                   \
 -setup {
     createdb

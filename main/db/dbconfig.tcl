@@ -226,27 +226,26 @@ proc _saveGateDefinitions {saveset} {
             
             if {$type eq "s"} {
                 set params [lindex $descr 0]
-                set lims   [lindex $descr 1]
-                
+                set low    [lindex $descr 1]
+                set  high [lindex $descr 2]
             } else {
                 set lims [lindex $descr 0]
                 set params [lindex $descr 1]
+                set low [lindex $lims 0]
+                set high [lindex $lims 1]
             }
-            set low [lindex $lims 0]
-            set high [lindex $lims 1]
-            
             $saveset create1dGate $name $type $params $low $high
         } elseif {$type in [list c gc b gb]} {
+            
+           
             if {$type in [list c b]} {
-                set points [lindex $descr 1]
+                set points [lrange $descr 1 end]
                 set params [lindex $descr 0]
             } else {
                 set points [lindex $descr 0]
                 set params [lindex $descr 1]
             }
-            
             $saveset create2dGate $name $type $params $points
-        
         } elseif {$type in [list * + - T F]} {
             
             $saveset createCompoundGate $name $type $descr
@@ -255,7 +254,7 @@ proc _saveGateDefinitions {saveset} {
             set param [lindex $descr 0]
             set mask  [lindex $descr 1]
             
-            createMaskGate $name $type $param $mask
+            $saveset createMaskGate $name $type $param $mask
         } else {
             error "Unknonw gate type; $type"
         }
