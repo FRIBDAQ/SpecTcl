@@ -463,17 +463,13 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
      
     # Speclist is now the list of spectra to restore.
     
-    
-    
-    
-    
     # Now we can run over the spectra, deleting existing ones and
     # Creating the ones in the definition.
     
     
     foreach def $speclist {
     
-    
+
         set name [dict get $def name]
         if {[llength [spectrum -list $name]] != 0 } {
             spectrum -delete $name
@@ -482,7 +478,15 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
         
         set cmd [list spectrum -new $name]
         lappend cmd [dict get $def type] [dict get $def parameters]
-        lappend cmd [dict get $def axes] [dict get $def datatype]
+        set axisDefs [dict get $def axes]
+        set axiscmd [list]
+        foreach adef $axisDefs {
+            set low [dict get $adef low]
+            set high [dict get $adef high]
+            set bins [dict get $adef bins]
+            lappend axiscmd [list $low $high $bins]
+        }
+        lappend cmd $axiscmd [dict get $def datatype]
 
         eval $cmd
     }

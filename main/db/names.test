@@ -885,14 +885,15 @@ tcltest::test restore_3 {Parameter deleted if duplicate: } \
 } -result [list                                             \
     [list param1 10]  [list param2 11] [list param-something 100]   \
 ]
-if 0 {
+
 tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
@@ -911,11 +912,11 @@ tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     
-    dbconfig::saveConfig config spec1;   # three spectra are now saved.
+    [dbconfig::saveConfig $config spec1] destroy;   # three spectra are now saved.
     
     set ::dummySpectrumDefs [list];      # clear the existing defs.
     
-    dbconfig::restoreConfig config spec1
+    dbconfig::restoreConfig $config spec1
     
     set ::dummySpectrumDefs
 } -result [list                           \
@@ -927,10 +928,11 @@ tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
 tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
@@ -949,10 +951,10 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     
-    dbconfig::saveConfig config spec1;   # three spectra are now saved.
+    [dbconfig::saveConfig $config spec1] destroy;   # three spectra are now saved.
     
     
-    dbconfig::restoreConfig config spec1
+    dbconfig::restoreConfig $config spec1
     
     set ::dummySpectrumDefs
 } -result [list                           \
@@ -964,7 +966,7 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
 ###############################################################################
 #  Test spectrum contents restored.
 #
-
+if 0 {
 tcltest::test restore-contents_1 {Restore spectrum contents} \
 -setup {
     createdb
