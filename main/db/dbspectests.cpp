@@ -120,6 +120,7 @@ public:
     CPPUNIT_TEST(enter_6);
     
     CPPUNIT_TEST(getpar_1);
+    CPPUNIT_TEST(getpar_2);
     
     CPPUNIT_TEST(construct_1);
     CPPUNIT_TEST(construct_2);
@@ -173,6 +174,7 @@ protected:
     void enter_6();
     
     void getpar_1();
+    void getpar_2();
     
     void construct_1();
     void construct_2();
@@ -702,6 +704,37 @@ void dbspectest::getpar_1()
     }
     
     delete pSpec;
+}
+void dbspectest::getpar_2()
+{
+    // Be sure only my spectrum parameters rae kept:
+    // get parameters from a spectrum.
+    
+        // Check the axis is right:
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    
+    auto pSpec = SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "s",
+            pnames, axes            // default type is long
+    );
+    auto pSpec2 =  SpecTcl::DBSpectrum::create(
+            *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum2", "s",
+            pnames, axes            // default type is long
+    );
+    // Should not be polluted by the parameters from the other spectrum.
+    
+    auto params = pSpec->getParameterNames();
+    EQ(pnames.size(), params.size());
+    for (int i = 0; i < pnames.size(); i++) {
+        EQ(std::string(pnames[i]), params[i]);
+    }
+    
+    
+    delete pSpec;
+    delete pSpec2;
 }
 
 void dbspectest::construct_1()

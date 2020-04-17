@@ -74,7 +74,7 @@ DBSpectrum::getParameterNames()
     std::string query =
         "SELECT name FROM parameter_defs AS pd \
          INNER JOIN spectrum_params As sp ON sp.parameter_id = pd.id \
-         WHERE ";
+         WHERE spectrum_id = ? AND ";
     CInFilter ids("parameter_id", m_Info.s_parameters);
     query += ids.toString();
     query += " ORDER BY sp.id";              // definition order.
@@ -83,6 +83,7 @@ DBSpectrum::getParameterNames()
         m_conn,
         query.c_str()
     );
+    f.bind(1, m_Info.s_base.s_id);
     while (!(++f).atEnd()) {
         result.push_back(reinterpret_cast<const char*>(f.getText(0)));
     }
