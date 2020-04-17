@@ -247,6 +247,7 @@ proc _saveGateDefinitions {saveset} {
                 set points [lindex $descr 0]
                 set params [lindex $descr 1]
             }
+            
             $saveset create2dGate $name $type $params $points
         } elseif {$type in [list * + - T F]} {
             
@@ -627,8 +628,10 @@ proc _restoreGammaSlice {gate} {
     set name [dict get $gate name]
     set params [dict get $gate parameters]
     set point [dict get $gate points]
+    set low [dict get [lindex $point 0] x]
+    set high [dict get [lindex $point 1] x]
     
-    gate -new $name gs [list $point $params]
+    gate -new $name gs [list [list $low $high] $params]
 }
 ##
 # _getParamsAnd2dPts
@@ -666,7 +669,16 @@ proc _restore2dGate {gate} {
     set params [dict get $gate parameters]
     set pts    [dict get $gate points]
     
-    gate -new $name $type [list {*}$params $pts]
+    # the pts are a list of dicts:
+    
+    set points [list]
+    foreach pt $pts {
+        set x [dict get $pt x]
+        set y [dict get $pt y]
+        lappend points [list $x $y]
+    }
+    
+    gate -new $name $type [list {*}$params $points]
 }
 ##
 # _restore2dGammaGate
@@ -682,9 +694,14 @@ proc _restore2dGammaGate {gate} {
     set type [dict get $gate type]
     set params [dict get $gate parameters]
     set pts    [dict get $gate points]
+    set points [list]
+    foreach pt $pts {
+        set x [dict get $pt x]
+        set y [dict get $pt y]
+        lappend points [list $x $y]
+    }
 
-
-    gate -new $name $type [list $pts $params]    
+    gate -new $name $type [list $points $params]    
 }
 ##
 # _restoreCompoundGate

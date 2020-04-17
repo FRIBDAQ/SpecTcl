@@ -253,6 +253,7 @@ tcltest::test save_3 {Duplicate save set name is no good} \
 -cleanup {
     
     $config destroy
+    rmdb
 }                                                       \
 -body {
     [dbconfig::saveConfig $config {TestConfig}] destroy
@@ -469,6 +470,7 @@ tcltest::test specdef_1 {Initially all of the spectrum def tables are empty}  \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -508,6 +510,7 @@ tcltest::test specdef_2 {One spectrum definition for a 2d with existing params} 
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -570,6 +573,7 @@ tcltest::test specdef_3 {A few spectra and they are kept ok} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -635,6 +639,7 @@ tcltest::test scontents_1 {Definitions with out contents is empty table} \
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set ::dummyParamDefs [list                                        \
@@ -668,6 +673,7 @@ tcltest::test scontents_2 {Definitions and put contents into one of the spectra}
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -713,6 +719,7 @@ tcltest::test scontents_3 {2-d spectrum with data} \
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -756,6 +763,7 @@ tcltest::test scontents_4 {All spectra have data} \
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -815,6 +823,7 @@ tcltest::test restore_1 {No such save set is an error} \
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [catch {dbconfig::restoreConfig $config test}]
@@ -834,6 +843,7 @@ tcltest::test restore_2 {The parameters we saved get restored no delete- no conc
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -864,6 +874,7 @@ tcltest::test restore_3 {Parameter deleted if duplicate: } \
     set ::dummySpectrumDefs [list]
     
     array unset ::dummyContents *
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -897,6 +908,7 @@ tcltest::test restore_4 {Spectrum definition restore - nothing to delete } \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -936,6 +948,7 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1044,6 +1057,7 @@ tcltest::test gates_1 {Save a gate top level}                       \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1079,6 +1093,7 @@ tcltest::test gates_2 {Save with two gates} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1118,6 +1133,7 @@ tcltest::test gates_3 {can leading parameters get saved?} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1158,6 +1174,7 @@ tcltest::test gate_4 {Can trailing parameter get saved?}           \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1199,6 +1216,7 @@ tcltest::test gate_5 {Save gate points for bands and contours}    \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1238,6 +1256,7 @@ tcltest::test gate_6 {Saving mask gates} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1275,6 +1294,7 @@ tcltest::test gate_7 {gamma contour/band points}               \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1314,6 +1334,7 @@ tcltest::test gate_8 {gamma slice point}                   \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1350,6 +1371,7 @@ tcltest::test gate_9 {Dependent gate ids} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1403,6 +1425,7 @@ tcltest::test deps_1 {Two gates in reverse order}                   \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1429,6 +1452,7 @@ tcltest::test deps_2 {Several gates with varying dependencies} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1458,6 +1482,7 @@ tcltest::test deps_3 {multilevel dependencies}              \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1488,6 +1513,7 @@ tcltest::test deps_4 {cyclical dependencies}            \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1520,6 +1546,7 @@ tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db 
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1566,6 +1593,7 @@ tcltest::test apply_2 {Gate applications for -TRUE- get suppressed } \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1617,6 +1645,7 @@ tcltest::test apply_3  {A spectrum has a gate} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1675,6 +1704,7 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1724,19 +1754,20 @@ tcltest::test apply_4 {Bunch of spectra have gates} \
 ]
 ##############################################################################
 # Gate restoration.
-if 0 {
+
 tcltest::test grestore_1 {If there are no gates in the db nothing gets restored} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1749,11 +1780,13 @@ tcltest::test grestore_1 {If there are no gates in the db nothing gets restored}
         [list 2 param1 1 param1 {{0 1023 512}} long]         \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
-    dbconfig::saveConfig config grestore
+    set ::gateDefs [list]
+    set ::applications [list]
+    [dbconfig::saveConfig $config grestore] destroy
     
     set ::gateDefs [list];                  #Empty the defs.
     
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     
     set ::gateDefs
 } -result [list]
@@ -1761,15 +1794,16 @@ tcltest::test grestore_1 {If there are no gates in the db nothing gets restored}
 tcltest::test grestore_2 {Slices get restored}             \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1786,10 +1820,10 @@ tcltest::test grestore_2 {Slices get restored}             \
         [list slice 1 s [list param1 [list 10 20]]]
     ]
         
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
     
 } -result [list [list slice s [list param1 [list 10.0 20.0]]]]
@@ -1797,15 +1831,16 @@ tcltest::test grestore_2 {Slices get restored}             \
 tcltest::test grestore_3 {bands and contours get restored}   \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1823,10 +1858,10 @@ tcltest::test grestore_3 {bands and contours get restored}   \
         [list band 2 b    [list {param2 param-something}  {700 40} {800 900}]]       \
     ]
         
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
     
 } -result [list                                                \
@@ -1837,15 +1872,16 @@ tcltest::test grestore_3 {bands and contours get restored}   \
 tcltest::test grestore_4 {Gamma bands and contours can be restored} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1863,10 +1899,10 @@ tcltest::test grestore_4 {Gamma bands and contours can be restored} \
         [list band 2 gb    [list  [list {700 40} {800 900}] [list param2 param-something]]]       \
     ]
         
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
 } -result [list                                                        \
     [list contour  gc [list [list {10.0 10.0} {20.0 30.0} {40.0 70.0}] [list param1 param2]]] \
@@ -1876,15 +1912,16 @@ tcltest::test grestore_4 {Gamma bands and contours can be restored} \
 tcltest::test grestore_5 {Restore gamma slice} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1900,9 +1937,9 @@ tcltest::test grestore_5 {Restore gamma slice} \
     set ::gateDefs [list                                                        \
         [list gs 1 gs [list [list 100 200] [list param1 param2]]]               \
     ]
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     
     set ::gateDefs
 } -result [list                                                         \
@@ -1912,15 +1949,16 @@ tcltest::test grestore_5 {Restore gamma slice} \
 tcltest::test grestore_6 {Restore T/F gates} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1938,9 +1976,9 @@ tcltest::test grestore_6 {Restore T/F gates} \
         [list false 2 F [list]]                                \
     ]
     
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
 } -result [list                                                  \
     [list true T [list] ]      \
@@ -1950,15 +1988,16 @@ tcltest::test grestore_6 {Restore T/F gates} \
 tcltest::test grestore_8 {restore compound gates} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -1979,10 +2018,10 @@ tcltest::test grestore_8 {restore compound gates} \
         [list and 5 * {true not}]                          \
     ]
     
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     set ::gateDefs [list]
     
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
 } -result [list                                                  \
     [list true T [list]]                                       \
@@ -1994,15 +2033,16 @@ tcltest::test grestore_8 {restore compound gates} \
 tcltest::test grestore_9 {bitmask gate restores} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
     set ::gateDefs [list]
     set ::dummySpectrumDefs [list]
     set ::dummyParamDefs [list]
     set ::applications [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -2022,9 +2062,9 @@ tcltest::test grestore_9 {bitmask gate restores} \
         [list notm  3 nm [list param-something 2134]]         \
     ]
     
-    dbconfig::saveConfig config grestore
+    [dbconfig::saveConfig $config grestore] destroy
     set ::gateDefs [list]
-    dbconfig::restoreConfig config grestore
+    dbconfig::restoreConfig $config grestore
     set ::gateDefs
 } -result [list                                               \
     [list equal em [list param1 1234]]                       \
@@ -2033,7 +2073,7 @@ tcltest::test grestore_9 {bitmask gate restores} \
 ]
 #############################################################################
 # Restore gate applications:
-
+if 0 {
 tcltest::test apprestore_1 {Restore some applications} \
 -setup {
     createdb
