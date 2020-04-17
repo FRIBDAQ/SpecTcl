@@ -31,7 +31,7 @@ package require sqlite3
 
 set here [file dirname [info script]]
 source [file join $here dbconfig.tcl];  # pull in the package.
-
+package require dbconfig
 
 proc sbind args {
     
@@ -39,9 +39,15 @@ proc sbind args {
 proc clear args {
     
 }
+set database ""
 
 proc createdb {} {
-    sqlite3 config :memory:
+    set fd [file tempfile ::database]
+    close $fd
+    
+}
+proc rmdb {} {
+    file delete $::database
 }
 
 
@@ -168,78 +174,88 @@ proc spectrum {op args} {
 #
 tcltest::test create_1 {Test creation} \
 -setup {createdb }                      \
--cleanup {config close}                \
+-cleanup {rmdb}                \
 -body {
-    set status [catch {dbconfig::makeSchema :memory:}]
+    set status [catch {DBTcl create $database} ]
+    set status
 } -result 0
 
 tcltest::test create_2 {test double creation} \
 -setup {createdb }                            \
--cleanup {config close}                       \
+-cleanup {rmdb}                       \
 -body {
-    dbconfig::makeSchema :memory:;             # Should work fine given create_2
-    catch {dbconfig::makeSchema :memory:}
+    DBTcl create $database;             # Should work fine given create_2
+    catch {DBTcl create $database}
 } -result 0
 
-if 0 {
+
 #############################################################################
 ## save with names
 #
 tcltest::test save_1 {A single save should be just fine} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::saveConfig config {TestConfig}
+
+    dbconfig::saveConfig $config {TestConfig}
     set rows 0
     set last [list]
-    config eval {SELECT * FROM save_sets} {
+    sqlite3 db $database
+    db eval {SELECT * FROM save_sets} {
         incr rows
         set last [list $rows $id $name]
     }
+    db close
     set last
 } -result {1 1 TestConfig}
 
 tcltest::test save_2 {Save of two items should also be fine:} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::saveConfig config {TestConfig}
-    dbconfig::saveConfig config {SecondConfig}
+    dbconfig::saveConfig $config {TestConfig}
+    dbconfig::saveConfig $config {SecondConfig}
     
     set rows [list]
-    config eval {SELECT * FROM save_sets ORDER BY id ASC} {
+    sqlite3 db $database
+    db eval {SELECT * FROM save_sets ORDER BY id ASC} {
         lappend rows [list $id $name]
     }
+    db close
     set rows
 } -result [list [list 1 TestConfig] [list 2 SecondConfig]]
+
 
 tcltest::test save_3 {Duplicate save set name is no good} \
 -setup {
     createdb
-    dbconfig::makeSchema config
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                        \
 -cleanup {
-    config close
+    $config destroy
 }                                                       \
 -body {
-    dbconfig::saveConfig config {TestConfig}
-    dbconfig::saveConfig config {TestConfig}
+    dbconfig::saveConfig $config {TestConfig}
+    dbconfig::saveConfig $config {TestConfig}
 } -returnCodes 1 \
 -result * -match glob
 
 ##############################################################################
 #  List configs.
-
+if 0 {
 tcltest::test list_1 {Initially there are no configurations to list} \
 -setup {
     createdb

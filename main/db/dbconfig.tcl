@@ -57,13 +57,9 @@ proc _lookupSaveSet {cmd savename} {
 # _saveParameters
 #    Save the parameter definitions to the parameter_defs table:
 #
-# @param cmd - data base command.
-# @param sid - Save set id.
-#
-#   - If a parameter has a tree parameter definition it is saved
-#     fully, otherwise only the parameter name and number are saved.
-#
-proc _saveParameters {cmd sid} {
+# @param saveset - the saveset object instance command.
+
+proc _saveParameters {saveset} {
     foreach rawDef [parameter -list *] {
         set name [lindex $rawDef 0]
         set number [lindex $rawDef 1]
@@ -78,69 +74,14 @@ proc _saveParameters {cmd sid} {
             set high [lindex $tdef 3]
             set units [lindex $tdef 5]
             
-            $cmd eval {
-                INSERT INTO parameter_defs
-                    (save_id, name, number, low, high, bins, units)
-                    VALUES(:sid, :name, :number, :low, :high, :bins, :units)
-            }
+            $saveset createParameter $name $number $low $high $bins $units
             
         } else {
             # only save name and number:
             
-            $cmd eval {
-                INSERT INTO parameter_defs
-                    (save_id, name, number)
-                    VALUES(:sid, :name, :number)
-            }
+            $saveset createParameter $name $number
+            
         }
-    }
-}
-##
-# _addSpecParam
-#    Adds a parameter to the list of parameters used by the spectrum. These
-#
-# @param cmd  - Database command.
-# @param specid - Spectrum id
-# @param parname - parameter name.
-# @param sid     - save set id under which the parameter was saved.
-#
-proc _addSpecParam {cmd specid parname sid} {
-    # Get the parameter id from the parameter_defs table:
-    
-    set pid "";             #if not defined it's an error of course.
-    $cmd eval {
-        SELECT id FROM parameter_defs WHERE save_id = :sid AND name = :parname
-    } {
-        set pid $id
-    }
-    if {$pid eq ""} {
-        error "Spectrum defined on nonexistent parameter: $parname"
-    } else {
-        $cmd eval {
-            INSERT INTO spectrum_params (spectrum_id, parameter_id)
-            VALUES(:specid, :pid)
-        }
-    }
-}
-##
-#  _addSpecAxis
-#
-#   Adds an axis definition for a spectrum.
-#
-# @param cmd - database command.
-# @param specid - spectrum id (implies a save set id).
-# @param axis   - axis definition (3 element low, high bints list).
-#
-proc _addSpecAxis {cmd specid axis} {
-
-    set low [lindex $axis 0]
-    set high [lindex $axis 1]
-    set bins [lindex $axis 2]
-    
-    $cmd eval {
-        INSERT INTO axis_defs
-        (spectrum_id, low, high, bins)
-        VALUES(:specid, :low, :high, :bins)
     }
 }
 ##
@@ -152,10 +93,9 @@ proc _addSpecAxis {cmd specid axis} {
 #      spectrum_defs, axis_defs, and spectrum_params  The spectrum_params
 #      insert requires a lookup into the parameter_defs  table.
 #
-# @param cmd - data base command.
-# @param sid - save set id.
+# @param saveset - saveset instance command.
 #
-proc _saveSpectrumDefs {cmd sid} {
+proc _saveSpectrumDefs {saveset} {
     foreach def [spectrum -list *] {
         set name [lindex $def 1]
         set type [lindex $def 2]
@@ -163,206 +103,11 @@ proc _saveSpectrumDefs {cmd sid} {
         set axes   [lindex $def 4]
         set datatype [lindex $def 5]
         
-        # Create the root entr in spectrum_defs  its'id is used to make the others:
+        $saveset createSpectrum  $name $type $params $axes $datatype
+    }
+}
 
-        $cmd eval {
-            INSERT INTO spectrum_defs
-            (save_id, name, type, datatype)
-            VALUES (:sid, :name, :type, :datatype)
-        }
-        set specid [$cmd last_insert_rowid]
-        foreach pname $params {
-            _addSpecParam $cmd $specid $pname $sid
-        }
-        foreach axis $axes {
-            _addSpecAxis $cmd $specid $axis
-        }
-    }
-}
-##
-# _addLeadingParameters
-#    Adds a fixed number of parameters to the gate from a description
-#    when those parameters lead the description:
-#
-# @param cmd   - Database command.
-# @param gid   - Gate id these parameters belong with.
-# @param sid   - save set id
-# @param descr - Gate description string
-# @param n     - Number of parameters.
-#
-proc _addLeadingParameters {cmd gid sid descr n} {
-    # We need to look up the parameters to get their ids
-    
-    
-    set names [lindex $descr 0];          # first is a list of parameters.
-    foreach name $names {
-        set pid ""
-        $cmd eval {
-            SELECT id FROM  parameter_defs
-            WHERE save_id = :sid AND name = :name
-        } {
-            set pid $id
-        }
-        if {$pid eq ""} {
-            error "Adding a gate parameter : $name is not defined as a parameter"
-        }
-        $cmd eval {
-            INSERT INTO gate_parameters (parent_gate, parameter_id)
-                VALUES (:gid, :pid)
-        }
-    }
-}
-##
-# _addTrailingParameters
-#    Adds parameters that are in a list that is the last element of the gate
-#    Description
-#
-# @param cmd    - database command.
-# @param gid    - gate id of the ownning gate.
-# @param sid    - Save id.
-# @param descr  - Gate description
-#
-proc _addTrailingParameters {cmd gid sid descr} {
-    
-    set names [lindex $descr end];        # list of parameter names.
-    foreach name $names {
-        set pid  ""
-        $cmd eval {
-            SELECT id FROM parameter_defs
-            WHERE save_id = :sid AND  name = :name
-        } {
-            set pid $id
-        }
-        if {$pid eq ""} {
-            error "Adding a gate parameter : $name is not a defined paramter"
-        } else {
-            $cmd eval {
-                INSERT INTO gate_parameters (parent_gate, parameter_id)
-                    VALUES (:gid, :pid)
-            }
-        }
-    }
-}
-##
-# _addTrailingPoints
-#
-#   Add points to a primitive gate
-#
-# @param cmd - database command
-# @param gid - gate id
-# @param descr - the gate description.
-#
-proc _addTrailingPoints {cmd gid descr} {
-    set points [lrange $descr 1 end];    #extract the points.
-    foreach point $points {
-        set x [lindex $point 0]
-        set y [lindex $point 1]
-        
-        $cmd eval {
-            INSERT INTO gate_points (gate_id, x, y)
-            VALUES (:gid, :x, :y)
-        }
-    }
-}
-##
-# _addGateMask
-#    Add the mask data for a bitmask gate:
-#
-# @param cmd   - The database command.
-# @param gid   - Gate id.
-# @param descr - Gate description.  The second element is the mask
-#
-proc _addGateMask {cmd gid descr} {
-    set mask [lindex $descr 1]
-    $cmd eval {
-        INSERT INTO gate_masks (parent_gate, mask)
-        VALUES (:gid, :mask)
-    }
-}
-##
-# _addLeadingPoints
-#    Adds points for gate descriptions where the points are a list that is the
-#    first element of the gate description.
-#
-#  @param cmd     - Database command
-#  @param gate_id - Gate id.
-#  @param descr   - Gate description.
-#
-proc _addLeadingPoints {cmd gate_id descr} {
-    set points [lindex $descr 0]
 
-    foreach point $points {
-        set x [lindex $point 0]
-        set y [lindex $point 1]
-        
-        $cmd eval {
-            INSERT INTO gate_points (gate_id, x, y)
-            VALUES (:gate_id, :x, :y)
-        }
-    }
-}
-##
-# _addLeadingPoint
-#    Save the two x parameter of a gamma slice.
-#
-#  @param cmd   - Database Command.
-#  @param gid   - Gate id.
-#  @param descr - Gate description.
-#
-proc _addLeadingPoint {cmd gid descr} {
-    set point [lindex $descr 0]
-    set x     [lindex $point 0]
-    set y     [lindex $point 1]
-
-    foreach x $point {    
-        $cmd eval {
-            INSERT INTO gate_points (gate_id, x)
-            VALUES (:gid, :x)
-        }
-    }
-}
-##
-# _addComponentGates
-#    For compound gates, write the ids of the component gates.  Note that
-#    We're assuming that the gates we depend on have already been written
-#    We do  a sanity check to ensure this was the case.
-#
-# @param cmd    - Database command.
-# @param sid    - saveset id.
-# @param gid    - my gate id.
-# @param descr  - Description which is a list of dependent gates.
-#
-proc _addComponentGates {cmd sid gid descr} {
-    set depNames [list]
-    
-    # Can't just join strings -- need to surround them with ""'s to make SQL
-    # happy.
-    
-    foreach gateName $descr {
-        lappend depNames "\"$gateName\""
-    }
-    set depNames [join $depNames ,]
-    
-    set depIds [list]
-
-    $cmd eval "                            
-        SELECT id FROM gate_defs           
-        WHERE saveset_id = $sid            
-        AND   name IN ($depNames)
-    "   {
-        lappend depIds $id
-    }
-    
-    if {[llength $depIds] != [llength $descr]} {
-        error "BUG - trying to write a gate whose dependent gates were not yet written."
-    }
-    foreach id $depIds {
-        $cmd eval {
-            INSERT INTO component_gates (parent_gate, child_gate)
-            VALUES (:gid, :id)
-        }
-    }
-}
 ##
 # _canWrite
 #    Determines if a gate is writable. A gate is writable if
@@ -379,8 +124,8 @@ proc _canWrite {gate written} {
         # Need dependency analysis.
         
         set dependencies [lindex $gate 2]
-        foreach gate $dependencies {
-            if {$gate ni $written} {
+        foreach dep $dependencies {
+            if {$dep ni $written} {
                 return 0;          #unwritten dependency.
             }
         }
@@ -442,34 +187,15 @@ proc _ReorderGates {defs} {
     }
     return $result
 }
-##
-# _add1dSlicePoint
-#   Adds a 1d point for a slice.  The point is a single list elemnt with
-#   low, high limts that are only x coordinates:
-#
-# @param cmd - database command.
-# @param gid  - id of the gate.
-# @param desc  - gate description
-#
-#
-proc _add1dSlicePoint {cmd gid desc} {
-    set lims [lindex $desc 1]
-    foreach lim $lims {
-        $cmd eval {
-            INSERT INTO gate_points (gate_id, x)
-            VALUES (:gid, :lim)
-        }
-    }
-}
+
 ##
 # _saveGateDefinitions
 #    Save definitions of gates.  This one has tones of special cases depending
 #    on the gate type.
 #
-# @param cmd - database command
-# @param sid - save id.
+# @param saveset - the saveset instance command
 #
-proc _saveGateDefinitions {cmd sid} {
+proc _saveGateDefinitions {saveset} {
     set gates [gate -list]
     
     # Strip the gate of its id (element1)
@@ -480,54 +206,61 @@ proc _saveGateDefinitions {cmd sid} {
     }
     set gates $strippedGates
     
-    #  All gates have a name and type that must be entered.
-    #  This gets entered in the gate_defs table.
+    
     #
-    # TODO:  The gates must be re-ordered so that compound gates are only written
+    #   The gates must be re-ordered so that compound gates are only written
     #        Once their component gates are written.
     
     set gates [_ReorderGates $gates]
+    
+    
     foreach gate $gates {
         set name [lindex $gate 0]
         set type [lindex $gate 1]
         set descr [lindex $gate 2]
+    
+        # How a gate is entered depends on its type.
         
-        $cmd eval {
-            INSERT INTO gate_defs (saveset_id, name, type)
-            VALUES (:sid, :name, :type)
-        }
-        set gate_id [$cmd last_insert_rowid];    # for foreign keys.
-        
-        # Several gate types have parameter names in the leading part of
-        # the description:
-        
-        if {$type in [list b c]} {
-            _addLeadingParameters $cmd $gate_id $sid $descr 2
-            _addTrailingPoints    $cmd $gate_id $descr
-        }
-        if {$type in [list s em am nm]} {
-            _addLeadingParameters $cmd $gate_id $sid $descr 1
+        if {$type in [list s gs] } {
+            # 1d gate.
+            
             if {$type eq "s"} {
-                _add1dSlicePoint $cmd $gate_id $descr
+                set params [lindex $descr 0]
+                set lims   [lindex $descr 1]
+                
             } else {
-                _addGateMask $cmd $gate_id $descr
+                set lims [lindex $descr 0]
+                set params [lindex $descr 1]
             }
-        }
-        if {$type in [list gs gb gc]} {
-            _addTrailingParameters $cmd $gate_id $sid $descr
-            if {$type in [list gc gb]} {
-                _addLeadingPoints      $cmd $gate_id $descr
+            set low [lindex $lims 0]
+            set high [lindex $lims 1]
+            
+            $saveset create1dGate $name $type $params $low $high
+        } elseif {$type in [list c gc b gb]} {
+            if {$type in [list c b]} {
+                set points [lindex $descr 1]
+                set params [lindex $descr 0]
             } else {
-                _addLeadingPoint $cmd $gate_id $descr
+                set points [lindex $descr 0]
+                set params [lindex $descr 1]
             }
-        }
-        # Compound gates (note that T/F gates have no additional data)
+            
+            $saveset create2dGate $name $type $params $points
         
-        if {$type in [list * + -]} {
-            _addComponentGates $cmd $sid $gate_id $descr
+        } elseif {$type in [list * + - T F]} {
+            
+            $saveset createCompoundGate $name $type $descr
+
+        } elseif {$type in [list em am nm]} {
+            set param [lindex $descr 0]
+            set mask  [lindex $descr 1]
+            
+            createMaskGate $name $type $param $mask
+        } else {
+            error "Unknonw gate type; $type"
         }
     }
-    
+        
 }
 ##
 # _saveGateApplications
@@ -537,63 +270,34 @@ proc _saveGateDefinitions {cmd sid} {
 #   -   All gates have been defined.
 #
 #
-# @param cmd -- The gate command.
-# @param sid -- The save set id.
+# @param saveset -the saveset instance command
 #
-proc _saveGateApplications {cmd sid} {
+proc _saveGateApplications {saveset} {
     set applications [apply -list]
     
-    # rather than looking things up one application at  a time build hashes
-    # that take names to ids for spectra and gates:
-    
-    array set spectra [list]
-    array set gates [list]
-    
-    $cmd eval {
-        SELECT id, name FROM spectrum_defs WHERE save_id = :sid
-    } {
-        set spectra($name) $id
-    }
-    $cmd eval {
-        SELECT id, name FROM gate_defs WHERE saveset_id = :sid
-    } {
-        set gates($name) $id
-    }
     #  Now run through the applications. Note that if the gate is named -TRUE-
     # the spectrum is ungated and we won't list an application for it:
     
     foreach application $applications {
         set spname [lindex $application 0]
         set gname  [lindex [lindex $application 1] 0]
-        if {$gname ne "-TRUE-"} {
-            set spid $spectra($spname)
-            set gid  $gates($gname)
-            
-            $cmd eval {
-                INSERT INTO gate_applications (spectrum_id, gate_id)
-                VALUES (:spid, :gid)
-            }
-        }
+        $saveset createApplication $gname $spname
     }
     
 }
 ##
 # _saveTreeVariables
 #    Saves tree variables/names.
-# @param cmd - Database command.
-# @param sid - Save set id.
+# @param saveset - saveset instance command
 #
-proc _saveTreeVariables {cmd sid} {
+proc _saveTreeVariables {saveset} {
     set defs [treevariable -list]
     foreach def $defs {
         set name [lindex $def 0]
         set value [lindex $def 1]
         set units [lindex $def 2]
+        $saveset createVariable $name $value $units
         
-        $cmd eval {
-            INSERT INTO treevariables (save_id, name, value, units)
-            VALUES (:sid, :name, :value, :units)
-        }
     }
 }
 
@@ -712,91 +416,63 @@ proc _restoreTreeParam {name low high bins units} {
 #      * If there's no existing tree paramter a new one is created.
 #      * If there's an existing tree parameter it is modified.
 #
-# @param cmd - DB command name.
-# @param saveid- Save set id.
+# @param saveset - saveset instance command.
 #
-proc _restoreParamDefs {cmd saveid} {
-    $cmd eval {
-        SELECT name, number, low, high, bins, units FROM parameter_defs
-        WHERE save_id = :saveid
-    } {
-        set existingDef [parameter -list $name]
-        if {[llength $existingDef] > 0} {
+proc _restoreParamDefs {saveset} {
+    set paramDefs [$saveset listParameters]
+    
+    foreach def $paramDefs {
+        set name [dict get $def name]
+        set number [dict get $def number]
+        if {[llength [parameter -list $name]] > 0} {
             parameter -delete $name
         }
         parameter -new $name $number
         
-        #  Do we need to create/restore the tree parameter info?
+        # Is it a tree param?
         
-        if {($low ne "") && ($high ne "") && ($bins ne "") } {
+        if {[dict exists $def low]} {
+            set low [dict get $def low]
+            set high [dict get $def high]
+            set bins [dict get $def bins]
+            set units [dict get $def units]
+            
             _restoreTreeParam $name $low $high $bins $units
-        }
+        } 
     }
+    
 }
 ##
 # _restoreSpectrumDefs
 #    Restores the spectrum definitions for a saveset.  Any existing spectrum
 #    with the same name is deleted first.
 #
-# @param cmd - database command.
-# @param sid - save set id.
-# @param spid - if provided the id of the single specstrum id we want
+# @param saveset  - saveset instance command
+# @param spname - if provided the name of the single specstrum id we want
 #               to restore.
 #
-proc _restoreSpectrumDefs {cmd sid {spid -1}} {
+proc _restoreSpectrumDefs {saveset {spname {}}} {
     # Get the spectrum top level defs.  These will go into an array of
     # dicts indexed by the spectrum id
     
-    array set topdefs [list];          # Array of top level dicts.
-    set idlist [list]
-    if {$spid == -1} {
-        $cmd eval {
-            SELECT * from spectrum_defs  WHERE save_id = :sid
-            ORDER BY id ASC
-        } {
-            set value [dict create id $id name $name type $type datatype $datatype]
-            set topdefs($id) $value
-            lappend idlist $id
-        }
+    if {$spname ne ""} {
+        set speclist [list [$saveset findSpectrum $spname]]
     } else {
-        $cmd eval {
-            SELECT * from spectrum_defs WHERE id = :spid
-        } {
-            set value [dict create id $id name $name type $type datatype $datatype]
-            set topdefs($id) $value
-            lappend idlist $id
-
-        }
-        
+        set speclist [$saveset listSpectra]
     }
+     
+    # Speclist is now the list of spectra to restore.
     
-    set idlist [join $idlist ,]
     
-    # Now get the parameter names for each spectrum.
     
-    $cmd eval "
-        SELECT spectrum_id, name FROM spectrum_params
-        INNER JOIN parameter_defs ON  parameter_id = parameter_defs.id 
-        WHERE spectrum_id IN ($idlist)
-        ORDER BY spectrum_params.id ASC
-    "   {
-        dict lappend topdefs($spectrum_id) parameters $name
-    }
-    # Now the axis definitions:
     
-    $cmd eval "
-        SELECT spectrum_id, low, high, bins FROM axis_defs
-        WHERE spectrum_id IN ($idlist)
-        ORDER BY id ASC
-    " {
-        dict lappend topdefs($spectrum_id) axes [list $low $high $bins]
-    }
+    
     # Now we can run over the spectra, deleting existing ones and
     # Creating the ones in the definition.
     
-    set idlist [split $idlist ,];   #Maybe faster than array names?
-    foreach id $idlist {
-        set def $topdefs($id)
+    
+    foreach def $speclist {
+    
     
         set name [dict get $def name]
         if {[llength [spectrum -list $name]] != 0 } {
@@ -920,27 +596,26 @@ proc _getParamsAnd1dPts {cmd gate} {
 #   Pull the parameter and point associated with a slice gate out of the
 #   database and restore the slice:
 #
-# @param cmd  - The database command.
 # @param gate - The current gate dictionary.
 #
-proc _restoreSlice {cmd gate} {
-    set gate [_getParamsAnd1dPts $cmd $gate]
+proc _restoreSlice {gate} {
+    
     
     set name [dict get $gate name]
     set param [dict get $gate parameters]
-    set point [dict get $gate points]
-    gate -new $name s [list $param $point]
+    set points [dict get $gate points]
+    set low [dict get [lindex $points 0] x]
+    set high [dict get [lindex $points 1] x]
+    gate -new $name s [list $param [list $low $high]]
 }
 ##
 # _restoreGammaSlice
 #    Restore gamma slice gates.  Very similar to _restoreSlice but the command
 #    format is different.
 #
-# @param cmd  - Database command.
 # @param gate - Partial gate dict.
 #
-proc _restoreGammaSlice {cmd gate} {
-    set gate [_getParamsAnd1dPts $cmd $gate]
+proc _restoreGammaSlice {gate} {
     
     set name [dict get $gate name]
     set params [dict get $gate parameters]
@@ -975,11 +650,9 @@ proc _getParamsAnd2dPts {cmd gate} {
 #   Restore band or contours - note that the action is similar to that of
 #  _restoreSlice but the points have x,y coords
 #
-# @param cmd    - database command.
 # @param gate   - Gate dictionary as we have it so far.
 #
-proc _restore2dGate {cmd gate} {
-    set gate [_getParamsAnd2dPts $cmd $gate]
+proc _restore2dGate {gate} {
     
     set name [dict get $gate name]
     set type [dict get $gate type]
@@ -994,11 +667,9 @@ proc _restore2dGate {cmd gate} {
 #   gate creation command is just that of c/b gates backwards, and the parameters
 #   are a proper list.
 #
-# @param  cmd  - Database command.
 # @param  gate - gate dict so far.
 #
-proc _restore2dGammaGate {cmd gate} {
-    set gate [_getParamsAnd2dPts $cmd $gate]
+proc _restore2dGammaGate {gate} {
     
     set name [dict get $gate name]
     set type [dict get $gate type]
@@ -1012,23 +683,15 @@ proc _restore2dGammaGate {cmd gate} {
 # _restoreCompoundGate
 #   Restores a gate that's made up of other gates.
 #
-# @param cmd  - The database command.
 # @param gate - the dictionary so far.
 #
-proc _restoreCompoundGate {cmd gate} {
+proc _restoreCompoundGate {gate} {
     # Get the names of the gates associated with this one
     
     set id [dict get $gate id]
     set type [dict get $gate type]
     set gname [dict get $gate name]
-    set gates [list]
-    $cmd eval {
-        SELECT name FROM gate_defs
-        INNER JOIN component_gates ON component_gates.child_gate = gate_defs.id
-        WHERE parent_gate = :id
-    } {
-        lappend gates $name
-    }
+    set gates [dict get $gate gates]
     
 
     gate -new $gname $type $gates
@@ -1039,17 +702,10 @@ proc _restoreCompoundGate {cmd gate} {
 # _restoreMaskGate
 #    Restore a bitmask gate:
 #
-# @param cmd   - database command.
 # @param gate  - Gate dict so far.
 #
-proc _restoreMaskGate {cmd gate} {
-    set gate [_getGateParams $cmd $gate];            # add the parameters to the dict.
-    set id [dict get $gate id]
-    $cmd eval {
-        SELECT mask from gate_masks WHERE parent_gate = :id
-    } {
-        dict lappend gate mask $mask
-    }
+proc _restoreMaskGate {gate} {
+    
     
     set gname [dict get $gate name]
     set pname [dict get $gate parameters]
@@ -1062,21 +718,17 @@ proc _restoreMaskGate {cmd gate} {
 ##
 # _restoreGateDefs
 #    Restore all gate definitions in a save set.
-# @param cmd  - database command
+# @param saveset  - saveset instance command.
 # @param sid  - The save set id to restore from.
 #
-proc _restoreGateDefs {cmd sid} {
+proc _restoreGateDefs {saveset} {
     #  List the gates we need to restore.  The fact that they're ordered by the
     # PK ensures the save order is preserved and therefore the correct dependency
     # order is maintained.
     
-    set gates [list]
-    $cmd eval {
-        SELECT id, name, type FROM gate_defs WHERE saveset_id = :sid
-        ORDER BY id ASC
-    } {
-        lappend gates [dict create id $id name $name type $type]
-    }
+    
+    set gates [$saveset listGates]
+    
     
     #  Now iterate over the gates doing the correct gate dependent restoration.
     
@@ -1084,20 +736,20 @@ proc _restoreGateDefs {cmd sid} {
 
         set type [dict get $gate type]
         if {$type eq "s"} {;      # Slice gate.
-            _restoreSlice $cmd $gate
+            _restoreSlice  $gate
         } elseif {$type in [list c b]} {
-            _restore2dGate $cmd $gate
+            _restore2dGate $gate
         } elseif {$type in [list gb gc]} {
-            _restore2dGammaGate  $cmd $gate
+            _restore2dGammaGate  $gate
         } elseif {$type eq "gs"} {
-            _restoreGammaSlice $cmd $gate
+            _restoreGammaSlice $gate
         } elseif {$type in [list T F]} {
             set name [dict get $gate name]
             gate -new $name $type [list]
         } elseif {$type in [list * + -]} {
-            _restoreCompoundGate $cmd $gate
+            _restoreCompoundGate $gate
         } elseif {$type in [list em am nm]} {
-            _restoreMaskGate $cmd $gate
+            _restoreMaskGate  $gate
         }
     }
 }
@@ -1105,34 +757,28 @@ proc _restoreGateDefs {cmd sid} {
 # _restoreGateApplications
 #    Restores the applications of gates to spectra.
 #
-# @param cmd - database command.
+# @param saveset - savest instance command.
 # @param sid - The save set id.
 #
-proc _restoreGateApplications {cmd sid} {
+proc _restoreGateApplications {saveset} {
     
-    $cmd eval {
-        SELECT spectrum_defs.name AS spname, gate_defs.name AS gname
-        FROM gate_applications
-        INNER JOIN spectrum_defs ON gate_applications.spectrum_id = spectrum_defs.id
-        INNER JOIN gate_defs  ON gate_applications.gate_id = gate_defs.id
-        WHERE spectrum_defs.save_id = :sid
-        ORDER BY gate_applications.id ASC
-    } {
-        apply $gname $spname
+    foreach application [$saveset listApplications] {
+        set gate [dict get $application gate]
+        set spec [dict get $application spectrum]
+        apply $gate $spec
     }
 }
 ##
 # _restoreTreeVariables
 #    Restore tree variables from a saveset:
 #
-# @param cmd - database comand.
-# @param sid - The save set id.
+# @param saveset  - saveset command instance
 #
-proc _restoreTreeVariables {cmd sid} {
-    $cmd eval {
-        SELECT name, value, units FROM treevariables
-        WHERE save_id = :sid
-    } {
+proc _restoreTreeVariables {saveset} {
+    foreach def [$saveset listVariables] {
+        set name [dict get $def name]
+        set value [dict get $def value]
+        set units [dict get $def units]
         treevariable -set $name $value $units
     }
 }
@@ -1279,30 +925,27 @@ proc makeSchema fname {
 }
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
-##  @param cmd  - the databsae command.
+#  @param dbconnection  - the database insance command.
 #  @param name - Name of the configuration.
 #  @param spectra - optional.  If true, saves all spectrum contents as well.
-#  @return int - The id of the save's root record.
+#  @return object saveset command instance name.
 #
-proc saveConfig {cmd name {spectra 0}} {
+proc saveConfig {dbconnection name {spectra 0}} {
     set timestamp [clock seconds]
     
-    $cmd transaction {
-        $cmd eval {INSERT INTO save_sets (name, timestamp) VALUES(:name, :timestamp)}
-        set save_id [$cmd last_insert_rowid]
-        
-      _saveParameters       $cmd $save_id
-      _saveSpectrumDefs     $cmd $save_id
-      _saveGateDefinitions  $cmd $save_id
-      _saveGateApplications $cmd $save_id
-      _saveTreeVariables    $cmd $save_id
-      if {$spectra} {
-        _saveSpectraContents  $cmd $save_id  
-      }
+    
+    set saveset [$dbconnection createSaveset $name]
+    
+    _saveParameters       $saveset
+    _saveSpectrumDefs     $saveset
+    _saveGateDefinitions  $saveset
+    _saveGateApplications $saveset
+    _saveTreeVariables    $saveset
+      #if {$spectra} {
+      #  _saveSpectraContents  $cmd $save_id  
+      #}
       
-        
-    }
-    return $save_id
+    return $saveset
 }
 
 
@@ -1315,15 +958,18 @@ proc saveConfig {cmd name {spectra 0}} {
 #    -   name - The configuration name.
 #    -   time  - the [clock seconds] at which the configuration save was started.
 #
-# @param cmd - data base command.
+# @param cmd - data base instance command.
 # @return list of dicts -- see above.
 proc listConfigs cmd {
     set result [list]
-    $cmd eval {SELECT * FROM save_sets ORDER BY id ASC} {
-        lappend result [dict create id $id name $name time $timestamp]
-        
-    }
     
+    set savenames [$cmd listSavesets]
+    foreach name $savenames {
+        set saveset [$cmd getSaveset $name]
+        set info [$saveset info]
+        lappend result $info
+        $saveset destroy
+    }
     return $result
 }
 
@@ -1336,7 +982,7 @@ proc listConfigs cmd {
 #  - If requested, spectrum contents are also restored.
 #
 # @param cmd   - Database command.
-# @param save-name - Name of the save set.
+# @param savename - Name of the save set.
 # @param restoreSpectra - default false.
 # @throw - error if save-name is not a save set.
 #
@@ -1344,20 +990,23 @@ proc listConfigs cmd {
 #  configuration database.
 #
 proc restoreConfig {cmd savename {restoreSpectra 0}} {
-    set saveId [_lookupSaveSet $cmd $savename]
+    
+    set saveset [$cmd gestSaveset $savename]
+    
     
     #  Now restore the bits and pieces:
     
     # Restore parameters:
     
-    _restoreParamDefs        $cmd $saveId
-    _restoreSpectrumDefs     $cmd $saveId
-    _restoreGateDefs         $cmd $saveId
-    _restoreGateApplications  $cmd $saveId
-    _restoreTreeVariables    $cmd $saveId
-    if {$restoreSpectra} {
-        _restoreSpectrumContents $cmd $saveId    
-    }
+    _restoreParamDefs        $saveset
+    _restoreSpectrumDefs     $saveset
+    _restoreGateDefs         $saveset
+    _restoreGateApplications  $saveset
+    _restoreTreeVariables    $saveset
+    
+    #if {$restoreSpectra} {
+    #    _restoreSpectrumContents $cmd $saveId    
+    #}
     
 
 }
@@ -1373,13 +1022,13 @@ proc restoreConfig {cmd savename {restoreSpectra 0}} {
 #       this overwrites the spectrum contents in that saveset.
 # 
 proc saveSpectrum {cmd sname specname} {
-    $cmd transaction {
-        set sid [_lookupSaveSet $cmd $sname];  #raises an error if no such set.
-        set id [_getSpectrumId $cmd $sid $specname]
-        _requireCompatible $cmd $id [lindex [spectrum -list $specname] 0]
-        _deleteContentsIfExists $cmd  $id
-        _saveSpectrumChans $cmd $id [scontents $specname]
-    }
+#    $cmd transaction {
+#        set sid [_lookupSaveSet $cmd $sname];  #raises an error if no such set.
+#        set id [_getSpectrumId $cmd $sid $specname]
+#        _requireCompatible $cmd $id [lindex [spectrum -list $specname] 0]
+#        _deleteContentsIfExists $cmd  $id
+#        _saveSpectrumChans $cmd $id [scontents $specname]
+#    }
 }
 ##
 # restoreSpectrum
@@ -1393,14 +1042,14 @@ proc saveSpectrum {cmd sname specname} {
 # @note - if there's no channel data associated with the spectrum you get an empty spectrum.
 #
 proc restoreSpectrum {cmd sname specname} {
-    set sid [_lookupSaveSet $cmd $sname]
-    set id  [_getSpectrumId $cmd $sid $specname]
- 
-    # If necessary define the spectrum, load it.
-    
-    _restoreSpectrumDefs $cmd $sid $id;     # Redefine the spectrum according to the database.
-    _restoreSpectrumContents   $cmd $sid $id
-    sbind $specname;
+#    set sid [_lookupSaveSet $cmd $sname]
+#    set id  [_getSpectrumId $cmd $sid $specname]
+# 
+#    # If necessary define the spectrum, load it.
+#   
+#    _restoreSpectrumDefs $cmd $sid $id;     # Redefine the spectrum according to the database.
+#   _restoreSpectrumContents   $cmd $sid $id
+#    sbind $specname;
 }
 
 ##
@@ -1410,11 +1059,11 @@ proc restoreSpectrum {cmd sname specname} {
 # @param database - command.
 # @param  sname - saveset name
 proc saveAllSpectrumContents {cmd sname} {
-    $cmd transaction {
-        set sid [_lookupSaveSet $cmd $sname]
-        
-        _saveSpectraContents  $cmd $sid
-    }
+#    $cmd transaction {
+#        set sid [_lookupSaveSet $cmd $sname]
+#        
+#        _saveSpectraContents  $cmd $sid
+#    }
  
 }
 ##
@@ -1425,9 +1074,9 @@ proc saveAllSpectrumContents {cmd sname} {
 # @param sname - save set name.
 #
 proc restoreAllSpectrumContents {cmd sname} {
-    set sid [_lookupSaveSet $cmd $sname]
-    
-    _restoreSpectrumContents $cmd $sid 
+#    set sid [_lookupSaveSet $cmd $sname]
+#    
+#    _restoreSpectrumContents $cmd $sid 
 }
 
 ##
@@ -1439,18 +1088,18 @@ proc restoreAllSpectrumContents {cmd sname} {
 # @return list of spectrum names that have channels.
 #
 proc listSavedSpectra {cmd sname} {
-    set sid [_lookupSaveSet $cmd $sname]
-    
-    set result [list]
-    $cmd eval {
-        SELECT DISTINCT name FROM spectrum_contents
-        INNER JOIN spectrum_defs ON spectrum_defs.id = spectrum_contents.spectrum_id
-        WHERE spectrum_defs.save_id = :sid
-    } {
-        lappend result $name
-    }
-    
-    return $result
+#    set sid [_lookupSaveSet $cmd $sname]
+#    
+#   set result [list]
+#    $cmd eval {
+#        SELECT DISTINCT name FROM spectrum_contents
+#        INNER JOIN spectrum_defs ON spectrum_defs.id = spectrum_contents.spectrum_id
+#        WHERE spectrum_defs.save_id = :sid
+#    } {
+#        lappend result $name
+#    }
+#    
+#    return $result
 }
 ##
 # listRuns
@@ -1466,20 +1115,20 @@ proc listSavedSpectra {cmd sname} {
 # @note the times are in [clock seconds] representation.
 #
 proc listRuns {cmd} {
-    set result [list]
-    $cmd eval {
-        SELECT id, config_id, run_number, title, start_time, stop_time
-        FROM runs
-    } {
-        set item [dict create id $id config $config_id \
-                  number $run_number title $title \
-                  start_time $start_time]
-        if {$stop_time ne ""} {
-            dict set item stop_time $stop_time
-        }
-        lappend result $item
-    }
-    return $result
+#    set result [list]
+#    $cmd eval {
+#        SELECT id, config_id, run_number, title, start_time, stop_time
+#        FROM runs
+#    } {
+#        set item [dict create id $id config $config_id \
+#                  number $run_number title $title \
+#                  start_time $start_time]
+#        if {$stop_time ne ""} {
+#           dict set item stop_time $stop_time
+#        }
+#        lappend result $item
+#    }
+#    return $result
     
 }
 
@@ -1493,12 +1142,12 @@ proc listRuns {cmd} {
 # @return bool
 #
 proc hasRun {cmd confid} {
-    $cmd eval {
-        SELECT COUNT(*) as result FROM runs
-            WHERE config_id = $confid
-    } {
-        return $result
-    }
+#    $cmd eval {
+#        SELECT COUNT(*) as result FROM runs
+#            WHERE config_id = $confid
+#    } {
+#        return $result
+#    }
 }
 
 ##
@@ -1513,21 +1162,21 @@ proc hasRun {cmd confid} {
 # @retval empty dict if there's no associated run.
 #
 proc getRunInfo {cmd conf} {
-    set result [dict create]
-    $cmd eval {
-        SELECT id, config_id, run_number, title, start_time, stop_time
-        FROM runs WHERE config_id = $conf
-    } {
-        set result [dict create                            \
-            id $id config $config_id number $run_number title $title \
-            start_time $start_time
-        ]
-        if {$stop_time ne ""} {
-            dict set result stop_time $stop_time
-        }
-    }
-    
-    return $result
+#    set result [dict create]
+#    $cmd eval {
+#        SELECT id, config_id, run_number, title, start_time, stop_time
+#        FROM runs WHERE config_id = $conf
+#    } {
+#        set result [dict create                            \
+#            id $id config $config_id number $run_number title $title \
+#            start_time $start_time
+#        ]
+#        if {$stop_time ne ""} {
+#            dict set result stop_time $stop_time
+#       }
+#    }
+#    
+#    return $result
 }
 ##
 # getScalers
@@ -1541,42 +1190,42 @@ proc getRunInfo {cmd conf} {
 #                           of each pair is the channel number/vaule of a scaler
 
 proc getScalers {cmd run} {
-    set result [list]
-    set lastid -1
-    set currentDict [list]
-    db eval {
-        SELECT scaler_readouts.id as id, run_id, source_id,
-               start_offset, stop_offset, divisor, clock_time, channel, value
-            FROM scaler_readouts
-            INNER JOIN scaler_channels
-                  ON scaler_channels.readout_id = scaler_readouts.id
-            WHERE run_id = $run} {
-        # If id changed it's a new readout:
-        # Need a new dict to add.
-        
-        
-        if {$id != $lastid}  {
-            if {$currentDict ne ""} {
-                lappend result $currentDict;   #if there's a prior add it.
-            }
-            set lastid $id
-            
-            # Create the new readout dict.
-            
-            set currentDict [dict create \
-                start $start_offset stop $stop_offset divisor $divisor timestamp $clock_time \
-                sourceid $source_id                                           \
-                channels [list]]
-        }
-        #  Add the channel info:
-        
-        dict lappend currentDict channels [list $channel $value]
-    }
-    if {$currentDict ne "" } {
-        lappend result $currentDict
-    }
-    
-    return $result
+    #set result [list]
+    #set lastid -1
+    #set currentDict [list]
+    #db eval {
+    #    SELECT scaler_readouts.id as id, run_id, source_id,
+    #           start_offset, stop_offset, divisor, clock_time, channel, value
+    #        FROM scaler_readouts
+    #        INNER JOIN scaler_channels
+    #              ON scaler_channels.readout_id = scaler_readouts.id
+    #        WHERE run_id = $run} {
+    #    # If id changed it's a new readout:
+    #    # Need a new dict to add.
+    #    
+    #    
+    #    if {$id != $lastid}  {
+    #        if {$currentDict ne ""} {
+    #            lappend result $currentDict;   #if there's a prior add it.
+    #        }
+    #        set lastid $id
+    #        
+    #        # Create the new readout dict.
+    #        
+    #        set currentDict [dict create \
+    #            start $start_offset stop $stop_offset divisor $divisor timestamp $clock_time \
+    #            sourceid $source_id                                           \
+    #            channels [list]]
+    #    }
+    #    #  Add the channel info:
+    #    
+    #    dict lappend currentDict channels [list $channel $value]
+    #}
+    #if {$currentDict ne "" } {
+    #    lappend result $currentDict
+    #}
+    #
+    #return $result
 }
 
 }
