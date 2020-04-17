@@ -2121,37 +2121,51 @@ tcltest::test apprestore_1 {Restore some applications} \
 ###########################################################################
 #
 #  Treevariable saves:
-if 0 {
+
 tcltest::test treevar_1 {Save no tree variables} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::treevariables [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
     set ::treevariables [list]
+    rmdb
 } \
 -body {
     set result [list]
     
-    dbconfig::saveConfig config treevars
+    [dbconfig::saveConfig $config treevars] destroy
     
-    set count [config eval {
+    sqlite3 db $database
+    
+    set count [db eval {
         select COUNT(*) AS count FROM treevariables
     }]
+    db close
+    set count
     
 } -result 0
 
 tcltest::test treevar_2 {save some tree variables} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::treevariables [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
     set ::treevariables [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -2161,13 +2175,15 @@ tcltest::test treevar_2 {save some tree variables} \
         [list treevar2 10 furlongs]                                \
         [list t.a.b    10 cm]                                       \
     ]
-    dbconfig::saveConfig config treevar
-    
-    config eval {
+    [dbconfig::saveConfig $config treevar] destroy
+    sqlite3 db $database
+    db eval {
         SELECT * FROM treevariables ORDER BY id ASC
     } {
         lappend result [list $save_id $name $value $units]
     }
+    db close
+    
     set result
 } -result [list                                           \
     [list 1 treevar1 123.0 ""]                              \
@@ -2178,12 +2194,17 @@ tcltest::test treevar_2 {save some tree variables} \
 tcltest::test treevar_3 {Restore tree variables} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::treevariables [list]
+    DBTcl create $database
+    set config [DBTcl connect $database]
 }                                                                 \
 -cleanup {
-    config close
+    $config destroy
+    set ::gateDefs [list]
+    set ::dummySpectrumDefs [list]
+    set ::dummyParamDefs [list]
+    set ::applications [list]
     set ::treevariables [list]
+    rmdb
 } \
 -body {
     set result [list]
@@ -2193,9 +2214,9 @@ tcltest::test treevar_3 {Restore tree variables} \
         [list treevar2 10 furlongs]                                \
         [list t.a.b    10 cm]                                       \
     ]
-    dbconfig::saveConfig config treevar
+    [dbconfig::saveConfig $config treevar] destroy
     set ::treevariables [list]
-    dbconfig::restoreConfig config treevar
+    dbconfig::restoreConfig $config treevar
     
     set ::treevariables
 } -result [list                                           \
@@ -2205,7 +2226,7 @@ tcltest::test treevar_3 {Restore tree variables} \
 ]
 ########################################################################
 # Test for the associated run data:
-
+if 0 {
 tcltest::test run_1 {No initial runs} \
 -setup {
     createdb
