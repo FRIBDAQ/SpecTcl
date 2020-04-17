@@ -144,12 +144,13 @@ DBGate::getParameters()
     std::string query =
         "SELECT name FROM gate_parameters AS gp\
          INNER JOIN parameter_defs AS pd ON pd.id = gp.parameter_id \
-         WHERE ";
+         WHERE parent_gate = ? AND ";
     CInFilter in("gp.parameter_id", m_Info.s_parameters);
     query += in.toString();
     query += " ORDER BY gp.id ASC";  // Same order as in the definition.
     
     CSqliteStatement fetch(m_connection, query.c_str());
+    fetch.bind(1, m_Info.s_info.s_id);
     while (!(++fetch).atEnd()) {
         result.push_back(reinterpret_cast<const char*>(fetch.getText(0)));
     }
@@ -178,12 +179,12 @@ DBGate::getGates()
     std::string query =
         "SELECT gd.name FROM component_gates AS cg \
             INNER JOIN gate_defs AS gd ON gd.id = cg.child_gate\
-            WHERE ";
+            WHERE parent_gate = ? AND ";
     CInFilter in("cg.child_gate", m_Info.s_gates);
     query += in.toString();
     query += " ORDER BY cg.id ASC";           // Same as defined order.
     CSqliteStatement q(m_connection, query.c_str());
-    
+    q.bind(1, m_Info.s_info.s_id);
     while(!(++q).atEnd()) {
         result.push_back(reinterpret_cast<const char*>(q.getText(0)));
     }
