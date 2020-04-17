@@ -226,8 +226,10 @@ proc _saveGateDefinitions {saveset} {
             
             if {$type eq "s"} {
                 set params [lindex $descr 0]
-                set low    [lindex $descr 1]
-                set  high [lindex $descr 2]
+                set lims [lindex $descr 1]
+                set low    [lindex $lims 0]
+                set  high [lindex $lims 1]
+                
             } else {
                 set lims [lindex $descr 0]
                 set params [lindex $descr 1]

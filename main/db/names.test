@@ -1053,7 +1053,7 @@ tcltest::test gates_1 {Save a gate top level}                       \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 1 s [list param1 10 20]]
+        [list gate1 1 s [list param1 {10 20}]]
     ]
     [dbconfig::saveConfig $config Gates] destroy
     
@@ -1088,7 +1088,7 @@ tcltest::test gates_2 {Save with two gates} \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 1 s [list param1 10 20]]                         \
+        [list gate1 1 s [list param1 {10 20}]]                         \
         [list True 2 T [list]]                                       \
     ]
     [dbconfig::saveConfig $config Gates] destroy
@@ -1127,7 +1127,7 @@ tcltest::test gates_3 {can leading parameters get saved?} \
     # Just put a slice gate there:
     
     set ::gateDefs [list                                           \
-        [list gate1 1 s [list param1 10 20]]                         \
+        [list gate1 1 s [list param1 {10 20}]]                         \
         [list gate2 2 c [list {param1 param2} {100 200} {300 400} {50 50}]]    \
         [list gate3 3 b [list {param-something param2} {100 200} {300 400} {50 50}]] \
     ]
@@ -1363,9 +1363,9 @@ tcltest::test gate_9 {Dependent gate ids} \
     # is working yet.
     #
     set ::gateDefs [list                                               \
-        [list gate1 1 s [list param1 10 20]]                             \
-        [list gate2 2 s [list param2 100 500]]                           \
-        [list gate3 3 s [list param-something 0 1023]]                   \
+        [list gate1 1 s [list param1 {10 20}]]                             \
+        [list gate2 2 s [list param2 {100 500}]]                           \
+        [list gate3 3 s [list param-something {0 1023}]]                   \
                                                                        \
         [list andgate 4 * [list gate1 gate2 gate3]]                      \
         [list orgate  5 + [list gate2 gate3]]                            \
@@ -1391,18 +1391,19 @@ tcltest::test gate_9 {Dependent gate ids} \
     
 ###############################################################################
 #  Gate dependency re-ordering.
-if 0 {
+
 tcltest::test deps_1 {Two gates in reverse order}                   \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1414,20 +1415,21 @@ tcltest::test deps_1 {Two gates in reverse order}                   \
         [list slice 2 s [list param1 [list 10 100]]]            \
     ]
     
-    dbconfig::saveConfig config deptest
-} -result 1 -returnCodes [list 0]
+    [dbconfig::saveConfig $config deptest] destroy
+} -result * -match glob -returnCodes [list 0]
 
 tcltest::test deps_2 {Several gates with varying dependencies} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1442,20 +1444,21 @@ tcltest::test deps_2 {Several gates with varying dependencies} \
         [list s2  5 s [list param2 [list 100 200]]]            \
     ]
     
-    dbconfig::saveConfig config deps
-} -result 1 -returnCodes [list 0]
+    [dbconfig::saveConfig $config deps] destroy
+} -result * -match glob -returnCodes [list 0]
 
 tcltest::test deps_3 {multilevel dependencies}              \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1471,20 +1474,21 @@ tcltest::test deps_3 {multilevel dependencies}              \
         [list s3 6 s [list param-something [list 100 200]]]   \
     ]
     
-    dbconfig::saveConfig config deps
-} -result 1 -returnCodes [list 0]
+    [dbconfig::saveConfig $config deps] destroy
+} -result * -match glob -returnCodes [list 0]
 
 tcltest::test deps_4 {cyclical dependencies}            \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::gateDefs [list]
-}                                                                 \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
-    set ::gateDefs [list]
+    $config destroy
     set ::dummyParamDefs [list]
-} \
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+}                                                                   \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -1499,12 +1503,12 @@ tcltest::test deps_4 {cyclical dependencies}            \
         [list s2 5 s [list param2 [list 300 400]]]              \
     ]
     
-    dbconfig::saveConfig config deps;            #Cycle detected failure
+    dbconfig::saveConfig $config deps;            #Cycle detected failure
 } -returnCodes [list 1] -result "Gate dependency cycle detected!!!"
     
 #############################################################################
 # Gate application tests.
-
+if 0 {
 tcltest::test apply_1 {If there are no gate appliations other than -TRUE- no db entries get made} \
 -setup {
     createdb
