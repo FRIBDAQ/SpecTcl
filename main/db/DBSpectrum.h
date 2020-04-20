@@ -138,6 +138,8 @@ namespace SpecTcl {
             const Info& getInfo() const { return m_Info; }
             std::vector<std::string> getParameterNames();
             void storeValues(const std::vector<ChannelSpec>& data);
+            std::vector<ChannelSpec>  getValues();
+            bool hasStoredChannels();
         
         //  static methods:
         

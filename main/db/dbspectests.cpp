@@ -138,6 +138,13 @@ public:
     CPPUNIT_TEST(save_3);
     CPPUNIT_TEST(save_4);
     CPPUNIT_TEST(save_5);
+    
+    CPPUNIT_TEST(store_1);
+    CPPUNIT_TEST(store_2);
+    
+    CPPUNIT_TEST(get_1);
+    CPPUNIT_TEST(get_2);
+    CPPUNIT_TEST(get_3);
     CPPUNIT_TEST_SUITE_END();
     
 protected:
@@ -193,6 +200,13 @@ protected:
     void save_3();
     void save_4();
     void save_5();
+    
+    void store_1();
+    void store_2();
+    
+    void get_1();
+    void get_2();
+    void get_3();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -1010,4 +1024,134 @@ void dbspectest::save_5()
     EQ(std::string("spectrum-3"), spec->getInfo().s_base.s_name);
     
     delete spec;
+}
+void dbspectest::store_1()
+{
+    // Empty channel vector still stores a 0,0,0 entry.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    pSpec->storeValues(chans);
+    
+    CSqliteStatement fetch(
+        *m_pDb,
+        "SELECT xbin,ybin,value FROM spectrum_contents WHERE spectrum_id=1"
+    );
+    ++fetch;
+    EQ(false, fetch.atEnd());
+    EQ(0, fetch.getInt(0));
+    EQ(0, fetch.getInt(1));
+    EQ(0, fetch.getInt(2));
+    ++fetch;
+    EQ(true, fetch.atEnd());
+    
+    delete pSpec;
+}
+void dbspectest::store_2()
+{
+    // Nonempty vector stores faithfuly.
+    
+    // Empty channel vector still stores a 0,0,0 entry.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+        {1,1,1}, {1,2,3}, {2,2, 500}
+    };
+    pSpec->storeValues(chans);
+    CSqliteStatement fetch(
+        *m_pDb,
+        "SELECT xbin, ybin, value FROM spectrum_contents \
+            WHERE spectrum_id=1 ORDER BY id ASC"
+    );         // Order ensures we get them in store order.
+    
+    int i = 0;
+    while(!(++fetch).atEnd()) {
+        ASSERT(i < chans.size());
+        
+        EQ(chans[i].s_x, fetch.getInt(0));
+        EQ(chans[i].s_y, fetch.getInt(1));
+        EQ(chans[i].s_value, fetch.getInt(2));
+        
+        ++i;
+    }
+    delete pSpec;
+}
+void dbspectest::get_1()
+{
+    // If there are no channels stored,
+    // we throw.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    CPPUNIT_ASSERT_THROW(
+        pSpec->getValues(),
+        std::logic_error
+    );
+    delete pSpec;
+}
+void dbspectest::get_2()
+{
+    // If empty channels stored, we get a 0,0,0
+    // back.
+    
+ makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    pSpec->storeValues(chans);
+    
+    auto vals = pSpec->getValues();
+    EQ(size_t(1), vals.size());
+    EQ(0, vals[0].s_x);
+    EQ(0, vals[0].s_y);
+    EQ(0, vals[0].s_value);
+    
+    delete pSpec;
+}
+void dbspectest::get_3()
+{
+    // If some channels are stored, we get them all back.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+        {1,1,1}, {1,2,3}, {2,2, 500}
+    };
+    pSpec->storeValues(chans);
+    auto values = pSpec->getValues();
+    
+    EQ(chans.size(), values.size());
+    for (int i =0; i < 3; i++) {
+        EQ(chans[i].s_x, values[i].s_x);
+        EQ(chans[i].s_y, values[i].s_y);
+        EQ(chans[i].s_value, values[i].s_value);
+    }
+    
+    delete pSpec;
 }

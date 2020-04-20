@@ -115,7 +115,7 @@ void DBSpectrum::storeValues(const std::vector<ChannelSpec>& data)
     CSqliteStatement ins(
         m_conn,
         "INSERT INTO spectrum_contents (spectrum_id, xbin, ybin, value) \
-            VALUES (?,?,?,?)"
+            VALUES (?,?,?,?) "
     );
     ins.bind(1, m_Info.s_base.s_id);
 
@@ -130,8 +130,45 @@ void DBSpectrum::storeValues(const std::vector<ChannelSpec>& data)
             ins.bind(3, data[i].s_y);
             ins.bind(4, data[i].s_value);
             ++ins;
+            ins.reset();
         }
     }
+}
+/**
+ * getValues
+ *    Returns the values stored for a spectrum.
+ * @return std::vector<ChannelSpec>
+ * @throws std::logic_error if no channels have been stored.
+ * @note if a spectrum had no counts you'll get a
+ *       channel 0 (or 0,0) with 0 counts in it.
+ */
+std::vector<DBSpectrum::ChannelSpec>
+DBSpectrum::getValues()
+{
+    std::vector<DBSpectrum::ChannelSpec> result;
+    
+    CSqliteStatement fetch(
+        m_conn,
+        "SELECT xbin, ybin, value FROM spectrum_contents \
+            WHERE spectrum_id = ? ORDER BY id ASC"
+    );
+    fetch.bind(1, m_Info.s_base.s_id);
+    while (!(++fetch).atEnd()) {
+        ChannelSpec chan;
+        chan.s_x     = fetch.getInt(0);
+        chan.s_y     = fetch.getInt(1);
+        chan.s_value = fetch.getInt(2);
+        
+        result.push_back(chan);
+    }
+    
+    if (result.empty()) {
+        std::stringstream msg;
+        msg << m_Info.s_base.s_name
+            << " does not have any stored data";
+        throw std::logic_error(msg.str());
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////
