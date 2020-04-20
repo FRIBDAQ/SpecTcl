@@ -469,6 +469,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             hasChannels(interp, objv);
         } else if (command == "storeChannels") {
             storeChannels(interp, objv);
+        } else if (command == "getChannels") {
+            getChannels(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1224,6 +1226,10 @@ TclSaveSet::hasChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
  *  form of the data from the SpecTcl scontents command.
  *  The channel data provided is stored for the named spectrum.
  * 
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
  */
 void
 TclSaveSet::storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
@@ -1270,6 +1276,55 @@ TclSaveSet::storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
     pSpec->storeValues(chans);
     delete pSpec;
     
+}
+/**
+ * getChannels
+ *    Returns the contents of a stored spectrum.
+ *    Format:
+ *
+ *    instance-cmd getChannels spectrum-name
+ *
+ *    The return value is a list of three element lists.
+ *    Each three element list has the form:
+ *    {xbin ybin value}  where the database makes no
+ *    distinction between 1-d and 2d spectra.
+ *    For reloading 1d spectra, just ignore the ybin.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ *  @note it is an error to ask for channels from a spectrum
+ *      that has none.  Use hasChannels first to ensure it does.
+*/
+void TclSaveSet::getChannels(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 3,"getChannels needs only a spectrum name");
+    std::string name = objv[2];
+    auto pSpec = m_pSaveSet->lookupSpectrum(name.c_str());
+    
+    auto chans = pSpec->getValues();
+    CTCLObject result;
+    result.Bind(interp);
+    for (int i =0; i < chans.size(); i++) {
+        CTCLObject point; point.Bind(interp);
+        CTCLObject x; x.Bind(interp);
+        CTCLObject y; y.Bind(interp);
+        CTCLObject value; value.Bind(interp);
+        
+        x = chans[i].s_x;
+        y = chans[i].s_y;
+        value = chans[i].s_value;
+        
+        point += x;
+        point += y;
+        point += value;
+        
+        result += point;
+    }
+    
+    interp.setResult(result);
 }
 ////
 // TclSaveSet private utilities:
