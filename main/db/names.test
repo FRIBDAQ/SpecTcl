@@ -694,19 +694,18 @@ tcltest::test scontents_1.5 {hasChannels when one is there gives 1} \
     set result
 } -result 1
 
-if 0 {
+
 tcltest::test scontents_2 {Definitions and put contents into one of the spectra} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
-    
-    array unset ::dummyContents *
     rmdb
 }                                                                   \
 -body {
@@ -724,37 +723,39 @@ tcltest::test scontents_2 {Definitions and put contents into one of the spectra}
         [list 1 2] [list 3 4] [list 5 6] [list 7 8]             \
     ]
     
-    dbconfig::saveConfig config sc1;        # save set 1.
-    dbconfig::saveSpectrum config sc1 param1
+    set svcmd [dbconfig::saveConfig $config sc1];        # save set 1.
+    dbconfig::saveSpectrum $svcmd  param1
+    $svcmd destroy
     
     # We know our speactrum will have id 2:
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT xbin, ybin, value FROM spectrum_contents
         WHERE spectrum_id=2 ORDER BY xbin ASC
     } {
         lappend result [list $xbin $ybin $value]
     }
+    db close
     set result
     
 } -result [list                                                        \
-    [list 1 "" 2] [list 3 "" 4] [list 5 "" 6] [list 7 ""  8]           \
+    [list 1 0 2] [list 3 0 4] [list 5 0 6] [list 7 0  8]           \
 ]
 
 tcltest::test scontents_3 {2-d spectrum with data} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
-    
-    array unset ::dummyContents *
     rmdb
-}                                                                   \
+}  \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -771,15 +772,18 @@ tcltest::test scontents_3 {2-d spectrum with data} \
         [list 1 2 3] [list 3 4 5] [list 6 7 8] [list 9 10 11]        \
     ]
     
-    dbconfig::saveConfig config test
-    dbconfig::saveSpectrum config test testspec
+    set svcmd [dbconfig::saveConfig $config test]
+    dbconfig::saveSpectrum $svcmd testspec
+    $svcmd destroy
     
-    config eval {
+    sqlite3 db $database
+    db eval {
         SELECT * FROM spectrum_contents
         WHERE spectrum_id = 1 ORDER BY xbin, ybin ASC
     } {
         lappend result [list $xbin $ybin $value]
     }
+    db close
     set result
 } -result [list                                     \
     [list 1 2 3] [list 3 4 5 ] [list 6 7 8] [list 9 10 11]            \
@@ -788,17 +792,16 @@ tcltest::test scontents_3 {2-d spectrum with data} \
 tcltest::test scontents_4 {All spectra have data} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
-    
-    array unset ::dummyContents *
     rmdb
-}                                                                   \
+}                                                           \
 -body {
     set result [list]
     set ::dummyParamDefs [list                                        \
@@ -822,25 +825,28 @@ tcltest::test scontents_4 {All spectra have data} \
     set dummyContents(param2) [list                                 \
         [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
     ]
-    dbconfig::saveConfig config a
-    dbconfig::saveSpectrum config a testspec
-    dbconfig::saveSpectrum config a param1
-    dbconfig::saveSpectrum config a param2
+    set svcmd [dbconfig::saveConfig $config a]
+    dbconfig::saveSpectrum $svcmd  testspec
+    dbconfig::saveSpectrum $svcmd  param1
+    dbconfig::saveSpectrum $svcmd  param2
     
-    
-    config eval {
+    $svcmd destroy
+    sqlite3 db $database
+    db eval {
         SELECT * FROM spectrum_contents
             ORDER BY spectrum_id, xbin, ybin ASC
     } {
         lappend result [list $spectrum_id $xbin $ybin $value]
     }
+    db close
+    
     set result
 } -result [list                                                        \
         [list 1 1 2 3] [list 1 3 4 5] [list 1 6 7 8] [list 1 9 10 11]  \
-        [list 2 100 "" 5] [list 2 110 "" 660] [list 2 250 "" 780]      \
-        [list 3 10 "" 5] [list 3 11 "" 6] [list 3 20 "" 8] [list 3 100 "" 12] \
+        [list 2 100 0 5] [list 2 110 0 660] [list 2 250 0 780]      \
+        [list 3 10 0 5] [list 3 11 0 6] [list 3 20 0 8] [list 3 100 0 12] \
 ]
-}
+
 ################################################################################
 #  Restore tests.
 
