@@ -146,6 +146,16 @@ namespace SpecTcl {
         bool variableExists(const char* name);
         std::vector<DBTreeVariable*> listVariables();
         
+        // Event recording in the database.
+        
+        int startRun(
+            uint32_t run, const char* title, time_t start
+        );
+        void endRun(int id, time_t endtime);
+        
+        // Event replay.
+        
+        // Scaler access.
         
     // Static methods:
     public:

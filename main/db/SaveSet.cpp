@@ -480,6 +480,55 @@ SaveSet::listVariables()
     return DBTreeVariable::list(m_connection, m_Info.s_id);
 }
 ////////////////////////////////////////////////////////////
+// API for storing run data.
+
+/**
+ * startRun
+ *   Starts recording a run associated with this saveset.
+ * @param run     - Run number.
+ * @param title   - Title string.l
+ * @param start   - Time of day at which the run started.
+ * @return integer - id use this value to insert data that
+ *                  refers to this run.  It is the id parameter
+ *                  to other elements of this API.
+ */
+int
+SaveSet::startRun(uint32_t run, const char* title, time_t start)
+{
+    CSqliteStatement ins(
+        m_connection,
+        "INSERT INTO runs (config_id, run_number, title, start_time) \
+          VALUES(?, ?, ?, ?)"
+    );
+    ins.bind(1, m_Info.s_id);
+    ins.bind(2, int(run));
+    ins.bind(3, title, -1, SQLITE_STATIC);
+    ins.bind(4, (int)(start));
+    
+    ++ins;
+    return ins.lastInsertId();
+}
+/**
+ *  endRun
+ *     Provide the end of run timestamp for an existing run.
+ *     This is separated from startRun to allow it to be
+ *     set by sequentially procesing an event file e.g.
+ * @param id   - the return value from the startRun call for this run.
+ * @param endTime - end timestamp for the run.
+ */
+void
+SaveSet::endRun(int id, time_t endtime)
+{
+    CSqliteStatement upd(
+        m_connection,
+        "UPDATE run SET stop_time=? WHERE id=?"
+    );
+    upd.bind(1, (int)(endtime));
+    upd.bind(2, id);
+    ++upd;
+}
+
+////////////////////////////////////////////////////////////
 // Static methods
 
 /**
