@@ -491,6 +491,21 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
     }
 }
 ##
+# _is2d
+#  Returns true if a spectrum type has two dimensions.
+#
+# @param name -spectrum name
+# @return bool
+#
+proc _is2d {name} {
+    set def [spectrum -list $name]
+    set def [lindex $def 0]
+    set type [lindex $def 2]  ; #id name type...
+    
+    set is1 [expr {$type in [list 1 g1 b S]}];  #Fewer 1ds.
+    return [expr {!$is1}]
+}
+##
 # _restoreChannel
 #   Restore a spectrum channel:
 #
@@ -500,8 +515,9 @@ proc _restoreSpectrumDefs {saveset {spname {}}} {
 # @param value - channel value.
 #
 proc _restoreChannel {name xbin ybin value} {
+    
     set cmd [list channel -set $name]
-    if {$ybin ne ""} {
+    if {[_is2d $name]} {
         lappend cmd [list $xbin $ybin]
     } else {
         lappend cmd $xbin

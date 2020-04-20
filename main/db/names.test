@@ -1019,21 +1019,19 @@ tcltest::test restore_5 {Spectrum definition restore -- with delete required } \
 ###############################################################################
 #  Test spectrum contents restored.
 #
-if 0 {
+
 tcltest::test restore-contents_1 {Restore spectrum contents} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-    set ::channelSetHistory [list]
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
-    
-    array unset ::dummyContents *
-    set ::channelSetHistory [list]
+    rmdb
 }                                                                   \
 -body {
     set result [list]
@@ -1058,15 +1056,16 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
     set dummyContents(param2) [list                                 \
         [list 10 5] [list 11 6] [list 20 8] [list 100 12]          \
     ]
-    dbconfig::saveConfig config a
-    dbconfig::saveSpectrum config a testspec
-    dbconfig::saveSpectrum config a param1
-    dbconfig::saveSpectrum config a param2
+    set svcmd [dbconfig::saveConfig $config a]
+    dbconfig::saveSpectrum $svcmd testspec
+    dbconfig::saveSpectrum $svcmd param1
+    dbconfig::saveSpectrum $svcmd param2
     
-    dbconfig::restoreConfig config a
-    dbconfig::restoreSpectrum config a testspec
-    dbconfig::restoreSpectrum config a param1
-    dbconfig::restoreSpectrum config a param2
+    dbconfig::restoreConfig $config a
+    dbconfig::restoreSpectrum $svcmd  testspec
+    dbconfig::restoreSpectrum $svcmd  param1
+    dbconfig::restoreSpectrum $svcmd  param2
+    $svcmd destroy
     
     set ::channelSetHistory
 } -result [list                                                 \
@@ -1082,7 +1081,7 @@ tcltest::test restore-contents_1 {Restore spectrum contents} \
     [list param2   20 8]                                           \
     [list param2   100 12]                                           \
 ]
-}
+
 #-----------------------------------------------------------------------
 # gates
 
