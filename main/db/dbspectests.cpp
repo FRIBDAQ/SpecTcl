@@ -145,6 +145,9 @@ public:
     CPPUNIT_TEST(get_1);
     CPPUNIT_TEST(get_2);
     CPPUNIT_TEST(get_3);
+    
+    CPPUNIT_TEST(havestored_1);
+    CPPUNIT_TEST(havestored_2);
     CPPUNIT_TEST_SUITE_END();
     
 protected:
@@ -207,6 +210,9 @@ protected:
     void get_1();
     void get_2();
     void get_3();
+    
+    void havestored_1();
+    void havestored_2();
 private:
     void addDummySpectrum(
         const char* name, const char* type, const char* dtype
@@ -1153,5 +1159,40 @@ void dbspectest::get_3()
         EQ(chans[i].s_value, values[i].s_value);
     }
     
+    delete pSpec;
+}
+
+
+void dbspectest::havestored_1()
+{
+    // Don't have
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    
+    EQ(false, pSpec->hasStoredChannels());
+    delete pSpec;
+}
+void dbspectest::havestored_2()
+{
+    // do have.
+    
+    makeStandardParams();
+    std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
+    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTcl::DBSpectrum::create(
+        *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
+        pnames, axes            // default type is long
+    );
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+        {1,1,1}, {1,2,3}, {2,2, 500}
+    };
+    pSpec->storeValues(chans);
+    EQ(true, pSpec->hasStoredChannels());
     delete pSpec;
 }

@@ -170,6 +170,22 @@ DBSpectrum::getValues()
     }
     return result;
 }
+/**
+ * haveStoredChannels
+ *   @return bool - true if channels have been stored for
+ *                  this spectrum.
+ */
+bool
+DBSpectrum::hasStoredChannels()
+{
+    CSqliteStatement c(
+        m_conn,
+        "SELECT COUNT(*) FROM spectrum_contents WHERE spectrum_id=?"
+    );
+    c.bind(1, m_Info.s_base.s_id);
+    ++c;
+    return (c.getInt(0) > 0);
+}
 
 //////////////////////////////////////////////////////////////
 // Static methods:
