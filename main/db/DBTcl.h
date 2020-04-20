@@ -167,10 +167,15 @@ protected:
     void variableExists(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void listVariables(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     
+    void hasChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    
     void destroy();
     
     // Utility methods.
 private:
+    
     void paramDefToObj(CTCLInterpreter& interp, CTCLObject& obj, DBParameter* param);
     std::vector<const char*> listObjToConstCharVec(CTCLObject& obj);
     std::vector<SaveSet::SpectrumAxis> listObjToAxes(CTCLObject& obj);

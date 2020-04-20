@@ -2693,6 +2693,274 @@ tcltest::test listvars_3  {too many command parameters} \
     catch {$svcmd listVariables pi}
 } -result 1
 
+
+tcltest::test hascontents_1 {Spectrum doesn't initially have conents} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd hasChannels raw.0
+} -result 0
+
+tcltest::test hascontents_2 {Spectrum with stored channels} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    sqlite3 db $fname
+    db eval {
+        INSERT INTO spectrum_contents (spectrum_id,xbin,ybin,value)
+        VALUES(1, 0, 0,0)
+    }
+    db close
+    $svcmd hasChannels raw.0
+} -result 1
+
+tcltest::test storechannels_1 {Needs channel data} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd storeChannels raw.0}
+} -result 1
+
+tcltest::test storechannels_2 {needs only channel data} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd storeChannels raw.0 [list] more}
+} -result 1
+
+tcltest::test storechannels_3 {empty data list is ok} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd storeChannels raw.0 [list]
+    $svcmd hasChannels raw.0
+} -result 1
+
+tcltest::test storechannels_4 {empty list still stores a 0,0,0} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd storeChannels raw.0 [list]
+    set result [list]
+    sqlite3 db $fname
+    db eval {
+        SELECT xbin,ybin,value FROM spectrum_contents
+            WHERE spectrum_id = 1 ORDER BY id ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    db close
+    set result
+} -result [list [list 0 0 0]]
+
+tcltest::test storechannels_5 {store some channels good data} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd storeChannels raw.0 \
+        [list [list 1 2 3] [list 1 1 1] [list 3 2 1]]
+    
+    set result [list]
+    sqlite db $fname
+     db eval {
+        SELECT xbin,ybin,value FROM spectrum_contents
+            WHERE spectrum_id = 1 ORDER BY id ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    db close
+    set result
+} -result [list [list 1 2 3] [list 1 1 1] [list 3 2 1]]
+
+tcltest::test storechannels_6 {Store channels but 1d data} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    $svcmd storeChannels raw.0 \
+        [list [list 1  3] [list 1  1] [list 3  1]]
+    
+    set result [list]
+    sqlite db $fname
+     db eval {
+        SELECT xbin,ybin,value FROM spectrum_contents
+            WHERE spectrum_id = 1 ORDER BY id ASC
+    } {
+        lappend result [list $xbin $ybin $value]
+    }
+    db close
+    set result
+} -result [list [list 1 0 3] [list 1 0 1] [list 3 0 1]]
+
+tcltest::test storechannels_7 {bad data in channels} \
+-setup {
+    set chan [file tempfile fname]
+    close $chan
+    DBTcl create $fname
+    set cmd [DBTcl connect $fname]
+    set svcmd [$cmd createSaveset testing]
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createParameter param.$i [expr {$i+1}]
+        
+    }
+
+    for {set i 0} {$i < 10} {incr i} {
+        $svcmd createSpectrum raw.$i 1 param.$i [list [list 0 1023 1024]]
+    }     
+} \
+-cleanup {
+    $svcmd destroy
+    $cmd destroy
+    file delete $fname
+} \
+-body {
+    catch {$svcmd storeChannels raw.0 \
+        [list [list 1  3] [list 1  1] [list 3  1 6 5]]}
+} -result 1
+    
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:

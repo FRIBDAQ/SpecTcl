@@ -465,6 +465,10 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             findVariable(interp, objv);
         } else if (command == "listVariables") {
             listVariables(interp, objv);
+        } else if (command == "hasChannels") {
+            hasChannels(interp, objv);
+        } else if (command == "storeChannels") {
+            storeChannels(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1183,6 +1187,89 @@ TclSaveSet::listVariables(
     }
     
     interp.setResult(result);
+}
+/**
+ * hasChannels
+ *   Format:
+ *
+ *   instance-cmd hasChannels spectrum-name
+ *
+ *   Sets the result with a boolean. True if spectrum-name
+ *   has channel data stored, false otherwise.  Naturally an
+ *   error is throw if the spectrum does not exist.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ */
+void
+TclSaveSet::hasChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "hasChannels requires only a spectrum name parameter");
+    std::string name = objv[2];
+    auto spec = m_pSaveSet->lookupSpectrum(name.c_str());
+    bool result = spec->hasStoredChannels();
+    delete spec;
+    
+    interp.setResult(result ? "1": "0");
+}
+/**
+ * storeChannels:
+ *    Format:
+ *
+ *    instance-cmd  storeChannels spectrum-name channel-data
+ *
+ *  Where channel data is of the form {{xbin ?ybin? value}...}
+ *  For 1d spectra, ybin is omitted.  Note that this is the
+ *  form of the data from the SpecTcl scontents command.
+ *  The channel data provided is stored for the named spectrum.
+ * 
+ */
+void
+TclSaveSet::storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(
+        objv, 4, "storeChannels needs a spectrum name and channel data"
+    );
+    std::string name = objv[2];
+    auto pSpec = m_pSaveSet->lookupSpectrum(name.c_str());
+    CTCLObject& data(objv[3]);
+    
+    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    for (int i =0; i < data.llength(); i++) {
+        CTCLObject channel = data.lindex(i);
+        channel.Bind(interp);
+        if ((channel.llength() != 3) && (channel.llength() != 2)) {
+            throw std::invalid_argument("Bad channel data");
+        }
+        SpecTcl::DBSpectrum::ChannelSpec c;
+        c.s_y = 0;                  // If 1d.
+        
+        CTCLObject x = channel.lindex(0);
+        x.Bind(interp);
+        c.s_x = x;
+        
+        if (channel.llength() == 2) {
+            CTCLObject value = channel.lindex(1);
+            value.Bind(interp);
+            c.s_value = value;
+        } else {
+            CTCLObject y = channel.lindex(1);
+            CTCLObject value = channel.lindex(2);
+            y.Bind(interp);
+            c.s_y = y;
+            
+            value.Bind(interp);
+            c.s_value = value;
+        }
+        
+        chans.push_back(c);
+    }
+    
+    
+    pSpec->storeValues(chans);
+    delete pSpec;
+    
 }
 ////
 // TclSaveSet private utilities:

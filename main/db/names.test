@@ -625,20 +625,19 @@ tcltest::test specdef_3 {A few spectra and they are kept ok} \
 ##########################################################################
 #  Spectrum contents tests.
 
-if 0 {
 
-tcltest::test scontents_1 {Definitions with out contents is empty table} \
+
+tcltest::test scontents_1 {hasChannels when none are there gives 0} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-}                                                                   \
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
 -cleanup {
-    config close
+    $config destroy
     set ::dummyParamDefs [list]
     set ::dummyTreeParamDefs [list]
     set ::dummySpectrumDefs [list]
-    
-    array unset ::dummyContents *
     rmdb
 }                                                                   \
 -body {
@@ -651,16 +650,51 @@ tcltest::test scontents_1 {Definitions with out contents is empty table} \
         [list 3 param2 1 param2 {{0 511 512}} long]          \
     ]
     
-    dbconfig::saveConfig config spec1
+    set saveset [dbconfig::saveConfig $config spec1]
     
-    config eval {
-        SELECT COUNT(*) AS count FROM spectrum_contents
-    } {}
-    set count
+    set result [$saveset hasChannels testspec]
+    $saveset destroy
+    set result
         
 } -result 0
 
+tcltest::test scontents_1.5 {hasChannels when one is there gives 1} \
+-setup {
+    createdb
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                        \
+-cleanup {
+    $config destroy
+    set ::dummyParamDefs [list]
+    set ::dummyTreeParamDefs [list]
+    set ::dummySpectrumDefs [list]
+    rmdb
+}                                                                   \
+-body {
+    set ::dummyParamDefs [list                                        \
+        [list param1 10] [list param2 11] [list param-something 100] \
+    ]
+    set ::dummySpectrumDefs [list                           \
+        [list 1 testspec 2 {param1 param-something} {{0 1023 1024} {0 4095 4096}} long] \
+        [list 2 param1 1 param1 {{0 1023 512}} long]         \
+        [list 3 param2 1 param2 {{0 511 512}} long]          \
+    ]
+    
+    set saveset [dbconfig::saveConfig $config spec1]
+    
+    sqlite3 db $database
+    db eval {
+        INSERT INTO spectrum_contents (spectrum_id,xbin,ybin,value)
+        VALUES (1, 0,0,0)
+    }
+    db close
+    set result [$saveset hasChannels testspec]
+    $saveset destroy
+    set result
+} -result 1
 
+if 0 {
 tcltest::test scontents_2 {Definitions and put contents into one of the spectra} \
 -setup {
     createdb
