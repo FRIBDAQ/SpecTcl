@@ -96,6 +96,10 @@ private:
     CPPUNIT_TEST(scalerread_1);
     CPPUNIT_TEST(scalerread_2);
     CPPUNIT_TEST(scalerread_3);
+    
+    CPPUNIT_TEST(eventread_1);
+    CPPUNIT_TEST(eventread_2);
+    CPPUNIT_TEST(eventread_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -121,6 +125,9 @@ protected:
     void scalerread_2();
     void scalerread_3();
 
+    void eventread_1();
+    void eventread_2();
+    void eventread_3();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(eventtest);
@@ -445,9 +452,7 @@ void eventtest::scalerread_2()
 void eventtest::scalerread_3()
 {
     // Can recover a short run with scalers.
-    
-    // Can get data from a single scaler.
-    
+
     time_t stamp = time(nullptr);
     int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
     
@@ -483,4 +488,77 @@ void eventtest::scalerread_3()
     EQ(0, m_pSaveSet->readScaler(ctx, data));
     
     m_pSaveSet->closeScalers(ctx);
+}
+void eventtest::eventread_1()
+{
+    // No events immediately ends.
+    
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    id = m_pSaveSet->openRun(2);
+    void* c = m_pSaveSet->openEvents(id);
+    SpecTcl::SaveSet::Event e;
+    EQ(0, m_pSaveSet->readEvent(c, e));
+    
+    m_pSaveSet->closeEvents(c);
+}
+void eventtest::eventread_2()
+{
+    // Successfully get one event from the database.
+    
+    
+     
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    int params[5] = {2, 3, 5, 7, 11};
+    double values[5] = {200, 300, 500, 700, 1100};
+    m_pSaveSet->saveEvent(id, 1, 5, params, values);
+    
+    id = m_pSaveSet->openRun(2);
+    void* ctx = m_pSaveSet->openEvents(id);
+    
+    SpecTcl::SaveSet::Event e;
+    EQ(1, m_pSaveSet->readEvent(ctx, e));
+    
+    EQ(size_t(5), e.size());
+    for (int i =0; i < 5; i++) {
+        EQ(params[i], e[i].s_number);
+        EQ(values[i], e[i].s_value);
+    }
+    
+    EQ(0, m_pSaveSet->readEvent(ctx, e));
+    
+    m_pSaveSet->closeEvents(ctx);
+}
+void eventtest::eventread_3()
+{
+    // Successfully get a sequence of events from the database.
+
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    int params[5] = {2, 3, 5, 7, 11};
+    double values[5] = {200, 300, 500, 700, 1100};
+    m_pSaveSet->saveEvent(id, 1, 5, params, values);
+    m_pSaveSet->saveEvent(id, 1, 5, params, values);
+    m_pSaveSet->saveEvent(id, 1, 5, params, values);
+    
+    id = m_pSaveSet->openRun(2);
+    void* ctx = m_pSaveSet->openEvents(id);
+    
+    SpecTcl::SaveSet::Event e;
+    for (int i =0; i < 3; i++) {
+        EQ(1, m_pSaveSet->readEvent(ctx, e));
+        
+        EQ(size_t(5), e.size());    // Tests event was cleard too.
+        for (int i =0; i < 5; i++) {
+            EQ(params[i], e[i].s_number);
+            EQ(values[i], e[i].s_value);
+        }
+    }
+    EQ(0, m_pSaveSet->readEvent(ctx, e));
+    m_pSaveSet->closeEvents(ctx);
+
 }

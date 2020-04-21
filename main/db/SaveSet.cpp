@@ -831,6 +831,69 @@ SaveSet::closeScalers(void *context)
     CSqliteStatement* p = static_cast<CSqliteStatement*>(context);
     delete p;
 }
+/**
+ * openEvents
+ *   Creates a context to  use for playing back events from
+ *   a run stored in the database.
+ * @param runid - Id retuned from openRun.
+ * @return void* - context to pass to readEvent and closeEvents.
+ * @note the context points to dynamic data. At some point it must
+ *       be passed to closeEvents to properly free resources associated
+ *       with it.
+ */
+void*
+SaveSet::openEvents(int runid)
+{
+    CSqliteStatement* pResult =
+        new CSqliteStatement(
+            m_connection,
+            "SELECT parameter_count, event_data FROM events \
+            WHERE run_id = ? ORDER BY event_number ASC"
+        );
+        
+    pResult->bind(1, runid);
+    
+    return pResult;
+}
+/**
+ * readEvent
+ *    Get the next event from the an event context returned from
+ *    openEvents or indicate there are no more.
+ * @param ctx  - Context gotten from openEvents.
+ * @param[out] result - filled in with the event.
+ * @return int  - 0 means there were no events.
+ * @note if 0 is returned, the contents of result are indeterminate.
+ */
+int
+SaveSet::readEvent(void* ctx, Event& result)
+{
+    CSqliteStatement& f(*(static_cast<CSqliteStatement*>(ctx)));
+    
+    ++f;
+    if (f.atEnd()) return 0;
+
+    
+    result.clear();
+    int nparams = f.getInt(0);
+    const EventParameter* params= static_cast<const EventParameter*>(f.getBlob(1));
+    for (int i =0; i < nparams; i++) {
+        result.push_back(*params++);
+    }
+    
+    return 1;
+}
+/**
+ * closeEvents
+ *   Releases storage and other resources associated with an event
+ *   fetching context gotten from openEvents.
+ *  @param context
+ */
+void
+SaveSet::closeEvents(void* context)
+{
+    CSqliteStatement* s = static_cast<CSqliteStatement*>(context);
+    delete s;
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 
