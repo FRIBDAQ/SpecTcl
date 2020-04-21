@@ -64,11 +64,28 @@ namespace SpecTcl {
             double s_high;
             int    s_bins;
         };
-    private:
+        // Stuff having to do with run playback:
+        
+        struct RunInfo {
+            int         s_runNumber;
+            std::string s_title;
+            time_t      s_startTime;
+            time_t      s_stopTime;
+            
+        };
+        struct ScalerReadout {
+            int    s_sourceId;
+            int    s_startOffset;
+            int    s_stopOffset;
+            int    s_divisor;
+            time_t s_time;
+            std::vector<int> s_values;
+        };
         struct EventParameter {   // Event blobs are a soup of these.
             int     s_number;
             double  s_value;
         };
+        typedef std::vector<EventParameter> Event;
     private:
         CSqlite& m_connection;
         Info     m_Info;
@@ -167,9 +184,21 @@ namespace SpecTcl {
         void  endEvents(void* savept);
         void  saveEvent(int id,  int event, int nParams, int* paramids, double* params);
         
-        // Event replay.
+        std::vector<int> listRuns();
         
-        // Scaler access.
+        // Accessing runs
+        
+        int openRun(int number);
+        
+        void* openScalers(int runid);
+        int   readScaler(void* context, ScalerReadout& result);
+        void  closeScalers(void* context);
+        void* openEvents(int runid);
+        int   readEvent(void* context, Event& result);
+        void closeEvents(void* context);
+        
+        RunInfo getRunInfo(int id);
+        
         
     // Static methods:
     public:

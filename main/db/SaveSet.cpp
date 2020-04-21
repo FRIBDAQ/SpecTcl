@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <stddef.h>
 #include <time.h>
 
 namespace SpecTcl{
@@ -707,6 +708,128 @@ SaveSet::saveEvent(int id, int event, int nParams, int* paramids, double* params
         (int)(nParams*sizeof(EventParameter)), SQLITE_STATIC
     );
     ++ins;
+}
+/**
+ * listRuns
+ *    Lists the runs that have been saved in this savesset.
+ *    Not that this can be an empty list, if there are no runs saved.
+ * @return std::vector<int> run numbers. that have been saved.
+ *       empty if there are no run numbers in the save set.
+ */
+std::vector<int>
+SaveSet::listRuns()
+{
+    std::vector<int> result;
+    CSqliteStatement fet(
+        m_connection,
+        "SELECT run_number FROM runs WHERE config_id = ?"
+    );
+    fet.bind(1, m_Info.s_id);
+    while(!(++fet).atEnd()) {
+        result.push_back(fet.getInt(0));
+    }
+
+    return result;
+}
+/**
+ * openRun
+ *   Accesses a run in this saveset.
+ *
+ *  @param number - the runnumber.
+ *  @return int  - An identifier to be used to query the run.
+ *  @throw std::invalid_argument if the saveset does not store that run.
+ */
+int
+SaveSet::openRun(int number)
+{
+    CSqliteStatement fet(
+        m_connection,
+        "SELECT  id FROM runs WHERE run_number = ? AND config_id = ?"
+    );
+    fet.bind(1, number);
+    fet.bind(2, m_Info.s_id);
+    ++fet;
+    if (fet.atEnd()) {
+        std::stringstream msg;
+        msg << " Saveset " << m_Info.s_name
+            << " does not have data for run number " << number;
+        throw std::invalid_argument(msg.str());
+    }
+    
+    return fet.getInt(0);
+}
+/**
+ * openScalers
+ *   Creates an Sqlite statement object that sequentially
+ *   obtains the root records of scaler readouts for an open
+ *   run.
+ *
+ *  @param id  - run id gotten from openRun.
+ *  @return void*  handle to a statement object.
+ *  @note The return value must be passed to closeScalers at some point.
+ *        to release resources associated with it.
+ *  @note use the return value in successive callse to readScaler
+ */
+void*
+SaveSet::openScalers(int id)
+{
+    CSqliteStatement* result =
+        new CSqliteStatement(
+            m_connection,
+            "SELECT id, source_id, start_offset, stop_offset, divisor, clock_time \
+               FROM scaler_readouts WHERE run_id = ?"
+        );
+    result->bind(1, id);
+
+    return result;
+}
+/**
+ * readScaler
+ *   Gets the next scaler record from the run.
+ * @param context - return value from openScalers.
+ * @param[out] result - Data read will be stored here.
+ * @return int - 1 if there was another record, 0 if not
+ * @note if the return value is 0, the contents of result are
+ *       indeterminate.
+ */
+int
+SaveSet::readScaler(void* context, ScalerReadout& result)
+{
+    CSqliteStatement& s(*static_cast<CSqliteStatement*>(context));
+    ++s;
+    if(s.atEnd()) return 0;
+    int rdoid            = s.getInt(0);
+    result.s_sourceId    = s.getInt(1);
+    result.s_startOffset = s.getInt(2);
+    result.s_stopOffset  = s.getInt(3);
+    result.s_divisor     = s.getInt(4);
+    result.s_time        = s.getInt(5);
+    // get the readout - we assume the channels are dense.
+    result.s_values.clear();
+    CSqliteStatement scalers(
+        m_connection,
+        "SELECT value FROM scaler_channels  \
+            WHERE readout_id = ? ORDER BY channel ASC"
+    );
+    scalers.bind(1, rdoid);
+    while(!(++scalers).atEnd()) {
+        result.s_values.push_back(scalers.getInt(0));
+    }
+    
+    return 1;
+}
+/**
+ * closeScalers
+ *   destroys the statement being used to fetch scaler information.
+ *
+ * @param context - context returned from openScalers.
+ * @note after calling this it is not valid to use context anymore.
+ */
+void
+SaveSet::closeScalers(void *context)
+{
+    CSqliteStatement* p = static_cast<CSqliteStatement*>(context);
+    delete p;
 }
 ////////////////////////////////////////////////////////////
 // Static methods

@@ -37,6 +37,7 @@
 #include <stdexcept>
 #include <time.h>
 #include <stdint.h>
+#include <set>
 
 class eventtest : public CppUnit::TestFixture {
     
@@ -84,6 +85,17 @@ private:
     CPPUNIT_TEST(event_1);
     CPPUNIT_TEST(event_2);
     CPPUNIT_TEST(event_3);
+    
+    CPPUNIT_TEST(list_1);
+    CPPUNIT_TEST(list_2);
+    CPPUNIT_TEST(list_3);
+    
+    CPPUNIT_TEST(open_1);
+    CPPUNIT_TEST(open_2);
+    
+    CPPUNIT_TEST(scalerread_1);
+    CPPUNIT_TEST(scalerread_2);
+    CPPUNIT_TEST(scalerread_3);
     CPPUNIT_TEST_SUITE_END();
 
 protected:
@@ -97,6 +109,18 @@ protected:
     void event_1();
     void event_2();
     void event_3();
+    
+    void list_1();
+    void list_2();
+    void list_3();
+    
+    void open_1();
+    void open_2();
+    
+    void scalerread_1();
+    void scalerread_2();
+    void scalerread_3();
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(eventtest);
@@ -295,4 +319,168 @@ void eventtest::event_3()
     c.bind(1, id);
     ++c;
     EQ(0, c.getInt(0));
+}
+
+void eventtest::list_1()
+{
+    // Initially empty list of runs.
+    
+    auto runs = m_pSaveSet->listRuns();
+    EQ(size_t(0), runs.size());
+}
+void eventtest::list_2()
+{
+    // Put one in and see if we get it back.
+    
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(1, "This is run 1", stamp);
+    
+    auto runs = m_pSaveSet->listRuns();
+    
+    EQ(size_t(1), runs.size());
+    EQ(1, runs[0]);
+}
+void eventtest::list_3()
+{
+    // Put a few int and see if we get them back.
+    
+    time_t stamp = time(nullptr);
+    m_pSaveSet->startRun(2, "This is run 1", stamp);
+    m_pSaveSet->startRun(3, "This is run 1", stamp);
+    m_pSaveSet->startRun(5, "This is run 1", stamp);
+    m_pSaveSet->startRun(7, "This is run 1", stamp);
+    m_pSaveSet->startRun(11, "This is run 1", stamp);
+    
+    std::set<int> savedruns;
+    savedruns.insert(2);
+    savedruns.insert(3);
+    savedruns.insert(5);
+    savedruns.insert(7);
+    savedruns.insert(11);
+    
+    
+    auto runs = m_pSaveSet->listRuns();
+    
+    EQ(runs.size(), savedruns.size());
+    for (int i =0; i < runs.size(); i++) {
+        EQ(size_t(1), savedruns.count(runs[i]));
+    }
+}
+void eventtest::open_1()
+{
+    // No such run exception
+    
+    CPPUNIT_ASSERT_THROW(
+        m_pSaveSet->openRun(5),
+        std::invalid_argument
+    );
+}
+void eventtest::open_2()
+{
+    // We get the right id.
+    
+    time_t stamp = time(nullptr);
+    m_pSaveSet->startRun(2, "This is run 1", stamp);
+    m_pSaveSet->startRun(3, "This is run 1", stamp);
+    int id = m_pSaveSet->startRun(5, "This is run 1", stamp);
+    m_pSaveSet->startRun(7, "This is run 1", stamp);
+    m_pSaveSet->startRun(11, "This is run 1", stamp);
+    
+    int desc = m_pSaveSet->openRun(5);
+    EQ(id, desc);
+}
+
+
+void eventtest::scalerread_1()
+{
+    // No reads is an immediate done.
+    
+    time_t stamp = time(nullptr);
+    m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    int id = m_pSaveSet->openRun(2);
+    void* ctx = m_pSaveSet->openScalers(id);
+    SpecTcl::SaveSet::ScalerReadout data;
+    int status = m_pSaveSet->readScaler(ctx, data);
+    EQ(0, status);                 // Immediatly done.
+ 
+    m_pSaveSet->closeScalers(ctx);   
+    
+}
+void eventtest::scalerread_2()
+{
+    // Can get data from a single scaler.
+    
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    uint32_t scalers[32];
+    for (int i =0; i < 32; i++) {
+        scalers[i] = i*100;
+    }
+    m_pSaveSet->saveScalers(id, 10, 0, 10, 1, stamp+10, 32, scalers);
+    
+    id = m_pSaveSet->openRun(2);
+    void* ctx = m_pSaveSet->openScalers(id);
+    
+    SpecTcl::SaveSet::ScalerReadout result;
+    int status = m_pSaveSet->readScaler(ctx, result);
+    EQ(1, status);
+    
+    EQ(10, result.s_sourceId);
+    EQ(0,  result.s_startOffset);
+    EQ(10, result.s_stopOffset);
+    EQ(1, result.s_divisor);
+    EQ(stamp+10, result.s_time);
+    EQ(size_t(32), result.s_values.size());
+    for (int i =0; i < result.s_values.size(); i++) {
+        EQ(int(scalers[i]), result.s_values[i]);
+    }
+    
+    status = m_pSaveSet->readScaler(ctx, result);
+    EQ(0, status);
+   
+    m_pSaveSet->closeScalers(ctx);
+}
+void eventtest::scalerread_3()
+{
+    // Can recover a short run with scalers.
+    
+    // Can get data from a single scaler.
+    
+    time_t stamp = time(nullptr);
+    int id = m_pSaveSet->startRun(2, "This is run 1", stamp);
+    
+    uint32_t scalers[32];
+    for (int i =0; i < 32; i++) {
+        scalers[i] = i*100;
+    }
+    m_pSaveSet->saveScalers(id, 10, 0, 10, 1, stamp+10, 32, scalers);
+    m_pSaveSet->saveScalers(id, 10, 10, 20, 1, stamp+20, 32, scalers);
+    m_pSaveSet->saveScalers(id, 10, 20, 30, 1, stamp+30, 32, scalers);
+    
+    id = m_pSaveSet->openRun(2);
+    void* ctx = m_pSaveSet->openScalers(id);
+    
+    SpecTcl::SaveSet::ScalerReadout data;
+    int t = 0;
+    for (int i =0;i < 3; i++) {
+        
+        int status = m_pSaveSet->readScaler(ctx, data);
+        EQ(1, status);
+        EQ(10, data.s_sourceId);
+        EQ(t,  data.s_startOffset);
+        t += 10;
+        EQ(t, data.s_stopOffset);
+        EQ(1, data.s_divisor);
+        EQ(stamp+t, data.s_time);
+        EQ(size_t(32), data.s_values.size());
+        for (int i =0; i < 32; i++) {
+            EQ(i*100, data.s_values[i]);
+        }
+        
+    }
+    EQ(0, m_pSaveSet->readScaler(ctx, data));
+    
+    m_pSaveSet->closeScalers(ctx);
 }
