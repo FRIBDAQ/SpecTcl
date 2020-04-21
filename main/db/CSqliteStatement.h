@@ -88,10 +88,10 @@ public:
     void bind(
         int paramNo, const void* pBlob, int nBytes, ObjectDestructor destructor
     );
-    void bind(
-        int paramNo, const void* pBlob, uint64_t nBytes,
-        ObjectDestructor destructor
-    );
+    //void bind(
+    //    int paramNo, const void* pBlob, uint64_t nBytes,
+    //    ObjectDestructor destructor
+    //);
     void bind(int paramNo, double value);
     void bind(int paramNo, int value);
     void bind(int paramNo, int64_t value);

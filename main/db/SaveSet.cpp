@@ -26,6 +26,7 @@
 #include "DBTreeVariable.h"
 #include "CSqlite.h"
 #include "CSqliteStatement.h"
+#include "CSqliteTransaction.h"
 
 #include <sqlite3.h>
 
@@ -521,13 +522,192 @@ SaveSet::endRun(int id, time_t endtime)
 {
     CSqliteStatement upd(
         m_connection,
-        "UPDATE run SET stop_time=? WHERE id=?"
+        "UPDATE runs SET stop_time=? WHERE id=?"
     );
     upd.bind(1, (int)(endtime));
     upd.bind(2, id);
     ++upd;
 }
+/**
+ * saveScalers
+ *   Save a scaler readout instance to a run.
+ * @param id       - Run identifier returned by the startRun call.
+ * @param sourceid - data source id that generated the scalers.
+ * @param startOffset - offset into the run the counting interval began
+ *                      (see also divisor).
+ * @param stopOffset  - offset into the run the counting interval ended.
+ *                      (see also divisor).
+ * @param divisor     - Normally, startOffset and stopOffset are
+ *                      given in seconds. This field allows
+ *                      for subsecond resolution and represents
+ *                      an integer divisor that must be applied
+ *                      to these offsets to recover seconds.
+ *                      Thus, if this value is 2 e.g., the offsets
+ *                      are in units of 0.5 seconds.
+ * @param when        - clock time at which the scaler record was
+ *                      read out.
+ * @param nScalers    - number of scalers to save.
+ * @param scalers     - values of the scalers.
+ * @return int        - Scaler identification record.
+ * @note Sure we could put scalers into a vector but; the
+ *       ring items that are most likely being processed to produce
+ *       these database records don't have a vector but an
+ *       array. This allows fields of that ring item to be passed
+ *       directly to this method.
+ * @note Insertions are atomicized by using a savepoint "Scalers".
+ */
+int
+SaveSet::saveScalers(
+    int id, int sourceid,
+    int startOffset, int stopOffset, int divisor, time_t when,
+    int nScalers, uint32_t* scalers
+)
+{
+    // All of this is done within a save point so that
+    // the multiple inserts are atomic.
+    
+    CSqliteSavePoint transaction(m_connection, "Scalers");
+    int readoutId;
+    try {
+        // First the scaler readout root record:
+        
+        CSqliteStatement root(
+            m_connection,
+            "INSERT INTO scaler_readouts  \
+            (run_id, source_id, start_offset, stop_offset, divisor, clock_time) \
+            VALUES(?,?,?,?,?,?)"
+        );
+        root.bind(1, id);
+        root.bind(2, sourceid);
+        root.bind(3, startOffset);
+        root.bind(4, stopOffset);
+        root.bind(5, divisor);
+        root.bind(6, int(when));
+        ++root;
+        
+        readoutId = root.lastInsertId();
+        
+        // Now the scalers:
+        
+        CSqliteStatement scaler(
+            m_connection,
+            "INSERT INTO scaler_channels (readout_id, channel, value) \
+                VALUES(?,?,?)"
+        );
+        scaler.bind(1, readoutId);
+        for (int i =0; i < nScalers; i++) {
+            scaler.bind(2, i);
+            scaler.bind(3, int(scalers[i]));
+            ++scaler;
+            scaler.reset();
+        }
+        
+    } catch (...) {
+        transaction.scheduleRollback();
+        throw;
+    }                        // rollback.
+    return readoutId;
+    // Commit 
+}
+/**
+ * startEvents
+ *   In Sqlite3 saving a lot of records individually can be time consuming.
+ *   It's more efficient/faster to queue up a bunch of records in a transaction
+ *   and then commit them.  Therefore startEvents, rollbackEvents and
+ *   endEvents provide a mechanism to encapsulate a SavePoint within which
+ *   a bunch of events can be atomically  inserted.  The user code
+ *   should look something like:
+ *
+ * <pre>
+ *   void* handle = startEvents(id);
+ *   try {
+ *      for (int i =0; i < largeNumber; i++) {
+ *          ...
+ *         saveEvent(id ....);
+ *         ... 
+ *      }
+ *   }
+ *   catch (...) {
+ *      rollbackEvents(handle); 
+ *   }
+ *   endEvents(handle);
+ * </pre>
+ *
+ *  @param id    - run id - this is used to create the name of the savepoint.
+ *  @return void*- handle to pass to either rollbackEvents or endEvents
+ */
+void*
+SaveSet::startEvents(int id)
+{
+    std::stringstream name;
+    name << "Events_" << id;
+    std::string sname = name.str();
+    CSqliteSavePoint* result  = new CSqliteSavePoint(m_connection, sname.c_str());
+    return result;
+}
+/**
+ * rollbackEvents
+ *    Rollback a savepoint produced by startEvents.
+ * @param savept - a handle returned from startEvents.  Note that once this
+ *    method is called the handle becomes invalid and attempting to use it
+ *    further will likely result in a segfault.
+ */
+void
+SaveSet::rollbackEvents(void* savept)
+{
+    CSqliteSavePoint* p = static_cast<CSqliteSavePoint*>(savept);
+    p->rollback();
+    delete p;
+}
+/**
+ * endEvents
+ *    commits a savepoint produced by startEvents.
+ * @param savept - a handle returned from startEvents.  Note that once
+ *    method is called the handle becomes invalid and attempting to use it
+ *    further will likely result in a segfault.
+ */
+void
+SaveSet::endEvents(void* savept)
+{
+    CSqliteSavePoint* p = static_cast<CSqliteSavePoint*>(savept);
+    p->commit();
+    delete p;
+}
 
+/**
+ * saveEvent
+ *    Saves a single event associated with a run. Note that
+ *    normally this should be part of a multi-event insertion
+ *    bracketed by startEvents and endEvents.
+ * @param id - run id returned from startRun.
+ * @param event - Event number - used to order events.
+ * @param nParams - number of parameters decoded in the event.
+ * @parm paramids - Pointer to the parameter ids of the event.
+ * @param params - Pointer to the parameters.
+ */
+void
+SaveSet::saveEvent(int id, int event, int nParams, int* paramids, double* params)
+{
+    // Marshall the vector of parameters:
+    
+    std::vector<EventParameter> blob;
+    for (int i =0; i < nParams; i++) {
+        blob.push_back({paramids[i], params[i]});
+    }
+    CSqliteStatement ins(
+        m_connection,
+        "INSERT INTO events (run_id, event_number, parameter_count, event_data) \
+           VALUES(?,?,?,?)"
+    );
+    ins.bind(1, id);
+    ins.bind(2, event);
+    ins.bind(3, nParams);
+    ins.bind(
+        4, (void*)(blob.data()),
+        (int)(nParams*sizeof(EventParameter)), SQLITE_STATIC
+    );
+    ++ins;
+}
 ////////////////////////////////////////////////////////////
 // Static methods
 

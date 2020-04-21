@@ -65,6 +65,11 @@ namespace SpecTcl {
             int    s_bins;
         };
     private:
+        struct EventParameter {   // Event blobs are a soup of these.
+            int     s_number;
+            double  s_value;
+        };
+    private:
         CSqlite& m_connection;
         Info     m_Info;
     public:
@@ -152,6 +157,15 @@ namespace SpecTcl {
             uint32_t run, const char* title, time_t start
         );
         void endRun(int id, time_t endtime);
+        int saveScalers(
+            int id, int sourceid,
+            int startOffset, int stopOffset, int divisor, time_t when,
+            int nScalers, uint32_t* scalers
+        );
+        void* startEvents(int id);
+        void  rollbackEvents(void* savept);
+        void  endEvents(void* savept);
+        void  saveEvent(int id,  int event, int nParams, int* paramids, double* params);
         
         // Event replay.
         
