@@ -955,7 +955,6 @@ proc connect fname {
     return [DBTcl  connect $fname]
 }
     
-}
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
 #  @param dbconnection  - the database insance command.
@@ -1212,7 +1211,7 @@ proc getScalers {cmd run} {
     #        WHERE run_id = $run} {
     #    # If id changed it's a new readout:
     #    # Need a new dict to add.
-    #    
+    # } {   
     #    
     #    if {$id != $lastid}  {
     #        if {$currentDict ne ""} {
@@ -1236,6 +1235,6 @@ proc getScalers {cmd run} {
     #}
     #
     #return $result
-}
+ }
 
 }
