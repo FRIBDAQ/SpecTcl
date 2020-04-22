@@ -737,7 +737,6 @@ SaveSet::listRuns()
  * openRun
  *   Accesses a run in this saveset.
  *
- *  @param number - the runnumber.
  *  @return int  - An identifier to be used to query the run.
  *  @throw std::invalid_argument if the saveset does not store that run.
  */

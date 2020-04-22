@@ -19,11 +19,11 @@ libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 
 libSpecTclDb_la_SOURCES= SpecTclDatabase.cpp SaveSet.cpp DBParameter.cpp \
 	DBSpectrum.cpp DBGate.cpp \
-	CDBEvents.cpp DBEvents.cpp CDBCommands.cpp CDBPackage.cpp \
+	CDBEvents.cpp DBEvents.cpp \
 	DBApplications.cpp DBTreeVariable.cpp
 libSpecTclDb_la_DEPENDENCIES=libSqlite3pp.la
 
-include_HEADERS=CDBEvents.h DBEvents.h CDBCommands.h \
+include_HEADERS=CDBEvents.h DBEvents.h  \
 	CSqlite.h CSqliteException.h CSqliteStatement.h \
 	 CSqliteTransaction.h CSqliteWhere.h  \
 	SpecTclDatabase.h SaveSet.h DBParameter.h DBSpectrum.h \
@@ -35,7 +35,8 @@ libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
         @builddir@/../Core/libTclGrammerApp.la   \
         @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@
 
-libSpecTclDbTcl_la_SOURCES = SpecTclDbTCLPackage.cpp DBTcl.h DBTcl.cpp
+libSpecTclDbTcl_la_SOURCES = SpecTclDbTCLPackage.cpp DBTcl.h DBTcl.cpp \
+	CDBCommands.cpp CDBCommands.h 
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/TclLibs/dbconfig

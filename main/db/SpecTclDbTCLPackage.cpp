@@ -22,6 +22,7 @@
 #include <TCLInterpreter.h>
 #include <iostream>
 #include "DBTcl.h"
+#include "CDBCommands.h"
 
 const char* version="1.0";
 
@@ -32,7 +33,6 @@ extern "C" {
         CTCLInterpreter* pInterp = new CTCLInterpreter(pRaw);
 
         new SpecTclDB::DBTcl(*pInterp);        
-        
         return TCL_OK;
     }
 }

@@ -1163,7 +1163,7 @@ proc getRunInfo {saveset} {
 #   @returns a list of dicts.  Each dict has the following keys:
 #            -  start - Seconds into the run when a scaler accumulation started
 #            -  stop  - Seconds into the run when a scaler accumulation ended.
-#            -  divisor - What to divide start/stop by to get seconds.
+#            -  divisor - What to divide start/stop by to get seconds.db
 #            -  timestamp - Timestamp at which the readout was done.
 #            -  channels  - This is a list of of channel values in channel order
 proc getScalers {saveset run} {
