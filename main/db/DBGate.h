@@ -26,7 +26,7 @@
 class CSqlite;
 class CSqliteStatement;
 
-namespace SpecTcl {
+namespace SpecTclDB {
    
 /**
  * @class DBGate
@@ -228,7 +228,7 @@ class DBGate {
             );
             
 };      
-}                                                   //namespace SpecTcl.
+}                                                   //namespace SpecTclDB.
 
 
 #endif

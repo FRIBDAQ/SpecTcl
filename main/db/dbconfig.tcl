@@ -951,6 +951,11 @@ smaller than those of the named spectrum $axisbins"
 proc makeSchema fname {
     DBTcl create $fname   
 }
+proc connect fname {
+    return [DBTcl  connect $fname]
+}
+    
+}
 ##
 # Save a configuration.  Only one configuration of a given name can exist.
 #  @param dbconnection  - the database insance command.

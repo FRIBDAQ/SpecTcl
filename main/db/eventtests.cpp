@@ -44,8 +44,8 @@ class eventtest : public CppUnit::TestFixture {
 private:
     std::string        m_filename;
     CSqlite*           m_pConn;
-    SpecTcl::CDatabase* m_pDb;
-    SpecTcl::SaveSet*  m_pSaveSet;
+    SpecTclDB::CDatabase* m_pDb;
+    SpecTclDB::SaveSet*  m_pSaveSet;
 public:
     void setUp() {
         const char* fnameTemplate="eventtestdbXXXXXX";
@@ -63,8 +63,8 @@ public:
         
         m_filename = fname;
         m_pConn = new CSqlite(fname);
-        SpecTcl::CDatabase::create(fname);
-        m_pDb = new SpecTcl::CDatabase(fname);
+        SpecTclDB::CDatabase::create(fname);
+        m_pDb = new SpecTclDB::CDatabase(fname);
         m_pSaveSet = m_pDb->createSaveSet("save");
     }
     void tearDown() {
@@ -268,8 +268,8 @@ void eventtest::event_1()
     EQ(1, fet.getInt(0));
     EQ(5, fet.getInt(1));
     const void* blob = fet.getBlob(2);
-    const SpecTcl::SaveSet::EventParameter* p =
-        reinterpret_cast<const SpecTcl::SaveSet::EventParameter*>(blob);
+    const SpecTclDB::SaveSet::EventParameter* p =
+        reinterpret_cast<const SpecTclDB::SaveSet::EventParameter*>(blob);
     for (int i =0; i < 5; i++) {
         EQ(params[i], p[i].s_number);
         EQ(values[i], p[i].s_value);
@@ -407,7 +407,7 @@ void eventtest::scalerread_1()
     
     int id = m_pSaveSet->openRun(2);
     void* ctx = m_pSaveSet->openScalers(id);
-    SpecTcl::SaveSet::ScalerReadout data;
+    SpecTclDB::SaveSet::ScalerReadout data;
     int status = m_pSaveSet->readScaler(ctx, data);
     EQ(0, status);                 // Immediatly done.
  
@@ -430,7 +430,7 @@ void eventtest::scalerread_2()
     id = m_pSaveSet->openRun(2);
     void* ctx = m_pSaveSet->openScalers(id);
     
-    SpecTcl::SaveSet::ScalerReadout result;
+    SpecTclDB::SaveSet::ScalerReadout result;
     int status = m_pSaveSet->readScaler(ctx, result);
     EQ(1, status);
     
@@ -467,7 +467,7 @@ void eventtest::scalerread_3()
     id = m_pSaveSet->openRun(2);
     void* ctx = m_pSaveSet->openScalers(id);
     
-    SpecTcl::SaveSet::ScalerReadout data;
+    SpecTclDB::SaveSet::ScalerReadout data;
     int t = 0;
     for (int i =0;i < 3; i++) {
         
@@ -498,7 +498,7 @@ void eventtest::eventread_1()
     
     id = m_pSaveSet->openRun(2);
     void* c = m_pSaveSet->openEvents(id);
-    SpecTcl::SaveSet::Event e;
+    SpecTclDB::SaveSet::Event e;
     EQ(0, m_pSaveSet->readEvent(c, e));
     
     m_pSaveSet->closeEvents(c);
@@ -519,7 +519,7 @@ void eventtest::eventread_2()
     id = m_pSaveSet->openRun(2);
     void* ctx = m_pSaveSet->openEvents(id);
     
-    SpecTcl::SaveSet::Event e;
+    SpecTclDB::SaveSet::Event e;
     EQ(1, m_pSaveSet->readEvent(ctx, e));
     
     EQ(size_t(5), e.size());
@@ -548,7 +548,7 @@ void eventtest::eventread_3()
     id = m_pSaveSet->openRun(2);
     void* ctx = m_pSaveSet->openEvents(id);
     
-    SpecTcl::SaveSet::Event e;
+    SpecTclDB::SaveSet::Event e;
     for (int i =0; i < 3; i++) {
         EQ(1, m_pSaveSet->readEvent(ctx, e));
         

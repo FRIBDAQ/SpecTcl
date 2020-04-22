@@ -26,7 +26,7 @@
 
 class CSqlite;
 
-namespace SpecTcl {
+namespace SpecTclDB {
     /**
      * @class DBSpectrum
      *     This class provides the ability to create and retrieve
@@ -168,6 +168,6 @@ namespace SpecTcl {
       
             void loadInfo(int sid, const char* name);  
     };
-}                                         // namespace SpecTcl.
+}                                         // namespace SpecTclDB.
 
 #endif

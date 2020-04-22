@@ -42,8 +42,8 @@ class dbvtest : public CppUnit::TestFixture {
 private:
     std::string       m_filename;
     CSqlite*          m_pConn;
-    SpecTcl::CDatabase* m_pdb;
-    SpecTcl::SaveSet* m_pSaveset;
+    SpecTclDB::CDatabase* m_pdb;
+    SpecTclDB::SaveSet* m_pSaveset;
 public:
     void setUp() {
         // Make db file as a temp:
@@ -62,9 +62,9 @@ public:
         close(fd);
         m_filename = fname;
         
-        SpecTcl::CDatabase::create(fname);
+        SpecTclDB::CDatabase::create(fname);
         m_pConn = new CSqlite(fname);
-        m_pdb   = new SpecTcl::CDatabase(fname);
+        m_pdb   = new SpecTclDB::CDatabase(fname);
         m_pSaveset = m_pdb->createSaveSet("save-set");
     }
     void tearDown() {
@@ -137,7 +137,7 @@ void dbvtest::exists_1()
     
     EQ(
         false,
-        SpecTcl::DBTreeVariable::exists(
+        SpecTclDB::DBTreeVariable::exists(
             *m_pConn, m_pSaveset->getInfo().s_id, "Junk"
         )
     );
@@ -147,7 +147,7 @@ void dbvtest::exists_2()
     // NO such saveset throws std::invalid_argument:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable::exists(
+        SpecTclDB::DBTreeVariable::exists(
             *m_pConn, m_pSaveset->getInfo().s_id+1, "Junk"
         ),
         std::invalid_argument
@@ -167,7 +167,7 @@ void dbvtest::exists_3()
     
     EQ(
         true,
-        SpecTcl::DBTreeVariable::exists(
+        SpecTclDB::DBTreeVariable::exists(
             *m_pConn, m_pSaveset->getInfo().s_id, "pi"
         )
     );
@@ -177,9 +177,9 @@ void dbvtest::create_1()
 {
     // Good insert does not throw.
     
-    SpecTcl::DBTreeVariable* p;
+    SpecTclDB::DBTreeVariable* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = SpecTcl::DBTreeVariable::create(
+        p = SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "pi", 3.14159, "unitless"
         )
@@ -190,9 +190,9 @@ void dbvtest::create_2()
 {
     // Good insert gives proper info values.
     
-    SpecTcl::DBTreeVariable* p;
+    SpecTclDB::DBTreeVariable* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = SpecTcl::DBTreeVariable::create(
+        p = SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "pi", 3.14159, "unitless"
         )
@@ -210,9 +210,9 @@ void dbvtest::create_3()
 {
     // Good insert properly inserts into database.
     
-    SpecTcl::DBTreeVariable* p;
+    SpecTclDB::DBTreeVariable* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = SpecTcl::DBTreeVariable::create(
+        p = SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "pi", 3.14159, "unitless"
         )
@@ -242,7 +242,7 @@ void dbvtest::create_4()
     // Insert into no such saveset throws.
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable::create(
+        SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id+1, "pi", 3.1416
         ), std::invalid_argument
     );
@@ -251,12 +251,12 @@ void dbvtest::create_5()
 {
     // Duplicate name throws.
     
-    delete SpecTcl::DBTreeVariable::create(
+    delete SpecTclDB::DBTreeVariable::create(
         *m_pConn, m_pSaveset->getInfo().s_id, "pi", 3.14159, "unitless"
     );
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable::create(
+        SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id, "pi", 3.14159, "unitless"
         ), std::invalid_argument
     );
@@ -268,7 +268,7 @@ void dbvtest::list_1()
     
     EQ(
         size_t(0),
-        SpecTcl::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id).size()
+        SpecTclDB::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id).size()
     );
 }
 void dbvtest::list_2()
@@ -286,12 +286,12 @@ void dbvtest::list_2()
         std::string n = name.str();
         std::string u = units.str();
         
-        delete SpecTcl::DBTreeVariable::create(
+        delete SpecTclDB::DBTreeVariable::create(
             *m_pConn, m_pSaveset->getInfo().s_id, n.c_str(),
             double(i), u.c_str()
         );
     }
-    auto listing = SpecTcl::DBTreeVariable::list(
+    auto listing = SpecTclDB::DBTreeVariable::list(
         *m_pConn, m_pSaveset->getInfo().s_id
     );
     EQ(size_t(10), listing.size());
@@ -320,7 +320,7 @@ void dbvtest::list_3()
     // bad saveset throws.
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id+1),
+        SpecTclDB::DBTreeVariable::list(*m_pConn, m_pSaveset->getInfo().s_id+1),
         std::invalid_argument
     );
 }
@@ -329,23 +329,23 @@ void dbvtest::construct_1()
 {
     // Good lookup.
     
-    delete SpecTcl::DBTreeVariable::create(
+    delete SpecTclDB::DBTreeVariable::create(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
     );
     
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test")
+        SpecTclDB::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test")
     );
 }
 void dbvtest::construct_2()
 {
     // Good info from the lookup.
-    delete SpecTcl::DBTreeVariable::create(
+    delete SpecTclDB::DBTreeVariable::create(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
     );
     
     
-    SpecTcl::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test");
+    SpecTclDB::DBTreeVariable v(*m_pConn, m_pSaveset->getInfo().s_id, "test");
     
     auto& info = v.getInfo();
     EQ(1, info.s_id);
@@ -359,7 +359,7 @@ void dbvtest::construct_3()
     // bad saveset
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable v(
+        SpecTclDB::DBTreeVariable v(
             *m_pConn, m_pSaveset->getInfo().s_id + 1, "test"
         ), std::invalid_argument
     );
@@ -369,7 +369,7 @@ void dbvtest::construct_4()
     // No such variable.
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBTreeVariable v(
+        SpecTclDB::DBTreeVariable v(
             *m_pConn, m_pSaveset->getInfo().s_id , "test"
         ), std::invalid_argument
  
@@ -380,7 +380,7 @@ void dbvtest::getters_1()
 {
     // The getters return the right values:
     
-    auto p =  SpecTcl::DBTreeVariable::create(
+    auto p =  SpecTclDB::DBTreeVariable::create(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", 1.234, "inches"
     );
     

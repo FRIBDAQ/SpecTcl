@@ -38,7 +38,7 @@
 
 //
 //  A little dictionary API:
-
+namespace SpecTclDB {
 static void InitDict(CTCLInterpreter& interp, CTCLObject& objv);
 static void AddKey(CTCLObject& dict, const char* key, int value);
 static void AddKey(CTCLObject& dict, const char* key, const char* value);
@@ -48,13 +48,13 @@ static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value);
 // other unbound static utiltities:
 
 static std::string
-    gateClassificationToString(SpecTcl::DBGate::BasicGateType c);
+    gateClassificationToString(DBGate::BasicGateType c);
 static void gatePointsToDictList(
     CTCLInterpreter& interp, CTCLObject& obj,
-    const SpecTcl::DBGate::Points& pts
+    const DBGate::Points& pts
 );
 
-namespace SpecTcl {
+
 ///////////////////////////////////////////////////////////
 // DBTcl class:
 
@@ -145,7 +145,7 @@ DBTcl::create(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     requireExactly(objv, 3, "The create sub command only takes a filename");
     std::string filename = objv[2];
     
-    SpecTcl::CDatabase::create(filename.c_str());
+    CDatabase::create(filename.c_str());
 }
 /**
  * connect (protected)
@@ -175,7 +175,7 @@ DBTcl::connect(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     // Open the database
     
     std::string fname = objv[2];
-    SpecTcl::CDatabase* pDb = new SpecTcl::CDatabase(fname.c_str());
+    CDatabase* pDb = new CDatabase(fname.c_str());
     
     // Create and return the new command processor:
     
@@ -1146,7 +1146,7 @@ TclSaveSet::findVariable(
     requireExactly(objv, 3, "findVariable requires only a variable name");
     std::string name = objv[2];
     
-    SpecTcl::DBTreeVariable* pVar = m_pSaveSet->lookupVariable(name.c_str());
+    DBTreeVariable* pVar = m_pSaveSet->lookupVariable(name.c_str());
     
     CTCLObject result;
     makeVarDict(interp, result, pVar);
@@ -1241,14 +1241,14 @@ TclSaveSet::storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
     auto pSpec = m_pSaveSet->lookupSpectrum(name.c_str());
     CTCLObject& data(objv[3]);
     
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    std::vector<DBSpectrum::ChannelSpec> chans;
     for (int i =0; i < data.llength(); i++) {
         CTCLObject channel = data.lindex(i);
         channel.Bind(interp);
         if ((channel.llength() != 3) && (channel.llength() != 2)) {
             throw std::invalid_argument("Bad channel data");
         }
-        SpecTcl::DBSpectrum::ChannelSpec c;
+        DBSpectrum::ChannelSpec c;
         c.s_y = 0;                  // If 1d.
         
         CTCLObject x = channel.lindex(0);
@@ -1591,8 +1591,8 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
     
     // Only point and mask gates have parameters:
     
-    if ((info.s_info.s_basictype == SpecTcl::DBGate::point)   ||
-        (info.s_info.s_basictype == SpecTcl::DBGate::mask)
+    if ((info.s_info.s_basictype == DBGate::point)   ||
+        (info.s_info.s_basictype == DBGate::mask)
         ) {
         auto parameterNames = pGate->getParameters();
         CTCLObject params;
@@ -1604,7 +1604,7 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
     }
     // Only compound gates have gate membes:
     
-    if (info.s_info.s_basictype == SpecTcl::DBGate::compound) {
+    if (info.s_info.s_basictype == DBGate::compound) {
         auto gateNames = pGate->getGates();
         CTCLObject gates;
         gates.Bind(interp);
@@ -1613,14 +1613,14 @@ TclSaveSet::makeGateDict(CTCLInterpreter& interp, CTCLObject& obj, DBGate* pGate
     }
     // only point gates have points:
     
-    if (info.s_info.s_basictype == SpecTcl::DBGate::point) {
+    if (info.s_info.s_basictype == DBGate::point) {
         CTCLObject pts;
         gatePointsToDictList(interp, pts, info.s_points);
         AddKey(obj, "points", pts);
     }
     // Mask gates have a mask:
     
-    if (info.s_info.s_basictype == SpecTcl::DBGate::mask) {
+    if (info.s_info.s_basictype == DBGate::mask) {
         AddKey(obj, "mask", info.s_mask);
     }
 }
@@ -1675,7 +1675,6 @@ TclSaveSet::makeVarDict(
 } 
 //////
 
-}                          // SpecTcl namespace.
 
 ////////////////////////////////////////////////////////////////
 // Unbound static functions
@@ -1751,18 +1750,18 @@ static void AddKey(CTCLObject& dict, const char* key, CTCLObject& value)
  *  @return std::string
  */
 std::string
-gateClassificationToString(SpecTcl::DBGate::BasicGateType c)
+gateClassificationToString(DBGate::BasicGateType c)
 {
     std::string result;
     
     switch (c) {
-    case SpecTcl::DBGate::point:
+    case DBGate::point:
         result = "point";
         break;
-    case SpecTcl::DBGate::compound:
+    case DBGate::compound:
         result = "compound";
         break;
-    case SpecTcl::DBGate::mask:
+    case DBGate::mask:
         result = "mask";
         break;
     default:
@@ -1782,7 +1781,7 @@ gateClassificationToString(SpecTcl::DBGate::BasicGateType c)
  */
 void gatePointsToDictList(
     CTCLInterpreter& interp, CTCLObject& obj,
-    const SpecTcl::DBGate::Points& pts
+    const DBGate::Points& pts
 )
 {
     obj.Bind(interp);
@@ -1796,3 +1795,6 @@ void gatePointsToDictList(
     }
     
 }
+
+
+}                // SpecTclDB Namespace

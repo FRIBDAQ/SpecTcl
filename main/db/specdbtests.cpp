@@ -130,7 +130,7 @@ void specdbtest::create_1()
     // Creating an impossible one should throw
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::CDatabase::create("/should/not/be/able/to/create"),
+        SpecTclDB::CDatabase::create("/should/not/be/able/to/create"),
         CSqliteException
     );
 }
@@ -138,7 +138,7 @@ void specdbtest::create_2()
 {
     // Creating in good file doesn't throw.
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::CDatabase::create(m_dbfile.c_str())
+        SpecTclDB::CDatabase::create(m_dbfile.c_str())
     );
 }
 void specdbtest::create_3()
@@ -146,10 +146,10 @@ void specdbtest::create_3()
     // create in existing db file doesn't throw.
     
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::CDatabase::create(m_dbfile.c_str())
+        SpecTclDB::CDatabase::create(m_dbfile.c_str())
     );
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::CDatabase::create(m_dbfile.c_str())
+        SpecTclDB::CDatabase::create(m_dbfile.c_str())
     );
     
 }
@@ -158,7 +158,7 @@ void specdbtest::create_4()
     // make sure all the tables are present.  We'll trust that
     // the structures are correct for now:
     
-    SpecTcl::CDatabase::create(m_dbfile.c_str());
+    SpecTclDB::CDatabase::create(m_dbfile.c_str());
     
     // Throw all the table names in set and then look for them:
     
@@ -187,7 +187,7 @@ void specdbtest::create_5()
     // make sure all the indices are present.  We'll trust that
     // the structures are correct for now:
     
-    SpecTcl::CDatabase::create(m_dbfile.c_str());
+    SpecTclDB::CDatabase::create(m_dbfile.c_str());
     
     // Throw all the indices names in set and then look for them:
     
@@ -216,7 +216,7 @@ void specdbtest::construct_1()
     // Can't construct on nonexistent:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::CDatabase nosuch(m_dbfile.c_str()),
+        SpecTclDB::CDatabase nosuch(m_dbfile.c_str()),
         std::logic_error
     );
 }
@@ -224,6 +224,6 @@ void specdbtest::construct_2()
 {
     // Can construct on existing though:
     
-    SpecTcl::CDatabase::create(m_dbfile.c_str());
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::CDatabase ok(m_dbfile.c_str()));
+    SpecTclDB::CDatabase::create(m_dbfile.c_str());
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::CDatabase ok(m_dbfile.c_str()));
 }

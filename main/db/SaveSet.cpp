@@ -16,7 +16,7 @@
 */
 
 /** @file:  SaveSet.cpp
- *  @brief:  Implementation of the SpecTcl::SaveSet class.
+ *  @brief:  Implementation of the SpecTclDB::SaveSet class.
  */
 #include "SaveSet.h"
 #include "DBParameter.h"
@@ -35,7 +35,7 @@
 #include <stddef.h>
 #include <time.h>
 
-namespace SpecTcl{
+namespace SpecTclDB{
 /**
  * constructor
  *    - Locate the saveset in the connected database.
@@ -561,7 +561,7 @@ int
 SaveSet::saveScalers(
     int id, int sourceid,
     int startOffset, int stopOffset, int divisor, time_t when,
-    int nScalers, uint32_t* scalers
+    int nScalers, const uint32_t* scalers
 )
 {
     // All of this is done within a save point so that
@@ -687,7 +687,9 @@ SaveSet::endEvents(void* savept)
  * @param params - Pointer to the parameters.
  */
 void
-SaveSet::saveEvent(int id, int event, int nParams, int* paramids, double* params)
+SaveSet::saveEvent(
+    int id, int event, int nParams, const int* paramids, const double* params
+)
 {
     // Marshall the vector of parameters:
     
@@ -893,6 +895,34 @@ SaveSet::closeEvents(void* context)
 {
     CSqliteStatement* s = static_cast<CSqliteStatement*>(context);
     delete s;
+}
+/**
+ * getRunInfo
+ *    Return information about a run.
+ * @param id - id of the run gotten from e.g. openRun.
+ * @return SpecTclDB::SaveSet::RunInfo struct.
+ */
+SaveSet::RunInfo
+SaveSet::getRunInfo(int id)
+{
+    CSqliteStatement get(
+        m_connection,
+        "SELECT run_number, title, start_time, stop_time \
+           FROM runs WHERE id=?"
+    );
+    get.bind(1, id);
+    ++get;
+    if (get.atEnd()) {
+        throw std::invalid_argument("Invalid run id in SaveSet::getRunInfo");
+    }
+    RunInfo result;
+    
+    result.s_runNumber = get.getInt(0);
+    result.s_title     = reinterpret_cast<const char*>(get.getText(1));
+    result.s_startTime = get.getInt(2);
+    result.s_stopTime  = get.getInt(3);
+    
+    return result;
 }
 ////////////////////////////////////////////////////////////
 // Static methods

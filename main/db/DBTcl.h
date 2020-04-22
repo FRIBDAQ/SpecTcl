@@ -16,7 +16,7 @@
 */
 
 /** @file:  DBTcl.h
- *  @brief: Binding of SpecTcl::CDatabase for Tcl.
+ *  @brief: Binding of SpecTclDB::CDatabase for Tcl.
  */
 #ifndef DBTCL
 #define DBTCL
@@ -27,7 +27,7 @@
 
 
 
-namespace SpecTcl {
+namespace SpecTclDB {
 
 class CDatabase;
 class SaveSet;
@@ -39,7 +39,7 @@ class DBTreeVariable;
 /**
  * @class DBTcl
  *    This command ensemble defines commands that
- *    mimic the static methods of the SpecTcl::CDatabase class
+ *    mimic the static methods of the SpecTclDB::CDatabase class
  *    In addition the DBTcl connect command
  *    returns a new command processor that encapsualtes
  *    a database providing access to method classes:
@@ -203,6 +203,6 @@ private:
 
 
 
-}                                       // SpecTcl namespace.
+}                                       // SpecTclDB namespace.
 
 #endif

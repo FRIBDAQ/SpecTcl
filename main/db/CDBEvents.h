@@ -25,23 +25,17 @@
 #include <string>
 #include <stdint.h>
 #include <DataFormat.h>
+#include "SpecTclDatabase.h"
+#include "SaveSet.h"
 
 class CEvent;
 class CTCLInterpreter;
 struct sqlite3;
 struct sqlite3_stmt;
 
-// These structs define the blob  data and how it's presented
-// back to the client.
 
-namespace DBEvent {
-    typedef struct _blobELement {
-        uint32_t s_parameterNumber;
-        double   s_parameterValue;
-    } blobElement, *pBlobelement;
-    
-    typedef std::vector<blobElement>  Event, *pEvent;
-}
+
+
 
 /**
  * @class CDBEventPlayer
@@ -54,23 +48,21 @@ namespace DBEvent {
  *    (e.g. could make dataframes or root trees etc).
  */
 class CDBEventPlayer {
-public:
-    typedef DBEvent::Event Event, *pEvent;
+
 private:
-    sqlite3*       m_pDatabase;
-    sqlite3_stmt*  m_pRetriever;
+    SpecTclDB::SaveSet* m_pSaveSet;
+    
     int            m_run;
     int            m_runId;
-    
-    int            m_eventNumber;
-    DBEvent::Event m_currentEvent;     // So we can avoid copy.
+    void*          m_eventContext;
     std::string    m_Title;           // Title of current run.
+    SpecTclDB::SaveSet::Event m_Event;
     
 public:
-    CDBEventPlayer(sqlite3* pDatabase, int run);
+    CDBEventPlayer(SpecTclDB::SaveSet* pSaveSet, int run);
     ~CDBEventPlayer();
     
-    const Event& next();            // Empty means no more in the run.
+    const SpecTclDB::SaveSet::Event& next();    // Empty means no more in the run.
     std::string getTitle() const {return m_Title; }
 
 };
@@ -97,25 +89,20 @@ public:
     } RunInfo, *pRunInfo;
 private:
     std::string        m_dbName;                 // name of the database.
-    CTCLInterpreter*   m_pInterp;                // For dbconfig use.
-    
-    sqlite3*           m_pSqlite;                // Sqlite handle.
-    std::string        m_dbCommand;
-    sqlite3_stmt*      m_pTransaction;           // prepared transaction starter.
-    sqlite3_stmt*      m_pInsert;                // Insertion prepared statement.
-    sqlite3_stmt*      m_pCommit;                // Commit prepared statement.
-    
-    int64_t           m_nCurrentRunId;          // Id of current run.
-    int64_t           m_nConfigId;              // Id of configuration.
-    std::string       m_configName;
-    
+    SpecTclDB::CDatabase* m_pDatabase;
+    SpecTclDB::SaveSet*  m_pSaveSet;
+    std::string        m_configName;
     std::vector<std::string> m_autoSaveSpectra;  // Names of spectra to auto save.
     unsigned           m_eventsInTransaction;     // More efficient to batch
     unsigned           m_eventsInCurrentTransaction; // events into a transaction.
-    unsigned           m_eventInRun;             // Event number in the run.
+    unsigned           m_eventsInRun;             // Event number in the run.
     int                m_nCurrentRun;            // Current run number.
+    int                m_nRunId;
     
-    static int         m_dbCmdIndex;            // uniquifier for database command.
+    CTCLInterpreter*   m_pInterpreter;          // Some things are easier in Tcl.
+    std::string        m_dbCommand;             // Database command.
+    std::string        m_savesetCommand;        // save set command.
+    void*              m_eventTransactionContext;
     
 public:
     CDBEventWriter(const char* databaseFile, unsigned batchSize = 500);
@@ -136,12 +123,10 @@ public:
     
     std::vector<RunInfo> listRuns();
     CDBEventPlayer* playRun(int run);
-
     
     static void checkStatus(int status, int expected=-1);
     std::string getDbPath() { return m_dbName; }
 private:
-    std::string nextCommand();
     
     void requireItem(const RingItem* pItem, unsigned itemType);
     const void* getBody(const RingItem* pItem);

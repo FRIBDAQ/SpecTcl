@@ -16,7 +16,7 @@
 */
 
 /** @file:  DBGate.cpp
- *  @brief: Implementation of SpecTcl::DBGate.
+ *  @brief: Implementation of SpecTclDB::DBGate.
  */
 #include "DBGate.h"
 #include "SaveSet.h"
@@ -31,7 +31,7 @@
 #include <sstream>
 
 
-namespace SpecTcl {
+namespace SpecTclDB {
 
 static std::set<std::string> allowed1dTypes  = {"s", "gs"};
 static std::set<std::string> allowed2dTypes = {
@@ -198,7 +198,7 @@ DBGate::getGates()
 /**
  * getPoints
  *    Get the points from a point gate.
- * @return SpecTcl::DBGate::Points
+ * @return SpecTclDB::DBGate::Points
  */
 DBGate::Points
 DBGate::getPoints()
@@ -900,4 +900,4 @@ DBGate::loadInfo(CSqlite& conn, Info& info)
         }
     }
 }
-}                                           // SpecTcl namespace.
+}                                           // SpecTclDB namespace.

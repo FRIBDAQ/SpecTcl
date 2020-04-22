@@ -45,8 +45,8 @@ class dbgtest : public CppUnit::TestFixture {
     
 private:
     std::string        m_name;
-    SpecTcl::CDatabase* m_pDb;
-    SpecTcl::SaveSet*  m_pSaveset;
+    SpecTclDB::CDatabase* m_pDb;
+    SpecTclDB::SaveSet*  m_pSaveset;
     CSqlite*           m_pConn;
 public:
     void setUp() {
@@ -65,8 +65,8 @@ public:
         }
         close(fd);
         m_name = name;
-        SpecTcl::CDatabase::create(name);
-        m_pDb = new SpecTcl::CDatabase(name);
+        SpecTclDB::CDatabase::create(name);
+        m_pDb = new SpecTclDB::CDatabase(name);
         m_pSaveset =  m_pDb->createSaveSet("my-saveset");
         m_pConn      =  &m_pDb->m_connection;
     }
@@ -230,7 +230,7 @@ void dbgtest::makeSomeParams()
     for (int i =0; i < 100; i++) {
         std::stringstream name;
         name << "param." << i;
-        delete SpecTcl::DBParameter::create(
+        delete SpecTclDB::DBParameter::create(
             *m_pConn, m_pSaveset->getInfo().s_id, name.str().c_str(), i+1
         );
     }
@@ -240,11 +240,11 @@ void dbgtest::makeSomeParams()
 void dbgtest::makeSome1dGates()
 {
     makeSomeParams();
-    SpecTcl::DBGate::NameList param = {"param.0"};
+    SpecTclDB::DBGate::NameList param = {"param.0"};
     for (int i =0; i < 10; i++) {
         std::stringstream name;
         name << "gate." << i;
-        delete SpecTcl::DBGate::create1dGate(
+        delete SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, name.str().c_str(),
             "s", param, 10, 20
         );
@@ -259,7 +259,7 @@ void dbgtest::exists_1()
     
     EQ(
         false,
-        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
+        SpecTclDB::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
     );
 }
 void dbgtest::exists_2()
@@ -276,7 +276,7 @@ void dbgtest::exists_2()
     
     EQ(
         true,
-        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
+        SpecTclDB::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id, "junk")
     );
 }
 void dbgtest::exists_3()
@@ -284,7 +284,7 @@ void dbgtest::exists_3()
     // If i use a bad save set, exists throws:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id + 1, "junk"),
+        SpecTclDB::DBGate::exists(*m_pConn, m_pSaveset->getInfo().s_id + 1, "junk"),
         std::invalid_argument
     );
 }
@@ -293,11 +293,11 @@ void dbgtest::create1_1()
     // Successful create
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0"};
+    SpecTclDB::DBGate::NameList params = {"param.0"};
     
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_NO_THROW(
-        pGate = SpecTcl::DBGate::create1dGate(
+        pGate = SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test", "s",
             params, 100.0, 200.0
         )
@@ -311,9 +311,9 @@ void dbgtest::create1_2()
     // Successful create
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0"};
+    SpecTclDB::DBGate::NameList params = {"param.0"};
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "s",
         params, 100.0, 200.0
     );
@@ -322,7 +322,7 @@ void dbgtest::create1_2()
     EQ(m_pSaveset->getInfo().s_id, info.s_info.s_saveset);
     EQ(std::string("test"), info.s_info.s_name);
     EQ(std::string("s"), info.s_info.s_type);
-    EQ(SpecTcl::DBGate::point, info.s_info.s_basictype);
+    EQ(SpecTclDB::DBGate::point, info.s_info.s_basictype);
     
     auto pParam = m_pSaveset->findParameter("param.0");
     EQ(size_t(1), info.s_parameters.size());
@@ -342,9 +342,9 @@ void dbgtest::create1_3()
     // Created gate has correct root record.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0"};
+    SpecTclDB::DBGate::NameList params = {"param.0"};
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "s",
         params, 100.0, 200.0
     );
@@ -373,9 +373,9 @@ void dbgtest::create1_4()
     // Created gate has correct parameter record for s
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0"};
+    SpecTclDB::DBGate::NameList params = {"param.0"};
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "s",
         params, 100.0, 200.0
     );
@@ -406,9 +406,9 @@ void dbgtest::create1_5()
      // they can have an arbitrary number of parameters:
      
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "gs",
         params, 100.0, 200.0
     );
@@ -437,9 +437,9 @@ void dbgtest::create1_6()
     // created gate has correct limits in gate_points.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "gs",
         params, 100.0, 200.0
     );
@@ -468,10 +468,10 @@ void dbgtest::create1_7()
     // invalid saveset.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::create1dGate(
+        SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id+1, "test", "gs",
             params, 100.0, 200.0),
         std::invalid_argument
@@ -482,14 +482,14 @@ void dbgtest::create1_8()
     // duplicate name
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
     
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::create1dGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "test", "gs",
         params, 100.0, 200.0
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::create1dGate(
+        SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test", "gs",
             params, 100.0, 200.0
         ),
@@ -504,10 +504,10 @@ void dbgtest::create1_9()
     // bad type
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};;
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::create1dGate(
+        SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test", "gb",
             params, 100.0, 200.0),
         std::invalid_argument
@@ -522,17 +522,17 @@ void dbgtest::create2_1()
     // Good creation.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
-    SpecTcl::DBGate::Points pts = {
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
+    SpecTclDB::DBGate::Points pts = {
         {100.0, 100.0},
         {200.0, 100.0},
         {200.0, 200.0},
         {100.0, 200.0}
     };                            // Nice rectangle.
     
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_NO_THROW(
-        pGate = SpecTcl::DBGate::create2dGate(
+        pGate = SpecTclDB::DBGate::create2dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test2", "gb",
             params, pts
         )
@@ -545,17 +545,17 @@ void dbgtest::create2_2()
     // invalid gate type exception.
     
     makeSomeParams();
-    SpecTcl::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
-    SpecTcl::DBGate::Points pts = {
+    SpecTclDB::DBGate::NameList params = {"param.0","param.2", "param.5", "param.6"};
+    SpecTclDB::DBGate::Points pts = {
         {100.0, 100.0},
         {200.0, 100.0},
         {200.0, 200.0},
         {100.0, 200.0}     // Nice rectangle.
     };
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
    
     CPPUNIT_ASSERT_THROW(
-        pGate = SpecTcl::DBGate::create2dGate(
+        pGate = SpecTclDB::DBGate::create2dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "test2", "T",
             params, pts
         ),
@@ -574,12 +574,12 @@ void dbgtest::createc_1()
     // Good insert.
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_NO_THROW(
-        pGate=SpecTcl::DBGate::createCompoundGate(
+        pGate=SpecTclDB::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "orgate", "+", components
         )
@@ -592,10 +592,10 @@ void dbgtest::createc_2()
     // check info
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "orgate", "+", components
     );
@@ -607,11 +607,11 @@ void dbgtest::createc_2()
     EQ(m_pSaveset->getInfo().s_id, base.s_saveset);
     EQ(std::string("orgate"), base.s_name);
     EQ(std::string("+"), base.s_type);
-    EQ(SpecTcl::DBGate::compound, base.s_basictype);
+    EQ(SpecTclDB::DBGate::compound, base.s_basictype);
     
     EQ(components.size(), info.s_gates.size());
     for (int i =0; i < components.size(); i++) {
-        int gid = SpecTcl::DBGate::gateId(
+        int gid = SpecTclDB::DBGate::gateId(
             *m_pConn, m_pSaveset->getInfo().s_id, components[i]
         );
          EQ(gid, info.s_gates[i]);   
@@ -627,10 +627,10 @@ void dbgtest::createc_3()
     // check info
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "orgate", "+", components
     );
@@ -646,7 +646,7 @@ void dbgtest::createc_3()
         ++fetch;
         EQ(false, fetch.atEnd());
         int dbid = fetch.getInt(0);
-        int gid  = SpecTcl::DBGate::gateId(
+        int gid  = SpecTclDB::DBGate::gateId(
             *m_pConn, m_pSaveset->getInfo().s_id, components[i]
         );
         EQ(gid, dbid);
@@ -661,12 +661,12 @@ void dbgtest::createc_4()
     // Bad saveset.
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_THROW(
-        pGate = SpecTcl::DBGate::createCompoundGate(
+        pGate = SpecTclDB::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id + 1, 
             "orgate", "+", components
         ),
@@ -678,16 +678,16 @@ void dbgtest::createc_5()
     // duplicate name.
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "orgate", "+", components
     );
     
     CPPUNIT_ASSERT_THROW(
-        pGate = SpecTcl::DBGate::createCompoundGate(
+        pGate = SpecTclDB::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "orgate", "+", components
         ),
@@ -701,12 +701,12 @@ void dbgtest::createc_6()
     // bad type
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "gate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_THROW(
-        pGate = SpecTcl::DBGate::createCompoundGate(
+        pGate = SpecTclDB::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "orgate", "s", components
         ),
@@ -718,12 +718,12 @@ void dbgtest::createc_7()
     // Bad dependent gate.
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList components = {
+    SpecTclDB::DBGate::NameList components = {
         "gate.1", "ggate.2", "gate.4"
     };
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_THROW(
-        pGate = SpecTcl::DBGate::createCompoundGate(
+        pGate = SpecTclDB::DBGate::createCompoundGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "orgate", "+", components
         ),
@@ -734,9 +734,9 @@ void dbgtest::createm_1() {
     // Successful insert.
     
     makeSomeParams();
-    SpecTcl::DBGate* pGate;
+    SpecTclDB::DBGate* pGate;
     CPPUNIT_ASSERT_NO_THROW(
-        pGate = SpecTcl::DBGate::createMaskGate(
+        pGate = SpecTclDB::DBGate::createMaskGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "testgate", "em", "param.1", 0xaaaaaaaa
         )
@@ -748,7 +748,7 @@ void dbgtest::createm_2() {
     // Info struct is correct.
     
     makeSomeParams();
-    SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+    SpecTclDB::DBGate* pGate =SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "testgate", "em", "param.1", 0xaaaaaaaa
     );
@@ -760,7 +760,7 @@ void dbgtest::createm_2() {
     EQ(m_pSaveset->getInfo().s_id, base.s_saveset);
     EQ(std::string("testgate"), base.s_name);
     EQ(std::string("em"), base.s_type);
-    EQ(SpecTcl::DBGate::mask, base.s_basictype);
+    EQ(SpecTclDB::DBGate::mask, base.s_basictype);
     
     EQ(size_t(1), info.s_parameters.size());
     auto param = m_pSaveset->findParameter("param.1");
@@ -777,7 +777,7 @@ void dbgtest::createm_3() {
     // Root record is correct.
  
      makeSomeParams();
-     SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+     SpecTclDB::DBGate* pGate =SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "testgate", "em", "param.1", 0xaaaaaaaa
     );
@@ -806,7 +806,7 @@ void dbgtest::createm_4() {
     // Parameters record(s) are correct.
     
      makeSomeParams();
-     SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+     SpecTclDB::DBGate* pGate =SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "testgate", "em", "param.1", 0xaaaaaaaa
     );
@@ -831,7 +831,7 @@ void dbgtest::createm_5() {
     // Mask record is correct.
     
     makeSomeParams();
-    SpecTcl::DBGate* pGate =SpecTcl::DBGate::createMaskGate(
+    SpecTclDB::DBGate* pGate =SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "testgate", "em", "param.1", 0xaaaaaaaa
     );
@@ -855,7 +855,7 @@ void dbgtest::createm_6() {
     
     makeSomeParams();
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::createMaskGate(
+        SpecTclDB::DBGate::createMaskGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "testgate", "c", "param.1", 0xaaaaaaaa
         ),
@@ -865,13 +865,13 @@ void dbgtest::createm_6() {
 void dbgtest::createm_7() {
     // Duplicate name throws.
     makeSomeParams();
-    SpecTcl::DBGate* pGate = SpecTcl::DBGate::createMaskGate(
+    SpecTclDB::DBGate* pGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "testgate", "em", "param.1", 0xaaaaaaaa
     );
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::createMaskGate(
+        SpecTclDB::DBGate::createMaskGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "testgate", "em", "param.1", 0xaaaaaaaa
         ),
@@ -886,7 +886,7 @@ void dbgtest::list_1()
     // Empty to begin with.
     
     auto result =
-        SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
+        SpecTclDB::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
     EQ(size_t(0), result.size());
 }
 void dbgtest::list_2()
@@ -896,24 +896,24 @@ void dbgtest::list_2()
     // Make one of each type of gate so we chan check out how
     // the info gets loaded for each
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    auto gatelist = SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
+    auto gatelist = SpecTclDB::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id);
     
     EQ(size_t(3), gatelist.size());
     
@@ -982,7 +982,7 @@ void dbgtest::list_3()
     // bad saveset throws:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id+1),
+        SpecTclDB::DBGate::listGates(*m_pConn, m_pSaveset->getInfo().s_id+1),
         std::invalid_argument
     );
 }
@@ -993,24 +993,24 @@ void dbgtest::construct_1()
 {
     // good retrieval. point gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
+    SpecTclDB::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
     auto& expected = ptsGate->getInfo();
     auto& actual   = g.getInfo();
     
@@ -1050,24 +1050,24 @@ void dbgtest::construct_2()
 {
     // good retrieval compound gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
+    SpecTclDB::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
     
     auto& expected = compound->getInfo();
     auto& actual   = gate.getInfo();
@@ -1102,25 +1102,25 @@ void dbgtest::construct_3()
 {
     // good retrieval mask gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
     
-    SpecTcl::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
+    SpecTclDB::DBGate gate(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
     auto& expected = maskGate->getInfo();
     auto& actual   = gate.getInfo();
     
@@ -1156,25 +1156,25 @@ void dbgtest::construct_4()
 {
     // no such saveset.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate g(
+        SpecTclDB::DBGate g(
             *m_pConn, m_pSaveset->getInfo().s_id+1, "compound"
         ),
         std::invalid_argument
@@ -1188,25 +1188,25 @@ void dbgtest::construct_5()
 {
     // No such gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.0
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate gate(
+        SpecTclDB::DBGate gate(
             *m_pConn, m_pSaveset->getInfo().s_id, "nope"
         ),
         std::invalid_argument
@@ -1223,24 +1223,24 @@ void dbgtest::construct_6()
     // if we get one info loaded the other types will load
     // because it's common code.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
     
     auto& expected = compound->getInfo();
     auto& actual   = g.getInfo();
@@ -1281,25 +1281,25 @@ void dbgtest::construct_7()
     // if we get one info loaded the other types will load
     // because it's common code.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBGate g(*m_pConn, 123456),
+        SpecTclDB::DBGate g(*m_pConn, 123456),
         std::invalid_argument
     );
     
@@ -1313,24 +1313,24 @@ void dbgtest::getpars_1()
 {
     // Get pars from point gate works fine:
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
     auto params = g.getParameters();
     EQ(size_t(1), params.size());
     EQ(std::string("param.5"), params[0]);
@@ -1344,24 +1344,24 @@ void dbgtest::getpars_2()
 {
     // get pars from mask gate works 
 
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
 
-    SpecTcl::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
     auto params = g.getParameters();
     EQ(size_t(1), params.size());
     EQ(std::string("param.3"), params[0]);
@@ -1376,24 +1376,24 @@ void dbgtest::getpars_3()
     // getpars from compound throws.
     
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
  
-    SpecTcl::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
     CPPUNIT_ASSERT_THROW(
         g.getParameters(),
         std::invalid_argument
@@ -1409,23 +1409,23 @@ void dbgtest::getgates_1()
 {
     // Point gate fails.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
-    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
+    SpecTclDB::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "1d");
     CPPUNIT_ASSERT_THROW(g.getGates(), std::invalid_argument);
     
     delete ptsGate;
@@ -1437,24 +1437,24 @@ void dbgtest::getgates_2()
 {
     // mask gate fails.
 
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
+    SpecTclDB::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "mask");
     CPPUNIT_ASSERT_THROW(g.getGates(), std::invalid_argument);
 
     delete ptsGate;
@@ -1466,24 +1466,24 @@ void dbgtest::getgates_3()
 {
     // Compound gate works.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
+    SpecTclDB::DBGate g(*m_pConn, m_pSaveset->getInfo().s_id, "compound");
     auto dgates = g.getGates();
     
     EQ(size_t(2), dgates.size());
@@ -1500,25 +1500,25 @@ void dbgtest::getpts_1()
 {
     // Can get points from a point gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
 
     
-    SpecTcl::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
     auto pts = g.getPoints();
     
     EQ(ptsGate->m_Info.s_points.size(), pts.size());
@@ -1539,24 +1539,24 @@ void dbgtest::getpts_2()
 {
     // Exception getting points from a mask gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
     CPPUNIT_ASSERT_THROW(g.getPoints(), std::invalid_argument);
     
     delete ptsGate;
@@ -1569,24 +1569,24 @@ void dbgtest::getpts_3()
 {
     // Exception getting points from a compound gate.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
     CPPUNIT_ASSERT_THROW(g.getPoints(), std::invalid_argument);
     
     
@@ -1601,24 +1601,24 @@ void dbgtest::getmask_1()
 {
     // Get mask from point gate fails
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
     
-    SpecTcl::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, ptsGate->getInfo().s_info.s_id);
     CPPUNIT_ASSERT_THROW(g.getMask(), std::invalid_argument);
     
     
@@ -1630,23 +1630,23 @@ void dbgtest::getmask_2()
 {
     // get mask from mask gate returns correct mask.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
-    SpecTcl::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, maskGate->getInfo().s_info.s_id);
     EQ(maskGate->getInfo().s_mask, g.getMask());
     
     delete ptsGate;
@@ -1657,23 +1657,23 @@ void dbgtest::getmask_3()
 {
     // get mask from compound gate fails.
     
-    SpecTcl::DBGate::NameList p1d = {"param.5"};
+    SpecTclDB::DBGate::NameList p1d = {"param.5"};
     makeSomeParams();
-    auto ptsGate = SpecTcl::DBGate::create1dGate(
+    auto ptsGate = SpecTclDB::DBGate::create1dGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "1d", "s", p1d, 100.0, 200.
     );                                // id 1.
-    auto maskGate = SpecTcl::DBGate::createMaskGate(
+    auto maskGate = SpecTclDB::DBGate::createMaskGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "mask", "em", "param.3", 0x12345678
     );
     
-    SpecTcl::DBGate::NameList gates = {"mask", "1d"};
-    auto compound = SpecTcl::DBGate::createCompoundGate(
+    SpecTclDB::DBGate::NameList gates = {"mask", "1d"};
+    auto compound = SpecTclDB::DBGate::createCompoundGate(
         *m_pConn, m_pSaveset->getInfo().s_id,
         "compound", "+", gates
     );
-    SpecTcl::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
+    SpecTclDB::DBGate g(*m_pConn, compound->getInfo().s_info.s_id);
     CPPUNIT_ASSERT_THROW(g.getMask(), std::invalid_argument);
     
     delete ptsGate;
@@ -1704,7 +1704,7 @@ void dbgtest::save_3()
     // create compound gate via saveset.
     
     makeSome1dGates();
-    SpecTcl::DBGate::NameList gates = {
+    SpecTclDB::DBGate::NameList gates = {
         "gate.1", "gate.2", "gate.3", "gate.4"
     };
     

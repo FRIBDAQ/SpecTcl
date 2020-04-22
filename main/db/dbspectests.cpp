@@ -16,7 +16,7 @@
 */
 
 /** @file:  dbspectests.cpp
- *  @brief: Test the SpecTcl::DBSpectrum class.
+ *  @brief: Test the SpecTclDB::DBSpectrum class.
  */
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
@@ -48,8 +48,8 @@ class dbspectest : public CppUnit::TestFixture {
 private:
     std::string m_filename;
     CSqlite*           m_pDb;
-    SpecTcl::CDatabase* m_pSDb;
-    SpecTcl::SaveSet*  m_pSaveSet;
+    SpecTclDB::CDatabase* m_pSDb;
+    SpecTclDB::SaveSet*  m_pSaveSet;
 public:
     void setUp() {
         // Make the tempfile.
@@ -71,11 +71,11 @@ public:
         // Open it for sqlite3 and create the schema:
         
         m_pDb = new CSqlite(filename);
-        SpecTcl::CDatabase::create(filename);
+        SpecTclDB::CDatabase::create(filename);
         
         // Create a database and a save set:
         
-        m_pSDb = new SpecTcl::CDatabase(filename);
+        m_pSDb = new SpecTclDB::CDatabase(filename);
         m_pSaveSet = m_pSDb->createSaveSet("test-save-set");
     }
     void tearDown() {
@@ -251,7 +251,7 @@ void dbspectest::exists_1()
 {
     // Nonexistent spectrum returns false for no such saveset.
     
-    EQ(false, SpecTcl::DBSpectrum::exists(*m_pDb, 1, "nope"));
+    EQ(false, SpecTclDB::DBSpectrum::exists(*m_pDb, 1, "nope"));
 }
 void dbspectest::exists_2()
 {
@@ -259,7 +259,7 @@ void dbspectest::exists_2()
     
     EQ(
         false,
-        SpecTcl::DBSpectrum::exists(*m_pDb, m_pSaveSet->getInfo().s_id, "nope")
+        SpecTclDB::DBSpectrum::exists(*m_pDb, m_pSaveSet->getInfo().s_id, "nope")
     );
 }
 void dbspectest::exists_3()
@@ -269,7 +269,7 @@ void dbspectest::exists_3()
     addDummySpectrum("test", "1", "long");
     EQ(
         true,
-        SpecTcl::DBSpectrum::exists(*m_pDb, m_pSaveSet->getInfo().s_id, "test")
+        SpecTclDB::DBSpectrum::exists(*m_pDb, m_pSaveSet->getInfo().s_id, "test")
     );
 }
 
@@ -281,7 +281,7 @@ void dbspectest::fetchpar_1()
         "p1"
     };
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::fetchParameters(
+        SpecTclDB::DBSpectrum::fetchParameters(
             *m_pDb, m_pSaveSet->getInfo().s_id, pnames
         ),
         std::invalid_argument
@@ -297,7 +297,7 @@ void dbspectest::fetchpar_2()
     
     std::vector<const char*> pnames = {"p1", "p2", "p3"};
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::fetchParameters(
+        SpecTclDB::DBSpectrum::fetchParameters(
             *m_pDb, m_pSaveSet->getInfo().s_id, pnames
         ),
         std::invalid_argument
@@ -313,7 +313,7 @@ void dbspectest::fetchpar_3()
     
     std::vector<const char*> pnames = {"p1", "p2", "p3"};
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBSpectrum::fetchParameters(
+        SpecTclDB::DBSpectrum::fetchParameters(
             *m_pDb, m_pSaveSet->getInfo().s_id, pnames
         )
     );
@@ -322,14 +322,14 @@ void dbspectest::fetchpar_4()
 {
     // I get the right answers back too:
     
-    SpecTcl::DBParameter* p1 = m_pSaveSet->createParameter("p1", 1);
-    SpecTcl::DBParameter* p2 = m_pSaveSet->createParameter("p2", 2);
-    SpecTcl::DBParameter* p3 = m_pSaveSet->createParameter("p3", 3);
+    SpecTclDB::DBParameter* p1 = m_pSaveSet->createParameter("p1", 1);
+    SpecTclDB::DBParameter* p2 = m_pSaveSet->createParameter("p2", 2);
+    SpecTclDB::DBParameter* p3 = m_pSaveSet->createParameter("p3", 3);
     
     
     std::vector<const char*> pnames = {"p1", "p2", "p3"};
     
-    auto params = SpecTcl::DBSpectrum::fetchParameters(
+    auto params = SpecTclDB::DBSpectrum::fetchParameters(
         *m_pDb, m_pSaveSet->getInfo().s_id, pnames
     );
     EQ(size_t(3), params.size());
@@ -345,26 +345,26 @@ void dbspectest::valdtype_1()
 {
     // "byte" is ok
     
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("byte"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateDataType("byte"));
 }
 void dbspectest::valdtype_2()
 {
     // "word" is ok
     
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("word"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateDataType("word"));
 }
 void dbspectest::valdtype_3()
 {
     // "long is ok"
     
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateDataType("long"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateDataType("long"));
 }
 void dbspectest::valdtype_4()
 {
     // uint32_t is not valid
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateDataType("uint32_t"),
+        SpecTclDB::DBSpectrum::validateDataType("uint32_t"),
         std::invalid_argument
     );
 }
@@ -372,24 +372,24 @@ void dbspectest::valsptype_1()
 {
     // try all the legal ones:
     
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("1"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("2"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("b"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("s"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("g1"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("S"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("g2"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("gd"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("gs"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("m2"));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateSpectrumType("2dmproj"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("1"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("b"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("s"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("g1"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("S"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("g2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("gd"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("gs"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("m2"));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateSpectrumType("2dmproj"));
 }
 void dbspectest::valsptype_2()
 {
     // Illegal spectrum type:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateSpectrumType("2d"),
+        SpecTclDB::DBSpectrum::validateSpectrumType("2d"),
         std::invalid_argument
     );
 }
@@ -397,64 +397,64 @@ void dbspectest::valaxiscount_1()
 {
     // All good numbers:
     
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("1", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("2", 2));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("b", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("s", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("g1", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("S", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("g2", 2));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("gd", 2));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("gs", 1));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("m2", 2));
-    CPPUNIT_ASSERT_NO_THROW(SpecTcl::DBSpectrum::validateAxisCount("2dmproj",1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("1", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("b", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("s", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("g1", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("S", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("g2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("gd", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("gs", 1));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("m2", 2));
+    CPPUNIT_ASSERT_NO_THROW(SpecTclDB::DBSpectrum::validateAxisCount("2dmproj",1));
 }
 void dbspectest::valaxiscount_2()
 {
     // Invalid:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("1", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("1", 2),
             std::invalid_argument
         );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("2", 1),
+        SpecTclDB::DBSpectrum::validateAxisCount("2", 1),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("b", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("b", 2),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("s", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("s", 2),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("g1", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("g1", 2),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("S", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("S", 2),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("g2", 1),
+        SpecTclDB::DBSpectrum::validateAxisCount("g2", 1),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("gd", 1),
+        SpecTclDB::DBSpectrum::validateAxisCount("gd", 1),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("gs", 2),
+        SpecTclDB::DBSpectrum::validateAxisCount("gs", 2),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("m2", 1),
+        SpecTclDB::DBSpectrum::validateAxisCount("m2", 1),
         std::invalid_argument
     );
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateAxisCount("2dmproj",2),
+        SpecTclDB::DBSpectrum::validateAxisCount("2dmproj",2),
         std::invalid_argument
     );
 }
@@ -464,54 +464,54 @@ void dbspectest::valbinfo_1()
     // The name must not yet exist:
     
     addDummySpectrum("test" , "1", "long");
-    SpecTcl::DBSpectrum::BaseInfo info;
+    SpecTclDB::DBSpectrum::BaseInfo info;
     info.s_saveset=m_pSaveSet->getInfo().s_id;
     info.s_name = "test";
     info.s_type = "1";
     info.s_dataType = "long";
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        SpecTclDB::DBSpectrum::validateBaseInfo(*m_pDb, info),
         std::invalid_argument
     );
     
 }
 void dbspectest::valbinfo_2()
 {
-    SpecTcl::DBSpectrum::BaseInfo info;
+    SpecTclDB::DBSpectrum::BaseInfo info;
     info.s_saveset=m_pSaveSet->getInfo().s_id;
     info.s_name = "test";
     info.s_type = "1d";
     info.s_dataType = "long";
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        SpecTclDB::DBSpectrum::validateBaseInfo(*m_pDb, info),
         std::invalid_argument
     );
 }
 void dbspectest::valbinfo_3()
 {
-    SpecTcl::DBSpectrum::BaseInfo info;
+    SpecTclDB::DBSpectrum::BaseInfo info;
     info.s_saveset=m_pSaveSet->getInfo().s_id;
     info.s_name = "test";
     info.s_type = "1";
     info.s_dataType = "short";
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info),
+        SpecTclDB::DBSpectrum::validateBaseInfo(*m_pDb, info),
         std::invalid_argument
     );
 }
 void dbspectest::valbinfo_4()
 {
-    SpecTcl::DBSpectrum::BaseInfo info;
+    SpecTclDB::DBSpectrum::BaseInfo info;
     info.s_saveset=m_pSaveSet->getInfo().s_id;
     info.s_name = "test";
     info.s_type = "1";
     info.s_dataType = "word";
     
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBSpectrum::validateBaseInfo(*m_pDb, info)
+        SpecTclDB::DBSpectrum::validateBaseInfo(*m_pDb, info)
     );
 }
 void dbspectest::enter_1()
@@ -522,10 +522,10 @@ void dbspectest::enter_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
     CPPUNIT_ASSERT_NO_THROW(
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
         )
@@ -537,10 +537,10 @@ void dbspectest::enter_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
     CPPUNIT_ASSERT_THROW(
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id+1, "test-spectrum", "1",
             pnames, axes            // default type is long
         ),
@@ -553,9 +553,9 @@ void dbspectest::enter_3()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
@@ -564,7 +564,7 @@ void dbspectest::enter_3()
     // Don't check the ids but check everything else:
     
     auto info = pSpec->getInfo();
-    SpecTcl::DBParameter param(*m_pDb, m_pSaveSet->getInfo().s_id, "param.0");
+    SpecTclDB::DBParameter param(*m_pDb, m_pSaveSet->getInfo().s_id, "param.0");
     
     // base:
     
@@ -596,9 +596,9 @@ void dbspectest::enter_4()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
@@ -641,9 +641,9 @@ void dbspectest::enter_5()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
@@ -677,9 +677,9 @@ void dbspectest::enter_6()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
@@ -710,9 +710,9 @@ void dbspectest::getpar_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "s",
             pnames, axes            // default type is long
     );
@@ -734,13 +734,13 @@ void dbspectest::getpar_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "s",
             pnames, axes            // default type is long
     );
-    auto pSpec2 =  SpecTcl::DBSpectrum::create(
+    auto pSpec2 =  SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum2", "s",
             pnames, axes            // default type is long
     );
@@ -763,7 +763,7 @@ void dbspectest::construct_1()
     
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum s(
+        SpecTclDB::DBSpectrum s(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test_spectrum"
         ),
         std::invalid_argument
@@ -776,14 +776,14 @@ void dbspectest::construct_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    delete  SpecTcl::DBSpectrum::create(
+    delete  SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBSpectrum s(
+        SpecTclDB::DBSpectrum s(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum"
         )
     );
@@ -794,14 +794,14 @@ void dbspectest::construct_3()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    delete  SpecTcl::DBSpectrum::create(
+    delete  SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
     
-    SpecTcl::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
+    SpecTclDB::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
     auto& base(spec.getInfo().s_base);
     EQ(1, base.s_id);
     EQ(m_pSaveSet->getInfo().s_id, base.s_saveset);
@@ -816,17 +816,17 @@ void dbspectest::construct_4()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    delete  SpecTcl::DBSpectrum::create(
+    delete  SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
     
-    SpecTcl::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
+    SpecTclDB::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
     auto& params(spec.getInfo().s_parameters);
     EQ(size_t(1), params.size());
-    auto param = SpecTcl::DBParameter::get(
+    auto param = SpecTclDB::DBParameter::get(
         *m_pDb, m_pSaveSet->getInfo().s_id, params[0]
     );
     
@@ -842,14 +842,14 @@ void dbspectest::construct_5()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    delete  SpecTcl::DBSpectrum::create(
+    delete  SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "1",
             pnames, axes            // default type is long
     );
     
-    SpecTcl::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
+    SpecTclDB::DBSpectrum spec(*m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum");
     
     auto& a(spec.getInfo().s_axes);
     EQ(size_t(1), a.size());
@@ -863,7 +863,7 @@ void dbspectest::list_1()
     // Bad save set throws:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id+1),
+        SpecTclDB::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id+1),
         std::invalid_argument
     );
 }
@@ -871,7 +871,7 @@ void dbspectest::list_2()
 {
     // initially empty:
     
-    EQ(size_t(0), SpecTcl::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id).size());
+    EQ(size_t(0), SpecTclDB::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id).size());
 }
 void dbspectest::list_3()
 {
@@ -882,15 +882,15 @@ void dbspectest::list_3()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    auto pSpec = SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, "test-spectrum", "s",
             pnames, axes            // default type is long
     );
     delete pSpec;
     
-    auto specs = SpecTcl::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id);
+    auto specs = SpecTclDB::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id);
     EQ(size_t(1), specs.size());
     EQ(std::string("test-spectrum"), specs[0]->getInfo().s_base.s_name);
     
@@ -903,20 +903,20 @@ void dbspectest::list_4()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     std::set<std::string> names;  // List has no gaurantees about order.
     
     for (int i =0; i < 10; i++) {
         std::stringstream sname;
         sname << "spectrum-" << i;
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
             pnames, axes            // default type is long
         );
         names.insert(sname.str());    
     }
     
-    auto spectra = SpecTcl::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id);
+    auto spectra = SpecTclDB::DBSpectrum::list(*m_pDb, m_pSaveSet->getInfo().s_id);
     EQ(names.size(), spectra.size());
     for (int i =0; i < spectra.size(); i++) {
         EQ(size_t(1), names.count(spectra[i]->getInfo().s_base.s_name));
@@ -929,13 +929,13 @@ void dbspectest::save_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     std::set<std::string> names;  // List has no gaurantees about order.
     
     for (int i =0; i < 10; i++) {
         std::stringstream sname;
         sname << "spectrum-" << i;
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
             pnames, axes            // default type is long
         );
@@ -950,13 +950,13 @@ void dbspectest::save_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     std::set<std::string> names;  // List has no gaurantees about order.
     
     for (int i =0; i < 10; i++) {
         std::stringstream sname;
         sname << "spectrum-" << i;
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
             pnames, axes            // default type is long
         );
@@ -970,9 +970,9 @@ void dbspectest::save_3()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes ={{-10.0, 10.0, 100}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes ={{-10.0, 10.0, 100}};
     
-    SpecTcl::DBSpectrum* pSpec;
+    SpecTclDB::DBSpectrum* pSpec;
     CPPUNIT_ASSERT_NO_THROW(
         pSpec = m_pSaveSet->createSpectrum("test-spec", "s", pnames, axes)
     );
@@ -987,13 +987,13 @@ void dbspectest::save_4()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     std::set<std::string> names;  // List has no gaurantees about order.
     
     for (int i =0; i < 10; i++) {
         std::stringstream sname;
         sname << "spectrum-" << i;
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
             pnames, axes            // default type is long
         );
@@ -1013,19 +1013,19 @@ void dbspectest::save_5()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
     std::set<std::string> names;  // List has no gaurantees about order.
     
     for (int i =0; i < 10; i++) {
         std::stringstream sname;
         sname << "spectrum-" << i;
-        delete SpecTcl::DBSpectrum::create(
+        delete SpecTclDB::DBSpectrum::create(
             *m_pDb, m_pSaveSet->getInfo().s_id, sname.str().c_str(), "s",
             pnames, axes            // default type is long
         );
         names.insert(sname.str());    
     }
-    SpecTcl::DBSpectrum* spec;
+    SpecTclDB::DBSpectrum* spec;
     CPPUNIT_ASSERT_NO_THROW(spec = m_pSaveSet->lookupSpectrum("spectrum-3"));
     EQ(std::string("spectrum-3"), spec->getInfo().s_base.s_name);
     
@@ -1037,12 +1037,12 @@ void dbspectest::store_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    std::vector<SpecTclDB::DBSpectrum::ChannelSpec> chans;
     pSpec->storeValues(chans);
     
     CSqliteStatement fetch(
@@ -1067,12 +1067,12 @@ void dbspectest::store_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+    std::vector<SpecTclDB::DBSpectrum::ChannelSpec> chans = {
         {1,1,1}, {1,2,3}, {2,2, 500}
     };
     pSpec->storeValues(chans);
@@ -1101,8 +1101,8 @@ void dbspectest::get_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
@@ -1119,12 +1119,12 @@ void dbspectest::get_2()
     
  makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans;
+    std::vector<SpecTclDB::DBSpectrum::ChannelSpec> chans;
     pSpec->storeValues(chans);
     
     auto vals = pSpec->getValues();
@@ -1141,12 +1141,12 @@ void dbspectest::get_3()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+    std::vector<SpecTclDB::DBSpectrum::ChannelSpec> chans = {
         {1,1,1}, {1,2,3}, {2,2, 500}
     };
     pSpec->storeValues(chans);
@@ -1169,8 +1169,8 @@ void dbspectest::havestored_1()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
@@ -1184,12 +1184,12 @@ void dbspectest::havestored_2()
     
     makeStandardParams();
     std::vector<const char*> pnames={"param.2", "param.1", "param.0"};
-    SpecTcl::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
-    auto pSpec = SpecTcl::DBSpectrum::create(
+    SpecTclDB::DBSpectrum::Axes axes = {{-1, -10.0, 10.0, 100}};
+    auto pSpec = SpecTclDB::DBSpectrum::create(
         *m_pDb, m_pSaveSet->getInfo().s_id, "test", "s",
         pnames, axes            // default type is long
     );
-    std::vector<SpecTcl::DBSpectrum::ChannelSpec> chans = {
+    std::vector<SpecTclDB::DBSpectrum::ChannelSpec> chans = {
         {1,1,1}, {1,2,3}, {2,2, 500}
     };
     pSpec->storeValues(chans);

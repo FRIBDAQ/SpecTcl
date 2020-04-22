@@ -26,7 +26,7 @@
 
 // Time we started putting SpecTcl stuff in it's own namespace.
 
-namespace SpecTcl {
+namespace SpecTclDB {
     class SaveSet;
     
     /**
@@ -67,7 +67,7 @@ namespace SpecTcl {
         void checkTables();
     };
     
-}
+}                         // SpecTclDB namespace.
 
 
 #endif

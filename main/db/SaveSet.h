@@ -26,7 +26,7 @@
 class CSqlite;
 class CSqliteStatement;
 
-namespace SpecTcl {
+namespace SpecTclDB {
     class DBParameter;
     class DBSpectrum;
     class DBGate;
@@ -177,12 +177,15 @@ namespace SpecTcl {
         int saveScalers(
             int id, int sourceid,
             int startOffset, int stopOffset, int divisor, time_t when,
-            int nScalers, uint32_t* scalers
+            int nScalers, const uint32_t* scalers
         );
         void* startEvents(int id);
         void  rollbackEvents(void* savept);
         void  endEvents(void* savept);
-        void  saveEvent(int id,  int event, int nParams, int* paramids, double* params);
+        void  saveEvent(
+            int id,  int event, int nParams,
+            const int* paramids, const double* params
+        );
         
         std::vector<int> listRuns();
         
@@ -210,6 +213,6 @@ namespace SpecTcl {
     private:
         static void loadInfo(Info& result, CSqliteStatement& stmt);
     };
-}
+}                                  // SpecTclDB 
 
 #endif

@@ -16,7 +16,7 @@
 */
 
 /** @file:  dbpartests.cpp
- *  @brief: Test SpecTcl::DBParameter
+ *  @brief: Test SpecTclDB::DBParameter
  */
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
@@ -42,8 +42,8 @@ class dbpartest : public CppUnit::TestFixture {
     
 private:
     std::string         m_dbfile;
-    SpecTcl::CDatabase* m_pDb;
-    SpecTcl::SaveSet*   m_pSet;
+    SpecTclDB::CDatabase* m_pDb;
+    SpecTclDB::SaveSet*   m_pSet;
     CSqlite*            m_pConn;
 public:
     void setUp() {
@@ -61,8 +61,8 @@ public:
         close(fd);
         
         m_dbfile = fname;
-        SpecTcl::CDatabase::create(fname);
-        m_pDb = new SpecTcl::CDatabase(fname);
+        SpecTclDB::CDatabase::create(fname);
+        m_pDb = new SpecTclDB::CDatabase(fname);
         m_pSet = m_pDb->createSaveSet("set1");
         m_pConn = new CSqlite(m_dbfile.c_str());
     }
@@ -163,22 +163,22 @@ void dbpartest::exists_1()
 {
     // Initially a save set has no parameters:
     
-    ASSERT(!SpecTcl::DBParameter::exists(*m_pConn, 1, "atest"));
+    ASSERT(!SpecTclDB::DBParameter::exists(*m_pConn, 1, "atest"));
 }
 void dbpartest::exists_2()
 {
     // Can find the one and only parameter:
     
     makeMinimalParameter(1, "atest", 1);
-    ASSERT(SpecTcl::DBParameter::exists(*m_pConn, 1, "atest"));
+    ASSERT(SpecTclDB::DBParameter::exists(*m_pConn, 1, "atest"));
 }
 void dbpartest::create_1()
 {
     // Can create a simple, in an existing save set.
     
-    SpecTcl::DBParameter* p(nullptr);
+    SpecTclDB::DBParameter* p(nullptr);
     CPPUNIT_ASSERT_NO_THROW(
-        p = SpecTcl::DBParameter::create(*m_pConn, 1, "atest", 1)
+        p = SpecTclDB::DBParameter::create(*m_pConn, 1, "atest", 1)
     );
     ASSERT(p);                    // No longer null.
     
@@ -212,7 +212,7 @@ void dbpartest::create_2()
     // Can't make in bad save set:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::create(*m_pConn, 2, "name", 1),
+        SpecTclDB::DBParameter::create(*m_pConn, 2, "name", 1),
         std::invalid_argument
     );
    
@@ -221,9 +221,9 @@ void dbpartest::create_3()
 {
     // Can't make duplicate in valid saveset:
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "name", 1);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "name", 1);
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::create(*m_pConn, 1, "name", 1),
+        SpecTclDB::DBParameter::create(*m_pConn, 1, "name", 1),
         std::invalid_argument
     );
 }
@@ -231,18 +231,18 @@ void dbpartest::create_4()
 {
     // Can create non duplicate parameter:
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "name", 1);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "name", 1);
     CPPUNIT_ASSERT_NO_THROW(
-        delete SpecTcl::DBParameter::create(*m_pConn, 1, "new", 2)
+        delete SpecTclDB::DBParameter::create(*m_pConn, 1, "new", 2)
     );
 }
 void dbpartest::create_5()
 {
     // can't make duplicate parameter number.
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "name", 1);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "name", 1);
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::create(*m_pConn, 1, "New", 1),
+        SpecTclDB::DBParameter::create(*m_pConn, 1, "New", 1),
         std::invalid_argument
     );
     
@@ -252,9 +252,9 @@ void dbpartest::create_6()
     // Create with full metadata. note that we believe the edge cases
     // will work because we factored them into createCheckOk.
     
-    SpecTcl::DBParameter* p;
+    SpecTclDB::DBParameter* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = SpecTcl::DBParameter::create(
+        p = SpecTclDB::DBParameter::create(
             *m_pConn, 1, "Name", 2, -10.0, 10.0, 100, "inches"
         )
     );
@@ -298,10 +298,10 @@ void dbpartest::construct_1()
 {
     // good retrieval.
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
-    SpecTcl::DBParameter* p;
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "test", 2);
+    SpecTclDB::DBParameter* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = new SpecTcl::DBParameter(*m_pConn, 1, "test")
+        p = new SpecTclDB::DBParameter(*m_pConn, 1, "test")
     );
     // Check the info.
     
@@ -318,9 +318,9 @@ void dbpartest::construct_2()
 {
     // No such parameter exception.
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "test", 2);
     CPPUNIT_ASSERT_THROW(
-        new SpecTcl::DBParameter(*m_pConn, 1, "testing"),
+        new SpecTclDB::DBParameter(*m_pConn, 1, "testing"),
         std::invalid_argument
     );
 }
@@ -328,9 +328,9 @@ void dbpartest::construct_3()
 {
     // Parameter is in another save set.
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 2);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "test", 2);
     CPPUNIT_ASSERT_THROW(
-        new SpecTcl::DBParameter(*m_pConn, 2, "test"),
+        new SpecTclDB::DBParameter(*m_pConn, 2, "test"),
         std::invalid_argument
     );
     
@@ -339,11 +339,11 @@ void dbpartest::construct_4()
 {
     // fetch parameter with metadata.
     
-    delete SpecTcl::DBParameter::create(
+    delete SpecTclDB::DBParameter::create(
         *m_pConn, 1, "test", 2,
         -100.0, 100.0, 400, "cm"
     );
-    SpecTcl::DBParameter p(*m_pConn, 1, "test");
+    SpecTclDB::DBParameter p(*m_pConn, 1, "test");
     auto& i = p.getInfo();
     
     ASSERT(i.s_haveMetadata);
@@ -356,13 +356,13 @@ void dbpartest::construct_5()
 {
     // successful construct by parameter number.
     
-    delete SpecTcl::DBParameter::create(
+    delete SpecTclDB::DBParameter::create(
         *m_pConn, 1, "test", 2,
         -100.0, 100.0, 400, "cm"
     );
-    SpecTcl::DBParameter* p;
+    SpecTclDB::DBParameter* p;
     CPPUNIT_ASSERT_NO_THROW(
-        p = new SpecTcl::DBParameter(*m_pConn, 1, 2)
+        p = new SpecTclDB::DBParameter(*m_pConn, 1, 2)
     );
     // If we get the name correct in the info block I believe all because
     // that block is filled with common code.
@@ -374,12 +374,12 @@ void dbpartest::construct_5()
 }
 void dbpartest::construct_6()
 {
-    delete SpecTcl::DBParameter::create(
+    delete SpecTclDB::DBParameter::create(
         *m_pConn, 1, "test", 2,
         -100.0, 100.0, 400, "cm"
     );
     CPPUNIT_ASSERT_THROW(
-        new SpecTcl::DBParameter(*m_pConn, 1, 1),
+        new SpecTclDB::DBParameter(*m_pConn, 1, 1),
         std::invalid_argument
     );
 }
@@ -387,7 +387,7 @@ void dbpartest::list_1()
 {
     // Emtpy list at first:
     
-    auto pars = SpecTcl::DBParameter::list(*m_pConn, 1);
+    auto pars = SpecTclDB::DBParameter::list(*m_pConn, 1);
     EQ(size_t(0), pars.size());
 }
 void dbpartest::list_2()
@@ -404,14 +404,14 @@ void dbpartest::list_2()
     int i =0;
     const char** p = names;
     while (*p) {
-        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        delete SpecTclDB::DBParameter::create(*m_pConn, 1, *p, i);
         expectedNames.insert(*p);
         p++;
         i++;
     }
     // Get the list and see that all our names are there.
     
-    auto v = SpecTcl::DBParameter::list(*m_pConn, 1);
+    auto v = SpecTclDB::DBParameter::list(*m_pConn, 1);
     EQ(expectedNames.size(), v.size());
     for (int i =0; i < v.size(); i++) {
         EQ(size_t(1), expectedNames.count(v[i]->getInfo().s_name));
@@ -423,7 +423,7 @@ void dbpartest::list_3()
     // It's an error to list an nonexisting save set:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::list(*m_pConn, 2),
+        SpecTclDB::DBParameter::list(*m_pConn, 2),
         std::invalid_argument
     );
 }
@@ -443,12 +443,12 @@ void dbpartest::get_1() {
     int i =0;
     const char** p = names;
     while (*p) {
-        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        delete SpecTclDB::DBParameter::create(*m_pConn, 1, *p, i);
         p++;
         i++;
     }    
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::get(*m_pConn, 2, 1),
+        SpecTclDB::DBParameter::get(*m_pConn, 2, 1),
         std::invalid_argument
     );
     
@@ -468,12 +468,12 @@ void dbpartest::get_2() {
     int i =0;
     const char** p = names;
     while (*p) {
-        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        delete SpecTclDB::DBParameter::create(*m_pConn, 1, *p, i);
         p++;
         i++;
     }    
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBParameter::get(*m_pConn, 1, 16),
+        SpecTclDB::DBParameter::get(*m_pConn, 1, 16),
         std::invalid_argument
     );
 
@@ -494,12 +494,12 @@ void dbpartest::get_3() {
     int i =0;
     const char** p = names;
     while (*p) {
-        delete SpecTcl::DBParameter::create(*m_pConn, 1, *p, i);
+        delete SpecTclDB::DBParameter::create(*m_pConn, 1, *p, i);
         p++;
         i++;
     }
-    SpecTcl::DBParameter* param;
-    CPPUNIT_ASSERT_NO_THROW(param = SpecTcl::DBParameter::get(*m_pConn, 1, 1));
+    SpecTclDB::DBParameter* param;
+    CPPUNIT_ASSERT_NO_THROW(param = SpecTclDB::DBParameter::get(*m_pConn, 1, 1));
     
     EQ(std::string("parameter1"), param->getInfo().s_name);
     
@@ -510,7 +510,7 @@ void dbpartest::save_1()
 {
     // Save set wrapping of DBParameter::list.
     
-    delete SpecTcl::DBParameter::create(*m_pConn, 1, "test", 234);
+    delete SpecTclDB::DBParameter::create(*m_pConn, 1, "test", 234);
     auto v = m_pSet->listParameters();
     EQ(size_t(1), v.size());
     EQ(std::string("test"), v[0]->getInfo().s_name);

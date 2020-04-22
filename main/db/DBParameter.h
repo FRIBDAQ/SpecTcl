@@ -26,7 +26,7 @@
 class CSqlite;
 class CSqliteStatement;
 
-namespace SpecTcl {
+namespace SpecTclDB {
     class SaveSet;
     
     /**
@@ -123,6 +123,6 @@ namespace SpecTcl {
         void fillInfo(CSqliteStatement& stmt);
         
     };
-}
+}                           // SpecTclDB namespace.
 
 #endif

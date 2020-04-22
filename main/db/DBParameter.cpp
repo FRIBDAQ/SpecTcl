@@ -16,7 +16,7 @@
 */
 
 /** @file:  DBParameter.cpp
- *  @brief:  Implements SpecTcl::DBParameter class.
+ *  @brief:  Implements SpecTclDB::DBParameter class.
  */
 #include "DBParameter.h"
 #include "CSqlite.h"
@@ -26,7 +26,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace SpecTcl {
+namespace SpecTclDB {
 /**
  * constructor (public)
  *    Fetches information about a parameter in a save set
@@ -154,7 +154,7 @@ DBParameter::exists(CSqlite& connection, int sid, int number)
  * @param sid        - Save set id to make the parameter in.
  * @param name       - name of the new parameter.
  * @param number     - parameter number
- * @return SpecTcl::DBParameter*  - pointer to the object describing this thing.
+ * @return SpecTclDB::DBParameter*  - pointer to the object describing this thing.
  * @throw std::invalid_argument if the parameter name already exists in the saveset.
  * @note we can use the private Info based constructor to create the parameter
  * @note The returned parameter object was created with new and therefore the
@@ -197,7 +197,7 @@ DBParameter::create(CSqlite& conn, int sid, const char* name, int number)
  * @param high       - parameter high limit.
  * @param bins       - suggested parametr binning.
  * @param units      - parameter units of measure.
- * @return SpecTcl::DBParameter*  - pointer to the object describing this thing.
+ * @return SpecTclDB::DBParameter*  - pointer to the object describing this thing.
  * @throw std::invalid_argument if the parameter name already exists in the saveset.
  * @note we can use the private Info based constructor to create the parameter
  * @note The returned parameter object was created with new and therefore the
@@ -352,4 +352,4 @@ DBParameter::fillInfo(CSqliteStatement& stmt)
         m_Info.s_units = reinterpret_cast<const char*>(stmt.getText(7));
     }
 }
-}                                // SpecTcl namespace.
+}                                // SpecTclDB namespace.

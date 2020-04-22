@@ -31,7 +31,7 @@
 #include <stdexcept>
 #include <assert.h>
 
-namespace SpecTcl {
+namespace SpecTclDB {
 /**
  * constructor (private)
  *    Used to construct from the information block after
@@ -220,7 +220,7 @@ DBSpectrum::exists(CSqlite& connection, int sid, const char* name)
  * @param parameterNames - Vector of parameter names.
  * @param axes         - Axis definitions.
  * @param datatype     - Channel data type.
- * @return SpecTcl::DBSpectrum* Pointer to a dynamically created spectrum.
+ * @return SpecTclDB::DBSpectrum* Pointer to a dynamically created spectrum.
  * 
  */
 DBSpectrum*
@@ -652,4 +652,4 @@ DBSpectrum::loadInfo(int sid, const char* name)
     }
 }
 
-}               // namespace SpecTcl
+}               // namespace SpecTclDB

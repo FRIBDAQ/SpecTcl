@@ -27,7 +27,7 @@
 
 #include <stdexcept>
 
-namespace SpecTcl {
+namespace SpecTclDB {
     
     
     
@@ -388,4 +388,4 @@ CDatabase::checkTables()
         );
     }
 }
-}                     // SpecTcl namespace.
+}                     // SpecTclDB namespace.

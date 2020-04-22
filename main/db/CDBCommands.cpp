@@ -352,14 +352,14 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     int nEvents;
     while(m_pPlayback) {
         for (int i =0; i < PLAYBACK_SIZE; i++) {
-            const DBEvent::Event& e = m_pPlayback->next();
+            auto e = m_pPlayback->next();
             if (e.size() == 0) {  // End
                 delete m_pPlayback;
                 m_pPlayback = nullptr;
                 break;              // This will submit what we have.
             } else {                // Data.
                 for (int j=0; j < e.size(); j++) { 
-                    events[i][e[j].s_parameterNumber] = e[j].s_parameterValue;
+                    events[i][e[j].s_number] = e[j].s_value;
                 }
                 eventList[i] = &(events[i]);
             }

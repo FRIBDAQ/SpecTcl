@@ -26,13 +26,13 @@
 class CSqlite;
 class CSqliteStatement;
 
-namespace SpecTcl {
+namespace SpecTclDB {
     
 /**
  * @class DBTreeVariable
- *    This class encapsulates database records that represent a SpecTcl
+ *    This class encapsulates database records that represent a SpecTclDB
  *    treevariable.  Tree variables are Tcl variables with a touch of metadata
- *    (units of measure).  In SpecTcl, there is a class encapsulation that makes
+ *    (units of measure).  In SpecTclDB, there is a class encapsulation that makes
  *    them easy to use in C++ code as steering variables.  The type
  *    of a tree variable is _double_
  */
@@ -99,7 +99,7 @@ public:
 private:
     static void loadInfo(CSqliteStatement& stmt, Info& info);
 };
-}                              // namespace SpecTcl
+}                              // namespace SpecTclDB
 
 
 #endif

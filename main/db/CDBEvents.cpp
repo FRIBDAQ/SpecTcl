@@ -29,8 +29,8 @@
 #include <SpecTcl.h>
 #include <iostream>
 #include <string.h>
-
-
+#include <sstream>
+#include <memory>
 ///////////////////////////////////////////////////////////////////
 // CDBEventPlayer implementation.
 //
@@ -42,46 +42,16 @@
  *   If we can, construct and prepare the retrieval statement for
  *   next to step in.
  *
- * @param pDatabase - pointer to the databaes handle.
+ * @param pSaveSet  - the save set in which the run will be stored.
  * @param run       - run number.
  */
-CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
-  m_pDatabase(pDatabase),
-  m_pRetriever(nullptr),
+CDBEventPlayer::CDBEventPlayer(SpecTclDB::SaveSet* pSaveSet, int run) :
+  m_pSaveSet(pSaveSet),
   m_run(run),
-  m_runId(-1)
+  m_eventContext(nullptr)
 {
-  sqlite3_stmt* pGetRunId;
-  CDBEventWriter::checkStatus(sqlite3_prepare(
-      m_pDatabase,
-      "SELECT id, title FROM runs WHERE run_number = :run", -1, &pGetRunId,
-      nullptr
-  ));
-  CDBEventWriter::checkStatus(sqlite3_bind_int(pGetRunId, 1, run));
-  int status = sqlite3_step(pGetRunId);
-  if (status == SQLITE_ROW) {
-    m_runId = sqlite3_column_int(pGetRunId, 0);
-    m_Title = reinterpret_cast<const char*>(sqlite3_column_text(pGetRunId, 1));
-    CDBEventWriter::checkStatus(sqlite3_finalize(pGetRunId));
-      
-    // Now prepare and bind the m_pRetriever used by next:
-    
-    CDBEventWriter::checkStatus(sqlite3_prepare(
-      m_pDatabase,
-      "SELECT event_number, parameter_count, event_data \
-        FROM events WHERE run_id = :id",
-        -1, &m_pRetriever, nullptr
-    ));
-  
-    CDBEventWriter::checkStatus(sqlite3_bind_int(m_pRetriever, 1, m_runId));
-          
-    
-    // All done.
-    
-  } else {
-    throw std::invalid_argument("No such run in database");
-  }
-  
+  m_runId = m_pSaveSet->openRun(m_run);
+  m_eventContext = m_pSaveSet->openEvents(m_runId);
 }
 /**
  * destructor:
@@ -89,7 +59,7 @@ CDBEventPlayer::CDBEventPlayer(sqlite3* pDatabase, int run) :
  */
 CDBEventPlayer::~CDBEventPlayer()
 {
-  sqlite3_finalize(m_pRetriever);
+  m_pSaveSet->closeEvents(m_eventContext);
 }
 /**
  * Return a const reference to the next event. Note that the
@@ -98,32 +68,20 @@ CDBEventPlayer::~CDBEventPlayer()
  * @return CDBEventPlayer::Event
  * @retval Event with 
  */
-const CDBEventPlayer::Event&
+const SpecTclDB::SaveSet::Event&
 CDBEventPlayer::next()
 {
   
-  if (sqlite3_step(m_pRetriever) == SQLITE_ROW) {
-      // How many parameters do we have?
-      
-      int m_eventNumber = sqlite3_column_int(m_pRetriever, 0);
-      int paramCount = sqlite3_column_int(m_pRetriever, 1);
-      m_currentEvent.resize(paramCount);    // make the storage.
-      const void* pBlob = sqlite3_column_blob(m_pRetriever, 2);
-      memcpy(
-        m_currentEvent.data(), pBlob,
-        paramCount*sizeof(DBEvent::blobElement)
-      );
-      
-  }  else {
-    m_currentEvent.clear();   // Empty event signals end of iteration.
+  if (!m_pSaveSet->readEvent(m_eventContext, m_Event)) {
+    m_Event.clear(); // ensure it's empty.
   }
-  return m_currentEvent;
+  return m_Event;
 }
 ///////////////////////////////////////////////////////////////////
 //  CDBEventWriter implementation.
 //
 
-int CDBEventWriter::m_dbCmdIndex(0);
+
 
 /**
  ** constructor
@@ -140,59 +98,32 @@ int CDBEventWriter::m_dbCmdIndex(0);
  *   @param batchSize    - Number of events written per commit (optional).
  */
 CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
-    m_dbName(databaseFile),
-    m_pInterp(nullptr),
-    m_pSqlite(nullptr),
-    m_pTransaction(nullptr),
-    m_pInsert(nullptr),
-    m_pCommit(nullptr),
-    m_nCurrentRunId(-1),
-    m_eventsInTransaction(batchSize),
-    m_eventsInCurrentTransaction(0),
-    m_eventInRun(0),
-    m_nCurrentRun(0)
+  m_dbName(databaseFile),
+  m_pDatabase(nullptr),
+  m_pSaveSet(nullptr),
+  m_eventsInTransaction(batchSize),
+  m_eventsInCurrentTransaction(0),
+  m_eventsInRun(0),
+  m_nCurrentRun(-1),
+  m_nRunId(-1),
+  m_pInterpreter(nullptr)
 {
     SpecTcl* pApi = SpecTcl::getInstance();
     
-    m_pInterp = pApi->getInterpreter();
-    m_pInterp->GlobalEval("package require dbconfig");   // Gets sqlite3 too.
-    m_dbCommand = nextCommand();
+    m_pInterpreter = pApi->getInterpreter();
+    m_pInterpreter->GlobalEval("package require dbconfig");   // Gets sqlite3 too.
     
-    // Open the database in Tcl and create the schema:
+    // Create the database schema and open it in C++ and Tcl:
     
-    {
-        std::string sqliteCmd = "sqlite3 ";
-        sqliteCmd += m_dbCommand;
-        sqliteCmd += " ";
-        sqliteCmd += m_dbName;
-        m_pInterp->GlobalEval(sqliteCmd);
+    SpecTclDB::CDatabase::create(databaseFile);
+    m_pDatabase = new SpecTclDB::CDatabase(databaseFile);
     
-    }
-    {
-        std::string schemaCmd = "dbconfig::makeSchema ";
-        schemaCmd += m_dbCommand;
-        m_pInterp->GlobalEval(schemaCmd);
-    }
-    // Open the database in C/C++ and create the prepared statements:
-    
-    checkStatus(sqlite3_open(m_dbName.c_str(), &m_pSqlite));
+    std::stringstream connect;
+    connect << "DBTcl connect " << databaseFile;
+    m_dbCommand = m_pInterpreter->GlobalEval(connect.str());
 
-    checkStatus(
-        sqlite3_prepare(
-            m_pSqlite,
-            "INSERT INTO events \
-              (run_id, event_number, parameter_count,  event_data) \
-              VALUES (:run, :eno, :nparam, :event)",
-            -1, &m_pInsert, nullptr
-        )
-    );
-    // Prepare the transaction/commit statements:
-    checkStatus(
-      sqlite3_prepare(m_pSqlite, "BEGIN TRANSACTION", -1, &m_pTransaction, nullptr)
-    );
-    checkStatus(
-      sqlite3_prepare(m_pSqlite, "COMMIT", -1, &m_pCommit, nullptr)
-    );
+    
+    
 }
 /**
  * destructor
@@ -202,19 +133,11 @@ CDBEventWriter::CDBEventWriter(const char* databaseFile, unsigned batchSize) :
  */
 CDBEventWriter::~CDBEventWriter()
 {
-    std::string closecmd(m_dbCommand);
-    closecmd += " ";
-    closecmd += "close";
-    m_pInterp->GlobalEval(closecmd);
-    
-    
-    sqlite3_finalize(m_pTransaction);
-    sqlite3_finalize(m_pInsert);
-    sqlite3_finalize(m_pCommit);
-    sqlite3_close(m_pSqlite);
-
-    sqlite3_close(m_pSqlite);
-    
+  std::stringstream closecmd;
+  closecmd << m_dbCommand << " destroy";
+  m_pInterpreter->GlobalEval(closecmd.str());
+  delete m_pDatabase;
+  delete m_pSaveSet;           // Delete nullptr is no-op.
 }
 /**
  * beginRun
@@ -249,56 +172,33 @@ CDBEventWriter::beginRun(const RingItem* pStateTransition)
     // different run number, we assume that the prior run didn't
     // end with end runs so wwe make a new configuration:
     
-    if ((m_nConfigId > 0) && (pBody->s_runNumber == m_nCurrentRun)) {
+    if ((m_savesetCommand != "") && (pBody->s_runNumber == m_nCurrentRun)) {
         return;
     }
     
     m_nCurrentRun = pBody->s_runNumber;        // Update the run number.
+    m_eventsInRun = 0;
     
-    int configId;
+    
+    std::string configId;
     {
         std::stringstream cmd;
         std::stringstream cfgname;
         cfgname << "run-" << pBody->s_runNumber;
         m_configName = cfgname.str();
         cmd << "dbconfig::saveConfig " << m_dbCommand << " " << m_configName;
-        std::string tclResult = m_pInterp->GlobalEval(cmd.str());
-        cmd.str(tclResult);
-        cmd >> configId;
-        
-    
+        m_savesetCommand = m_pInterpreter->GlobalEval(cmd.str());  
     }
-    m_nConfigId = configId;
-    
-    // Create the run record:
-    
-    sqlite3_stmt* pRun;
-    checkStatus(
-        sqlite3_prepare(
-            m_pSqlite,
-            "INSERT INTO runs (config_id, run_number, title, start_time) \
-                    VALUES(:configId, :runnum, :title, :start)",
-            -1, &pRun, nullptr
-        )
-    );
-    checkStatus(sqlite3_bind_int(pRun, 1, m_nConfigId));
-    checkStatus(sqlite3_bind_int(pRun, 2, pBody->s_runNumber));
-    checkStatus(sqlite3_bind_text(
-        pRun,3, pBody->s_title, -1, SQLITE_STATIC
-    ));
-    checkStatus(sqlite3_bind_int(pRun, 4, pBody->s_Timestamp));
-    checkStatus(sqlite3_step(pRun), SQLITE_DONE);
-    checkStatus(sqlite3_finalize(pRun));
-    
-    m_nCurrentRunId = sqlite3_last_insert_rowid(m_pSqlite);
-    checkStatus(sqlite3_bind_int(m_pInsert, 1, m_nCurrentRunId));  // same for all events.
-    m_eventInRun    = 0;
+    m_pSaveSet = m_pDatabase->getSaveSet(m_configName.c_str());
+    m_nRunId   = m_pSaveSet->startRun(
+        m_nCurrentRun, pBody->s_title, pBody->s_Timestamp
+      );
   }
   catch (std::exception& e) {
-    std::cerr << "CDBEventWriter failed in begin run: " << e.what();
+
+    std::cerr << " CDBEvents::BeginRun failed: " << e.what() << std::endl;
     throw;
   }
-  
 }
 /**
  * endRun
@@ -320,7 +220,7 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     // we'll just return assuming this is an additional end run from
     // event built data... or we joined in the middle.
     
-    if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
+    if ((m_configName != "") || (m_nRunId < 0)) {
         return;
     }
     const StateChangeItemBody* pBody =
@@ -329,23 +229,15 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     // If a transaction is in progress, finish it:
     
     if (m_eventsInCurrentTransaction > 0) {
-        checkStatus(sqlite3_step(m_pCommit), SQLITE_DONE);
-        checkStatus(sqlite3_reset(m_pCommit));
+        
         m_eventsInCurrentTransaction = 0;
-    }
+        m_pSaveSet->endEvents(m_eventTransactionContext);
+        m_eventTransactionContext = nullptr;
+      }
     
     // Add the end run time to the run record.
     
-    sqlite3_stmt* pEnd;
-    checkStatus(
-        sqlite3_prepare(
-            m_pSqlite, "UPDATE runs SET stop_time=:end WHERE id = :id", -1, &pEnd, nullptr
-        )
-    );
-    checkStatus(sqlite3_bind_int(pEnd, 1, pBody->s_Timestamp));
-    checkStatus(sqlite3_bind_int(pEnd, 2, m_nCurrentRunId));
-    checkStatus(sqlite3_step(pEnd), SQLITE_DONE);
-    checkStatus(sqlite3_finalize(pEnd));
+    m_pSaveSet->endRun(m_nRunId, pBody->s_Timestamp);
     
     // Auto save the spectra -- before the configuration id gets set invalid.
     
@@ -353,8 +245,7 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     
     // Set the state to an invalid run:
     
-    m_nCurrentRunId = -1;
-    m_nConfigId     = -1;
+    m_nRunId = -1;
     m_eventsInCurrentTransaction = 0;
     
   }
@@ -377,7 +268,7 @@ CDBEventWriter::scaler(const RingItem* pScaler)
     // If we don't have a current run id just return
     // assuming we joined in the middle:
     
-    if (m_nCurrentRunId < 0) {
+    if (m_nRunId < 0) {
         return;
     }
     
@@ -394,66 +285,23 @@ CDBEventWriter::scaler(const RingItem* pScaler)
     // scalers with body header extensions, we'll assume that at some point
     // we might:
     
-    const uint32_t* pBodyHeaderSize = reinterpret_cast<const uint32_t*>(
-        &(pScaler->s_body.u_noBodyHeader.s_mbz)
-    );
-    const ScalerItemBody* pScalerBody(0);
-    if (*pBodyHeaderSize == 0) {
-        pScalerBody = reinterpret_cast<const ScalerItemBody*>(pBodyHeaderSize+1);
-    } else {
-        uint32_t nBytes = *pBodyHeaderSize;
-        const uint8_t* p8 = reinterpret_cast<const uint8_t*>(pBodyHeaderSize);
-        p8 += nBytes;
-        pScalerBody = reinterpret_cast<const ScalerItemBody*>(p8);
-    }
+   
+    const ScalerItemBody* pScalerBody=
+      reinterpret_cast<const ScalerItemBody*>(getBody(pScaler));
+                                                                         ;
+    
     // We're in a transaction pretty gauranteed because event writing puts us
     // there so we don't need to worry about atomicity:
-    // Scalers are assumed to be at low rate so we prep/bind/execute here.
     
-    // Root record for the readout:
     
-    sqlite3_stmt* pRoot;
-    checkStatus(sqlite3_prepare(
-        m_pSqlite,
-        "INSERT INTO scaler_readouts                                          \
-            (run_id, source_id, start_offset, stop_offset, divisor, clock_time)      \
-            VALUES(:run, :src, :start, :stop, :divisor, :clock)",
-        -1, &pRoot, nullptr
-    ));
-    checkStatus(sqlite3_bind_int(pRoot, 1, m_nCurrentRunId));
-    checkStatus(sqlite3_bind_int(pRoot, 2, sourceId));
-    checkStatus(sqlite3_bind_int(pRoot, 3, pScalerBody->s_intervalStartOffset));
-    checkStatus(sqlite3_bind_int(pRoot, 4, pScalerBody->s_intervalEndOffset));
-    checkStatus(sqlite3_bind_int(pRoot, 5, pScalerBody->s_intervalDivisor));
-    checkStatus(sqlite3_bind_int(pRoot, 6, pScalerBody->s_timestamp));
-    checkStatus(sqlite3_step(pRoot), SQLITE_DONE);
-    checkStatus(sqlite3_finalize(pRoot));
+  m_pSaveSet->saveScalers(
+      m_nRunId, sourceId,
+      pScalerBody->s_intervalStartOffset, pScalerBody->s_intervalEndOffset, pScalerBody->s_intervalDivisor,
+      pScalerBody->s_timestamp,
+      pScalerBody->s_scalerCount, pScalerBody->s_scalers
+  );
     
-    // Reference id for the scaler items:
     
-    sqlite3_int64 lastid = sqlite3_last_insert_rowid(m_pSqlite);
-    
-    // Each Scaler Item:
-    
-    sqlite3_stmt* pChannel;
-    checkStatus(sqlite3_prepare(
-        m_pSqlite,
-        "INSERT INTO scaler_channels (readout_id, channel, value)          \
-            VALUES (:rdoid, :channel, :value)", -1, &pChannel, nullptr
-    ));
-    // We can bind the rdo id now and leave it bound through the
-    // loop over channels:
-    
-    checkStatus(sqlite3_bind_int64(pChannel, 1, lastid));
-    const uint32_t* pValues = pScalerBody->s_scalers;
-    
-    for (int i =0; i < pScalerBody->s_scalerCount; i++) {
-        checkStatus(sqlite3_bind_int(pChannel, 2, i));
-        checkStatus(sqlite3_bind_int(pChannel, 3, *pValues++));
-        checkStatus(sqlite3_step(pChannel), SQLITE_DONE);
-        checkStatus(sqlite3_reset(pChannel));
-    }
-    checkStatus(sqlite3_finalize(pChannel));
 }
 
 /**
@@ -471,13 +319,13 @@ void
 CDBEventWriter::event(CEvent* pEvent)
 {
   try {
-    if ((m_nConfigId < 0) || (m_nCurrentRunId < 0)) {
+    if ((!m_pSaveSet) || (m_nRunId < 0)) {
         throw std::logic_error("CDBEventWriter::event called without a current run");
     }
     // If we don't have a current id, assume that we joined in the
     // middle of the run and ignore:
     //
-    if (m_nCurrentRunId < 0) {
+    if (m_nRunId < 0) {
         return;
     }
     
@@ -487,37 +335,32 @@ CDBEventWriter::event(CEvent* pEvent)
     int n = dope.size();
     if (n) {                              // Empty events don't count.
         if (m_eventsInCurrentTransaction == 0) {
-            checkStatus(sqlite3_step(m_pTransaction), SQLITE_DONE);
-            checkStatus(sqlite3_reset(m_pTransaction));
+            m_eventTransactionContext = m_pSaveSet->startEvents(m_nRunId);
         }
+        // Marshall the dope vector and associated parameters
+        // into flat arrays:
+
+        std::unique_ptr<int> paramids(new int[n]);     // To automate destruction.
+        std::unique_ptr<double> params(new double[n]);
         
-        checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
-        DBEvent::Event  blob;
         for (int i =0; i < n; i++) {
-            DBEvent::blobElement param;
-            int pno = dope[i];
-            param.s_parameterNumber = pno;
-            param.s_parameterValue  = e[pno];
-            blob.push_back(param);
+          int pno = dope[i];
+          paramids.get()[i] = pno;
+          params.get()[i]   = (*pEvent)[pno];
         }
-        checkStatus(sqlite3_bind_int(m_pInsert, 2, m_eventInRun));
-        checkStatus(sqlite3_bind_int(m_pInsert, 3, n));
-        checkStatus(sqlite3_bind_blob(
-          m_pInsert, 4, blob.data(), n*sizeof(DBEvent::blobElement),
-          SQLITE_STATIC
-        ));
-        checkStatus(sqlite3_step(m_pInsert), SQLITE_DONE);
-        checkStatus(sqlite3_reset(m_pInsert));
+        m_pSaveSet->saveEvent(
+          m_nRunId, m_eventsInRun, n, paramids.get(), params.get()
+        );
         
         m_eventsInCurrentTransaction++;
-        m_eventInRun++;
+        m_eventsInRun++;
         
         // Commit a batch if appropriate.
         
         if(m_eventsInCurrentTransaction >= m_eventsInTransaction) {
             m_eventsInCurrentTransaction = 0;
-            checkStatus(sqlite3_step(m_pCommit), SQLITE_DONE);
-            checkStatus(sqlite3_reset(m_pCommit));
+            m_pSaveSet->endEvents(m_eventTransactionContext);
+            m_eventTransactionContext = nullptr;
         }
     }
   }
@@ -576,38 +419,31 @@ std::vector<CDBEventWriter::RunInfo>
 CDBEventWriter::listRuns()
 {
     std::vector<RunInfo> result;
-    sqlite3_stmt* pList;
-    checkStatus(
-        sqlite3_prepare(
-            m_pSqlite,
-            "SELECT run_number, name, title, start_time, stop_time \
-                    FROM runs                                      \
-                    INNER JOIN save_sets ON runs.config_id = save_sets.id;",
-            -1, &pList, nullptr
-        )
-    );
-    int stat;
-    while ((stat = sqlite3_step(pList)) == SQLITE_ROW) {
-        RunInfo record;
-        record.s_runNumber = sqlite3_column_int(pList, 0);
-        record.s_config    =
-            reinterpret_cast<const char*>(sqlite3_column_text(pList, 1));
-        record.s_title     =
-            reinterpret_cast<const char*>(sqlite3_column_text(pList, 2));
-        record.s_start     = sqlite3_column_int(pList, 3);
+    
+    // Need all savesets so we can iterate over them:
+    
+    auto savesets = m_pDatabase->getAllSaveSets();
+    for (int i = 0; i < savesets.size(); i++) {
+      auto runs = savesets[i]->listRuns();    // Run numbers in save-set
+      
+      // Iterate over the runs in a saveset:
+      
+      for (int r =0; r < runs.size(); r++) {
+        int id = savesets[i]->openRun(runs[r]);
+        auto info = savesets[i]->getRunInfo(id);
+        RunInfo run;
+        run.s_runNumber = runs[r];
+        run.s_config    = savesets[i]->getInfo().s_name;
+        run.s_title     = info.s_title;
+        run.s_start     = info.s_startTime;
+        run.s_end       = info.s_stopTime;
+        run.s_hasEnd    = info.s_stopTime == 0 ? false : true;
         
-        // The s_end could be a null if the run never ended:
-        
-        int haveEnd       = sqlite3_column_type(pList, 4);
-        if (haveEnd == SQLITE_NULL) {
-            record.s_hasEnd = false;
-        } else {
-            record.s_hasEnd = true;
-            record.s_end   = sqlite3_column_int(pList, 4);
-        }
-        result.push_back(record);
+        result.push_back(run);
+      }
+      
+      delete savesets[i];         // Savesets were dynamically allocated. 
     }
-    checkStatus(sqlite3_finalize(pList));
     
     return result;
 }
@@ -624,24 +460,12 @@ CDBEventWriter::listRuns()
 CDBEventPlayer*
 CDBEventWriter::playRun(int run)
 {
-  return new CDBEventPlayer(m_pSqlite, run);
+  return new CDBEventPlayer(m_pSaveSet, run);
 }
 /////////////////////////////////////////////////////////////////////////////
 // Private utilities
 
-/**
- * nextCommand
- *    Return the command string to use for the next command interface.
- *
- * @return std::string
- */
-std::string
-CDBEventWriter::nextCommand()
-{
-    std::stringstream sResult;
-    sResult << "nscldaq_sqlitedb_" << m_dbCmdIndex++;
-    return sResult.str();
-}
+
 /**
  * checkStatus
  *   Checks for the status of an Sqlite operation matching
@@ -712,14 +536,13 @@ void
 CDBEventWriter::saveSpectra()
 {
     std::string baseCommand("dbconfig::saveSpectrum ");
-    baseCommand += m_dbCommand;
+    baseCommand += m_savesetCommand;
     baseCommand += " ";
-    baseCommand += m_configName;
-    baseCommand += " ";
+    
     
     for (int i =0; i < m_autoSaveSpectra.size(); i++) {
         std::string command(baseCommand);
         command += m_autoSaveSpectra[i];
-        m_pInterp->GlobalEval(command);
+        m_pInterpreter->GlobalEval(command);
     }
 }

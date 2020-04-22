@@ -16,7 +16,7 @@
 */
 
 /** @file:  DBTreeVariable.cpp
- *  @brief: Implement the SpecTcl::DBTreeVariable class
+ *  @brief: Implement the SpecTclDB::DBTreeVariable class
  */
 
 #include "DBTreeVariable.h"
@@ -26,7 +26,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace SpecTcl {
+namespace SpecTclDB {
 //////////////////////////////////////////////////////////////////
 // Constructors.
 
@@ -156,7 +156,7 @@ DBTreeVariable::create(
  *    that encapsulate all of the tree variables saved in a saveset:
  * @param conn - Sqlite connection object.
  * @param saveid - Save set id.
- * @return std::vector<SpecTcl::DBTreeVariable*> -
+ * @return std::vector<SpecTclDB::DBTreeVariable*> -
  * @note The caller must, at some point, execute a delete on the
  *        pointers in the vector returned by this method.
  */
@@ -196,4 +196,4 @@ DBTreeVariable::loadInfo(CSqliteStatement& stmt, Info& info)
         info.s_value   = stmt.getDouble(3);
         info.s_units   = reinterpret_cast<const char*>(stmt.getText(4));
 }
-}                         // namespace SpecTcl
+}                         // namespace SpecTclDB

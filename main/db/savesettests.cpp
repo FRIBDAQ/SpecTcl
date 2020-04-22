@@ -58,7 +58,7 @@ class savesettest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(info_1);
     
-    // CR via a SpecTcl::Database.
+    // CR via a SpecTclDB::Database.
     
     CPPUNIT_TEST(db_1);      // Create
     CPPUNIT_TEST(db_2);      // retrieve by name.
@@ -68,7 +68,7 @@ class savesettest : public CppUnit::TestFixture {
     
 private:
     CSqlite*    m_pDatabase;
-    SpecTcl::CDatabase* m_pSpecDb;
+    SpecTclDB::CDatabase* m_pSpecDb;
     std::string m_file;
     time_t      m_savesetTime;
 public:
@@ -76,7 +76,7 @@ public:
         makeTempFile();
         makeDatabase();
         m_pDatabase = new CSqlite(m_file.c_str());
-        m_pSpecDb   = new SpecTcl::CDatabase(m_file.c_str());
+        m_pSpecDb   = new SpecTclDB::CDatabase(m_file.c_str());
     }
     void tearDown() {
         delete m_pDatabase;
@@ -139,7 +139,7 @@ savesettest::makeTempFile()
 void
 savesettest::makeDatabase()
 {
-    SpecTcl::CDatabase::create(m_file.c_str());
+    SpecTclDB::CDatabase::create(m_file.c_str());
 }
 /**
  * makeEmptySet
@@ -166,7 +166,7 @@ void savesettest::construct_1()
     // Construcing on a nonexistent saveset fails:
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::SaveSet set(*m_pDatabase, m_file.c_str()),
+        SpecTclDB::SaveSet set(*m_pDatabase, m_file.c_str()),
         std::logic_error
     );
 }
@@ -176,7 +176,7 @@ void savesettest::construct_2()
     
     makeEmptySet("set");
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::SaveSet set(*m_pDatabase, "set");
+        SpecTclDB::SaveSet set(*m_pDatabase, "set");
     );
 }
 void savesettest::construct_3()
@@ -184,7 +184,7 @@ void savesettest::construct_3()
     // the info element of the save set is correctly built:
     
     makeEmptySet("set");
-    SpecTcl::SaveSet set(*m_pDatabase, "set");
+    SpecTclDB::SaveSet set(*m_pDatabase, "set");
     EQ(std::string("set"), set.m_Info.s_name);
     EQ(1, set.m_Info.s_id);
     EQ(m_savesetTime, set.m_Info.s_stamp);
@@ -194,7 +194,7 @@ void savesettest::construct_4()
     // construct by id with no such fails.
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::SaveSet set(*m_pDatabase, 1),
+        SpecTclDB::SaveSet set(*m_pDatabase, 1),
         std::logic_error
     );
 }
@@ -204,7 +204,7 @@ void savesettest::construct_5()
     
     makeEmptySet("set");   // id=1.
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::SaveSet  set(*m_pDatabase, 1)
+        SpecTclDB::SaveSet  set(*m_pDatabase, 1)
     );
 }
 void savesettest::construct_6()
@@ -212,7 +212,7 @@ void savesettest::construct_6()
     // Construct by id loads the right info.
     
     makeEmptySet("set");
-    SpecTcl::SaveSet set(*m_pDatabase, 1);
+    SpecTclDB::SaveSet set(*m_pDatabase, 1);
     EQ(std::string("set"), set.m_Info.s_name);
     EQ(1, set.m_Info.s_id);
     EQ(m_savesetTime, set.m_Info.s_stamp);
@@ -221,22 +221,22 @@ void savesettest::exists_1()
 {
     // does not exist:
     
-    ASSERT(!(SpecTcl::SaveSet::exists(*m_pDatabase, "set")));
+    ASSERT(!(SpecTclDB::SaveSet::exists(*m_pDatabase, "set")));
 }
 void savesettest::exists_2()
 {
     // does exist.
     
     makeEmptySet("set");
-    ASSERT(SpecTcl::SaveSet::exists(*m_pDatabase, "set"));
+    ASSERT(SpecTclDB::SaveSet::exists(*m_pDatabase, "set"));
 }
 void savesettest::create_1()
 {
     // no problem if it does not already exist:
     
-    SpecTcl::SaveSet* pSet;
+    SpecTclDB::SaveSet* pSet;
     CPPUNIT_ASSERT_NO_THROW(
-        pSet = SpecTcl::SaveSet::create(*m_pDatabase, "set")
+        pSet = SpecTclDB::SaveSet::create(*m_pDatabase, "set")
     );
     EQ(std::string("set"), pSet->m_Info.s_name);
     delete pSet;
@@ -245,9 +245,9 @@ void savesettest::create_2()
 {
     // Fails if it exists:
     
-    delete SpecTcl::SaveSet::create(*m_pDatabase, "set");
+    delete SpecTclDB::SaveSet::create(*m_pDatabase, "set");
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::SaveSet::create(*m_pDatabase, "set"),
+        SpecTclDB::SaveSet::create(*m_pDatabase, "set"),
         std::invalid_argument
     );
 }
@@ -256,7 +256,7 @@ void savesettest::list_1()
 {
     // Empty list:
     
-    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    auto v = SpecTclDB::SaveSet::list(*m_pDatabase);
     EQ(size_t(0), v.size());
     
 }
@@ -265,7 +265,7 @@ void savesettest::list_2()
     // single item:
     
     makeEmptySet("set1");
-    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    auto v = SpecTclDB::SaveSet::list(*m_pDatabase);
     EQ(size_t(1), v.size());
     EQ(1, v[0].s_id);
     EQ(std::string("set1"), v[0].s_name);
@@ -290,7 +290,7 @@ void savesettest::list_3()
     names.push_back("set3");
     stamps.push_back(m_savesetTime);
     
-    auto v = SpecTcl::SaveSet::list(*m_pDatabase);
+    auto v = SpecTclDB::SaveSet::list(*m_pDatabase);
     EQ(size_t(3), v.size());
     for (int i =0; i < v.size(); i++) {
         int id = i+1;
@@ -305,7 +305,7 @@ void savesettest::info_1()
     // Test getinfo:
     
     makeEmptySet("set1");
-    SpecTcl::SaveSet s(*m_pDatabase, "set1");
+    SpecTclDB::SaveSet s(*m_pDatabase, "set1");
     auto i = s.getInfo();
     
     EQ(std::string("set1"), i.s_name);
@@ -317,7 +317,7 @@ void savesettest::db_1()
 {
     // Create new save set via db:
     
-    SpecTcl::SaveSet* pSet;
+    SpecTclDB::SaveSet* pSet;
     CPPUNIT_ASSERT_NO_THROW(
         pSet = m_pSpecDb->createSaveSet("myset")
     );
@@ -335,8 +335,8 @@ void savesettest::db_2()
     delete m_pSpecDb->createSaveSet("set1");
     delete m_pSpecDb->createSaveSet("set2");
     
-    SpecTcl::SaveSet* p2 = m_pSpecDb->getSaveSet("set2");
-    SpecTcl::SaveSet* p1 = m_pSpecDb->getSaveSet("set1");
+    SpecTclDB::SaveSet* p2 = m_pSpecDb->getSaveSet("set2");
+    SpecTclDB::SaveSet* p1 = m_pSpecDb->getSaveSet("set1");
     
     EQ(std::string("set2"), p2->m_Info.s_name);
     EQ(std::string("set1"), p1->m_Info.s_name);
@@ -351,7 +351,7 @@ void savesettest::db_3()
     delete m_pSpecDb->createSaveSet("set1");  // id = 1
     delete m_pSpecDb->createSaveSet("set2");  // id = 2
     
-    SpecTcl::SaveSet* p = m_pSpecDb->getSaveSet(2);
+    SpecTclDB::SaveSet* p = m_pSpecDb->getSaveSet(2);
     EQ(std::string("set2"), p->m_Info.s_name);
     EQ(2, p->m_Info.s_id);
     
@@ -361,8 +361,8 @@ void savesettest::db_4()
 {
     // Check getAll Savesets
     
-    delete SpecTcl::SaveSet::create(*m_pDatabase, "set1");
-    delete SpecTcl::SaveSet::create(*m_pDatabase, "set2");
+    delete SpecTclDB::SaveSet::create(*m_pDatabase, "set1");
+    delete SpecTclDB::SaveSet::create(*m_pDatabase, "set2");
     
     auto sets = m_pSpecDb->getAllSaveSets();
     

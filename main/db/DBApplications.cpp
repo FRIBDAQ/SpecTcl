@@ -29,7 +29,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace SpecTcl {
+namespace SpecTclDB {
 
 /**
  * constructor (private)
@@ -203,4 +203,4 @@ DBApplication::listApplications(CSqlite& conn, int saveid)
     return result;
 }
 
-}                            // SpecTcl namespace.
+}                            // SpecTclDB namespace.

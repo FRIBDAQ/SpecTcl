@@ -72,8 +72,8 @@ class gapptest : public CppUnit::TestFixture {
     
 private:
     std::string                m_filename;
-    SpecTcl::CDatabase*        m_pDb;
-    SpecTcl::SaveSet*          m_pSaveset;
+    SpecTclDB::CDatabase*        m_pDb;
+    SpecTclDB::SaveSet*          m_pSaveset;
     
     CSqlite*                   m_pConn;
 public:
@@ -92,8 +92,8 @@ public:
         
         close(fd);
         m_filename = filename;
-        SpecTcl::CDatabase::create(filename);
-        m_pDb = new SpecTcl::CDatabase(filename);
+        SpecTclDB::CDatabase::create(filename);
+        m_pDb = new SpecTclDB::CDatabase(filename);
         
         m_pSaveset = m_pDb->createSaveSet("MySaveset");
         m_pConn    = &m_pDb->m_connection;
@@ -142,7 +142,7 @@ void gapptest::makeSomePars()
     for (int i =0; i < 100; i++) {
         std::stringstream name;
         name << "param." << i;
-        delete SpecTcl::DBParameter::create(
+        delete SpecTclDB::DBParameter::create(
             *m_pConn, m_pSaveset->getInfo().s_id, name.str().c_str(), i+1
         );
     }
@@ -157,13 +157,13 @@ void gapptest::makeSome1dGates()
         std::stringstream pname;
         pname << "param." << i;
         std::string paramName = pname.str();
-        SpecTcl::DBGate::NameList param;
+        SpecTclDB::DBGate::NameList param;
         param.push_back(paramName.c_str());
         std::stringstream name;
         name << "gate." << i;
         std::string gname = name.str();
         
-        delete SpecTcl::DBGate::create1dGate(
+        delete SpecTclDB::DBGate::create1dGate(
             *m_pConn, m_pSaveset->getInfo().s_id, gname.c_str(),
             "s", param, 10, 20
         );
@@ -171,8 +171,8 @@ void gapptest::makeSome1dGates()
 }
 void gapptest::makeSomeSpectra()
 {
-    SpecTcl::SaveSet::SpectrumAxis a = {-10.0, 10.0, 20};
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes;
+    SpecTclDB::SaveSet::SpectrumAxis a = {-10.0, 10.0, 20};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes;
     axes.push_back(a);
                                               // spectrum entry uses transactions
                                               // and those don't nest.
@@ -199,15 +199,15 @@ void gapptest::apply_1()
     // Apply  a gate to a spectrum successfully.
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     delete m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     delete m_pSaveset->createCompoundGate("g1", "F", gates);
     
-    SpecTcl::DBApplication* app;
+    SpecTclDB::DBApplication* app;
     CPPUNIT_ASSERT_NO_THROW(
-         app = SpecTcl::DBApplication::applyGate(
+         app = SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "g1", "spec1"
         )
     );
@@ -219,13 +219,13 @@ void gapptest::apply_2()
     // Applying a gate fills in info correctly:
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     auto pSpec =  m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     auto pGate = m_pSaveset->createCompoundGate("g1", "F", gates);
     
-    auto pApp = SpecTcl::DBApplication::applyGate(
+    auto pApp = SpecTclDB::DBApplication::applyGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "g1", "spec1"
     );
     
@@ -243,13 +243,13 @@ void gapptest::apply_3()
     // Database entry is correct.
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     auto pSpec =  m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     auto pGate = m_pSaveset->createCompoundGate("g1", "F", gates);
     
-    auto pApp = SpecTcl::DBApplication::applyGate(
+    auto pApp = SpecTclDB::DBApplication::applyGate(
         *m_pConn, m_pSaveset->getInfo().s_id, "g1", "spec1"
     );
     
@@ -283,14 +283,14 @@ void gapptest::apply_4()
     // Bad saveset id throws.
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     delete m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     delete m_pSaveset->createCompoundGate("g1", "F", gates);
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication::applyGate(
+        SpecTclDB::DBApplication::applyGate(
             *m_pConn,  m_pSaveset->getInfo().s_id+1, "g1", "spec1"
         ),
         std::invalid_argument
@@ -302,14 +302,14 @@ void gapptest::apply_5()
     // bad gate name throws
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     delete m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     delete m_pSaveset->createCompoundGate("g1", "F", gates);
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication::applyGate(
+        SpecTclDB::DBApplication::applyGate(
             *m_pConn,  m_pSaveset->getInfo().s_id, "g11", "spec1"
         ),
         std::invalid_argument
@@ -321,14 +321,14 @@ void gapptest::apply_6()
     // bad spectrum name throws.
     
     delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     delete m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     delete m_pSaveset->createCompoundGate("g1", "F", gates);
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication::applyGate(
+        SpecTclDB::DBApplication::applyGate(
             *m_pConn,  m_pSaveset->getInfo().s_id, "g1", "spec11"
         ),
         std::invalid_argument
@@ -341,7 +341,7 @@ void gapptest::list_1()
 {
     // Intially empty.
     
-    auto l = SpecTcl::DBApplication::listApplications(
+    auto l = SpecTclDB::DBApplication::listApplications(
         *m_pConn, m_pSaveset->getInfo().s_id
     );
     EQ(size_t(0), l.size());
@@ -349,21 +349,21 @@ void gapptest::list_1()
 void gapptest::list_2()
 {
 delete m_pSaveset->createParameter("param1", 1);
-    std::vector<SpecTcl::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
+    std::vector<SpecTclDB::SaveSet::SpectrumAxis> axes = {{0.0, 100.0, 200}};
     std::vector<const char*> pname={"param1"};
     auto s =  m_pSaveset->createSpectrum("spec1", "1", pname, axes);
     std::vector<const char*> gates;
     auto g =  m_pSaveset->createCompoundGate("g1", "F", gates);
     
-    SpecTcl::DBApplication* app;
+    SpecTclDB::DBApplication* app;
     CPPUNIT_ASSERT_NO_THROW(
-         app = SpecTcl::DBApplication::applyGate(
+         app = SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id, "g1", "spec1"
         )
     );
     delete app;
     
-    auto l = SpecTcl::DBApplication::listApplications(
+    auto l = SpecTclDB::DBApplication::listApplications(
         *m_pConn, m_pSaveset->getInfo().s_id
     );
     
@@ -395,12 +395,12 @@ void gapptest::list_3()
         spname << "spectrum." << i;
         std::string gate = gname.str();
         std::string spec = spname.str();
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gate.c_str(), spec.c_str()
         );
     }
-    auto l = SpecTcl::DBApplication::listApplications(
+    auto l = SpecTclDB::DBApplication::listApplications(
         *m_pConn, m_pSaveset->getInfo().s_id
     );
     
@@ -430,7 +430,7 @@ void gapptest::list_4()
     // bad save set.
     
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication::listApplications(
+        SpecTclDB::DBApplication::listApplications(
             *m_pConn, m_pSaveset->getInfo().s_id+1
         ),
         std::invalid_argument
@@ -455,15 +455,15 @@ void gapptest::construct_1()
         std::stringstream spname;
         spname << "spectrum." << i;
         
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gname.str().c_str(), spname.str().c_str()
         );
     }
     
-    SpecTcl::DBApplication* pApp(nullptr);
+    SpecTclDB::DBApplication* pApp(nullptr);
     CPPUNIT_ASSERT_NO_THROW(
-        pApp = new SpecTcl::DBApplication(
+        pApp = new SpecTclDB::DBApplication(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "gate.1", "spectrum.1"
         )
@@ -496,13 +496,13 @@ void gapptest::construct_2()
         std::stringstream spname;
         spname << "spectrum." << i;
         
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gname.str().c_str(), spname.str().c_str()
         );
     }
     CPPUNIT_ASSERT_THROW(
-        new SpecTcl::DBApplication(
+        new SpecTclDB::DBApplication(
             *m_pConn, m_pSaveset->getInfo().s_id+1, "gate.2", "spectrum.2"
         ),
         std::invalid_argument
@@ -524,13 +524,13 @@ void gapptest::construct_3()
         std::stringstream spname;
         spname << "spectrum." << i;
         
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gname.str().c_str(), spname.str().c_str()
         );
     }
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication app(
+        SpecTclDB::DBApplication app(
             *m_pConn, m_pSaveset->getInfo().s_id, "gate.22", "spectrum.2"
         ),
         std::invalid_argument
@@ -552,13 +552,13 @@ void gapptest::construct_4()
         std::stringstream spname;
         spname << "spectrum." << i;
         
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gname.str().c_str(), spname.str().c_str()
         );
     }
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication app(
+        SpecTclDB::DBApplication app(
             *m_pConn, m_pSaveset->getInfo().s_id, "gate.3", "spectrum.32"
         ),
         std::invalid_argument
@@ -580,13 +580,13 @@ void gapptest::construct_5()
         std::stringstream spname;
         spname << "spectrum." << i;
         
-        delete SpecTcl::DBApplication::applyGate(
+        delete SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             gname.str().c_str(), spname.str().c_str()
         );
     }
     CPPUNIT_ASSERT_THROW(
-        SpecTcl::DBApplication app(
+        SpecTclDB::DBApplication app(
             *m_pConn, m_pSaveset->getInfo().s_id, "gate.3", "spectrum.4"
         ),
         std::invalid_argument
@@ -600,7 +600,7 @@ void gapptest::gatename_1()
     makeSome1dGates();
     makeSomeSpectra();
     
-    auto papp =  SpecTcl::DBApplication::applyGate(
+    auto papp =  SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "gate.1", "spectrum.5"
     );
@@ -618,7 +618,7 @@ void gapptest::specname_1()
     makeSome1dGates();
     makeSomeSpectra();
     
-    auto papp =  SpecTcl::DBApplication::applyGate(
+    auto papp =  SpecTclDB::DBApplication::applyGate(
             *m_pConn, m_pSaveset->getInfo().s_id,
             "gate.1", "spectrum.5"
     );
@@ -638,7 +638,7 @@ void gapptest::save_1()
     auto papp = m_pSaveset->applyGate("gate.1", "spectrum.5");
 
     CPPUNIT_ASSERT_NO_THROW(
-        SpecTcl::DBApplication gate(
+        SpecTclDB::DBApplication gate(
             *m_pConn, m_pSaveset->getInfo().s_id, "gate.1", "spectrum.5"
         )
     );
@@ -656,7 +656,7 @@ void gapptest::save_2()
     makeSomeSpectra();
     
     auto papp = m_pSaveset->applyGate("gate.1", "spectrum.5");
-    SpecTcl::DBApplication* papp1;
+    SpecTclDB::DBApplication* papp1;
     CPPUNIT_ASSERT_NO_THROW(
         papp1 = m_pSaveset->lookupApplication("gate.1", "spectrum.5")
     );

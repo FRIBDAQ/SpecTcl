@@ -25,7 +25,7 @@
 
 class CSqlite;
 
-namespace SpecTcl {
+namespace SpecTclDB {
     
 /**
  * @class DBApplication
@@ -89,6 +89,6 @@ public:
 private:
     
 };
-}                         // SpecTcl namespace.
+}                         // SpecTclDB namespace.
 
 #endif
