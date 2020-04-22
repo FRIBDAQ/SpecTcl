@@ -528,6 +528,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             getChannels(interp, objv);
         } else if (command == "listRuns") {
             listRuns(interp, objv);
+        } else if (command == "getRunInfo") {
+            getRunInfo(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1401,6 +1403,41 @@ TclSaveSet::listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     auto runs = m_pSaveSet->listRuns();
     for (int i =0; i < runs.size(); i++) {
         result += runs[i];
+    }
+    interp.setResult(result);
+}
+/**
+ * getRunInfo
+ *   Returns a list of dicts that contain information about runs
+ *   stored in this save set. Dict format is the same as for
+ *   DBInstance::listRuns
+ *   
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ */
+void
+TclSaveSet::getRunInfo(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "getRunInfo does not accept any additional parameters");
+    CTCLObject result;
+    result.Bind(interp);
+    
+    auto runs = m_pSaveSet->listRuns();
+    for (int r = 0; r < runs.size(); r++) {
+        int id = m_pSaveSet->openRun(runs[r]);
+        auto info = m_pSaveSet->getRunInfo(id);
+        CTCLObject dict;
+        dict.Bind(interp);
+        InitDict(interp, dict);
+        AddKey(dict, "config", m_pSaveSet->getInfo().s_name.c_str());
+        AddKey(dict, "number", info.s_runNumber);
+        AddKey(dict, "title", info.s_title.c_str());
+        AddKey(dict, "start_time", int(info.s_startTime));
+        if (info.s_stopTime) {
+            AddKey(dict, "stop_time", int(info.s_stopTime));
+        }
+        result += dict;
     }
     interp.setResult(result);
 }

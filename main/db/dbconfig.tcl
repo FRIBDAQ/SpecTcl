@@ -1145,31 +1145,16 @@ proc hasRun {saveset} {
 
 ##
 # getRunInfo
-#   Get information about a run associated with a configuration
-#   id.
+#   Get information about runs associated with a saveset  instance command.
+#   
 #
-# @param cmd -- database command
-# @param conf - Configuration id.
-# @return dict (possibily empty if there is no run
-#              See listRuns for the keys/values to this dict.
+# @param saveset - saveset instance command
+# @return list of dicts (possibily empty if there are no runs
+#              See listRuns for the keys/values to these dicts.
 # @retval empty dict if there's no associated run.
 #
-proc getRunInfo {cmd conf} {
-#    set result [dict create]
-#    $cmd eval {
-#        SELECT id, config_id, run_number, title, start_time, stop_time
-#        FROM runs WHERE config_id = $conf
-#    } {
-#        set result [dict create                            \
-#            id $id config $config_id number $run_number title $title \
-#            start_time $start_time
-#        ]
-#        if {$stop_time ne ""} {
-#            dict set result stop_time $stop_time
-#       }
-#    }
-#    
-#    return $result
+proc getRunInfo {saveset} {
+    return [$saveset getRunInfo]    
 }
 ##
 # getScalers

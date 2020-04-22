@@ -173,6 +173,7 @@ protected:
     void storeChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void getChannels(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void getRunInfo(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void destroy();
     
     // Utility methods.

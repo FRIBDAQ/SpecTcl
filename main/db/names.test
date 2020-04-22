@@ -2400,55 +2400,82 @@ tcltest::test run_5 {Check has run when there is one} \
     }
     dbconfig::hasRun $save1
 } -result 1
-if 0 {
+
 tcltest::test run_6 {Get run info for selected config id without end time} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
-} -body {
-    config eval {
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    set save2 [$config createSaveset test2]
+    set id2 [dict get [$save2 info] id]
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $save2 destroy
+    $config destroy
+    db close
+    rmdb
+}  -body {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time, stop_time)
-            VALUES (10, 1234, 'This is a title', 11111, 22222)
+            VALUES ($id2, 1234, 'This is a title', 11111, 22222)
     }
-    config eval {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time)
-            VALUES (11, 1235, 'A second title', 1234)
+            VALUES ($id1, 1235, 'A second title', 1234)
     }
 
-    dbconfig::getRunInfo config 11
-} -result [dict create                                             \
-   id 2 config 11 number 1235 title {A second title} start_time 1234 \
-]
+    dbconfig::getRunInfo $save1
+} -result [list [dict create                                             \
+    config test1 number 1235 title {A second title} start_time 1234 \
+]]
 
 tcltest::test run_7 {Get run info when config id has end} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
-} -body {
-    config eval {
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    set save2 [$config createSaveset test2]
+    set id2 [dict get [$save2 info] id]
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $save2 destroy
+    $config destroy
+    db close
+    rmdb
+}  -body {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time, stop_time)
-            VALUES (10, 1234, 'This is a title', 11111, 22222)
+            VALUES ($id2, 1234, 'This is a title', 11111, 22222)
     }
-    config eval {
+    db  eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time)
-            VALUES (11, 1235, 'A second title', 1234)
+            VALUES ($id1, 1235, 'A second title', 1234)
     }
 
-    dbconfig::getRunInfo config 10
-} -result [dict create                                             \
-   id 1 config 10 number 1234 title {This is a title}  \
+    dbconfig::getRunInfo $save2
+} -result [list [dict create                                             \
+   config test2 number 1234 title {This is a title}  \
    start_time 11111 stop_time 22222 \
-]
+]]
 
-}
 
 
 
