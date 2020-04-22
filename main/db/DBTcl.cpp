@@ -526,6 +526,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             storeChannels(interp, objv);
         } else if (command == "getChannels") {
             getChannels(interp, objv);
+        } else if (command == "listRuns") {
+            listRuns(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1379,6 +1381,27 @@ void TclSaveSet::getChannels(
         result += point;
     }
     
+    interp.setResult(result);
+}
+/**
+ * listRuns
+ *   Set the result to the (possibly empty) list of run numbers
+ *   of event data that were stored in this save-set.
+ *
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ */
+void
+TclSaveSet::listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "listRuns does not accept additional parameters");
+    CTCLObject result;
+    result.Bind(interp);
+    auto runs = m_pSaveSet->listRuns();
+    for (int i =0; i < runs.size(); i++) {
+        result += runs[i];
+    }
     interp.setResult(result);
 }
 ////

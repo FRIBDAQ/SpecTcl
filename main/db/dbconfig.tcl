@@ -1133,17 +1133,14 @@ proc listRuns {cmd} {
 #  Returns true if the configuration specified has an associated
 #  run.
 #
-# @param cmd - database command.
-# @param confid - configuration id.
-# @return bool
+
+# @param saveset- savset instance command.
+# @return bool - if there is at least one run associated with this save set.
 #
-proc hasRun {cmd confid} {
-#    $cmd eval {
-#        SELECT COUNT(*) as result FROM runs
-#            WHERE config_id = $confid
-#    } {
-#        return $result
-#    }
+proc hasRun {saveset} {
+    set  runs [$saveset listRuns]
+
+    return [expr {[llength $runs] > 0}]
 }
 
 ##

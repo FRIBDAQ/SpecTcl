@@ -2348,31 +2348,59 @@ tcltest::test run_3 {Theres a pair of runs} \
     [dict create  config test2 number 1235 title {A second title} \
      start_time 1234]                                             \
 ]
-if 0 {
+
 tcltest::test run_4 {Check has run when there isn't one} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    set save2 [$config createSaveset test2]
+    set id2 [dict get [$save2 info] id]
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $save2 destroy
+    $config destroy
+    db close
+    rmdb
 } -body {
-    dbconfig::hasRun config 1
+    dbconfig::hasRun $save1
 } -result 0
 
 tcltest::test run_5 {Check has run when there is one} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    set save2 [$config createSaveset test2]
+    set id2 [dict get [$save2 info] id]
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $save2 destroy
+    $config destroy
+    db close
+    rmdb
 } -body {
-    config eval {
+    db eval {
         INSERT INTO runs (config_id, run_number, title, start_time)
-        VALUES (1, 20, 'junk', 0)
+        VALUES ($id1, 20, 'junk', 0)
     }
-    dbconfig::hasRun config 1
+    dbconfig::hasRun $save1
 } -result 1
-
+if 0 {
 tcltest::test run_6 {Get run info for selected config id without end time} \
 -setup {
     createdb
