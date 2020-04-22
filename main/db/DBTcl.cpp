@@ -242,6 +242,8 @@ int DBTclInstance::operator()(
             getSaveset(interp, objv);
         } else if (command == "listSavesets") {
             listSavesets(interp, objv);
+        } else if (command == "listRuns") {
+            listRuns(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " Is not a valid database instance subcommand";
@@ -266,6 +268,59 @@ int DBTclInstance::operator()(
 void DBTclInstance::destroy()
 {
     delete this;
+}
+/**
+ * listRuns
+ *    Provides information about every run in the database.
+ *    Each run stored in the database returns a dict of the form:
+ *
+ *    config - name of the configuration saveset that holds the run.
+ *    number - Run number.
+ *    title  - title of the run.
+ *    start_time - time the run started (clock time).
+ *    stop_time  - time the run stopped (clock time).
+ *  
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ *                 the command name.
+ * @return int   - TCL_Ok if all worked.
+ * @note each subcommand processor will document the form of its subcommand.
+ * 
+ */
+void DBTclInstance::listRuns(
+    CTCLInterpreter& interp,   std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "listRuns does not require any additional parameters");
+    CTCLObject result;
+    result.Bind(interp);
+    
+    // Get all the savesets in this database:
+    
+    auto savesets = m_pDatabase->getAllSaveSets();
+    for (int s = 0; s < savesets.size(); s++) {
+        auto runNumbers = savesets[s]->listRuns();
+        std::string configName = savesets[s]->getInfo().s_name;
+        for (int r = 0; r < runNumbers.size(); r++) {
+            int id = savesets[s]->openRun(runNumbers[r]);
+            auto info = savesets[s]->getRunInfo(id);
+            
+            CTCLObject dict; dict.Bind(interp);
+            InitDict(interp, dict);
+            AddKey(dict, "config", configName.c_str());
+            AddKey(dict, "number", info.s_runNumber);
+            AddKey(dict, "title", info.s_title.c_str());
+            AddKey(dict, "start_time", int(info.s_startTime));
+            if (info.s_stopTime != 0) {   // 0 is null.
+                AddKey(dict, "stop_time", int(info.s_stopTime));
+            }
+            
+            result += dict;
+        }
+        
+        delete savesets[s];       // Dynamically allocated.
+    }
+    interp.setResult(result);
 }
 /**
  * createSaveSet

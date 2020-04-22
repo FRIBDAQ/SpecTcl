@@ -54,7 +54,8 @@ class DBTreeVariable;
  *           *  getSaveSet
  *           *  getSaveSetById
  *           *  listSaveSets
- *           *  destroy 
+ *           *  destroy
+ *           *  listRuns - lists information about all runs stored in the database.
  *   More about these in the documentation to those command
  *   processors.
  */
@@ -97,6 +98,7 @@ protected:
     void getSaveset(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void listSavesets(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void destroy();
+    void listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 private:
     std::string wrapSaveSet(SaveSet* pSaveSet);
 };

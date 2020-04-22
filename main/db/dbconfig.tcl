@@ -1115,8 +1115,8 @@ proc listSavedSpectra {sname} {
 #    List the runs in the database.
 # @param cmd - database command.
 # @return list of dicts.  Each dict has the following keys:
-#         id     - the run id.
-#         config -the id of the associated configuration.
+#
+#         config -the name of the associated configuration.
 #         number - the run number.
 #         title  - the run title.
 #         start_time - the run start time.
@@ -1124,21 +1124,8 @@ proc listSavedSpectra {sname} {
 # @note the times are in [clock seconds] representation.
 #
 proc listRuns {cmd} {
-#    set result [list]
-#    $cmd eval {
-#        SELECT id, config_id, run_number, title, start_time, stop_time
-#        FROM runs
-#    } {
-#        set item [dict create id $id config $config_id \
-#                  number $run_number title $title \
-#                  start_time $start_time]
-#        if {$stop_time ne ""} {
-#           dict set item stop_time $stop_time
-#        }
-#        lappend result $item
-#    }
-#    return $result
     
+    return [$cmd listRuns]
 }
 
 ##

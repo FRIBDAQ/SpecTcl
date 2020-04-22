@@ -2265,62 +2265,90 @@ tcltest::test treevar_3 {Restore tree variables} \
 ]
 ########################################################################
 # Test for the associated run data:
-if 0 {
+
 tcltest::test run_1 {No initial runs} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
-} -body {
-    dbconfig::listRuns config
+    DBTcl create $database
+    set config [DBTcl connect $database]
+}                                                                 \
+-cleanup {
+    $config destroy
+    
+    rmdb
+} \
+ -body {
+    dbconfig::listRuns $config
 } -result [list]
 
 tcltest::test run_2 {There's a run} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
-} -body {
-    config eval {
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set saveset [$config createSaveset test]
+    set saveid [dict get [$saveset info] id]
+    $saveset destroy
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $config destroy
+    db close
+    rmdb
+} \
+ -body {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time, stop_time)
-            VALUES (10, 1234, 'This is a title', 11111, 22222)
+            VALUES ($saveid, 1234, 'This is a title', 11111, 22222)
     }
     
-    dbconfig::listRuns config
+    dbconfig::listRuns $config
 } -result [list                                            \
-    [dict create id 1 config 10 number 1234 title {This is a title} \
+    [dict create config test number 1234 title {This is a title} \
         start_time 11111 stop_time 22222]                           \
 ]
 
 tcltest::test run_3 {Theres a pair of runs} \
 -setup {
     createdb
-    dbconfig::makeSchema config
-} -cleanup {
-    config close
-} -body {
-    config eval {
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+    $save1 destroy
+    
+    set save2 [$config createSaveset test2]
+    set id2 [dict get [$save2 info] id]
+    $save2 destroy
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $config destroy
+    db close
+    rmdb
+} \
+ -body {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time, stop_time)
-            VALUES (10, 1234, 'This is a title', 11111, 22222)
+            VALUES ($id1, 1234, 'This is a title', 11111, 22222)
     }
-    config eval {
+    db eval {
         INSERT INTO runs
             (config_id, run_number, title, start_time)
-            VALUES (11, 1235, 'A second title', 1234)
+            VALUES ($id2, 1235, 'A second title', 1234)
     }
     
-    dbconfig::listRuns config
+    dbconfig::listRuns $config
 } -result [list                                            \
-    [dict create id 1 config 10 number 1234 title {This is a title} \
+    [dict create  config test1 number 1234 title {This is a title} \
         start_time 11111 stop_time 22222]                         \
-    [dict create id 2 config 11 number 1235 title {A second title} \
+    [dict create  config test2 number 1235 title {A second title} \
      start_time 1234]                                             \
 ]
-
+if 0 {
 tcltest::test run_4 {Check has run when there isn't one} \
 -setup {
     createdb
@@ -2393,6 +2421,9 @@ tcltest::test run_7 {Get run info when config id has end} \
 ]
 
 }
+
+
+
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
 #  report the test results to output:
