@@ -530,6 +530,8 @@ TclSaveSet::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
             listRuns(interp, objv);
         } else if (command == "getRunInfo") {
             getRunInfo(interp, objv);
+        } else if (command == "getScalers") {
+            getScalers(interp, objv);
         } else {
             std::stringstream msg;
             msg << command << " is not a legal save set subcommand";
@@ -1439,6 +1441,53 @@ TclSaveSet::getRunInfo(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         }
         result += dict;
     }
+    interp.setResult(result);
+}
+/**
+ * getScalers
+ *    Sets the result to a list of dicts that capture all of the
+ *    scaler data stored in a run in a saveset.
+ *    The result is a list of dicts.  Each dict represents a scaler
+ *    readout and has the following keys:
+ *    - sourceid - Id of the data source producing this scaler readout.
+ *    -  start - sstart time offset into the run for this counting period.
+ *    -  stop  - Stop time offset into the run for this counting interval
+ *    - divisor - Value to divide stop/start by to get seconds.
+ *    - timestamp- Time of day of the readout.
+ *    - channels - List of channel values
+ * @param interp - interpreter executing the command.
+ * @param objv   - vector command paranmeters - including
+ */
+void
+TclSaveSet::getScalers(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 3, "getScalers needs a run number only");
+    int run = objv[2];
+    int id = m_pSaveSet->openRun(run);
+    void* ctx = m_pSaveSet->openScalers(id);
+    CTCLObject result;
+    result.Bind(interp);
+    SpecTclDB::SaveSet::ScalerReadout scalers;
+    while(m_pSaveSet->readScaler(ctx, scalers)) {
+        CTCLObject dict;
+        dict.Bind(interp);
+        InitDict(interp, dict);
+        AddKey(dict, "sourceid", scalers.s_sourceId);
+        AddKey(dict, "start", scalers.s_startOffset);
+        AddKey(dict, "stop", scalers.s_stopOffset);
+        AddKey(dict, "divisor", scalers.s_divisor);
+        AddKey(dict, "timestamp", int(scalers.s_time));
+        CTCLObject chans;
+        chans.Bind(interp);
+        for (int i =0; i < scalers.s_values.size(); i++) {
+            chans += scalers.s_values[i];
+        }
+        AddKey(dict, "channels", chans);
+        
+        result += dict;
+    }
+    
+    m_pSaveSet->closeScalers(ctx);
     interp.setResult(result);
 }
 ////

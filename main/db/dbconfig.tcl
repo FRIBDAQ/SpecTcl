@@ -1158,52 +1158,17 @@ proc getRunInfo {saveset} {
 }
 ##
 # getScalers
-#   @param cmd   - database command.
-#   @param run  - Rim id.
+#   @param saveset   - saveset instance command.
+#   @param run  - Run Number.
 #   @returns a list of dicts.  Each dict has the following keys:
 #            -  start - Seconds into the run when a scaler accumulation started
 #            -  stop  - Seconds into the run when a scaler accumulation ended.
+#            -  divisor - What to divide start/stop by to get seconds.
 #            -  timestamp - Timestamp at which the readout was done.
-#            -  channels  - This is a list of pairs.  The first element
-#                           of each pair is the channel number/vaule of a scaler
+#            -  channels  - This is a list of of channel values in channel order
+proc getScalers {saveset run} {
+    return [$saveset getScalers $run]
 
-proc getScalers {cmd run} {
-    #set result [list]
-    #set lastid -1
-    #set currentDict [list]
-    #db eval {
-    #    SELECT scaler_readouts.id as id, run_id, source_id,
-    #           start_offset, stop_offset, divisor, clock_time, channel, value
-    #        FROM scaler_readouts
-    #        INNER JOIN scaler_channels
-    #              ON scaler_channels.readout_id = scaler_readouts.id
-    #        WHERE run_id = $run} {
-    #    # If id changed it's a new readout:
-    #    # Need a new dict to add.
-    # } {   
-    #    
-    #    if {$id != $lastid}  {
-    #        if {$currentDict ne ""} {
-    #            lappend result $currentDict;   #if there's a prior add it.
-    #        }
-    #        set lastid $id
-    #        
-    #        # Create the new readout dict.
-    #        
-    #        set currentDict [dict create \
-    #            start $start_offset stop $stop_offset divisor $divisor timestamp $clock_time \
-    #            sourceid $source_id                                           \
-    #            channels [list]]
-    #    }
-    #    #  Add the channel info:
-    #    
-    #    dict lappend currentDict channels [list $channel $value]
-    #}
-    #if {$currentDict ne "" } {
-    #    lappend result $currentDict
-    #}
-    #
-    #return $result
  }
 
 }

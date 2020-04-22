@@ -2476,8 +2476,152 @@ tcltest::test run_7 {Get run info when config id has end} \
    start_time 11111 stop_time 22222 \
 ]]
 
+##################################################################
+# scalers in runs:
 
-
+tcltest::test scaler_1 {No scalers} \
+-setup {
+    createdb
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $config destroy
+    db close
+    rmdb
+}  -body {
+    # make an empty run then ask for its scalers sb empty list
+    
+    db eval {
+        INSERT INTO runs (config_id, run_number, title, start_time, stop_time)
+            VALUES($id1, 12, "This is a title", 100, 101)
+    }
+    $save1 getScalers 12
+} -result [list]
+        
+tcltest::test scaler_2 {single scaler readout} \
+-setup {
+    createdb
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $config destroy
+    db close
+    rmdb
+}  -body {
+    # make an empty run then ask for its scalers sb empty list
+    
+    db eval {
+        INSERT INTO runs (config_id, run_number, title, start_time, stop_time)
+            VALUES($id1, 12, "This is a title", 100, 101)
+    }
+    #  Assum id is 1:
+    db eval {
+        INSERT INTO scaler_readouts
+            (run_id, source_id, start_offset, stop_offset, divisor, clock_time)
+            VALUES(1, 2, 0, 10, 1, 123456 )        
+    }
+    for {set i 0} {$i < 32} {incr i} {
+        set value [expr {$i*100}]
+        db eval {
+            INSERT INTO scaler_channels
+                (readout_id, channel, value)
+            VALUES (1, $i, $value)
+        }
+    }
+    $save1 getScalers 12
+} -result [list [dict create \
+    sourceid 2 start 0 stop 10 divisor 1 timestamp 123456 \
+    channels [list 0 100 200 300 400 500 600 700 800 900 1000 1100 1200  \
+        1300 1400 1500 1600 1700 1800 1900 2000 2100 2200 2300 2400 2500 \
+        2600 2700 2800 2900 3000 3100                                    \
+    ]
+]]
+    
+ tcltest::test scaler_3 {more than one readout} \
+ -setup {
+    createdb
+    DBTcl create $database
+    set config [DBTcl connect $database]
+    set save1 [$config createSaveset test1]
+    set id1 [dict get [$save1 info] id]
+   
+    
+    
+    sqlite3 db $database
+}                                                                 \
+-cleanup {
+    $save1 destroy
+    $config destroy
+    db close
+    rmdb
+}  -body {
+    # make an empty run then ask for its scalers sb empty list
+    
+    db eval {
+        INSERT INTO runs (config_id, run_number, title, start_time, stop_time)
+            VALUES($id1, 12, "This is a title", 100, 101)
+    }
+    #  Assum id is 1:
+    db eval {
+        INSERT INTO scaler_readouts
+            (run_id, source_id, start_offset, stop_offset, divisor, clock_time)
+            VALUES(1, 2, 0, 10, 1, 123456 )        
+    }
+    for {set i 0} {$i < 32} {incr i} {
+        set value [expr {$i*100}]
+        db eval {
+            INSERT INTO scaler_channels
+                (readout_id, channel, value)
+            VALUES (1, $i, $value)
+        }
+    }
+    
+    db eval {
+        INSERT INTO scaler_readouts
+            (run_id, source_id, start_offset, stop_offset, divisor, clock_time)
+            VALUES(1, 2, 10, 20, 1, 123466 )        
+    }
+    for {set i 0} {$i < 32} {incr i} {
+        set value [expr {$i*10}]
+        db eval {
+            INSERT INTO scaler_channels
+                (readout_id, channel, value)
+            VALUES (2, $i, $value)
+        }
+    }
+    $save1 getScalers 12
+} -result [list [dict create \
+    sourceid 2 start 0 stop 10 divisor 1 timestamp 123456 \
+    channels [list 0 100 200 300 400 500 600 700 800 900 1000 1100 1200  \
+        1300 1400 1500 1600 1700 1800 1900 2000 2100 2200 2300 2400 2500 \
+        2600 2700 2800 2900 3000 3100                                    \
+    ]]                                                             \
+    [dict create \
+     sourceid 2 start 10 stop 20 divisor 1 timestamp 123466 \
+     channels [list 0 10 20 30 40 50 60 70 80 90 100 110 120  \
+        130 140 150 160 170 180 190 200 210 220 230 240 250 \
+        260 270 280 290 300 310                                    \
+    ]]                                                                   \
+] 
+    
+    
+    
 
 #############################################################################
 #  End of tests - set the exit code to bad if there are failed tests and
