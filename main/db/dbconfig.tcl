@@ -24,34 +24,14 @@ exec tclsh "$0" ${1+"$@"}
 # @brief Support storing and retrieving configurations and spectra from sqlite3 database.
 # @author Ron Fox <fox@nscl.msu.edu>
 #
-package provide dbconfig 1.0
+package provide dbconfig 2.0
 package require SpecTclDB
 package require sqlite3
 namespace eval dbconfig {
 #----------------------------------------------------------
 #  Private procs.
 
-##
-# _lookupSaveSet
-#
-# @param cmd - database command.
-# @param savename - name of a saveset.
-# @return integer -save set id or
-# @throw error if there's no matching saveid.
-#
-proc _lookupSaveSet {cmd savename} {
-    set saveId ""
-    
-    $cmd eval {
-        SELECT id FROM save_sets WHERE name = :savename
-    } {
-        set saveId $id
-    }
-    if {$saveId eq ""} {
-        error "There is no save set named $savename"
-    }
-    return $saveId
-}
+
 
 ##
 # _saveParameters
@@ -305,66 +285,7 @@ proc _saveTreeVariables {saveset} {
     }
 }
 
-##
-# _saveSpectrumChans
-#   Saves the channels in one spectrum to the database.
-#
-# @param cmd - data base command.
-# @param specid - spectrum id in the database.
-# @param data - the data from scontents this is a list of the non-zero channels
-#               each element is a two or three elmeent list depending on the
-#               spectrum dimensionality.  1d spectrum data are
-#               channnel value pairs.  2d spectrumdata are xchan ychan triplets.
-# @note since data can be rather large, we determine the dimensionality from the
-#       first element of the data:
-#
-proc _saveSpectrumChans {cmd specid data} {
-    
-    if {[llength $data] > 0} {
-        if {[llength [lindex $data 0]] == 2} {
-            # 1d
-            foreach chan $data {
-                set bin [lindex $chan 0]
-                set value [lindex $chan 1]
-                $cmd eval {
-                    INSERT INTO spectrum_contents
-                    (spectrum_id, xbin, value)
-                    VALUES(:specid, :bin, :value)
-                }
-            }
-            
-        } else {
-            # 2d
-            foreach chan $data {
-                set x [lindex $chan 0]
-                set y [lindex $chan 1]
-                set value [lindex $chan 2]
-                $cmd eval {
-                    INSERT INTO spectrum_contents
-                    (spectrum_id, xbin, ybin, value)
-                    VALUES(:specid, :x, :y, :value)
-                }
-            }
-        }
-    } else {
-        #  In this case we need to put channel 0 place holders
-        #  Otherwise the system will think we have not saved this spectrum.
-        #  We need to figure out how many dimensions the spectrum has in order
-        #  to do this properlyh:
-        
-        set type [$cmd eval {SELECT type FROM spectrum_defs WHERE id = :specid}]
-        if {$type in [list 1 g1 b s] } {
-            set ychan ""
-        } else  {
-            set ychan 0
-        }
-        $cmd eval {
-            INSERT INTO spectrum_contents (spectrum_id, xbin, ybin, value)
-                VALUES(:specid, 0, :ychan, 0)
-        }
-        
-    }
-}
+
 ##
 # _saveSpectraContents.
 #    Saves the channels in al spectra into the database:
@@ -563,47 +484,6 @@ proc _restoreSpectrumContents {saveset {spname {}}} {
 }
 
 ##
-# _getGateParams
-#    Get parameters associated with a gate that has parameters.
-#
-# @param cmd  - database command
-# @param gate - Gate dict so far.
-# @return gate - Gate dict with parameters added.
-#
-proc _getGateParams {cmd gate} {
-    set id [dict get $gate id ];   #  gate id.
-    $cmd eval {
-        SELECT name FROM parameter_defs
-        INNER JOIN gate_parameters ON parameter_defs.id = gate_parameters.parameter_id
-        WHERE gate_parameters.parent_gate = :id
-    } {
-        dict lappend gate parameters $name
-    }
-    return $gate
-}
-##
-# _getParamsAnd1dPts
-#
-#    Flesh out the gate dict for a 1d gate.  1d gates have only x parameters
-#   in their points.
-#
-# @param cmd   - database command.
-# @param gate  - gate dict so far.
-# @return dict - Filled in gate dictionary.
-#
-proc _getParamsAnd1dPts {cmd gate} {
-    set id [dict get $gate id ];   #  gate id.
-    
-    $cmd eval {
-        SELECT  x, y FROM gate_points WHERE gate_id = :id
-    } {
-        dict lappend gate points $x
-    }
-    
-    set gate [_getGateParams $cmd $gate]
-    return $gate
-}
-##
 # _restoreSlice
 #   Pull the parameter and point associated with a slice gate out of the
 #   database and restore the slice:
@@ -637,28 +517,7 @@ proc _restoreGammaSlice {gate} {
     
     gate -new $name gs [list [list $low $high] $params]
 }
-##
-# _getParamsAnd2dPts
-#    Given a gate definition flesh out its dict to contain the parameters
-#    and x/y coordinates of the gate points.  This is suitable for use with
-#    b,c gc, gb gates (at least).
-#
-# @param cmd - database command.
-# @param gate - the gate dict so far.
-# @return dict - the fleshed out dict describing the gate.
-#
-proc _getParamsAnd2dPts {cmd gate} {
-    set id [dict get $gate id ];   #  gate id.
-    
-    $cmd eval {
-        SELECT  x, y FROM gate_points WHERE gate_id = :id
-    } {
-        dict lappend gate points [list $x $y]
-    }
-    set gate [_getGateParams $cmd $gate]
 
-    return $gate
-}
 ##
 # _restore2dGate
 #   Restore band or contours - note that the action is similar to that of
@@ -809,134 +668,6 @@ proc _restoreTreeVariables {saveset} {
         set units [dict get $def units]
         treevariable -set $name $value $units
     }
-}
-
-##
-# _getSpectrumId
-#    Given a spectrum name and a saveset, return the spectrum id
-#    else throw an error.
-# @param cmd   - The database access command.
-# @param sid   - The save set id in which the spectrum is stored.
-# @param specname - name of the spectrum to look up.
-# @return    - id of the spectrum in the spectrum_defs table.
-# @throw error - if no matches.
-#
-proc _getSpectrumId {cmd sid specname} {
-    set ids [list]
-    $cmd eval {
-        SELECT id FROM spectrum_defs
-        WHERE save_id = :sid AND name = :specname
-    } {
-        lappend ids $id
-    }
-    # Highlander requirement:
-    #     Not only can there be only 1, there must be exactly 1.
-    
-    if {[llength $ids] == 0} {
-        error "No matching spectrum $specname in save set $sid"
-    } elseif {[llength $ids] > 1} {
-        error "BUG there's more than one id matchin $specname in $sid: $ids"
-    }
-    
-    return $ids;                  # We know there can be only 1.
-}
-##
-# _deleteContentsIfExists
-#   If a spectrum has contents saved, they are removed.
-#
-# @param cmd - Database command.
-# @param specid - Primary key of the spectrum whose contents we're deleing.
-#                 note this already implies a save set.
-# @note this is a silent No-op if there are no values to delete.
-#
-proc _deleteContentsIfExists {cmd specid} {
-    $cmd eval {
-        DELETE FROM spectrum_contents WHERE spectrum_id = :specid
-    }
-    
-}
-##
-# _requireCompatible
-#   Requires that a spectrum definition in SpecTcl be compatible with a
-#   spectrum given by id in the database.  Compatibility means:
-#
-#   - The identified spectrum have the same spectrum types.
-#   - The identified spectrum has the same number of axes and at least the
-#     same number of bins on each axis.
-#   - The named spectrum has the same set of parameters as the named spectrum.
-#
-# @param  cmd   - database command.
-# @param  id    - Spectrum id (implies a save set id).
-# @param  def   - SpecTcl definition to compare with.
-# @throw error - if the two spectra ar not compatible.
-#
-proc _requireCompatible {cmd id def} {
-    if {$def eq ""} {
-        error "No such spectrum."
-    }
-    # Let's get the spectru, and its parameters first:
-    
-    set params [list]
-    set specname [list]
-    set sptype [list]
-    $cmd eval {
-        SELECT type, parameter_defs.name as pname, spectrum_defs.name as spname
-        FROM spectrum_defs
-        INNER JOIN spectrum_params ON spectrum_defs.id = spectrum_params.spectrum_id
-        INNER JOIN parameter_defs   ON parameter_defs.id = spectrum_params.parameter_id
-        WHERE spectrum_defs.id = :id
-    } {
-        set specname $spname
-        set sptype   $type
-        lappend params $pname
-    }
-    # Get the spectrum axis defs:
-    
-    set axes [list]
-    $cmd eval {
-        SELECT bins FROM axis_defs
-        WHERE spectrum_id = :id
-    } {
-        lappend axes $bins;       # only care about bin count.
-    }
-    
-    # Pick apart the spectrum def we were handed:
-    
-    set deftype [lindex $def 2]
-    set defparams [lindex $def 3]
-    set axislist [lindex $def 4]
-    
-    # Require the same spectrum type:
-    
-    if {$deftype ne $sptype} {
-       error "Incompatible spectrum types db spectrum: $sptype other: $deftype"
-    }
-    # Require the same number and set of parameters:
-    
-    if {[llength $defparams] != [llength $params]} {
-        error "Non-matching parameters.\n db spectrum: '$params' other '$defparams'"
-    }
-    # All parameters in the definition must be in the spectrum.
-    
-    foreach param $defparams {
-        if {$param ni $params} {
-            error "$param in the definition is not in the database spectrum parameters"
-        }
-    }
-    # Require the same number of axes and the database bins must be at least
-    # the number of bins in the definition.
-    
-    if {[llength $axislist] != [llength $axes]} {
-        error "database spectrum and input spectrum don't have the same number of axes"
-    }
-    foreach axis $axislist dbbins $axes {
-        set axisbins [lindex $axis 2]
-        if {$axisbins > $dbbins} {
-            error "The number of bins on the database spectrum, $dbbins is \
-smaller than those of the named spectrum $axisbins"
-        }
-    }
-    # we got here so it's all compatible.
 }
 
 ##
