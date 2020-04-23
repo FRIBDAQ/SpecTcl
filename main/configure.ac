@@ -993,5 +993,8 @@ AC_OUTPUT(Makefile
 	  packaged/Makefile
 	  packaged/Makefile_skel
 	  db/Makefile
+	  PyQtGUI/Makefile
+	  PyQtGUI/CPyLibrary/Makefile
+	  PyQtGUI/gui/Makefile
 	  )
           
