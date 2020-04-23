@@ -1517,7 +1517,7 @@ to stop event recording at this time?}                                 \
         set pbOptions [dbgui::promptPlaybackOptions $win]
         if {$pbOptions eq ""} return
         if {[dict get $pbOptions reload]} {
-            [dbconfig::restoreConfig $dbgui::database $config] destroy
+            dbconfig::restoreConfig $dbgui::database $config
             sbind -all
         }
         if {[dict get $pbOptions clear]} {
