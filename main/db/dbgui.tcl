@@ -774,7 +774,8 @@ snit::widgetadaptor dbgui::dbview {
     #         code creates a new saveset for each run.
     #
     method getRunInConfig config {
-        if {[catch {dbconfig::openSaveSet $dbcmd $config} saveset]} {
+        if {[catch {dbconfig::openSaveSet $dbcommand $config} saveset]} {
+            puts "Failed to open saveset '$config': '$saveset'"
             return "";              # not even a matching save set.
         }
         #  Get list of dicts of runs in saveset:
@@ -782,6 +783,7 @@ snit::widgetadaptor dbgui::dbview {
         set runs [dbconfig::getRunInfo $saveset]
         $saveset destroy
         
+        puts "Saved set has these runs: '$runs'"
         # Figure out the run number of the first (and only)
         # run:
         
@@ -789,6 +791,7 @@ snit::widgetadaptor dbgui::dbview {
             return "";               # no runs.
         }
         set run [lindex $runs 0]
+        puts "First run is '$run'"
         return [dict get $run number]
     }
     
@@ -1152,10 +1155,14 @@ snit::widgetadaptor dbgui::dbview {
     #
     method _OnPlayback {} {
         set script $options(-onplayrun)
+        puts "Onplayback script: '$script'"
         if {$script ne ""} {
             set config [$self getCurrentConfig]
+            puts "Current configuration '$config'"
             if {$config ne ""} {
+                puts "Getting run number from $config"
                 set run    [$self getRunInConfig $config]
+                puts "Run: '$run' is in the configuration"
                 if {$run ne ""} {
                     uplevel #0 $script $config $run
                 }

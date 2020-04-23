@@ -44,6 +44,8 @@
  *
  * @param pSaveSet  - the save set in which the run will be stored.
  * @param run       - run number.
+ * @note we get ownership of the saveset, which is assumed to be
+ *      dynamically allocated.
  */
 CDBEventPlayer::CDBEventPlayer(SpecTclDB::SaveSet* pSaveSet, int run) :
   m_pSaveSet(pSaveSet),
@@ -60,6 +62,7 @@ CDBEventPlayer::CDBEventPlayer(SpecTclDB::SaveSet* pSaveSet, int run) :
 CDBEventPlayer::~CDBEventPlayer()
 {
   m_pSaveSet->closeEvents(m_eventContext);
+  delete m_pSaveSet;
 }
 /**
  * Return a const reference to the next event. Note that the
@@ -456,11 +459,34 @@ CDBEventWriter::listRuns()
  *    be selected.
  * @param run - number of the run in the database to select.
  * @return CDBEventPlayer* the caller owns and must dispose of this object.
+ * @note While databases are allowed by the low level API to have
+ * more than one run per save-set, SpecTcl's use of the database
+ * does not. We therefore just use the first saveset that has
+ * a run matching the run number given.
+ * 
  */
 CDBEventPlayer*
 CDBEventWriter::playRun(int run)
 {
-  return new CDBEventPlayer(m_pSaveSet, run);
+  auto saveSets = m_pDatabase->getAllSaveSets();
+  SpecTclDB::SaveSet* pSaveSet(nullptr);
+  for (int s =0; s < saveSets.size(); s++) {
+    auto runs = saveSets[s]->listRuns();
+    bool found = false;
+    for (int i =0; i < runs.size(); i++) {
+      if (runs[i] == run) {
+        found = true;
+        pSaveSet = saveSets[s];
+      }
+    }
+    if (!found) delete saveSets[s];
+  }
+  if (!pSaveSet) {
+    std::stringstream msg;
+    msg << "Can't find run" << run << " in the database " << m_dbName;
+    throw std::invalid_argument(msg.str());
+  }
+  return new CDBEventPlayer(pSaveSet, run);
 }
 /////////////////////////////////////////////////////////////////////////////
 // Private utilities

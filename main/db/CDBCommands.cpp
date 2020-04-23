@@ -338,6 +338,9 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     int runNumber = objv[2];
     CEventList eventList;
     CEvent events[PLAYBACK_SIZE];    // Just statically allocate.
+    for (int i = 0; i < PLAYBACK_SIZE; i++) {
+        eventList[i] = nullptr;
+    }
     m_pPlayback = m_pWriter->playRun(runNumber);
     
     std::string source("sqlite3:");
@@ -349,13 +352,16 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     SpecTcl* pApi = SpecTcl::getInstance();
     CEventSinkPipeline& pipeline(*(pApi->GetEventSinkPipeline()));
-    int nEvents;
+    int nEvents(0);
+    int n = PLAYBACK_SIZE;
     while(m_pPlayback) {
         for (int i =0; i < PLAYBACK_SIZE; i++) {
             auto e = m_pPlayback->next();
             if (e.size() == 0) {  // End
                 delete m_pPlayback;
                 m_pPlayback = nullptr;
+                eventList[i] = nullptr;   // Should already be?
+                n = i;
                 break;              // This will submit what we have.
             } else {                // Data.
                 for (int j=0; j < e.size(); j++) { 
@@ -368,14 +374,13 @@ CDBCommands::dbPlay(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         // and drain the Tcl event queue.
         
         pipeline(eventList);
-        int n = eventList.size() < PLAYBACK_SIZE ? eventList.size() : PLAYBACK_SIZE;
+        // int n = eventList.size() < PLAYBACK_SIZE ? eventList.size() : PLAYBACK_SIZE;
         nEvents += n;
         setBuffersAnalyzed(interp, nEvents);
         for (int i = 0; i < n; i++) {
             events[i].clear();
             eventList[i] = nullptr;
         }
-        
         
         while (Tcl_DoOneEvent(TCL_ALL_EVENTS | TCL_DONT_WAIT))
             ;                             // Drain the event loop..

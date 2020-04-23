@@ -251,11 +251,11 @@ void CHistogrammer::operator()(CEventList& rEvents)
     for(i = rEvents.begin(); i != e; i++) {
       CEvent* pEvent = *i;
       if(pEvent) {
-	nEvents++;
-	operator()(*pEvent);
+        nEvents++;
+        operator()(*pEvent);
       }
       else {
-	break;
+        break;
       }
     }
   }
