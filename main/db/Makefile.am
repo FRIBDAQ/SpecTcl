@@ -1,7 +1,7 @@
 lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la libSpecTclDbTcl.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
-IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
+2IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
 DOCS=SpecTclDB.xml GUI.png
 
 libSqlite3pp_la_SOURCES=CSqlite.cpp CSqliteException.cpp CSqliteStatement.cpp \
@@ -47,13 +47,12 @@ install-exec-hook:
 	rm -f @prefix@/TclLibs/dbconfig/libSpecTclDb.so
 	$(LN_S)           @libdir@/libSpecTclDb.so   @prefix@/TclLibs/dbconfig/libSpecTclDb.so
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/dbconfig "*.tcl"|@TCLSH@ 
-	echo package ifneeded SpecTclDb 1.0 [list load [file join \$$dir libSpecTclDb.so]] >> @prefix@/TclLibs/dbconfig/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/share/database
 	@HTMLDOCBOOK@ @srcdir@/SpecTclDB.xml -o @prefix@/share/database
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 	$(mkinstalldirs) @prefix@/TclLibs/database
 	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
-	echo "pkg_mkIndex -verbose  @prefix@/TclLibs/database *.so" |LD_LIBRARY_PATH=@ROOT_LIBRARY_DIR@  @TCLSH@
+	echo package ifneeded SpecTclDB 1.0 [list load [file join \$$dir libSpecTclDbTcl.so]] > @prefix@/TclLibs/database/pkgIndex.tcl
 
 
 ################################################################
