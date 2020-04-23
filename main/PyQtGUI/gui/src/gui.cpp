@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
 {
   CPyHelper pInstance;
   
-  PyObject *obj = Py_BuildValue("s", "main.py");
+  PyObject *obj = Py_BuildValue("s", "Main.py");
   FILE *file = _Py_fopen_obj(obj, "r+");
   if(file != NULL) {
-    PyRun_SimpleFile(file, "main.py");
+    PyRun_SimpleFile(file, "Main.py");
   }
   
   return 0;

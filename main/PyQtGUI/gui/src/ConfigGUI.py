@@ -12,7 +12,7 @@ class Configuration(QWidget):
     def __init__(self, *args, **kwargs):
             super(Configuration, self).__init__(*args, **kwargs)
             
-            self.width = 260
+            self.width = 270
             self.oldrow = 0
             self.oldcol = 0
 
@@ -105,10 +105,10 @@ class Configuration(QWidget):
         self.histo_geo_update = QPushButton("Update", self)
         self.histo_geo_delete = QPushButton("Erase", self)
         self.histo_geo_all = QCheckBox("Select All",self)
-        self.gates_name_label = QLabel("Gate Name")
-        self.gates_name = QLineEdit(self)
-        self.gates_create = QPushButton("Create", self)
-        self.gates_delete = QPushButton("Delete", self)
+        #self.gates_name_label = QLabel("Gate Name")
+        #self.gates_name = QLineEdit(self)
+        #self.gates_create = QPushButton("Create", self)
+        #self.gates_delete = QPushButton("Delete", self)
         self.fit_label = QLabel("Fitting Functions")
         self.fit_list = QComboBox()
         self.fit_list.addItem("Gaussian")
@@ -116,28 +116,34 @@ class Configuration(QWidget):
         self.fit_list.addItem("Pol1")
         self.fit_list.addItem("Pol2")
         self.fit_list.addItem("Pol3")
+        self.fit_list.addItem("GPol1")
+        self.fit_list.addItem("GPol2")                
         self.fit_list.addItem("Custom")
         self.fit_button = QPushButton("Fit", self)
         self.fit_range_label = QLabel("Fitting Range")
-        self.fit_range_label_min = QLabel("Min")
-        self.fit_range_label_max = QLabel("Max")
+        self.fit_range_label_min = QLabel("Min X")
+        self.fit_range_label_max = QLabel("Max X")
         self.fit_range_min = QLineEdit(self)
         self.fit_range_max = QLineEdit(self)
-        #self.fit_results_label = QLabel("Output")
-        #self.fit_results = QTextEdit()
-        #self.fit_results.setReadOnly(True)
+        self.fit_range_label_min_2 = QLabel("Min Y")
+        self.fit_range_label_max_2 = QLabel("Max Y")
+        self.fit_range_min_2 = QLineEdit(self)
+        self.fit_range_max_2 = QLineEdit(self)        
+        self.fit_results_label = QLabel("Fit output")
+        self.fit_results = QTextEdit()
+        self.fit_results.setReadOnly(True)
         
         hl = QHBoxLayout()
         hl.addWidget(self.histo_geo_add)
         hl.addWidget(self.histo_geo_update)
         hl.addWidget(self.histo_geo_delete)
 
-        hl2 = QHBoxLayout()
-        hl2.addWidget(self.gates_name)
+        #hl2 = QHBoxLayout()
+        #hl2.addWidget(self.gates_name)
         
-        hl3 = QHBoxLayout()
-        hl3.addWidget(self.gates_create)
-        hl3.addWidget(self.gates_delete)
+        #hl3 = QHBoxLayout()
+        #hl3.addWidget(self.gates_create)
+        #hl3.addWidget(self.gates_delete)
         
         hl4 = QHBoxLayout()
         hl4.addWidget(self.histo_geo_row)
@@ -157,9 +163,9 @@ class Configuration(QWidget):
         vlayout.addWidget(self.histo_geo_label)
         vlayout.addLayout(hl4)
         vlayout.addLayout(hl)
-        vlayout.addWidget(self.gates_name_label)
-        vlayout.addLayout(hl2)
-        vlayout.addLayout(hl3)
+        #vlayout.addWidget(self.gates_name_label)
+        #vlayout.addLayout(hl2)
+        #vlayout.addLayout(hl3)
         vlayout.addStretch()
                 
         vlayout2a = QHBoxLayout()
@@ -169,6 +175,14 @@ class Configuration(QWidget):
         vlayout2b = QHBoxLayout()
         vlayout2b.addWidget(self.fit_range_min)
         vlayout2b.addWidget(self.fit_range_max)
+
+        vlayout2c = QHBoxLayout()
+        vlayout2c.addWidget(self.fit_range_label_min_2)
+        vlayout2c.addWidget(self.fit_range_label_max_2)
+        
+        vlayout2d = QHBoxLayout()
+        vlayout2d.addWidget(self.fit_range_min_2)
+        vlayout2d.addWidget(self.fit_range_max_2)        
                 
         vlayout2 = QVBoxLayout()
         vlayout2.addWidget(self.fit_label)
@@ -177,16 +191,18 @@ class Configuration(QWidget):
         vlayout2.addWidget(self.fit_range_label)
         vlayout2.addLayout(vlayout2a)
         vlayout2.addLayout(vlayout2b)
+        vlayout2.addLayout(vlayout2c)
+        vlayout2.addLayout(vlayout2d)        
         vlayout2.addStretch()
         
-        #vlayout3 = QVBoxLayout()
-        #vlayout3.addWidget(self.fit_results_label)
-        #vlayout3.addWidget(self.fit_results)
+        vlayout3 = QVBoxLayout()
+        vlayout3.addWidget(self.fit_results_label)
+        vlayout3.addWidget(self.fit_results)
                 
         lstlayout = QHBoxLayout()
         lstlayout.addLayout(vlayout)
         lstlayout.addLayout(vlayout2)
-        #        lstlayout.addLayout(vlayout3)
+        lstlayout.addLayout(vlayout3)
         
         spectrumListBox.setLayout(lstlayout)
         spectrumListBox.setMaximumHeight(self.width)

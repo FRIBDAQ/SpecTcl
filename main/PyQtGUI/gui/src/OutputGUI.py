@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import CPyConverter as cpy
 
-class outputPopup(QDialog):
+class OutputPopup(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -59,14 +59,14 @@ class outputPopup(QDialog):
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","CSV Files (*.csv);;All Files (*)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","CSV Files (*.csv);;All Files (*)", options=options)
         if fileName:
             return fileName
         
     def saveFileDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*.csv);;All Files (*)", options=options)
+        fileName, _ = QFileDialog.getSaveFileName(self,"Save file...","","CSV Files (*.csv);;All Files (*)", options=options)
         if fileName:
             return fileName
 
