@@ -220,7 +220,7 @@ CDBEventWriter::endRun(const RingItem* pStateTransition)
     // we'll just return assuming this is an additional end run from
     // event built data... or we joined in the middle.
     
-    if ((m_configName != "") || (m_nRunId < 0)) {
+    if ((m_configName == "") || (m_nRunId < 0)) {
         return;
     }
     const StateChangeItemBody* pBody =
