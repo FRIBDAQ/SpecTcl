@@ -32,7 +32,8 @@ extern "C" {
         Tcl_PkgProvide(pRaw, "SpecTclDB", version);
         CTCLInterpreter* pInterp = new CTCLInterpreter(pRaw);
 
-        new SpecTclDB::DBTcl(*pInterp);        
+        new SpecTclDB::DBTcl(*pInterp);
+        new CDBCommands(*pInterp);
         return TCL_OK;
     }
 }
