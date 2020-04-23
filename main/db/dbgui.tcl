@@ -30,7 +30,7 @@ package require dbconfig
 package require snit
 package require img::png;        # for the icons.
 package require dialogwrapper
-package require SpecTclDb
+package require SpecTclDB
 
 namespace eval dbgui {
     set here [file dirname [info script]]
@@ -45,6 +45,7 @@ namespace eval dbgui {
     variable spectrum   [image create photo dbgui::spectrum   -format png -file [file join $here spectrum.png]]
     variable configuration [image create photo dbgui::configuration -format png -file [file join $here configuration.png]]
     variable events [image create photo dbgui::events -format png -file [file join $here events.png]]
+    variable database "";    #database instance command.
 }
 puts $dbgui::iconcredits;            # Also in help->about...
 package provide dbgui $dbgui::version
@@ -262,7 +263,7 @@ snit::widgetadaptor dbgui::PlaybackOptions {
 #   @param parent the parent of the toplevel the prompter will be constructed
 #                  into.
 #   @param reload - optional parameter 1/0 reload the configuration from the
-#                   database prior to playback (default 0).
+#                    prior to playback (default 0).
 #   @param clear  - Optional parameter 1/0 clear all spectra prior to playback
 #                   (default to 1).
 # @return dict  With keys:
@@ -768,18 +769,27 @@ snit::widgetadaptor dbgui::dbview {
     # @param config - the configuration name.
     # @return int - run numbger.
     # @retval empty string - if there is no run data in the config.
+    # @note - while the database supports more than one run per saveset,
+    #         the GUI does not.  Furthermore the SpecTcl even saving
+    #         code creates a new saveset for each run.
     #
     method getRunInConfig config {
-        set configId [dbconfig::_lookupSaveSet $dbcommand $config]
-        if {$configId eq ""} {
-            return ""
+        if {[catch {dbconfig::openSaveSet $dbcmd $config} saveset]} {
+            return "";              # not even a matching save set.
         }
-        set rinfo    [dbconfig::getRunInfo $dbcommand $configId]
-        if {$rinfo eq ""} {
-            return ""
-        } else {
-            return [dict get $rinfo number]
+        #  Get list of dicts of runs in saveset:
+        
+        set runs [dbconfig::getRunInfo $saveset]
+        $saveset destroy
+        
+        # Figure out the run number of the first (and only)
+        # run:
+        
+        if {[llength $runs] == 0} {
+            return "";               # no runs.
         }
+        set run [lindex $runs 0]
+        return [dict get $run number]
     }
     
     
@@ -827,7 +837,7 @@ snit::widgetadaptor dbgui::dbview {
         foreach config $configs {
             set cfgname [dict get $config name]
             if {$cfgname eq $name} {
-                set tstamp [dict get $config time]
+                set tstamp [dict get $config timestamp]
                 $self _AddConfiguration $cfgname $tstamp
             }
         }
@@ -841,6 +851,10 @@ snit::widgetadaptor dbgui::dbview {
     # @note if the spectrum is already in the configuration it is not added.
     # @note if the configuration does not exist this is also a noop.
     # @note the configuration folder  is not opened automatically.
+    # @note this only impacts the GUI. It does not change the
+    #       database in any way.  This should be called either
+    #       after saving a spectrum or as part of scanning the
+    #       database to build the gui.
     #
     method addSpectrum {config sname} {
         set configItem [$self _GetConfigElement $config]
@@ -949,7 +963,7 @@ snit::widgetadaptor dbgui::dbview {
         set configs [dbconfig::listConfigs $dbcommand]
         foreach config $configs {
             $self _AddConfiguration \
-                [dict get $config name] [dict get $config time]
+                [dict get $config name] [dict get $config timestamp]
         }
     }
     ##
@@ -967,14 +981,16 @@ snit::widgetadaptor dbgui::dbview {
             -image $dbgui::folder -tags configuration                         \
         ]
         $tree set $configid 0 $description
-        set cid [dbconfig::_lookupSaveSet $dbcommand $configName]
+
         
         #  Now load the sub-elements.  We have a configuration and
         #  0 or more spectrum items.
         
         $tree insert $configid end -image $dbgui::configuration -tags configuration
         
-        foreach spectrum [dbconfig::listSavedSpectra $dbcommand $configName] {
+        set saveset [dbconfig::openSaveSet $dbcommand $configName]
+
+        foreach spectrum [dbconfig::listSavedSpectra $saveset] {
             set sid [$tree insert $configid end -image $dbgui::spectrum   \
                 -tags spectrum                                            \
             ]
@@ -983,14 +999,16 @@ snit::widgetadaptor dbgui::dbview {
         #  If there's run data associated with this configuration
         #  get the information and add a run element.
         
-        if {[dbconfig::hasRun $dbcommand $cid]} {
-            set info [dbconfig::getRunInfo $dbcommand $cid]
+        if {[dbconfig::hasRun $saveset]} {
+            set info [dbconfig::getRunInfo $saveset]
+            set info [lindex $info 0]
             set rid [$tree insert $configid end -image dbgui::events \
                 -tags events \
                 -text [dict get $info number]]
             $tree set $rid 0 [dict get $info title]
             
         }
+        $saveset destroy
         
     }
     ##
@@ -1492,7 +1510,7 @@ to stop event recording at this time?}                                 \
         set pbOptions [dbgui::promptPlaybackOptions $win]
         if {$pbOptions eq ""} return
         if {[dict get $pbOptions reload]} {
-            dbconfig::restoreConfig dbgui::database $config
+            [dbconfig::restoreConfig $dbgui::database $config] destroy
             sbind -all
         }
         if {[dict get $pbOptions clear]} {
@@ -1541,17 +1559,16 @@ to stop event recording at this time?}                                 \
     # @param optval  - filename.
     #
     method _SetDatabase {optname optval} {
-        if {[info commands dbgui::database] ne ""} {
-            dbgui::database close
+        if {[info commands $dbgui::database] ne ""} {
+            $dbgui::database destroy
         }
-
-        sqlite3 ::dbgui::database $optval
-        puts "Opening $optval"
+        set dbgui::database [dbconfig::connect $optval]
+        
         daqdb open $optval
 
         
         
-        $view setDatabaseCommand dbgui::database
+        $view setDatabaseCommand $dbgui::database
         $statusbar configure -database [file normalize $optval]
         
         set options($optname) $optval
@@ -1584,9 +1601,7 @@ to stop event recording at this time?}                                 \
                 
             }
         }
-        sqlite3 ::dbgui::newdatabase $path
-        dbconfig::makeSchema ::dbgui::newdatabase
-        ::dbgui::newdatabase close
+        dbconfig::makeSchema  $path
         $self configure -database $path;    #Takes care of the rest.
         
     }
@@ -1607,7 +1622,7 @@ to stop event recording at this time?}                                 \
             set name [dbgui::promptString $win "Name of new configuration (must be unique)"]
         }
         if {$name ne ""} {
-            if {[info command ::dbgui::database] eq ""} {
+            if {[info command $::dbgui::database] eq ""} {
                     tk_messageBox -type ok -icon error -title "No database" \
                         -message {ERROR: program bug - no database has been established yet}
             } elseif {[$self _CfgExists $name]} {
@@ -1615,8 +1630,8 @@ to stop event recording at this time?}                                 \
                     -message "There already is a configuration named $name not going to overwrite it"
                 
             } else {
-            
-                dbconfig::saveConfig dbgui::database $name
+                #  Save config and destroy the command it returns.
+                [dbconfig::saveConfig $dbgui::database $name] destroy
                 $view addConfiguration $name
             }
         }
@@ -1627,7 +1642,7 @@ to stop event recording at this time?}                                 \
     #    @return bool - true if the configuration exists.
     #
     method _CfgExists name {
-        set configs [dbconfig::listConfigs ::dbgui::database]
+        set configs [dbconfig::listConfigs $::dbgui::database]
         foreach config $configs {
             if {$name eq [dict get $config name]} {
                 return 1
@@ -1645,7 +1660,7 @@ to stop event recording at this time?}                                 \
     #       that will list the names of all spectra that can be saved.
     #
     method _OnSaveSpectrum {} {
-        if {[info command ::dbgui::database] eq ""} {
+        if {[info command $::dbgui::database] eq ""} {
             tk_messageBox -type ok -icon error -title "No database" \
                 -message "No database open"
             return
@@ -1675,10 +1690,12 @@ to stop event recording at this time?}                                 \
         } else {
             set toSave $spectrum
         }
+        set saveset [dbconfig::openSaveSet $dbgui::database $config]
         foreach name $toSave {
-            dbconfig::saveSpectrum ::dbgui::database $config $name
+            dbconfig::saveSpectrum $saveset $name
             $view addSpectrum $config $name
         }
+        $saveset destroy
 
     }
     ##
@@ -1740,7 +1757,9 @@ to stop event recording at this time?}                                 \
     # @param spec   - spectrum name.
     #
     method _OnLoadSpectrum {db config spec} {
-        dbconfig::restoreSpectrum  $db $config $spec
+        set saveset [dbconfig::openSaveSet $db $config]
+        dbconfig::restoreSpectrum  $saveset $spec
+        $saveset destroy
     }
 }
 ##

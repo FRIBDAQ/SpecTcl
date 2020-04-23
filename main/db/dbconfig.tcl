@@ -682,8 +682,35 @@ proc _restoreTreeVariables {saveset} {
 proc makeSchema fname {
     DBTcl create $fname   
 }
+##
+# connect
+#  Given a database, create a command instance that operates on
+#  that database.
+#
+# @param fname = path to the file containng the database.
+# @return command - Command to use to mainpulate the dtabase.
+#                    (Database instance command)
+# @note at some point the caller should excecute the destroy method
+#       of the returned command ensemble.
+#
 proc connect fname {
     return [DBTcl  connect $fname]
+}
+##
+# openSaveSet
+#    Creates a saveset instance command by looking up an existing saveset
+#    given a database instance command.
+#
+#  @param dbcmd - database instance command (e.g. from connect).
+#  @param name  - name of the saveset to lookup.
+#  @return command - command ensemble representing the saveset.
+#         this is a parameter to many dbconfig procs.
+#
+# @note at some point the caller should invoke the destroy method of the
+#       returned command ensemble.
+#
+proc openSaveSet {dbcmd name} {
+    return [$dbcmd getSaveset $name]
 }
     
 ##
@@ -719,7 +746,7 @@ proc saveConfig {dbconnection name {spectra 0}} {
 #   The result is a list of dicts with the keys:
 #    -   id - the configuration id.
 #    -   name - The configuration name.
-#    -   time  - the [clock seconds] at which the configuration save was started.
+#    -   timestamp  - the [clock seconds] at which the configuration save was started.
 #
 # @param cmd - data base instance command.
 # @return list of dicts -- see above.
@@ -861,8 +888,8 @@ proc listRuns {cmd} {
 
 ##
 # hasRun
-#  Returns true if the configuration specified has an associated
-#  run.
+#  Returns true if the configuration specified has at least one
+#  associated run.
 #
 
 # @param saveset- savset instance command.
