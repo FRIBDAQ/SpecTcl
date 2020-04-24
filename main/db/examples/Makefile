@@ -3,7 +3,7 @@ CXXFLAGS=-I$(SPECTCLHOME)/include
 LDFLAGS=-L$(SPECTCLHOME)/lib -Wl,-rpath=$(SPECTCLHOME)/lib -lSpecTclDb \
 	-lTclGrammerApp -lSqlite3pp -lsqlite3 -Wl,-rpath=$(ROOTSYS)/lib
 
-all: makedb makesaveset lssaveset
+all: makedb makesaveset lssaveset pardef
 
 makedb: makedb.cpp
 	$(CXX) -o makedb $(CXXFLAGS) makedb.cpp $(LDFLAGS)
@@ -14,3 +14,6 @@ makesaveset: makesaveset.cpp
 
 lssaveset: lssaveset.cpp
 	$(CXX) -o lssaveset $(CXXFLAGS) lssaveset.cpp $(LDFLAGS)
+
+pardef: pardef.cpp
+	$(CXX) -o pardef  $(CXXFLAGS) pardef.cpp $(LDFLAGS)
