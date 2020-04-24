@@ -20,6 +20,8 @@
  */
 #include <tcl.h>
 #include <TCLInterpreter.h>
+#include <TCLApplication.h>
+
 #include <iostream>
 #include "DBTcl.h"
 #include "CDBCommands.h"
@@ -37,3 +39,4 @@ extern "C" {
         return TCL_OK;
     }
 }
+CTCLApplication* gpTCLApplication=nullptr;
