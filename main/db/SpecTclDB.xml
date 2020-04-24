@@ -287,7 +287,7 @@
             <orderedlist>
                 <listitem>
                    <para>
-                      Create and attache a database. 
+                      Create and attach a database. 
                    </para>
                 </listitem>
                 <listitem>
@@ -301,6 +301,12 @@
                    </para>
                 </listitem>
             </orderedlist>
+             <para>
+                These examples and a sample Makefile built along the lines
+                described below are installed in the
+                share/dbexamples directory of SpecTcl's installation
+                directory tree.
+             </para>
             <para>
                 If you intend to do serious programming with this class library,
                 you should study the reference material in the appendix.
@@ -316,7 +322,9 @@
                 Makefile variables (e.g. $(SPECTCLHOME) is the environment variable
                 SPECTCLHOME).  SpecTcl depends on Root so we're also going to
                 assume that ROOTSYS is defined and points to the directory
-                from wich SpecTcl was linked with root.
+                from wich SpecTcl was linked with root.  As of version 5.3-007,
+                the $SPECTCLHOME/VERSION file will tell you the value used for
+                ROOTSYS.
             </para>
             <formalpara>
                 <title>Compilation flags:</title>
@@ -402,13 +410,172 @@
                         </varlistentry>
                     </variablelist>
                 </para>
+                <para>
+                    A final note.  If root was not built with internal -rpath's
+                    turned on the sample program in this manual (and even
+                    SpecTcl itself) may fail with an error like
+                </para>
+                <para>
+                    <literal>
+                        ./makedb: error while loading shared libraries: libvdt.so:
+                    cannot open shared object file: No such file or directory
+                </literal>
+                    If that is the case then set up the full Root environment
+                    by $ROOTSYS/bin/thisroot.sh
+                </para>
             </formalpara>
             <para>
                 Let's look at the simplest example.  A complete program
                 that creates an empty database. The program takes a
                 databsae filename on the command line as a single argument.
             </para>
+            <example>
+                <title>Createing an empty database (makedb.cpp)</title>
+                <programlisting>
+#include &lt;SpecTclDatabase.h&gt;               <co id='makedb.includes' />
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+
+int main(int argc, char** argv)
+{
+  if (argc != 2) {
+    std::cerr &lt;&lt; "Usage: makedb db-filenme\n";
+    exit(EXIT_FAILURE);
+  }
+
+  SpecTclDB::CDatabase::create(argv[1]);          <co id='makedb.create' />
+
+  exit(EXIT_SUCCESS);
+}
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='makedb.includes' >
+                    <para>
+                        Including this header brings the class definition of
+                        <classname>SpecTclDB::CDatabase</classname> into our
+                        program.
+                    </para>
+                </callout>
+                <callout arearefs='makedb.create' >
+                    <para>
+                        This line creates a new empty database. The
+                        static method <methodname>create</methodname> in
+                        <classname>SpecTclDB::CDatabase</classname> takes
+                        a null terminated (C) string and creates a new database
+                        in that file.
+                    </para>
+                    <para>
+                        It is not harmful to call this on a database file that
+                        has already been initialized with the SpecTcl database
+                        schema as the SQL used is of the form
+                        <literal>CREATE ... IF NOT EXISTS</literal>.
+                    </para>
+                    <para>
+                        Using this method on an existing database file used for
+                        another purpose will add the schema needed to
+                        also use that file as a SpecTcl database; as long
+                        as there are no collisions in table and index names.
+                    </para>
+                    <para>
+                        Using this method on a file that is not an sqlite database
+                        will result in an error message indicating the file is
+                        not a database file.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Let's look at another simple full program.  This
+                program will open an existing  database and create a saveset
+                named <literal>a saveset</literal> in the database.
+                The program will also demonstrate very simple error detection.
+            </para>
+            <example>
+                <title>Creating savesets in a database (makesaveset.cpp)</title>
+                <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;                <co id='makesvset.savesetheader' />
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;stdlib.h&gt;
+
+
+int main(int argc, char** argv)
+{
+  if (argc != 2) {
+    std::cerr &lt;&lt; "Usage: makesaveset database-name\n";
+    exit(EXIT_FAILURE);
+  }
+  try {
+    SpecTclDB::CDatabase db(argv[1]);     <co id='makesvset.opendb' />
+
+    SpecTclDB::SaveSet* pSaveset = db.createSaveSet("a saveset"); <co id='makesvset.makeset' />
+    delete pSaveset;
+  }
+  catch (std::exception&amp; e) {
+    std::cerr &lt;&lt; "Error: " &lt;&lt; e.what() &lt;&lt; std::endl; <co id='makesvset.errors' />
+    exit(EXIT_FAILURE);
+  }
+  exit(EXIT_SUCCESS);
+
+}
+
+                </programlisting>
+            </example>
+            <calloutlist>
+               <callout arearefs='makesvset.savesetheader' >
+                <para>
+                    We'll be using a method from the
+                    <classname>SpecTclDB::SaveSet</classname> class. This
+                    <literal>#include</literal> pulls the definition of that
+                    class and its methods into our program.
+                </para>
+               </callout>
+               <callout arearefs='makesvset.opendb' >
+                   <para>
+                    In the previous example, we saw that the static
+                    <methodname>create</methodname> method for the
+                    <classname>SpecTclDB::CDatabase</classname> class
+                    created and initialized a database file.  The
+                    <classname>SpecTclDB::CDatabase</classname> class constructor
+                    creates a database object that is connected to an already
+                    created database file.
+                </para>
+               </callout>
+               <callout arearefs='makesvset.makeset' >
+                   <para>
+                    This line asks the database object to create a new saveset.
+                    On success, a pointer to the saveset object that encapsulates
+                    the saveset in the database is created. Note that savesets
+                    must have unique names.  Try running this program on
+                    the same database twice.
+                </para>
+               </callout>
+               <callout arearefs='makesvset.errors' >
+                   <para>
+                        The database API reports errors by throwing exceptions that
+                        are derived from <classname>std::exception</classname>.
+                        Errors, therefore are handled by this catch block. Any
+                        meaningful message held by the exception object is
+                        reported here.
+                    </para>
+                    <para>
+                        If you do try the experiment of runing this program
+                        on a saveset twice, this code will tell you the
+                        saveset already exists.
+                    </para>
+               </callout>
+            </calloutlist>
+            <para>
+                As an excersise, modify this program to accepts, as a second
+                parameter, the name of the save set to create.  In the
+                next, and last example in this section,
+                we'll list the names of all of the savesets
+                in a database.
+            </para>
         </section>
+        
     </chapter>
     <appendix>
         <title>Reference material</title>
