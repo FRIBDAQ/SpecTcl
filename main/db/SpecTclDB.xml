@@ -313,8 +313,10 @@
                 that the environment variable SPECTCLHOME is defined to be the
                 top level directory of the SpecTcl installation  you are using.
                 Note that environment variables are imported to Makefiles as
-                Makefile variables (e.g. $(SPECCLHOM) is the environment variable
-                SPECTCLHOME).
+                Makefile variables (e.g. $(SPECTCLHOME) is the environment variable
+                SPECTCLHOME).  SpecTcl depends on Root so we're also going to
+                assume that ROOTSYS is defined and points to the directory
+                from wich SpecTcl was linked with root.
             </para>
             <formalpara>
                 <title>Compilation flags:</title>
@@ -357,9 +359,55 @@
                                </para>
                             </listitem>
                         </varlistentry>
+                        <varlistentry>
+                           <term><literal>-Wl,-rpath=$ROOTSYS/lib</literal></term>
+                           <listitem>
+                               <para>
+                                Adds root's library directory to the shared object
+                                load search path.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>-lSpecTclDb</literal></term>
+                           <listitem>
+                               <para>
+                                Pulls in the SpecTcl database API.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>-lTclGrammerApp</literal></term>
+                           <listitem>
+                               <para>
+                                Pulls in the SpecTcl main library.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>-lSqlite3pp</literal></term>
+                           <listitem>
+                               <para>
+                                Pulls in a C++ encapsulation of sqlite3.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>-lsqlite3</literal></term>
+                           <listitem>
+                               <para>
+                                Pulls in the Sqlite3 API.
+                               </para>
+                            </listitem>
+                        </varlistentry>
                     </variablelist>
                 </para>
             </formalpara>
+            <para>
+                Let's look at the simplest example.  A complete program
+                that creates an empty database. The program takes a
+                databsae filename on the command line as a single argument.
+            </para>
         </section>
     </chapter>
     <appendix>

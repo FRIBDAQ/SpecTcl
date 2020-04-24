@@ -89,6 +89,7 @@ install-exec-local:
 	cat  @srcdir@/CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) @builddir@/CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` by `whoami` >VERSION
+	echo The CERN Root installation used  was: `@ROOTCONFIG@ --prefix` >> VERSION
 	$(INSTALL_DATA) @builddir@/VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/docs/man
