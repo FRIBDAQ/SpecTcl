@@ -304,7 +304,7 @@
              <para>
                 These examples and a sample Makefile built along the lines
                 described below are installed in the
-                share/dbexamples directory of SpecTcl's installation
+                <filename>share/dbexamples</filename> directory of SpecTcl's installation
                 directory tree.
              </para>
             <para>
@@ -410,20 +410,20 @@
                         </varlistentry>
                     </variablelist>
                 </para>
-                <para>
-                    A final note.  If root was not built with internal -rpath's
-                    turned on the sample program in this manual (and even
-                    SpecTcl itself) may fail with an error like
-                </para>
-                <para>
-                    <literal>
-                        ./makedb: error while loading shared libraries: libvdt.so:
-                    cannot open shared object file: No such file or directory
-                </literal>
-                    If that is the case then set up the full Root environment
-                    by $ROOTSYS/bin/thisroot.sh
-                </para>
             </formalpara>
+            <para>
+                A final note.  If root was not built with internal -rpath's
+                turned on the sample program in this manual (and even
+                SpecTcl itself) may fail with an error like
+            </para>
+            <para>
+                <literal>
+                    ./makedb: error while loading shared libraries: libvdt.so:
+                cannot open shared object file: No such file or directory
+            </literal>
+                If that is the case then set up the full Root environment
+                by $ROOTSYS/bin/thisroot.sh
+            </para>
             <para>
                 Let's look at the simplest example.  A complete program
                 that creates an empty database. The program takes a
@@ -595,7 +595,7 @@ int main(int argc, char** argv)
   std::cout &lt;&lt; " Save sets in " &lt;&lt; argv[1] &lt;&lt; std::endl; 
   for (int i =0; i &lt; savesets.size(); i++) {
     std::cout &lt;&lt; savesets[i]-&gt;getInfo().s_name &lt;&lt; std::endl; <co id='lssvset.name' />
-    delete savesets[i];
+    delete savesets[i];                                  <co id='lssaveset.del' />
   }
 }
 
@@ -613,7 +613,7 @@ int main(int argc, char** argv)
                     <para>
                         A look at the header will tell you that <varname>savesets</varname>
                         is actually a
-                        <classsname>std::vector&lt;SpecTclDB::SaveSet*&gt;</classsname>.
+                        <classname>std::vector&lt;SpecTclDB::SaveSet*&gt;</classname>.
                         We could have used that type declaration.  There are
                         a couple of reasons we didn't. One sensible the other lazy.
                         By letting the compiler figure out the actual type
@@ -627,7 +627,51 @@ int main(int argc, char** argv)
                         of explanation.
                     </para>
                 </callout>
+                <callout arearefs='lssvset.name' >
+                    <para>
+                        Saveset objects have a
+                        <methodname>getInfo</methodname> method.  This method
+                        returns a const reference to a struct that contains
+                        information cached from the database about the saveset.
+                        The <structfield>s_name</structfield> field of this
+                        struct contains a printable name (actually a
+                        <classname>std::string</classname>).
+                    </para>
+                </callout>
+                <callout arearefs='lssaveset.del' >
+                    <para>
+                        Since <methodname>getAllSaveSets</methodname> dynamically
+                        creates the save set objects it returns, these must be
+                        <literal>delete</literal>-d as they are no longer needed.
+                    </para>
+                </callout>
             </calloutlist>
+        </section>
+        <section>
+            <title>The SpecTclDB::SaveSet class.</title>
+            <para>
+                Save sets are where data are stored. Save sets are used to organize
+                data into named containers.  Each container has a name,
+                a creation timestamp and a unique integer identifier.   The
+                identifier is used to link other objects back to the save set
+                that owns them in the <literal>save_sets</literal> table of the
+                database.  See the description of the database schema in the
+                reference appendix for more information.
+            </para>
+            <para>
+                In this section we'll show a few examples of the the
+                <classname>SpecTclDB::SaveSet</classname> class in action.  We're
+                only going to look at the object methods of the
+                <classname>SpecTclDB::Saveset</classname> class.  There are
+                some static methods, but they are intended for use by
+                the <classname>SpecTclDB::CDatabase</classname> class not us.
+            </para>
+            <para>
+                We're going to look at the Savesets through the lens of the following
+                examples (installed in the <filename>share/dbexamples</filename>
+                directory of the SpecTcl installation).
+            </para>
+            
         </section>
         
     </chapter>
