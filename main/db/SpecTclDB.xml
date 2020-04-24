@@ -670,8 +670,225 @@ int main(int argc, char** argv)
                 We're going to look at the Savesets through the lens of the following
                 examples (installed in the <filename>share/dbexamples</filename>
                 directory of the SpecTcl installation).
+                These examples will:
             </para>
-            
+            <itemizedlist>
+                <listitem>
+                   <para>
+                       Show how to define parameters and get
+                       information about them.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Show how to save spectrum definitions and
+                      retrieve information about them.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      How to save the definition of
+                      several broad categories of
+                      gates, and retrieve information about
+                      them.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      How to save information about which gates
+                      are applied to conditionalize the
+                      increments of which spectra.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      How to store information about
+                      tree variables and retrieve it.
+                   </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        How to store and retrieve
+                        decoded events,
+                        and scaler readouts in a
+                        saveset.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <example>
+                <title>Defining parameters (pardef.cpp)</title>
+                <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;DBParameter.h&gt;      <co id='pardef.paramhdr' />
+
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;stdlib.h&gt;
+
+int main(int argc, char** argv)
+{
+  if(argc != 2) {
+    std::cerr &lt;&lt; "Usage:  pardef db-filename\n";
+    exit(EXIT_FAILURE);
+  }
+
+  SpecTclDB::SaveSet* pSave(nullptr);  <co id='pardef.psave' />
+      
+  try {
+    SpecTclDB::CDatabase db(argv[1]);
+    pSave = db.getSaveSet("a saveset"); <co id='pardef.getsvset' />
+    delete pSave-&gt;createParameter("p1", 100); <co id='pardef.create' />
+    delete pSave-&gt;createParameter("p2", 101, -10.0, 1.0, 100, "cm");
+
+    auto params = pSave-&gt;listParameters(); <co id='pardef.listpars' />
+    std::cout &lt;&lt; "The following parameters are defined:\n";
+    for (int i =0; i &lt; params.size(); i++) {
+      std::cout &lt;&lt; params[i]-&gt;getInfo().s_name &lt;&lt; std::endl;
+      delete params[i];
+    }
+    SpecTclDB::DBParameter* p = pSave-&gt;findParameter("p2"); <co id='pardef.find' />
+    std::cerr &lt;&lt; " I found parameter: " &lt;&lt; p-&gt;getInfo().s_name &lt;&lt; std::endl;
+    delete p;
+
+  }
+  catch (std::exception&amp; e) {
+    std::cerr &lt;&lt; "Error: " &lt;&lt; e.what() &lt;&lt; std::endl;
+    delete pSave;
+    exit(EXIT_FAILURE);
+  }
+
+  delete pSave;
+  exit(EXIT_SUCCESS);
+}
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='pardef.paramhdr' >
+                    <para>
+                        Parameters are encapsulated in
+                        <classname>SpecTclDB::DBParameter</classname>
+                        objects.   This <literal>#include</literal>
+                        bring the definition of that class into
+                        the program.
+                    </para>
+                </callout>
+                <callout arearefs='pardef.psave' >
+                    <para>
+                        This will be a pointer to the save set
+                        we're manipulating. It's declared here
+                        so that it will be in scope in the
+                        <literal>catch</literal> block below.
+                        That allows us to ensure that the
+                        saveset gets freed if there's an
+                        exception.
+                    </para>
+                </callout>
+                <callout arearefs='pardef.getsvset' >
+                    <para>
+                        The <methodname>getSaveSet</methodname>
+                        looks up a save set and caches its
+                        database defintion into internal data
+                        in a <classname>SpecTclDB::SaveSet</classname>.
+                        A pointer to this dynamically allocated
+                        object is then returned on success.
+                        On failure an exception is thrown.
+                    </para>
+                </callout>
+                <callout arearefs='pardef.create' >
+                    <para>
+                        This line and the next create two parameters.
+                        SpecTcl has two raw parameters and
+                        <classname>CTreeParameter</classname>
+                        parameters.  The latter wrap raw parameters
+                        and provide metadata that give hints about
+                        how to best histogram the variable and
+                        units of measure.
+                    </para>
+                    <para>
+                        The first line stores a parameter
+                        definition for a raw parameter. These
+                        have a name and a slot number defining
+                        how SpecTcl event processors should
+                        supply data for this parameter.
+                    </para>
+                    <para>
+                        The second line stores a parameter
+                        with full metadata. In addition to the
+                        name and number, metadata includes a
+                        suggested low limite, a suggested high
+                        limit, a suggested binning over that range,
+                        and units of measure.  The second line
+                        stores a parameter that runs in the range
+                        of -10.0 to 10.0 with a suggested binning
+                        of 100 bins.  The units of measure
+                        are <literal>cm</literal>.
+                    </para>
+                    <para>
+                        Noe that
+                        <methodname>createParameter</methodname>
+                        returns a pointer to the created parameter
+                        object. This object is immediately
+                        deleted.
+                    </para>
+                </callout>
+                <callout arearefs='pardef.listpars' >
+                    <para>
+                        Produces a container with pointers to all
+                        parameters.  The pointers are to
+                        dynamically allocated objects which
+                        must be deleted when no longer needed.
+                    </para>
+                    <para>
+                        Subsequent code iterates over the
+                        objects in the container, outputting
+                        the names of each parameter and
+                        deleting the objects.
+                    </para>
+                </callout>
+                <callout arearefs='pardef.find' >
+                    <para>
+                        Retrives a parameter definition by name.
+                    </para>
+                </callout>
+            </calloutlist>
+            <example>
+                <title>Defining Spectra (specdef.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Defining gates (gatedef.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Applying gates to spectru (applydef.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Saving and recovering tree variables (vardef.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Storing event data (evtstore.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Recovering event data (evtget.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
         </section>
         
     </chapter>
