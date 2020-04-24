@@ -574,6 +574,60 @@ int main(int argc, char** argv)
                 we'll list the names of all of the savesets
                 in a database.
             </para>
+            <example>
+                <title>Listing savesets (lssaveset.cpp)</title>
+                <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;stdlib.h&gt;
+
+
+int main(int argc, char** argv)
+{
+  if (argc != 2) {
+    std::cerr &lt;&lt; "Usage: lssaveset db-filename\n";
+    exit(EXIT_FAILURE);
+  }
+  SpecTclDB::CDatabase db(argv[1]);
+  auto savesets = db.getAllSaveSets();                 <co id='lssvset.getall' />
+  std::cout &lt;&lt; " Save sets in " &lt;&lt; argv[1] &lt;&lt; std::endl; 
+  for (int i =0; i &lt; savesets.size(); i++) {
+    std::cout &lt;&lt; savesets[i]-&gt;getInfo().s_name &lt;&lt; std::endl; <co id='lssvset.name' />
+    delete savesets[i];
+  }
+}
+
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='lssvset.getall' >
+                    <para>
+                        The <methodname>getAllSaveSets</methodname> of
+                        <classname>SpecTclDB::CDatabase</classname> returns
+                        an indexable collection of pointers to the save set
+                        objects that encapsulate all of the savesets in the
+                        database.
+                    </para>
+                    <para>
+                        A look at the header will tell you that <varname>savesets</varname>
+                        is actually a
+                        <classsname>std::vector&lt;SpecTclDB::SaveSet*&gt;</classsname>.
+                        We could have used that type declaration.  There are
+                        a couple of reasons we didn't. One sensible the other lazy.
+                        By letting the compiler figure out the actual type
+                        for <varname>savesets</varname>, the implementation of
+                        <methodname>getAllSaveSets</methodname> could change and,
+                        as long as the type returned suported
+                        <methodname>size</methodname> and
+                        <methodname>operator[]</methodname>, our code would
+                        not need to change.  Second, this saved us a bunch of
+                        typing in the code, at the cost of this paragraph
+                        of explanation.
+                    </para>
+                </callout>
+            </calloutlist>
         </section>
         
     </chapter>
