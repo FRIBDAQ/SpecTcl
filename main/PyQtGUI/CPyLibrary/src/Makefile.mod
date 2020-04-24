@@ -1,3 +1,4 @@
+NOTPARALLEL:
 CC    = g++
 CFLAGS       = -std=c++11 -c -g -fPIC -I/usr/include/python3.7
 LDFLAGS      = -shared -Wl,-soname

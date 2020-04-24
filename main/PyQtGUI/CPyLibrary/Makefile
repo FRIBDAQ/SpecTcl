@@ -1,4 +1,4 @@
-INSTDIR=/usr/opt/spectcl/SpecTcl
+INSTDIR=/usr/opt/spectcl/5.3-007
 
 all:
 	@$(MAKE) -C src -f Makefile.mod
