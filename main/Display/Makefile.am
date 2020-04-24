@@ -53,8 +53,26 @@ defaultfile_parse.cc: @srcdir@/defaultfile.y @builddir@/defaultfile_lex.h
 	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
 	mv defaultfile.tab.c @builddir@/defaultfile_parse.cc
 
+#
+#  This is a bit tricky.
+#   1.  If building from the source tree or source tree of unwrapped tarball,
+#       this target needs to be made
+#       and builddir == srcdir so this is all ok.
+#   2. If building OOT from the source tree, this is fine because
+#      defaultfile_lex.h got made into builddir.
+#   3. The trick part.  If building oot from a tarball, this is problematic
+#      because BUILT_SOURCES get included in the tarball which means
+#      defaultfile_lex.h and windlex.h, for that matter are sitting
+#      in srcdir
+#      Hence the rather outrageous little kludgy little bit of
+#      shell-sriptery below:
+#
 windlex.h : @builddir@/defaultfile_lex.h
-	cp defaultfile_lex.h windlex.h
+	if [ -e @builddir@/defaultfile_lex.h ] ; then \
+	   cp @builddir@/defaultfile_lex.h @builddir/windlex.h; else \
+	   cp @srcdir@/defaultfile_lex.h @builddir@/windlex.h; \
+	fi
+
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
 TabP.h          axes.h             info.h        scaling.h\
@@ -182,7 +200,7 @@ EXTRA_DIST = queue.cc colorset.ico \
 	grobfile.l 
 #  These files can cause problems on rebuilds.
 
-MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
+CLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
 	grobfile_lex.h               \
 	defaultfile_parse.cc grobfile_parse.cc  windlex.h \
 	lex.yy.c
