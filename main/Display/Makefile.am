@@ -69,7 +69,7 @@ defaultfile_parse.cc: @srcdir@/defaultfile.y @builddir@/defaultfile_lex.h
 #
 windlex.h : @builddir@/defaultfile_lex.h
 	if [ -e @builddir@/defaultfile_lex.h ] ; then \
-	   cp @builddir@/defaultfile_lex.h @builddir/windlex.h; else \
+	   cp @builddir@/defaultfile_lex.h @builddir@/windlex.h; else \
 	   cp @srcdir@/defaultfile_lex.h @builddir@/windlex.h; \
 	fi
 
