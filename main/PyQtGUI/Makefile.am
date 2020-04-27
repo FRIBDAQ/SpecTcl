@@ -1,0 +1,2 @@
+SUBDIRS = src sip gui
+
