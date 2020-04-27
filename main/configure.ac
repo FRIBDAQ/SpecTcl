@@ -810,47 +810,6 @@ AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 AC_SUBST(LIBEXCEPTION_LDFLAGS)
 
-####################################### Checks for Qt 
-
-# Check for Qt libraries
-PKG_CHECK_MODULES(QT, [QtCore, QtGui, QtNetwork], [], [AC_MSG_ERROR([Qt libraries are required.])])
-
-# Retrieve Qt compilation and linker flags
-CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork` $CPPFLAGS"
-LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork` $LDFLAGS"
-LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork` $LIBS"
-
-if ! `$PKG_CONFIG --atleast-version=4.6.0 QtCore`; then
-   AC_MSG_ERROR([Qt >= 4.6.0 is required.])
-fi
-
-AC_CHECK_PROGS(MOC, [moc-qt5 moc-qt4 moc])
-if test "x$MOC" = "x" ; then
-  AC_MSG_ERROR([Qt utility program moc is required.])
-fi
-
-AC_CHECK_PROGS(UIC, [uic-qt5 uic-qt4 uic])
-if test "x$UIC" = "x" ; then
-  AC_MSG_ERROR([Qt utility program uic is required.])
-fi
-
-AC_CHECK_PROGS(RCC, [rcc])
-if test "x$RCC" = "x" ; then
-  AC_MSG_ERROR([Qt utility program rcc is required.])
-fi
-
-# Retrieve Qt compilation and linker flags
-QT_CPPFLAGS="`$PKG_CONFIG --cflags-only-I QtCore QtGui QtNetwork`"
-QT_LDFLAGS="`$PKG_CONFIG --libs-only-L QtCore QtGui QtNetwork`"
-QT_LIBS="`$PKG_CONFIG --libs-only-l QtCore QtGui QtNetwork`"
-
-AC_SUBST(QT_CPPFLAGS)
-AC_SUBST(QT_LDFLAGS)
-AC_SUBST(QT_LIBS)
-AC_SUBST(MOC)
-AC_SUBST(UIC)
-AC_SUBST(RCC)
-
 ######################################## Checks for ZMQ
 AX_ZMQ
 
@@ -994,7 +953,8 @@ AC_OUTPUT(Makefile
 	  packaged/Makefile_skel
 	  db/Makefile
 	  PyQtGUI/Makefile
-	  PyQtGUI/CPyLibrary/Makefile
-	  PyQtGUI/gui/Makefile
+	  PyQtGUI/src/Makefile
+	  PyQtGUI/sip/Makefile
+	  PyQtGUI/gui/Makefile	  
 	  )
           
