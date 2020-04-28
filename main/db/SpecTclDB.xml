@@ -849,10 +849,51 @@ int main(int argc, char** argv)
                 </callout>
                 <callout arearefs='pardef.find' >
                     <para>
-                        Retrives a parameter definition by name.
+                        Retrieves a parameter definition by name.  This provides
+                        us a container of pointers to <classname>DBParameter</classname>
+                        objects.  We'll say more about <classname>DBParameter</classname>
+                        later on.  For now you only need to know that this
+                        class encapsulates cached information retrieved from
+                        the database for a single parameter.
+                    </para>
+                    <para>
+                        A readonly reference to this information can be gotten via
+                        the <methodname>getInfo</methodname> method.  The pointers
+                        in the container represent pointers to dynamically created
+                        objects.  Therefore, once your code is done using one,
+                        it should be deleted to avoid memory leaks.
                     </para>
                 </callout>
             </calloutlist>
+            <para>
+                Let's look at a toy program to create spectra in a save
+                set and list information about the spectra a save set has.
+                For this program:
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      Refer to the SpecTcl command reference or user's guide for
+                      a list of the spectrum types and what they do.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      If you are going to test it, be sure you run it on a
+                      database that has had the parameter test program run on it.
+                      We will be using the saveset and
+                      parameter definitions that we created
+                      with that program.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                Note that in general, spectra need a name,
+                a spectrum type, a vector of parameters and
+                one or two axis definitions.  By default,
+                spectra are defined with longword per channel
+                storage, but this can be modified.
+            </para>
             <example>
                 <title>Defining Spectra (specdef.cpp)</title>
                 <programlisting>
