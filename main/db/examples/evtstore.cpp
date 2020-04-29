@@ -53,6 +53,7 @@ int main(int argc, char** argv)
     pSaveSet->endEvents(ctx);
     
     pSaveSet->endRun(runId, time(nullptr));
-
+    delete pSaveSet;
+    
     exit(EXIT_SUCCESS);
 }

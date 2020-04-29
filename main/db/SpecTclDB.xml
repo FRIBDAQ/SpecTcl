@@ -1564,7 +1564,7 @@ int main(int argc, char** argv)
     pSaveSet-&gt;endEvents(ctx);                <co id='evtstore.commit2' />
 
     pSaveSet-&gt;endRun(runId, time(nullptr));  <co id='evtstore.endrun' />
-
+    delete pSaveSet;
     exit(EXIT_SUCCESS);
 }
                     
@@ -1675,12 +1675,149 @@ int main(int argc, char** argv)
                     </para>
                 </callout>
             </calloutlist>
+            <para>
+                The next program will read the event data
+                we stored in the previous example and dump
+                every 50 events to stdout. Note that the
+                parameter numbers are intended to be the
+                <parameter>number</parameter> parameter
+                passed to the <methodname>createParameter</methodname>
+                method in the database.  In SpecTcl these
+                correspond to parameter ids, slots in the
+                <classname>CEvent</classname> object passed
+                between the members of the event processing
+                pipeline.  
+            </para>
+            <para>
+                In SpecTcl, using <classname>CTreeParameter</classname>
+                and <classname>CTreeParameterArray</classname> objects
+                hides but does not eliminate this parameter number.
+                What this number is <emphasis>not</emphasis>
+                is the value of the primary key of a parameter
+                definition.
+            </para>
             <example>
                 <title>Recovering event data (evtget.cpp)</title>
+
                 <programlisting>
-                    
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+
+
+// accept data:
+                    <co id='evtget.sink' />
+void sink(const SpecTclDB::SaveSet::Event&amp; event)
+{
+    static int evt = 0;
+    if ((evt % 50) == 0) {
+      std::cout &lt;&lt; "Dumping event " &lt;&lt; evt &lt;&lt; ":\n";
+        for (int i =0; i &lt; event.size(); i++)  {
+            std::cout &lt;&lt; "   param# " &lt;&lt; event[i].s_number
+                &lt;&lt; " = " &lt;&lt; event[i].s_value &lt;&lt; std::endl;
+        }
+    }
+    evt++;
+}
+
+
+int main (int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; "Usage:: evtget db-filename\n";
+        exit(EXIT_FAILURE);
+    }
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* pSet = db.getSaveSet("a saveset");
+
+    int runid = pSet-&gt;openRun(1);    <co id='evtget.open' />
+    void* ctx = pSet-&gt;openEvents(runid); <co id='evtget.evts' />
+
+    SpecTclDB::SaveSet::Event event;
+    while(pSet-&gt;readEvent(ctx, event)) {  <co id='evtget.read' />
+        sink(event);
+    }
+
+    pSet-&gt;closeEvents(ctx);     <co id='evtget.close' />
+    delete pSet;
+
+    exit(EXIT_SUCCESS);
+}
+
+                   
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='evtget.sink' >
+                    <para>
+                        This function is a stand in for whatever
+                        processing you might do on events.
+                        For our toy example, it just dumps the
+                        data from every 50'th event.
+                    </para>
+                </callout>
+                <callout arearefs='evtget.open' >
+                    <para>
+                        <methodname>openRun</methodname>
+                        accepts a run number and returns the
+                        id (primary key) identifying that run
+                        in the database.  This can be used in other
+                        calls to retrive information about
+                        event data and scalers.
+                    </para>
+                </callout>
+                <callout arearefs='evtget.evts' >
+                    <para>
+                        Getting events back from the database
+                        requires iteration through the result set
+                        from a query.  Doing this requires
+                        that some context allowing the result set to be
+                        identified must be held and saved.
+                        <methodname>openEvents</methodname> performs
+                        the query for the events that belong to the
+                        run and returns a context that refers to the
+                        result set.
+                    </para>
+                </callout>
+                <callout arearefs='evtget.read' >
+                    <para>
+                        <methodname>readEvent</methodname>
+                        takes the result set context gotten above
+                        and fills in the <parameter>event</parameter>
+                        parameter with the next event for that
+                        run in the database.
+                    </para>
+                    <para>
+                        As we've seen from the previous example
+                        (<filename>evtstore.cpp</filename>),
+                        parameters in an event can form a sparse set.
+                        The data stored for an event only consists of the
+                        parameters that have data for that event.
+                        <methodname>readEvents</methodname> fills
+                        in an indexable container (<classname>Event</classname>)
+                        which contains the parameter numbers and
+                        parameter values for parameters with data
+                        for an event.
+                    </para>
+                    <para>
+                        note that this can be trivially turned into
+                        a <classname>CEvent</classname> object
+                        by SpecTcl. With a bit of a table lookup
+                        it can also be trivially marshalled into a root tree
+                        leaf.
+                    </para>
+                </callout>
+                <callout arearefs='evtget.close' >
+                    <para>
+                        <methodname>closeEvents</methodname>
+                        releases all resources that were associated
+                        with the result set gotten from
+                        <methodname>openEvents</methodname>.
+                    </para>
+                </callout>
+            </calloutlist>
             <example>
                 <title>Storing scaler readouts (sclstore.cpp)</title>
                 <programlisting>
