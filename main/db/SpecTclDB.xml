@@ -1486,12 +1486,195 @@ int main(int argc, char** argv)
                     </para>
                 </callout>
             </calloutlist>
+            <para>
+                One of the more powerful features of the SpecTcl
+                database is its ability to store pre-decoded parameters
+                and playing back runs from the databsae.
+                This is analagous to loading Root Trees (which SpecTcl
+                can also do).  
+            </para>
+            <para>
+                This allows the user to rapidly try out different
+                analysis conditions.   Rapidly because normally the
+                user's data anlysis pipeline, the code that extracts parametes
+                from raw data, is the most computationally expensive
+                part of SpecTcl.  Reading events from the database allows
+                the data analysis pipeline to be bypassed.
+            </para>
+            <para>
+                The examples that show the API for storing and
+                reading back event data are somewhat more complex.
+                They will also need to rely on the existence of
+                some source of data and some sink of data.
+                These will be trivial sources, and not described
+                in detail in the examples.
+            </para>
             <example>
                 <title>Storing event data (evtstore.cpp)</title>
                 <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;iostream&gt;
+#include &lt;time.h&gt;
+                         <co id='evtstore.crevent' />
+void createEvent(std::vector&lt;int&gt;&amp; params, std::vector&lt;double&gt;&amp; values)
+{
+
+    for (int i =0; i &lt; 100; i++) {
+        if (drand48() &lt; 0.5) {
+            params.push_back(i);
+            values.push_back(drand48()*200.0 - 100.0);
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 3) {
+        std::cerr &lt;&lt; "Usage:  evtstore db-filename nevents\n";
+    }
+    const char* dbFile = argv[1];
+    int         nEvents = strtoul(argv[2], nullptr, 0);
+
+    SpecTclDB::CDatabase db(dbFile);
+    SpecTclDB::SaveSet* pSaveSet = db.getSaveSet("a saveset");
+
+    int runId =                      <co id='evtstore.start' />
+        pSaveSet-&gt;startRun(1, "Some junk Data", time(nullptr));
+
+    std::vector&lt;int&gt; params;
+    std::vector&lt;double&gt; values;
+    srand48(time(nullptr));           <co id ='evtstore.init' />
+    void* ctx = pSaveSet-&gt;startEvents(runId);  <co id='evtstore.trans' />
+    for (int i =0; i &lt; nEvents; i++) {
+        params.clear();
+        values.clear();             // new event.
+        createEvent(params, values);
+        pSaveSet-&gt;saveEvent(                   <co id='evtstore.save' />
+            runId, i, params.size(), params.data(), values.data()
+        );
+
+        if (i %100 == 0) {    // every 100 events commit the transaction.
+            pSaveSet-&gt;endEvents(ctx);         <co id='evtstore.commit' />
+            ctx  = pSaveSet-&gt;startEvents(runId);
+        }
+
+    }
+    pSaveSet-&gt;endEvents(ctx);                <co id='evtstore.commit2' />
+
+    pSaveSet-&gt;endRun(runId, time(nullptr));  <co id='evtstore.endrun' />
+
+    exit(EXIT_SUCCESS);
+}
                     
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='evtstore.crevent' >
+                    <para>
+                        This function creates an event. It
+                        takes references to  a pair of vectors.
+                        The integer vector is filled in with
+                        numbers of parameters that are present
+                        while the vector of doubles is filled in
+                        whith parameter values for that parameter
+                        in this event.
+                    </para>
+                    <para>
+                        There are 100 parameters.  In any given
+                        event, there's a 50% chance a parameter is present.
+                        The parameter values are uniformly distributed
+                        random numbers in the range [-100.0, 100.0)
+                        because <function>drand48</function>
+                        produces pseudo randoms in the range
+                        [0, 1)
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.start' >
+                    <para>
+                        The <methodname>startRun</methodname>
+                        indicates we are starting to store data for a run.
+                        Normally this will be intermixed event
+                        and scaler data.  For this example, we're
+                        only storing events.  The run number must
+                        be unique within the save set. The
+                        return value is an integer that identifies
+                        the run and must be used in most
+                        of the methods we'll call in the future.
+                    </para>
+                    <para>
+                        Only a run start time is provided.
+                        The assumption is that we are reading data
+                        from some serial data source and won't
+                        know the end time for the run until
+                        we reach data for the end of the run.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.init' >
+                    <para>
+                        Our event generator uses the pseudo random number generators.
+                        This code ensures those generators are seeded with an
+                        undeterministic value.  If you omit this
+                        line, the program will still work but the
+                        random number generators will be seeded
+                        with a deterministic value and the
+                        results of each run will be the same
+                        from program run to program run.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.init' >
+                    <para>
+                        Individual database stores can be expensive.
+                        Sqlite provides a mechanism for batching up
+                        a bunch of stores into an atomic
+                        <firstterm>transaction</firstterm>, these
+                        transactions are called savesets.  
+                    </para>
+                    <para>
+                        This line starts a transaction for storing
+                        events and gets a <type>void*</type>
+                        back which we call a context.
+                        The context identifies the transaction
+                        suc that it can be rolled back or committed
+                        by the code at a later date.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.save' >
+                    <para>
+                        This line saves an event. The
+                        <methodname>data</methodname> method of
+                        <classname>std::vector</classname> returns
+                         a pointer to the contiguous storage used by the
+                         event for he current transaction.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.commit' >
+                    <para>
+                        Every 100 events, we commit the
+                        transaction we started with our call to
+                        <methodname>startEvents</methodname>.
+                    </para>
+                    <para>
+                        It is also possible to decide not to
+                        store any events from a transaction
+                        but doing that is beyond the scope of this
+                        example.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.commit2' >
+                    <para>
+                        Performs the commit for any partial
+                        block of events.
+                    </para>
+                </callout>
+                <callout arearefs='evtstore.endrun' >
+                    <para>
+                        Closes off the run by providing the
+                        end run time.
+                    </para>
+                </callout>
+            </calloutlist>
             <example>
                 <title>Recovering event data (evtget.cpp)</title>
                 <programlisting>
