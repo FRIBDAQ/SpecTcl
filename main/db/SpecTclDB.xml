@@ -1151,7 +1151,7 @@ int main (int argc, char** argv)
 
     delete svset-&gt;createMaskGate("mask", "em", "p1", 0x55555555); <co id='gatedef.mask' />
 
-    const auto&amp; gates = svset-&gt;listGates();   <co id='gatedef.list' />
+    auto gates = svset-&gt;listGates();   <co id='gatedef.list' />
     std::cout &lt;&lt; "Gates in the saveset:\n";
     for (int i = 0; i &lt; gates.size(); i++) {
         std::cout &lt;&lt; gates[i]-&gt;getInfo().s_info.s_name &lt;&lt; std::endl;
@@ -1307,9 +1307,86 @@ int main (int argc, char** argv)
             <example>
                 <title>Applying gates to spectra (applydef.cpp)</title>
                 <programlisting>
-                    
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;DBApplications.h&gt;            <co id='applydef.header' />
+
+
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; "Usage:: applydef database-name\n";
+        exit(EXIT_FAILURE);
+    }
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* svset = db.getSaveSet("a saveset");
+
+    delete svset-&gt;applyGate("1d", "s2");    <co id='applydef.apply' />
+    delete svset-&gt;applyGate("compound", "s1");
+
+    auto applications = svset-&gt;listApplications();
+    std::cout &lt;&lt; "Gate applications\n";   <co id='applydef.list' />
+    for (int i = 0; i &lt; applications.size(); i++) { 
+        std::cout &lt;&lt; applications[i]-&gt;getGateName()
+                  &lt;&lt; " is applied to "
+                  &lt;&lt; applications[i]-&gt;getSpectrumName() &lt;&lt; std::endl;
+        delete applications[i];
+    }
+    delete svset;
+    exit(EXIT_SUCCESS);
+
+}                    
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='applydef.header' >
+                    <para>
+                        The <filename>Applictions.h</filename>
+                        header defines the
+                        <classname>SpecTclDB::DBApplication</classname>
+                        class which encapsulates gate application
+                        records in the database.
+                        Including this file allows us to delete
+                        instances of this class as well as call
+                        methods on instances.
+                    </para>
+                </callout>
+                <callout arearefs='applydef.apply' >
+                    <para>
+                        To save a gate application, we only need
+                        provide the name of the gate and the
+                        name of the spectrum it should be applied
+                        to to the
+                        <methodname>applyGate</methodname> method
+                        of the saveset.
+                    </para>
+                </callout>
+                <callout arearefs='applydef.list' >
+                    <para>
+                        This section of code lists the gate applications.
+                        A good question is why we didn't just use
+                        <methodname>getInfo</methodname> and list
+                        out information cached there.  The answer
+                        is that the information structure contains
+                        information that's stored in the database for
+                        the application.  In keeping with holding
+                        the database in a normal form, the gate
+                        and spectra are stored as foreign keys into
+                        the gate and spectrum definitions tables.
+                    </para>
+                    <para>
+                        <methodname>getGateName</methodname> and
+                        <methodname>getSpectrumName</methodname>
+                        use those values to look up the actual
+                        gate and spectrum names.
+                    </para>
+                </callout>
+            </calloutlist>
+            
             <example>
                 <title>Saving and recovering tree variables (vardef.cpp)</title>
                 <programlisting>
@@ -1324,6 +1401,18 @@ int main (int argc, char** argv)
             </example>
             <example>
                 <title>Recovering event data (evtget.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Storing scaler readouts (sclstore.cpp)</title>
+                <programlisting>
+                    
+                </programlisting>
+            </example>
+            <example>
+                <title>Recovering scaler readouts (sclget.cpp)</title>
                 <programlisting>
                     
                 </programlisting>

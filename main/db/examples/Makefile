@@ -1,9 +1,15 @@
+#MAKEFILE for database sample programs.
+# Assumptions:
+#   SPECTCLHOME -> installation top level directory for SpecTcl 5.3-007 or higher.
+#   ROOTSYS     -> The top level directory of the version of Root SpecTcl
+#                  was compiled with.
+#
 CXXFLAGS=-I$(SPECTCLHOME)/include
 
 LDFLAGS=-L$(SPECTCLHOME)/lib -Wl,-rpath=$(SPECTCLHOME)/lib -lSpecTclDb \
 	-lTclGrammerApp -lSqlite3pp -lsqlite3 -Wl,-rpath=$(ROOTSYS)/lib
 
-all: makedb makesaveset lssaveset pardef specdef gatedef
+all: makedb makesaveset lssaveset pardef specdef gatedef applydef
 
 makedb: makedb.cpp
 	$(CXX) -o makedb $(CXXFLAGS) makedb.cpp $(LDFLAGS)
@@ -24,3 +30,5 @@ specdef: specdef.cpp
 gatedef: gatedef.cpp
 	$(CXX) -o gatedef $(CXXFLAGS) gatedef.cpp $(LDFLAGS)
 
+applydef: applydef.cpp
+	$(CXX) -o applydef $(CXXFLAGS) applydef.cpp $(LDFLAGS)

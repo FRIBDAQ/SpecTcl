@@ -44,7 +44,7 @@ int main (int argc, char** argv)
 
     delete svset->createMaskGate("mask", "em", "p1", 0x55555555);
     
-    const auto& gates = svset->listGates();
+    auto gates = svset->listGates();
     std::cout << "Gates in the saveset:\n";
     for (int i = 0; i < gates.size(); i++) {
         std::cout << gates[i]->getInfo().s_info.s_name << std::endl;
