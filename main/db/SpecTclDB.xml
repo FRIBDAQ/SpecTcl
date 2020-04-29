@@ -897,17 +897,415 @@ int main(int argc, char** argv)
             <example>
                 <title>Defining Spectra (specdef.cpp)</title>
                 <programlisting>
-                    
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;DBParameter.h&gt;
+#include &lt;DBSpectrum.h&gt;     <co id='specdef.header' />
+
+#include &lt;stdlib.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;stdexcept&gt;
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; "Usage:  specdef database-name\n";
+        exit(EXIT_FAILURE);
+    }
+
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* pSvSet(nullptr);
+    try {
+        pSvSet = db.getSaveSet("a saveset");
+
+        std::vector&lt;const char*&gt; s1Params = {"p1"};      <co id='specdef.pars' />
+        std::vector&lt;const char*&gt; s2Params = {"p1", "p2"}; 
+        SpecTclDB::SaveSet::SpectrumAxis x = {0, 1023, 1024};  <co id='specdef.axes' />
+        SpecTclDB::SaveSet::SpectrumAxis y = {-10.0, 1.0, 100};
+
+        std::vector&lt;SpecTclDB::SaveSet::SpectrumAxis&gt;
+            s1axes = {x};
+        std::vector&lt;SpecTclDB::SaveSet::SpectrumAxis&gt;
+            s2axes = {x, y};
+
+        delete pSvSet-&gt;createSpectrum("s1", "1", s1Params, s1axes); <co id='specdef.def' />
+        delete pSvSet-&gt;createSpectrum("s2", "2", s2Params, s2axes);
+
+        auto spectra = pSvSet-&gt;listSpectra();                 <co id='specdef.list' />
+        std::cout &lt;&lt; "Names of spectra in saveset:\n";
+        for (int i =0; i &lt; spectra.size(); i++) {
+            auto&amp; info = spectra[i]-&gt;getInfo();
+            std::cout &lt;&lt; info.s_base.s_name &lt;&lt; std::endl; <co id='specdef.info'/>
+            delete spectra[i];
+        }
+    }
+    catch (std::exception&amp; e) {
+        std::cerr &lt;&lt; e.what() &lt;&lt; std::endl;
+        delete pSvSet;
+        exit(EXIT_FAILURE);
+    }
+
+    delete pSvSet;
+    exit(EXIT_SUCCESS);
+}
+
                 </programlisting>
             </example>
+            <para>
+                We're not going to describe the elements of this example
+                that are repeats of code fragments in prior examples.
+            </para>
+            <calloutlist>
+                <callout arearefs='specdef.header' >
+                    <para>
+                        We will be calling methods of the
+                        <classname>DBSpectrum</classname>
+                        class, which encapsulates data from
+                        a spectrum definition in the database.
+                        We'll also be deleting dynamically allocated
+                        <classname>DBSpectrum</classname> objects.
+                        Both of these require knowledge of the shape of the
+                        object given in the class definition.
+                        The <filename>DBSpectrum.h</filename> header
+                        is included to provide that information
+                        to our program.
+                    </para>
+                </callout>
+                <callout arearefs='specdef.pars' >
+                    <para>
+                        Spectrum are incremented on data from parameters
+                        in events.  We defined two parameters in the
+                        <filename>pardef.cpp</filename> example;
+                        <literal>p1</literal> and <literal>p2</literal>.
+                        We're going to be making a 1d and 2d spectrum.
+                        These need one and two parameters respectively.
+                        The spectrum generating method requires a
+                        <classname>std::vector&lt;const char*&gt;</classname>
+                        where each element is a pointer to a parameter
+                        name that's already been defined. 
+                    </para>
+                    <para>
+                        This line and the next line define the vectors
+                        appropriate to the two spectra we'll be creating.
+                    </para>
+                </callout>
+                <callout arearefs='specdef.axes' >
+                    <para>
+                        Spectra require one or two axes as well.
+                        Axes are defined by low, and high limits and
+                        binning.  This line and the next define a pair
+                        of axes.  Note that the first one is arbitrary,
+                        but the second one, uses the low/high binning
+                        suggestions in the <literal>p2</literal>
+                        parameter definition.  A real program
+                        will query that parameter for its axis
+                        recommendations.  That's beyond the scope of
+                        this example however.
+                    </para>
+                    <para>
+                        The two lines that follow the axis definitions
+                        make a one element and two element vector of
+                        axis specifications respectively.  Vectors of
+                        axis specifications are what the spectrum
+                        generating method expects.
+                    </para>
+                </callout>
+                <callout arearefs='specdef.def' >
+                    <para>
+                        These two lines actually create the spectra.
+                        As with parameters, a dynamically allocated
+                        pointe to the spectrum object is returned, which
+                        we immediately <literal>delete</literal>.
+                        The parameters to <methodname>createSpectrum</methodname>
+                        are respectively, the name of the spectrum,
+                        the spectrum type (<literal>1</literal> is the
+                        type of 1d spectra and <literal>2</literal>
+                        is the type for 2d spectra).  The parameters needed
+                        by the spectrum and the spectrum axes.
+                    </para>
+                    <para>
+                        An optional additional parameter provides
+                        a string specification of the data type used
+                        for spectrum channels.  This defaults to
+                        <literal>long</literal> if not supplied but
+                        can also be <literal>word</literal> or
+                        <literal>byte</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='specdef.list' >
+                    <para>
+                        Asks the saveset for a list of the spectra
+                        that have been defined.  The return value is
+                        an indexable container that holds pointers to
+                        dynamically allocated <classname>DBSpectrum</classname>
+                        objects.
+                    </para>
+                </callout>
+                <callout arearefs='specdef.info' >
+                    <para>
+                        The spectrum information struct is complex enough
+                        that it is divided into several pieces. The
+                        piece selected by <structfield>s_base</structfield>
+                        contains the base information about the spectrum,
+                        including the type and spectrum name.
+                    </para>
+                    <para>
+                        The loop outputs the name sof all spectra
+                        defined in the saveset to standard output.
+                    </para>
+                </callout>
+            </calloutlist>
+                        <para>
+                The gate definition API in <classname>SavSet</classname>
+                is the most complex of the APIs. This is because SpecTcl supports
+                a rich set of gate types.  There are are essentially
+                three major classes of gate:
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      Gates that specify a region of interest in a subset
+                      of the event's parameter space.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Gates that specify a logical operation
+                      on other gates.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Gates that specify a bitwise operation and comparison
+                      on a mask applied to a single parameter.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                The point gates are, for convenience, further
+                subdivided into
+                <firstterm>1-d</firstterm> gates, which specify
+                lower and upper bounds that define a slice of valuees,
+                and <firstterm>2-d</firstterm> gates, which
+                define a 2-d region of parameter space in pairs
+                of parameters.
+                Regardless of the gate type, all gates are
+                encapsulated in a <classname>DBGate</classname>
+                class which holds the database information
+                describing the gate.
+            </para>
+            <para>
+                The information cached for a gate is similarly
+                more complex.  We'll look at that in detail
+                in the reference man pages on the
+                <classname>DBGate</classname> class.
+            </para>
+            <para>
+                Let's look at a simple program that generates
+                one of each type of these gates.  In past examples,
+                we've made a token attempt at error handling by
+                wrapping the body of the code in a try/catch
+                block.  From now on we will not do any error
+                handling, for the sake of brevity.
+            </para>
+            <para>
+                This program assums a database that has had
+                the <command>makesaveset</command> and
+                <command>pardef</command>  example programs
+                run on it.
+            </para>
             <example>
                 <title>Defining gates (gatedef.cpp)</title>
                 <programlisting>
-                    
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;DBGate.h&gt;         <co id='gatedef.header' />
+
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+
+
+int main (int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; 'Usage:: gatedef database-name\n";
+        exit(EXIT_FAILURE);
+    }
+
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet*  svset = db.getSaveSet("a saveset");
+
+    std::vector&lt;const char*&gt; p1ds = {"p1"};  <co id='gatedef.1d' />
+
+    delete svset-&gt;create1dGate("1d", "s", p1ds, 100, 200);
+
+    std::vector&lt;const char*&gt; p2ds = {"p1", "p2"};  <co id='gatedef.2d' />
+    std::vector&lt;std::pair&lt;double, double&gt;&gt; pts2d {
+      {100, 0}, {200, 0}, {200, 200}, {100, 200}
+    };
+    delete svset-&gt;create2dGate("2d", "c", p2ds, pts2d);
+
+    std::vector&lt;const char*&gt; gatenames={"1d", "2d"};   <co id='gatedef.compound' />
+    delete svset-&gt;createCompoundGate("compound", "+", gatenames);
+
+    delete svset-&gt;createMaskGate("mask", "em", "p1", 0x55555555); <co id='gatedef.mask' />
+
+    const auto&amp; gates = svset-&gt;listGates();   <co id='gatedef.list' />
+    std::cout &lt;&lt; "Gates in the saveset:\n";
+    for (int i = 0; i &lt; gates.size(); i++) {
+        std::cout &lt;&lt; gates[i]-&gt;getInfo().s_info.s_name &lt;&lt; std::endl;
+        delete gates[i];
+    }
+
+    delete svset;
+    exit(EXIT_SUCCESS);
+}
+
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='gatedef.header' >
+                    <para>
+                        The <filename>DBGate.h</filename> header defines
+                        the shape and method sof the
+                        <classname>SpecTclDB::DBGate</classname> class.
+                        We need these definitions because we are going
+                        to all methods on class instances and
+                        <literal>delete</literal> them.
+                    </para>
+                </callout>
+                <callout arearefs='gatedef.1d' >
+                    <para>
+                        This section of code creates a 1-d gate.
+                        1-d gates define a slice in parameter space.
+                        Examples of 1-d gates are slices and gamma slices.
+                        Since a gamma slice is defined on any number
+                        of parameters, the method that creates 1-d
+                        gates needs a vector of parameter names, rather
+                        than a single parameter name.
+                    </para>
+                    <para>
+                        Once the parameter name vector is created,
+                        we can call
+                        <methodname>create1dGate</methodname>
+                        passing the name of the new gate, the
+                        gate type code (slice in this case), the
+                        vector of parameter names the gate needs and
+                        the limits of the gate.
+                    </para>
+                </callout>
+                <callout arearefs='gatedef.compound' >
+                    <para>
+                        The only difference between a 1d and
+                        a 2d gate (e.g. band, contour, gamma contour) is that
+                        the shape of the region of interest is defined
+                        by a vector of x/y coordinate pairs.  These
+                        coordinates are in parameter space (not spectrum space).
+                    </para>
+                    <para>
+                        This section of code creates  a
+                        contour gate that consists of a square
+                        in the parameter space defined by
+                        <literal>p1</literal>, <literal>p2</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='gatedef.compound' >
+                    <para>
+                        Compound gates define a logical combination
+                        of existing gates; for example a gate that
+                        is true if all component gates are true or a gate that is
+                        true if any of the component gates is true.
+                        The  not gate is also a compound gate that
+                        depends on exactly one gate.  Similarly, True and False
+                        gates are compound gates that depend on no
+                        other gate.
+                    </para>
+                    <para>
+                        This section of code creates a compound gate
+                        that is true when either of the 1d or
+                        2d gates we previously created is true.
+                    </para>
+                </callout>
+                <callout arearefs='gatedef.mask' >
+                    <para>
+                        A mask gate performs specific bitwise operations
+                        on parameters that are presumed to actually be
+                        integers.  The result of those bitwise
+                        operations determines the truth or falsity
+                        of a gate.
+                    </para>
+                    <para>
+                        This section of code creates an
+                        <firstterm>equal mask gate</firstterm>.
+                        The bitmask is bitwise anded with the
+                        value of the parameter on each event and,
+                        if the result is equal to that mask, the
+                        gate is satisfied.
+                    </para>
+                </callout>
+                <callout arearefs='gatedef.list' >
+                    <para>
+                        This section of code lists the gates
+                        in the save set. The method
+                        <methodname>listGates</methodname> returns a container
+                        that has pointers to <classname>SpecTclDB::DBGate</classname>
+                        that contain cached information about all gates defined
+                        for the saveset in the database.
+                        The <classname>SpecTclDB::DBGate</classname> objects
+                        are dynamically created and, therefore,
+                        must be deleted when you no longer need them.
+                    </para>
+                    <para>
+                        As with all database objects, the
+                        <methodname>getInfo</methodname> method
+                        returns a const reference to a struct
+                        that defines the information in the
+                        database for the gate.  For gates, this
+                        struct has quite a few sub-pieces. The
+                        <structfield>m_info</structfield> sub
+                        structure contains base information all
+                        gates have.  The <structfield>s_name</structfield>
+                        field in that struct is an
+                        <classname>std::string</classname>
+                        containing the gate's name.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Gates, by themselves are useless.  They only have meaning, and in
+                SpecTcl are only evaluated, if they are applied
+                to a spectrum or spectra. When a gate is applied
+                to a spectrum, that spectrum can only be incremented
+                for events that make that gate true.
+            </para>
+            <para>
+                All SpecTcl spectra have exactly one gate applied
+                to it at all times.  When initially created, a SpecTcl
+                spectrum has a pre-defined True gate applied to it. By convention,
+                there's no need to save either that true gate
+                nor the application of true gates to spectra.
+            </para>
+            <para>
+                Note that the database does not enforce the
+                requirement that only one gate is applied at any
+                time to any spectrum.  Restoring from a saveset
+                that applies more than one gate to a spectrum
+                will result in the application of one of those
+                gates (unpredictably), to the spectrum.  The
+                code used by SpecTcl to create savesets ensures this
+                does not happen.
+            </para>
+            <para>
+                The example below assumes that the databas it
+                is run on has hasd
+                <command>makesaveset</command>, <command>pardef</command>,
+                <command>gatedef</command> and
+                <command>specdef</command>previously
+                run on it.
+            </para>
             <example>
-                <title>Applying gates to spectru (applydef.cpp)</title>
+                <title>Applying gates to spectra (applydef.cpp)</title>
                 <programlisting>
                     
                 </programlisting>
