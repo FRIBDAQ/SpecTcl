@@ -10,3 +10,5 @@ install-exec-hook:
 	$(mkinstalldirs) @prefix@/QtGUI
 	$(INSTALL_PROGRAM) PyQtGUI @prefix@/QtGUI
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/QtGUI
+
+EXTRA_DIST = *.py 

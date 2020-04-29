@@ -5,14 +5,14 @@
 class CPyConverter {
 
 %TypeHeaderCode
-#include <CPyConverter.h>
+#include "CPyConverter.h"
+#include "dataAccess.h"
 #include <Python.h>
 #include <iostream>
 #include <vector>
 #include <random>
 #include <string>
 #include <chrono>
-#include <dataAccess.h>
 %End
 
  public:

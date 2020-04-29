@@ -1,3 +1,4 @@
+import sys
 import os
 import sipconfig
 
@@ -7,11 +8,18 @@ basename = "CPyConverter"
 # system.
 build_file = basename + ".sbf"
 
+_file = basename + ".sip"
+
+pwdfile = sys.argv[1]+"/"+_file
+pwdlib = "-L"+sys.argv[2]+" -lCPyConverter -Wl,-rpath="+sys.argv[2]
+installdir = sys.argv[2]
+
 # Get the SIP configuration information.
 config = sipconfig.Configuration()
 
 # Run SIP to generate the code.
-os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, basename + ".sip"]))
+os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, pwdfile]))
+config.default_bin_dir = installdir
 
 # Create the Makefile.
 makefile = sipconfig.SIPModuleMakefile(config, build_file,makefile="Makefile.sip")
@@ -21,8 +29,12 @@ makefile = sipconfig.SIPModuleMakefile(config, build_file,makefile="Makefile.sip
 # ".dll" extension on Windows).
 makefile.extra_libs = [basename]
 
+includedir = sys.argv[1]
+makefile.extra_include_dirs = [includedir]
+
 # Search libraries in ../src directory
-makefile.extra_lflags= ['-L../src/.libs/ -lCPyConverter -Wl,-rpath=../src/.libs']
+#makefile.extra_lflags= ['-L. -lCPyConverter -Wl,-rpath=.']
+makefile.extra_lflags= [pwdlib]
 
 # Add extra cxxflags to be passed to C++ compiler
 makefile.extra_cxxflags = [ "-std=c++11" ]

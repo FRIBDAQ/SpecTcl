@@ -25,7 +25,7 @@ SUBDIRS = Replace \
 					docs \
 					scalerWrapper \
 					packaged \
-					Python db # PyQtGUI
+					Python db PyQtGUI
 
 ACLOCAL_AMFLAGS=-I m4
 
