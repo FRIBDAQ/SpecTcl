@@ -1386,13 +1386,106 @@ int main(int argc, char** argv)
                     </para>
                 </callout>
             </calloutlist>
-            
+            <para>
+                Sometimes we want to write computations that can
+                be steered at run-time.  For example, suppose we want to apply a
+                linear energy calibration to a raw ADC parameter.  This
+                calibration requires two values, a slope and offset.
+                These values will not, in general, be known in advance
+                but must be determined.
+            </para>
+            <para>
+                Tree variables wrap Tcl variables in a way that makes them
+                easy for the user to set and modify yet appear
+                like ordinary double precision values to the C++
+                code.  In addition tree variables have associated,
+                with them units of measure to remind users how
+                to properly set them (was that slope counts/KeV, counts/MeV?).
+            </para>
+            <para>
+                Being able to save the analysis conditions so that
+                they can be repeatably restored requires that
+                tree variable definitions and values be saved
+                in the database as well.
+            </para>
+            <para>
+                The C++ API for tree variables is demonstrated
+                in the example below.
+            </para>
             <example>
                 <title>Saving and recovering tree variables (vardef.cpp)</title>
                 <programlisting>
-                    
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;DBTreeVariable.h&gt;  <co id='tv.header' />
+
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+
+int main(int argc, char** argv)
+{
+    if (argc !=2) {
+        std::cerr &lt;&lt; "Usage: vardb database-file\n";
+        exit(EXIT_FAILURE);
+    }
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* svset = db.getSaveSet("a saveset");
+
+    delete svset-&gt;createVariable("p1.slope", 1.0, "KeV/Counts");
+    delete svset-&gt;createVariable("p1.offset", 0.0, "KeV");   <co id='tv.create' />
+
+    delete svset-&gt;createVariable("p2.slope", 1.0, "KeV/Counts");
+    delete svset-&gt;createVariable("ps.offset", 0.0, "KeV");
+
+    auto vars = svset-&gt;listVariables();      <co id='tv.list' />
+    std::cout &lt;&lt; " Tree variables: \n";
+    for (int i = 0; i &lt; vars.size(); i++) {
+        const auto&amp; info = vars[i]-&gt;getInfo();
+        std::cout &lt;&lt; info.s_name &lt;&lt; " = " &lt;&lt; info.s_value
+                  &lt;&lt; info.s_units &lt;&lt; std::endl;
+
+        delete vars[i];
+    }
+    delete svset;
+    exit(EXIT_SUCCESS);
+}
+
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='tv.header' >
+                    <para>
+                        The <filename>DBTreeVariable.h</filename>
+                        header defines the <classname>SpecTclDB::DBTreeVariable</classname>
+                        class which is wraps a database definition
+                        for a tree variable.
+                    </para>
+                </callout>
+                <callout arearefs='tv.create' >
+                    <para>
+                        These lines create four tree variables.
+                        These might be initial value for a linear
+                        calibration.  Each call to
+                        <methodname>createVariable</methodname>
+                        needs a variable name, its current value
+                        and units of measure.  It is customary
+                        to use an empty string as the units
+                        of measure for unit-less values.
+                    </para>
+                </callout>
+                <callout arearefs='tv.list' >
+                    <para>
+                        This section of code lists the tree
+                        variables that are defined in this save
+                        set, their values and units of measure.
+                        Note that since
+                        <methodname>listVariables</methodname>
+                        returns a container of pointers to dynamically
+                        created objects, we <literal>delete</literal>
+                        each pointer after we are done with it.
+                    </para>
+                </callout>
+            </calloutlist>
             <example>
                 <title>Storing event data (evtstore.cpp)</title>
                 <programlisting>
