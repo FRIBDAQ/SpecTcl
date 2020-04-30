@@ -1,0 +1,4 @@
+#!/bin/sh
+# -*- python -*-
+# The next line is executed by /bin/sh, but not python \
+python3 python_methods.py
