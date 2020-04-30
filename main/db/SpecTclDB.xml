@@ -1926,9 +1926,129 @@ int main(int argc, char** argv)
             <example>
                 <title>Recovering scaler readouts (sclget.cpp)</title>
                 <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+
+                       <co id='sclget.process' />
+void processScalers(const SpecTclDB::SaveSet::ScalerReadout&amp; readout)
+{
+    double start = readout.s_startOffset;
+    start /= readout.s_divisor;
+    double end   = readout.s_stopOffset;
+    end   /= readout.s_divisor;
+    std::cout &lt;&lt; "Scaler readout: Sid: " &lt;&lt; readout.s_sourceId
+              &lt;&lt; " from " &lt;&lt; start &lt;&lt; " to " &lt;&lt; end &lt;&lt; " seconds into the run \n                  ";
+    std::cout &lt;&lt; "Readout occured at: " &lt;&lt; ctime(&amp;readout.s_time) &lt;&lt; std::endl;
+
+    for (int i =0; i &lt; readout.s_values.size(); i++) {
+        std::cout &lt;&lt; "   channel " &lt;&lt; i &lt;&lt; " : " &lt;&lt; readout.s_values[i] &lt;&lt; std::                  endl;
+    }
+    std::cout &lt;&lt; "------------------------------\n";
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; "Usage:: sclget database-file\n";
+        exit(EXIT_FAILURE);
+    }
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* pS = db.getSaveSet("a saveset");
+
+    int runid = pS-&gt;openRun(2);
+    auto info = pS-&gt;getRunInfo(runid);   <co id='sclget.runinfo' />
+    std::cout &lt;&lt; "Dumping scalers for run: " &lt;&lt; info.s_runNumber &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Title: " &lt;&lt; info.s_title &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Start time: " &lt;&lt; ctime(&amp;info.s_startTime) &lt;&lt; std::endl;
+    std::cout &lt;&lt; "End time  : " &lt;&lt; ctime(&amp;info.s_stopTime) &lt;&lt; std::endl;
+
+    void* ctx = pS-&gt;openScalers(runid);  <co id='sclget.open' />
+    SpecTclDB::SaveSet::ScalerReadout scalers; <co id='sclget.read' />
+    while(pS-&gt;readScaler(ctx, scalers)) { 
+        processScalers(scalers);
+    }
+
+    pS-&gt;closeScalers(ctx);              <co id='sclget.close' />
+
+
+    delete pS;
+    exit(EXIT_SUCCESS);
+}
                     
                 </programlisting>
             </example>
+            <calloutlist>
+                <callout arearefs='sclget.process' >
+                    <para>
+                        This function is a stand-in for any processing you
+                        might want to do on a scaler readout.
+                        In this case we just output information
+                        about the scaler read and the channel
+                        values to <literal>stdout</literal>.
+                    </para>
+                </callout>
+                <callout arearefs='sclget.runinfo' >
+                    <para>
+                        The <methodname>getRunInfo</methodname>
+                        method fetches top level information
+                        about the run given its id
+                        (gotten from <methodname>openRun</methodname>).
+                        The run number, title, start and stop time
+                        are elements of the
+                        <type>SpecTclDB::SaveSet::RunInfo</type>
+                        struct this method returns.
+                    </para>
+                </callout>
+                <callout arearefs='sclget.open' >
+                    <para>
+                        As with getting events from the database,
+                        scaler readout information is gotten by
+                        iterating over the result set from a
+                        query executed on the database.
+                        <methodname>openScalers</methodname> executes
+                        the query and returns a context that
+                        can be used to iterate over the result set
+                        from that query.
+                    </para>
+                </callout>
+                <callout arearefs='sclget.read' >
+                    <para>
+                        The <methodname>readScaler</methodname>
+                        gets the next result from the result set
+                        indicated by the context parameter.
+                        The information in that result are loaded
+                        into the <type>SpecTclDB::SaveSet::ScalerReadout</type>
+                        struct passed to it (by reference).
+                    </para>
+                    <para>
+                        The return value of <methodname>readScaler</methodname>
+                        is non zero if there was another result or
+                        zero if there was no next result set
+                        item.
+                    </para>
+                    <para>
+                        All we do with the data gotten from
+                        the database is call
+                        <function>processScalers</function>.
+                    </para>
+                </callout>
+                <callout arearefs='sclget.close' >
+                    <para>
+                        Once you are done iterating over the
+                        result set, you must free the resources associated
+                        with the context.   This is done by
+                        calling <methodname>closeScalers</methodname>
+                        passing the context.
+                    </para>
+                    <para>
+                        It is not legal to use the context again, once
+                        it has been closed.
+                    </para>
+                </callout>
+            </calloutlist>
         </section>
         
     </chapter>
