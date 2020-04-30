@@ -53,8 +53,19 @@
             </listitem>
             <listitem>
                <para>
-                   A description of the Tcl APIs to the C++ API.
+                   A description of the Tcl bindings to the C++ API.
+                   These bindings can be used in any environment,
+                   not just SpecTcl.
                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    A description of a high level Tcl API that
+                    is SpecTcl centric.  This includes command
+                    and procs for saving and restoring objects
+                    in the database as well as recording
+                    and playing back decoded events.
+                </para>
             </listitem>
             <listitem>
                <para>
@@ -2052,6 +2063,7 @@ int main(int argc, char** argv)
         </section>
         
     </chapter>
+    
     <appendix>
         <title>Reference material</title>
         <section>
