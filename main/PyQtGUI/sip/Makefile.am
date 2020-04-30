@@ -1,5 +1,5 @@
 clean-local:
-	make clean -f Makefile.sip && rm sip* *.sbf
+	make clean -f Makefile.sip 
 
 install-exec-hook: 
 	$(mkinstalldirs) @prefix@/QtGUI
