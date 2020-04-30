@@ -1818,12 +1818,111 @@ int main (int argc, char** argv)
                     </para>
                 </callout>
             </calloutlist>
+            <para>
+                In addition to storing decoded event data, the
+                database schema supports storing and retrieving
+                the results of scaler reads.  The next pair of
+                examples exercise this capability.
+            </para>
             <example>
                 <title>Storing scaler readouts (sclstore.cpp)</title>
                 <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+#include &lt;SaveSet.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;iostream&gt;
+#include &lt;time.h&gt;
+
+
+std::vector&lt;uint32_t&gt; getScalers()  <co id='sclstore.produce' />
+{
+    static uint32_t       chan1 = 0;
+    std::vector&lt;uint32_t&gt; result;
+    for (int i = 0; i &lt; 32; i++) {
+        result.push_back(chan1*i);
+    }
+
+    chan1++;
+    return result;
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr &lt;&lt; "Usage: sclstore database-name\n";
+        exit(EXIT_FAILURE);
+    }
+    SpecTclDB::CDatabase db(argv[1]);
+    SpecTclDB::SaveSet* pS = db.getSaveSet("a saveset");
+
+    time_t now =time(nullptr);
+    int offset = 0;
+    int runid = pS-&gt;startRun(2, "This is run 2", now);
+
+    // simulate Read every 10 seconds 100 times:
+
+    for (int i = 0; i &lt; 100; i++) {   <co id='sclstore.save' />
+        now += 10;
+        auto scalers = getScalers();
+        pS-&gt;saveScalers(
+            runid, 1, offset, offset+10, 1, now, 32, scalers.data()
+        );
+        offset += 10;
+    }
+    pS-&gt;endRun(runid, now);
+
+    delete pS;
+    exit(EXIT_SUCCESS);
+}
                     
                 </programlisting>
             </example>
+            <para>
+                We've already seen show to record the start and
+                end of run information, therefore, we won't
+                repeat that discussion here.
+            </para>
+            <calloutlist>
+                <callout arearefs='sclstore.produce' >
+                    <para>
+                        We need something to generate our scaler
+                        data.  normally, these will come from ring items.
+                        In SpecTcl event processors, the
+                        <methodname>OnOther</methodname> method allows you to
+                        catch and process scaler data.  SpecTcl's
+                        code to write event data to the database h as an
+                        implementation for this method that decodes
+                        the scaler ring item and writes it to the
+                        database.
+                    </para>
+                    <para>
+                        In this case, since we are just writing a
+                        sample program, we'll just generate 32
+                        scaler values that change somewhat each time.
+                    </para>
+                </callout>
+                <callout arearefs='sclstore.save' >
+                    <para>
+                        This loop simulates the scaler readouts
+                        for a run that's 1000 seconds long with scaler
+                        readouts every 10 seconds.
+                        <methodname>saveScalers</methodname> takes
+                        the run Id to associate the scalers with the
+                        correct run.  It also takes two offset
+                        values representing the start and end time into
+                        the run over which the scalers counted.
+                        The next parameters is a divisor. If you
+                        divide the start and end times by the
+                        divisor you should get the number of seconds
+                        into the run for each of those values. This supports
+                        offsets that have sub-second precision.
+                        Following the divisor is a clock timestamp
+                        indicating when this read took place.
+                        The final pair of parameters is the
+                        number of scalers and a pointer to them.
+                    </para>
+                </callout>
+            </calloutlist>
             <example>
                 <title>Recovering scaler readouts (sclget.cpp)</title>
                 <programlisting>

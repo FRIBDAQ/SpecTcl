@@ -10,7 +10,7 @@ LDFLAGS=-L$(SPECTCLHOME)/lib -Wl,-rpath=$(SPECTCLHOME)/lib -lSpecTclDb \
 	-lTclGrammerApp -lSqlite3pp -lsqlite3 -Wl,-rpath=$(ROOTSYS)/lib
 
 all: makedb makesaveset lssaveset pardef specdef gatedef applydef vardef \
-	evtstore evtget
+	evtstore evtget sclstore
 
 makedb: makedb.cpp
 	$(CXX) -o makedb $(CXXFLAGS) makedb.cpp $(LDFLAGS)
@@ -42,3 +42,6 @@ evtstore: evtstore.cpp
 
 evtget: evtget.cpp
 	$(CXX) -o evtget $(CXXFLAGS) evtget.cpp $(LDFLAGS)
+
+sclstore: sclstore.cpp
+	$(CXX) -o sclstore $(CXXFLAGS) sclstore.cpp $(LDFLAGS)

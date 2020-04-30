@@ -52,7 +52,12 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 	$(mkinstalldirs) @prefix@/TclLibs/database
 	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
-	echo package ifneeded SpecTclDB 1.0 [list load [file join \$$dir libSpecTclDbTcl.so]] > @prefix@/TclLibs/database/pkgIndex.tcl
+	echo package ifneeded SpecTclDB 1.0 \
+	[list load [file join \$$dir libSpecTclDbTcl.so]] > \
+	@prefix@/TclLibs/database/pkgIndex.tcl
+	$(mkinstalldirs) @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/Makefile @prefix@/share/dbexamples
 
 
 ################################################################
