@@ -56,7 +56,7 @@ install-exec-hook:
 	[list load [file join \$$dir libSpecTclDbTcl.so]] > \
 	@prefix@/TclLibs/database/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/share/dbexamples
-	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/*.cpp *.tcl @prefix@/share/dbexamples
 	$(INSTALL_DATA) @srcdir@/Makefile @prefix@/share/dbexamples
 
 
