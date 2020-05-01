@@ -2063,7 +2063,475 @@ int main(int argc, char** argv)
         </section>
         
     </chapter>
-    
+    <chapter>
+        <title>SpecTcl classes that record event data</title>
+        <para>
+            The database can hold event and scaler data associated
+            with a run. These data are placed in a saveset. SpecTcl
+            records at most one run per saveset and includes in that
+            save set, the analysis conditions in effect at the time
+            the run was analyzed.
+        </para>
+        <para>
+            This also allows data from a run to be recorded more than
+            once, using differing analysis configurations.
+        </para>
+        <para>
+            This section describes the classes used by SpecTcl
+            to record event data.  Note that in most cases, you don't
+            need to use these classes.  They are instantiated
+            by the SpecTcl database GUI and automatically
+            placed in the analysis and data sink piplines as
+            requested.
+        </para>
+        <para>
+            These classes are organized into two layers.
+            The lowest layer provides an interface between
+            runs and the database API.  The upper layer provides
+            an interface between SpecTcl's flow of control
+            and the lower layer.
+        </para>
+        <para>
+            The lower layer's header is <filename>CDBEvents.h</filename>.
+            The upper layer's header is <filename>Events.h</filename>.
+        </para>
+        <section>
+            <title>Lower layer of SpecTcl's event recording/playback code.</title>
+            <para>
+                The lower layer of SpecTcl's event recording
+                and playback system consists of a pair of classes.
+                <classname>CDBEventWriter</classname>, as the
+                name implies, is used to record unpacked parameters and
+                scalers to the database.
+                <classname>CDBEventPlayer</classname>, as its name
+                implies is used to read event data back from the
+                database for a run in a save set.
+                <classname>CDBEventPlayer</classname> only reads
+                event data.  It does not read scaler data. The
+                Tcl SpecTcl interface, however, has a mechanism
+                to test for the existence of scaler data and recover
+                it for a run in a saveset.
+            </para>
+            <para>
+                <classname>CDBEventWriter</classname>
+                the following methods of interest:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>beginRun</methodname>
+                       <methodparam>
+                           <type>const RingItem* </type>
+                           <parameter>pStateTransition</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        This method must be the first one called
+                        to start recording a run. It provides
+                        a ring item, which must be a
+                        <literal>BEGIN_RUN</literal> item.
+                        It records information about the run
+                        and the start time of the run
+                        using data in the ring item.
+                       </para>
+                       <para>
+                        This method handles multiple begin runs
+                        (as happens in event built data) by only
+                        saving information from the first
+                        call.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>endRun</methodname>
+                       <methodparam>
+                           <type>const RingItem*   </type>
+                           <parameter>pStateTransition</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        This method should be called when
+                        end of run rinng items are available.
+                        Note that the code is able to detect
+                        multiple ends per run (as will be the
+                        case in event built data) and, as with
+                        the <methodname>beginRun</methodname>
+                        call only saves information from the first one.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>scaler</methodname>
+                       <methodparam>
+                           <type>const RingItem*   </type><parameter>pScaler</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        The <parameter>pScaler</parameter> parameter
+                         must be a <literal>PERIODIC_SCALER</literal> ring item.
+                         I is added to the scaler readouts for the run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>event</methodname>
+                       <methodparam>
+                           <type>CEvent*      </type><parameter>pEvent</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Adds an event to the database. Note that
+                        events are added in bunches for the sake of
+                        efficiency.  The bunch size is set at
+                        construction time and has a default value
+                        that's believed to be reasonable.
+                       </para>
+                       <para>
+                        The <parameter>pEvent</parameter> is a pointer
+                        to the object that contains unpacked data from
+                        SpecTcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>setAutoSaveSpectra</methodname>
+                       <methodparam>
+                           <type>const std::vector&lt;std::string&gt;&amp;</type>
+                           <parameter>spectra</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        The SpecTcl code that manages saving events to the database
+                        provides the capability for automatically saving the contents
+                        of a set of spectra at the end of the run.
+                        THese spectra are referred to as
+                        <firstterm>autosaved spectra</firstterm>.
+                       </para>
+                       <para>
+                        This method sets the names of the spectra that will be
+                        autosaved from <parameter>spectra</parameter>.
+                        Any spectra previously deisgnated as autosaved
+                        are no longer autosaved (unless they are in the
+                        <parameter>spectra</parameter> parameter).
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>addAutoSaveSpectrum</methodname>
+                       <methodparam>
+                           <type>const char*</type><parameter> name</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Adds the spectrum named by <parameter>name</parameter>
+                        to the list of autosaved spectra.  Existing autosaved
+                        spectra are not removed from the list.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>void </type>
+                       <methodname>removeAutoSaveSpectrum</methodname>
+                       <methodparam>
+                           <type>const char* </type><parameter>name</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        If the spectrum named <parameter>name</parameter>
+                        is in the auto saved list, it is removed from
+                        that list.  All other spectra in that list
+                        are not affected.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>std::vector&lt;RunInfo&gt; </type>
+                       <methodname>listRuns</methodname>
+                       <void />
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Returns information about all runs saved in the
+                        database. The run information includes the
+                        name of the saveset it was recorded in.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>CDBEventPlayer*</type>
+                       <methodname>playRun</methodname>
+                       <methodparam>
+                           <type>int</type><parameter>run</parameter>
+                        <initializer></initializer>
+                       </methodparam>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Locates the first saveset that has the
+                        requested <parameter>run</parameter> recorded in it
+                        and creates a playback object for that
+                        run.
+                       </para>
+                       <para>
+                        See the description of <classname>CDBEventPlayer</classname>.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                To play back data the low level code supplies
+                a <classname>CDBEventPlayer</classname>. This
+                is constructed on a saveset and  the run number
+                of a save set that's known to be stored in
+                that saveset.
+            </para>
+            <para>
+                The following methods are then available:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                       <type>const SpecTclDB::SaveSet::Event&amp; </type>
+                       <methodname>next</methodname>
+                       <void />
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Returns a reference to the next event in the
+                        run.  This will be an empty event if you attempt
+                        to read past the last event. Note that
+                        the writer class does not write empty events to the
+                        database.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>
+                    <methodsynopsis>
+                        <type>std::string </type>
+                        <methodname>getTitle</methodname>
+                        <void />
+                        <modifier>const</modifier>
+                    </methodsynopsis>
+                   </term>
+                   <listitem>
+                       <para>
+                        Returns the run's title string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Upper layer of SpecTcl's event recording/playback code.</title>
+            <para>
+                The upper layer of SpecTcl event recording/playback code
+                consists of a pair of objects that interface into
+                SpecTcl's analysis system.  Specifically,
+                <classname>CDBProcessor</classname> is used
+                to write run starts stops and scalers to the
+                database.  It is an <classname>CEventProcessor</classname>
+                and will be added to the event processing pipeline
+                <classname>CDBSink</classname>, on the other hand
+                is a <classname>CEventSink</classname> and will be added
+                to the event sink pipline.  By the time the event sink pipline
+                is executed for an event, the event has been fully decoded and
+                can be written to the database.
+            </para>
+        </section>
+    </chapter>
+    <chapter>
+       <title>Tcl bindings to the C++ API</title>
+       <para>
+        The Tcl bindings to the C++ API closely mimic the C++
+        API.  Tcl is a command based language. The C++ API is object
+        oriented.  The standard way to do object oriented programming
+        or present object oriented APIs is through
+        <firstterm>command ensembles</firstterm>.
+       </para>
+       <para>
+        A Tcl command ensemble is a command with subcommands.
+        You can think of a command as a class or an object and
+        the subcommand as methods (class or object level).
+        You can imagine a Tcl command that represents a class.
+        It might have construction subcommand that would dynamically
+        generate a new command ensemble that represents an object.
+        This is the approach taken by the Tcl bindings.
+       </para>
+       <para>
+        The Tcl bindingsx are in a package called
+        <literal>SpecTclDB</literal> which is stored in the
+        SpecTcl Tcl package library.  There are two ways to bring that
+        library directory tree into the Tcl package search path:
+       </para>
+       <orderedlist>
+        <listitem>
+           <para>
+              Via an environment variable.  For example, suppose
+              the environment variable SPECTCLHOME is defined and is the
+              top level directory in which the version of SpecTcl
+              you are using is stored.
+              <command>TCLLIBPATH=$SPECTCLHOME/TclLibs tclsh</command>
+              will run a Tcl shell that includes the SpecTcl Tcl library tree
+              in the search path.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Extension of the the Tcl <varname>auto_path</varname>
+              variable.  Suppose, as before SPECTCLHOME is defined
+              to be the top level installation directory of your SpecTcl
+              version, the following script fragment will bring the
+              SpecTcl Tcl packages into your search path.
+           </para>
+           <informalexample>
+            <programlisting>
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+            </programlisting>
+           </informalexample>
+           <para>
+            The global <varname>env</varname> array contains
+            the values of environment variables indexed by variable
+            name.  The <command>file join</command> command joins file
+            system path elments and <command>lappend</command>
+            appends items to a list, in this case the
+            <varname>auto_path</varname> search list.
+           </para>
+        </listitem>
+       </orderedlist>
+       <para>
+        Our examples will use the second form.  They will mirror
+        closely the examples in the C++ API section.  The examples
+        are deployed in the <filename>share/dbexamples</filename>
+        directory.
+       </para>
+       <example>
+        <title>Creating an empty database in Tcl (makedb.tcl)</title>
+        <programlisting>
+#!/bin/sh       <co id="makedb.tcl.boilerplate" />
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs] <co id='makedb.tcl.autopath' />
+package require SpecTclDB                   <co id='makedb.tcl.require' />
+
+if {[llength $argv] != 1} {                 <co id='makdeb.tcl.args' />
+    puts stderr "Usage: makedb.tcl database-file"
+    exit -1
+}
+
+DBTcl create [lindex $argv 0]           <co id='makedb.tcl.create' />
+
+        </programlisting>
+       </example>
+       <calloutlist>
+        <callout arearefs='makedb.tcl.boilerplate' >
+            <para>
+                This bit of boilerplate is a recommended way to prefix
+                executable Tcl scripts.  It starts the
+                <command>/bin/sh</command> shell, which is almost always
+                a legal shell and then some continuation line
+                magic executes the Tcl interpreter passing the
+                file back to itself as a parameter.  The
+                <literal>\</literal> in the line before the
+                <command>exec</command> command ensures that line
+                is not seen by the Tcl intepreter as it continues the
+                comment line.  The Tcl interpreter then continues
+                to interpret the script in the remainder of the file.
+            </para>
+        </callout>
+        <callout arearefs='makedb.tcl.autopath' >
+            <para>
+                As described previously, this line appends the
+                SpecTcl Tcl library directory tree to the
+                <command>package require</command> search path.
+            </para>
+        </callout>
+        <callout arearefs='makedb.tcl.require' >
+            <para>
+                Brings the <literal>SpecTclDB</literal> package into the
+                script. This defines the command ensemble that
+                makes up the package.
+            </para>
+        </callout>
+        <callout arearefs='makdeb.tcl.args' >
+            <para>
+                The <varname>argv</varname> list contains
+                the command parameters that follow the command.
+                Note that the command itself is not included. 
+            </para>
+        </callout>
+        <callout arearefs='makedb.tcl.create' >
+            <para>
+                Creates the database file specified by the first
+                command argument and initializes it to contain the
+                SpecTcl database Schema.
+            </para>
+        </callout>
+       </calloutlist>
+       <para>
+        The next example shows how to make a save set in an
+        existing database file. We'll learn how to form a connection
+        to a database and what that means. We'll then use that
+        connection to create a new saveset.
+       </para>
+       <example>
+        <title>Creating savesets in a database (makesaveset.tcl)</title>
+        <programlisting>
+
+        </programlisting>
+       </example>
+    </chapter>
     <appendix>
         <title>Reference material</title>
         <section>
