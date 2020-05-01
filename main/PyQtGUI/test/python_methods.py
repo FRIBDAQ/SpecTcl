@@ -37,11 +37,23 @@ class TestCore(unittest.TestCase):
         self.assertEqual(len(d1[0]), len(d2[0]), "Should be 100")
         self.assertEqual(len(d1[1]), len(d2[1]), "Should be 2")        
 
+        
     def test_df_content(self):
+        def convert(version):
+            l = [int(x, 10) for x in version.split('.')]
+            l.reverse()
+            version = sum(x * (10 ** i) for i, x in enumerate(l))
+            return version
+            
         df1=pd.DataFrame({'a':[1,2,3,4,5]})
         df2=pd.DataFrame({'a':[6,7,8,9,10]})
         expected_res=pd.Series([7,9,11,13,15])
-        assert_series_equal((df1['a']+df2['a']),expected_res,check_names=False)
+
+        v1 = convert(pd.__version__)
+        v2 = convert("0.20.0")
+        print(v1,v2)
+        if v1 > v2:
+            assert_series_equal((df1['a']+df2['a']),expected_res,check_names=False)
 
     def test_df_selection(self):
         df1 = pd.DataFrame(
