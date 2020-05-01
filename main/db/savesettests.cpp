@@ -51,6 +51,7 @@ class savesettest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(create_1);
     CPPUNIT_TEST(create_2);
+    CPPUNIT_TEST(create_3);
     
     CPPUNIT_TEST(list_1);
     CPPUNIT_TEST(list_2);
@@ -96,6 +97,7 @@ protected:
     
     void create_1();
     void create_2();
+    void create_3();
     
     void list_1();
     void list_2();
@@ -250,6 +252,24 @@ void savesettest::create_2()
         SpecTclDB::SaveSet::create(*m_pDatabase, "set"),
         std::invalid_argument
     );
+}
+void savesettest::create_3()
+{
+    // Ensure the info is loaded with hte timestamp correctly.
+    
+    SpecTclDB::SaveSet* pSet;
+    time_t now = time(nullptr);
+    CPPUNIT_ASSERT_NO_THROW(
+        pSet = SpecTclDB::SaveSet::create(*m_pDatabase, "set")
+    );
+    // There should be at most one tick difference between
+    // now and the time in info do to execution time:
+    // If it takes more than a second to create a save set we
+    // have bigger problems than a failing test
+    
+    time_t diff = pSet->m_Info.s_stamp - now;
+    ASSERT((diff == 0) || (diff == 1));
+    
 }
 
 void savesettest::list_1()
