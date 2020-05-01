@@ -2619,6 +2619,51 @@ if {$status} {
             </para>
         </callout>
        </calloutlist>
+       <example>
+        <title>Listing savesets in a database (lssaveset.tcl)</title>
+        <programlisting>
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: makesaveset.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+
+    puts "Savesets in [lindex $argv 0]"
+
+    foreach name [$db listSavesets] {  <co id='lssavesets.tcl.list' />
+        puts $name
+    }
+    $db destroy
+} msg]
+
+if {$status} {
+    puts "Error: $msg"
+}
+        </programlisting>
+       </example>
+       <calloutlist>
+        <callout arearefs='lssavesets.tcl.list' >
+            <para>
+                The <command>listSavesets</command> subcommand
+                of the database instance command returns a
+                properly formatte Tcl list of savesets contained
+                by that database. This
+                <command>foreach</command> loop outputs them
+                to stdout.
+            </para>
+        </callout>
+       </calloutlist>
     </chapter>
     <appendix>
         <title>Reference material</title>
