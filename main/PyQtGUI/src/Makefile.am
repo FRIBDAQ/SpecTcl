@@ -9,10 +9,4 @@ libCPyConverter_la_LDFLAGS = -shared @PYTHON_LDFLAGS@ -version-info 0:0:0
 
 install-exec-hook: @builddir@/libCPyConverter.la
 	$(mkinstalldirs) @prefix@/QtGUI
-	rm -f @prefix@/QtGUI/libCPyConverter.so
-	rm -f @prefix@/QtGUI/libCPyConverter.so.0
-	rm -f @prefix@/QtGUI/libCPyConverter.so.0.0.0
-	$(LN_S)           @libdir@/libCPyConverter.so   @prefix@/QtGUI/libCPyConverter.so
-	$(LN_S)           @libdir@/libCPyConverter.so.0   @prefix@/QtGUI/libCPyConverter.so.0
-	$(LN_S)           @libdir@/libCPyConverter.so.0.0.0   @prefix@/QtGUI/libCPyConverter.so.0.0.0
-
+	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@libdir@; export LD_LIBRARY_PATH;

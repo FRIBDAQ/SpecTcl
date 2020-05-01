@@ -1,2 +1,2 @@
-SUBDIRS = src sip gui 
+SUBDIRS = src sip gui test
 

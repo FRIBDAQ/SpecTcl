@@ -3,6 +3,7 @@ import io
 import pickle
 import sys, os
 sys.path.append(os.getcwd())
+sys.path.append("../lib")
 
 from copy import copy
 import json

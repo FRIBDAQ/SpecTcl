@@ -961,5 +961,6 @@ AC_OUTPUT(Makefile
 	  PyQtGUI/src/Makefile
 	  PyQtGUI/sip/Makefile
 	  PyQtGUI/gui/Makefile
+	  PyQtGUI/test/Makefile	  
 	  )
           
