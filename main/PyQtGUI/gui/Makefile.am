@@ -3,8 +3,8 @@ bin_PROGRAMS = PyQtGUI
 include_HEADERS = CPyHelper.h
 
 PyQtGUI_SOURCES = gui.cpp
-PyQtGUI_CXXFLAGS = $(shell python3-config --includes)
-PyQtGUI_LDFLAGS = $(shell python3-config --ldflags)
+PyQtGUI_CXXFLAGS = @PYTHON_CXXFLAGS@
+PyQtGUI_LDFLAGS = @PYTHON_LDFLAGS@
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/QtGUI

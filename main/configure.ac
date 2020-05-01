@@ -43,6 +43,11 @@ AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
+PYTHON_CXXFLAGS=`python3-config --includes`
+AC_SUBST(PYTHON_CXXFLAGS)
+PYTHON_LDFLAGS=`python3-config --ldflags`
+AC_SUBST(PYTHON_LDFLAGS)
+
 AX_PYTHON
 
 # needed for autotools version earlier than 1.14
