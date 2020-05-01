@@ -977,8 +977,9 @@ SaveSet::create(CSqlite& conn, const char* name)
             "INSERT INTO save_sets (name, timestamp) VALUES(?,?)"
         );
         // Create the saveset in the database
+        
         stmt.bind(1, name, -1, SQLITE_STATIC);
-        stmt.bind(2, time_t(nullptr));
+        stmt.bind(2, time(nullptr));
         ++stmt;
         
         // Return a new object.
