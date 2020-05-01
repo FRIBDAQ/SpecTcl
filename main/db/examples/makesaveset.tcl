@@ -15,8 +15,12 @@ if {[llength $argv] != 1} {
 set status [catch {
     set db [DBTcl connect [lindex $argv 0]]
     set saveset [$db createSaveset "a saveset"]
+    $saveset destroy
+    $db      destroy
+    
 } msg]
 
 if {$status} {
     puts "Error: $msg"
+    exit -1
 }

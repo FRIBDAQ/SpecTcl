@@ -2528,9 +2528,97 @@ DBTcl create [lindex $argv 0]           <co id='makedb.tcl.create' />
        <example>
         <title>Creating savesets in a database (makesaveset.tcl)</title>
         <programlisting>
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
 
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: makesaveset.tcl database-file"
+    exit -1
+}
+
+set status [catch {    <co id='mkset.catch' />
+    set db [DBTcl connect [lindex $argv 0]]  <co id='mkset.connect' />
+    set saveset [$db createSaveset "a saveset"] <co id='mkset.crset' />
+    $saveset destroy                         <co id='mkset.destroy' />
+    $db      destroy
+} msg]
+
+if {$status} {
+    puts "Error: $msg"       <co id='mkset.errors' />
+    exit -1
+}
         </programlisting>
        </example>
+       <calloutlist>
+        <callout arearefs='mkset.catch' >
+            <para>
+                This program demontsrates very simple error handling.
+                The Tcl <command>catch</command> command
+                performs the commands in the script passed as its
+                first argument.  If there is an error, it returns
+                1, if not, 0.  This value is captured in the
+                <varname>status</varname> variable.
+            </para>
+            <para>
+                The optional second argument to <command>catch</command>
+                is the name of a variable.  If the command is successful,
+                this will hold the result of the script.  If not,
+                it will hold the error message associated with the
+                failure.
+            </para>
+        </callout>
+        <callout arearefs='mkset.connect' >
+            <para>
+                The <command>DBTcl connect</command> command
+                creates a new command ensemble that can perform
+                operations on the database file passed to the
+                <command>DBTcl connect</command> command.
+                This is analagous to constructing a new  object.
+                The subcommands of the command captured in the
+                <varname>db</varname> variable are analogous to
+                object methods.
+            </para>
+            <para>
+                This command ensemble is referred to as a
+                <firstterm>data base instance command</firstterm>.
+            </para>
+        </callout>
+        <callout arearefs='mkset.crset' >
+            <para>
+                Similarly the <command>createSaveset</command>
+                subcommand of the databae instance command
+                creates a new save set and returns another
+                newly created command ensemble whose ensemble
+                commands operate on the save set. As you might imagine,
+                this command, captured in the <varname>saveset</varname>
+                varible is called a <firstterm>saveset instance command</firstterm>.
+            </para>
+        </callout>
+        <callout arearefs='mkset.destroy' >
+            <para>
+                All instance commands have a <command>destroy</command>
+                ensemble command.  This destroys the command and
+                releases any resources it might have.  This command
+                is analogous to a destructor method
+            </para>
+        </callout>
+        <callout arearefs='mkset.errors' >
+            <para>
+                This part of the script executes if any errors
+                are detected by the <command>catch</command>
+                command.  To see what it does, try running
+                the script twice on the same database.  The secone
+                time the attempt to make a saveset will fail
+                because the save set already exists.
+            </para>
+        </callout>
+       </calloutlist>
     </chapter>
     <appendix>
         <title>Reference material</title>
