@@ -11,4 +11,4 @@ install-exec-hook:
 	$(INSTALL_PROGRAM) PyQtGUI @prefix@/QtGUI
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/QtGUI
 
-EXTRA_DIST = *.py 
+EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py
