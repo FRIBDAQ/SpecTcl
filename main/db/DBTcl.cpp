@@ -430,10 +430,10 @@ DBTclInstance::wrapSaveSet(SaveSet* pSet)
 // TclSaveSet implementation.
 
 int  TclSaveSet::m_parameterSerial(0);
-int  TclSaveSet::m_spectrumSerial(0);
-int  TclSaveSet::m_gateSerial(0);
-int  TclSaveSet::m_applicationSerial(0);
-int  TclSaveSet::m_treeVariableSerial(0);
+int  TclSaveSet::m_spectrumSerial(0);          // below are
+int  TclSaveSet::m_gateSerial(0);              // reserved for
+int  TclSaveSet::m_applicationSerial(0);       // later if
+int  TclSaveSet::m_treeVariableSerial(0);      // needed
 
 /**
  * constructor

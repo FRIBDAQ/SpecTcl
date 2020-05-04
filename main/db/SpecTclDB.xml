@@ -2664,6 +2664,144 @@ if {$status} {
             </para>
         </callout>
        </calloutlist>
+       <example>
+            <title>Defining parameters (pardef.tcl)</title>
+            <programlisting>
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: pardef.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+    set saveset [$db getSaveset "a saveset"]   <co id='pardef.tclgetsaveset' />
+    
+    $saveset createParameter p1 100            <co id='pardef.tclcreate' />
+    $saveset createParameter p2 101 -10.0 10.0 100 "cm"
+    
+    puts "Parameters defined:"
+    foreach param [$saveset listParameters] {  <co id='pardef.tcllist' />
+        puts [dict get $param name]
+    }
+    
+    $saveset destroy                            <co id='pardef.tcldestroy' />
+    $db destroy
+} msg]
+
+
+if {$status} {
+    puts stderr "error: $msg"
+}                
+            </programlisting>
+       </example>
+       <para>
+        This example program creates two parameters named
+        <literal>p1</literal> and <literal>p2</literal>.
+        Parameter <literal>p2</literal> has full metadata.
+        After creating the parameters the names of all parameters
+        in the saveset are listed to stdout.
+       </para>
+       <calloutlist>
+        <callout arearefs='pardef.tclgetsaveset' >
+            <para>
+                The <command>getSaveset</command> subcommand of
+                a database instance command ensemble, looks up the
+                named save set (in this case <literal>a saveset</literal>)
+                and, if found creates a command ensemble that can
+                manipulate that saveset.  If the saveset does not exist,
+                an error is thrown.
+            </para>
+            <para>
+                The command ensemble that
+                <command>getSaveset</command> produces, is called a
+                <firstterm>save set instance command</firstterm> and
+                is captured in the <varname>saveset</varname>
+                variable.
+            </para>
+        </callout>
+        <callout arearefs='pardef.tclcreate' >
+            <para>
+                The <command>createParameter</command> subcommand
+                of the saveset instance command ensemble creates
+                new parameter definitions in the databsase.
+                Mirroring SpecTcl, there are two types of parameters that
+                can be created.  Raw parameters make a correspondence between
+                parameter name and parameter number (in SpecTcl, parameter number
+                is the index into a <classname>CEvent</classname>)
+                object at which the parameter should be stored and retrieved.
+                Tree parameters have additional metadata.
+            </para>
+            <para>
+                The first command creates a raw parameter named
+                <literal>p1</literal>.
+                The second command creates  a tree parametr with
+                metadata.  The metadata provides hints to both the
+                user and SpecTcl GUI scripts about how to define axes
+                of spectra that depend on this parameter.
+                In this case a range of [-10.0..10.0) with 100 bins
+                is recommended.  In addition, the units of measure
+                of the parameter are documented as centimeters
+                (<literal>cm</literal>).
+            </para>
+        </callout>
+       </calloutlist>
+       <example>
+            <title>Defining Spectra (specdef.tcl)</title>
+            <programlisting>
+                
+            </programlisting>
+       </example>
+       <example>
+        <title>Defining gates (gatedef.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>
+       <example>
+        <title>Applying gates to spectra (applydef.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>
+       <example>
+        <title>Saving and recovering tree variables (vardef.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>         
+       <example>
+        <title>Storing event data (evtstore.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>         
+       <example>
+        <title>Recovering event data (evtget.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>         
+       <example>
+        <title>Storing scaler readouts (sclstore.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>         
+       <example>
+        <title>Recovering scaler readouts (sclget.tcl)</title>
+        <programlisting>
+            
+        </programlisting>
+       </example>         
     </chapter>
     <appendix>
         <title>Reference material</title>
