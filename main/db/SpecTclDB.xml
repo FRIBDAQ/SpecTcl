@@ -2997,7 +2997,7 @@ if {$status} {
                    <term><literal>type</literal></term>
                    <listitem>
                        <para>
-                        The spectrum type coe.
+                        The spectrum type code.
                        </para>
                     </listitem>
                 </varlistentry>
@@ -3032,12 +3032,215 @@ if {$status} {
             </variablelist>
         </callout>
        </calloutlist>
+       <para>
+        As with the C++ API, there are a family of subcommands that
+        create gates of different types.  The sample script below
+        creates several types of gates.
+       </para>
        <example>
         <title>Defining gates (gatedef.tcl)</title>
         <programlisting>
-            
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: gatedef.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+    set saveset [$db getSaveset "a saveset"]
+    
+    $saveset create1dGate slice  s p1 100 200    <co id='gatedef.tcl.1d' />
+    $saveset create2dGate contour c [list p1 p2] \ <co id='gatedef.tcl.2d' />
+        [list {100 10} {200 100} {200 200} {100 200} ]
+    $saveset createCompoundGate and * [list slice contour] <co id='gatedef.tcl.compound' />
+    $saveset createMaskGate  mask em p1 0x55555555 <co id='gatedef.tcl.mask' />
+    
+    puts "Gates in saveset:"
+    foreach gate [$saveset listGates] {    <co id='gatedef.tcl.list' />
+        puts [dict get $gate name]
+    }
+    
+    $saveset destroy
+    $db destroy
+} msg]
+
+
+
+if {$status} {
+    puts stderr "error: $msg"
+}
         </programlisting>
        </example>
+       <calloutlist>
+        <callout arearefs='gatedef.tcl.1d' >
+            <para>
+                Creates a 1d gate.  1d Gates are gates that have a single
+                low and high limit defining a slice in some 1-d space.
+                The <command>create1dGate</command> subcommand takes 5
+                additional parameters.  The name (<literal>slice</literal>),
+                the gate type (<literal>s</literal>) the list of
+                parameters the gate is checked against (<literal>p1</literal>),
+                note that there are 1d gates that can have more than one
+                parameter; gamma slices <literal>gs</literal> for example.
+                The final two parameters are the low and high limits of the
+                gate.
+            </para>
+            <para>
+                Note that the gate limits for this and all gates with
+                limits are in raw parameter coordinates.  There is often
+                a temptation to believe that since gates are clicked on
+                on spectra they are accepted in spectrum coordinates.
+                This is not the case.
+            </para>
+        </callout>
+        <callout arearefs='gatedef.tcl.2d' >
+            <para>
+                Creates a 2-d gate.  With the exception of the gate limits,
+                this subcommand takes the same parameters as
+                <command>create1dGate</command>.  However, instead of two limit parameters,
+                the command takes on parameter that is a list of
+                X/Y  pairs that define a figure in some 2-d space of
+                parameters.  In the example, the gate is a contour,
+                which is a closed figure.  The coordinates are that of a square.
+            </para>
+        </callout>
+        <callout arearefs='gatedef.tcl.compound' >
+            <para>
+                Creates a compound gate.  A compound gate is one whose
+                truth or falsity only depends on the truth or falsity of other
+                gates.  The form of the <command>createCompoundGate</command>
+                subcommand calls for a gate name, a gate type and a list
+                of the gates the compound depends on.  
+            </para>
+            <para>
+                In this example a new gate <literal>and</literal>
+                is created that is an and gate (type <literal>*</literal>)
+                that depends on the gates <literal>slice</literal>
+                and <literal>contour</literal>.  This gate will only be true
+                of both gates are true in an event.
+            </para>
+        </callout>
+        <callout arearefs='gatedef.tcl.mask' >
+            <para>
+                Creates a mask gate.  Mask gates assume their parameter
+                is actually an integer and perfrom some bitwise
+                operation and comparison on it.  The
+                <command>createMaskGate</command> subcommand
+                requires a gate name (<literal>mask</literal>),
+                a gate type (<literal>em</literal> mask and compare for equality),
+                and a bitmask (<literal>0x55555555</literal>).
+            </para>
+        </callout>
+        <callout arearefs='gatedef.tcl.list' >
+            <para>
+                The <command>listGates</command> command returns
+                a list of dicts that describe the gates saved in the saveset.
+                Each gate is described by a dict.  Interpreting this
+                dict requires knowing the type of gate as the
+                set of keys provided dpends on the type of gate.
+                The dict introduces the concept of a
+                <firstterm>gate classification</firstterm> which
+                defines the set of keys a gate will have.
+            </para>
+            <para>
+                Here's list of the gates an when they are present.
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>classification</literal> (all)</term>
+                   <listitem>
+                       <para>
+                        Gives the gate classification. All gates
+                        will be one of <literal>point</literal>,
+                        <literal>compound</literal>, or
+                        <literal>mask</literal> gates.
+                        In the keys below, after the key term parenthesized
+                        text will describe which keys are present in which
+                        clasifications.  Note that
+                        (all) as in above means that all classification
+                        types have this key.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>id</literal> (all)</term>
+                   <listitem>
+                       <para>
+                        The primary key in the top level table
+                        used to define gates.  This is normally
+                        not useful to programs that use only this
+                        Tcl API. It can be useful if a script also
+                        uses e.g. sqlite3 to perform arbitrary
+                        queries of the database.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>name</literal> (all)</term>
+                   <listitem>
+                       <para>
+                        The name of the gate.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal> (all)</term>
+                   <listitem>
+                       <para>
+                        The gate type code string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal> (point, mask)</term>
+                   <listitem>
+                       <para>
+                        The parameters that are checked by the gate.
+                        Note that mask gates only have one parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gates</literal> (compound)</term>
+                   <listitem>
+                       <para>
+                        The names of the gates this gate depends on
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>points</literal> (point)</term>
+                   <listitem>
+                       <para>
+                        A list of two element sub lists.  Each element
+                        is a point in the gate.  For 1d gates, the
+                        Y coordinate is meaningless and there will only be
+                        two points. For 2-d gates, the X and Y coordinate are both
+                        meaningful and there can be be an arbitrary number
+                        of points.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>mask</literal> (mask)</term>
+                   <listitem>
+                       <para>
+                        The bitmask for a mask gate.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+       </calloutlist>
        <example>
         <title>Applying gates to spectra (applydef.tcl)</title>
         <programlisting>
