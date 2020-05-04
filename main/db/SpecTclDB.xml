@@ -3452,9 +3452,76 @@ if {$status} {
        <example>
         <title>Storing spectrum contents (specstore.tcl)</title>
         <programlisting>
-            
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: specstore.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+    set saveset [$db getSaveset "a saveset"]
+
+    $saveset storeChannels s1 \    <co id='specstore.tcl.store' />
+        [list {100 123} {101 2000} {102 400} {103 60}]
+    
+    set channels [$saveset getChannels s1] <co id='specstore.tcl.get' />
+    puts "Channels in s1: "
+    foreach chan $channels {
+        set x [lindex $chan 0]
+        set v [lindex $chan 2]             <co id='specstore.tcl.list' />
+        puts "Channel $x:   $v"
+    }
+    $saveset destroy
+    $db destroy
+} msg]
+
+
+
+if {$status} {
+    puts stderr "error: $msg"
+}
         </programlisting>
-       </example>         
+       </example>
+       <calloutlist>
+        <callout arearefs='specstore.tcl.store' >
+            <para>
+                The <command>storeChannels</command> command stores
+                channel values in a spectrum whose definition is already stored in
+                the saveset.  Two additional parameters are expected;
+                the name of the spectrum and the values.  Values are a list
+                containing either two or three element sublists.  For
+                1-d spectra, two elements are expected and they are the
+                channel coordinate and channel value.  For 2d spectra,
+                the three elements are x channel, y channel and value.
+            </para>
+        </callout>
+        <callout arearefs='specstore.tcl.get' >
+            <para>
+                The <command>getChannels</command> subcommand returns a list of
+                channel values stored for the spectrum. Each channel is given
+                as a three element list.  The first element is an x channel number.
+                The second element, is the y channel number if the spectrum is 2
+                dimensional or 0 if not. The third element is the
+                channel value.
+            </para>
+        </callout>
+        <callout arearefs='specstore.tcl.list' >
+            <para>
+                Since we stored a 1-d spectrum we need to pull out
+                the first and last elements of each channel list
+                and output them.
+            </para>
+        </callout>
+       </calloutlist>
        <para>
         The Tcl interface supports some queries of the event
         data stored in a save set but does not support storing events
