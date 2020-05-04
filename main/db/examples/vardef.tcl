@@ -8,20 +8,25 @@ lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
 package require SpecTclDB
 
 if {[llength $argv] != 1} {
-    puts stderr "Usage: a[[;udef.tcl database-file"
+    puts stderr "Usage: vardef.tcl database-file"
     exit -1
 }
 
 set status [catch {
     set db [DBTcl connect [lindex $argv 0]]
     set saveset [$db getSaveset "a saveset"]
+
+    $saveset createVariable slope 1.23 KeV/lsb
+    $saveset createVariable offset 10  KeV
+    $saveset createVariable gainmatch 1.23
     
-    $saveset applyGate slice s2
-    
-    foreach app [$saveset listApplications] {
-        set gate [dict get $app gate]
-        set spec [dict get $app spectrum]
-        puts "$gate is applied to $spec"
+    puts "Tree variables: "
+    foreach var [$saveset listVariables] {
+        set name [dict get $var name]
+        set val  [dict get $var value]
+        set units [dict get $var units]
+        
+        puts "$name : $val$units"
     }
     
     $saveset destroy

@@ -90,5 +90,6 @@ TESTS=unittests dbtcl.test names.test
 
 #check: check-TESTS
 
-EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS)
+EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS) \
+	examples/Makefile examples/*.cpp examples/*.tcl
 
