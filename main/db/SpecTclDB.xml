@@ -3244,9 +3244,97 @@ if {$status} {
        <example>
         <title>Applying gates to spectra (applydef.tcl)</title>
         <programlisting>
-            
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: gatedef.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+    set saveset [$db getSaveset "a saveset"]
+    
+    $saveset applyGate slice s2  <co id='applydef.tcl.apply' />
+    
+    foreach app [$saveset listApplications] { <co id='applydef.tcl.list' />
+        set gate [dict get $app gate]
+        set spec [dict get $app spectrum]
+        puts "$gate is applied to $spec"
+    }
+    
+    $saveset destroy
+    $db destroy
+} msg]
+
+
+
+if {$status} {
+    puts stderr "error: $msg"
+}            
         </programlisting>
        </example>
+       <para>
+        Gates are objects that are totally passive unless
+        <firstterm>applied</firstterm> to a spectrum.  When applied to a spectrum,
+        a gate conditionalizes the normal incrementation of that spectrum.
+        If a gate is applied to a spectrum, the spectrum will only be
+        incremented if the gate is true.
+       </para>
+       <calloutlist>
+        <callout arearefs='applydef.tcl.apply' >
+            <para>
+                The <command>applyGate</command> subcommand
+                takes a gate name and a spectrum name in that order.
+                The gate is entered in the database as being applied to the
+                spectrum.
+            </para>
+        </callout>
+        <callout arearefs='applydef.tcl.list' >
+            <para>
+                The <command>listApplications</command> subcommand returns a list
+                whose elements are dicts. Each dict describes a
+                gate application and has the following keys.
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>id</literal></term>
+                   <listitem>
+                       <para>
+                        Contains the primary key of the application in the
+                        gate applications table.  This is only useful for
+                        ad-hoc queries of the database performed by
+                        by e.g. the sqlite3 package.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        The name of the gate
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        The spectrum to which that gate is being applied
+                        in this entry.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+       </calloutlist>
        <example>
         <title>Saving and recovering tree variables (vardef.tcl)</title>
         <programlisting>
@@ -3254,29 +3342,17 @@ if {$status} {
         </programlisting>
        </example>         
        <example>
-        <title>Storing event data (evtstore.tcl)</title>
+        <title>Storing spectrum contents (specstore.tcl)</title>
         <programlisting>
             
         </programlisting>
        </example>         
-       <example>
-        <title>Recovering event data (evtget.tcl)</title>
-        <programlisting>
-            
-        </programlisting>
-       </example>         
-       <example>
-        <title>Storing scaler readouts (sclstore.tcl)</title>
-        <programlisting>
-            
-        </programlisting>
-       </example>         
-       <example>
-        <title>Recovering scaler readouts (sclget.tcl)</title>
-        <programlisting>
-            
-        </programlisting>
-       </example>         
+       <para>
+        The Tcl interface supports some queries of the event
+        data stored in a save set but does not support storing events
+        or scaler readouts.  See the reference section for more
+        information about this.
+       </para>
     </chapter>
     <appendix>
         <title>Reference material</title>
