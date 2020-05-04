@@ -2753,13 +2753,285 @@ if {$status} {
                 (<literal>cm</literal>).
             </para>
         </callout>
+        <callout arearefs='pardef.tcllist' >
+            <para>
+                The <command>listSpectrum</command> subcommand
+                of a save set instance command ensemble creates
+                a Tcl list of dicts that describe the spectra
+                that have been defined in the saveset.  The keys of the
+                dict are:
+                <variablelist>
+                    <varlistentry>
+                       <term><literal>id</literal></term>
+                       <listitem>
+                           <para>
+                            Contains an integer that is the primary key of the
+                            spectrum in the spectrum definition table.
+                            This is useful in programs that may do ad-hoc
+                            queries of the database for advanced
+                            applications.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>name</literal></term>
+                       <listitem>
+                           <para>
+                            Text string that is the name of the parameter.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>number</literal></term>
+                       <listitem>
+                           <para>
+                            THe number of the parameter.  This differs from the
+                            <literal>id</literal> key. It's a value that
+                            the program supplies, rather than a value
+                            assigned by the database engine.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>low</literal> (optional)</term>
+                       <listitem>
+                           <para>
+                            This key is only present for tree
+                            parameters. It's the recommended low limit of spectrum
+                            axes defined on this parameter.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>high</literal> (optional)</term>
+                       <listitem>
+                           <para>
+                            This key is only present for tree parameters.
+                            It is the recommended high limit for axes defined
+                            on this parameter.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>bins</literal> (optional)</term>
+                       <listitem>
+                           <para>
+                            This key is only present for tree parameters.  It is
+                            the recommended number of bins on axes defined on
+                            this parameter.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>units</literal> (optional)</term>
+                       <listitem>
+                           <para>
+                            This key is only present for tree parameters.  It is
+                            the units of measure defined for the parameter.
+                            Note that an empty string is perectly allowed an usually
+                            means the parameter is unit-less (e.g. raw ADC
+                            values).
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </callout>
+        <callout arearefs='pardef.tcldestroy' >
+            <para>
+                Because the saveset instance command is dynamically
+                created by the database instance command, when you are done
+                with it you should destroy it and the resources associated with it.
+                The <command>destroy</command> subcommand does this
+                just as it also destroys database instance commands and
+                their associated resources.
+            </para>
+        </callout>
        </calloutlist>
        <example>
             <title>Defining Spectra (specdef.tcl)</title>
             <programlisting>
-                
+#!/bin/sh
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+
+lappend auto_path [file join $::env(SPECTCLHOME) TclLibs]
+package require SpecTclDB
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: specdef.tcl database-file"
+    exit -1
+}
+
+set status [catch {
+    set db [DBTcl connect [lindex $argv 0]]
+    set saveset [$db getSaveset "a saveset"]
+    
+    $saveset createSpectrum s1 1 p1 [list [list 0 1023 1024]]  <co id='specdef.tcl.cr1d' />
+    $saveset createSpectrum s2 2  \                            <co id='specdef.tcl.cr2d' />
+        [list p1 p2] [list [list 0 1023 1024] [list -10.0 10.0 100]]
+    
+    puts "Spectra in saveset:"
+    foreac spectrum [$saveset listSpectra] {   <co id='specdef.tcl.list' />
+        puts [dict get $spectrum name]
+    }
+} msg]
+
+$saveset destroy
+$db destroy
+
+if {$status} {
+    puts stderr "error: $msg"
+}                
             </programlisting>
        </example>
+       <para>
+        This example creates a 1d and a 2d spectrum named
+        <literal>s1</literal> and <literal>s2</literal>
+        respectively.
+       </para>
+       <calloutlist>
+        <callout arearefs='specdef.tcl.cr1d' >
+            <para>
+                The <command>createSpectrum</command> saveset instance
+                subcommand creates spectrum definitions in the database.
+                This command takes several parameters;
+                A spectrum name, the a type code for the spectrum type,
+                a list of parameters needed by the spectrum,
+                a list of axis definitions and an optional
+                channel data type.
+            </para>
+            <para>
+                In the sample command, the spectrum name is
+                <literal>s1</literal>. The spectrum type code,
+                <literal>1</literal> means that the spectrum is
+                a 1-d spectrum.  <literal>p1</literal> is a single
+                element Tcl list that says the spectrum increments
+                the <literal>p1</literal> value for each event in which
+                it is defined.  Note that had the spectrum type been
+                <literal>s</literal> (summary spectrum), or
+                <literal>g1</literal> (gamma 1-d) this parameter
+                list would, in general contain additional parameter
+                names.  After the parameter is a list of axis definitions.
+                Each axis definition, in turn is a three element list containing
+                the axis low limit, high limit and number of bins
+                in that order.  Thus <literal>p1</literal> will have an
+                axis that runs from 0 to 1023 and has 1024 channels.
+            </para>
+            <para>
+                By default, SpecTcl spectra contain longword (32 bit)
+                channel values.  The <command>createSpectrum</command>
+                subcommand also uses this as the default channel datatype.
+                You can explicitly provide a data type as an additional command
+                parameter.  This additional parameter can have one
+                of the following values:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>byte</literal></term>
+                   <listitem>
+                       <para>
+                        Channels will be 8 bit values.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>word</literal></term>
+                   <listitem>
+                       <para>
+                        Channels will be 16 bit values.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>long</literal></term>
+                   <listitem>
+                       <para>
+                         Channels will be 32 bit values
+                    </para>
+                 </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+        <callout arearefs='specdef.tcl.cr2d' >
+            <para>
+                This command creates a 2-d spectrum.  The principles are the
+                same as the previous command, but two parameters
+                (x and y axis in that order) are provided as are two
+                axes (x and y axis in that order).
+            </para>
+        </callout>
+        <callout arearefs='specdef.tcl.list' >
+            <para>
+                The <command>listSpectra</command> subcommand
+                returns a Tcl list whose entries describe the spectra defined in the
+                saveset.  Each list item is dict that describes
+                a single spectrum.  The dicts have the following
+                key/value pairs:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>id</literal></term>
+                   <listitem>
+                       <para>
+                        The primary key of the spectrum in the top level
+                        spectrum definition table.  This is really not
+                        useful to Tcl scripts that only use the API.
+                        It can be useful to scripts that also do ad-hoc
+                        queries of the database (e.g. via the sqlite3
+                        package).
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        The spectrum type coe.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal></term>
+                   <listitem>
+                       <para>
+                        The list of parameters the spectrum depends on.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>axes</literal></term>
+                   <listitem>
+                       <para>
+                        List of axis definitions for each of the
+                        free defined axes of the spectrum. Note that
+                        each axis definition is a three element list containing
+                        in order, the axis low limit, high limit and
+                        number of bins.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>datatype</literal></term>
+                   <listitem>
+                       <para>
+                        The data type code as described above.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+       </calloutlist>
        <example>
         <title>Defining gates (gatedef.tcl)</title>
         <programlisting>
