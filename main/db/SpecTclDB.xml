@@ -3911,6 +3911,203 @@ return [dbconfig::connect $fname]
             </listitem>
         </varlistentry>
     </variablelist>
+    <para>
+        In addition to the <literal>dbconfig</literal> package,
+        a command ensemble in the <literal>SpecTclDB</literal> package is used by
+        the SpecTcl to manage event recording to the database and event playback
+        from a database. 
+    </para>
+    <para>
+        The base command for this command ensemble is
+        <command>daqdb</command>.  This command ensemble is not
+        separable from SpecTcl.  It is intended to support the needs
+        of graphical user interfaces that control the recording of
+        and playback of data within SpecTcl.  Again, have a look
+        at the SpecTcl user interface that is available before
+        you start writing your own.
+    </para>
+    <para>
+        The remainder of this chapter is a brief guided tour of the
+        the subcommands of this command ensemble.
+    </para>
+    <variablelist>
+        <varlistentry>
+           <term><command>open</command><replaceable>file-name</replaceable></term>
+           <listitem>
+               <para>
+                Access the database <parameter>file-name</parameter>.
+                If the event processor and event sink needed to record
+                data are not yet set up, they are set up.  Note that
+                they are setup in the disabled state. It is necessary
+                to enable event recording before that can take
+                place.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>enable</command></term>
+           <listitem>
+               <para>
+                Enables event recording beginning with the next run.  The
+                next run is defined as SpecTcl receiving a begin run item
+                on its data source, that is the event recording
+                event processor's <methodname>OnBegin</methodname>
+                method is called.
+               </para>
+               <para>
+                Note that when event recording starts:
+               </para>
+                <itemizedlist>
+                    <listitem>
+                       <para>
+                          A new saveset is created with a name derived from
+                          the run number.
+                       </para>
+                    </listitem>
+                    <listitem>
+                       <para>
+                          The analysis state is saved to the new saveset. 
+                       </para>
+                    </listitem>
+                    <listitem>
+                       <para>
+                          Events and scaler readouts will be stored in this
+                          new save set.
+                       </para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                    When <methodname>OnEnd</methodname> is called,
+                    the run description is given its end time.
+                    At that time, the contents of any
+                    spectra in the auto save are written to the saveset.
+                    See below.
+                    This
+                    does not disable event recording. Each run
+                    will repeat this sequence.
+                </para>
+                <para>
+                 This implies that SpecTcl, using this package will not
+                 let you save more than one run per saveset, and that an single run
+                 can only be saved once per database.
+                </para>
+                
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>disable</command></term>
+           <listitem>
+               <para>
+                Disbables evfent recording instantly.  If data are
+                actively being recorded, any active run will not have an
+                end time.  This does not prevent the data from
+                being played back.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>close</command></term>
+           <listitem>
+               <para>
+                Closes the database and tears down the recording
+                event processor and event sink.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>autosave</command> <replaceable>spectrum-list</replaceable></term>
+           <listitem>
+               <para>
+                The event recording subsystem allows you to provide a list of
+                spectrum names whose contents will be saved when an
+                end run is encountered while writing event data.
+                This list is called the <firstterm>autosave list</firstterm>.
+               </para>
+               <para>
+                The <parameter>spectrum-list</parameter> parameter to this
+                command is a list of the names of spectra.  The autossave list
+                is set to this list.  Any spectra on this autosave list prior to
+                to this command are no longer on the autosave list.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>listruns</command></term>
+           <listitem>
+               <para>
+                Returns a list of dicts.  Each dict describes a
+                run that is recorded in the event file.  The dicts
+                 have the following key/value pairs:
+               </para>
+               <variablelist>
+                <varlistentry>
+                   <term><literal>number</literal></term>
+                   <listitem>
+                       <para>
+                        The number of the run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>config</literal></term>
+                   <listitem>
+                       <para>
+                        The name of the save set containing that run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>title</literal></term>
+                   <listitem>
+                       <para>
+                        The title string associated with the run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>start_time</literal></term>
+                   <listitem>
+                       <para>
+                        The time at which the run started.  This
+                        value can be formatted for humans via
+                        <command>clock format</command>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>end_time</literal></term>
+                   <listitem>
+                       <para>
+                        The time at wich the run ended.  This value
+                        can be formatted with
+                        <command>clock format</command>
+                       </para>
+                    </listitem>
+                </varlistentry>
+               </variablelist>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>play</command> <replaceable>run-number</replaceable></term>
+           <listitem>
+               <para>
+                Begins playback of the run <parameter>run-number</parameter>.
+                While playback is in progress, the event loop is
+                periodically flushed, which keeps the user interface alive.
+                Note that playback and recording cannot be done simultaneously due
+                to the way in which recording data locks the database.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><command>stop</command></term>
+           <listitem>
+               <para>
+                Stops any ongoing playback.
+               </para>
+            </listitem>
+        </varlistentry>
+    </variablelist>
     </chapter>
     <appendix>
         <title>Reference material</title>
