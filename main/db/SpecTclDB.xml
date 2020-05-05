@@ -4109,6 +4109,323 @@ return [dbconfig::connect $fname]
         </varlistentry>
     </variablelist>
     </chapter>
+    <chapter>
+       <title>The SpecTcl database GUI.</title>
+       <para>
+        The SpecTcl database GUI provides a simple graphical user interface
+        to the database.  It allows you to
+       </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+              Create empty databases and access existing ones. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              View the contents of a database in a tree-like graphical
+              form.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Save configurations to and restore them from savesets. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Save and store the contents of spectra to a save set. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+               Initiate and end event recording.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Specify auto save spectrum lists for event recording. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Initiate and stop event playback from runs saved in a
+              saveset.
+           </para>
+        </listitem>
+       </itemizedlist>
+       <para>
+        You can use the GUI by adding the following lines to your
+        <filename>SpecTclRC.tcl</filename>:
+       </para>
+       <example>
+        <title>Incorporating the database GUI in your SpecTcl</title>
+        <programlisting>
+lappend auto_path [file join $SpecTclHome TclLibs]
+...
+package require dbgui
+        </programlisting>
+       </example>
+       <para>
+        With a database file open, the GUI might look like this:
+       </para>
+       <figure>
+        <title>The SpecTcl database GUi window</title>
+        <graphic format='PNG' fileref='GUI.png' scalefit='1'/>
+       </figure>
+       <para>
+        Each saveset is shown as a folder.  Within open folders, the entities
+        stored in the saveset are identified by various icons.
+        These are describe in the figure.  Note that an item in the
+        user interface may be selected by clicking it.  If an item
+        is selected it is highlighted as shown.  The status line
+        at the bottom of the window includes the database name,
+        the name of the current configuration, the currently selected item and,
+        not shown, a digital clock.
+       </para>
+       <para>
+        You interact with the graphical user interface via commands
+        on its menubar and pop-up <firstterm>context menus</firstterm>
+        accessed by right clicking on selected items in the
+        main window of the GUI.
+       </para>
+       <para>
+        First we'll look at the menubar menus and their contents.
+        Then we'll look at the context menus that are available.
+       </para>
+       <section>
+        <title>The GUI Menubar</title>
+        <formalpara>
+            <title>File Menu</title>
+            <para>
+                The File menu has the following commands:
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>New...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for the name of a new file.
+                            The file will be initialized with the
+                            schema needed to serve as a database file.
+                            The resulting, presumably empty database will then be opened and
+                            used as the current database.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Open...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for the name of a file. The
+                            selected file must be a previously initialized database
+                            file.  The selected file is opened and
+                            becomes the new database file.
+                           </para>
+                           <para>
+                            The view of the current database is updated to reflect
+                            all of the savesets in the file.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </formalpara>
+        <formalpara>
+            <title>The Save Menu</title>
+            <para>
+                This menu allows you to save various things into
+                the database:
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>Configuration...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for the name of a new save set
+                            and saves the current SpecTcl analysis configuration
+                            into that saveset. 
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Spectrum...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for spectra to save. The
+                            contents of the selected spectra are saved to the
+                            current save set.  If there is no current savset,
+                            An error dialog tells you that.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </formalpara>
+        <formalpara>
+            <title>Recording</title>
+            <para>
+                This menu supports various aspects of event recording
+                into the database.
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>Enable Recording</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            This checkbutton turns on or off event recording.
+                            While event recording is active the main window
+                            actions are disabled because event recording
+                            locks the entire database.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Autosve spectra...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for the spectra whose contents are automatically
+                            saved at the end of a recorded run.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </formalpara>
+        <formalpara>
+            <title>Help</title>
+            <para>
+                The <guimenu>Help</guimenu> menu only contains
+                the <guimenuitem>About...</guimenuitem>
+                entry.  That entry pops up a message box that
+                provides information about the GUI and its
+                version.
+            </para>
+        </formalpara>
+
+       </section>
+       <section>
+        <title>Pop Up context menus</title>
+        <para>
+            Each of the object types in the GUI has a context menu that can
+            be popped up by right clicking that object. This
+            section describes those menuse and what their commands do.
+        </para>
+        <formalpara>
+            <title>Configurtion context menu</title>
+            <para>
+                This context menu is activated by right clicking
+                on a saveset or the configuration saved in that saveset.
+                It makes the following commands available:
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>Save...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Requests a new save set name, creates that save set
+                            and saves the current analysis
+                            configuration in that saveset.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Save Spectrum...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Requests a spectrum name and saves that
+                            spectrum's contents in the currently selected save set.
+                            Note that activating the context menu
+                            makes the configuration the mouse is over
+                            the current configuration.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Load</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Loads the configuration into SpecTcl.
+                            This restores the parameter, tree parameter,
+                            spectrum and gate definitions as well as the
+                            gate applications and tree variable definitions and
+                            values into SpecTcl.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                If you post this menu by mistake, the escape keyboard key
+                will unpost it.
+            </para>
+        </formalpara>
+        <formalpara>
+            <title>Spectrum context menu</title>
+            <para>
+                This context menu is activated when you right click
+                a spectrum object in a save set.  It has the following commands:
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>Resave</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            The current contents of the spectrum indicated are
+                            saved into the current save set.  Prior contents are
+                            cleared first.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Save Spectrum...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Prompts for a spectrum whose contents will be
+                            saved in the currently selected save set.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Load</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Loads the contents of the selected spectrum
+                            into the same spectrum in SpecTcl.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </formalpara>
+        <formalpara>
+            <title>Run context menu</title>
+            <para>
+                This menu supports event playback:
+                <variablelist>
+                    <varlistentry>
+                       <term><guimenuitem>Play...</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            After prompting for confirmation warning of the
+                            consequences of playing back data:
+                            Turn off any active recording. Prompts to
+                            ask if the user wants to restore the
+                            analysis configuration prior to playback,
+                            Asks as well if you want to clear all spectra
+                            prior to playback.
+                           </para>
+                           <para>
+                            On confirmation, initiates playback.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><guimenuitem>Stop</guimenuitem></term>
+                       <listitem>
+                           <para>
+                            Disables any playback in progress.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </para>
+        </formalpara>
+       </section>
+    </chapter>
     <appendix>
         <title>Reference material</title>
         <section>

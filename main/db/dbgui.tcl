@@ -34,7 +34,7 @@ package require SpecTclDB
 
 namespace eval dbgui {
     set here [file dirname [info script]]
-    variable version 1.2
+    variable version 1.3
     
     # Icons used in the treeview:
     
