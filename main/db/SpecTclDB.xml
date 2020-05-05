@@ -4429,6 +4429,708 @@ package require dbgui
     <appendix>
         <title>Reference material</title>
         <section>
+            <title>Reference material for the C++ API classes.</title>
+            <para>
+                This section will provide reference information for
+                the database API classes. The order in which this documentation
+                is given is roughly hierarchical. For classes that encapsulate
+                database objects, the order follows dependency.
+                That is many object types depend on the existence
+                of other object types, the most primitive objects
+                come first and no class comes prior to the classes
+                that have data it might depend on.
+            </para>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>CDatabase</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>CDatabase</refname>
+                  <refpurpose>Database creation and access</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;SpecTclDatabase.h&gt;
+namespace SpecTclDB {
+    
+    class CDatabase {
+        
+    public:
+        static void create(const char* database);
+
+        CDatabase(const char* database);
+        
+        SaveSet* createSaveSet(const char* name);
+        SaveSet* getSaveSet(const char* name);
+        SaveSet* getSaveSet(int id);
+        std::vector&lt;SaveSet*&gt; getAllSaveSets();
+        
+    };
+    
+}                         // SpecTclDB namespace.
+
+
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>INTRODUCTION</title>
+                      <para>
+                        The <classname>SpecTclDB::CDatabase</classname>
+                        class provides services for creating new databases
+                        and opening existing databases.  Objects
+                        of this type allow you to create new savesets
+                        and perform queries about existing save sets.
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>methods</title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static void </type>
+                               <methodname>create</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>database</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                IF <parameter>database</parameter>
+                                does not exist, that file will be created.
+                                The database scheme will be added to that file.
+                                If this is called on a file that already has the
+                                SpecTcl database schema, nothing bad happeens
+                                because all elements of the schema are created
+                                using
+                                <code language="sql">CREATE xxx IF NOT EXISTS</code>
+                               </para>
+                               <para>
+                                If the file already exists and is an Sqlite3 database,
+                                the schema for a SpecTcl database is added to that
+                                database.  This may have some valid use case.  If
+                                the file exists but is not an
+                                Sqlite3 database file, an exception
+                                derived from
+                                <classname>std::exception</classname>
+                                is thrown.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CDatabase</methodname>
+                                <methodparam>
+                                    <type>const char* </type><parameter>database</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The constructor creates an object that
+                                wraps a specific, existing database.
+                                If the <parameter>database</parameter>
+                                does not exist or does not have the correct schema,
+                                a <classname>std::invalid_argument</classname>
+                                exception is thrown.
+                                If <parameter>database</parameter> is not an Sqlite3
+                                database file, <classname>CSqliteException</classname>
+                                is thrown.  Note that <classname>std::exceiption</classname>
+                                is a parent class for <classname>CSqliteException</classname>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>SaveSet* </type>
+                               <methodname>createSaveSet</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new save set in the database encapsulated
+                                by the object.  The name of the saveset will be
+                                <parameter>name</parameter>.  
+                               </para>
+                               <para>
+                                On
+                                success, a pointer to a
+                                <classname>SpecTclDB::SaveSet</classname>
+                                object is returned that encapsulates
+                                the save set.  
+                                The return value is dynamically
+                                allocated and, therefore, must be
+                                deleted when your program is done with it.
+                               </para>
+                               <para>
+                                On failure an
+                                <classname>std::invalid_argument</classname>
+                                exception is thrown.  This is most often because
+                                there already is a save set
+                                named <parameter>name</parameter>.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>SaveSet* </type>
+                               <methodname>getSaveSet</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a pointer to a dynamically created
+                                <classname>SpecTclDB::SaveSet</classname> object
+                                that encapsulates the save set
+                                <parameter>name</parameter>.
+                                The caller must, at some point,
+                                delete this object to avoid resource leaks.
+                                On failure, usually because
+                                <parameter>name</parameter>, is not the name
+                                of a save set, an
+                                <classname>std::invalid_argument</classname>
+                                exception is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>SaveSet* </type>
+                               <methodname>getSaveSet</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as above however
+                                <parameter>id</parameter> is the
+                                primary key of the save set we're looking up.
+                                If you know a saveset's id, this is
+                                nominally faster than a lookup by name.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;SaveSet*&gt; </type>
+                               <methodname>getAllSaveSets</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector that contains
+                                the savesets contained by the database.
+                                Each saveset is encapsulated in a
+                                <classname>SpecTclDB::SaveSet</classname>
+                                object.  The vector contains pointers to these
+                                objects which are dynamically
+                                created and must, therefore, be
+                                destroyed at some point by the
+                                caller.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>SaveSet</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>SaveSet</refname>
+                  <refpurpose>Encapsulate a save set.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;SaveSet.h&gt;
+
+namespace SpecTclDB {
+    class DBParameter;
+    class DBSpectrum;
+    class DBGate;
+    class DBApplication;   
+    class DBTreeVariable;
+    
+    /**
+     * @class SaveSet
+     *    This class encapsulates a save set and all the things
+     *    you can do to it _except_ playing back events.
+     *
+     */
+    class SaveSet {
+    public:
+        struct Info {
+            int         s_id;
+            std::string s_name;   // requires copy construction etc.
+            time_t      s_stamp;
+        Info() {}
+        Info(const Info&amp; rhs) {
+            copyIn(rhs);
+        }
+        Info&amp; operator=(const Info&amp; rhs) {
+            if (&amp;rhs != this) copyIn(rhs);
+            return *this;
+        }
+        void copyIn(const Info&amp; rhs) {
+            s_id = rhs.s_id;
+            s_name = rhs.s_name;
+            s_stamp = rhs.s_stamp;
+        }
+        };
+        struct SpectrumAxis {
+            double s_low;
+            double s_high;
+            int    s_bins;
+        };
+        // Stuff having to do with run playback:
+        
+        struct RunInfo {
+            int         s_runNumber;
+            std::string s_title;
+            time_t      s_startTime;
+            time_t      s_stopTime;
+            
+        };
+        struct ScalerReadout {
+            int    s_sourceId;
+            int    s_startOffset;
+            int    s_stopOffset;
+            int    s_divisor;
+            time_t s_time;
+            std::vector&lt;int&gt; s_values;
+        };
+        struct EventParameter {   // Event blobs are a soup of these.
+            int     s_number;
+            double  s_value;
+        };
+        typedef std::vector&lt;EventParameter&gt; Event;
+    public:
+        static bool exists(CSqlite&amp; conn, const char* name);
+        static SaveSet* create(CSqlite&amp; conn, const char* name);
+        static std::vector&lt;Info&gt; list(CSqlite&amp; conn);
+
+    public:
+        SaveSet(CSqlite&amp; conn, const char* name);     // Construct given name
+        SaveSet(CSqlite&amp; conn, int id);
+    
+    // Object methods:
+    public:
+        const Info&amp; getInfo();
+        
+
+        
+        std::vector&lt;DBParameter*&gt; listParameters();
+        DBParameter* createParameter(const char* name, int number);
+        DBParameter* createParameter(
+            const char* name, int number,
+            double low, double high, int bins, const char* units
+        );
+        DBParameter* findParameter(const char* name);
+        DBParameter* findParameter(int number);
+        DBParameter* getParameter(int id);
+        
+        // Spectrum API:
+        
+        bool spectrumExists(const char* name);
+        DBSpectrum* createSpectrum(const char* name, const char* type,
+                const std::vector&lt;const char*&gt;&amp; parameterNames,
+                const std::vector&lt;SpectrumAxis&gt;&amp; axes,
+                const char* datatype="long"
+        );
+
+        std::vector&lt;DBSpectrum*&gt; listSpectra();
+
+        DBSpectrum* lookupSpectrum(const char* name);
+    
+        // Gate api:
+        
+        bool gateExists(const char* name);
+        DBGate*  create1dGate(
+            const char* name, const char* type,
+            const std::vector&lt;const char*&gt;&amp; params, double low, double high
+        );
+        DBGate* create2dGate(
+            const char* name, const char* type,
+            const std::vector&lt;const char*&gt;&amp; params,
+            const std::vector&lt;std::pair&lt;double, double&gt;&gt;&amp; points
+        );
+        DBGate* createCompoundGate(
+            const char* name, const char* type,
+            const std::vector&lt;const char*&gt;&amp; gates
+        );
+        DBGate* createMaskGate(
+            const char* name, const char* type,
+            const char* parameter, int imask
+        );
+        DBGate* lookupGate(const char* name);
+        DBGate* lookupGate(int id);
+        std::vector&lt;DBGate*&gt; listGates();
+        
+        // Gate application api:
+        
+        DBApplication* applyGate(const char* gate, const char* spectrum);
+        DBApplication* lookupApplication(const char* gate, const char* spectrum);
+        std::vector&lt;DBApplication*&gt; listApplications();
+        
+        // Treevariable API
+
+        DBTreeVariable* createVariable(
+            const char* name, double value, const char* units=""
+        );
+        DBTreeVariable* lookupVariable(const char* name);
+        bool variableExists(const char* name);
+        std::vector&lt;DBTreeVariable*&gt; listVariables();
+        
+        // Event recording in the database.
+        
+        int startRun(
+            uint32_t run, const char* title, time_t start
+        );
+        void endRun(int id, time_t endtime);
+        int saveScalers(
+            int id, int sourceid,
+            int startOffset, int stopOffset, int divisor, time_t when,
+            int nScalers, const uint32_t* scalers
+        );
+        void* startEvents(int id);
+        void  rollbackEvents(void* savept);
+        void  endEvents(void* savept);
+        void  saveEvent(
+            int id,  int event, int nParams,
+            const int* paramids, const double* params
+        );
+        
+        std::vector&lt;int&gt; listRuns();
+        
+        // Accessing runs
+        
+        int openRun(int number);
+        
+        void* openScalers(int runid);
+        int   readScaler(void* context, ScalerReadout&amp; result);
+        void  closeScalers(void* context);
+        void* openEvents(int runid);
+        int   readEvent(void* context, Event&amp; result);
+        void closeEvents(void* context);
+        
+        RunInfo getRunInfo(int id);
+        
+        
+    
+
+    };
+}                                  // SpecTclDB 
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                      <title>INTRODUCTION</title>
+                      <para>
+                        The <classname>SpecTclDB::SaveSet</classname>
+                        class encapsulates a save set in an object.
+                        Methods are provided to create save sets and
+                        the constructor wraps a save set into an object.
+                      </para>
+                      <para>
+                        Once you have a save set, you can us it to
+                        prerform a number of operations on the save set.
+                        These operations may require a number
+                        of data type definitions.
+                        See <literal>METHODS</literal>
+                        and <literal>DATA TYPES</literal> for more.
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static bool </type>
+                               <methodname>exists</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns <literal>true</literal>
+                                if the save set named
+                                <parameter>name</parameter> has been
+                                created in the database connected to
+                                <parameter>conn</parameter>.
+                                Normally, this method is used by the
+                                <classname>SpecTclDB::CDatabase</classname> class
+                                whose objects encapsulate a raw
+                                <classname>CSqlite</classname> object.
+                               </para>
+                               <para>
+                                For information about the
+                                <classname>CSqlite</classname>
+                                class, see the
+                                <literal>3sqlite++</literal> reference
+                                section.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static SaveSet* </type>
+                               <methodname>create</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new save set named
+                                <parameter>name</parameter> in the
+                                database connected to <parameter>conn</parameter>.
+                                This is normally  used by
+                                <classname>SpecTclDB::CDatabase</classname>.
+                                The resulting
+                                <classname>SpecTclDB::SaveSet</classname>
+                                object pointed to by the return value is
+                                dynamically allocated and must be deleted
+                                when your program is done using it.
+                               </para>
+                               <para>
+                                On error, the method throws a
+                                <classname>std::invalid_argument</classname>
+                                exception.  The most common error is
+                                that there is already a save set named
+                                <parameter>name</parameter> in the database.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static std::vector&lt;Info&gt; </type>
+                               <methodname>list</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector whose elements are pointers to
+                                every save set defined in the database connected
+                                via <parameter>conn</parameter>.
+                                Normally, this is used by
+                                <classname>SpecTclDB::CDatabase</classname>.
+                                The pointers in the result are pointers to dynamically
+                                created objects that must, eventually be
+                                deleted.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>SaveSet</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp;</type><parameter> conn</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char* </type><parameter>name</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Constructs a
+                                <classname>SpecTclDB::SaveSet</classname> object
+                                wrapping one named <parameter>name</parameter>
+                                in the database connected to
+                                <parameter>conn</parameter>.
+                                This is normally used by the
+                                <classname>SpecTclDB::CDatabase</classname>
+                                class.  <parameter>name</parameter>
+                                must already exist.  If not, a
+                                <classname>std::invalid_argument</classname>
+                                exception is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>SaveSet</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int</type><parameter> id</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as previous constructor but the
+                                specific save set is selected by the
+                                primary key of the save set (
+                                <parameter>id</parameter>
+                                ).
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const Info&amp; </type>
+                               <methodname>getInfo</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Information about the save set wrapped
+                                by a
+                                <classname>SpecTclDB::SaveSet</classname>
+                                object is cached in an information structure
+                                (<type>SpecTclDB::SaveSet::Info</type>).
+                                This returns a const reference to that struct.
+                                Examining the struct members allows you to
+                                know essentially everything about the top level
+                                save set definition.
+                               </para>
+                               <para>
+                                The members of the
+                                <type>SpecTclDB::SaveSet::Info</type>
+                                struct are described in the
+                                <literal>DATA TYPES</literal> section of this
+                                manpage.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;DBParameter*&gt; </type>
+                               <methodname>listParameters</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector of pointers to
+                                <classname>SpecTclDB::DBParameter</classname> objects
+                                that provide poiners to objects encapsulating
+                                all parameter definitions. These
+                                pointers are to dynamically allocated objects and
+                                therefore must, at some point, have
+                                delete operate on them.
+                               </para>
+                               <para>
+                                See the reference page for
+                                <classname>SpecTclDB::DBParameter</classname>
+                                for information about the objects that
+                                are returned.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBParameter* </type>
+                               <methodname>createParameter</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new minimal parameter definition.
+                                <parameter>name</parameter> is the name of the new
+                                parameter while <parameter>number</parameter>
+                                is the parameter number.  In addition, the database
+                                assigns the parameter a primary key which
+                                can be used for retrieval.
+                               </para>
+                               <para>
+                                The return value is a pointer to a dynamically
+                                created
+                                <classname>SpecTclDB::DBParameter</classname>
+                                which encapsulates the ata store for the parameter
+                                in the database.   The parameter pointer points to a
+                                dynamically allocated object and, therefore,
+                                must be operated on by delete when you are done
+                                with it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                <refsect1>
+                    <title>DATA TYPES</title>
+                    <para></para>
+                    
+                    
+                </refsect1>
+            </refentry>
+        </section>
+        <section>
+            <title>Object oriented Sqlite3 wrapper</title>
+            <para>
+                
+            </para>
+        </section>
+        <section>
+           <title>Tcl bindings to the C++ API</title>
+           <para>
+           </para>
+        </section>
+        <section>
             <title>Database schema.</title>
             <para>
                 Database schema are divided into tables.  Each table
