@@ -3529,6 +3529,389 @@ if {$status} {
         information about this.
        </para>
     </chapter>
+    <chapter>
+       <title>SpecTcl API to the database.</title>
+       <para>
+        The SpecTcl API to the database knows about the SpecTcl commands that
+        can list objects get their properties and uses them to simplify
+        interactions with the database.  It is a pure Tcl package
+        that is written to live on top of the <literal>SpecTclDB</literal>
+        package that serves as a Tcl binding to the database C++ API.
+       </para>
+       <para>
+        The package, named <literal>dbconfig</literal> is available in the TclLibs directory tree of
+        the SpecTcl installation.  Therefore, adding that directory
+        to the package search path, as described in the previous chapter is
+        sufficient to be able to do a
+        <literal>package require dbconfig</literal> to bring the package
+        code into the script.
+       </para>
+       <para>
+        For the most part, the <literal>dbconfig</literal> package
+        is intended to be used as a basis for implementing  SpecTcl GUI's
+        that manipulate the database.  Note that one has already been written,
+        give it a try first to see if it's sufficient.  Naturally if you have
+        suggestions for improvement, send them off to us and we'll consider
+        them for future releases.
+       </para>
+       <para>
+        The reference material in the appendix will describe each
+        proc of the package fully.  Here we'll just take a quick tour
+        of the package. Note that all procs in the package are in the
+        <literal>dbconfig</literal> database.
+       </para>
+    <para>
+        Two procs, <literal>dbconfig::makeSchema</literal> and
+        <literal>dbconifg::connect</literal> support the
+        creation of and connection to databases.  Here's a script
+        fragment that shows how to create and connect to a new
+        database:
+    </para>
+    <example>
+        <title>dbconfig - creating and connecting to a database</title>
+        <programlisting>
+proc newdb {fname} {
+dbconfig::makeSchema $fname
+return [dbconfig::connect $fname]
+}
+        </programlisting>
+    </example>
+    <para>
+        The return value from <function>newdb</function> is a handle
+        that must be used for other call to database related operations.
+        In fact this is a database instance command from the
+        Tcl bindings to the C++ API. When you are done using it you should
+        distroy by invoking it's <command>destroy</command>
+        subcommand.
+    </para>
+    <para>
+        The <literal>dbconfig</literal> package things in terms of
+        configurations. A configuration is the set of parameters,
+        spectra, gates, gate applications and tree variables
+        currently defined in SpecTcl.  It provides several
+        procs that deal with configurations:
+    </para>
+    <variablelist>
+        <varlistentry>
+           <term>
+            <code language='Tcl'>proc dbconfig::openSaveSet {dbcmd name}</code></term>
+           <listitem>
+               <para>
+                This proc opens an existing save set and returns its
+                save set instance command.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::saveConfig {db name {spectra 0}}</code>
+           </term>
+           <listitem>
+               <para>
+                Saves the analysis configuration into the database
+                whoese handle is <parameter>db</parameter>. The saveset used
+                will be <parameter>name</parameter> and must
+                not yet exist.  If <parameter>spectra</parameter>
+                is provided and is non-zero, spectrum contents for all spectra
+                will get saved into the database.
+               </para>
+               <para>
+                The proc returns a handle to the saveset
+                (actually the saveset instance command). This
+                value must be passed to save set related operations.
+                When you are done with that handle, invoke it's
+                <command>destroy</command> subcommand to destroy the
+                command and relase resources associated with it.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig:listConfigs cmd</code>
+           </term>
+           <listitem>
+               <para>
+                Returns a Tcl list describing all of the savesets in the
+                database.  THe list contains dicts that have
+                the keys <literal>id</literal> primary key
+                of the saveset, <literal>name</literal> saveset name,
+                <literal>timestamp</literal> the time the saveset
+                was created.  This can be turned into a readable value
+                via <command>clock format</command>.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language='Tcl'>proc dbconfig::restoreConfig {cmd savename {restoreSpectra 0}}</code>
+           </term>
+           <listitem>
+               <para>
+                Restores the parameter, spectrum, gate, gate applications and
+                tree variable s associated with a saveset.
+                <parameter>cmd</parameter> is the database instance command
+                gotten from <command>dbconfig::connect</command>.
+                The <parameter>savename</parameter> parameter is the name of an
+                existing save set in to which the processing parameters of SpecTcl
+                are stored.   Finally, <parameter>retstoreSpectra</parameter>,
+                if supplied and nonzero restores any saved specrum contents.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl" >proc dbconfig::saveSpectrum {sname specname}</code>
+           </term>
+           <listitem>
+               <para>
+                Saves a single spectrum to the save set designated by the saveset
+                handle (instance command) <parameter>sname</parameter>
+                The spectrum <parameter>specname</parameter> is saved.
+                The save set must already exist and the spectrum definition
+                must be saved in that save set.  
+               </para>
+               <para>
+                Normally this is used when a configuration has been
+                saved and only <emphasis>then</emphasis> are data analyzed.
+                After data analysis is complete an appropriate set of spectra
+                can then be saved into the same saveset to document the
+                results of the analysis.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::restoreSpectrum {sname specname}</code>
+           </term>
+           <listitem>
+               <para>
+                Restores a single spectrum; <parameter>specname</parameter>
+                from the saveset associated with the handle/instance command
+                <parameter>sname</parameter>.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language='Tcl'>proc dbconfig::saveAllSpectrumContents {sname}</code>
+           </term>
+           <listitem>
+               <para>
+                Saves the contents of all spectra into the saveset
+                given by the handle/instance command
+                <parameter>sname</parameter>. The saveset must
+                already have the spectra definitions stored.
+                This is normally used at some point after a call to
+                <function>dbconfig::saveConfig</function>.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::restoreAllSpectrumContents {sname}</code>
+           </term>
+           <listitem>
+               <para>
+                Restores all spectra with saved contents stored in the savest
+                designated by the handle/saveset instance command
+                <parameter>sname</parameter>.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::listSavedSpectra {sname}</code>
+           </term>
+           <listitem>
+               <para>
+                Returns a list of the names of spectra that have
+                channels stored in the save set designated by the
+                handle/save set instance command
+                <parameter>sname</parameter>.
+               </para>
+            </listitem>
+        </varlistentry>
+    </variablelist>
+    <para>
+        The <literal>pkgconfig</literal> does not provide the ability
+        to store or playback event data directly, several procs
+        <emphasis>do</emphasis> provide the ability to get information
+        about the runs stored in a save set and the ability to
+        get scaler data <emphasis>is</emphasis> provided.
+    </para>
+    <para>
+        Let's take a quick tour through those procs.
+    </para>
+    <variablelist>
+        <varlistentry>
+           <term>
+            <code language='Tcl'>proc dbconfig::listRuns {cmd}</code>
+           </term>
+           <listitem>
+               <para>
+                Returns a list of dicts that describe all of the
+                runs in the database whose connection is indicated
+                by <parameter>cmd</parameter>.  Note:
+                Database, not saveset, handle/instance command, not
+                name.
+               </para>
+               <para>
+                Each dict in the, possibly empty, result list is
+                a dict with the following key/value pairs:
+               </para>
+               <variablelist>
+                <varlistentry>
+                   <term><literal>config</literal></term>
+                   <listitem>
+                       <para>
+                        Contains the name of the configuration
+                        (save set) that contains this run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>number</literal></term>
+                   <listitem>
+                       <para>
+                        The run number of the run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>title</literal></term>
+                   <listitem>
+                       <para>
+                        The title string associated with the run.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>start_time</literal></term>
+                   <listitem>
+                       <para>
+                        The time at which the run started. This is a timestamp
+                        that can be can be turned into a human readable
+                        string via <command>clock format</command>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>stop_time</literal></term>
+                   <listitem>
+                       <para>
+                        The time at which the run stopped as a
+                        timestamp suitable to be used with
+                        <command>clock format</command>
+                       </para>
+                    </listitem>
+                </varlistentry>
+               </variablelist>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::hasRun {saveset}</code>
+           </term>
+           <listitem>
+               <para>
+                Returns a boolean that is true if the
+                saveset indicated by the <parameter>saveset</parameter>
+                handle/instance command has associated event data.
+                If not, returns false.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::getRunInfo {saveset}</code>
+           </term>
+           <listitem>
+               <para>
+                If the saveset indicated by the handle/instance command
+                <parameter>saveset</parameter> has saved event data,
+                this will return a list of dicts, just like
+                <function>dbconfig::hasRun</function> does, but confined
+                only for the runs in the save set.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term>
+            <code language="Tcl">proc dbconfig::getScalers {saveset run}</code>
+           </term>
+           <listitem>
+               <para>
+                Returns the scaler data associated with the
+                run number <parameter>run</parameter> in the saveset
+                indicated by the handle/instance command
+                <parameter>saveset</parameter>.  The result is a list
+                of dicts.  Each dict corresponds to a scaler readout.
+               </para>
+               <para>
+                The dicts have the following key/values:
+               </para>
+               <variablelist>
+                <varlistentry>
+                   <term><literal>start</literal></term>
+                   <listitem>
+                       <para>
+                        Time into the run at which the scalers
+                        started counting for this readout.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>stop</literal></term>
+                   <listitem>
+                       <para>
+                        Time into the run at which the scaler counting
+                        for this readout ended.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>divisor</literal></term>
+                   <listitem>
+                       <para>
+                        The value to divide <literal>start</literal>
+                        and <literal>stop</literal> by to get seconds
+                        into the run.  This allows for subsecond
+                        accuracy in those values.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>timestamp</literal></term>
+                   <listitem>
+                       <para>
+                        The timestamp associated with the
+                        scaler readout.  This is suitable for input
+                        to <command>clock format</command>.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>sourceid</literal></term>
+                   <listitem>
+                       <para>
+                        The id of the data source that contributed these data.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>channels</literal></term>
+                   <listitem>
+                       <para>
+                        A list of the channel values that have been
+                        readout.
+                       </para>
+                    </listitem>
+                </varlistentry>
+               </variablelist>
+            </listitem>
+        </varlistentry>
+    </variablelist>
+    </chapter>
     <appendix>
         <title>Reference material</title>
         <section>
