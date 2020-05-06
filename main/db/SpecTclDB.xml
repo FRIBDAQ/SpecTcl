@@ -4278,7 +4278,7 @@ package require dbgui
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                       <term><guimenuitem>Autosve spectra...</guimenuitem></term>
+                       <term><guimenuitem>Autosave spectra...</guimenuitem></term>
                        <listitem>
                            <para>
                             Prompts for the spectra whose contents are automatically
@@ -5109,7 +5109,1237 @@ namespace SpecTclDB {
                                </para>
                             </listitem>
                         </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBParameter*</type>
+                               <methodname> createParameter</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>low</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double</type><parameter> high</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>bins</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter> units</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as the previous overload of
+                                <methodname>createParameter</methodname>, however
+                                this version of the method includes, in addition to the
+                                minimal values of <parameter>name</parameter>
+                                and <parameter>number</parameter>, metadata.
+                                The metadata provided provides hints to the user and
+                                graphical user interfaces when constructing
+                                spectrum axes that represent the parameter.
+                               </para>
+                               <para>
+                                <parameter>low</parameter> and
+                                <parameter>high</parameter> are suggested low and
+                                high limits for such axes.
+                                <parameter>bins</parameter> is the suggested
+                                number of bins for the axis. Finally,
+                                <parameter>units</parameter> is a reminder to users
+                                of the units of measure in which the parameter is
+                                produced.  Note that a normal convention for
+                                unitless parameters is to provide an empty string.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBParameter*</type>
+                               <methodname> findParameter</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Encapsulates the parameter named by <parameter>name</parameter>
+                                in a <classname>SpecTcl::DBParameter</classname>
+                                object.  The object is dynamically created and
+                                a pointer to it returned.  When the object is no
+                                longer deleted the pointer should be operated on by
+                                delete.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBParameter* </type>
+                               <methodname>findParameter</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as above, but the lookup is by the number
+                                 of the parameter passsed to
+                                 <methodname>createParameter</methodname>.
+                                 In the context of SpecTcl, the number is a slot
+                                 in <classname>CEvent</classname> objects that
+                                 represent unpacked events.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBParameter* </type>
+                               <methodname>getParameter</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Retrievs a parameter by its primary key value.
+                                Unlike the parameter number which is assigned by the
+                                application, the primary key is an integer that is
+                                assigned to each row of the parameter definition
+                                table by the database when an insert is performed.
+                               </para>
+                               <para>
+                                This is most often useful to lookup parameters that are
+                                referred to by other objects in the database.
+                                In order to create a database that is in one of the
+                                normal forms, references to objects that other
+                                objects depend on are stored as the primary key.
+                                In database terminology these are called
+                                <firstterm>foreign keys</firstterm>.
+                               </para>
+                               <para>
+                                Most realtional databases are constructed so that
+                                lookups by primary key are very fast.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>bool </type>
+                               <methodname>spectrumExists</methodname>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns <literal>true</literal> if the saveset
+                                contains a spectrum definition for a spectrum
+                                called <parameter>name</parameter>. If not
+                                <literal>false</literal> is returned.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBSpectrum* </type>
+                               <methodname>createSpectrum</methodname>
+                               <methodparam>
+                                   <type>const char*</type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                                 <methodparam>
+                                    <type>const char* </type><parameter>type</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const std::vector&lt;const char*&gt;&amp; </type><parameter>parameterNames</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const std::vector&lt;SpectrumAxis&gt;&amp; </type><parameter>axes</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char* </type><parameter>datatype=</parameter>
+                                    <initializer>"long"</initializer>
+                                </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new spectrum definition in the database.
+                                The name of the spectrum is <parameter>name</parameter>.
+                                The spectrum type code is <parameter>type</parameter>.
+                                
+                               </para>
+                               <para>
+                                All spectra are defined on some set of parameters.
+                                The order of these parameters is important, and
+                                stored in the data base in a way that it can be recovered.
+                                <parameter>parameterNames</parameter> is an ordered 
+                                vector of parameters the spectrum depends on.  The
+                                names of these parameters must match the name of a
+                                previously defined parameter in
+                                <emphasis>this</emphasis> saveset.
+                               </para>
+                               <para>
+                                Spectra have one or two free axes.  By free axes,
+                                I mean axes whose definition is not obvious from the
+                                spectrum type and must be provided to complete the
+                                spectrum definition.  For example, the X axis of
+                                a summary spectrum is fully determined by the number
+                                of parameters the summary is defined on and therefore
+                                not a free axis.  Axis specification order is important,
+                                for example, in a <literal>2</literal> spectrum, the
+                                the first axis description is the X axis and the scond
+                                the Y.  <parameter>axes</parameter> is an ordered
+                                vector
+                                of axis specifications that describe the axis
+                                low limite, high limit and number of bins for each free
+                                axis. See the <literal>DATA TYPES</literal> section
+                                that, among other things describes the
+                                <type>SpecTclDB::SaveSet::SpectrumAxis</type>
+                                data type used here.
+                               </para>
+                               <para>
+                                Finally, an optional <parameter>datatype</parameter>
+                                parameter specifies the data type used to store
+                                each bin of spectrum data. This defaults to
+                                <literal>"long"</literal>. Valid string values are:
+                                <literal>"long"</literal> which creates bins that are
+                                32 bits wide, <literal>"word"</literal> which creats
+                                bins that are 16 bits wide and <literal>"byte"</literal>
+                                which creates bins that are 8 bits wide.
+                               </para>
+                               <para>
+                                The return value from this method is a pointer
+                                to a <classname>SpecTclDB::DBSpectrum</classname> object
+                                that wraps the spectrum definition in the
+                                database.  This object is dynamically created.
+                                Once the program no longer needs it, delete should operate
+                                on that pointer in order to free the object.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;DBSpectrum*&gt; </type>
+                               <methodname>listSpectra</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector containing pointers to objects
+                                that encapsulate all spectrum definitions in this
+                                save set. Note that these objects are all
+                                dynamically allocated and, therefore delete
+                                must operate on these pointers.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBSpectrum* </type>
+                               <methodname>lookupSpectrum</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If the saveset has a definition for the spectrum
+                                named <parameter>name</parameter>,  a pointer to an object
+                                wrapping of the spectrum is returned.
+                                When the program no longer needs this object,
+                                it should be deleted.  
+                               </para>
+                               <para>
+                                If no spectrum with that name has been defined in the
+                                saveset, an <classname>std::invalid_argument</classname>
+                                exception is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>bool </type>
+                               <methodname>gateExists</methodname>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If the saveset has a definition for a gate named
+                                <parameter>name</parameter>, this method returns
+                                <literal>true</literal>, if not,
+                                <literal>false</literal> is returned instead.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate*  </type>
+                               <methodname>create1dGate</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const std::vector&lt;const char*&gt;&amp; </type><parameter>params</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>low</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double</type><parameter> high</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a 1-d gate definition in the saveset.
+                                Gates come in three broad categories, depending on the
+                                data they need to express them:
+                               </para>
+                               <orderedlist>
+                                <listitem>
+                                   <para>
+                                      Point gates require parameters and one or
+                                      more sets of points in parameter space.
+                                   </para>
+                                   <para>
+                                    Polnt gates are further subdivided into
+                                    1-d and 2-d points which are determined by
+                                    the dimensionality of the region of interest
+                                    defined by the gate.
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                      Compound gates are gates that are checked by
+                                      performing a logical operation on some other
+                                      set of gates.
+                                   </para>
+                                </listitem>
+                               
+                               <listitem>
+                                  <para>
+                                     Mask gates are gates that require one parameter
+                                     and a bitmask. The parameter value is treated
+                                     as an integer.  Some bitwise operation is
+                                     performed between the mask and parameter and
+                                     a check is performed on the result.
+                                  </para>
+                               </listitem>
+                            </orderedlist>
+                            <para>
+                             This method creates a 1-d point gate. Examples of
+                             such gates are slices and gamma slices.
+                             <parameter>name</parameter> is the name of the gate
+                             that will be created in the save set.
+                             <parameter>type</parameter> is a textual gate type
+                             string.
+                            </para>
+                            <para>
+                             As this is a point gate, <parameter>params</parameter>
+                             is a vector of parameters the gate will be checked against.
+                             for slice gates this will be a single parameter, for gamma
+                             slices, more than one. <parameter>low</parameter>
+                             and <parameter>high</parameter> define a segment
+                             of 1-d parameter space.  Parameters must be in this
+                             gate to make the gate true for this event.
+                             See SpecTcl's documentation for more information on
+                             what makes a gamma slice true.
+                            </para>
+                            <para>
+                             The returned value is a pointer to a dynamically
+                             created <classname>SpecTclDB::DBGate</classname>
+                             object.  When your program no longer needs this
+                             object, it should be deleted.
+                            </para>
+                           </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate* </type>
+                               <methodname>create2dGate</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type> const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const std::vector&lt;const char*&gt;&amp; </type><parameter>params</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const std::vector&lt;std::pair&lt;double, double&gt;&gt;&amp; </type><parameter>points</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a point gate where the region of interest is a
+                                2-dimensional figure.  Examples are bands, contoures,
+                                gamma contours etc.
+                               </para>
+                               <para>
+                                As before, the <parameter>name</parameter>
+                                parameter specifies the name of the gate and
+                                <parameter>type</parameter> a gate type
+                                string.  Again as before <parameter>parameters</parameter>
+                                are the parameters on which the gate is defined.
+                                Order can be important.  For example for a contour,
+                                the first parameter is the X parameter the second the
+                                Y parameter.
+                               </para>
+                               <para>
+                                <parameter>points</parameter> is an ordered list
+                                of X, Y pointes in parameter space that define
+                                the region of acceptance of the gate.  See the SpecTcl
+                                documentation for information about how the
+                                region of acceptance is intepreted when evaluating
+                                a gate.
+                               </para>
+                               <para>
+                                The returned value is a pointer to a dynamically
+                                created <classname>SpecTclDB::DBGate</classname>
+                                object.  When your program no longer needs this
+                                object, it should be deleted.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate* </type>
+                               <methodname>createCompoundGate</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const std::vector&lt;const char*&gt;&amp; </type><parameter></parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a compound gate definition. Compound gates
+                                are dependent on other gates, some of which could,
+                                themselves, also be compound gates.  In SpecTcl,
+                                compound gates can nest to any depth as long as
+                                there are no circular dependencies.
+                               </para>
+                               <para>
+                                As before, <parameter>name</parameter> is the
+                                name of the gate definition now being made,
+                                <parameter>type</parameter> is the type of the gate
+                                (e.g. <literal>"*"</literal> for an and gate).
+                                <parameter>gates</parameter> is a vector of
+                                names of gates that are already defined in the
+                                save set.
+                               </para>
+                               <para>
+                                Note that when saving the gate definitions in
+                                SpecTcl, you must be careful to determine the gate
+                                dependencies to ensure that gates are not defined
+                                in the database prior to all their dependent gate
+                                definitions.  The Tcl high level SpecTcl
+                                API does this dependency analysis.
+                               </para>
+                               <para>
+                                The database is organized that the method
+                                <methodname>listGates</methodname> will return
+                                gates in the order in which they were defined
+                                which means that if dependency analysis was done when
+                                saving gates, it does not need to be done when
+                                restoring them.
+                               </para>
+                               <para>
+                                The returned value is a pointer to a dynamically
+                                created <classname>SpecTclDB::DBGate</classname>
+                                object.  When your program no longer needs this
+                                object, it should be deleted.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate* </type>
+                               <methodname>createMaskGate</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name, const char* type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>parameter</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>mask</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a mask gate definition.  As before,
+                                <parameter>name</parameter> is the name of the
+                                gate and <parameter>type</parameter> is the
+                                gate type (e.g. <literal>"em"</literal>).
+                                Mask gates only take a single parameter:
+                                <parameter>parameter</parameter> is the name of that
+                                parameter, which  must already be defined in this
+                                saveset. <parameter>mask</parameter> is the
+                                mask.
+                               </para>
+                               <para>
+                                The returned value is a pointer to a dynamically
+                                created <classname>SpecTclDB::DBGate</classname>
+                                object.  When your program no longer needs this
+                                object, it should be deleted.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate* </type>
+                               <methodname>lookupGate</methodname>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If the gate named <parameter>name</parameter> has
+                                a definition in this saveset, a pionter to
+                                an object encapsulating that gate definition is returned.
+                                If <parameter>name</parameter> has not been defined
+                                in the save set, an
+                                <classname>std::invalid_exception</classname>
+                                is thrown.
+                                The object pointed to by the return value is
+                                dynamically allocated and must therefore be
+                                deleted when the program has no further need for it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBGate* </type>
+                               <methodname>lookupGate</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as above, but lookup is by the primary
+                                key of the gate in the top level table for
+                                gate definitions.  This is generally a faster
+                                way to find a gate if its primary key is known
+                                (for example, in a compound gate, the dependent
+                                gates are stored as gate ids).
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;DBGate*&gt; </type>
+                               <methodname>listGates</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector of pointer to
+                                <classname>SpecTcl:DBGate</classname> objects.
+                                The vector will contain pointers to objects that will
+                                encapsulate all gates defined in this save set.
+                                The vector order will be such that no gate will
+                                appear in the vector without all of its dependencies
+                                appearing first.
+                               </para>
+                               <para>
+                                The pointers point to dynamically created objects.
+                                All pointers must be deleted once the program
+                                has no further need of them.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBApplication* </type>
+                               <methodname>applyGate</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>gate</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>spectrum</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new gate application entry in the
+                                save set.  Gates applied to spectra conditionalize that
+                                spectrum's increment on the gate.  Even an event has
+                                all the parameters needed to increment the spectrum,
+                                if a gate is applied to a spectrum, it will
+                                not be incremented unless that gate is true.
+                               </para>
+                               <para>
+                                <parameter>gate</parameter> is the name of the
+                                gate to apply and <parameter>spectrum</parameter>
+                                is the name of the spectrum it should be applied to.
+                                Bot gate and spectrum must already be defined in the
+                                saveset.  Note that gate application is a one to
+                                many thing.  A gate can be applied to as many
+                                spectra as desired, but only one gate can be
+                                applied to any single spectrum.
+                               </para>
+                               <para>
+                                In fact, SpecTcl simplifies its gate checking logic
+                                by requiring that all spectra always have
+                                exactly one gate applied to it.  When a spectrum
+                                is created a true gate is applied to it.
+                                It is not necessary to store the application of
+                                true gates to a spectrumm, unless once restored,
+                                that gate may be changed to a different type of
+                                gate.
+                               </para>
+                               <para>
+                                The return value fromt his method is a
+                                pointer to a 
+                                <classname>SpecTclDB::DBApplication</classname> object.
+                                The object encapsulates information about the
+                                application and is dynamically created. When the
+                                program no longers needs the object, therefore,
+                                it should be destroyed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBApplication* </type>
+                               <methodname>lookupApplication</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>gate</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>spectrum</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Looks up an application and returns a pointer
+                                to an object wrapping of the data for it in the
+                                database.  Note that applications are not named entities.
+                                They can only be looked up by providing both the
+                                gate name (<parameter>gate</parameter>) and the
+                                target spectrum (<parameter>spectrum</parameter>).
+                               </para>
+                               <para>
+                                The returned value is a pointer to a dynamically
+                                created object. As such, when the calling program
+                                no longer needs it, it should be deleted.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;DBApplication*&gt; </type>
+                               <methodname>listApplications</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector containing pointers to all of the
+                                gate applications defined in the save set.
+                                These objects are all dynamically created and must be
+                                deleted when the program no longer needs them.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBTreeVariable* </type>
+                               <methodname>createVariable</methodname>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double</type><parameter>value</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>units</parameter>
+                                <initializer>""</initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a tree variable definition.  <parameter>name</parameter>
+                                is the name of the variable whose definition is
+                                being captured.  <parameter>value</parameter>
+                                is the value for it that will be stored.
+                                <parameter>units</parameter> are the units of
+                                measure of the variable.  If not supplied, this
+                                defaults to an empty string which, by convention,
+                                means a unit-less variable.
+                               </para>
+                               <para>
+                                The return value is a pointer to a
+                                <classname>SpecTclDB::DBTreeVariable</classname>
+                                that encapsulates the database entry just made.
+                                This is a pointer to a dynamically created object and,
+                                therefore, must be deleted when it is no longer
+                                needed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>DBTreeVariable* </type>
+                               <methodname>lookupVariable</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If there is a definition for
+                                the tree variable <parameter>name</parameter>
+                                in the database it is retrieved and wrapped
+                                with a <classname>SpecTclDB::DBTreeVariable</classname>
+                                object.  If not, an <classname>std::invalid_argument</classname>
+                                exception is thrown.  The return value is
+                                dynamically constructed and, therefore, when the
+                                program is done using it, you should delete it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>bool </type>
+                               <methodname>variableExists</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If there is a variable definition for
+                                <parameter>name</parameter> in the saveset,
+                                this method returns <literal>true</literal>.
+                                If not, <literal>false</literal> is returned instead.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;DBTreeVariable*&gt;</type>
+                               <methodname>listVariables</methodname>
+                                <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a vector containing pointers to
+                                <classname>SpecTclDB::DBTreeVariable</classname>
+                                objects that describe all of the variable definitions
+                                in the save set.  The pointers are to dynamically
+                                allocated objects and therefore, once the
+                                program is done with the objects they should be
+                                deleted.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>startRun</methodname>
+                               <methodparam>
+                                   <type>uint32_t </type><parameter>run</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>title</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>time_t </type><parameter>start</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates an entry in the save set for a begin run.
+                                <parameter>run</parameter> is the run number of that
+                                run, <parameter>title</parameter> is the run title
+                                and <parameter>start</parameter> the clock time
+                                a which the run actually started.
+                                The return value is the primary key of the
+                                run entry which should be used as a handle in future
+                                calls to store data associated with the run.
+                               </para>
+                               <para>
+                                Note tha the entry in the database has a
+                                run end time.  This is initialized to null.
+                                It can be set by a call to
+                                <methodname>endRun</methodname> described below.
+                                The two are separated because if you are building up
+                                run data from a serial event file, there will
+                                be a separation between the begin run record
+                                and end run record of, potentially several million events.
+                               </para>
+                               <para>
+                                The <parameter>start</parameter> time should not
+                                be now, but the time the run actually started,
+                                nopefully recorded in the start run
+                                record of the event file being analyze.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>endRun</methodname>
+                               <methodparam>
+                                   <type>int</type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>time_t </type><parameter>endtime</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Sets the end of run time for the run with the
+                                <parameter>id</parameter> returned from
+                                <methodname>startRun</methodname>.  the
+                                time used will be <parameter>endtime</parameter>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>saveScalers</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>sourceid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>startOffset</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>stopOffset</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>divisor</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>time_t when</type><parameter></parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>nScalers</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const uint32_t* </type><parameter>scalers</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Saves a scaler readout entry for the run
+                                identified by <parameter>id</parameter>. This
+                                id should have been returned from
+                                <methodname>startRun</methodname>.
+                               </para>
+                               <para>
+                                <parameter>sourceid</parameter> is an integer
+                                that represents the source id that identifies data
+                                from a specific source of data to the event builder.
+                               </para>
+                               <para>
+                                <parameter>startOffset</parameter> and
+                                <parameter>stopOffset</parameter> identifier the start and stop times of the
+                                most recent scaler readout.  <parameter>divisor</parameter>
+                                is the value to divide the offsets by to get a time
+                                in seconds since the run started.
+                               </para>
+                               <para>
+                                <parameter>nScalers</parameter> are the number of
+                                scalers that were readout and <parameter>scalers</parameter>
+                                is a pointer to that many scalers.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void* </type>
+                               <methodname>startEvents</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                 Indicates that a set of decoded events
+                                 are about to be stored in the database.
+                                 Single database operations are comparitively slow,
+                                 while doing several entries within a transaction
+                                 or save point is much more efficient.  This
+                                 method starts a save point and returns
+                                 a handle to it.
+                               </para>
+                               <para>
+                                The <parameter>id</parameter> parameter should be
+                                the return value from the
+                                <methodname>startRun</methodname> for the
+                                run for which we are going to enter events.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>rollbackEvents</methodname>
+                               <methodparam>
+                                   <type>void* </type><parameter>savept</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Rolls back the save point created by a
+                                call to <methodname>startEvents</methodname>.
+                                <parameter>savept</parameter> is the value
+                                returned from <methodname>startEvents</methodname>.
+                                Once this is called, that pointer should not
+                                be used as it is no longer pointing to anything
+                                valid.
+                               </para>
+                               <para>
+                                A rollback effectively cancels all database
+                                insertions performed since the call to
+                                <methodname>startEvents</methodname>.
+                                This applies not just to event data but:
+                               </para>
+                               <itemizedlist>
+                                <listitem>
+                                   <para>
+                                      Calls to <methodname>saveScalers</methodname> 
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                      Calls to methods that create definitions
+                                      for objects in this saveset.
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                      Calls to methods that result in insertions
+                                      to the database that are performed on any
+                                      object connected to the same database
+                                      as this saveset.
+                                   </para>
+                                </listitem>
+                               </itemizedlist>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>endEvents</methodname>
+                               <methodparam>
+                                   <type>void* </type><parameter>savept</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Commits the save point created by the call to
+                                <methodname>startEvents</methodname> that
+                                returned the value passed to this method
+                                as <parameter>savept</parameter>.
+                                All insertions become finalized and become
+                                visible to other clients of the database.
+                               </para>
+                               <para>
+                                In actual fact, the save point affects more than
+                                event data, see the description in
+                                <methodname>rollbackEvents</methodname>
+                                above.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>saveEvent</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>event</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>nParams</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const int* </type><parameter>paramid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const double* </type><parameter>params</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Saves an event either to the database directly or
+                                to the set of queued events in the save point
+                                created by a recent call to
+                                <methodname>startEvents</methodname>.
+                                <parameter>id</parameter> is the id of the run that
+                                owns the event (returned from <methodname>startRun</methodname>).
+                                <parameter>event</parameter> is the event number.
+                                (should be a counter incremented after each event).
+                                <parameter>nParams</parameter> the number
+                                of unpacked parameters to be saved.
+                                <parameter>paramids</parameter> points to the array
+                                of parameter numbers for the parameters in the event.
+                                By parameter numbers I mean the value of the
+                                number field of a parameter definition.
+                                <parameter>params</parameter>, pointer to an array of
+                                corresponding parameter values.
+                               </para>
+                               <para>
+                                If you are preparing to call this from a
+                                <classname>CEvent</classname> object in SpecTcl,
+                               </para>
+                               <orderedlist>
+                                <listitem>
+                                   <para>
+                                      <parameter>nParams</parameter>  is the size
+                                      of that event's dope vector.
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                      <parameter>parmids</parameter>  is the
+                                      pointer returned from the call to
+                                      <methodname>data</methodname> on the
+                                      dope vector.
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                      <parameter>params</parameter>  can
+                                      be produced by pushing the values corresponding
+                                      to parameter ids in the dope vector intp a
+                                      vector of doubles
+                                      and then using the value returned from
+                                      <methodname>data</methodname> called on that
+                                      vector.
+                                   </para>
+                                </listitem>
+                               </orderedlist>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;int&gt; </type>
+                               <methodname>listRuns</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                returns a vector run number for the runs that
+                                have data stored in this saveset.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>openRun</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Given a run number makes it available for data
+                                retrieval by returning the primary key of the
+                                run in the database.  The resultis known in the API
+                                variously as a runid or just an id.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>RunInfo </type>
+                               <methodname>getRunInfo</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Given a run primary key (run id) returns
+                                information about it in a
+                                <classname>SpecTclDB::SaveSet::RunInfo</classname>
+                                struct.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void*</type>
+                               <methodname>openScalers</methodname>
+                               <methodparam>
+                                   <type>int</type><parameter>runid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Begins pulling scaler readout data from the
+                                whose run id is <parameter>runid</parameter>.
+                                The return value is actually a handle into the
+                                scaler data retrieval result set and
+                                should be used in calls to
+                                <methodname>readScaler</methodname>, and ultimately
+                                <methodname>closeScalers</methodname>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        
                     </variablelist>
+                    
                 </refsect1>
                 <refsect1>
                     <title>DATA TYPES</title>
