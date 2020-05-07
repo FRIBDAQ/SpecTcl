@@ -6337,23 +6337,994 @@ namespace SpecTclDB {
                                </para>
                             </listitem>
                         </varlistentry>
-                        
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int   </type>
+                               <methodname>readScaler</methodname>
+                               <methodparam>
+                                   <type>void*</type><parameter> context</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>ScalerReadout&amp;</type><parameter>result</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the next scaler read from the
+                                result set, <parameter>context</parameter> that
+                                was returned from a call to
+                                <methodname>openScalers</methodname>.
+                                The data are returned in the <parameter>result</parameter>
+                                parameter.  The shape of the
+                                <type>SpecTclDB::SaveSet::ScalerReadout</type>
+                                type is described in the section
+                                <literal>DATA TYPES</literal>.
+                               </para>
+                               <para>
+                                If the return value was non zero there was another
+                                readout and the data in
+                                <parameter>result</parameter> is valid.  If not,
+                                then there was no additional data and the
+                                <parameter>result</parameter> data should
+                                not be relied on.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>closeScalers</methodname>
+                               <methodparam>
+                                <type>void* </type><parameter>context</parameter>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                frees all reasources that are used by the
+                                <parameter>context</parameter> parameter
+                                returned from a previous call to
+                                <methodname>openScalers</methodname>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void* </type>
+                               <methodname>openEvents</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>runid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Prepares a result set for the events
+                                associated with the run whose primary key is
+                                <parameter>runid</parameter>.  The return
+                                value is a context that should be used
+                                to iterate over the result set.
+                                See <methodname>readEvent</methodname>
+                                and <methodname>closeEvents</methodname>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int   </type>
+                               <methodname>readEvent</methodname>
+                               <methodparam>
+                                   <type>void*</type><parameter> context</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>Event&amp;</type><parameter>result</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Retrieves the next event in the result set
+                                indicted by <parameter>context</parameter>
+                                (gotten from <methodname>openEvents</methodname>).
+                                The eventis stored in <parameter>result</parameter>
+                                The shape of the
+                                <type>SpecTclDB::SaveSet::Event</type>
+                                data type is described in
+                                <literal>DATA TYPES</literal> below.
+                               </para>
+                               <para>
+                                If there is another event in the result set,
+                                the return value is nonzero.  If, however
+                                there are no more events, the return value is zero.
+                                If the return value is zero, the
+                                contents of <parameter>result</parameter>
+                                should not be considered to be reliable.
+                               </para>
+                            </listitem>
+                        </varlistentry>
                     </variablelist>
                     
                 </refsect1>
                 <refsect1>
                     <title>DATA TYPES</title>
-                    <para></para>
+                    <para>
+                        Several public data types are defined.  When reading
+                        the description below, all data type names should be
+                        prefixed in code with
+                        <literal>SpecTclDB::SaveSet::</literal> that is the
+                        types are defined as local types within the
+                        <classname>SpecTclDB::SaveSet</classname> class.
+                    </para>
                     
-                    
+                    <refsect2>
+                        <title><type>Info</type></title>
+                        <para>
+                            The <type>Info</type> type is a structure
+                            that caches information about the saveset retrieved
+                            from the database.  It has the following fields:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><type>int</type><structfield>s_id</structfield></term>
+                               <listitem>
+                                   <para>
+                                    The save set's primary key in its top level
+                                    table.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>std::string </type><structfield>s_name</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The name of the save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>time_t</type><structfield>s_stamp</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The time of day at which the save set was
+                                    created.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                        <para>
+                            Note that an appropriate set of copy constructors
+                            and assignment operators have been defined to make
+                            the struct copy and assignment safe.
+                        </para>
+                    </refsect2>
+                    <refsect2>
+                        <title><type>RunInfo</type></title>
+                        <para>
+                            This struct provides information about a run
+                            that was saved in the database.  It as the
+                            following fields:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <type>int</type><structfield> s_runNumber</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The run number of the run.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>std::string </type><structfield>s_title</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The title string of the run.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>time_t</type><structfield>s_startTime</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The clock time at which the run started.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>time_t </type><structfield>s_stopTime</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The clock time at which the run ended.
+                                    It is possible, if the run ended badl or wasn ot
+                                    completely saved to the databas, that this
+                                    field will be zero meaning that the end time
+                                    of the run is not known.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title><type>ScalerReadout</type></title>
+                        <para>
+                            This struct contains the information from a
+                            scaler readout.  The struct contains not only the
+                            scaler channel data but also the metadata
+                            describing it.  Here are the fields in that
+                            struct:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <type>int </type><structfield>s_sourceId</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    When data are event built, each source for the
+                                    event builder has its own unique integer source id.
+                                    Each data source may readout periodic
+                                    scalers and the meaning of the scalers
+                                    read from source to source vary.
+                                   </para>
+                                   <para>
+                                    This field contains the source id of the
+                                    data source that produced this readout.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>int </type><structfield>s_startOffset</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    This is a time offset into the run at which
+                                    the period over which the scalers accumulated
+                                    started. The units depend on
+                                    <structfield>s_divisor</structfield>
+                                    below.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>int </type><structfield>s_stopOffset</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The time offset into the run at which the
+                                    period over which the scalers accumulated for
+                                    this readout ended.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>int </type><structfield>s_divisor</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    If you do a floating point division of
+                                    <structfield>s_startOffset</structfield>
+                                    or <structfield>s_stopOffset</structfield>
+                                    by this value you will get those times
+                                    in units of seconds.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>std::vector&lt;int&gt; </type><structfield>s_values</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    This vector are the scaler values for
+                                    this counting period.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title><type>EventParameter</type> and <type>Event</type></title>
+                        <para>
+                            These two data types are closely related and
+                            are used when returning a processed event from
+                            the database.  <type>EventParameter</type>
+                            is a struct that represents a single parameter:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <type>int</type><structfield>s_number</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The number of the parameter represented by
+                                    this struct. Note that this refers not
+                                    to a primary key for a parameter but
+                                    its number field.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <type>double</type><structfield>s_value</structfield>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    The actual value of the parameter.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                        <para>
+                            This representation of parameters assumes that,
+                            in general, events are sparse.  Finally,
+                            the <type>Event</type> is just a
+                            <classname>std::vector&lt;EventParameter&gt;</classname>,
+                            and represents an entire event extracted
+                            from the database.                                
+                        </para>
+
+                    </refsect2>
+                    <refsect2>
+                        <title><type>SpectrumAxis</type></title>
+                        <para>
+                            This data type describes a single spectrum
+                            axis and is used when creating spectra:
+                        </para>
+                        <variablelist>
+                           <varlistentry>
+                              <term>
+                                <type>double </type><structfield>s_low</structfield>
+                              </term>
+                              <listitem>
+                                <para>
+                                    The axis low limit in parameter coordinates.    
+                               </para>
+                            </listitem>
+                           </varlistentry>
+                           <varlistentry>
+                              <term>
+                                <type>double </type><structfield>s_high</structfield>
+                              </term>
+                              <listitem>
+                                <para>
+                                    The axis high limit in parameter coordinates.
+                               </para>
+                            </listitem>
+                           </varlistentry>
+                           <varlistentry>
+                              <term>
+                                <type>int</type><structfield>s_bins</structfield>
+                              </term>
+                              <listitem>
+                                <para>
+                                    The number of bins on that axis.
+                               </para>
+                            </listitem>
+                           </varlistentry>
+                        </variablelist>
+                        <para>
+                            Note that axes are inclusive on the low side and
+                            exclusive of the high end.  In SpecTcl it's perfectly
+                            legal to have a reversed axis.  That is an axis
+                            where <structfield>s_low</structfield> is
+                            greater than <structfield>s_high</structfield>.
+                        </para>
+                    </refsect2>
                 </refsect1>
             </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>DBParameter</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>DBParameter</refname>
+                  <refpurpose>Encapsulate database parameter definitions.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;DBParameter.h&gt;
+
+namespace SpecTclDB {
+    class SaveSet;
+    
+    class DBParameter {
+    public:
+        struct Info {
+            int         s_id;
+            int         s_savesetId;
+            std::string s_name; 
+            int         s_number;
+            bool        s_haveMetadata;
+            double      s_low;
+            double      s_high;
+            int         s_bins;
+            std::string s_units;
+        };
+    public:
+        static bool exists(CSqlite&amp; connection, int sid, const char* name);
+        static bool exists(CSqlite&amp; connection, int sid, int id);
+        
+        static DBParameter* create(
+            CSqlite&amp; connection, int sid, const char* name, int number
+        );
+        static DBParameter* create(
+            CSqlite&amp; connection, int sid, const char* name, int number,
+            double low, double high, int bins, const char* units
+        );
+        static DBParameter* get(CSqlite&amp; connection, int sid, int id);
+        static std::vector&lt;DBParameter*&gt; list(CSqlite&amp; connection, int sid);
+    public:
+        DBParameter(CSqlite&amp; conn, int saveid, const char* name);
+        DBParameter(CSqlite&amp; conn, int saveid, int number);
+
+        const Info&amp; getInfo();
+        
+
+        
+    };
+}                      
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                      <para>
+                        <classname>SpecTclDB::DBParameter</classname>
+                        encapsulates the data in the database for
+                        a single parameter definition.  It also
+                        provides services that are related to parameters.
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <para>
+                        Note that most methods described below require
+                        that you have a database connection and the
+                        primary key of a save set.  These methods are not
+                        intended for general use but are used by
+                        API methods for the parameter definitions in
+                        <classname>SpecTclDB::SaveSet</classname> which
+                        has these pieces of information available.
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static bool </type>
+                               <methodname>exists</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>sid </parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Determines if the parameter <parameter>name</parameter>
+                                exists in the saveset with the
+                                primary key <parameter>sid</parameter>
+                                that is in the database with the connection
+                                <parameter>conn</parameter>.
+                                If the parameter exists, <literal>true</literal>
+                                is returned, if not, <literal>false</literal>.
+                                Note that if there are errors, they are signalled
+                                by exceptions that are derived from
+                                <classname>std::exception</classname>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static bool </type>
+                               <methodname>exists</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> sid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as the previous method but looks up the
+                                parameter by its primary  key
+                                <parameter>id</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBParameter* </type>
+                               <methodname>create</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>sid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name </parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                This method creates a new parameter definition
+                                in the saveset with the primary key
+                                <parameter>sid</parameter> in the
+                                database <parameter>conn</parameter>.
+                                The parameter is a primitive parameter that
+                                only has a <parameter>name</parameter>
+                                and <parameter>number</parameter>.
+                               </para>
+                               <para>
+                                When the definition comes from SpecTcl, the
+                                <parameter>number</parameter> is a slot in the
+                                <classname>CEvent</classname> object where the unpacked
+                                parameter will be stored.
+                               </para>
+                               <para>
+                                The result is a pointer to a
+                                new <classname>SpecTclDB::DBParameter</classname>
+                                object that wraps the new definition.
+                                The object is dynamically created so you
+                                must delete it when your program no longer
+                                needs it.
+                               </para>
+                               <para>
+                                On errors like duplicate parameter name or
+                                number or no such save set,
+                                an <classname>std::invalid_argument</classname>
+                                exception is thrown.  Other errors
+                                result in exceptions that are derived from
+                                <classname>std::exception</classname>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBParameter* </type>
+                               <methodname>create</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp;</type><parameter> connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>sid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type> int </type><parameter>number</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>low</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>high</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> bins</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>units</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Exactly like the previous method, however the
+                                additional parameters supply the metadata
+                                that is normally available in a tree parameter.
+                                <parameter>low</parameter> is the
+                                recommended axis low limit for axes that
+                                defined on these parameters. <parameter>high</parameter>
+                                is the recommended axis high limt for axes that are
+                                defined on this parameter.
+                                <parameter>bins</parameter>
+                                is the recommended number of bins for axes
+                                defined on this parameter using the
+                                recommended limits.
+                                <parameter>units</parameter> are the
+                                units of measure of the parameter.
+                                Note that for unitless parameters, by convention
+                                an empty string is used.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBParameter* </type>
+                               <methodname>get</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> sid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> id</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Fetchs the parameter definition
+                                with the primary key
+                                <parameter>id</parameter> from
+                                the saveset with a primary key of
+                                <parameter>sid</parameter> from
+                                the database connected via
+                                <parameter>connection</parameter>.
+                               </para>
+                               <para>
+                                If found, the parameter definition is
+                                wrapped in
+                                <classname>SpecTclDB::DBParameter</classname> object
+                                and a pointer to that object is returned.
+                                The object is dynamically created, therefore
+                                when the program no longer needs it it must
+                                be deleted
+                               </para>
+                               <para>
+                                If the parameter does not exist,
+                                <classname>std::invalid_argument</classname>
+                                is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static std::vector&lt;DBParameter*&gt; </type>
+                               <methodname>list</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>sid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Given a connection to a database
+                                <parameter>connection</parameter> and the
+                                primary key of a saveset,
+                                <parameter>sid</parameter> lists all of the
+                                parameter definitions that are in that saveset.
+                                The result is a vector that contains pointers
+                                to object wrappers for the data in the
+                                database for each parameter.
+                                These objects are dynamically generated and,
+                                thereforem, must be deleted when no longer
+                                needed by the program.
+                               </para>
+                               <para>
+                                Any errors are reported as exceptions that are
+                                derived from <classname>std::exception</classname>.
+                                
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>DBParameter</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>saveid</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char* </type><parameter>name</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Looks up the parameter definition for
+                                <parameter>name</parameter> and constructs
+                                a <parameter>SpecTclDB::DBParameter</parameter>
+                                object to wrap it.  <parameter>connection</parameter>
+                                represents the connection to the database
+                                and <parameter>sid</parameter> is the
+                                primary key of the saveset the parameter
+                                is defined in.
+                               </para>
+                               <para>
+                                If there is no parameter named
+                                <parameter>name</parameter> in the
+                                designated save set
+                                <classname>SpecTclDB::invalid_argument</classname>
+                                is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>DBParameter</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>saveid</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>number</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                This constructor locates the parameter definition
+                                it wraps based on the parameter
+                                <parameter>number</parameter>. The parameter
+                                number is not the primary key of the parameter but
+                                a number associated with the paramater name
+                                when the definition is created. In the context of
+                                SpecTcl, this number represents a slot in the
+                                <classname>CEvent</classname> passed to
+                                event processors into which the parameter will
+                                be placed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const Info&amp; </type>
+                               <methodname>getInfo</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                When a <classname>SpecTclDB::DParameter</classname>
+                                is constructed, it fetches information about the
+                                parameter from the database and caches it
+                                internally in a
+                                <type>SpecTclDB::DBParameter::Info</type>
+                                struct.  This fetches a const reference to that
+                                struct.
+                               </para>
+                               <para>
+                                The members of the
+                                <type>SpecTclDB::DBParameter::Info</type> are
+                                described in <literal>DATA TYPES</literal>
+                                below.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+        
+                </refsect1>
+                <refsect1>
+                    <title>DATA TYPES</title>
+                    <para>
+                        <classname>SpecTclDB::DBParameter</classname>
+                        exports a single data type; <type>Info</type>
+                        (fully qualified name <type>SpecTclDB::DBParameter::Info</type>).
+                        This is a struct that is used to cache the database
+                        definition of the parameter represented by instances
+                        of <classname>SpecTclDB::DBParameter</classname>.
+                    </para>
+                    <para>
+                        <type>Info</type> has the following fields:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_id</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The primary key of the database entry for
+                                this parameter.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_savesetId</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                A foreign key to the saveset that owns
+                                the parameter.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>std::string </type><structfield>s_name</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The name of the parameter.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_number</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                A number associated with the parameter.
+                                For SpecTcl, this is the slot of the
+                                <classname>CEvent</classname> passed to
+                                event processors into which the parameter
+                                value for an event will be placed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>bool</type><structfield>s_haveMetadata</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                Parameters in SpecTcl come in two flavors.
+                                Raw parameters only have a number, the
+                                index into <classname>CEvent</classname>
+                                objects into which they get unpacked.
+                                <firstterm>Tree parameters</firstterm>
+                                also have metadata about the parameter.
+                                This metadata, provides additional information
+                                about the parameter.
+                               </para>
+                               <para>
+                                If metadata is supplied for the parameter,
+                                this flag will be <literal>true</literal>.
+                                If not, this flag will be <literal>false</literal>.
+                                The subsequent fields in
+                                <type>Info</type> will only have valid values
+                                if <structfield>s_haveMetadata</structfield>
+                                is <literal>true</literal>.  If not those
+                                fields should be ignored.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>double </type><structfield>s_low</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                Metadata.  This is the lowest value expected
+                                to be valid for the parameter.  It is a suggested
+                                low limit of histogram axes that represent this
+                                parameter.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>double</type><structfield>s_high</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                Metadata.  This is the largest value expected to be
+                                valid for this parameter.  It is a suggested
+                                upper limit of histogram axes that
+                                represent this parameter.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_bins</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                Metadata.  This value says something about
+                                the resolution with which the parameter is
+                                represented. It recommends that if you
+                                follow the axis limit suggestions provided
+                                you parcel that axis out into
+                                <structfield>s_bins</structfield> bins.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>std::string </type><structfield>s_units</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                Metadata: This provides units of measure for the
+                                parameter.  This and the
+                                <structfield>s_name</structfield> field can
+                                be used to derive axis labels for the parameter.
+                                By convention, unitless parameters have
+                                an empty string for this field.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
+            
         </section>
         <section>
             <title>Object oriented Sqlite3 wrapper</title>
             <para>
                 
             </para>
+            
         </section>
         <section>
            <title>Tcl bindings to the C++ API</title>
