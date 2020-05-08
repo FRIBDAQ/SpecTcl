@@ -7938,11 +7938,948 @@ namespace SpecTclDB {
                     </refsect2>
                 </refsect1>
             </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>DBGate</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>DBGate</refname>
+                  <refpurpose>Encapsulate database gate definitions</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;DBGate.h&gt;
+
+namespace SpecTclDB {
+   
+/**
+ * @class DBGate
+ *   This class encapsulates a gate.  Note that gates are pretty
+ *   complicated things.  There is a type dependency that determines
+ *   the sorts of dependent things their root table entry (gate_defs)
+ *   has linked to it.  Primarily there are three type of gates:
+ *   - Gates that have associated points.
+ *   - Gates that have associated gates.
+ *   - Gates that are masks and have an associated mask.
+ * @note the c2band gate is not directly stored in the database.  Instead
+ *       the equivalent contour is stored.  An attempt to store a c2band
+ *       will result in an error.
+ *
+ *    Let's look at the dependent data for each of these types of gates:
+ *
+ *    - Gates with associated points have parameters, and points.  These
+ *      are in  the table (gate_paramters and gate_points).
+ *    - Gates with associated gates have only gates in the component_gates
+ *      table. Note that since gate ids are stored in that table,
+ *      we only allow a compound gate to be stored if its component gates have
+ *      been stored.  This requires the client code to do gate dependency
+ *      analysis.
+ *    - mask gates have a parameter (gate_parameters) and a mask (gate_masks).
+ *
+ *    To make all of this easier, we'll be providing different creationals
+ *    for each of these classifications of gate types.
+ *
+ */
+class DBGate {
+    
+    public:
+        typedef std::vector&lt;const char*&gt; NameList;
+        typedef std::vector&lt;int&gt;         IdList;
+        
+        typedef enum _BasicGateType {point, compound, mask}
+            BasicGateType; 
+        
+        struct BaseInfo {
+            int           s_id;                   // Id in gate_defs table.
+            int           s_saveset;              // id of saveset.
+            std::string   s_name;                 // gate name.
+            std::string   s_type;                 // detailed gate type.
+            BasicGateType s_basictype;            // what to expect.
+            
+        };
+        
+        struct Point {
+            double    s_x;
+            double    s_y;
+        };
+        typedef std::vector&lt;Point&gt; Points;
+        
+        struct Info {
+            BaseInfo       s_info;
+            IdList         s_parameters;
+            IdList         s_gates;
+            Points         s_points;
+            int            s_mask;
+        };
+        public:
+            static bool exists(CSqlite&amp; conn, int saveid, const char* name);
+            static DBGate* create1dGate(
+                CSqlite&amp; conn, int saveid,
+                const char* name, const char* type,
+                const NameList&amp; params, double low, double high
+            );
+            static DBGate* create2dGate(
+                CSqlite&amp; conn, int saveid,
+                const char* name, const char* type,
+                const NameList&amp; params, const Points&amp; points
+            );
+            static DBGate* createCompoundGate(
+                CSqlite&amp; conn, int saveid,
+                const char* name, const char* type,
+                const NameList&amp; gates
+            );
+            static DBGate* createMaskGate(
+                CSqlite&amp; conn, int saveid,
+                const char* name, const char* type,
+                const char* pName, int imask
+            );
+            static std::vector&lt;DBGate*&gt; listGates(CSqlite&amp; conn, int saveid);
+
+        public:
+            DBGate(CSqlite&amp; conn, int saveid, const char* name);
+            DBGate(CSqlite&amp; conn, int id);
+        
+
+        
+            const Info&amp; getInfo() const;
+            std::vector&lt;std::string&gt; getParameters();
+            std::vector&lt;std::string&gt; getGates();
+            Points   getPoints();
+            int      getMask();
+                        
+};      
+}     
+
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                        The <classname>SpecTclDB::DBGate</classname>
+                        class encapsulates gate definitions.  A gate
+                        is a condition that, when applied to a spectrum
+                        must be true on an event by event basis to allow
+                        that spectrum to be incremented. 
+                    </para>
+                    <para>
+                        The richness in the types of gates supported by
+                        SpecTcl, makes the data in this class the most complex
+                        of all objects that are stored in the database.
+                        This is reflected by the fact that fully five tables
+                        in the database are used to hold information
+                        that defines gates.
+                    </para>
+                    <para>
+                        Gates come in three overall types:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term><literal>Point gates</literal></term>
+                           <listitem>
+                               <para>
+                                A point gate is a gate that defines a region of
+                                acceptance in parameter space.  Simplistically,
+                                if an event falls inside this acceptance region
+                                the gate is true. 
+                               </para>
+                               <para>
+                                Point gates further break down into one dimensional
+                                and two dimensional gates depending on the
+                                dimensionality of the acceptance region.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>Mask gates</literal></term>
+                           <listitem>
+                               <para>
+                                Mask gates are defined on a single parameter.
+                                The parameter is treated as an integer and a
+                                specific bitwise operation is performed
+                                on that parameter with a constant bitmask.
+                                The results of that operation are used to deermine
+                                the truth or falsity of a gate.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>Compound gates</literal></term>
+                           <listitem>
+                               <para>
+                                A compound gate accepts a list of
+                                dependent gates and performs some logical
+                                operation on them to determine its truth or
+                                falisty.  For example, a not gate has a single dependent
+                                gate and is true for events where that gate is false.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <para>
+                        For more information on gate types and how they are
+                        evaluated, see the SpecTcl user manual and
+                        command reference.
+                    </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <para>
+                        Manyof the methods in
+                        <classname>SpecTclDB::DBGate</classname> that are public
+                        are intended to be called by
+                        <classname>SpecTclDB::SaveSet</classname>.
+                        These methods can be distinguished from methods
+                        intended for general public use because they have
+                        <classname>CSqlite</classname> parameters identifying
+                        the database, and a save set primary key parameter
+                        identifying the saveset.
+                    </para>
+                    <para>
+                        If you see methods like these and want the functionality
+                        they provide, see the methods in
+                        <classname>SpecTclDB::SaveSet</classname> that
+                        offer the same functionality and use them instead.
+                    </para>
+                    <para>
+                        The public methods of the class are:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static bool </type>
+                               <methodname>exists</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp;</type><parameter> conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns  <literal>true</literal> if a gate
+                                named <parameter>name</parameter> is defined
+                                in the saveset with the primary key
+                                <parameter>sid</parameter> and with the connection
+                                to a database 
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBGate* </type>
+                               <methodname>create1dGate</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter> type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const NameList&amp; </type><parameter>params</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>low</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>high</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis> 
+                           </term>
+                           <listitem>
+                               <para>
+                                This method creates a 1-d poing gates.
+                                1-d point gates are defined on a set of parameters
+                                and specify a slice of parameter space.
+                                The reason that more than one parameter might be
+                                needed has to do with SpecTcl's
+                                gamma slice gate.
+                               </para>
+                               <para>
+                                <parameter>name</parameter> will be the
+                                name of the gate definition that will be created,
+                                <parameter>type</parameter> the gate type
+                                code (which, to support expansion from SpecTcl
+                                applications is jut a free text value).
+                                <parameter>params</parameter> is a vector
+                                of parameter names the gate needs to operate.
+                                For e.g. slice gates, this is the single
+                                parameter the gate is checked on.
+                                <parameter>low</parameter> and <parameter>high</parameter>
+                                define the acceptance region.
+                               </para>
+                               <para>
+                                In addition to these parameters, which specify
+                                the gate characteristics,
+                                <parameter>saveid</parameter> specifies the
+                                primary key of the save set this gate definition
+                                will belong to. <parameter>conn</parameter>
+                                is the database connection that implies
+                                the Sqlite3 database file the save set, in turn
+                                lives in.
+                               </para>
+                               <para>
+                                After createing the gate definition in the database,
+                                it is wrapped in a <classname>DBGate</classname>
+                                object and a pointer to that object returned to the caller.
+                                Note that this object is dynamically created and
+                                therefore must be deleted when the caller
+                                no longer needs it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBGate* </type>
+                               <methodname>create2dGate</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type> int</type><parameter> saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type> const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const NameList&amp; params</type><parameter></parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const Points&amp; </type><parameter>points</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                This method creates a gate definition for a 2-d
+                                point gate.  The only difference between it
+                                and <methodname>create1dGate</methodname>
+                                is that the acceptance region is a 2-d shape
+                                that is defined both by <parameter>points</parameter>
+                                and the gate type's interpretation of those points
+                                (for example, a band interprets those points differently
+                                than a contour).
+                               </para>
+                               <para>
+                                After createing the gate definition in the database,
+                                it is wrapped in a <classname>DBGate</classname>
+                                object and a pointer to that object returned to the caller.
+                                Note that this object is dynamically created and
+                                therefore must be deleted when the caller
+                                no longer needs it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBGate* </type>
+                               <methodname>createCompoundGate</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp;</type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const NameList&amp; </type><parameter>gates</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a compound gate.  The
+                                <parameter>name</parameter> and
+                                <parameter>type</parameter> parameters,
+                                as usual specify the name and type of gate.
+                                <parameter>gates</parameter> specify the
+                                names of gates the gate depends on.
+                                <parameter>gates</parameter> contain the names of gates
+                                already defined in the save set.  This implies
+                                that saving gates requires some dependency
+                                analysis on the part of the caller.
+                               </para>
+                               <para>
+                                As with other creation methods;
+                                <parameter>saveid</parameter> specifies the
+                                primary key of the save set this gate definition
+                                will belong to. <parameter>conn</parameter>
+                                is the database connection that implies
+                                the Sqlite3 database file the save set, in turn
+                                lives in.
+                               </para>
+                               <para>
+                                After createing the gate definition in the database,
+                                it is wrapped in a <classname>DBGate</classname>
+                                object and a pointer to that object returned to the caller.
+                                Note that this object is dynamically created and
+                                therefore must be deleted when the caller
+                                no longer needs it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBGate* </type>
+                               <methodname>createMaskGate</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter> name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>type</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>pName</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>imask</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Create a definition for a mask gate.
+                                The gate is described by the parameter
+                                name, <parameter>pName</parameter> and
+                                <parameter>mask</parameter>. Its name is
+                                <parameter>name</parameter> and
+                                type <parameter>imask</parameter>
+                               </para>
+                               <para>
+                                As before,
+                                <parameter>saveid</parameter> specifies the
+                                primary key of the save set this gate definition
+                                will belong to. <parameter>conn</parameter>
+                                is the database connection that implies
+                                the Sqlite3 database file the save set, in turn
+                                lives in.
+                               </para>
+                               <para>
+                                After createing the gate definition in the database,
+                                it is wrapped in a <classname>DBGate</classname>
+                                object and a pointer to that object returned to the caller.
+                                Note that this object is dynamically created and
+                                therefore must be deleted when the caller
+                                no longer needs it.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static std::vector&lt;DBGate*&gt; </type>
+                               <methodname>listGates</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp;</type><parameter> conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Lists the gates in the save set with the primary key
+                                <parameter>saveid</parameter> in the
+                                database connected with <parameter>conn</parameter>.
+                                The gate information is returned as a vector
+                                of pointers to
+                                <classname>SpecTclDB::DBGate</classname> objects
+                                that are dynamically constructed.  Each object
+                                wraps one of the gates in the save set.
+                                Once the program no longer needs those pointers
+                                they should be deleted.
+                               </para>
+                               <para>
+                                Recall that gates must be defined such that
+                                dependent gates are defined prior to a gate itself.
+                                This implies that the program has performed a
+                                dependency analysis when defining the gates.
+                                The order of the gates in the vector
+                                will be the same as the order in which the
+                                gates were defined in the database. Therefore,
+                                on restoration, it is not necessary for the
+                                program to do dependency analysis again.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                                <constructorsynopsis>
+                                    <methodname>DBGate</methodname>
+                                    <methodparam>
+                                        <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                        <initializer></initializer>
+                                    </methodparam>
+                                    <methodparam>
+                                        <type>int </type><parameter>saveid</parameter>
+                                        <initializer></initializer>
+                                    </methodparam>
+                                    <methodparam>
+                                        <type>const char*</type><parameter> name</parameter>
+                                        <initializer></initializer>
+                                    </methodparam>
+                                </constructorsynopsis>
+                               
+                           </term>
+                           <listitem>
+                               <para>
+                                Construction involves looking up the gate defintions
+                                for <parameter>name</parameter> in the
+                                save set with the primary key
+                                <parameter>saveid</parameter>.  If found,
+                                the constructed object wraps the data for
+                                that gate caching it locally.  If not,
+                                <classname>std::invalid_argument</classname>
+                                is thrown.
+                               </para>
+                               <para>
+                                <parameter>conn</parameter> represents the
+                                database in which the lookup and retrieval are
+                                done.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>DBGate</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; conn</type><parameter></parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>id</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as the previous constructor except the
+                                gate is specified by its primary key.
+                                Since the primary key is unique for all gates
+                                in the database, it is not necessary to
+                                specify a saveset.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const Info&amp; </type>
+                               <methodname>getInfo</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Cached data describing the gate is stored
+                                internal to the object.  This method obtains
+                                a const reference to the data structure that
+                                contains that data.  See the
+                                <literal>DATA TYPES</literal> section for more information
+                                about the <type>Info</type> data structure.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;std::string&gt; </type>
+                               <methodname>getParameters</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Parameters a gate depends on are stored
+                                as foreign keys (the value of the primary key
+                                of the paramter in the parameter table).
+                                This method returns a vector of the names of the
+                                parameters the gate depends on.   Note
+                                that since, for some gates, order is important,
+                                the vector preserves the order in which the
+                                parametes were passsed to the original
+                                gate creation method.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::vector&lt;std::string&gt; </type>
+                               <methodname>getGates</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Compound gates store their dependent gates as
+                                the primary keys of those gates in the top level
+                                table describing gates.  This method converts
+                                those keys into names and returns a vector
+                                of the gate names.
+                               </para>
+                               <para>
+                                While gate order is not imporant to the results of
+                                compound gates, the use of short circuit evaluation
+                                in <literal>+</literal> and <literal>*</literal>
+                                gates can mean the order affects the performance
+                                of the evaluation of those gates
+                                (for a + gate the most commonly true gate
+                                should be first while for a * gate the most
+                                commonly false gate).  Therefore the
+                                gates are ordered in the order in which they
+                                were passed to the gate creation operation.
+                                This preserves any attempt by the gate definer
+                                to optimize performance.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>Points  </type>
+                               <methodname> getPoints</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the points associated with a point
+                                gate.  These are returned in the order in which
+                                they were presented at definition time.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int</type>
+                               <methodname>getMask</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the mask value for a mask gate.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    
+                </refsect1>
+                <refsect1>
+                    <title>DATA TYPES</title>
+                    <para>
+                        The <classname>SpecTclDB::DBGate</classname>
+                        exports several data types.  These will be
+                        described in this section.  Most, but not all
+                        of them build to form components of the
+                        <type>Info</type> struct which contains
+                        cached data fetched from the database for
+                        this gate.  We will define these types from most
+                        to least primitive.
+                    </para>
+                    <formalpara>
+                        <title>Vector types</title>
+                        <para>
+                             Two types are just typedef'ed vectors:
+                             <type>NameList</type> is a vector of
+                             <type>const char*</type> it is used to
+                             store things like parameter names or
+                             other simple string entities when building
+                             a gate.  The second, <type>IdList</type>
+                             is a vector of <type>int</type>. It's used to
+                             store collections of foreign or primary keys.
+                            <type>IdList</type> is mainly used internally.
+                        </para>
+                    </formalpara>
+                    <formalpara>
+                        <title>BasicGateType</title>
+                        <para>
+                            The data a gate contains depends on a broad
+                            clasification of its type.  The
+                            <type>BasicGateType</type> is an enumeration
+                            that provides symbolic meaning to those
+                            classification.  A <type>BasicGateType</type>
+                            value or variable can be one of (note to get a
+                            fully scoped value, prepend the items below with
+                            SpecTclDB::DBGate::) :
+                            <variablelist>
+                                <varlistentry>
+                                   <term><literal>point</literal></term>
+                                   <listitem>
+                                       <para>
+                                        This classification of gate has parameters and
+                                        points.  The points describe an acceptance
+                                        region in either 1 or 2-d space.
+                                        Events that fall into that region, in general
+                                        make the gate true.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term><literal>compound</literal></term>
+                                   <listitem>
+                                       <para>
+                                        This classification of gate has <firstterm>dependent gates</firstterm>.
+                                        The truth or falsity of the gate are determined
+                                        by applying a boolean functionto the
+                                        dependent gates.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term><literal>mask</literal></term>
+                                   <listitem>
+                                       <para>
+                                        This classification of a gate has a single
+                                        parameter and a mask.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                            </variablelist>
+                        </para>
+                    </formalpara>
+                    <formalpara>
+                        <title>BaseInfo</title>
+                        <para>
+                            This struct is part of the <type>Info</type>
+                            struct.  It provides basic information
+                            about the gate and enough additional information
+                            for software to know what fields of the
+                            <type>Info</type> struct to expect to
+                            have data.  It has the following members:
+                            <variablelist>
+                                <varlistentry>
+                                   <term>
+                                    <type>int</type><structfield> s_id</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        The primary key of the gate in the top
+                                        level gate table.  The top level
+                                        table basically has the information
+                                        in the <type>BaseInfo</type>
+                                        struct.  All other data about a gate
+                                        live in other tables with a foreign
+                                        key back to the top level table.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>int</type><structfield>s_saveset</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Contains a foreign key that identifies the
+                                        save set this gate definition belongs to.
+                                        By foreign key, we mean that this value is
+                                        the primary key of a record in the
+                                        save sets table.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>std::string</type><structfield>s_name</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        The name of the gate.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>BasicGateType </type><structfield>s_basictype</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Provides the broad classification of
+                                        gate for this gate.  As described in the
+                                        documentation for this type, above, the value
+                                        of this type tells your software which
+                                        parts of the <type>Info</type> struct
+                                        have useful data.  It tells the software
+                                        in this library which dependent tables
+                                        have data for this gate when filling in
+                                        the <type>Info</type> struct.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>std::string   </type><structfield>s_type</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        The detailed gate type string.  This is the
+                                        SpecTcl gate type string.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                            </variablelist>
+                        </para>
+                    </formalpara>
+                    <formalpara>
+                        <title><type>Point</type> and <type>Points</type></title>
+                        <para>
+                            Point gates require two or more points in one or
+                            two dimensional space to specify a region of acceptance.
+                            The <type>Point</type> struct represents a single point
+                            with two doubles: <structfield>s_x</structfield>,
+                            the x coordinate and <structfield>s_y</structfield>
+                            the y coordinate of each point (not meaningful for
+                            a one dimensional acceptance region).
+                            <type>Points</type> is just a vector of points.
+                        </para>
+                    </formalpara>
+                    <formalpara>
+                        <title><type>Info</type></title>
+                        <para>
+                            This type contains all of the information
+                            fetched from the database that describes
+                            a single gate.  It has several fields. Which
+                            fields are actually used, depends on the
+                            gate classification.
+                            <variablelist>
+                                <varlistentry>
+                                   <term>
+                                    <type>BaseInfo</type><structfield>s_info</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        The base information described
+                                        above.  The
+                                        <structfield>s_basictype</structfield>
+                                        field tells software which other
+                                        fields of this struct are
+                                        useful.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>IdList</type><structfield>s_parameters</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Used by point and mask gates, this field
+                                        contains foreign keys for the
+                                        parameter definitions for the parametes used
+                                        by this gate.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>IdList</type><structfield>s_gates</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Used by compound gates, this field contains
+                                        foreign keys for all gates this gate
+                                        depends on.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>Points </type><structfield>s_points</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Used only by point gates.  This field contains
+                                        the points that describe the gate's region of
+                                        acceptance.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>
+                                    <type>int </type><structfield>s_mask</structfield>
+                                   </term>
+                                   <listitem>
+                                       <para>
+                                        Used only by mask gates.  Contains
+                                        the mask value.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                            </variablelist>
+                        </para>
+                    </formalpara>
+                </refsect1>
+            </refentry>
         </section>
         <section>
             <title>Object oriented Sqlite3 wrapper</title>
             <para>
-                
+        
             </para>
             
         </section>
