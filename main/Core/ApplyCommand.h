@@ -60,8 +60,8 @@ public:
 
    // Constructor:  
 
-  CApplyCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack) :
-    CTCLPackagedCommand("apply", pInterp, rPack)
+  CApplyCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack, const char* cmd="apply") :
+    CTCLPackagedCommand(cmd, pInterp, rPack)
   { 
   } 
   ~CApplyCommand ( ) { }  //Destructor 
