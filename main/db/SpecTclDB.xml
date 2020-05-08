@@ -7319,7 +7319,7 @@ namespace SpecTclDB {
             </refentry>
             <refentry>
                <refmeta>
-                  <refentrytitle>DBSpectrm</refentrytitle>
+                  <refentrytitle>DBSpectrum</refentrytitle>
                   <manvolnum>3db</manvolnum>
                </refmeta>
                <refnamediv>
@@ -8873,6 +8873,304 @@ class DBGate {
                             </variablelist>
                         </para>
                     </formalpara>
+                </refsect1>
+            </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>DBApplication</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>DBApplication</refname>
+                  <refpurpose>Wrap database definitions of gate applications</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;DBApplications.h&gt;
+
+namespace SpecTclDB {
+    
+/**
+ * @class DBApplication
+ *    Gates by themselves are simply conditions that return a boolean
+ *    for each event.  They are only useful when they are used to conditionalize
+ *    something.  In SpecTcl, that something, is normally the incrementing
+ *    of a spectrum.  Each SpecTcl spectrum has exactly one gate that is
+ *    conditionlizes its increments. That gate is said to be "applied" to that
+ *    spectrum.  Spectra in SpecTcl come into being with a predefined "T"
+ *    gate applied to them.  The SpecTcl database gate_applications table
+ *    keeps track of any gates other than the pre-defined T gate that are
+ *    applied to spectra.  It's not much more than a JOIN table between the
+ *    spectrum_defs and gate_defs tables.
+ */
+class DBApplication {
+public:
+    struct Info {
+        int s_id;
+        int s_gateid;
+        int s_spectrumid;
+    };
+public:
+    static DBApplication* applyGate(
+        CSqlite&amp; conn, int saveid, const char* gate, const char* spectrum
+    );
+    static std::vector&lt;DBApplication*&gt; listApplications(
+        CSqlite&amp; conn, int saveid
+    );
+    
+
+public:
+    // constructors
+
+    DBApplication(
+        CSqlite&amp; conn, int saveid,
+        const char* gateName, const char* spectrumName
+    );    
+    
+    
+public:
+    const Info&amp; getInfo() const;
+    std::string getGateName();
+    std::string getSpectrumName();
+
+    
+};
+}                         // SpecTclDB namespace.
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                    <para>
+                      Gates define conditions that are evaluated on
+                      paramters or other gates.  A gate does something useful
+                      when it is applied to a spectrum.  All spectra in
+                      SpecTcl have a gate applied.  The spectrum is only
+                      checked to see if it can be incremented if the gate
+                      applied to it is true for the event.  Note that when
+                      first created, a spectrum has a <literal>True</literal>
+                      gate applied to it.
+                    </para>
+                    <para>
+                        <classname>SpecTclDB::DBApplication</classname>
+                        captures this fact.  It allows you to create
+                        a record of gate applications in a saveset in a database.
+                        It also allows you to wrap an existing gate application
+                        stored in a savset with a
+                        <classname>SpecTclDB::DBApplication</classname> object.
+                    </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBApplication* </type>
+                               <methodname>applyGate</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; conn</type><parameter></parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>gate</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char*</type><parameter> spectrum</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a gate application definition in
+                                the database indicated by <parameter>conn</parameter>
+                                in the saveset <parameter>saveid</parameter>.
+                                The gate named <parameter>gate</parameter> is
+                                entered as applied to the spectrum
+                                named <parameter>spectrum</parameter>.
+                               </para>
+                               <para>
+                                The method returns the application
+                                definition wrapped in a
+                                <classname>SpecTclDB::DBApplication</classname>
+                                object.  The object is dynamically created and a
+                                pointer to it is returned.  When the application
+                                no longer needs this object, it must be
+                                deleted.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static std::vector&lt;DBApplication*&gt; </type>
+                               <methodname>listApplications</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Lists the applied gates stored in the
+                                save set <parameter>saveid</parameter>
+                                from the database connected to <parameter>conn</parameter>.
+                                The list is a vector containing pointers
+                                to applications wrapped in
+                                <classname>SpecTclDB::DBApplication</classname>
+                                objects.  The objects are dynamically
+                                created and therefore must be deleted when
+                                the application no longer needs them.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>DBApplication</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>saveid</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*     </type><parameter>gateName</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char* </type><parameter>spectrumName</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Locates the application definition that
+                                applies the gate <parameter>gateName</parameter>
+                                to the spectrum <parameter>spectrumName</parameter>
+                                in the saves set <parameter>svaeid</parameter>
+                                in the database connected to <parameter>conn</parameter>.
+                                If the sought after application does not exist,
+                                <classname>std::invalid_argument</classname>
+                                will be thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const Info&amp; </type>
+                               <methodname>getInfo</methodname>
+                               <void /><modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a const reference to the
+                                data that has been cached from the database that
+                                describes this gate application.
+                                See <literal>DATA TYPES</literal> below
+                                for a description of that structure.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::string </type>
+                               <methodname>getGateName</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The name of the gate is stored in the database
+                                and the <type>Info</type> struct as a
+                                foreign key to the gate top level table.
+                                This returns the name of the gate that's
+                                applied.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::string </type>
+                               <methodname>getSpectrumName</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The spectrum to which the gate is applied
+                                is stored as a foreign key to the top level
+                                spectrum table.  This method returns
+                                the name of that spectrum.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                <refsect1>
+                    <title>DATA TYPES</title>
+                    <para>
+                        The <classname>SpecTclDB::DBApplication</classname>
+                        class exports a single data type;
+                        <type>SpecTclDB::DBApplication::Info</type>.
+                        This struct caches the information about this
+                        application definition as it is stored in the
+                        database. It contains the following fields:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <type>int </type><structfield>s_id</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The primary key of this entry in the
+                                applications table.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int </type><structfield>s_gateid</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                A foreign key to the gate being applied in the
+                                top level gate table.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int </type><structfield>s_spectrumid</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                A foreign key to the top leve spectrum table,
+                                this indicates the spectrum the gate is being
+                                applied to.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
                 </refsect1>
             </refentry>
         </section>
