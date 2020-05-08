@@ -1,7 +1,7 @@
 lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la libSpecTclDbTcl.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
-2IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
+IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
 DOCS=SpecTclDB.xml GUI.png
 
 libSqlite3pp_la_SOURCES=CSqlite.cpp CSqliteException.cpp CSqliteStatement.cpp \
