@@ -10020,7 +10020,927 @@ public:
                     </variablelist>
                 </refsect1>                
             </refentry>
-            
+            <refentry>
+               <refmeta>
+                  <refentrytitle>CSqliteException</refentrytitle>
+                  <manvolnum>3sqlite3pp</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>CSqliteException </refname>
+                  <refpurpose>Exception class for libsqlite3pp</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;CSqliteException.h&gt;
+class CSqliteException : public std::exception
+{
+public:
+    CSqliteException(int error) noexcept;
+    CSqliteException(const CSqliteException&amp; rhs) noexcept;
+    
+    // Methods required by the base class:
+public:
+    CSqliteException&amp; operator=(const CSqliteException&amp; rhs) noexcept;
+    virtual const char* what()  const noexcept;
+};
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                      <para>
+                        This class is an
+                        <classname>std::exception</classname> that is used
+                        to signal errors in SQLite3 calls.  The
+                        <parameter>error</parameter> parameter in the
+                        constructor must be the status value from a failing
+                        SQLite3 API call.  <methodname>what</methodname>
+                        will return a stringified, human readable version of
+                        that error code.
+                      </para>
+                </refsect1>
+            </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>CSqliteStatement</refentrytitle>
+                  <manvolnum>3sqlite3pp</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>CSqliteStatement</refname>
+                  <refpurpose>Executes SQLite3 statements</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;CSqlite.h&gt;
+#include &lt;CSqliteStatement.h&gt;
+
+class CSqliteStatement {
+public:
+    static const int integer;
+    static const int floating;
+    static const int text;
+    static const int blob;
+    static const int null;
+    
+    typedef void (*ObjectDestructor)(void*);
+
+public:
+    static void execute(CSqlite&amp; connection, const char* statement);
+
+public:
+    CSqliteStatement(CSqlite&amp; connection, const char* statement);
+    
+public:    
+
+    CSqlite&amp;  database(); 
+    sqlite3_stmt* statement();
+    
+    
+    
+    int bindIndex(const char* name);
+    void bind(
+        int paramNo, const void* pBlob, int nBytes, ObjectDestructor destructor
+    );
+    void bind(int paramNo, double value);
+    void bind(int paramNo, int value);
+    void bind(int paramNo, int64_t value);
+    void bind(int paramNo);
+    void bind(
+        int paramNo, const char* pValue, int nBytes,
+        ObjectDestructor destructor
+    );
+
+    void bind(int Paramno, uint64_t nBytes);          // Blob filled with nulls.
+    void clearBindings();
+    
+    CSqliteStatement&amp; operator++();             // Only prefix auto inc.    
+    void reset();
+    bool atEnd();
+    
+    int bytes(int col);
+    int bytes16(int col);
+    const void* getBlob(int col);                // Blob
+    double      getDouble(int col);
+    int         getInt(int col);
+    int64_t     getInt64(int col);
+    const unsigned char* getText(int col);
+    int         columnType(int col);
+
+    const char* sql();                        // SQL of the statement.
+    int   lastInsertId();                     // Row Id of last insert.
+    void  enableRetry();
+    void  disableRetry();
+
+};
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>
+                        DESCRIPTION
+                    </title>
+                      <para>
+                        Supports performing SQL queires on a database.
+                      </para>
+                      <para>
+                        If the query has no free parameters and returns
+                        no results, the static method
+                        <methodname>execute</methodname> can be used
+                        to execute a simple query.
+                      </para>
+                      <para>
+                        Constructing an object, however, is the same
+                        as creating a prepared statement.  Methods are
+                        provided to bind actual parameters to formal parameters
+                        in the prepared statement.  The
+                        <methodname>operator++</methodname>, steps the
+                        query through any result set positioning the retrieval
+                        cursor at consecutive rows.  
+                      </para>
+                      <para>
+                        After each row, the fields in the row can be
+                        queried for their datatype and fetched.
+                      </para>
+                      <para>
+                        Prepared statement objects can be re-used with
+                        different actual parameters after call to
+                        <methodname>reset</methodname> is performed and
+                        new parameters bound to the formal parameters in the
+                        statement.
+                      </para>
+                      <para>
+                        Note that when user input is involved in creating
+                        the query or query parameters, it is wise to use
+                        prepared statements to avoid either deliberate or
+                        accidental SQL query injection exploits.
+                        (Google <literal>Little Bobby tables</literal>
+                        if you're not sure what this means).
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>
+                        METHODS
+                    </title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static void </type>
+                               <methodname>execute</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>statement</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Performs an immediate statement.  Note that
+                                since this method provides no mechanism to obtain
+                                the result set, the statement performed should be
+                                one that has no result set (e.g.
+                                <literal>INSERT</literal>, <literal>DELETE</literal>
+                                etc.).
+                               </para>
+                               <para>
+                                The method does not sanitize any data. Therefore,
+                                if the user is involved in building up a
+                                query (e.g. providing the value to insert
+                                into a table), it is safer to construct a
+                                statement object and execute it, binding
+                                the user's input to formal parameters in the
+                                statement.  This will avoid the
+                                infamous "Bobby Tables" style of SQL
+                                injection vulnerabilities this method is
+                                vulnerable to.
+                               </para>
+                               <para>
+                                connection is the database on
+                                which the statement will be performed and
+                                <parameter>statement</parameter> is the
+                                statement that will be executed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CSqliteStatement</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>connection</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char* </type><parameter>statement</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Constructs a prepared statement.  Prepared statements
+                                are re-cyclable SQL statements.  Prepared
+                                statements can have formal parameters
+                                (see the SQLite3 documentation on prepared
+                                statement objects and their parameters for
+                                information about how to specify a formal
+                                parameter in prepared statement text).
+                                Prepared statements in this library do have a
+                                mechanism with which to retrieve result set
+                                rows.
+                               </para>
+                               <para>
+                                <parameter>connection</parameter> specifies
+                                the database on which the prepared statement
+                                is actually executed. <parameter>statement</parameter>
+                                is the text of the SQL that specifies the statement.
+                               </para>
+                               <para>
+                                The typical object lifetime is to construct
+                                a prepared statement. Once successfully
+                                constructed, calls to <methodname>bind</methodname>
+                                provide actual parameters for the slots labeled
+                                in the statement for formal parameters.
+                                Once actual parameters are provided
+                                <methodname>operator++</methodname> is used
+                                to iterate over the save set until
+                                <methodname>atEnd</methodname> returns true.
+                                After each iteration,
+                                getter methods are used to retrieve data from
+                                the result set rows.
+                               </para>
+                               <para>
+                                After iteration is done, the statement can
+                                be re-used with different actual parameters
+                                after calling <methodname>reset</methodname>
+                                and binding new parameters.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>CSqlite&amp;  </type>
+                               <methodname>database</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the database object on which the
+                                object was constructed.  That is a reference
+                                to the <parameter>connection</parameter>
+                                parameter passed to the constructor.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>sqlite3_stmt* </type>
+                               <methodname>statement</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the statement handle for the
+                                prepared statement created by constructing
+                                the object.  Note that this becomes invalid
+                                once the <classname>CSqliteStatement</classname>
+                                is destroyed.  Having this allows for
+                                unanticipated operations to  be performed
+                                on the statement.  
+                               </para>
+                               <para>
+                                If you have an intersting use case that forces you
+                                to use this, please contact us so that we
+                                can consider supporting that use case
+                                in a future release.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>bindIndex</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                When specified in an SQL statement, formal
+                                parameters can be either named or numbered.
+                                The binding methods, however only accept
+                                numbered parameters.  This method
+                                returns the value to pass to <methodname>bind</methodname>
+                                for the <parameter>paramNo</parameter>
+                                argument that corresponds to the named
+                                parameter <parameter>name</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int</type><parameter> paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const void* </type><parameter>pBlob</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>nBytes</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>ObjectDestructor </type><parameter>destructor</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds a Binary Large OBject (BLOB) to a
+                                the formal parameter numbered
+                                <parameter>paramNo</parameter> in the
+                                statement.  <parameter>pBlob</parameter>
+                                is a pointer to the
+                                <parameter>nBytes</parameter> of data
+                                that make up the BLOB.
+                               </para>
+                               <para>
+                                <parameter>destructor</parameter> is
+                                a function that is passed <parameter>pBlob</parameter>
+                                and is expected to dispose of the storage
+                                associated with <parameter>pBlob</parameter>
+                                when the statement no longer needs it.
+                               </para>
+                               <para>
+                                Two special values can be used for the
+                                <parameter>destructor</parameter>:
+                                <literal>SQLITE_STATIC</literal> informs
+                                SQLITE that the data will be valid for the
+                                entire iteration of the statement and that
+                                there's no need to call a destructor
+                                function.  <literal>SQLITE_TRANSIENT</literal>
+                                means that the storage associated with the
+                                <parameter>pBlob</parameter> will have
+                                shorter lifetime than the staement iteration
+                                and that SQLite should create an internal
+                                copy of the data which it will take responsibility
+                                for destroying when no longer needed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double </type><parameter>value</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds a double precision <parameter>value</parameter>
+                                to the statement's formal parameter numbered
+                                <parameter>paramNo</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>value</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds an integer <parameter>value</parameter>
+                                to the formal parameter <parameter>paramNo</parameter>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int64_t </type><parameter>value</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds a 64 bit integer <parameter>value</parameter>
+                                to formal parameter <parameter>paramNo</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds a null value to the formal parameter
+                                numbered <parameter>paramNo</parameter>. Note that
+                                if a parmaeter does not have a binding it is treated
+                                as bound to a null value.  If, however a
+                                parameter was bound that is not null, and the
+                                statement is <methodname>reset</methodname>
+                                and new parameters bound, it may be necessary
+                                to explicitly specify a null binding.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>pValue</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int</type><parameter> nBytes</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>ObjectDestructor</type><parameter> destructor</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds a text string of <parameter>nBytes</parameter>
+                                bytes  pointed to by <parameter>pValue</parameter>
+                                to the formal parmeter numbered
+                                <parameter>paramNo</parameter>.
+                                As with the BLOB binding, <parameter>destructor</parameter>
+                                is a pointer to the destructor function for the
+                                data pointed to by <parameter>pValue</parameter>.
+                                Note that the same special values are legal
+                                as well.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>bind</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>paramNo</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>uint64_t</type><parameter> nBytes</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Binds BLOB of <parameter>nBytes</parameter>
+                                of null data to the formal parameter numbered
+                                <parameter>paramNo</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>clearBindings</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Clears all bindings to formal parameters.
+                                Unless rebound, the parameters are
+                                all bound to NULL.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>CSqliteStatement&amp; </type>
+                               <methodname>operator++</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Steps the statement to the next (first)
+                                row of the result set.  Note that once
+                                this is done, parameter bindings can no longer
+                                be performed until <methodname>reset</methodname>
+                                is called.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void </type>
+                               <methodname>reset</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Resets the statment back to the preparing
+                                state.  All parameters remain bound as before,
+                                however new bindings can be made to replace
+                                any that are now in effect.  The next
+                                call to <methodname>operator++</methodname>
+                                will return the first row of the result set of
+                                the statement.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type> bool </type>
+                               <methodname>atEnd</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If <literal>true</literal> there are no
+                                more rows in the statement's result set.
+                                If that's the case, <methodname>operator++</methodname>
+                                will return an error. 
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>bytes</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the number of bytes required to hold
+                                the value in field <parameter>col</parameter>
+                                of the current row of the result set.  Note
+                                that this works correctly for blobs or
+                                UTF-8 text (where the number of bytes required
+                                may be larger than the number of characters).
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>bytes16</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the number of bytes required to
+                                hold the UTF-16 text in column number
+                                <parameter>col</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const void* </type>
+                               <methodname>getBlob</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a pointer to the BLOB data in column
+                                number <parameter>col</parameter>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>double      </type>
+                               <methodname>getDouble</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the floating point value in column
+                                <parameter>col</parameter> of the current row
+                                of the result set.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int         </type>
+                               <methodname>getInt</methodname>
+                               <methodparam>
+                                   <type>int</type><parameter> col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the integer value at column
+                                <parameter>col</parameter> of the current
+                                row of the result set.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int64_t     </type>
+                               <methodname>getInt64</methodname>
+                               <methodparam>
+                                  <type>int </type>
+                                  <parameter>col</parameter>
+                                  
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the 64 bit integer value in field
+                                number <parameter>col</parameter> in the
+                                current row of the result set.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const unsigned char* </type>
+                               <methodname>getText</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a pointer to the text stored in field
+                                <parameter>col</parameter> of the current
+                                result set.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int </type>
+                               <methodname>columnType</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>col</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns an integer that specifies the underlying
+                                data type in field <parameter>col</parameter>
+                                of the current row of the result set. Note that
+                                the return values are described in
+                                <literal>PUBLIC ATTRIBUTES and DATA TYPES</literal>
+                                below.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const char* </type>
+                               <methodname>sql</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the text of the SQL statement.
+                                This is a reverse compilation of the
+                                prepared statement.  I believe this does
+                                not show the parameter bindings but retains
+                                the formal pareter indices instead.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>int   </type>
+                               <methodname>lastInsertId</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the row id of the last inserted
+                                row in the database (not the statement),
+                                through this connection.  If the table has
+                                an integer primary key, the key generated for
+                                that insertion is returned.  If not,
+                                a ROWID generated by SQLite is returned. Note
+                                that all tables have in an implied ROWID
+                                column that stores these values.
+                               </para>
+                               <para>
+                                The most common reason to use this is when
+                                doing a mult-table insert and you need
+                                a foreign key to relate some of the
+                                insertions.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>enableRetry</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Specifies that statment steps that result
+                                in <literal>SQLITE_BUSY</literal> should
+                                be retried. Note that
+                                <literal>SQLITE_BUSY</literal> generally
+                                means an operation could not be performed because
+                                to do so would violate locking done by another process
+                                operating on the same database.  
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>void  </type>
+                               <methodname>disableRetry</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Disables the retry of a busy statement.
+                                If calling <methodname>operator++</methodname>
+                                returns <literal>SQLITE_BUSY</literal>, the
+                                operation fails and an exception is thrown.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+
+                    
+                </refsect1>
+                <refsect1>
+                    <title>
+                        PUBLIC ATTRIBUTES and DATA TYPES
+                    </title>
+                    <para>
+                        The class exports several integer values and one
+                        datatype.  The integers respresent values that
+                        can be returned from the <methodname>columnType</methodname>
+                        method.  They are as follows:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term><varname>integer</varname></term>
+                           <listitem>
+                               <para>
+                                Synonym for <literal>SQLITE_INTEGER</literal>,
+                                the column type is an integer. You can use
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>floating</varname></term>
+                           <listitem>
+                               <para>
+                                Synonym for <literal>SQLITE_FLOAT</literal>.
+                                The data type is floating point.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>text</varname></term>
+                           <listitem>
+                               <para>
+                                Synonym for <literal>SQLITE_TEXT</literal>.
+                                The field contains character data.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>blob</varname></term>
+                           <listitem>
+                               <para>
+                                Synonym for <literal>SQLITE_BLOB</literal>,
+                                the field contains a binary large object (BLOB).
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>null</varname></term>
+                           <listitem>
+                               <para>
+                                Synonym for <literal>SQLITE_NULL</literal>,
+                                the column contains anull value.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <para>    
+                        The data type exported is <type>ObjectDestructor</type>
+                        which is a typedef for void function that takes a single
+                        void parameter.  It is passed to a couple of the
+                        bind methods and allows you to do storage management
+                        on dynamic data bound to query parameters.
+                        When the SQLITE statement no longer needs the data
+                        associated with a field type that requires destructors,
+                        it calls the destructor specified passing a pointer to the
+                        data as a parameter.  The destructor function can then
+                        free the data as required.                 
+                    </para>
+                </refsect1>
+            </refentry>
         </section>
         <section>
            <title>Tcl bindings to the C++ API</title>
