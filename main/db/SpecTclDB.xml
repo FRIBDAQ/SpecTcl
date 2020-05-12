@@ -9173,12 +9173,853 @@ public:
                     </variablelist>
                 </refsect1>
             </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>DBTreeVariable</refentrytitle>
+                  <manvolnum>3db</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>DBTreeVaroab;e</refname>
+                  <refpurpose>Ecapsulate tree variable definitions.</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;DBTreeVariable.h&gt;
+
+namespace SpecTclDB {
+    
+class DBTreeVariable {
+public:
+    struct Info {
+        int         s_id;
+        int         s_saveset;
+        std::string s_name;
+        double      s_value;
+        std::string s_units;
+        
+    };
+public:
+    static bool exists(CSqlite&amp; conn, int saveid, const char* name);
+    static DBTreeVariable* create(
+        CSqlite&amp; conn, int saveid, const char* name, double value,
+        const char* units=""
+    );
+    static std::vector&lt;DBTreeVariable*&gt; list(CSqlite&amp; conn, int saveid);
+
+public:
+    DBTreeVariable(CSqlite&amp; connection, int saveid, const char* varname);
+public:
+    const Info&amp; getInfo() const;
+    std::string getName() const;
+    double      getValue() const;
+    std::string getUnits() const;
+    
+    
+   
+
+};
+}                              // namespace SpecTclDB
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                         <title>DESCRIPTION</title>
+                      <para>
+                        Event processor computatations in SpecTcl
+                        sometimes require tuning or steering parameters.
+                        These may need to be modified at run-time.  For
+                        example; an energy calibration will need to have the
+                        coefficients of whatever polynomial is used to
+                        approximate the transformation from raw paramter
+                        value to energy. These values are often not known
+                        before looking at raw spectra with known peaks.
+                      </para>
+                      <para>
+                        Tree Variables are variables that can be set at run-time
+                        from the SpecTcl GUI or command prompt, and accessed
+                        from C++ code as if they were simply C++ double
+                        precision floating point variables.  The
+                        <classname>SpecTclDB::DBTreeVariable</classname>
+                        encapsulates the data associated with tree variable
+                        definitions in database save-sets.
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static bool </type>
+                               <methodname>exists</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>name</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns <literal>true</literal> if a tree variable
+                                called <parameter>name</parameter> has
+                                been defined in the save set with the primary
+                                key of <parameter>saveid</parameter> in
+                                the database connected with
+                                <parameter>conn</parameter>.  If no such
+                                tree variable exists, <literal>false</literal>
+                                is returned instead.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static DBTreeVariable* </type>
+                               <methodname>create</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>nam</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>double</type><parameter> value</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>const char* </type><parameter>units</parameter>
+                                <initializer>""</initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                            
+                           </term>
+                           <listitem>
+                               <para>
+                                Creates a new treevariable definition.
+                                In addition to having a name
+                                (<parameter>name</parameter>) and
+                                value (<parameter>value</parameter>),
+                                tree variables have an associated units of measure
+                                (<parameter>units</parameter>). By convention,
+                                if a tree variable is unit-less, the
+                                <parameter>units</parameter> should be an empty
+                                string.
+                               </para>
+                               <para>
+                                The <parameter>saveid</parameter> parameter is the
+                                primary key of the saveset the variabl
+                                will be defined in.  The database is
+                                <parameter>conn</parameter>
+                               </para>
+                               <para>
+                                The return value is a pointer to a
+                                <classname>SpecTGclDB::DBTreeVariable</classname>.
+                                This object encapsulates the variable definition.
+                                The object pointed to is dynamically
+                                create so when the program no longer needs it
+                                it it should be deleted.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static std::vector&lt;DBTreeVariable*&gt; </type>
+                               <methodname>list</methodname>
+                               <methodparam>
+                                   <type>CSqlite&amp; </type><parameter>conn</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                               <methodparam>
+                                   <type>int </type><parameter>saveid</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Lists the tree variable definitions that
+                                are stored in the save set with primary key
+                                <parameter>saveid</parameter> in te database
+                                connecte via <parameter>conn</parameter>.
+                                The list is returned as a vector of pointers
+                                to dynamically created
+                                <classname>SpecTclDB::DBTreeVariable</classname>
+                                that must be deleted when the program
+                                no longer needs them.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>DBTreeVariable</methodname>
+                                <methodparam>
+                                    <type>CSqlite&amp; </type><parameter>connectioN</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>saveid</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>const char*</type><parameter> varname</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Looks up the tree variable definition
+                                named <parameter>varname</parameter>
+                                in the saveset with the primery key
+                                <parameter>saveid</parameter> in the
+                                database open on <parameter>connection</parameter>.
+                                Information about the tree variable is wrapped
+                                in the <classname>SpecTclDB::DBTreeVariable</classname>
+                                object being constructe..
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const Info&amp; </type>
+                               <methodname>getInfo</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Tree variable objects wrapped cached information
+                                about the variable they wrap in a
+                                <type>SpecTclDB::DBTreeVarible::Info</type>
+                                struct.  This method returns a const reference
+                                to that structure allowing free access to this
+                                data.  Note that this struct is described
+                                in the <literal>DATA TYPES</literal> section
+                                below.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::string </type>
+                               <methodname>getName</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the name of the tree variable wrapped
+                                by this object.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>double</type>
+                               <methodname>getValue</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the current value of the variable wrapped
+                                by the this tree variable object.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>std::string </type>
+                               <methodname>getUnits</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the units string of the tree variable
+                                wrapped by this object.  Note that by convention,
+                                unitless values simply have an empty units string.
+                                The units string is only provided for human
+                                consumption. 
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+
+                </refsect1>
+                <refsect1>
+                    <title>DATA TYPES</title>
+                    <para>
+                        As with all database objects in this library,
+                        the <classname>SpecTclDB::DBTreeVariable</classname>
+                        class provides an <type>Info</type> type defined
+                        internally. A const reference to this attribute can
+                        be retrieved using the <methodname>getInfo</methodname>
+                        method.  The attribute caches information about the
+                        treevariable wrapped by the object and contains
+                        the following fields:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_id</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The primary key of the tree variable in the
+                                top level database table for tree variables.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>int</type><structfield>s_saveset</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The primary key of the save set that contains
+                                this tree variable definition in the top
+                                level table for save sets.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>std::string </type><structfield>s_name</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The name of the tree variable.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>double</type><structfield>s_value</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The saved value of the tree variable.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>std::string </type><structfield>s_units</structfield>
+                           </term>
+                           <listitem>
+                               <para>
+                                The units string of the tree variable at the time
+                                it was saved to the database.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+            </refentry>
         </section>
         <section>
             <title>Object oriented Sqlite3 wrapper</title>
             <para>
-        
+                The database C++ software uses an object wrapping of SQLite3
+                called sqlite3pp.  It was written here at the NSCL/FRIB and
+                is built and installed inthe SpecTcl installation directory.
             </para>
+            <para>
+                To use this library you'll need to add the following
+                compilation and link flags:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>-I$SPECTCLHOME/include</literal></term>
+                   <listitem>
+                    <para>
+                        In this flag and others, <literal>SPECTCLHOME</literal>
+                        is assumed to be an environment variable that points
+                        to where the SpecTcl top level installation directory is.
+                       </para>
+                       <para>
+                        Adds the SpecTcl header directory to the search path
+                        for files in <code>#include</code> preprocessor directives.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>-L$SPECTCLHOME/lib</literal></term>
+                   <listitem>
+                       
+                       <para>
+                        This flag adds the SpecTcl library directory to the
+                        link library search path.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>-lSqlite3pp</literal></term>
+                   <listitem>
+                       <para>
+                        Adds the libsqlite3pp.so shared object to the set of libraries
+                        searched to resolve undefined symbols in your code.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>-lsqlite3</literal></term>
+                   <listitem>
+                       <para>
+                        Adds the Sqlite3 API library to the libraries that are
+                        searched to resolve undefined symbols in your code.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>-Wl,-rpath="$SPECTCLHOME/lib</literal></term>
+                   <listitem>
+                       <para>
+                        Adds the SpecTcl library directory to the run-time
+                        search path for shared objects that are loaded when
+                        your program starts up.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The library is quite small and represents a minimal simple
+                wrapping of SQLite3.  The refererence pages that follow are
+                organized in a sort of logical order rather than alphabetically.
+            </para>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>CSqlite</refentrytitle>
+                  <manvolnum>3sqlite3pp</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>CSqlite</refname>
+                  <refpurpose>Connection to Sqlite3</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+#include &lt;CSqlite&gt;
+
+class CSqlite {
+
+    // public data connection flags:
+public:    
+    static const int nomutex;
+    static const int fullmutex;
+    static const int sharedcache;
+    static const int privatecache;
+    static const int uri;
+    static const int readonly;
+    static const int readwrite;
+    static const int create;
+    
+    // canonicals (these do the real work).
+public:
+    CSqlite(const char* database);
+    CSqlite(const char* database, int flags);
+    
+public:
+    sqlite3* connection();
+    
+    static const char* version();
+    static int         versionNumber();
+public:
+    bool tableExists(const char* tableName);
+    static void checkStatus(int status);
+    
+};
+
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                    <title>DESCRIPTION</title>
+                      <para>
+                        Encapsulates an <type>sqlite3</type> opaque object
+                        pointer used by the underlying API to connect to
+                        a database.  
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname> CSqlite</methodname>
+                                <methodparam>
+                                    <type>const char* </type><parameter>database</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Connects the object under construction to the database
+                                designated by <parameter>database</parameter>.
+                               </para>
+                               <para>
+                                If <parameter>database</parameter> is the string
+                                <literal>:memory:</literal>, a private temporary
+                                in memory database is constructed.  This
+                                is useful for testing or for rapid access that
+                                is later flushed to disk using the native
+                                database backup functions in the base API.
+                                Sqlite3 reserves the right to add additional
+                                special database designators that begin with
+                                <literal>:</literal>, therefore if your actual
+                                <parameter>database</parameter> would begin
+                                with that character it is recommended that you
+                                prefix the filename with a path e.g.
+                                <literal>./:colonfile</literal>.
+                               </para>
+                               <para>
+                                I believe that each <literal>:memory:</literal>
+                                database opened is distinct rather than shared.
+                               </para>
+                               <para>
+                                An empty string for <parameter>database</parameter>
+                                opens an on disk termporary database.  This database
+                                will be deleted automatically when the database
+                                connection is closed.
+                               </para>
+                               <para>
+                                Errors in creating the native database
+                                handle are signalled via an exception of the
+                                type <classname>CSqliteException</classname>.
+                                Note that this exception is derived
+                                from <classname>std::exception</classname>.
+                                See its reference page  for more information.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CSqlite</methodname>
+                                <methodparam>
+                                    <type>const char*</type><parameter> database</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                                <methodparam>
+                                    <type>int </type><parameter>flags</parameter>
+                                    <initializer></initializer>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Same as the previous  constructor however
+                                a bitwise or of several flags more tightly
+                                controls the open.  See <literal>PUBLIC ATTRIBUTES</literal>
+                                for the legal flag values.
+                                Note that using the native SQLite3 flags
+                                is also supported.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>sqlite3* </type>
+                               <methodname>connection</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the raw SQLite3 connection handle
+                                encapsulated by this object.  We hope you never
+                                have to use this method.  If you do
+                                please let us know why and we'll consider
+                                adding the functionality you needed to this
+                                library for the next person.
+                               </para>
+                               <para>
+                                If you close the database handle, you will, at best,
+                                make all subsequent calls using it
+                                fail.  You may also cause program failure.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>tatic const char* </type>
+                               <methodname>version</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the SQLite3 version string for
+                                the underlying library.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static int         </type>
+                               <methodname>versionNumber</methodname>
+                               <void />
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the version number value.  The SQlite3
+                                version consist of three fields of three
+                                digits.  Thus a value of
+                                <literal>1002003</literal> corresponds to
+                                version <literal>1.2.3</literal>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>bool </type>
+                               <methodname>tableExists</methodname>
+                               <methodparam>
+                                   <type>const char* </type><parameter>tableName</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If the encapsulate database has a table named
+                                <parameter>tableName</parameter> defined,
+                                this returns <literal>true</literal> othewise,
+                                <literal>false</literal> is returned.
+                                It is strongly suggested this be called before
+                                assuming a database file passed by a user
+                                is actually a database file initialized for
+                                your application.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>static void </type>
+                               <methodname>checkStatus</methodname>
+                               <methodparam>
+                                   <type>int </type><parameter>status</parameter>
+                                <initializer></initializer>
+                               </methodparam>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If <parameter>status</parameter> is not
+                                <literal>SQLITE_OK</literal> throws a
+                                <classname>CSqliteException</classname> object.
+                                Used throughout the database library for
+                                error checking/handling.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                <refsect1>
+                    <title>PUBLIC ATTRIBUTES</title>
+                    <para>
+                        Several public attributes are exported by this
+                        class.   These are static values that are usable
+                        in the <parameter>flags</parameter> parameter
+                        for the constructor.  They are synonyms for
+                        API flag values available for use in the native
+                        library function:
+                        <function>sqlite3_open_v2</function>
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>nomutex</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Equivalent to <literal>SQLITE3_OPEN_NOMUTEX</literal>:
+                                The new database connection will use the
+                                "multi-thread" threading mode.
+                                This means that separate threads are
+                                allowed to use SQLite at the same time, as
+                                long as each thread is using a different
+                                database connection.
+                               </para>
+                               <para>
+                                In the context of this library, a different
+                                connection means a different
+                                <classname>CSqlite</classname> object.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>fullmutex</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Equivalent to <literal>SQLITE_OPEN_FULLMUTEX</literal>:
+                                The new database connection will use the
+                                "serialized" threading mode. This means
+                                the multiple threads can safely attempt
+                                to use the same database connection at
+                                the same time. (Mutexes will block any
+                                actual concurrency, but in this mode there is no
+                                harm in trying).
+                               </para>
+                               <para>
+                                This can be used best when short database
+                                accesses are interleaved with longer computing and
+                                that the accesses and computing across
+                                several threads.  In an appliction with this
+                                balance of computing/database operation, the
+                                probability of collision on a mutex is low.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>sharedcache</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Equivalent to
+                                <literal>SQLITE_OPEN_SHAREDCACHE</literal>:
+                                The database is opened shared cache enabled,
+                                overriding the default shared cache setting
+                                provided by
+                                <function>sqlite3_enable_shared_cache</function>.
+                                Note that the SQlite3 documentation does not
+                                recommend using this flag.
+                               </para>
+                               <para>
+                                Sharing the cache allows a common cache to be used
+                                between several objects open on the same database
+                                all with this flag set.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>privatecache</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Mutually exclusive of <varname>sharedcache</varname>.
+                                This is synonymous with
+                                <literal>SQLITE_OPEN_PRIVATCACHE</literal>:
+                                The database is opened shared cache disabled,
+                                overriding the default shared cache setting
+                                provided by
+                                <function>sqlite3_enable_shared_cache</function>.
+                               </para>
+                               <para>
+                                This is the recommended and by default shared cache
+                                is globally in the SQLite3 library.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int</type><varname> uri</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                A synonym for :
+                                <literal>SQLITE_OPEN_URI</literal>
+                                    The filename can be interpreted as a URI if
+                                    this flag is set.  This has several
+                                    implications.
+                               </para>
+                               <para>
+                                The first of these implications is that
+                                open flags can be provided as query strings
+                                on on the URI (see the SQLite3 documentation
+                                for more information about this).  The
+                                second is that using the query parameter
+                                <literal>memory</literal> in different connections
+                                with the same URI allows several connections to the
+                                same memory database to be made.
+                                See the SQLite3 documentation regarding
+                                URI filenames.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>readonly</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Identical to <literal>SQLITE_OPEN_READONLY</literal>:
+                                The database is opened in read-only mode.
+                                If the database does not already exist, an
+                                error is returned, which is then thrown
+                                as an <classname>CSqliteException</classname>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int</type><varname>readwrite</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Equivalent to <literal>SQLITE_OPEN_READWRITE</literal>:
+                                The database is opened for reading and writing
+                                if possible, or reading only if the file is write
+                                protected by the operating system. In either
+                                case the database must already exist, otherwise
+                                an error is returned and thrown as a
+                                <classname>CSqliteException</classname>
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <type>static const int </type><varname>create</varname>
+                           </term>
+                           <listitem>
+                               <para>
+                                Equivalent to
+                                <literal>SQLITE_OPEN_CREATE</literal>,
+                                should be used in combination with
+                                <varname>readwrite</varname>:
+                                The database is opened for reading and writing,
+                                and is created if it does not already exist.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>                
+            </refentry>
             
         </section>
         <section>
