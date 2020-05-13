@@ -12235,8 +12235,147 @@ public:
             <section>
                 <title>Raw Tcl API</title>
                 <para>
-                    
+                    The raw API consists of three command ensembles.
                 </para>
+                <variablelist>
+                    <varlistentry>
+                       <term>DBTcl</term>
+                       <listitem>
+                           <para>
+                            This command ensemble provides the ability
+                            to create new databases and open existing databases.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>Database instances</term>
+                       <listitem>
+                           <para>
+                            These command ensembles are dynamically
+                            created with unique base commands. When
+                            DBTcl opens a database, a new Database instance command
+                            ensemble is created and its base command returned
+                            to the application.
+                           </para>
+                           <para>
+                            The Database instance ensembles can
+                            create and access save sets within the
+                            database.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>Saveset instances</term>
+                       <listitem>
+                           <para>
+                            Saveset instances are also dynamically
+                            created command ensembles.  When a Database
+                            instance command accesses a save set it
+                            generates a new ensemble with a unique
+                            command name.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    Thus only the <command>DBTcl</command> command is
+                    a fixed command. You can think of Database instances
+                    and Saveste instances a objects whose subcommands
+                    are callable methods.
+                </para>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>DBTcl</refentrytitle>
+                      <manvolnum>3dbtcl</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>DBTcl</refname>
+                      <refpurpose>Provide database access.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require SpecTclDB ?1.0?
+
+DBTcl create filename
+set instance [DBTcl connect filename]
+
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                        <title>DESCRIPTION</title>
+                          <para>
+                            The <command>DBTcl</command> command
+                            has two subcommands:
+                          </para>
+                          <variablelist>
+                            <varlistentry>
+                               <term><command>create</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a filename as an argument.
+                                    If the file specified does not exist,
+                                    it is created.  Regardless the file
+                                    is opened as an SQLite3 database and
+                                    the schema needed to store savesets
+                                    and their objects created.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>connect</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a filename as an argument. The
+                                    file is opened as an
+                                    SQLite3 database and tests are done to
+                                    ensure that appropriate schema are present.
+                                    A database instance command is generated
+                                    (see the
+                                    <literal>Database Instance</literal>
+                                    reference page) and returned
+                                    as the value of the command.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                          </variablelist>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>Database Instance</refentrytitle>
+                      <manvolnum>3dbtcl</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>Database Instance</refname>
+                      <refpurpose>Manipulate a database</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require SpecTclDB ?1.0?
+
+set db [DBTcl connect filename]
+$db createSaveset set-name
+set saveset [$db getSaveset    set-name]
+set names [$db listSavesets]
+set runs  [$db listRuns]
+
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                          <title>Database Instance</title>
+                          <para>
+                            A database instance is a dynamically
+                            created command ensemble.  The
+                            <command>DBTcl connect</command> command
+                            returns a value that is actually a command
+                            ensemble name.
+                          </para>
+                          <para>
+                            Database Instance command ensembles have
+                            the following subcommands:
+                          </para>
+                    </refsect1>
+                </refentry>
             </section>
             <section>
                 <title>SpecTcl API</title>
