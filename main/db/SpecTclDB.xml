@@ -12190,7 +12190,66 @@ public:
         <section>
            <title>Tcl bindings to the C++ API</title>
            <para>
+            There are actually three distinct Tcl APIs:
            </para>
+           <variablelist>
+            <varlistentry>
+               <term>Raw Tcl API</term>
+               <listitem>
+                   <para>
+                    Encapsulates much of the C++ API. The missing pieces
+                    are event recording as this is not anticipated
+                    to be something done directly from Tcl.  If this
+                    becomes needed, then let us know and we can consider adding
+                    that for a future release.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>SpecTcl API</term>
+               <listitem>
+                   <para>
+                    A package intended only for use in SpecTcl.
+                    Provides an API against which SpecTcl GUIs can
+                    be written to manage savesets.  This also
+                    does not address recording event data.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Event recording API</term>
+               <listitem>
+                   <para>
+                    This is intended only for use in SpecTcl and
+                    provides the API required to set up and tear dow
+                    the infrastructure needed to record event data
+                    to a saveset.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+            <para>
+                We will provide reference material for each of these
+                in turn in separate subsections.
+            </para>
+            <section>
+                <title>Raw Tcl API</title>
+                <para>
+                    
+                </para>
+            </section>
+            <section>
+                <title>SpecTcl API</title>
+                <para>
+                    
+                </para>
+            </section>
+            <section>
+                <title>Event recording API</title>
+                <para>
+                    
+                </para>
+            </section>
         </section>
         <section>
             <title id='app.schema'>Database schema.</title>
