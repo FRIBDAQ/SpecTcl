@@ -74,7 +74,7 @@ public:
     typedef enum _transactionState {
         active, rollbackpending, completed
     } TransactionState;
-    
+private:    
     CSqlite&         m_db;
     TransactionState m_state;
     std::string      m_startCommand;
