@@ -12354,10 +12354,12 @@ set instance [DBTcl connect filename]
 package require SpecTclDB ?1.0?
 
 set db [DBTcl connect filename]
-$db createSaveset set-name
+
+set saveset [$db createSaveset set-name]
 set saveset [$db getSaveset    set-name]
 set names [$db listSavesets]
 set runs  [$db listRuns]
+$db destroy
 
                         </programlisting>
                     </refsynopsisdiv>
@@ -12374,6 +12376,1195 @@ set runs  [$db listRuns]
                             Database Instance command ensembles have
                             the following subcommands:
                           </para>
+                          <variablelist>
+                            <varlistentry>
+                               <term><command>createSaveset</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new save set in the database.
+                                    The subcommand takes the save set as a
+                                    parameter.  The command result is
+                                    a saveset instance command.
+                                   </para>
+                                   <para>
+                                    When no longer needed the saveset instance
+                                    command should be destroyed using
+                                    the <command>destroy</command> subcommand.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>getSaveset</command></term>
+                               <listitem>
+                                   <para>
+                                    This command takes the name of an existing save
+                                    set as a parameter.  The saveset is looked up
+                                    in the database and a new
+                                    saveset instance command is wrapped
+                                    around it.
+                                   </para>
+                                   <para>
+                                    The save set instance command is
+                                    returned as the command's result.
+                                    When the application no longer needs it,
+                                    the save set instance command
+                                    should be destroyed using its
+                                    <command>destroy</command>
+                                    method.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listSavesets</command></term>
+                               <listitem>
+                                   <para>
+                                    This subcommand returns a Tcl list containing
+                                    the names of all savesets in the
+                                    database.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listRuns</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a Tcl list containing the
+                                    run numbers that are saved in the database.
+                                    Note that in principle a run can appear
+                                    more than once, in several save sets.
+                                    As SpecTcl uses the database, however
+                                    each run will be in a saveset of its own
+                                    along with the configuration used
+                                    when run recording started, and any
+                                    spectra on the auto save list at the
+                                    time the end of run was seen.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>destroy</command></term>
+                               <listitem>
+                                   <para>
+                                    Destroys the command freeing all resources
+                                    associated with it.  Once this
+                                    subcommand has been executed, the
+                                    instance command is no longer known
+                                    to the interpreter.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                          </variablelist>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>Save set Instance</refentrytitle>
+                      <manvolnum>3dbtcl</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>Save set Instance</refname>
+                      <refpurpose>Manipulate save sets</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require SpecTclDB ?1.0?
+
+set db [DBTcl connect filename]
+set saveset [$db createSaveset saveset]
+set saveset [$db getSaveset saveset]
+
+$saveset destroy
+set info [$saveset info]
+
+$saveset createParameter name number ?low high bins ?units??
+set info [$saveset listParameters]
+set info [$saveset findParameter param-name]
+
+$saveset createSpectrum name type parameters axes ?datatype?
+if {[$saveset spectrumExists name]} {...}
+set info [$saveset findSpectrum name]
+set info [$saveset listSpectra]
+
+$saveset create1dGate name type parameter-list low high
+$saveset create2dGate name type parameter-list point-list
+$saveset createCompoundGate name type gate-list
+$saveset createMaskGate name type parameter mask
+if {[$saveset gateExists gate-name]} {...}
+set info [$saveset findGate name]
+set info [$saveset listGates]
+
+$saveset applyGate gate-name spectrum-name
+set info [$saveset findApplication gate-name spectrum-name]
+set info [$saveset listApplications]
+
+$saveset createVariable name value ?units?
+if {[$saveset variableExists name]} {...}
+set info [$saveset findVariable name]
+set info [$saveset listVariables]
+
+if {[$saveset hasChannels spectrum-name]} {...}
+$saveset storeChannels spectrum-name channel-spec-list
+set info [$saveset getChannels spectrum-name]
+
+set run-numbers [$saveset listRuns]
+set info [$saveset getRunInfo]
+set scaler-data [$saveset getScalers run-number]
+
+
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                          <title>DESCRIPTION</title>
+                          <para>
+                            A save set instance command is returned
+                            from the database instance commands sub commands
+                            for creating and looking up save sets.
+                            It is a dynamically created command
+                            ensemble who's subcommands allow applications
+                            to query and manipulate the save set.
+                            You can think of this command ensemble as an
+                            object wrapping of a save set whose
+                            subcommands are methods on that object.
+                          </para>
+                          <para>
+                            Once the application no longer needs a specific
+                            save set instance command, its
+                            <command>destroy</command> subcommand
+                            should be called to release all resources
+                            owned by the command.  Once <command>destroy</command>
+                            is called, the the save set instance command is no
+                            longer known to Tcl.
+                          </para>
+                          <para>
+                            The subcommands of a saveset instance
+                            command provide an API that allows access
+                            to the following classes of data stored
+                            in the save-set.
+                          </para>
+                          <itemizedlist>
+                            <listitem>
+                               <para>
+                                  Save set information 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Parameters 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Spectra 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Gates 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Gate applications to spectra 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Tree Variables 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Spectrum contents 
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Recorded data 
+                               </para>
+                            </listitem>
+                          </itemizedlist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Save Set information subcommands</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>destroy</command></term>
+                               <listitem>
+                                   <para>
+                                    Destroys the command and frees all
+                                    resources managed by it.  This
+                                    should be invoked when the application
+                                    no longer needs a specifid save set
+                                    intance.  Once called, the save set instance
+                                    command is no longer known to the Tcl interpreter.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>info</command></term>
+                               <listitem>
+                                   <para>
+                                    This subcommand returns a dict that
+                                    describes the save set this command
+                                    wraps.  The dict has the following
+                                    key/value pairs:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Primary key of the root record
+                                            for this save set in the root saveset
+                                            table (see schema documentation for more
+                                            information).
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the save set.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>timestamp</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The time at which the saveset was created.
+                                            This  value can be formatted for
+                                            humans via <command>clock format</command>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Parameter subcommands</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>createParameter</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates  new parameter definition.
+                                    The command requires the following mandatory
+                                    parameters:
+                                    <parameter>name</parameter> of
+                                    the new parameter, which must
+                                    not be defined in the saveset,
+                                    <parameter>number</parameter>,
+                                    for SpecTcl the number of the slot in
+                                    <classname>CEvent</classname> objects
+                                     in which the parameter will be stored.
+                                   </para>
+                                   <para>
+                                    If creating a tree parameter, with metadata,
+                                    three more parameters are required
+                                    and one optional:
+                                    <parameter>low</parameter>,
+                                    <parameter>high</parameter>,
+                                    <parameter>bins</parameter> describe
+                                    the recommended axis range and binning for
+                                    spectra on the parameter and
+                                    the optional <parameter>units</parameter>
+                                    provides a units of measure.
+                                   </para>
+                                   <para>
+                                    If the units of measure are not
+                                    provided for a tree parameter the
+                                    when fetched, the units of measure
+                                    will be an empty string.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listParameters</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a possibly empty list of
+                                    dicts.  Each element of the list
+                                    describes one of the parameters defined in the
+                                    dictionary. The dicts have
+                                    the following key/value pairs.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The primary key of the parameter in the
+                                            parameter table. See the schema
+                                            documentation in this appendix
+                                            for more information.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the parameter.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>number</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The <classname>CEvent</classname>
+                                            slot number in SpecTcl where this parameter
+                                            is stored when created from an event.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Only present for tree parameters.
+                                            The recommended axis low limit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>high</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The recommended axis high limit. Only present
+                                            with tree parameters.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>bins</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The recommended axis binning, only
+                                            present for tree parameters.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Units of measure, only present
+                                            for tree parameters.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>findParameter</command></term>
+                               <listitem>
+                                   <para>
+                                    This subcommand accepts a parameter
+                                    name. If a parameter by that name has
+                                    been defined in the saveset, information
+                                    about it is returned.  If not an error
+                                    is raised. The parameter information
+                                    is a dict with the key/value
+                                    pairs described in
+                                    <command>listParameters</command>
+                                    above.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Spectrum subcommands</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>createSpectrum</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new spectrum definition.
+                                    This requires four parameters:
+                                    In order a spectrum <parameter>name</parameter>,
+                                    a spectrum<parameter>type</parameter> string,
+                                     a list of the <parameter>parameters</parameter>
+                                     the spectrum depends on and a list of one or
+                                     two <parameter>axis-definitions</parameter>.
+                                    An optional fifth parameter
+                                    provides the data type of each channel
+                                    in the spectrum.  This can be
+                                    <literal>long</literal>,
+                                    <literal>word</literal>,
+                                    or <literal>byte</literal>.
+                                   </para>
+                                   <para>
+                                    Axis definitions are three element
+                                    lists containing low, high bins
+                                    in that order.  If the parameter(s)
+                                    for an axis are tree parameters it may
+                                    make sense to use the values
+                                    from those parameters.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>spectrumExists</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts the name of a spectrum and
+                                    returns a boolean true if that
+                                    spectrum has a definition in the save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>findSpectrum</command></term>
+                               <listitem>
+                                   <para>
+                                    Takes the name of a spectrum as a parameter.
+                                    If the spectrum exists, a dict
+                                    describing it is returned.  If not an
+                                    error is raised.  The dict
+                                    returned, has the following key/value
+                                    pairs:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Value of the primary key of the spectrum
+                                            definition in the root table for spectrum
+                                            definitions.  See the schema
+                                            documentation for more informtion.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the spectrum.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>type</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Spectrum Type string.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameters</literal></term>
+                                       <listitem>
+                                           <para>
+                                            List of the name sof parameters
+                                            required by the spectrum.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>axes</literal></term>
+                                       <listitem>
+                                           <para>
+                                            List of one or two axis definitions.
+                                            The axis definitions are dicts
+                                            with the keys
+                                            <literal>low</literal>, <literal>high</literal>
+                                            and <literal>bins</literal>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>datatype</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The data type string e.g. <literal>long</literal>,
+                                            <literal>word</literal>
+                                            or <literal>byte</literal>
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listSpectra</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of spectrum definitions.
+                                    Each spectrum definition is a dict
+                                    as described in <command>findSpectrum</command>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Gate subcommands.</title>
+                        <para>
+                            Note that when dumping gate definitions
+                            to the database, dependency analysis must be
+                            done to ensure that no gate is saved before
+                            all gates it depends on have been saved.  This
+                            is because compound gates can depend on other
+                            compound gates.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>create1dGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a pointe gate with a one dimensional
+                                    region of acceptance.  The parameters
+                                    required by this gate are, in order,
+                                    <parameter>name</parameter> of the gate,
+                                    the gate <parameter>type</parameter> string,
+                                    a  <parameter>parameter-list</parameter> of the
+                                    parameters used by the gate and
+                                    finally, the <parameter>low</parameter>
+                                    and <parameter>high</parameter> limits
+                                    of the acceptance region.
+                                   </para>
+                                   <para>
+                                    Note that unlike for SpecTcl, where gates can
+                                    be redefined, the database gate names
+                                    must be unique within the context of a
+                                    save set.  This is because save sets are intended
+                                    to capture a snapshot of object
+                                    definitions rather than be the live
+                                    configurtion store.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>create2dGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a point gate with a two
+                                    dimensional acceptance region.  Note that
+                                    the acceptance region is define by both the
+                                    points and the gate type.  For example
+                                    contour gates define the acceptance region to be
+                                    a closed figure while bands define the acceptance
+                                    region to be the region below the connected
+                                    line segments defined by the points.
+                                   </para>
+                                   <para>
+                                    The <command>crete2dGate</command>
+                                    command requires the following parameters:
+                                    The gate <parameter>name</parameter>,
+                                    the gate <parameter>type</parameter>,
+                                    the <parameter>parameter-list</parameter> of parameters
+                                    needed by the gate and  a
+                                    <parameter>point-list</parameter>
+                                   </para>
+                                    <para>
+                                        The <parameter>point-list</parameter>
+                                        is a Tcl list of pairs of doubles.
+                                        The first element of each pair is a point x coordinate
+                                        and the second the point's y coordinate.
+                                        Note that the order in which points
+                                        are listed is, of course significant as the
+                                        2-d figure represented is drawn from line
+                                        segments that connect adjacent points.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>createCompoundGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a compound gate.  A compound gate performs
+                                    a boolean operation on a list of
+                                    <firstterm>dependent gates</firstterm> to
+                                    deterimine the truth or falsity of an event.
+                                    This subcommand requires the following
+                                    additional parameters:
+                                    The gate <parameter>name</parameter>,
+                                    the get <parameter>type</parameter>,
+                                     a <parameter>gate-list</parameter> which is a
+                                     list of the names of the dependent gates.
+                                   </para>
+                                   <para>
+                                    While the order in which the gates are
+                                    provided to the <parameter>gate-list</parameter>
+                                    does not affect the value of the gate, if you
+                                    know something about the frequency with which
+                                    the component gates are true, you can influnce the
+                                    performance of the gate evaluation.
+                                    This is because short circuit evaluation is
+                                    done.  Or gates are true the when the first
+                                    gate in the list is true, so ordering these
+                                    gates in the probability they are true improves performance.
+                                    And gates are false when a first false gate is
+                                    encountered, so ordering these in increasing
+                                    probability they will be true
+                                    improves performance.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>createMaskGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Creates a mask gate.
+                                    Additional parameters are the
+                                    gate <parameter>name</parameter>,
+                                    the gate <parameter>type</parameter>,
+                                    and the <parameter>mask</parameter>
+                                    applied by the gate.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>gateExists</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts the name of a gate as its single
+                                    parameter and returns a boolean true
+                                    value if that gate is defined in the database.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>findGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Takes a gate name as an additional parameter
+                                    and, if the gate is defined, returns a
+                                    dict that describes the gate.  If the
+                                    gate does not exist an error is raised.
+                                    The dict contains the following key/value
+                                    pairs.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The id of the gate in the root gate
+                                            definition table. See the schema documentation
+                                            for more information.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The gate name.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>type</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The SpecTcl gate type string.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>classification</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The gate type classification. This determines
+                                            which aditional fields the dict
+                                            will have.  Valid values
+                                            are <literal>point</literal>,
+                                            <literal>mask</literal>
+                                            and <literal>compound</literal>
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameters</literal> (point, mask)</term>
+                                       <listitem>
+                                           <para>
+                                            The parameters the gate depends on.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>gates</literal> (compound)</term>
+                                       <listitem>
+                                           <para>
+                                            The gates this gate depends on.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>points</literal> (point)</term>
+                                       <listitem>
+                                           <para>
+                                            The gate points as a list
+                                            dicts. Each dict has an
+                                            <literal>x</literal> and
+                                            <literal>y</literal> key.
+                                            For one dimensional point gates,
+                                            the <literal>y</literal> value
+                                            should be ignored.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>mask</literal> (mask)</term>
+                                       <listitem>
+                                           <para>
+                                            The bitmask used by mask gates.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listGates</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts of the form
+                                    described for <command>findGate</command>
+                                    above.  The dicts describe all of the
+                                    gate definitions in the safe set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+
+                    </refsect1>
+                    <refsect1>
+                        <title>Gate application subcommands.</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>applyGate</command></term>
+                               <listitem>
+                                   <para>
+                                    Takes two parameter, a
+                                    <parameter>gate-name</parameter>
+                                    and a <parameter>spectrum-name</parameter>
+                                    and creates a definition that the
+                                    gate is applied to the spectrum.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>findApplication</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns informtaion about the
+                                    application of
+                                    <parameter>gtae-name</parameter> to
+                                    <parameter>spectrum-name</parameter>.
+                                    Currently the only additional
+                                    information provided is the primary
+                                    key from the gate application table.
+                                   </para>
+                                   <para>
+                                    If no matching application exits,
+                                    an error is raised.  If there is
+                                    a match, a dict with the following
+                                    key/value pairs is returned.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The primary  key of the gate.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>gate</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the gate.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>spectrum</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Spectrum to which this gate
+                                            is applied.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listApplications</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts of the
+                                    form returned by
+                                    <command>findApplication</command>
+                                    that describes all of the gate applications
+                                    in the database.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Tree variable subcommands</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><literal>createVariable</literal></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new tree variable. Two
+                                    parameters, the <parameter>name</parameter>
+                                    and <parameter>value</parameter> of the
+                                    variable are required. An optional
+                                    third <parameter>units</parameter>
+                                    parameter provides the units of measure
+                                    for the parameter. If
+                                    <parameter>units</parameter> are not
+                                    provided, the units will be an empty
+                                    string.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>variableExists</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a <parameter>name</parameter>
+                                    and returns a boolean true if the
+                                    <parameter>name</parameter> exists
+                                    in the save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>findVariable</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts the parameter name and, if the parameter
+                                    exists returns a dict that describes
+                                    the parameter's definition.  If the
+                                    parameter does not exist, an error
+                                    is raised.
+                                   </para>
+                                   <para>
+                                    The resulting dict has the following
+                                    key/value pairs:
+                                    </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The primary key of the variblein the
+                                            top level variable table.
+                                            See the database schema for more information.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the tree variable.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>value</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Value of the parameter (a double float).
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The units of measure string.
+                                            This will be an empty string if no units of
+                                            measure were provided.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>listVariables</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts.  Each
+                                    dict has the form described in
+                                    <command>findVariable</command>
+                                    above. The list provides all of
+                                    the variable definitions in the save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>
+                            Spectrum Channel access.
+                        </title>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>hasChannels</command></term>
+                               <listitem>
+                                   <para>
+                                    Takes a spectrum name as an additional
+                                    mandatory parameter. Returns
+                                    a boolean true value if the named
+                                    spectrum in the save set has
+                                    channel data associated with it.
+                                    Throws an error if the spectrum is not defined
+                                     in this save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>storeChannels</command></term>
+                               <listitem>
+                                   <para>
+                                    Stores channel data for a spectrum defined
+                                     in the save set. Any existing data
+                                     for that spectrum is overwritten.
+                                     The command requires a pair of parameters.
+                                     The first is <parameter>name</parameter>
+                                     of the spectrum.  The second a list that
+                                     contains the <parameter>channel-spec-list</parameter>
+                                     (channel specification list).
+                                   </para>
+                                   <para>
+                                    The channel specification list is a list
+                                    of three item lists.  Each element of the
+                                    outer list defines a channel value for
+                                    a non-zero channel. Specifically,
+                                    The elements in the list are the X channel,
+                                    the Y channel and the data in the channel.
+                                    For a 1-d Spectrum, the Y channel should be zero.
+                                    </para>
+                                   <para>
+                                    Note that typically, only non-zero channels
+                                    need to be representd and the data
+                                    is the same format as that returned from
+                                    the SpecTcl <command>scontents</command>
+                                    command.  If a spectrum has no non-zero channels,
+                                    in order to ensure that <command>hasChannels</command>
+                                    works properly, you need to provide a
+                                    single element (normally {0 0 0}), with no counts
+                                    so that there will be a database entry for
+                                    the spectrum's channels.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>getChannels</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a spectrum name parameter and returns
+                                    the channel data associated with that
+                                    spectrum in the save set.  If the spectrum
+                                     has no channels an error is raised.
+                                   </para>
+                                   <para>
+                                    The result is a list of three element lists
+                                    containing X channel number,
+                                    Y channel number and the
+                                    number of counts in that channel.
+                                    For one dimensional spectra, the Y channel number
+                                    should be ignored.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                    <refsect1>
+                        <title>Run and scaler data</title>
+                        <para>
+                            Access to run data ans caler data are
+                            limited and there is currently  no support
+                            to generate these data from Tcl as it is
+                            assumed these data usually come from
+                            the high perfromance C++ parts of the application.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><command>listRuns</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a (possibily empty) list of the
+                                    runnumbers that have data saved for them in this
+                                    saveset.  The C++ API suports saving
+                                    data from more than one run in a save set.
+                                    SpecTcl, however does not do that.
+                                    When run data recording starts, it
+                                    makes a new save set and saves the
+                                    analysis state prior to beginnning
+                                    to record data.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>getunInfo</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a run number and, if that
+                                    run is in the saveset, returns
+                                    information about it.  If the run
+                                    is not in the saveset, 
+                                   </para>
+                                   <para>
+                                    The information about the run is returned
+                                    as a dict that contains the following
+                                    key/value pairs:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>config</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the save set this
+                                            run is stored in.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>number</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Run number.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>title</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Title string for the run.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>start-time</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Timestamp for when the run started.
+                                            you can use <command>clock format</command>
+                                            to turn this into a human readable
+                                            date and time string.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>stop_time</literal> (optional)</term>
+                                       <listitem>
+                                           <para>
+                                            Time at which the run ended.
+                                            This will not be present if either
+                                            the data were not all fully recorded or
+                                            the run was not properly ended (had no end run
+                                            record).  If there were multiple end run
+                                            records as there are for event built
+                                            data in NSCLDAQ-11, the time of the
+                                            last one is recorded.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>getScalers</command></term>
+                               <listitem>
+                                   <para>
+                                    Accepts a run number as an argument and
+                                    returns a list of scaler readouts.
+                                    for that run. Each element of the list is
+                                    a dict with the following key/value pairs.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>sourceid</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The event builder source id from which
+                                            these data came.  Each data source
+                                            will have a unique integer id that
+                                            identifies it.  The scalers readout
+                                            for each source will, in general be
+                                            different and not summable.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>start</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Time offset into the run at which counting
+                                            for this readout started.  See
+                                            <literal>divisor</literal>
+                                            as well.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>stop</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Time offset into the run that marked
+                                            the end of this sclaer accumulation.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>divisor</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Doing a floating point division of
+                                            either <literal>start</literal>
+                                            or <literal>stop</literal>
+                                            by the <literal>divisor</literal>
+                                            computes those times in seconds into the
+                                            run.  The <literal>divisor</literal>
+                                            allows for offset resolutions better than
+                                            one second.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>timestamp</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Time of day timestamp at which
+                                            the scalers were read.  This can
+                                            be turned into something human readable
+                                            with <command>clock format</command>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>channels</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The scaler channel data thta was read.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
                     </refsect1>
                 </refentry>
             </section>
@@ -12392,6 +13583,20 @@ set runs  [$db listRuns]
         </section>
         <section>
             <title id='app.schema'>Database schema.</title>
+            <para>
+                Note.  The database scheme is not considered to be a
+                stable interface in the sense that whle the APIs documented
+                will be maintained and backward compatible with future
+                work, the developers reserve the right to modify
+                the actual database schema.  This documentation allows you
+                to know how to do operations that may not be supported by
+                the APIs but there's no gaurantee anything you do
+                with schema knowledge will work in perpetuity.
+                If the API is missing something you want then by all means
+                let us know and we'll consider adding it or working with you
+                to describe how to meet your need within the current
+                APIs.
+            </para>
             <para>
                 Database schema are divided into tables.  Each table
                 usually has a field called its <firstterm>primary key</firstterm>.
