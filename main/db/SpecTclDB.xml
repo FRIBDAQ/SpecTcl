@@ -13571,8 +13571,331 @@ set scaler-data [$saveset getScalers run-number]
             <section>
                 <title>SpecTcl API</title>
                 <para>
-                    
+                    The SpecTcl API contains procs that SpecTcl uses to access
+                    the database.  While it provides a higher level model
+                    of the database, it makes extensive use of SpecTcl commands
+                    and therefore is highly SpecTcl specific.
                 </para>
+                <para>
+                    The procs are defined in  the
+                    <filename>dbconfig</filename> package and all are defined in
+                    the <literal>dbconfig</literal> namespace.  This section provides
+                    reference information about these procs.
+                </para>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::makeSchema</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::makeSchema</refname>
+                      <refpurpose></refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+
+dbconfig::makeSchema database-file
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            If <parameter>database-file</parameter> does not
+                            exist it is created as an sqlite3 database file.
+                            The database schema described in this section is
+                            then created in the database file.  
+                          </para>
+                          <para>
+                            If <parameter>database-file</parameter> alread existed:
+                          </para>
+                          <itemizedlist>
+                            <listitem>
+                               <para>
+                                  If it is not an sqlite3 database an error is
+                                  thrown.
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  If it is an sqlite3 database, the schema
+                                  required to make the file suitable for a
+                                  configuration database file is layered on top of
+                                  any existing schema. Note that if any or all of
+                                  the schema already exists no harm is done as tables
+                                  and indices are created using
+                                  <code language='sql'>CREATE xxxx IF NOT EXISTS...</code>.
+                               </para>
+                            </listitem>
+                            </itemizedlist>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::connect</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::connect</refname>
+                      <refpurpose>Connect to a database</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+
+set handle [dbconfig::connect file-name]
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Form a connection to an existing database
+                            in the file:
+                            <parameter>file-name</parameter>.  The return
+                            value is a handle that will be used in other
+                            databsae calls.  Note that the handle is actually
+                            a database instance command (see reference material on
+                            the Tcl bindings to the database API).
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::openSaveSet</refentrytitle>
+                      <manvolnum>3speccldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::openSaveSet</refname>
+                      <refpurpose>Access a save set.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set saveset [dbconfig::openSaveSet $db save-name]
+                            </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Given a handle returned from <function>dbconfig::connect</function>,
+                            <parameter>db</parameter>
+                            and the name of a saveset known to exist in that
+                            database, access the save set <parameter>save-name</parameter>.
+                            The function returns a handle that can be used in other
+                            save set related operations. In fact, that handle is
+                            a save set instance command.  See the
+                            reference pages describing the Tcl bindings
+                            to the database API for more information about
+                            what you can do with a save set instance command.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::saveConfig</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::saveConfig</refname>
+                      <refpurpose>Save SpecTcl analysis configuration</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                   <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+
+
+set saveset [dbconfig::saveCOnfig $db new-savename ?save-contents?]
+
+                    </programlisting>
+
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                                Creates a new save set <parameter>new-savename</parameter>
+                                in the database connected to <parameter>db</parameter>.
+                                The full SpecTcl analysis configuration;
+                                parameter definitions, spectrum definitions, gate
+                                definitions, gate applications and variable definitions
+                                are saved into the new save set.
+                                If <parameter>save-contents</parameter> is true
+                                the contents of all spectra are saved.
+                          </para>
+                          <para>
+                            The result is a handle to the resulting save set.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::listConfigs</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::listConfigs</refname>
+                      <refpurpose>Obtain information about save sets</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+
+set result [dbconfig::listConfigs $db]
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Returns a list of dicts that describe the
+                            save sets in the database
+                            connected to <parameter>db</parameter>.
+                            The dicts contain the following key/value pairs:
+                          </para>
+                          <variablelist>
+                            <varlistentry>
+                               <term><literal>id</literal></term>
+                               <listitem>
+                                   <para>
+                                    Primary key of the save set in the
+                                    save set root table.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>name</literal></term>
+                               <listitem>
+                                   <para>
+                                    Name of the save set.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>timestamp</literal></term>
+                               <listitem>
+                                   <para>
+                                    Time at which the save set was created.
+                                    This can be formatted with
+                                    <command>clock format</command>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::restoreConfig</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::restoreConfig</refname>
+                      <refpurpose>Restore analysis configuration from saveset</refpurpose>
+                    </refnamediv>
+                   
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+
+dbconfig::restoreConfig $db save-name ?restorespectra?
+
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Restores an analysis configuration from the save set
+                            named <parameter>save-name</parameter>.
+                            <parameter>db</parameter> is a database connected.
+                            If <parameter>restorespectra</parameter> is provided
+                            and true, all saved spectrum channels are restored
+                            as well.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::saveSpectrum</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::saveSpectrum</refname>
+                      <refpurpose>Save contents of a spectrum.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set set [dbconfig::saveConfiguration $db save-set]
+
+dbconfig::saveSpectrum $set spectrum-name
+                            
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Save the contents of the spectrum
+                            <parameter>spectrum-name</parameter> into the
+                            saveset <parameter>set</parameter>.  Note that
+                            any channels already saved for
+                            <parameter>spectrum-name</parameter> are overwritten.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::restoreSpectrum</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::restoreSpectrum</refname>
+                      <refpurpose>Restore spectrum contents from save set.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+ set db [dbconfig::connect file-name]
+ set set [dconfig::openSaveSet $db set-name]
+ 
+ dbconfig::restorSpectrum $set spectrum-name
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Retores the contents of spectrum
+                            <parameter>spectrum-name</parameter> from the
+                            save set with the handle stored in <parameter>set</parameter>.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::saveAllSpectrumContents</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::saveAllSpectrumContents</refname>
+                      <refpurpose>Save the contents of all spectra to a saveset</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+set db [dbconfig::connect file-name]
+set set [dconfig::openSaveSet $db set-name]
+ 
+dbconfig::saveAllSpectrumContents $set 
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Given a saveset handle <parameter>set</parameter>,
+                            saves the contents of all spectra into that saveset.
+                          </para>
+                    </refsect1>
+                </refentry>
             </section>
             <section>
                 <title>Event recording API</title>
