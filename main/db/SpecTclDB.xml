@@ -13856,8 +13856,9 @@ dbconfig::saveSpectrum $set spectrum-name
                     </refnamediv>
                     <refsynopsisdiv>
                         <programlisting>
+package require dbconfig
  set db [dbconfig::connect file-name]
- set set [dconfig::openSaveSet $db set-name]
+ set set [dbconfig::openSaveSet $db set-name]
  
  dbconfig::restorSpectrum $set spectrum-name
                         </programlisting>
@@ -13882,8 +13883,9 @@ dbconfig::saveSpectrum $set spectrum-name
                     </refnamediv>
                     <refsynopsisdiv>
                         <programlisting>
+package require dbconfig
 set db [dbconfig::connect file-name]
-set set [dconfig::openSaveSet $db set-name]
+set set [dbconfig::openSaveSet $db set-name]
  
 dbconfig::saveAllSpectrumContents $set 
                         </programlisting>
@@ -13894,6 +13896,267 @@ dbconfig::saveAllSpectrumContents $set
                             Given a saveset handle <parameter>set</parameter>,
                             saves the contents of all spectra into that saveset.
                           </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::restoreAllSpectrumContents</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::restoreAllSpectrumContents</refname>
+                      <refpurpose>Load channels for all spectra</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set set [dbconfig::openSaveSet $db set-name]
+
+dbconfig::restoreAllSpectrumContents $set
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Given a save set instance command
+                            <parameter>$set</parameter>, load the
+                            channel data from all spectra stored in that
+                            saveset into SpecTcl spectra.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::listRuns</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::listRuns</refname>
+                      <refpurpose>List information about saved runs.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+
+set info [dbconfig::listRuns $db]
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Returns information about all of the
+                            runs in the database whose instance command
+                            is stored in <parameter>db</parameter>.
+                            The result is a list of dicts.
+                            Each dict has the following key/value
+                            pairs:
+                          </para>
+                          <variablelist>
+                            <varlistentry>
+                               <term><literal>config</literal></term>
+                               <listitem>
+                                   <para>
+                                    Name of the save set that contains the run.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>number</literal></term>
+                               <listitem>
+                                   <para>
+                                    Run number.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>title</literal></term>
+                               <listitem>
+                                   <para>
+                                    Run title string
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>start_time</literal></term>
+                               <listitem>
+                                   <para>
+                                    Run start time.  To turn this into
+                                    a human readable string, pass it to
+                                    <command>clock format</command>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>stop_time</literal> (optional)</term>
+                               <listitem>
+                                   <para>
+                                    The run stop time, if there is
+                                    information about when the run ended.
+                                    This may be absent either because the run was not
+                                    completely recorded or becausse the
+                                    run was improperly ended and therefore
+                                    did not have end of run information.
+                                    This value, if present, can be turned
+                                    into a human readable string by
+                                    passing it to
+                                    <command>clock format</command>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                          </variablelist>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::hasRun</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::hasRun</refname>
+                      <refpurpose>Determine if a save set has run data.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set set [dbconfig::openSaveSet $db set-name]
+
+if {[dbconfig::hasRun $set run-num]} {
+    ...
+}
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                          <title>DESCRIPTION</title>
+                          <para>
+                            If the <parameter>run-num</parameter> has data
+                            in the save set encapsulated by the save set instance
+                            stored in <parameter>set</parameter>,
+                            this proc returns a boolean true, otherwise
+                            a boolean false is returned.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::getRunInfo</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::getRunInfo</refname>
+                      <refpurpose>Get information about all runs in a saveset.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set set [dbconfig::openSaveSet $db set-name]
+
+set info [dbconfig::getRunInfo $set]
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Returns a list of dicts that describe all of the
+                            runs in a save set.  If there are no runs,
+                            an empty list is returned.  See
+                            <command>dbconfig::listRuns</command>
+                            for the keys each dict will have.
+                          </para>
+                    </refsect1>
+                </refentry>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>dbconfig::getScalers</refentrytitle>
+                      <manvolnum>3spectcldb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>dbconfig::getScalers</refname>
+                      <refpurpose>Return scaler information from a run.</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require dbconfig
+set db [dbconfig::connect file-name]
+set set [dbconfig::openSaveSet $db set-name]
+
+set info [dbconfig::getScalers $set run-number]
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                             <title>DESCRIPTION</title>
+                          <para>
+                            Returns a list of scaler readout information
+                            for run <parameter>run-number</parameter>
+                            in the save set whose instance command is
+                            stored in <parameter>set</parameter>.
+                            Each element of the list is a dict that
+                            contains the following key/value pairs:
+                          </para>
+                          <variablelist>
+                            <varlistentry>
+                               <term><literal>sourceid</literal></term>
+                               <listitem>
+                                   <para>
+                                    The data source id that performed this readout.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>start</literal></term>
+                               <listitem>
+                                   <para>
+                                    The offset into the run at which scalers
+                                    began accumulating for this readout.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>stop</literal></term>
+                               <listitem>
+                                   <para>
+                                    The offset into the run at which the counting
+                                    interval represented by this entry ended.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>divisor</literal></term>
+                               <listitem>
+                                   <para>
+                                    Doing a floating point divide of
+                                    <literal>start</literal> or
+                                    <literal>stop</literal> by the
+                                    <literal>divisor</literal> value
+                                    results in seconds.  This allows
+                                    for subsection precision.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>timestamp</literal></term>
+                               <listitem>
+                                   <para>
+                                    The absolute time at which the readout
+                                    was performed.  This can be turned into
+                                    a human readable string via
+                                    <command>clock format</command>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><literal>channels</literal></term>
+                               <listitem>
+                                   <para>
+                                    List of integer counts read from the
+                                    scalers for this readout entry.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                          </variablelist>
                     </refsect1>
                 </refentry>
             </section>
