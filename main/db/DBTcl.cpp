@@ -430,10 +430,10 @@ DBTclInstance::wrapSaveSet(SaveSet* pSet)
 // TclSaveSet implementation.
 
 int  TclSaveSet::m_parameterSerial(0);
-int  TclSaveSet::m_spectrumSerial(0);
-int  TclSaveSet::m_gateSerial(0);
-int  TclSaveSet::m_applicationSerial(0);
-int  TclSaveSet::m_treeVariableSerial(0);
+int  TclSaveSet::m_spectrumSerial(0);          // below are
+int  TclSaveSet::m_gateSerial(0);              // reserved for
+int  TclSaveSet::m_applicationSerial(0);       // later if
+int  TclSaveSet::m_treeVariableSerial(0);      // needed
 
 /**
  * constructor
@@ -1411,8 +1411,15 @@ TclSaveSet::listRuns(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 /**
  * getRunInfo
  *   Returns a list of dicts that contain information about runs
- *   stored in this save set. Dict format is the same as for
- *   DBInstance::listRuns
+ *   stored in this save set.
+ *   Keys in this dict are:
+ *   - config - the name of the save set that holds this run.
+ *   - number - the runnumber.
+ *   - title  - the run title string.
+ *   - start_time - the timestamp of the start of the run.
+ *                  [clock format] can make this human readable.
+ *   - stop_time  - the timestamp for the end of the run.  This may not
+ *                  be present if recording the run failed in any way.
  *   
  * @param interp - interpreter executing the command.
  * @param objv   - vector command paranmeters - including

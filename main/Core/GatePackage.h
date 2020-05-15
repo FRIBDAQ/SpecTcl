@@ -83,6 +83,7 @@ class CGatePackage  : public CTCLCommandPackage
   CHistogrammer*  m_pHistogrammer;   //!< Pointer to SpecTcl Histogrammer        
   CGateCommand*   m_pGateCommand;    // 1:1 association object data member
   CApplyCommand*  m_pApplyCommand;   // 1:1 association object data member
+  CApplyCommand*  m_pApplyGateCommand; // Same as apply but applygate
   CUngateCommand* m_pUngateCommand;  // 1:1 association object data member
   static UInt_t   m_nNextId;	     //!< Next Gate Id.
 

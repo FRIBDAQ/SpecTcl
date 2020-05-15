@@ -919,6 +919,7 @@ proc getRunInfo {saveset} {
 #   @param saveset   - saveset instance command.
 #   @param run  - Run Number.
 #   @returns a list of dicts.  Each dict has the following keys:
+#            -  sourceid
 #            -  start - Seconds into the run when a scaler accumulation started
 #            -  stop  - Seconds into the run when a scaler accumulation ended.
 #            -  divisor - What to divide start/stop by to get seconds.db

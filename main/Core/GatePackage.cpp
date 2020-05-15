@@ -82,6 +82,7 @@ CGatePackage::CGatePackage(CTCLInterpreter* pInterp,
   m_pHistogrammer(pHistogrammer),
   m_pGateCommand(new CGateCommand(pInterp, *this)),
   m_pApplyCommand(new CApplyCommand(pInterp, *this)),
+  m_pApplyGateCommand(new CApplyCommand(pInterp, *this, "applygate")),
   m_pUngateCommand(new CUngateCommand(pInterp, *this))
   
 {
@@ -90,6 +91,7 @@ CGatePackage::CGatePackage(CTCLInterpreter* pInterp,
   AddProcessor(m_pGateCommand);
   AddProcessor(m_pApplyCommand);
   AddProcessor(m_pUngateCommand);
+  AddProcessor(m_pApplyGateCommand);
   
 }
 //////////////////////////////////////////////////////////////////////////////

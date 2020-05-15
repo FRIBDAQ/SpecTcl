@@ -1,7 +1,7 @@
 lib_LTLIBRARIES=libSqlite3pp.la libSpecTclDb.la libSpecTclDbTcl.la
 
 TCLSCRIPTS=dbconfig.tcl dbgui.tcl dialogwrapper.tcl
-2IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
+IMAGES=configuration.png folder.png openfolder.png spectrum.png events.png
 DOCS=SpecTclDB.xml GUI.png
 
 libSqlite3pp_la_SOURCES=CSqlite.cpp CSqliteException.cpp CSqliteStatement.cpp \
@@ -52,7 +52,12 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/GUI.png @prefix@/share/database
 	$(mkinstalldirs) @prefix@/TclLibs/database
 	$(INSTALL_PROGRAM) @builddir@/.libs/libSpecTclDbTcl.* @prefix@/TclLibs/database
-	echo package ifneeded SpecTclDB 1.0 [list load [file join \$$dir libSpecTclDbTcl.so]] > @prefix@/TclLibs/database/pkgIndex.tcl
+	echo package ifneeded SpecTclDB 1.0 \
+	[list load [file join \$$dir libSpecTclDbTcl.so]] > \
+	@prefix@/TclLibs/database/pkgIndex.tcl
+	$(mkinstalldirs) @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/*.cpp *.tcl @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/Makefile @prefix@/share/dbexamples
 
 
 ################################################################
@@ -85,5 +90,6 @@ TESTS=unittests dbtcl.test names.test
 
 #check: check-TESTS
 
-EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS)
+EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS) \
+	examples/Makefile examples/*.cpp examples/*.tcl
 
