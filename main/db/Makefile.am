@@ -56,8 +56,8 @@ install-exec-hook:
 	[list load [file join \$$dir libSpecTclDbTcl.so]] > \
 	@prefix@/TclLibs/database/pkgIndex.tcl
 	$(mkinstalldirs) @prefix@/share/dbexamples
-	$(INSTALL_DATA) @srcdir@/*.cpp *.tcl @prefix@/share/dbexamples
-	$(INSTALL_DATA) @srcdir@/Makefile @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/examples/*.cpp @srcdir@/examples/*.tcl @prefix@/share/dbexamples
+	$(INSTALL_DATA) @srcdir@/examples/Makefile @prefix@/share/dbexamples
 
 
 ################################################################
@@ -91,5 +91,5 @@ TESTS=unittests dbtcl.test names.test
 #check: check-TESTS
 
 EXTRA_DIST=names.test dbtcl.test  $(TCLSCRIPTS) $(IMAGES) $(DOCS) \
-	examples/Makefile examples/*.cpp examples/*.tcl
+	@srcdir@/examples/Makefile @srcdir@/examples/*.cpp @srcdir@/examples/*.tcl
 
