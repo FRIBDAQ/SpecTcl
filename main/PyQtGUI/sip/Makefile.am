@@ -7,4 +7,4 @@ install-exec-hook:
 	python3 @srcdir@/configure.py @srcdir@ @libdir@ && make -f Makefile.sip
 	cp CPyConverter.so @libdir@/CPyConverter.so
 
-EXTRA_DIST = configure.py Makefile.sip CPyConverter.sip CPyConverter.h dataAccess.h dataTypes.h
+EXTRA_DIST = configure.py CPyConverter.sip CPyConverter.h dataAccess.h dataTypes.h
