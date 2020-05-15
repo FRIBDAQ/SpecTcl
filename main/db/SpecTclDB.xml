@@ -14163,8 +14163,306 @@ set info [dbconfig::getScalers $set run-number]
             <section>
                 <title>Event recording API</title>
                 <para>
-                    
+                    The event recording API consist of Tcl commands that
+                    allow clients to set up SpecTcl event recording into
+                    database save sets.  When enabled, each time a
+                    begin run for a new run is seen, a new save-set is created,
+                    the current configuration saved to it, and events
+                    and scaler data are added to that saveset.
+                    The first time an end run record is encountered for a
+                    run, the end run time from that record is recorded
+                    and the contents of any spectrum marked for auto-save
+                    are saved.
                 </para>
+                <para>
+                    The Event recording API has been subsumed into the
+                    <literal>SpecTclDB</literal> package.  We supply reference
+                    documentation here to support user written graphical
+                    user interfaces that support event recording.
+                </para>
+                <refentry>
+                   <refmeta>
+                      <refentrytitle>daqdb</refentrytitle>
+                      <manvolnum>3spectcldaqdb</manvolnum>
+                   </refmeta>
+                   <refnamediv>
+                      <refname>daqdb</refname>
+                      <refpurpose>Record/playback event data from sqlite3 database files</refpurpose>
+                    </refnamediv>
+                    <refsynopsisdiv>
+                        <programlisting>
+package require SpecTclDB
+
+daqdb open filename
+daqdb enable
+daqdb disable
+daqdb close
+daqdb autosave spectrum-name-list
+daqdb listruns
+daqdb play run-number
+daqdb stop
+
+                        </programlisting>
+                    </refsynopsisdiv>
+                    <refsect1>
+                        <title>DESCRIPTION</title>
+                          <para>
+                            This command ensemble is used by SpecTcl
+                            to manage event recording and playback to/from
+                            SQLite3 databases.  This package is
+                            very SpecTcl dependent.  subcommands will
+                            start event processors, and event sinks,
+                            as well as drive event sinks.
+                          </para>
+                    </refsect1>
+                    <refsect1>
+                        <title>SUBCOMMANDS</title>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <command>daqdb open </command> <replaceable>filename</replaceable>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Opens the database <parameter>filename</parameter>.
+                                    If a database event processor
+                                    has not yet been created, one will
+                                    be.  The event processor's database
+                                    writer will be set to one
+                                    attached to <parameter>filename</parameter>.
+                                    The event processor will also create an
+                                    event sink.
+                                   </para>
+                                   <para>
+                                    Event writing, when it happens is a collaboration
+                                    between an event processor and
+                                    an event sink.  All non-event
+                                    data (begin run, end run, scalers),
+                                    must be written by the event processor,
+                                    as it knows about those items.
+                                    Event data, on the other hand,
+                                    is done by an event sink because
+                                    by the time the event sinks are
+                                    called, the event processing pipeline
+                                    has fully built the
+                                    <classname>CEvent</classname>
+                                    that corresponds to the unpacked
+                                    parameters in the event.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb enable</command></term>
+                               <listitem>
+                                   <para>
+                                    Enables event recording.  Note that event
+                                    recording will actually start when the
+                                    next begin run item is seen. At that time:
+                                   </para>
+                                   <orderedlist>
+                                    <listitem>
+                                       <para>
+                                          A new save set will be created and the
+                                          SpecTcl analysis configuration saved to it.
+                                       </para>
+                                    </listitem>
+                                    <listitem>
+                                       <para>
+                                          A run will be created within
+                                          the save set and filled in with the
+                                          run number, the title, and
+                                          the time at which the run started.
+                                       </para>
+                                    </listitem>
+                                    <listitem>
+                                       <para>
+                                          Subsequent scaler items will
+                                          be saved to the run.
+                                       </para>
+                                    </listitem>
+                                    <listitem>
+                                       <para>
+                                          Subsequent events will be saved
+                                          to the run.
+                                       </para>
+                                    </listitem>
+                                    <listitem>
+                                       <para>
+                                          On the first corresponding end run,
+                                          the end time will be saved to the
+                                          run and the contents of
+                                          all spectra on the
+                                          autosave list will be written
+                                          to the saveset.
+                                       </para>
+                                    </listitem>
+                                   </orderedlist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb disable</command></term>
+                               <listitem>
+                                   <para>
+                                    Event recording is immediately stopped.
+                                    While it is legal to do this while analysis
+                                    is in progress, this is not recommended.
+                                   </para>
+                                   <para>
+                                    If event recording is stopped while it is
+                                    in progress, the run record will
+                                    not have an end of run and the
+                                    run will not be entirely recorded
+                                    to the save set.  Furthermore,
+                                    the contents of spectra on the
+                                    auto-saved list will not be
+                                    saved.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb close</command></term>
+                               <listitem>
+                                   <para>
+                                    Closes the database file.  When the
+                                    file is closed, the only legal
+                                    operation is to open a database
+                                    file.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb autosave </command><replaceable>spectrum-name-list</replaceable></term>
+                               <listitem>
+                                   <para>
+                                    <parameter>spectrum-name-list</parameter>
+                                    is a Tcl list of spectrum names.
+                                    The spectra on this list become the new
+                                    autosave spectrum list.  At the
+                                    end of recording a run, the contents
+                                    of these spectra are written into the
+                                    same saveset as the run.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb listruns</command></term>
+                               <listitem>
+                                   <para>
+                                    Returns a Tcl list describing
+                                    all of the runs in the
+                                    <emphasis>database file</emphasis>.
+                                    Each element of the list is a
+                                    dict that describes one run.  These
+                                    dicts contain the following key/value
+                                    pairs:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>number</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Number of the run.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>config</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the save set containing
+                                            the run.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>title</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The title of the run.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>start_time</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The date/time at which the
+                                            run started.
+                                            <command>clock format</command>
+                                            will turn this numeric representation
+                                            into a human readable string.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>end_time</literal> (optional)</term>
+                                       <listitem>
+                                           <para>
+                                            The time at which the run ended.  This
+                                            will not be present if recording was
+                                            prematurely disabled before the
+                                            entire run was recorded or if
+                                            the run was improperly ended when it
+                                            was acquired.
+                                           </para>
+                                           <para>
+                                            Once more, this integer value can be
+                                            converted into a human readable
+                                            time using
+                                            <command>clock seconds</command>
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb play</command><replaceable>run-number</replaceable></term>
+                               <listitem>
+                                   <para>
+                                    Begins playing back data from the run
+                                    <parameter>run-number</parameter>.
+                                    Data are read from the database for that
+                                    run and directly submitted to SpecTcl's
+                                    event sink pipeline.
+                                   </para>
+                                   <para>
+                                    Periodically, the playback will drain event from
+                                    the Tcl event queue allowing the SpecTcl
+                                    user interface to remain alive
+                                    during playback.
+                                   </para>
+                                   <para>
+                                    Since the user event processing pipeline
+                                    is bypassed, runs should play back noticeably
+                                    faster than from raw data.
+                                   </para>
+                                   <para>
+                                    Event recording while performing event playback
+                                    is not supported.  This is because
+                                    recording relies on getting begin and end
+                                    run information from the event processing
+                                    pipeline which is completely bypassed
+                                    during playback.  Furthermore, it's likely
+                                    that recording's use of transactions
+                                    will deadlock SpecTcl during playback.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><command>daqdb stop</command></term>
+                               <listitem>
+                                   <para>
+                                    Stops an in progress playback immediately.
+                                    It is possible to issue this command because
+                                    the playback maintains event loop processing.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+
+                    </refsect1>
+                </refentry>
             </section>
         </section>
         <section>
