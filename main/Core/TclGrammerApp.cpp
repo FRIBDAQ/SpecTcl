@@ -1071,6 +1071,43 @@ void CTclGrammerApp::UpdateString(CTCLVariable& rVar, std::string& rValue) {
 std::string
 CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename) 
 {
+  // daqdev/SpecTcl#390:  If the script file exists, but is a symlink that's broken,
+  //                      Output a warning to stderr but return "" so the caller
+  //                      won't exit.
+  char targetFile[PATH_MAX+1];
+  memset(targetFile, 0, sizeof(PATH_MAX+1));         // So we have null termination.
+  ssize_t nBytes = readlink(filename.c_str(), targetFile, PATH_MAX);
+  
+  // EINVAL Means not a symlink.
+  // ENOENT  means the link doesn't exist.
+  // Other errors are >bad<.
+  
+  if(nBytes < 0) {
+    if (errno == ENOENT) return "";              // Just like missing file.
+    if (errno != EINVAL) {
+      std::string reason = string(strerror(errno));
+      std::string msg = "Unable to check if ";
+      msg += filename;
+      msg += " is a symlink and if that symlink is broken: ";
+      msg += reason;
+      return reason;
+    }
+    
+  } else {
+    // Symlink read:
+    
+    
+    
+    int stat = access(targetFile, F_OK);
+    if (stat && errno == ENOENT) {
+      std::cerr << "****WARNING: " << filename << " is a broken symlink\n";
+      std::cerr << "****Continuing\n";
+      return "";
+    }
+    filename = targetFile;          // Use the target instead of the link.
+    
+  }
+  
   // Probe existence and return empty if not found.
 
   int stat = access(filename.c_str(), F_OK);
@@ -1097,6 +1134,8 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
     return error;
   }
 
+  
+  // not exist, 
   // Source the script converting an exception in to an error messasge.
   // error message will include the error info too.
 
