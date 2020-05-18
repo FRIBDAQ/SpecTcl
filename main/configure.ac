@@ -43,9 +43,14 @@ AC_PROG_YACC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
-PYTHON_CXXFLAGS=`python3-config --includes`
+# PYthon C/C++ extension environment build flags:
+
+
+
+
+PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
 AC_SUBST(PYTHON_CXXFLAGS)
-PYTHON_LDFLAGS=`python3-config --ldflags`
+PYTHON_LDFLAGS=`pkg-config python3 --libs`
 AC_SUBST(PYTHON_LDFLAGS)
 
 AX_PYTHON
