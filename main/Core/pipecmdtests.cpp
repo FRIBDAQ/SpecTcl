@@ -71,6 +71,10 @@ class pcmdTests : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(pman_1);     // no subcommand is an error.
   CPPUNIT_TEST(pman_2);     // invalid subcommand is an error.
+  
+  CPPUNIT_TEST(rmevp_1);
+  CPPUNIT_TEST(rmevp_2);
+  CPPUNIT_TEST(rmevp_3);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -147,6 +151,10 @@ protected:
   
   void pman_1();
   void pman_2();
+  
+  void rmevp_1();
+  void rmevp_2();
+  void rmevp_3();
 };
 CPPUNIT_TEST_SUITE_REGISTRATION(pcmdTests);
 
@@ -789,6 +797,7 @@ void pcmdTests::clone_3()
 
 void pcmdTests::clone_4()
 {
+  
   CPPUNIT_ASSERT_THROW(
     m_pInterp->GlobalEval("pman clone default newpipe junk"),
     CTCLException
@@ -832,4 +841,50 @@ void pcmdTests::pman_2()
     m_pInterp->GlobalEval("pman no-such-subcommand"),
     CTCLException
   );
+}
+
+void pcmdTests::rmevp_1()
+{
+  // Remove an event processor that does not exist is an error.
+  // that gets reported by lower level software.
+  
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("pman rmevp no-such"),
+    CTCLException
+  );
+}
+void pcmdTests::rmevp_2()
+{
+  // remove existing event processor removes it/no exception.
+ 
+  registerProcessors() ;
+  
+  CPPUNIT_ASSERT_NO_THROW(
+    m_pInterp->GlobalEval("pman rmevp evp1")
+  );
+  auto mgr = CPipelineManager::getInstance();
+  auto names =  mgr->getEventProcessorNames();
+  int count = 0;
+  for (int i =0; i < names.size(); i++) {
+    if (names[i] == "evp1") count++;
+  }
+  EQ(0, count);
+  
+}
+void pcmdTests::rmevp_3()
+{
+  // removing event processors that are in use is illegal.
+  
+  registerProcessors();
+  auto mgr = CPipelineManager::getInstance();
+  std::string pname("pipeline");
+  std::string evpname("evp1");
+  mgr->createPipeline(pname);
+  mgr->appendEventProcessor(pname, evpname);
+  
+  CPPUNIT_ASSERT_THROW(
+    m_pInterp->GlobalEval("pman rmevp evp1"),
+    CTCLException
+  );
+  
 }

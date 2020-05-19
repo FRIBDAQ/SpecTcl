@@ -26,6 +26,7 @@ class CPipelineCommand : public CTCLObjectProcessor
   void removeProcessor(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void clonePipeline(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
   void listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+  void rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
 
   CPipelineCommand(CTCLInterpreter& interp);
   int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);

@@ -48,6 +48,8 @@ CPipelineCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& o
           clearPipeline(interp, objv);            
         } else if (subcommand == "clone"){      // Tested.
           clonePipeline(interp, objv);
+        } else if (subcommand == "rmevp") {
+          rmEvp(interp, objv);
         } else {
           std::string msg = "Invalid subcommand: " ;
           msg += subcommand;
@@ -89,6 +91,7 @@ CPipelineCommand::showCommands(CTCLInterpreter& interp, std::vector<CTCLObject>&
   sCmds << "                        : pipeline named 'pipename'\n";
   sCmds << "pman clear pipename     : Removes all event processors from 'pipename'\n";
   sCmds << "pman clone old new      : Clones the pipline named 'old' creating one \n";
+  sCmds << "pman rmevp evpname      : Unregisters an event processor\n";
   sCmds << "                          named 'new'\n";
   
   
@@ -284,6 +287,39 @@ CPipelineCommand::listEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv
   
   interp.setResult(result);
   
+}
+/**
+ * rmEvp
+ *    Unregister an event processor from the pipeline manager.
+ *    The processor must first be removed from all piplines it belongs to.
+ */
+void
+CPipelineCommand::rmEvp(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+  requireExactly(
+    objv, 3, "rmevp subcommand only requires an event processor name"
+  );
+  
+  std::string evpname = objv[2];
+  
+  // Ensure there's no existing event processor. If there is,
+  // that's an std::invalid_argument.
+  //
+  
+  auto usedBy = CPipelineManager::getInstance()->pipelinesUsing(evpname.c_str());
+  if (! usedBy.empty()) {
+    // Processor is in use -- bad.
+    
+    std::stringstream msg;
+    msg << "The event processor " << evpname << " is in use.\n";
+    msg << "Before it can be unregistered it must e removed from the following pipelines:\n";
+    for (int i =0; i < usedBy.size(); i++) {
+      msg << usedBy[i] << std::endl;
+    }
+    throw std::invalid_argument(msg.str());
+  }
+  
+  CPipelineManager::getInstance()->unregisterEventProcessor(evpname);
 }
 /*-------------------------------------------------------------------------------
  * Utility methods
