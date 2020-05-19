@@ -422,15 +422,15 @@ CPipelineManager::pipelinesUsing(const char* evpname)
     
     // Iterate over pipes:
     
-    for (auto p = processsorsBegin(); p != processorsEnd(); p++ ) {
+    for (auto p = pipelineBegin(); p != pipelineEnd(); p++ ) {
         std::string name = p->first;
-        CTCLAnalyzer::EventProcessingPipeline* pipe = p->second;
+        auto pipe = p->second;
         
         // Iterate over the pipe.
         
-        for (auto el = pipe.begin(); el != pipe.end(); el++) {
-            if (el.first == evpname) {    // Found  a match!
-                result.push_back(evpname);
+        for (auto el = pipe->begin(); el != pipe->end(); el++) {
+            if (el->first == evpname) {    // Found  a match!
+                result.push_back(name);
                 break;                    // Done searching.
             }
         }

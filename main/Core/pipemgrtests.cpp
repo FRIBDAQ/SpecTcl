@@ -10,7 +10,7 @@
 
 #include <sstream>
 #include <stdexcept>
-
+#include <set>
 
 class CAnalyzer;
 
@@ -72,6 +72,13 @@ class PipeMgrTests : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(evpiterate_1);
   CPPUNIT_TEST(evpiterate_2);
+  
+  CPPUNIT_TEST(unregister_1);
+  CPPUNIT_TEST(unregister_2);
+  
+  CPPUNIT_TEST(used_1);
+  CPPUNIT_TEST(used_2);
+  CPPUNIT_TEST(used_3);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -129,6 +136,13 @@ protected:
   
   void evpiterate_1();
   void evpiterate_2();
+  
+  void unregister_1();
+  void unregister_2();
+  
+  void used_1();
+  void used_2();
+  void used_3();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PipeMgrTests);
@@ -633,4 +647,91 @@ void PipeMgrTests::evpiterate_2()
   EQ(std::string("ddd"), p->first);
   p++;
   ASSERT(p == pMgr->processorsEnd());
+}
+void PipeMgrTests::unregister_1()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  // Unregistering an event processor that exists is fine
+  
+  DummyProcessor* dummy = new DummyProcessor;
+  pMgr->registerEventProcessor("aaa", dummy);
+  std::string name("aaa");
+  CPPUNIT_ASSERT_NO_THROW(pMgr->unregisterEventProcessor(name));
+  EQ(size_t(0), pMgr->eventProcessorCount());
+}
+void PipeMgrTests::unregister_2()
+{
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  // Unregistering nonexistent is an exception.
+  std::string name="aaa";
+  
+  CPPUNIT_ASSERT_THROW(
+    pMgr->unregisterEventProcessor(name), std::invalid_argument
+  );
+}
+
+void PipeMgrTests::used_1()
+{
+  // A defined event processor not used is not listed:
+  
+  DummyProcessor* dummy = new DummyProcessor;;
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->registerEventProcessor("aaa", dummy);
+  
+  auto listing = pMgr->pipelinesUsing("aaa");
+  EQ(size_t(0), listing.size());
+}
+
+
+void PipeMgrTests::used_2()
+{
+  // Used in a single processor of two:
+  
+  DummyProcessor* dummy = new DummyProcessor;;
+  std::string evname("aaa");
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->registerEventProcessor(evname, dummy);
+  
+  std::string test1("test1");
+  std::string test2("test2");
+  
+  pMgr->createPipeline(test1);
+  pMgr->createPipeline(test2);
+  
+  pMgr->appendEventProcessor(test1, evname);
+  
+  auto listing = pMgr->pipelinesUsing(evname.c_str());
+  EQ(size_t(1), listing.size());
+  EQ(test1, listing[0]);
+  
+  
+}
+
+void PipeMgrTests::used_3()
+{
+   // in more than one pipe.
+   
+   DummyProcessor* dummy = new DummyProcessor;;
+  std::string evname("aaa");
+  CPipelineManager* pMgr = CPipelineManager::getInstance();
+  pMgr->registerEventProcessor(evname, dummy);
+  
+  std::string test1("test1");
+  std::string test2("test2");
+  
+  pMgr->createPipeline(test1);
+  pMgr->createPipeline(test2);
+  
+  pMgr->appendEventProcessor(test1, evname);
+  pMgr->appendEventProcessor(test2, evname);
+  
+  std::set<std::string> names;
+  names.insert(test1);
+  names.insert(test2);
+  
+  auto listing = pMgr->pipelinesUsing(evname.c_str());
+  EQ(size_t(2), listing.size());
+  EQ(size_t(1), names.count(listing[0]));
+  EQ(size_t(1), names.count(listing[1]));
+   
 }
