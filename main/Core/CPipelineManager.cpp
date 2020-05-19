@@ -69,6 +69,32 @@ CPipelineManager::registerEventProcessor(
     
 }
 /**
+ * unregisterEventProcessor
+ *    Given the name of an event processor, removes it from the
+ *    registration map. Note that if the event processor is in any
+ *    pipelines it remains there so the caller had better not
+ *    destroy it until it's gone from all.
+ *
+ *  @param name -name of the event processor to remove.
+ *  @return CEventProcessor* - pointer to the event processor removed.
+ */
+CEventProcessor*
+CPipelineManager::unregisterEventProcessor(const std::string& name)
+{
+    auto p = m_processors.find(name);
+    if (p != m_processors.end()) {
+        CEventProcessor* result = p->second;
+        m_processors.erase(p);
+        return result;
+    } else {
+        // not found
+        
+        std::string msg("No such event processor: " );
+        msg += name;
+        throw std::invalid_argument(msg);
+    }
+}
+/**
  * createPipeline
  *    Creates a new pipeline.
  *
@@ -166,6 +192,7 @@ CPipelineManager::insertEventProcessor(
     pipe->second->insert(here, CTclAnalyzer::PipelineElement(evp->first, evp->second));
     attachIfCurrent(pipe->second, evp->second);
 }
+
 /**
  * removeEventProcessor
  *     Removes an event processor from a pipeline given its name.

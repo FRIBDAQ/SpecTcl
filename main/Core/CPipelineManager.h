@@ -46,6 +46,8 @@ public:
   static CPipelineManager* getInstance();
   
   void registerEventProcessor(const std::string& name, CEventProcessor* pProcessor);
+  CEventProcessor* unregisterEventProcessor(const std::string& name);
+  
   void createPipeline(const std::string& name);
   
   void appendEventProcessor(const std::string& pipeName, const std::string& evpName);
@@ -53,13 +55,15 @@ public:
     const std::string& pipename, const std::string& evpname,
     CTclAnalyzer::EventProcessorIterator where
   );
-
+  
+  
   void removeEventProcessor(const std::string& pipename, const std::string& evpname);
   void removeEventProcessor(const std::string& pipename, CTclAnalyzer::EventProcessorIterator here);
   
   void setCurrentPipeline(const std::string& pipename);
   
   void clonePipeline(const std::string& from, const std::string& to);
+
 
   // inquiries:
   
