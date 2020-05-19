@@ -407,6 +407,38 @@ CPipelineManager::lookupEventProcessor(const CEventProcessor* p) const
     throw std::logic_error("CPipelineManager::lookupEventProcessor - processor not registered");
 }
 /**
+ * pipelinesUsing
+ *    Given an event processor name, returns a  the names
+ *    of pipelines that are currently using it.
+ *
+ * @param evpname - name of the event processor.
+ * @return std::vector<std::string> - each element is the name of an
+ *                   event processing pipeline that's using that processor.
+ */
+std::vector<std::string>
+CPipelineManager::pipelinesUsing(const char* evpname)
+{
+    std::vector<std::string> result;
+    
+    // Iterate over pipes:
+    
+    for (auto p = processsorsBegin(); p != processorsEnd(); p++ ) {
+        std::string name = p->first;
+        CTCLAnalyzer::EventProcessingPipeline* pipe = p->second;
+        
+        // Iterate over the pipe.
+        
+        for (auto el = pipe.begin(); el != pipe.end(); el++) {
+            if (el.first == evpname) {    // Found  a match!
+                result.push_back(evpname);
+                break;                    // Done searching.
+            }
+        }
+    }
+    
+    return result;
+}
+/**
  * pipelineCount
  *
  * @return size_t - number of pipelines that are defined.

@@ -73,7 +73,7 @@ public:
   std::vector<std::string>               getEventProcessorNames() const;
   std::vector<std::string>               getEventProcessorsInPipeline(const std::string& pipename) const;
   std::string                            lookupEventProcessor(const CEventProcessor* p) const;
-  
+  std::vector<std::string>               pipelinesUsing(const char* evpname);
   size_t pipelineCount() const;
   size_t eventProcessorCount() const;
   
@@ -82,7 +82,7 @@ public:
   
   MapEventProcessors::const_iterator processorsBegin() const;
   MapEventProcessors::const_iterator processorsEnd() const;
-
+  
 private:
   CPipelineManager();
   ~CPipelineManager();          // Singletons are always final.
