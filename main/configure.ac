@@ -53,7 +53,6 @@ AC_SUBST(PYTHON_CXXFLAGS)
 PYTHON_LDFLAGS=`pkg-config python3 --libs`
 AC_SUBST(PYTHON_LDFLAGS)
 
-AX_PYTHON
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
