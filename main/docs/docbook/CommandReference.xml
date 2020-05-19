@@ -6582,6 +6582,11 @@ pman clear <replaceable>pipeline-name</replaceable>
 pman clone <replaceable>existing-pipe new-pipe</replaceable>
             </command>
         </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+pman rmevp <replaceable>evp-name</replaceable> #new with 5.3-007
+            </command>
+        </cmdsynopsis>
     </refsynopsisdiv>
     <refsect1>
         <title>DESCRIPTION</title>
@@ -6828,7 +6833,24 @@ pman clone <replaceable>existing-pipe new-pipe</replaceable>
                     </para>
                 </listitem>
             </varlistentry>
-            
+            <varlistentry>
+               <term>
+                <command>
+pman rmevp <replaceable>evp-name</replaceable>
+                </command>
+               </term>
+               <listitem>
+                   <para>
+                    This subcommand was added in SpecTcl-5.3-007. It unregisters
+                    the event processor <parameter>evp-name</parameter>
+                    from the pipeline manager.  It is illegal to do this
+                    if the event processor is in use in any pipeline.  If that's
+                    attempted, the command will throw an error that describes
+                    lists the pipeline the event processor is currently
+                    an element of.
+                   </para>
+                </listitem>
+            </varlistentry>
         </variablelist>
     </refsect1>
 
