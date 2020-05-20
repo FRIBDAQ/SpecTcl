@@ -24,11 +24,12 @@ FragmentIndex::FragmentIndex(uint16_t* data)
 
   uint32_t max_bytes=0, temp;
 
-  max_bytes = *data++;
-  temp = *data++;
-  max_bytes |= (temp<<16);
+  max_bytes = *(reinterpret_cast<uint32_t*>(data));
 
-  indexFragments(data, max_bytes-sizeof(uint32_t)); //note that this indexFragments is defined in FragmentsIndex.h --JP
+  indexFragments(
+      data+sizeof(uint32_t)/sizeof(uint16_t),
+      max_bytes-sizeof(uint32_t)
+  ); //note that this indexFragments is defined in FragmentsIndex.h --JP
 }
 
 
@@ -38,6 +39,7 @@ FragmentIndex::FragmentIndex(uint16_t* data)
 */
 void FragmentIndex::indexFragments(uint16_t* begin, uint16_t* end)
 {
+
   if (begin==0) {
     throw std::runtime_error("Null pointer passed as argument, cannot proceed");
   } 
