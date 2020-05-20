@@ -290,7 +290,7 @@ void fragidxTest::frag2_2()
     
     // Fill in event:
     
-    uint32_t nBytes = sizeof(uint32_t) + sizeof(fh) + pFrag->s_header.s_size;
+    uint32_t nBytes = sizeof(uint32_t) + 2*(sizeof(fh) + pFrag->s_header.s_size);
     uint8_t* p = reinterpret_cast<uint8_t*>(event);
     memcpy(p, &nBytes, sizeof(uint32_t));
     p += sizeof(uint32_t);
@@ -316,7 +316,7 @@ void fragidxTest::frag2_2()
     EQ(size_t(2), f.getNumberFragments());
     
     auto info = f.getFragment(1);       // Second frag.
-    EQ(uint64_t(0x8754321), info.s_timestamp);
+    EQ(uint64_t(0x87654321), info.s_timestamp);
     uint32_t* pBody = reinterpret_cast<uint32_t*>(info.s_itembody);
     EQ(*pData, *pBody);
       
