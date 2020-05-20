@@ -384,7 +384,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
 					spectclCmdTests evbProcessorTests \
-					gateTests
+					gateTests fragIndexTests
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -480,9 +480,13 @@ evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
 
+fragIndexTests_CXXFLAGS=$(commonTestCXXFLAGS)
+fragIndexTests_LDADD=$(commonTestLdFlags)
+fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragidxtests.cpp
+
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
-		spectclCmdTests evbProcessorTests
+		spectclCmdTests evbProcessorTests fragIndexTests
 
 
