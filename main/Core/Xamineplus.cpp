@@ -817,8 +817,13 @@ void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
         }
         pf++;
     }
-
-
+    // Now since our title is better than the implementation's get the title
+    // and set it as the info. (see: daqdev/SpecTcl#381)
+    
+    std::string infoString =
+        createTitle(rSpectrum, getTitleSize(), rSorter);
+    setInfo(rSpectrum, infoString);
+    
 }
 
 void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)

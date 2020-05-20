@@ -809,7 +809,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
       try {
           CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
           if (pSpec) {
-	    makeBinding(*pSpec, *(api.GetHistogrammer()));
+            makeBinding(*pSpec, *(api.GetHistogrammer()));
           } else {
               throw CDictionaryException(CDictionaryException::knNoSuchKey,
                                          "binding spectrum by name", *p);
