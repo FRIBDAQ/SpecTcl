@@ -68,14 +68,29 @@ void FragmentIndex::indexFragments(uint16_t* begin, uint16_t* end)
 	  info.s_size      = frag->s_header.s_size;
 	  info.s_barrier   = frag->s_header.s_barrier;
 	  info.s_itemhdr   = reinterpret_cast<uint16_t*>(frag->s_body);
-	  uint16_t sizeBodyHeader = *(info.s_itemhdr+4);
-	  if (sizeBodyHeader==0) {
-		  info.s_itembody = info.s_itemhdr
-			  + (sizeof(RingItemHeader)+6)/sizeof(uint16_t);;
-	  } else {
-		  info.s_itembody = info.s_itemhdr
-			  + (sizeof(RingItemHeader)+sizeBodyHeader) /sizeof(uint16_t);
-	  }
+    
+    
+    //daqdev/SpecTcl#378 - Compute the size of the header in
+    // words and fill in info.s_itembody with a pointer to the final
+    // body. The header consists of a fixed part (ring item header)
+    // and a variable sized body header.   When Fox chose the
+    // body header representation, like an idiot, he
+    // chose a size of 0, rather than sizeof(uint32_t) to mean
+    // no body header (R. Fox writing this), so theat results
+    // in a special case. 
+    
+    size_t headerBytes = sizeof(RingItemHeader);
+    uint32_t* pBodyHeader = reinterpret_cast<uint32_t*>(
+      info.s_itemhdr + sizeof(RingItemHeader)/sizeof(uint16_t)
+    );
+    if (*pBodyHeader == 0) {
+      headerBytes += sizeof(uint32_t); 
+    } else {
+      headerBytes += *pBodyHeader;
+    }
+    // Now all this has to be in uint16_t scale:
+    
+    info.s_itembody = info.s_itemhdr + (headerBytes/sizeof(uint16_t));
 
 	  m_frags.push_back(info); //Add current fragment to m_frags list --JP
 
