@@ -1072,6 +1072,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu.source add command -label {Filter File...}         -command attachFilter
     .topmenu.source add separator
     .topmenu.source add command -label {Detach}                 -command detach
+    .topmenu.source add command -label {Abort run list} -state disabled  -command abortClusterProcessing 
 
 
     menu .topmenu.filter -tearoff 0

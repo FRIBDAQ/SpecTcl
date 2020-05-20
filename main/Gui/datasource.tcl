@@ -41,6 +41,7 @@ namespace eval datasource {
     variable lastring      $::tcl_platform(user)
     variable clustersize   8192
     variable defaultFileBuffer [expr 128*1024];    # Better performance for files.
+
 }
 
 
@@ -299,6 +300,7 @@ proc attachRunList {} {
     destroy .clusterchooser
     
     if {$runlist != ""} {
+        .topmenu.source entryconfigure 8 -state normal
         if {$datasource::runlistFiles != ""} {
             set answer [tk_messageBox -icon question -title {stop current runlist}       \
                                       -type okcancel  \
@@ -385,7 +387,10 @@ proc nextFileInRunlist {varname index op} {
     while {[set $varname] == 0} {
         #  If we finished the last one...stop the music.
         if {[llength $::datasource::runlistFiles] == 0} {
+            catch stop;             # could be an abort in middle.
             trace remove variable $varname write nextFileInRunlist
+            set datasource::runlistFiles [list];   # no more files.
+            .topmenu.source entryconfigure 8 -state disabled
             return
         }
         #  Extract the next run file from the list:
@@ -409,6 +414,19 @@ proc nextFileInRunlist {varname index op} {
             }
         }
 
+    }
+}
+##
+# abortClusterProcessing
+#   empty the runlistFiles list.  If we are processing data (RunState != 0)
+#   set it to 0.   Note the assumption is that higher level logic
+#  will ensure we are only called when cluster file processing is in
+#  progress.
+#
+proc abortClusterProcessing {} {
+    set datasource::runlistFiles [list]
+    if {$::RunState} {
+        set ::RunState 0
     }
 }
 
