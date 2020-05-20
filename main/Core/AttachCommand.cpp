@@ -153,7 +153,13 @@ static const UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDef);
 int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			       int nArgs, char* pArgs[])
 {
-
+  
+  // daqdev/SpecTcl#379 - Ensure SpecTcl is initialized.
+  
+  if (!SpecTcl::getInstance()->isInitialized()) {
+    rResult = "SpecTcl attach command attempted before SpecTcl is fully initialized";
+    return TCL_ERROR;
+  }
   nArgs--;
   pArgs++;
   OptionInfo options;

@@ -43,7 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "ApplyCommand.h"    				
 #include "GatePackage.h"
-
+#include "SpecTcl.h"
 
 #include <TCLInterpreter.h>
 #include <TCLString.h>
@@ -74,6 +74,12 @@ static const char* pCopyrightNotice =
 int CApplyCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			      int nParams, char* pParams[])  
 {
+	// daqdev/SpecTcl#379 Don't run if we're not initialized:
+	
+	if (!SpecTcl::getInstance()->isInitialized()) {
+		rResult = "apply command attempted before SpecTcl fully initialized";
+		return TCL_ERROR;
+	}
   // Called to implement the apply command.
   // This command both applies gates and lists
   //  the applications.
