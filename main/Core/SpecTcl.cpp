@@ -2846,3 +2846,24 @@ SpecTcl::parameterIds(vector<string> names)
   }
   return paramIds;
 }
+/**
+ * isInitialized
+ *   Returns true if we think SpecTcl is fully initialized.
+ *   This is the case when the interpreter, the historgrammer, the
+ *   analyzer, the sink pipline the display interface are all not null.
+ *
+ *   The intent of this is to allow build int SpecTcl commands to
+ *   determine if they are running in SpecTclInit.tcl where they're
+ *   really not allowed to run - and raise an appropriate error
+ *   if so. See e.g. daqdev/SpecTcl#379
+ *
+ * @return bool - true if all the bits and pieces are initialized.
+ */
+bool
+SpecTcl::isInitialized()
+{
+  return (
+      getInterpreter() && GetHistogrammer() && GetAnalyzer() &&
+      GetEventSinkPipeline() && GetDisplayInterface()
+  );
+}

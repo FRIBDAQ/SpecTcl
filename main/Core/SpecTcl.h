@@ -422,7 +422,7 @@ public:
   void SetDisplayInterface(CDisplayInterface& rInterface);
   std::vector<UInt_t>      parameterIds(std::vector<std::string> names);
 
-  
+  bool isInitialized();
 
   
 };
