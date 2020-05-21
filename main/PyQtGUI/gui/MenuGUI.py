@@ -61,8 +61,10 @@ class Menu(QWidget):
                 self.createGate = QPushButton("Create", self)
                 self.editGate = QPushButton("Edit", self)
                 self.deleteGate = QPushButton("Delete", self)                                
-                self.drawGate = QPushButton("Draw", self)                
-                #self.gateonoff = QCheckBox("Gate on/off", self)
+                self.drawGate = QPushButton("Draw", self)
+                self.cleanGate = QPushButton("Clear", self)
+                #self.test = QPushButton("Test", self)                                                
+                
                 
                 layout = QHBoxLayout()
                 layout.addWidget(self.listGate)
@@ -70,7 +72,8 @@ class Menu(QWidget):
                 layout.addWidget(self.editGate)                
                 layout.addWidget(self.deleteGate)
                 layout.addWidget(self.drawGate)
-                #layout.addWidget(self.gateonoff)                                
+                layout.addWidget(self.cleanGate)
+                #layout.addWidget(self.test)                
 
                 layout.addStretch(1)
                 
