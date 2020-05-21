@@ -14643,7 +14643,7 @@ public:
                         <listitem>
                             <para>
                                 The subtree <literal>tdiffs</literal> will be
-                                created.   Paramters in that subtree will
+                                created.   Parameters in that subtree will
                                 contain time differences between all ordered pairs
                                 of fragment source ids.  For example, if I have source Ids
                                 1, 2, and 3 registered in that order, the parameters
@@ -43379,4 +43379,610 @@ public:
 
 </refentry>
     </part>
+<part>
+  <title>SpecTcl Displays</title>
+  <partintro>
+    <title>Introduction</title>
+    <para>
+      The original SpecTcl only supported a single, hard coded visualization
+      program, Xamine.  While Xamine is still supported, the internal support for
+      visualizers has been generalized to provide the ability to extend SpecTcl
+      to use other display programs.  
+    </para>
+    <para>
+      The Spectra, root based display program was written and abandoned before
+      gaining much traction because the CERN/Root team abandoned QTGsi and went in
+      a much different GUI direction.  A Python/Qt based displayer using
+      MatPltoLib is being developed and will live on top of these classes documented
+      below.
+    </para>
+  </partintro>
+
+  <refentry>
+     <refmeta>
+        <refentrytitle>CDisplay</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+     </refmeta>
+     <refnamediv>
+        <refname>CDisplay</refname>
+        <refpurpose>Display interface base class</refpurpose>
+      </refnamediv>
+      <refsynopsisdiv>
+        <programlisting>
+#include &lt;Display.h&gt;
+
+class CDisplay
+{
+public:
+    typedef std::pair&lt;int, std::string&gt; BoundFitline;
+    typedef std::list&lt;BoundFitline&gt;     FitlineList;
+    typedef std::vector&lt;FitlineList&gt;    FitlineBindings;
+
+public:
+    virtual CDisplay* clone() const = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
+    virtual bool isAlive() = 0;
+    virtual void restart() = 0;
+
+    virtual SpectrumContainer getBoundSpectra() const = 0;
+    virtual void addSpectrum(CSpectrum&amp; rSpectrum, CHistogrammer&amp; rSorter) = 0;
+    virtual void removeSpectrum(CSpectrum&amp; rSpectrum, CHistogrammer&amp; rSorter) = 0;
+    virtual bool spectrumBound(CSpectrum* pSpectrum) = 0;
+
+    virtual void addFit(CSpectrumFit&amp; fit) = 0;
+    virtual void deleteFit(CSpectrumFit&amp; fit) = 0;
+    virtual void addGate(CSpectrum&amp; rSpectrum, CGateContainer&amp; rGate) = 0;
+    virtual void removeGate(CSpectrum&amp; rSpectrum, CGateContainer&amp; rGate) = 0;
+    virtual std::vector&lt;CGateContainer&gt; getAssociatedGates(const std::string&amp; spectrumName,
+                                                           CHistogrammer&amp; rSorter) = 0;
+
+    virtual std::string createTitle(CSpectrum&amp; rSpectrum, UInt_t maxLength,
+    virtual void setInfo(CSpectrum&amp; rSpectrum, std::string name) = 0;
+    virtual void setTitle(CSpectrum&amp; rSpectrum, std::string name) = 0;
+    virtual UInt_t getTitleSize() const = 0;
+
+    virtual void updateStatistics() = 0;
+};
+
+
+        </programlisting>
+      </refsynopsisdiv>
+      <refsect1>
+             <title>DESCRIPTION</title>
+            <para>
+              <classname>CDisplay</classname> is an abstract
+              base class that defines the interfaces every display
+              class must implement.  concrete display classes
+              implement the interfaces between SpecTcl and a displayer.
+            </para>
+            <para>
+              Displayers can be internal or external.  By internal,
+              we mean that they run in the same process address
+              space as SpecTcl. External displayers run in a separate
+              address space and interface with SpecTcl via shared
+              memory, the SpecTcl REST interface and/or other
+              communication schemes that are specific to the
+              display program.   Xamine is an external displayer,
+              there are currently no internal displayers.
+            </para>
+            <para>
+              The interface methods come in several groups that
+              manipulate objects that are the concerns of
+              displayers; 
+            </para>
+            <itemizedlist>
+              <listitem>
+                 <para>
+                    Methods are provided to control the displayer iself,
+                    an external (or internal for that matter) displayer
+                    will need to be started, stopped and restarted.
+                 </para>
+              </listitem>
+              <listitem>
+                 <para>
+                    Methods are provided to make the displayer know
+                    the spectra it should display.  For example,
+                    Xamine uses a fixed sized shared memory region
+                    to gain access to bulk spectrum information,
+                    as such, these interface methods can shuttle
+                    the contents of spectra in and out of that
+                    shared memory.
+                 </para>
+              </listitem>
+              <listitem>
+                 <para>
+                    Displayers can have the ability to display
+                    <firstterm>graphical</firstterm> objects that
+                    annotate spectra.  These can be gates, markers,
+                    and fitlines.  Methods are provided to define
+                    these to the displayer.
+                 </para>
+              </listitem>
+              <listitem>
+                 <para>
+                    Finally, each spectrum has both a title and information
+                    string.  The displayer must implement methods that support
+                    the creation of and display of these strings.
+                 </para>
+              </listitem>
+            </itemizedlist>
+      </refsect1>
+      <refsect1>
+        <title>METHODS</title>
+        <para>
+          Note that all methods are pure virtual making this an interface
+          definition class.
+        </para>
+        <variablelist>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual CDisplay* </type>
+                 <methodname>clone() </methodname>
+                 <void />
+                 <modifier>const = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Display interfaces must be able to duplicate themselves.
+                  Unless multiple concurrent displayers are supported
+                  (SpecTcl is neutral about this), this must usually
+                  be a shallow, referential copy maintaining some
+                  scheme that knows when data can be safely destroyed.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>start</methodname>
+                 <void />
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  This method must start the displayer.  Until
+                  <methodname>start</methodname> is called, the displayer
+                  should not have a visual presence on the
+                  screen.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>stop</methodname>
+                 <void />
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  This method must stop the displayer.  Once called,
+                  the displayer should not have a visual presence on the
+                  screen.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual bool </type>
+                 <methodname>isAlive</methodname>
+                 <void />
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Should return <literal>true</literal> if
+                  the displayer is running.  This allows
+                  SpecTcl to detect the display has exited
+                  without <methodname>>stop</methodname>
+                  being called e.g.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>restart</methodname>
+                 <void />
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  This method is normally a short-hand for
+                  invoking <methodname>stop</methodname>
+                  immediately followed by
+                  <methodname>start</methodname>
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual CDisplay::SpectrumContainer </type>
+                 <methodname>getBoundSpectra</methodname>
+                 <void />
+                 <modifier>const = 0;</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  This method is expected to return the spectra
+                  that are known to the displayer.  The
+                  <type>CDisplay::SpectrumContainer</type>
+                  data type is descried in
+                  <literal>PUBLIC DATA TYPES</literal> below.
+                  For the purposes of this discussion, it's enough
+                  to know this is a container that has integer
+                  indices.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>addSpectrum</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp;</type><parameter> rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CHistogrammer&amp;</type><parameter> rSorter</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0;</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Called to make a spectrum known to the displayer.
+                  The <command>sbind</command> command will ultimately call
+                  this method in an active displayer.
+                  <parameter>rSpectrum</parameter> is a reference to the
+                  spectrum to add and <parameter>rSorter</parameter>
+                  is a reference to the active histogrammer.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>removeSpectrum</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp; </type><parameter>rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CHistogrammer&amp; </type><parameter>rSorter</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0;</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Called to informt the displayer it no longer
+                  needs to display a spectrum.  Note that there
+                  are two events that normally invoke this method:
+                <command>unbind</command> is invoked on the spectrum,
+                or the spectrum was deleted.
+                <parameter>rSpectrum</parameter> is a reference to the
+                spectrum to remove while, <parameter>rSorter</parameter>
+                references the current histogrammer.
+               </para>
+            </listitem>
+          </varlistentry>
+          
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual bool</type>
+                 <methodname> spectrumBound</methodname>
+                 <methodparam>
+                     <type>CSpectrum* </type><parameter>pSpectrum</parameter>
+                    <initializer></initializer>
+                    <modifier>= 0</modifier>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns <literal>true</literal> if the spectrum
+                  is known by the displayer.  In general this means
+                  that the spectrum,  <parameter>pSpectrum</parameter>
+                  was passed to <methodname>addSpectrum</methodname>
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>addFit</methodname>
+                 <methodparam>
+                     <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>
+                  = 0
+                 </modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Displayers can display informationa relevant to the
+                  spectrum as well as the spectrum.
+                  <parameter>fit</parameter> contains fit line information
+                  that SpecTcl is requiesting the displayer to display
+                  on the spectrum named by the fit.  A fit line is just a set of
+                  channel/count pairs that can be extracte from the
+                  <parameter>fit</parameter> object to render the
+                  fit.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>deleteFit</methodname>
+                 <methodparam>
+                     <type>CSpectrumFit&amp; </type><parameter>fit</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Requests that the diplayer remove the
+                  fit line specified by
+                  <parameter>fit</parameter> from the spectrum
+                  specified by <parameter>fit</parameter>.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>addGate</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp; </type><parameter>rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CGateContainer&amp; </type><parameter>rGate</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0;</modifier>
+              </methodsynopsis></term>
+             <listitem>
+                 <para>
+                 Spectra on which gates have been accepte can be made
+                 to display the gates. The actual rendition of the gate
+                 depends on the gate and the spectrum.
+               </para>
+                 <para>
+                  This method requests that the gate
+                  <parameter>rGate</parameter> be displayed on
+                  the spectrum <parameter>rSpectrum</parameter>.
+                  Note that the actual gate and even gate type may
+                  change.  The gate container object
+                  <parameter>rGate</parameter> serves as a pointer-like
+                  object that is a fixed reference to the gate regardless
+                  of the changes it undergoes.  It is legitimate for the
+                  displayer to refuse to display a gate.
+                 </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>removeGate</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp; </type><parameter>rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CGateContainer&amp; </type><parameter>rGate</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Requests that the gate <parameter>rGate</parameter>
+                  no longer be displayed on <parameter>rSpectrum</parameter>
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual std::vector&lt;CGateContainer&gt;</type>
+                 <methodname> getAssociatedGates</methodname>
+                 <methodparam>
+                     <type>const std::string&amp; </type><parameter>spectrumName</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CHistogrammer&amp; </type><parameter>rSorter) </parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns a vector that contains the gate containers
+                  of the gates that are supposed to be displayed
+                  on <parameter>rSpectrum</parameter>.
+                  <parameter>rSorter</parameter> is a reference to he
+                  
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual std::string </type>
+                 <methodname>createTitle</methodname>
+                 <methodparam>
+                     <type>CSpectrum&</type><parameter> rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t</type><parameter>maxLength</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CHistogrammer& </type><parameter>rSorter</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier> = 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Creates a title string for the specturm
+                  <parameter>rSpectrum</parameter>.
+                  The title string must be no more than
+                  <parameter>maxLength</parameter> characters
+                  long. <parameter>rSorter</parameter> provides
+                  a reference to the histogramming object.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>setInfo</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp; </type><parameter>rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>std::string </type><parameter>name</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Sets the infornmation string for
+                  <parameter>rSpectrum</parameter> to
+                  <parameter>name</parameter>. 
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>setTitle</methodname>
+                 <methodparam>
+                     <type>CSpectrum&amp; </type><parameter>rSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>std::string </type><parameter>name) </parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <modifier>= 0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Sets the title string for <parameter>rSpectrum</parameter>
+                  to <parameter>name</parameter>.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                  <type>virtual UInt_t </type><methodname>getTitleSize</methodname>
+                  <void />
+                <modifier>const = 0</modifier>
+              </methodsynopsis></term>
+             <listitem>
+                 <para>
+                  Returns the number of characters that can be displayed
+                  in the title string. Note that in the case where
+                  the title is in e.g. UTF-8 or UTF-16, the number of
+                  characters and number of bytes differ
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>virtual void </type>
+                 <methodname>updateStatistics</methodname>
+                 <void />
+                 <modifier>=0</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Spectra maintain under and overflow counters.
+                  This method is supposed to scan the set of bound
+                  spectra and update any internal knowledge of those
+                  statistics the displayer may have
+               </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+        <para>
+
+    
+        </para>
+      </refsect1>
+      <refsect1>
+        <title>PUBLIC DATATYPES</title>
+        <para>
+          Three data types are exported by the base class.
+        </para>
+        <formalpara>
+          <title><type>typedef std::pair&lt;int, std::string&gt; BoundFitline</type></title>
+          <para>
+            This  provides the names of the fit lines and the internal id
+            that the displayer assigns to them.
+          </para>
+        </formalpara>
+        <formalpara>
+          <title><type>typedef std::list&lt;BoundFitline&gt;     FitlineList</type></title>
+          <para>
+            A list of fitlines.  This is used to represent the fit lines
+            that are bound to a specific spectrum.
+          </para>
+        </formalpara>
+        <formalpara>
+          <title><type>typedef std::vector&lt;FitlineList&gt;    FitlineBindings;</type></title>
+          <para>
+            Captures the fitlines assigned to all spectra. Each element is
+            the list of fit lines assigned to a single spectrum.
+          </para>
+        </formalpara>
+        
+      </refsect1>
+  </refentry>
+</part>
 </book>
