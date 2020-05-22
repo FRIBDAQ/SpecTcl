@@ -120,7 +120,7 @@ protected:
   { 
     m_nMaxPoints = am_nMaxPoints;
   }
-                       
+public:                       
   virtual   void FormatPrompterBlock (ButtonDescription& rButton) const  ;
  
 };
