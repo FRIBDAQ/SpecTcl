@@ -2385,7 +2385,11 @@ class MainWindow(QMainWindow):
         y_fit = []
         histo_name = str(self.wConf.histo_list.currentText())
         fit_funct = self.wConf.fit_list.currentText()
-        ax = plt.gca()
+        if self.isZoomed:
+            ax = plt.gca()
+        else:
+            ax = self.select_plot(self.selected_plot_index)
+
         # remove any previous fit on plot
         try:
             self.fitln.remove()
