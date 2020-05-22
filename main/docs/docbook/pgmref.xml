@@ -45588,5 +45588,777 @@ public:
           </para>
     </refsect1>
 </refentry>
+   <refentry>
+      <refmeta>
+         <refentrytitle>CXamineEvent</refentrytitle>
+         <manvolnum>3SpecTGcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CXamineEvent</refname>
+         <refpurpose>Encapsulate events from Xamine.</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineEvent.h&gt;
+
+class CXamineEvent      
+{
+  
+public:
+  CXamineEvent(); 
+				       
+  CXamineEvent (  msg_XamineEvent am_EventData  );
+
+  const msg_XamineEvent&amp; getm_EventData() const;
+
+   CXamineGate* GateCast ()  ;
+   CButtonEvent* ButtonCast ()  ;
+ 
+};
+
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>DESCRIPTION</title>
+             <para>
+               <classname>CXamineEvent</classname> encapsulates
+               the messages Xamine sends to report events to the client.
+               Currently there are two such event types:
+             </para>
+             <variablelist>
+                <varlistentry>
+                   <term><literal>Gate acceptance</literal></term>
+                   <listitem>
+                       <para>
+                        Inidicates a user has accepted a gate drawnon a spectrum.
+                        This event is encapsulated by the
+                        <classname>CXamineGate</classname> class
+                        documented previously
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>Client button events</literal></term>
+                   <listitem>
+                       <para>
+                        Indicates a user has clicked a button on the user
+                        defined button box and successfully navigated
+                        any attached prompter.  This event is
+                        encapsulated by the <classname>CButtoneVENT</classname>
+                        class documented next.
+                       </para>
+                    </listitem>
+                </varlistentry>
+             </variablelist>
+             <para>
+                The base class is just a holder of the event message.
+                <methodname>GateCast</methodname> and
+                <methodname>ButtonCast</methodname> construct dynamically
+                allocated <classname>CXamineGate</classname> and
+                <classname>CButonEvent</classname> objects respectively
+                from the object in a type-safe way.  If the underlying message
+                is not of the appropriate sort, these methods return
+                a null pointer.  Once the application no longer needs
+                the pointes returned from these methods, it should
+                delete the objects they point to.
+             </para>
+       </refsect1>
+   </refentry>
+   <refentry>
+      <refmeta>
+         <refentrytitle>CButtonEvent</refentrytitle>
+         <manvolnum>3SpecTcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CButtonEvent</refname>
+         <refpurpose>Encapsulate button press events</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;ButtonEvent.h&gt;
+
+class CButtonEvent      
+{
+  
+public:
+
+  CButtonEvent(const msg_ButtonPress&amp; rButtonInfo);
+
+  Int_t getId() const;
+  Int_t getCurrentSpectrum() const;
+  Bool_t getToggleState() const;
+  Int_t getPromptedSpectrum() const;
+  std::string getm_sPromptedString() const;
+  
+  const PointArray&amp; getPoints() const;
+  PointIterator begin ();
+  PointIterator end ();
+  UInt_t size ();
+  const CPoint&amp; operator[] (UInt_t nI)  const;
+ 
+};
+
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>
+                DESCRIPTION
+             </title>
+             <para>
+               Button press events are sent by Xamine when
+               a user button has been clicked and any prompters successfully
+               navigated by the user.  The <classname>CButtonEvent</classname>
+               class can be instantiated on a button press message and
+               decodes/makes available the pertinent information in the
+               event.  Note that to know what to pull out of the event, the
+               software must know prompter type was used to create the button.
+             </para>
+       </refsect1>
+       <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname>CButtonEvent</methodname>
+                    <methodparam>
+                        <type>const msg_ButtonPress&amp;</type><parameter> rButtonInfo</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Constructs the object from the raw button
+                    press event received from Xamine.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Int_t </type>
+                   <methodname>getId() </methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Retrieves the id of the button that was pressed to
+                    create this ievent.  The button Id is how you determine
+                    which button was clicked.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Int_t </type>
+                   <methodname>getCurrentSpectrum</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the Xamine id of the currently selected
+                    spectrum.  <literal>-1</literal> is
+                    returned if there is no currently selected spectrum.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Bool_t </type>
+                   <methodname>getToggleState</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    If the button is a toggle button, returns the
+                    state of the toggle. <literal>kfTRUE</literal>
+                    means that the toggle is lit up.  This method
+                    does not return a meaningful result if the
+                    button was not a toggle button.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Int_t </type>
+                   <methodname>getPromptedSpectrum</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    If the button has a spectrum prompter associated
+                    with it, the Xamine id of the selected spectrum is
+                    returned.  This method does not return a meaningful
+                    result if the button does not use a spectrum
+                    prompter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>std::string </type>
+                   <methodname>getm_sPromptedString</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the string prompt value.  This is for both
+                    the string prompter and the filename prompter
+                    (in which case it's the path of the selected filename).
+                    If the prompter does not return a string value, the
+                    return value of this method is not meaningful.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>const PointArray&amp; </type>
+                   <methodname>getPoints</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    If the button had a point prompter associated with it,
+                    the points clicked in by the user are returned.
+                    See <filename>Point.h</filename> for type
+                    definitions in this and other point methods.
+                   </para>
+                   <para>
+                    No guarantees are provided for the results of this
+                    method if the button did not have a point prompter (e.g.
+                    don't assume the points array is empty).
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>PointIterator </type>
+                   <methodname>begin</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns an iterator to the
+                    front of the container that holds
+                    the points inputted by the user in response to
+                    a point prompter.  If the button did not use
+                    a point prompter, while this may be a valid
+                    iterator, the contents of the container are
+                    not well defined.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>PointIterator </type>
+                   <methodname>end</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns an iterator off the end of the
+                    points container.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>UInt_t </type>
+                   <methodname>size</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the number of elements in the points
+                    container.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>const CPoint&amp; </type>
+                   <methodname>operator[] </methodname>
+                   <methodparam>
+                       <type>UInt_t </type><parameter>nI</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                   <modifier> const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a readonly reference to the point
+                    index <parameter>nI</parameter>.
+                   </para>
+                </listitem>
+            </varlistentry>
+  
+        </variablelist>
+       </refsect1>
+   </refentry>
+     <refentry>
+      <refmeta>
+         <refentrytitle>CDisplayInterface</refentrytitle>
+         <manvolnum>3SpecTcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CDisplayInterface</refname>
+         <refpurpose>Manages displayers</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;DisplayInterface.h&gt;
+
+class CDisplayInterface
+{
+public:
+    enum Result { DISPLAY_EXISTS, NO_CREATOR, SUCCESS };
+
+
+public:
+    CDisplayInterface();
+    
+    Result createDisplay(const std::string&amp; name, const std::string&amp; type);
+    CDisplay* getDisplay(const std::string&amp; name);
+    CDisplay* getCurrentDisplay();
+    bool      setCurrentDisplay(const std::string&amp; name);
+    const CDisplayCollection&amp; getCollection() const;
+    CDisplayFactory&amp; getFactory() ;
+
+};
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>DESCRIPTION</title>
+             <para>
+               SpecTcl maintains a <classname>CDisplayInterface</classname>
+               object.  This object understands all of the display types
+               and how, via a <classname>CDisplayFactory</classname>
+               it encapsulates, to create instances.  In addition,
+               the interface has the concept of a
+               <firstterm>current display</firstterm>.  This is an instance
+               of a <classname>CDisplay</classname> that is SpecTcl's current
+               display engine.
+             </para>
+             <para>
+                This class is closely allies with <classname>SpecTclDisplayManager</classname>
+                which is derived from it (see <filename>SpecTclDisplayManager.h</filename>),
+                and, when instantiated, stocks the display factory with
+                an appropriate set of creator objects so that all of the
+                 known display types can be instantiated.
+             </para>
+             <para>
+                Adding another display is really  a matter of adding a
+                new <classname>CDisplay</classname> descendent to implement
+                the interface between that displayer and SpecTcl,
+                write a creator for that displayer and either by
+                modifying <filename>SpecTclDisplayManager.cpp</filename>
+                if you are an internals programmer or adding the
+                desired display type to the factory if this is
+                a user written displayer.
+             </para>
+       </refsect1>
+       <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Result </type>
+                   <methodname>createDisplay</methodname>
+                   <methodparam>
+                       <type>const std::string&amp; </type><parameter>name</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                   <methodparam>
+                       <type>const std::string&amp; </type><parameter>type</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Creates a display of type <parameter>type</parameter>,
+                    assigns it the name <parameter>name</parameter>
+                    and remembers it so that it can be later selected,
+                    or set ast the current display.
+                   </para>
+                   <para>
+                    The factory is consulted for a creator for the display
+                    type <parameter>type</parameter>.  The creator is then used
+                    to create the displayer which is registered within
+                    this object.
+                   </para>
+                   <para>
+                    <type>CDisplayInterface::Result</type>  is an enumerated type
+                    that returns the status of this method. Returned values
+                    are one of
+                   </para>
+                   <variablelist>
+                    <varlistentry>
+                       <term><literal>CDisplayInterface::DISPLAY_EXISTS</literal></term>
+                       <listitem>
+                           <para>
+                            If a display named <parameter>name</parameter>
+                            has already been created, regardless of its
+                            type.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>CDisplayInterface::NO_CREATOR</literal></term>
+                       <listitem>
+                           <para>
+                            If the factor does not know how to create
+                            a displayer of type <parameter>type</parameter>.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>CDisplayInterface::SUCCESS</literal></term>
+                       <listitem>
+                           <para>
+                            If all went well.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                   </variablelist>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplay*</type>
+                   <methodname> getDisplay</methodname>
+                   <methodparam>
+                       <type>const std::string&amp; </type><parameter>name</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Looks up the named display that was created/registered
+                    via <methodname>createDisplay</methodname>.
+                    If there is no matching display object,
+                    <literal>nullptr</literal> is returned.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplay* </type>
+                   <methodname>getCurrentDisplay</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a pointer to the current display
+                    or <literal>nullptr</literal> if no current display
+                    as been established.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>bool      </type>
+                   <methodname>setCurrentDisplay</methodname>
+                   <methodparam>
+                       <type>const std::string&amp;</type><parameter> name</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Sets the current display to be the display
+                    named by <parameter>name</parameter>.  This
+                    display must have already been created via
+                    <methodname>createDisplay</methodname>.
+                    Note that <parameter>name</parameter>
+                    refers to the display <emphasis>name</emphasis>
+                    not type.
+                   </para>
+                   <para>
+                    If no display with the requested name has been
+                    created, the method returns
+                    <literal>false</literal>, other wise it returns
+                    <literal>true</literal>.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>const CDisplayCollection&amp; </type>
+                   <methodname>getCollection</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a reference to the display collection.
+                    This is the container that has the set of
+                    created display.  It will be described later.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplayFactory&amp; </type>
+                   <methodname>getFactory</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a modifiable reference to the
+                    display factory.  This allows additional
+                    display creators to be registered by
+                    purely user level code, supporting user
+                    written displayers.
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>        
+       </refsect1>
+   </refentry>
+   <refentry>
+      <refmeta>
+         <refentrytitle>CDisplayCollection</refentrytitle>
+         <manvolnum>3SpecTcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CDisplayCollection</refname>
+         <refpurpose>Maintain a named set of display objects.</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;DisplayCollection.h&gt;
+
+class CDisplayCollection
+{
+
+public:
+    CDisplayCollection();
+    bool displayExists(CDisplay* pDisplay);
+    void addDisplay(CDisplay* pDisplay);
+    void removeDisplay(CDisplay* pDisplay);
+    CDisplay* getCurrentDisplay();
+    void      setCurrentDisplay(CDisplay* pDisplay);
+
+    Iterator begin();
+    Iterator end();
+    size_t size();
+};
+
+
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>DESCRIPTION</title>
+             <para>
+               Keeps a named set of objects. Normally
+               this is encapsulated in a
+               <classname>CDisplayInterface</classname> object which
+               marries it to a factory used to create new display
+               objects and scheme to associate names with displays.
+             </para>
+             <para>
+                <classname>CDisplayCollection</classname>
+                objects have a concept of a current
+                displayer.
+             </para> 
+       </refsect1>
+       <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>bool </type>
+                   <methodname>displayExists</methodname>
+                   <methodparam>
+                       <type>CDisplay* </type><parameter>pDisplay</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns <literal>true</literal> if the display
+                    pointed to by <parameter>pDisplay</parameter>
+                    is present in the collection.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>void </type>
+                   <methodname>addDisplay(</methodname>
+                   <methodparam>
+                       <type>CDisplay* </type><parameter>pDisplay</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Adds the display pointed to by <parameter>pDisplay</parameter>'
+                    to the collection.  Note that:
+                   </para>
+                   <orderedlist>
+                    <listitem>
+                       <para>
+                          The actual display object must remain in scope for the
+                          lifetime of the collection as no copy is made.
+                       </para>
+                    </listitem>
+                    <listitem>
+                       <para>
+                          Adding a duplicate entry is silently ignored
+                          (that is the collection will still hold only
+                          one copy of the pointer).
+                       </para>
+                    </listitem>
+                   </orderedlist>
+                </listitem>
+               
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>void </type>
+                   <methodname>removeDisplay</methodname>
+                   <methodparam>
+                       <type>CDisplay* </type><parameter>pDisplay</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Removes <parameter>pDisplay</parameter> from the
+                    collection. If the display does not exist
+                    this silently does nothing.  If the display
+                    is current, the state of the system is set so that
+                    there is no current display.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplay*</type>
+                   <methodname> getCurrentDisplay</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a pointer to the current display.
+                    If there is no current display,
+                    <literal>nullptr</literal> is returned.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>void      </type>
+                   <methodname>setCurrentDisplay</methodname>
+                   <methodparam>
+                       <type>CDisplay* </type><parameter>pDisplay</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Sets the current display to
+                    <parameter>pDisplay</parameter>.
+                    If <parameter>pDisplay</parameter> is not in the
+                    collection, it is added.  If pDisplay
+                    is null, a
+                    <classname>std::runtime_error</classname> is thrown.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Iterator </type>
+                   <methodname>begin</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Begin iterator.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Iterator</type>
+                   <methodname> end</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns an end iterator.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>size_t </type>
+                   <methodname>size</methodname>
+                   <void />
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the number of elements in the collection
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+       </refsect1>
+   </refentry>   
 </part>
 </book>
