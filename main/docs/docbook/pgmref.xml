@@ -43984,5 +43984,1609 @@ public:
         
       </refsect1>
   </refentry>
+  <refentry>
+     <refmeta>
+        <refentrytitle>CNullDisplay</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+     </refmeta>
+     <refnamediv>
+        <refname>CNullDisplay</refname>
+        <refpurpose>Batch mode displayer</refpurpose>
+      </refnamediv>
+      <refsynopsisdiv>
+        <programlisting>
+#include &lt;NullDisplay.h&gt;
+
+        </programlisting>
+      </refsynopsisdiv>
+      <refsect1>
+             <title>DESCRIPTION</title>
+            <para>
+              SpecTcl must always have a displayer.  The
+              <classname>CNullDisplay </classname> class
+              provides a displayer that is no displayer.
+              This displayer is suitable for running
+              SpecTcl in batch mode, divorced from a display.
+            </para>
+      </refsect1>
+  </refentry>
+  <refentry>
+     <refmeta>
+        <refentrytitle>CXamine</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+     </refmeta>
+     <refnamediv>
+        <refname>CXamine</refname>
+        <refpurpose>Displayer class for Xamine</refpurpose>
+      </refnamediv>
+      <refsynopsisdiv>
+        <programlisting>
+#include &lt;Xamineplus.h&gt;
+
+class CXamine : public CDisplay
+{
+public:
+  CXamine (std::shared_ptr&lt;CXamineSharedMemory&gt; pSharedMem);
+
+  void EnterPeakMarker (UInt_t nSpectrum, 
+                        UInt_t nId,
+                        const std::string&amp; rsName,
+                        Float_t fCentroid, Float_t fWidth)  ;
+  UInt_t GetEventFd ()  ;
+  Bool_t PollEvent (Int_t nTimeout, CXamineEvent&amp; rEvent)  ;
+
+  void DefineButtonBox (UInt_t nColumns=8, UInt_t NRows=3)  ;
+  void DefineButton (UInt_t nColumn, UInt_t nRow, 
+                        const CXamineButton&amp; rButton)  ;
+  void ModifyButton (UInt_t nColumn, UInt_t nRow, 
+                        const CXamineButton&amp; rButton)  ;
+  void EnableButton (UInt_t nColumn, UInt_t nRow)  ;
+  void DisableButton (UInt_t  nColumn, UInt_t nRow)  ;
+  void DeleteButton (UInt_t nColumn, UInt_t nRow)  ;
+  void DeleteButtonBox ()  ;
+  CXamineButton* InquireButton (UInt_t nColumn, UInt_t nRow)  ;
+
+
+};
+
+
+
+
+        </programlisting>
+      </refsynopsisdiv>
+      <refsect1>
+             <title>DESCRIPTION</title>
+            <para>
+              <classname>CXamine</classname> is a displayer for
+              the Xamine display program.  Xamine runs as a separate
+              process using both shared memory and named pipes
+              to communicate with SpecTcl.
+            </para>
+      </refsect1>
+      <refsect1>
+        <title>METHODS</title>
+        <para>
+          We only describe the methods that are provided in addition
+          to the interface required by <classname>CDisplay</classname>.
+        </para>
+        <variablelist>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CXamine</methodname>
+                <methodparam>
+                    <type>std::shared_ptr&lt;CXamineSharedMemory&gt; </type><parameter>pSharedMem);</parameter>
+                    <initializer></initializer>
+                </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Constructs the displayer. The parameter,
+                  <parameter>pShMem</parameter> is a shared pointer to an
+                  object that encapsulates the shared memory used to
+                  shared memory that Xamine and SpecTcl use to transfer
+                  bullk spectrum data.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>EnterPeakMarker</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nSpectrum</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t</type><parameter> nId</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>const std::string&amp; </type><parameter>rsName</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>Float_t </type><parameter>fCentroid</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>Float_t</type><parameter> fWidth</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Xamine can display <firstterm>peak markers</firstterm>
+                  on spectra it displays.  A peak marker is an indicator of
+                  the peak position and peak width.
+                  <parameter>nId</parameter> is the Xamine internal id
+                  of the spectrum. <parameter>rsName</parameter> is the
+                  name of the peak marker <parameter>fCentroid </parameter>
+                  is the peak's centroid in channels and <parameter>fWidth</parameter>
+                  the width of the maker.
+               </para>
+                 <para>
+                  If you think of a peak marker as an inverted T, the vertical
+                  stroek of the T is at <parameter>fCentroid</parameter>
+                  and the cross bar of the T is <parameter>fWidth</parameter>
+                  wide.
+                 </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>UInt_t </type>
+                 <methodname>GetEventFd</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the file descriptor open on the named pipe
+                  Xamine uses to communicate new events of interest
+                  to SpecTcl.  This can be used to set a file event
+                  in the Tcl event loop to handle input from Xamine.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>Bool_t </type>
+                 <methodname>PollEvent </methodname>
+                 <methodparam>
+                     <type>Int_t</type><parameter> nTimeout</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>CXamineEvent&amp; </type><parameter>rEvent</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Polls for an event from Xamine.  The method will
+                  block for at most <parameter>nTimeout</parameter>
+                  seconds waiting for an event from Xamine.  If
+                  one arrives within that timeout, <parameter>rEvent</parameter>
+                  is filled in with information about the event and
+                  the method returns <literal>kfTRUE</literal>.
+                  Otherwise it returns <literal>kfFALSE</literal>
+                  and the contents of <parameter>rEvent</parameter>
+                  have no meaning.
+               </para>
+                <para>
+                  If <parameter>nTimeout</parameter> is 0, the
+                  method does not block and returns
+                  <literal>kfTRUE</literal> only if an event is
+                  ready at the time of the call.  If
+                  <parameter>nTimeout</parameter> is negative,
+                  the method will wait indefinitely for the next event.
+                  </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>DefineButtonBox </methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nColumns</parameter>
+                    <initializer>8</initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>NRows</parameter>
+                    <initializer>3</initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Xamine can display a set of buttons that can be programmed to
+                  send events for custom operations back to its client.
+                  These buttons are arranged in a top level window
+                  that has <parameter>nColumns</parameter>
+                  columns of buttons and <parameter>NRows</parameter>
+                  of buttons.  This method tells Xamine to display
+                  the button box and the column/row geometry of the box.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>DefineButton</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nColumn</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>const CXamineButton&amp; </type><parameter>rButton</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Defines a button at the button box coordinats
+                  <parameter>nColumn</parameter>, <parameter>nRow</parameter>.
+                  The button's appearance and action depend on
+                  the contents of the <parameter>rButton</parameter>
+                  object. Several types of buttons are permitted
+                  including  buttons that induce Xamine to
+                  prompt the user.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>ModifyButton</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nColumn</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t nRow, </type><parameter></parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type> const CXamineButton&amp; </type><parameter>rButton</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Same as <methodname>CreateButton</methodname>, but
+                  an existing button is modified to match the specifications
+                  in <parameter>rButton</parameter>.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>EnableButton</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nColumn</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  User buttons displayed by Xamine can be either enabled,
+                  in which case they have normal rendition and respond to
+                  clicks, or disbabled, in which case they are ghosted and
+                  do not respond to clicks.  This method enables the
+                  button specifiec by <parameter>nColumn</parameter>
+                  and <parameter>nRow</parameter>.  This method is a harmless
+                  no-op if the button is already enabled.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>DisableButton</methodname>
+                 <methodparam>
+                     <type>UInt_t  </type><parameter>nColumn</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Disables the Xamine user button specified by
+                  <parameter>nColumn</parameter> and
+                  <parameter>nRow</parameter>.  This is a harmless
+                  no-op if the4 button is already disbled.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>DeleteButton</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>nColumn</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type> UInt_t </type><parameter>nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Deletes the Xamine client button specified by
+                  <parameter>nColumn</parameter> and
+                  <parameter>nRow</parameter>.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void</type>
+                 <methodname> DeleteButtonBox</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Deletes the entire button box and all of the user
+                  defined Xamine buttons.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CXamineButton* </type>
+                 <methodname>InquireButton</methodname>
+                 <methodparam>
+                     <type>UInt_t</type><parameter> nColumn, UInt_t nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type> UInt_t</type><parameter> nRow</parameter>
+                    <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns a pointer to the button desription of the
+                  Xamine
+                  user button specified by
+                  <parameter>nColumn</parameter> and
+                  <parameter>nRow</parameter>.
+                  If the button does not exist a
+                  <classname>CXamineButtonException</classname> is
+                  thrown.  The returned pointer is  to a dynamically
+                  allocated object which must, therefore, be deleted
+                  when it is no longer needed.
+               </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect1>
+  </refentry>
+  <refentry>
+     <refmeta>
+        <refentrytitle>Xamine Gates</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+     </refmeta>
+     <refnamediv>
+        <refname>CXamineGate</refname>
+        <refname>CDisplayCut</refname>
+        <refname>CDisplayBand</refname>
+        <refname>CDisplayContour</refname>
+        <refpurpose>Represent gates in Xamine</refpurpose>
+      </refnamediv>
+      <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineGate&gt;
+
+
+class CXamineGate
+{
+  
+public:
+
+  CXamineGate(const msg_object&amp; rGateInfo);
+  CXamineGate(UInt_t nSpectrum, UInt_t nId,
+		const std::string&amp; rName);
+
+  UInt_t getSpectrum() const;
+  UInt_t getId() const;
+  std::string getName() const;
+  GateType_t getGateType() const;
+  PointArray getPoints() const;
+  
+  void setId (UInt_t am_nId);
+  void setName (std::string am_sName);
+
+  PointIterator begin ()  ;
+  PointIterator end ()  ;
+  UInt_t size ()  const;
+  CPoint&amp; operator[] (UInt_t n)  ;
+  void AddPoint (const CPoint&amp; rPoint)  ;
+  void AddPoint(int x, int y) 
+  void RemovePoints (UInt_t n=1)  ;
+
+  CDisplayCut* Cut ()  ;
+  CDisplayBand* Band ()  ;
+  CDisplayContour* Contour ()  ;
+
+  void FormatMessageBlock(msg_object&amp; rMsg) const;
+
+};
+
+class CDisplayCut : public CXamineGate {
+public:
+  CDisplayCut(const msg_object&amp; rGate); 
+  CDisplayCut(UInt_t nSpectrum, UInt_t nId, const std::string&amp; rName);
+};
+
+class CDisplayBand : public CXamineGate {
+public:
+  CDisplayBand(const msg_object&amp; rgate) ;
+  CDisplayBand(UInt_t nSpectrum, UInt_t nId, const std::string&amp; rName) ;
+
+};
+
+class CDisplayContour : public CXamineGate {
+public:
+  CDisplayContour(const msg_object&amp; rgate);
+  CDisplayContour(UInt_t nSpectrum, UInt_t nId, const std::string&amp; rName); 
+};
+
+        </programlisting>
+      </refsynopsisdiv>
+      <refsect1>
+             <title>DESCRIPTION</title>
+            <para>
+              This family of classes capture the structure and functionality
+              of gates as seen by Xamine.   The classes are able to
+              instantiate either from an Xamine gate accepted event
+              or from inforrmation about the gate.  Once
+              instantiated, gate objects are able to format the
+              message that Xamine expects to receive when a gate
+              is entered by a client.
+            </para>
+            <para>
+              In addition to the base class, subclasses are
+              provided to make instantiating the basic gate types
+              simple.
+            </para>
+      </refsect1>
+      <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CXamineGate</methodname>
+                <methodparam>
+                    <type>const msg_object&amp; </type><parameter>rGateInfo</parameter>
+                    <initializer></initializer>
+                </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Constructs the object from the object event message
+                  sent by Xamine to the client when a gate is accepted by
+                  the user. <parameter>rGateInfo</parameter>
+                  encapsulates that message and is defined in the
+                  Xamine API headers.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CXamineGate</methodname>
+                <methodparam>
+                    <type>UInt_t </type><parameter>nSpectrum</parameter>
+                    <initializer></initializer>
+                </methodparam>
+                <methodparam>
+                    <type>UInt_t </type><parameter>nId</parameter>
+                    <initializer></initializer>
+                </methodparam>
+                <methodparam>
+                    <type>const std::string&amp; </type><parameter>rName</parameter>
+                    <initializer></initializer>
+                </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Constructs the base class gate object that will be displayed
+                  on the spectrum with Xamine id <parameter>nSpectrum</parameter>.
+                  The gate id is <parameter>nId</parameter>,
+                  and its name is <parameter>rName</parameter>.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>UInt_t </type>
+                 <methodname>getSpectrum</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the Xamine Id on which the gate is displayed.
+                  Two important differences between Xamine gates and
+                  SpecTcl gates.  SpecTcl primitive gates are defined on parameters
+                  that are checked.  Xamine gates are displayed on Spectr.
+                  Spectra in SpecTcl are identified by a named object
+                  <classname>CSpectrum</classname>, Xamine spectra
+                  are identified by an integer slot number.
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>UInt_t </type>
+                 <methodname>getId</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the id of the gate.  The gate id is
+                  what identifies the gate to Xamine.
+                  The use of gate ids, rather than a named
+                  object to identify gates in Xamine is another
+                  difference between Xamine gates and SpecTcl
+                  gates.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>std::string </type>
+                 <methodname>getName</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the name of the gate.  Gate names in Xamine
+                  are used for documentation purposes only.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>GateType_t </type>
+                 <methodname>getGateType</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the SpecTcl gate type of the gate.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>PointArray </type>
+                 <methodname>getPoints</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the array of points that make up the
+                  gate shape.  The <type>PointArray</type> type
+                  is defined in <filename>Point.h</filename>.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>setId</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>am_nId</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Normally used internally while constructing this type
+                  of object from a <type>msg_object</type>, this
+                  method sets the Xamine id of the gate.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>setName </methodname>
+                 <methodparam>
+                     <type>std::string </type><parameter>am_sName</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Normally used internally while constructing this type
+                  of gate from a <type>msg_object</type>, this
+                  method sets the Xamine gate name.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>PointIterator </type>
+                 <methodname>begin</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns an iterator to the front of the container
+                  that holds the gate points.  The
+                  <type>PointIterator</type> type is defined in
+                  <filename>Point.h</filename>.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>PointIterator </type>
+                 <methodname>end</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns an iterator just off the end of the
+                  container that holds the gate points.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>UInt_t </type>
+                 <methodname>size</methodname>
+                 <void />
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns the number of points in the container
+                  that holds the gate points.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CPoint&amp;</type>
+                 <methodname> operator[] </methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>n</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Returns a reference to the <parameter>n</parameter>'th
+                  point in the set of points that define the shape of the
+                  gate.  <type>CPoint</type> is defined in
+                  <filename>Point.h</filename>.  The reference is not const
+                  so this allows existig gate points to be modified.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>AddPoint</methodname>
+                 <methodparam>
+                     <type>const CPoint&amp; </type><parameter>rPoint</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Adds a new point to the end of the list of points that
+                  define the appearance of the gate.
+                  <parameter>rPoint</parameter> describes the point
+                  to add.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>AddPoint</methodname>
+                 <methodparam>
+                     <type>int </type><parameter>x</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+                 <methodparam>
+                     <type>int</type><parameter> y</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Adds a point to the end of the points that
+                  define the shape of the gate to Xamine.
+                  <parameter>x</parameter> and <parameter>y</parameter>
+                  are in channel coordinates.  For slices, only the
+                  <parameter>x</parameter> matters.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>RemovePoints</methodname>
+                 <methodparam>
+                     <type>UInt_t </type><parameter>n</parameter>
+                  <initializer>1</initializer>
+                 </methodparam>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Removes the last <parameter>n</parameter> points
+                  from the set of points that define the shape of
+                  the gate.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CDisplayCut*</type>
+                 <methodname> Cut</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Peforms a type-safe up-cast to the <classname>CDisplayCUt</classname>
+                  class. If the gate is not a cut, a null pointer is
+                  returned.  Otherwise a pointer to the same object
+                  but cast as a <classname>CDisplayCut</classname>*
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CDisplayBand*</type>
+                 <methodname> Band </methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Same as <methodname>Cut</methodname> but up-casts to a
+                  <classname>CDisplayBand</classname> pointer.
+                 </para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>CDisplayContour* </type>
+                 <methodname>Contour</methodname>
+                 <void />
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Same as <methodname>Cut</methodname> but
+                  up-casts to a <classname>CDisplayContour</classname>
+                  pointer.
+                 </para>          
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <methodsynopsis>
+                 <type>void </type>
+                 <methodname>FormatMessageBlock</methodname>
+                 <methodparam>
+                     <type>msg_object&amp; </type><parameter>rMsg</parameter>
+                  <initializer></initializer>
+                 </methodparam>
+                 <modifier>const</modifier>
+              </methodsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                  Takes the data in the gate object and
+                  writes the Xamine message into <parameter>rMsg</parameter>
+                  needed to enter that gate into Xamine.
+                 </para>
+              </listitem>
+          </varlistentry>
+          
+        </variablelist>
+      </refsect1>
+      <refsect1>
+        <title><classname>CDisplayCut</classname></title>
+        <para>
+          <classname>CDisplayCut</classname> is a convenience class
+          that constructs the base class with parameters appropriate
+          to a cut.  Here are the two constructors it supports:
+        </para>
+        <variablelist>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CDisplayCut</methodname>
+                  <methodparam>
+                      <type>const msg_object&amp; </type><parameter>rGate</parameter>
+                     <initializer></initializer>
+                  </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+               <para>
+                Constructs from an Xamine message.  
+               </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+             <term>
+              <constructorsynopsis>
+                  <methodname>CDisplayCut</methodname>
+                  <methodparam>
+                      <type>UInt_t </type><parameter>nSpectrum</parameter>
+                    <initializer></initializer>
+                  </methodparam>
+                  <methodparam>
+                      <type>UInt_t </type><parameter>nId</parameter>
+                    <initializer></initializer>
+                  </methodparam>
+                  <methodparam>
+                      <type> const std::string&amp;</type><parameter> rName</parameter>
+                    <initializer></initializer>
+                  </methodparam>
+              </constructorsynopsis>
+             </term>
+             <listitem>
+                 <para>
+                 Constructs from
+                 <parameter>nSpectrum</parameter>, the Xamine Id  of the
+                 spectrum to display the gate,
+                 <parameter>nId</parameter> an Id assigned to the gate to
+                 identify it, and <parameter>rName</parameter>
+                 the name of the gate.
+               </para>
+               <para>
+                  Once constructed, a left and right limit point can
+                  be added to define the sape of the gate.
+                </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect1>
+     <refsect1>
+        <title><classname>CDisplayBand</classname></title>
+        <para>
+            This class represents a band. The ponts in a band
+            are a polyline.  In SpecTcl, the gate region of acceptance
+            is the region below the gate points.
+            Here are the constructors <classname>CDisplayBand</classname>
+            offers:
+        </para>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname>CDisplayBand</methodname>
+                    <methodparam>
+                        <type>const msg_object&amp; </type><parameter>rgate</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Constructs the object from the
+                    message,
+                    <parameter>rgate</parameter>received from Xamine reporting the acceptance
+                    of the gate.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname>CDisplayBand</methodname>
+                    <methodparam>
+                        <type>UInt_t </type><parameter>nSpectrum</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>UInt_t </type><parameter>nId</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type> const std::string&amp; </type><parameter>rName</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Constructs the band from the
+                    <parameter>nSpectrum</parameter>, the id of the
+                    spectrum on which it will be displayed,
+                    <parameter>nId</parameter>, the id of the gate
+                    and <parameter>rName</parameter>, the name of the
+                    gate.  
+                   </para>
+                   <para>
+                    Once constructed, points must be added. A band is defined by at
+                    least two points (a line segment). In general, for a band,
+                    the points should be strictly monotonically increasing in
+                    x coordinate.
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+    <refsect1>
+        <title><classname>CDisplayContour</classname></title>
+        <para>
+            This class captures a contour.  A contour is a closed polygon.
+            The polygon is closed by drawing a line segment connecting the last
+            point to the first point.  For SpecTcl the gate acceptance region
+            is the set of points such that a line drawn from that point
+            to infinity in any direction crosses an odd number of line segments
+            that make up the polygon.  This allows for a consistent definition
+            of the interior of arbitratily pathalogical polygons.
+        </para>
+        <para>
+            The constructors are essentially the same as for
+            <classname>CDisplayBand</classname>.
+        </para>
+    </refsect1>
+  </refentry>
+  <refentry>
+     <refmeta>
+        <refentrytitle>XamineButton</refentrytitle>
+        <manvolnum>3SpecTcl</manvolnum>
+     </refmeta>
+     <refnamediv>
+        <refname>XamineButton</refname>
+        <refpurpose>Describe a client button</refpurpose>
+      </refnamediv>
+      <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineButton.h&gt;
+#include &lt;clientops.h&gt;
+
+class CXamineButton      
+{
+
+public:
+  CXamineButton (  int am_nReturnCode,  
+		   const std::string&amp; am_sLabel,  
+		   Bool_t am_fEnabled,  
+		   ButtonSensitivity am_eWhenSensitive,
+		   CXamineButtonPrompt&amp; rPrompter);
+  CXamineButton(  int am_nReturnCode,  
+		   const char* pLabel,  
+		   Bool_t am_fEnabled,  
+		   ButtonSensitivity am_eWhenSensitive,
+		   CXamineButtonPrompt&amp; rPrompter);
+
+  int getReturnCode() const;
+  const std::string&amp; getLabel() const;
+  Bool_t getEnabled() const;
+  ButtonSensitivity getWhenSensitive();
+  CXamineButtonPrompt* getPrompter() const;
+  
+  virtual   void FormatMessageBlock (ButtonDescription&amp; rButton) const  ;
+  virtual   CXaminePushButton*   PushButton();   // Type safe upcasts
+  virtual   CXamineToggleButton* ToggleButton(); // Type safe upcasts.
+};
+
+        </programlisting>
+      </refsynopsisdiv>
+      <refsect1>
+             <title>DESCRIPTION</title>
+            <para>
+              <classname>XamineButton</classname> is used to describe
+              Xamine client buttons.  Xamine can display a box of buttons
+              that, when pressed, simply send messages to the client.
+              Actual buttons come in two shapes, push buttons and toggle buttons.
+            </para>
+            <para>
+                Buttons can also have prompters associated with them.
+                If a button has a prompter, Xamine will interact via that
+                prompter with the user to gather additional data to be
+                fed back to the application.
+                For example, a prompter might request that points be
+                accepted on a spectrum which, on acceptance cause the points and
+                the spectrum id to be included in the message to the client.
+            </para>
+            <para>
+                Finally buttons can also have sensitivity specifications.
+                These determine when a button is enabled by Xamine,
+                for example, a Fit button might only be enabled if a
+                1-d spectrum is currently selected by Xamine.
+            </para>
+      </refsect1>
+      <refsect1>
+        <title>METHODS</title>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname>CXamineButton </methodname>
+                    <methodparam>
+                        <type>int </type><parameter>am_nReturnCode</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>const std::string&amp; </type><parameter>am_sLabel</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>Bool_t </type><parameter>am_fEnabled</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>ButtonSensitivity </type><parameter>am_eWhenSensitive</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>CXamineButtonPrompt&amp; </type><parameter>rPrompter</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Constructs a button object.  Note that the button
+                    object just describes the button. Once created it must
+                    be entered into Xamine.
+                    <parameter>am_nReturnCode</parameter> is the button code
+                    that will be included in the event message Xamine sends
+                    to the client when the button is pressed. Each button should
+                    be given a unique code.
+                    <parameter>am_sLabel</parameter> is the text Xamine
+                    should painto n the button.  <parameter>am_fEnabled</parameter>
+                    should be <literal>true</literal> if the button is
+                    enabled or <literal>false</literal> if not.
+                   </para>
+                   <para>
+                    Buttons have two levels of enable.  The first level is
+                    determined by the enable state (initially the value
+                    of <parameter>am_fEnabled</parameter>).  If this
+                    is <literal>false</literal>, the button cannot be
+                    clicked by the user.  Even if enabled, the button
+                    might have a sensitivity (<parameter>am_eWhenSensitive</parameter>),
+                    which further determines when a button can be used based
+                    on the state of Xamine.    The values that the
+                    <type>ButtonSensitivity</type> enumerated type
+                    can take are defined in <filename>clientops.h</filename>.
+                   </para>
+                   <para>
+                    <parameter>rPrompter</parameter> is a reference
+                    to a prompting object that determines what, if any
+                    prompting Xamine will do before returning a button
+                    message to the client program.  
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <constructorsynopsis>
+                    <methodname> CXamineButton(</methodname>
+                    <methodparam>
+                        <type>  int </type><parameter>am_nReturnCode</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>const char* </type><parameter>pLabel</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>Bool_t </type><parameter>am_fEnabled</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>ButtonSensitivity </type><parameter>am_eWhenSensitive</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                    <methodparam>
+                        <type>CXamineButtonPrompt&amp; </type><parameter>rPrompter</parameter>
+                        <initializer></initializer>
+                    </methodparam>
+                </constructorsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Same as above but the button label string is passed
+                    as a <type>const char*</type>.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>int </type>
+                   <methodname>getReturnCode</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the return code of the button. This
+                    code uniquely idenfies the button both to Xamine
+                    and to the client when being told which button
+                    was clicked in a button event.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>const std::string&amp; </type>
+                   <methodname>getLabel</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the string that's used to label
+                    the button.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>Bool_t </type>
+                   <methodname>getEnabled</methodname>
+                   <void></void>
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the enabled flag from the object.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type> ButtonSensitivity </type>
+                   <methodname>getWhenSensitive</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns the selector that describes when the
+                    button is sensitive if enabled.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CXamineButtonPrompt* </type>
+                   <methodname>getPrompter</methodname>
+                   <void />
+                   <modifier>const</modifier>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a pointer to the button prompter object.
+                    Note that while this method is const the pointer
+                    returned is to the object's prompter allowing
+                    modifications to be made by the caller.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type> virtual   void </type>
+                   <methodname>FormatMessageBlock</methodname>
+                   <methodparam>
+                       <type>ButtonDescription&amp; </type><parameter>rButton</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Formats the message required to define the button
+                    to Xamine.  The formatted message is placed in
+                    <parameter>rButton</parameter>.
+                   </para>
+                            </listitem>
+            </varlistentry>
+        </variablelist>
+        <para>
+            In addition, two methods are provided to perform
+            type-safe upcasts:  <methodname>PushButton</methodname>
+            and <methodname>ToggleButton</methodname> wich
+            return pointers to <classname>CXaminePushButton</classname>
+            and <classname>CXamineToggleButton</classname>
+            respectively.  These methods return null pointers if the
+            cast is not correct.  Note that the ponters point to the
+            original object, making these actual cast-like operations.
+      </para>
+
+      </refsect1>
+  </refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CXamineButtonPrompt</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CXamineButtonPrompt</refname>
+      <refpurpose>Base class for button prompter descriptions</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineButtonPrompt.h&gt;
+
+class CXamineButtonPrompt      
+{
+  
+public:
+
+  CXamineButtonPrompt (const std::string&amp; am_sPromptString  );
+  CXamineButtonPrompt(const char* pPrompt);
+  
+
+  std::string getPromptString() const;
+ 
+  virtual   void FormatPrompterBlock(ButtonDescription&amp; rButton) const   = 0;
+};
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+          <para>
+            <classname>CXamineButtonPrompt</classname> is an abstract base
+            class that's used to describe prompting that Xamine must do
+            prior to dispatching a button event to the client.
+            The prompter is specified as part of the button definition
+            message sent to Xamine.  Prompters have a string associated
+            with them, and this string is maintained by this base class.
+          </para>
+          <para>
+            The point of this class hierarchy is to provide the
+            <methodname>FormatPrompterBlock</methodname> method
+            interface definition.  In concrete subclasses, this method
+            is expected to fill in the part of a
+            <type>ButtonDescription</type> structure that pertains
+            to describing the button prompter.
+          </para>
+    </refsect1>
+</refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CXamineNoPrompt</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CXamineNoPrompt</refname>
+      <refpurpose>Prompter that does not prompt</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+class CXamineNoPrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+  CXamineNoPrompt ();  
+  virtual   void FormatPrompterBlock (ButtonDescription&amp; rPrompt) const  ;
+
+  
+ 
+};
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTON</title>
+          <para>
+            This button prompter should be used when an Xamine client
+            button does not require any prompting from Xamine
+            Buttons with this prompter attached will simply send their
+            button message immediately to the client when clicked.
+          </para>
+    </refsect1>
+</refentry>
+   <refentry>
+      <refmeta>
+         <refentrytitle>CXamineConfirmPrompt</refentrytitle>
+         <manvolnum>3SpecTcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CXamineConfirmPrompt</refname>
+         <refpurpose>Prompt for confirmation</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineConfirmPrompt.h&gt;
+
+
+class CXamineConfirmPrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+
+  CXamineConfirmPrompt (const std::string&amp; rPrompt );
+  CXamineConfirmPrompt(const char* pPrompt);
+  virtual void FormatPrompterBlock (ButtonDescription&amp; rButton) const  ;
+ 
+};
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>DESCRIPTION</title>
+             <para>
+               <classname>CXamineConfirmPrompt</classname>
+               simply uses its prompt string to ask the user if
+               they are certain they want to perform the action
+               requested by the button.  If the usr declines,
+               no message is sent.  One use case is, for example,
+               if you provide a button to clear the contents of the
+               selected spectrum, you might want to give the user a
+               chance to consider if they really want to do that.
+             </para>
+       </refsect1>
+   </refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CXamineTextPrompt</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CXamineTextPrompt</refname>
+      <refpurpose>Prompt for a text string</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineTextPrompt.h&gt;
+
+class CXamineTextPrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+
+			//Constructor with arguments
+
+  CXamineTextPrompt (const std::string&amp; rPrompt);
+  CXamineTextPrompt(const char* pPrompt) ;
+  virtual   void FormatPrompterBlock (ButtonDescription&amp; rButton) const  ;
+ 
+};
+
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+        <title>DESCRIPTION</title>
+          <para>
+            Encapsulates a string prompter.  When a button requesting
+            a string prompter is clicked, the prompt string is
+            treated as prompting text for free form string input.
+            When the string is accepted, it is passed to the client in
+            the button event message.
+          </para>
+    </refsect1>
+</refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CXamineSpectrumPrompt</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CXamineSpectrumPrompt</refname>
+      <refpurpose>Prompt for a spectrum</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineSpectrumPrompt.h&gt;
+#include &lt;clientops.h&gt;
+
+class CXamineSpectrumPrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+
+  CXamineSpectrumPrompt (const std::string&amp; rPrompt,
+			 DialogSpectrumType_t am_eSpectrumType = keAny);
+  CXamineSpectrumPrompt(const char* pPrompt,
+			DialogSpectrumType_t eSpectrumType = keAny);
+            
+  int getSpectrumType() const;
+  
+  virtual   void FormatPrompterBlock (ButtonDescription&amp; rButton) const  ;
+ 
+};
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+             <title>DESCRIPTION</title>
+          <para>
+            <classname>CXamineSpectrumPrompt</classname> when
+            attached to a button, prompts the user to select a
+            spectrum from a spectrum chooser dialog prior to
+            sending the button event message.  The selected
+            spectrum is sent in the message.
+          </para>
+          <para>
+            The <type>DialogSpectrumType_t</type> is defined in
+            <filename>histotypes.h</filename>.  It provides
+            for the list of spectra in the chooser to be filtered
+            by types.  The default <literal>keAny</literal>
+            does no filtering.
+          </para>
+          <para>
+            Note that <methodname>getSpectrumType</methodname>
+            actuall returns a <type>DialogSpectrumType_t</type> and
+            may at some later version be modified to do exactly that.
+          </para>
+    </refsect1>
+</refentry>
+   <refentry>
+      <refmeta>
+         <refentrytitle>CXamineFilePrompt</refentrytitle>
+         <manvolnum>3SpecTcl</manvolnum>
+      </refmeta>
+      <refnamediv>
+         <refname>CXamineFilePrompt</refname>
+         <refpurpose>Prompt for a filename.</refpurpose>
+       </refnamediv>
+       <refsynopsisdiv>
+        <programlisting>
+#include &lt;XamineFilePrompt.h&gt;
+
+class CXamineFilePrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+
+  CXamineFilePrompt (const std::string&amp; rPrompt);
+  CXamineFilePrompt(const char* pPrompt);
+                       
+  virtual   void FormatPrompterBlock (ButtonDescription&amp; rButton) const  ;
+ 
+};
+
+        </programlisting>
+       </refsynopsisdiv>
+       <refsect1>
+             <title>DESCRIPTION</title>
+             <para>
+               Xamine buttons that have this propmter, prompt
+               for a filename using a file prompter prior to
+               dispatching the button event messgae to the client.
+               Note that the name selected will be sent in the message.
+             </para>
+       </refsect1>
+   </refentry>
+<refentry>
+   <refmeta>
+      <refentrytitle>CXaminePointsPrompt</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CXaminePointsPrompt</refname>
+      <refpurpose>Prompt for points</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;XaminePointsPrompt.h&gt;
+
+class CXaminePointsPrompt  : public CXamineButtonPrompt        
+{
+  
+public:
+
+  CXaminePointsPrompt (const std::string&amp; rPrompt, 
+		       UInt_t nMinPoints = 1,
+		       UInt_t nMaxPoints = GROBJ_MAXPTS);
+  CXaminePointsPrompt(const char* pPrompt,
+		      UInt_t nMinPoints = 1,
+		      UInt_t nMaxPoints = GROBJ_MAXPTS);
+  int getMinPoints() const;
+  int getMaxPoints() const;
+  virtual   void FormatPrompterBlock (ButtonDescription&amp; rButton) const  ;
+ 
+};
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+         <title>DESCRIPTION</title>
+          <para>
+            Buttons that have <classname>CXaminePointsPrompt</classname>
+            attached as a prompter will prompt the user to select
+            points from a spectrum prior to posting the button
+            event message.  The spectrum id and the point coordinates
+            are passed back to the client.
+            The <parameter>nMinPoints</parameter> specifies a minimum
+            number of points that must be selected and
+            <parameter>nMaxPoints</parameter> a maximum number of
+            points that can be accepted.
+          </para>
+    </refsect1>
+</refentry>
 </part>
 </book>
