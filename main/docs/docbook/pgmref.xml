@@ -46360,5 +46360,186 @@ public:
         </variablelist>
        </refsect1>
    </refentry>   
+<refentry>
+   <refmeta>
+      <refentrytitle>CDisplayFactory</refentrytitle>
+      <manvolnum>3SpecTcl</manvolnum>
+   </refmeta>
+   <refnamediv>
+      <refname>CDisplayFactory</refname>
+      <refpurpose>Associate display creators with display type names</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;DisplayFactory&gt;
+
+class CDisplayFactory
+{
+
+public:
+    CDisplay* create(const std::string&amp; type);
+    CDisplayCreator* getCreator(const std::string&amp; type);
+    bool addCreator(const std::string&amp; type, CDisplayCreator&amp; rCreator);
+    CDisplayCreator* removeCreator(const std::string&amp; type);
+
+};
+
+        </programlisting>
+    </refsynopsisdiv>
+    <refsect1>
+          <title>DESCRIPTION</title>
+          <para>
+            The <classname>CDisplayFactory</classname> class is resonsible
+            for associating <classname>CDisplayCreator</classname> objects
+            with strings (display types).  Upon being presented with a
+            string <classname>CDisplayCreator::create</classname> searches
+            its inventory of creators for a match and then delegates the
+            creation of a displayer to the matching creator object.
+          </para>
+          <para>
+            Methods are also provided to maintain the contents of the
+            cretor inventory.
+          </para>
+    </refsect1>
+    <refsect1>
+        <title>Creators</title>
+        <para>
+            Key to the opertion of <classname>CDisplayFactory</classname>
+            is a hierarchy of display creator classes.  Instances of
+            these classes are registered with the factory and associated with
+            an arbitrary display type string.
+        </para>
+        <para>
+            The base class of these creators, <classname>CDisplayCreator</classname>
+            is defined below.
+        </para>
+        <informalexample>
+            <programlisting>
+ class CDisplayCreator {
+ public:
+    virtual CDisplay* create() = 0;
+};               
+            </programlisting>
+        </informalexample>
+        <para>
+            Concrete classes need only implement the
+            <methodname>create</methodname> method to return a pointer to
+            a new instance of the display type they create.  By
+            convention these are dynamically allocated instances and
+            must be destroyed by the factory client when no longer needed.
+            Each distince call to <methodname>create</methodname>
+            should produce a new, unique <classname>CDisplay</classname>
+            object
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            The <classname>CDisplayFactory</classname> class
+            implements the following methods:
+        </para>
+        <variablelist>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplay* </type>
+                   <methodname>create</methodname>
+                   <methodparam>
+                       <type>const std::string&amp; </type><parameter>type</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Locates the creator that matches the <parameter>type</parameter>
+                    string and requests that it return a pointer to the
+                    corresponding displayer object.  In general the
+                    pointer returned is to a dynamically created object
+                    that must be deleted when the client no longer
+                    needs it.
+                   </para>
+                   <para>
+                    If there is no matching creator, or if the creation fails,
+                    <literal>nullptr</literal> is returned.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplayCreator* </type>
+                   <methodname>getCreator</methodname>
+                   <methodparam>
+                       <type>const std::string&amp;</type><parameter>type</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Returns a pointer ot the creator that
+                    corresponds to the <parameter>type</parameter>
+                    string.  If there is no matching
+                    creator a <literal>nullptr</literal> is returned.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>bool </type>
+                   <methodname>addCreator</methodname>
+                   <methodparam>
+                       <type>const std::string&amp;</type><parameter>type</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                   <methodparam>
+                       <type> CDisplayCreator&amp;</type><parameter>rCreator</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Adds a new creator, <parameter>rCreator</parameter>
+                    to the factory and associates it with the type
+                    string <parameter>type</parameter>.  In general the
+                    creator object is dynamically allocated, however,
+                    there's no actual requirement that it be.
+                   </para>
+                   <para>
+                    On successful addition, the method returns
+                    <literal>true</literal> if there is already
+                    a creator with the same <parameter>type</parameter>
+                    name, <literal>false</literal> is returned instead.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>
+                <methodsynopsis>
+                   <type>CDisplayCreator* </type>
+                   <methodname>removeCreator</methodname>
+                   <methodparam>
+                       <type>const std::string&amp;</type><parameter>type</parameter>
+                    <initializer></initializer>
+                   </methodparam>
+                </methodsynopsis>
+               </term>
+               <listitem>
+                   <para>
+                    Removes the creator object associated with the
+                    <parameter>type</parameter> string.  The return
+                    value is a pointer to the object, which is no longer
+                    in the inventory of creators known by the factory.
+                    If there is no matching creator,
+                    <literal>nullptr</literal> is returned instead.
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
 </part>
 </book>
