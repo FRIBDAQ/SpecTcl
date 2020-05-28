@@ -13,13 +13,16 @@ import itertools
 import time
 import multiprocessing
 
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
-from matplotlib.patches import Polygon
+from matplotlib.patches import Polygon, Circle, Ellipse
 from matplotlib.path import Path
 from scipy.optimize import curve_fit
 
@@ -43,6 +46,7 @@ from MenuGUI import Menu
 from Plot import Plot
 from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
+from Clustering import Cluster2D
 
 DEBOUNCE_DUR = 0.25
 t = None
@@ -115,6 +119,7 @@ class MainWindow(QMainWindow):
         # tools for selected plots
         self.rec = None
         self.optionAll = False
+        self.isCluster = False
         
         # dictionary for spectcl gates
         self.gate_dict = {}
@@ -138,7 +143,10 @@ class MainWindow(QMainWindow):
         self.tmp = []
         self.pol2line = []
         self.points = []
-
+        self.clusterpts = []
+        self.clusterw = []                
+        self.clusterptsW = []
+        
         self.max_ds = 10
 
         self.copied_line_attributes = ('xdata', 'ydata', 'animated', 'antialiased', 'color',  
@@ -180,13 +188,16 @@ class MainWindow(QMainWindow):
         # output popup window
         self.resPopup = OutputPopup()
         self.table_row = []
+
+        # clustering option window
+        self.clPopup = Cluster2D()
         
         #################
         # Signals
         #################
 
         # top menu signals
-        self.wTop.exitButton.clicked.connect(self.close)
+        self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
@@ -223,6 +234,9 @@ class MainWindow(QMainWindow):
         self.wConf.button2D_option.activated.connect(self.change_bkg)        
         self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
 
+        self.wConf.cluster_option.clicked.connect(self.clusterPopup)
+        self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
+        
         self.wConf.fit_button.clicked.connect(self.fit)
 
         # output
@@ -244,6 +258,11 @@ class MainWindow(QMainWindow):
         ################################        
         # implementation of Signals
         ################################        
+
+    def closeAll(self):
+        self.close()
+        self.resPopup.close()
+        self.clPopup.close()        
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -789,6 +808,7 @@ class MainWindow(QMainWindow):
             self.create_spectrum_list()                    
             self.create_gate_list()        
             #self.update_spectrum_info()
+            self.isCluster = False
         except:
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
@@ -1491,6 +1511,10 @@ class MainWindow(QMainWindow):
                 #self.h_lst_cb[index] = plt.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
                 #self.h_zoom_max[index] = self.vmax
     '''
+
+    # options for clustering 2D
+    def clusterPopup(self):
+        self.clPopup.show()
     
     # check histogram dimension from GUI
     def check_histogram(self):
@@ -2425,11 +2449,179 @@ class MainWindow(QMainWindow):
                 except:
                     pass
             else:
-                print("2D Fitting TBD")                
+                print("Please use the Clustering2D panel!")                
                 
 
         self.wPlot.canvas.draw()
 
     ############################
     ## end of Fitting
-    ############################            
+    ############################
+
+    ############################
+    ## begin of Clustering
+    ############################                
+
+    def initializeCluster(self):
+        # histo name
+        name_histo = self.wConf.histo_list.currentText()
+        # converts data to points
+        select = self.spectrum_list['names'] == name_histo
+        df = self.spectrum_list.loc[select]
+        w = df.iloc[0]['data']
+
+        x = []
+        y = []
+        self.fillPoints(w, x, y, self.clusterw, self.clusterpts)
+        self.isCluster = True
+        
+    def analyzeCluster(self):
+        if self.isCluster == False:
+            self.initializeCluster()
+            
+        cluster_center=[]
+        nclusters = int(self.clPopup.clusterN.currentText())
+        algo = self.clPopup.clusterAlgo.currentText()
+
+        self.start = time.time()
+        if algo == "K-Mean":
+            self.kmean(nclusters)
+        else:
+            self.gmm(nclusters)            
+        self.stop = time.time()
+        print("Time elapsed for clustering:", self.stop-self.start)
+
+    # kmean algo
+    def kmean(self, nclusters):
+        # create kmeans object
+        kmeans = KMeans(n_clusters=nclusters)
+
+        # fit kmeans object to data
+        kmeans.fit(self.clusterpts, sample_weight=self.clusterw)
+
+        cluster_center = kmeans.cluster_centers_
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+        
+        confidPerc = self.soft_clustering_weights(self.clusterpts,cluster_center)
+
+        prob_dict = {}
+        for i in range(len(confidPerc[0])):
+            prob_dict[i] = self.extract(confidPerc, i)
+
+        # CL 90%/CL 95%
+        bool_dict_90 = {}
+        bool_dict_95 = {}        
+        w_90 = {}
+        w_95 = {}        
+        sum90 = 0
+        sum95 = 0        
+        for i in range(len(cluster_center)):
+            self.addPoint(a, [cluster_center[i][0], cluster_center[i][1]])
+            bool_dict_90[i] = [True if x>0.9 else False for i, x in enumerate(prob_dict[i])]
+            bool_dict_95[i] = [True if x>0.95 else False for i, x in enumerate(prob_dict[i])]            
+            w_90[i] = list(compress(self.clusterw, bool_dict_90[i]))
+            w_95[i] = list(compress(self.clusterw, bool_dict_95[i]))            
+            sum90 += sum(w_90[i])
+            sum95 += sum(w_95[i])        
+
+        print("Results of K-Mean clustering analysis")
+        for i in range(len(cluster_center)):
+            print("Cluster", i," with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
+        print("Confidence Level 90% -->", sum90/sum(self.clusterw),"%")
+        print("Confidence Level 95% -->", sum95/sum(self.clusterw),"%")             
+        print(sum90, sum95, sum(self.clusterw))
+
+        
+        
+        self.wPlot.canvas.draw()                    
+
+    
+    def extract(self, lst, index): 
+        return [item[index] for item in lst] 
+        
+    def addPoint(self, axis, new_point):
+        patch = Circle((new_point[0], new_point[1]), radius=10, color="red")
+        axis.add_patch(patch)
+
+    def draw_ellipse(self, position, covariance, ax=None, **kwargs):
+        """Draw an ellipse with a given position and covariance"""
+        ax = ax or plt.gca()
+    
+        # Convert covariance to principal axes
+        if covariance.shape == (2, 2):
+            U, s, Vt = np.linalg.svd(covariance)
+            angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+            width, height = 2 * np.sqrt(s)
+        else:
+            angle = 0
+            width, height = 2 * np.sqrt(covariance)
+    
+        # Draw the Ellipse
+        for nsig in range(1, 4):
+            ax.add_patch(Ellipse(position, nsig * width, nsig * height,
+                                 angle, **kwargs))
+
+    def addEllipse(self, axis, mean, cov, weight):
+        w_factor = 0.2 / weight.max()
+        for pos, covar, w in zip(mean, cov, weight):
+            self.draw_ellipse(pos, covar, axis, color="red", alpha=w * w_factor)
+            
+    # gaussian mixture model
+    def gmm(self, nclusters):
+        # create GM object
+        model = GaussianMixture(n_components=nclusters)
+
+        # fit GM object to data        
+        model.fit(self.clusterpts)
+        cluster_center = model.means_
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        # draw ellipses
+        self.addEllipse(a, model.means_, model.covariances_, model.weights_)
+
+        print("Results of Gaussian Mixture clustering analysis")
+        for i in range(len(cluster_center)):
+            print("Cluster",i,"with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
+        
+        self.wPlot.canvas.draw()                    
+
+    # soft clustering confidence method
+    def soft_clustering_weights(self, data, cluster_centers, **kwargs):
+        """
+        Function to calculate the weights from soft k-means
+        data: Array of data. shape = N x F, for N data points and F Features
+        cluster_centers: Array of cluster centres. shape = Nc x F, for Nc number of clusters. Input kmeans.cluster_centers_ directly.
+        param: m - keyword argument, fuzziness of the clustering. Default 2
+        """
+        # Fuzziness parameter m>=1. Where m=1 => hard segmentation
+        m = 2
+        if 'm' in kwargs:
+            m = kwargs['m']
+            
+        Nclusters = cluster_centers.shape[0]
+        Ndp = len(data)
+            
+        # Get distances from the cluster centres for each data point and each cluster
+        EuclidDist = np.zeros((Ndp, Nclusters))
+        for i in range(Nclusters):
+            EuclidDist[:,i] = np.sum((data-np.matlib.repmat(cluster_centers[i], Ndp, 1))**2,axis=1)
+    
+        # Denominator of the weight from wikipedia:
+        invWeight = EuclidDist**(2/(m-1))*np.matlib.repmat(np.sum((1./EuclidDist)**(2/(m-1)),axis=1).reshape(-1,1),1,Nclusters)
+        Weight = 1./invWeight
+    
+        return Weight
+        
+    ############################
+    ## end of Clustering
+    ############################                
