@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import io
 import pickle
 import sys, os
@@ -16,12 +16,16 @@ import multiprocessing
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 
+import cv2
+
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
+import matplotlib.image as mpimg
+
 from matplotlib.patches import Polygon, Circle, Ellipse
 from matplotlib.path import Path
 from scipy.optimize import curve_fit
@@ -120,6 +124,7 @@ class MainWindow(QMainWindow):
         self.rec = None
         self.optionAll = False
         self.isCluster = False
+        self.onFigure = False
         
         # dictionary for spectcl gates
         self.gate_dict = {}
@@ -131,6 +136,8 @@ class MainWindow(QMainWindow):
         self.listLine = []
         self.xs = []
         self.ys = []        
+        self.xstart = 0
+        self.ystart = 0        
         
         # editing gates
         self.showverts = True
@@ -146,6 +153,8 @@ class MainWindow(QMainWindow):
         self.clusterpts = []
         self.clusterw = []                
         self.clusterptsW = []
+
+        self.LISEpic = None
         
         self.max_ds = 10
 
@@ -233,9 +242,19 @@ class MainWindow(QMainWindow):
         self.wConf.histo_geo_delete.clicked.connect(self.delete_plot)        
         self.wConf.button2D_option.activated.connect(self.change_bkg)        
         self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
-
+        
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
+        self.clPopup.loadButton.clicked.connect(self.loadFigure)
+        self.clPopup.addButton.clicked.connect(self.addFigure)
+        self.clPopup.deleteButton.clicked.connect(self.deleteFigure)
+        self.clPopup.alpha_slider.valueChanged.connect(self.transFigure)
+        self.clPopup.zoom_slider.valueChanged.connect(self.zoomFigure)
+        self.clPopup.joystick.mousemoved.connect(self.moveFigure)
+        self.clPopup.upButton.clicked.connect(self.fineUpMove)
+        self.clPopup.downButton.clicked.connect(self.fineDownMove)
+        self.clPopup.leftButton.clicked.connect(self.fineLeftMove)
+        self.clPopup.rightButton.clicked.connect(self.fineRightMove)                
         
         self.wConf.fit_button.clicked.connect(self.fit)
 
@@ -2477,8 +2496,11 @@ class MainWindow(QMainWindow):
         
     def analyzeCluster(self):
         if self.isCluster == False:
+            self.start = time.time()
             self.initializeCluster()
-            
+            self.stop = time.time()
+            print("Time elapsed for initialization of clustering:", self.stop-self.start)
+        
         cluster_center=[]
         nclusters = int(self.clPopup.clusterN.currentText())
         algo = self.clPopup.clusterAlgo.currentText()
@@ -2494,7 +2516,7 @@ class MainWindow(QMainWindow):
     # kmean algo
     def kmean(self, nclusters):
         # create kmeans object
-        kmeans = KMeans(n_clusters=nclusters)
+        kmeans = KMeans(n_init = 5, n_clusters=nclusters)
 
         # fit kmeans object to data
         kmeans.fit(self.clusterpts, sample_weight=self.clusterw)
@@ -2529,14 +2551,14 @@ class MainWindow(QMainWindow):
             sum90 += sum(w_90[i])
             sum95 += sum(w_95[i])        
 
-        print("Results of K-Mean clustering analysis")
+        print("#########################################")            
+        print("# Results of K-Mean clustering analysis #")
+        print("#########################################")                    
         for i in range(len(cluster_center)):
             print("Cluster", i," with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
         print("Confidence Level 90% -->", sum90/sum(self.clusterw),"%")
         print("Confidence Level 95% -->", sum95/sum(self.clusterw),"%")             
-        print(sum90, sum95, sum(self.clusterw))
-
-        
+        print("#########################################")
         
         self.wPlot.canvas.draw()                    
 
@@ -2589,9 +2611,12 @@ class MainWindow(QMainWindow):
         # draw ellipses
         self.addEllipse(a, model.means_, model.covariances_, model.weights_)
 
-        print("Results of Gaussian Mixture clustering analysis")
+        print("###################################################")            
+        print("# Results of Gaussian Mixture clustering analysis #") 
+        print("###################################################")                            
         for i in range(len(cluster_center)):
             print("Cluster",i,"with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
+        print("###################################################")
         
         self.wPlot.canvas.draw()                    
 
@@ -2621,7 +2646,116 @@ class MainWindow(QMainWindow):
         Weight = 1./invWeight
     
         return Weight
+
+    def loadFigure(self):
+        fileName = self.openLoadFileNameDialog()
+        try:
+            #self.LISEpic = mpimg.imread(fileName)
+            self.LISEpic = cv2.imread(fileName)
+            cv2.resize(self.LISEpic, (200, 100))
+            self.clPopup.loadLISE_name.setText(fileName)
+        except TypeError:
+            pass
+
+    def fineUpMove(self):
+        self.imgplot.remove()        
+        self.ystart += 0.002
+        self.drawFigure()
+        
+    def fineDownMove(self):
+        self.imgplot.remove()        
+        self.ystart -= 0.002
+        self.drawFigure()
+        
+    def fineLeftMove(self):
+        self.imgplot.remove()        
+        self.xstart -= 0.002
+        self.drawFigure()
+
+    def fineRightMove(self):        
+        self.imgplot.remove()        
+        self.xstart += 0.002
+        self.drawFigure()
+        
+    def moveFigure(self):
+        #print(self.clPopup.joystick.direction, self.clPopup.joystick.distance)
+        try:
+            self.imgplot.remove()        
+            if self.clPopup.joystick.direction == "up":
+                self.ystart += self.clPopup.joystick.distance*0.03
+            elif self.clPopup.joystick.direction == "down":
+                self.ystart -= self.clPopup.joystick.distance*0.03
+            elif self.clPopup.joystick.direction == "left":
+                self.xstart -= self.clPopup.joystick.distance*0.03
+            else:
+                self.xstart += self.clPopup.joystick.distance*0.03        
+            self.drawFigure()
+        except:
+            pass
+            
+    def indexToStartPosition(self, index):
+        row = self.wConf.row
+        col = self.wConf.col
+        xoffs = float(1/(2*col))
+        yoffs = float(1/(2*row))       
+        i, j = self.plot_position(index)
+        xstart = xoffs*(2*j+1)-0.1
+        ystart = yoffs*(2*i+1)+0.1       
+
+        self.xstart = xstart
+        self.ystart = 1-ystart
+        
+    def drawFigure(self):
+        self.alpha = self.clPopup.alpha_slider.value()/10
+        self.zoom = self.clPopup.zoom_slider.value()/10
+
+        ax = plt.axes([self.xstart, self.ystart, self.zoom, self.zoom], frameon=True)
+        ax.axis('off') 
+        self.imgplot = ax.imshow(self.LISEpic,
+                                 alpha=self.alpha)
+
+        self.wPlot.canvas.draw()
+
+    def deleteFigure(self):
+        self.imgplot.remove()
+        self.onFigure = False
+        self.wPlot.canvas.draw()
+
+    def transFigure(self):
+        self.clPopup.alpha_label.setText("Transparency Level ({} %)".format(self.clPopup.alpha_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def zoomFigure(self):
+        self.clPopup.zoom_label.setText("Zoom Level ({} %)".format(self.clPopup.zoom_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass        
+            
+    def addFigure(self):
+        try:
+            self.indexToStartPosition(self.selected_plot_index)
+
+            if self.onFigure == False:
+                self.drawFigure()
+                self.onFigure = True
+        except:
+            pass
+            
+    def openLoadFileNameDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
+        if fileName:
+            return fileName
         
     ############################
     ## end of Clustering
     ############################                
+
+    
