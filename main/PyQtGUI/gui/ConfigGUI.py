@@ -19,6 +19,7 @@ class Configuration(QWidget):
             layout = QHBoxLayout()
             layout.addWidget(self.create_typeBox())
             layout.addWidget(self.create_defBox())
+            layout.addWidget(self.create_algoBox())            
             layout.addWidget(self.create_lstBox())
             self.setLayout(layout)
 
@@ -93,6 +94,27 @@ class Configuration(QWidget):
 
         return spectrumCreateBox
 
+    def create_algoBox(self):
+        algoBox = QGroupBox("Special Functions")
+        
+        self.peak_name_label = QLabel("Peak Finding")
+        self.peak_option = QPushButton("Options", self)
+        self.cluster_name_label = QLabel("Clustering 2D")
+        self.cluster_option = QPushButton("Options", self)
+
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(self.peak_name_label)        
+        vlayout.addWidget(self.peak_option)
+        vlayout.addWidget(self.cluster_name_label)
+        vlayout.addWidget(self.cluster_option)
+        vlayout.addStretch()
+        
+        algoBox.setLayout(vlayout)
+        algoBox.setMaximumHeight(self.width)
+
+        return algoBox
+        
+    
     def create_lstBox(self):
         spectrumListBox = QGroupBox("Spectrum List")
 
@@ -105,8 +127,6 @@ class Configuration(QWidget):
         self.histo_geo_update = QPushButton("Update", self)
         self.histo_geo_delete = QPushButton("Erase", self)
         self.histo_geo_all = QCheckBox("Select All",self)
-        self.cluster_name_label = QLabel("Clustering 2D")
-        self.cluster_option = QPushButton("Options", self)
         self.fit_label = QLabel("Fitting Functions 1D")
         self.fit_list = QComboBox()
         self.fit_list.addItem("Gaussian")
@@ -136,13 +156,6 @@ class Configuration(QWidget):
         hl.addWidget(self.histo_geo_update)
         hl.addWidget(self.histo_geo_delete)
 
-        hl2 = QHBoxLayout()
-        hl2.addWidget(self.cluster_option)        
-        
-        #hl3 = QHBoxLayout()
-        #hl3.addWidget(self.gates_create)
-        #hl3.addWidget(self.gates_delete)
-        
         hl4 = QHBoxLayout()
         hl4.addWidget(self.histo_geo_row)
         hl4.addWidget(self.histo_geo_col)
@@ -161,9 +174,6 @@ class Configuration(QWidget):
         vlayout.addWidget(self.histo_geo_label)
         vlayout.addLayout(hl4)
         vlayout.addLayout(hl)
-        vlayout.addWidget(self.cluster_name_label)
-        vlayout.addLayout(hl2)
-        #vlayout.addLayout(hl3)
         vlayout.addStretch()
                 
         vlayout2a = QHBoxLayout()

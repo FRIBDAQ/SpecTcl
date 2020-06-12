@@ -29,6 +29,7 @@ import matplotlib.image as mpimg
 from matplotlib.patches import Polygon, Circle, Ellipse
 from matplotlib.path import Path
 from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
 
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
@@ -51,6 +52,7 @@ from Plot import Plot
 from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
 from Clustering import Cluster2D
+from PeakFinder import PeakFinder
 
 DEBOUNCE_DUR = 0.25
 t = None
@@ -125,6 +127,7 @@ class MainWindow(QMainWindow):
         self.optionAll = False
         self.isCluster = False
         self.onFigure = False
+        self.isChecked = {}
         
         # dictionary for spectcl gates
         self.gate_dict = {}
@@ -198,8 +201,11 @@ class MainWindow(QMainWindow):
         self.resPopup = OutputPopup()
         self.table_row = []
 
-        # clustering option window
+        # peak finder option window 
+        self.pPopup = PeakFinder()
+        # clustering 
         self.clPopup = Cluster2D()
+
         
         #################
         # Signals
@@ -242,6 +248,12 @@ class MainWindow(QMainWindow):
         self.wConf.histo_geo_delete.clicked.connect(self.delete_plot)        
         self.wConf.button2D_option.activated.connect(self.change_bkg)        
         self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
+
+        self.wConf.peak_option.clicked.connect(self.peakPopup)
+        self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
+        self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
+
+        self.pPopup.show_box.stateChanged.connect(lambda:self.btnstate(self.pPopup.show_box))
         
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
@@ -249,7 +261,8 @@ class MainWindow(QMainWindow):
         self.clPopup.addButton.clicked.connect(self.addFigure)
         self.clPopup.deleteButton.clicked.connect(self.deleteFigure)
         self.clPopup.alpha_slider.valueChanged.connect(self.transFigure)
-        self.clPopup.zoom_slider.valueChanged.connect(self.zoomFigure)
+        self.clPopup.zoomX_slider.valueChanged.connect(self.zoomFigureX)
+        self.clPopup.zoomY_slider.valueChanged.connect(self.zoomFigureY)        
         self.clPopup.joystick.mousemoved.connect(self.moveFigure)
         self.clPopup.upButton.clicked.connect(self.fineUpMove)
         self.clPopup.downButton.clicked.connect(self.fineDownMove)
@@ -281,7 +294,8 @@ class MainWindow(QMainWindow):
     def closeAll(self):
         self.close()
         self.resPopup.close()
-        self.clPopup.close()        
+        self.clPopup.close()
+        self.pPopup.close()                
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -1074,6 +1088,8 @@ class MainWindow(QMainWindow):
                 print(self.h_dict_output)
                 self.add_plot()
 
+            self.update_plot()
+            
         except TypeError:
             pass
 
@@ -1530,7 +1546,10 @@ class MainWindow(QMainWindow):
                 #self.h_lst_cb[index] = plt.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
                 #self.h_zoom_max[index] = self.vmax
     '''
-
+    # options for clustering 2D
+    def peakPopup(self):
+        self.pPopup.show()
+        
     # options for clustering 2D
     def clusterPopup(self):
         self.clPopup.show()
@@ -2478,6 +2497,120 @@ class MainWindow(QMainWindow):
     ############################
 
     ############################
+    ## begin of Peak Analyzer
+    ############################
+
+    def peakState(self, state):
+        self.pPopup.show_box.setChecked(False)
+        for i, btn in enumerate(self.pPopup.peak_cbox):
+            if btn.isChecked() == False:
+                self.isChecked[i] = False                
+            else:
+                self.isChecked[i] = True                 
+                
+        print(self.isChecked)
+        self.singlePeakCheck();
+        self.wPlot.canvas.draw()                
+
+    def singlePeakCheck(self):
+        self.peakAnalClear()
+
+        for index in self.isChecked:
+            if index == True:
+                print(self.peaks[index], int(self.dataw[self.peaks[index]]*1.1), str(self.peaks[index]))
+                    
+    def drawSinglePeaks(self, peaks, properties, data, index):
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        #self.peak_pts = a.plot(peaks[index], data[peaks[index]], "x")
+        self.peak_txt[index] = append(a.text(peaks[index], int(data[peaks[index]]*1.1), str(peaks[index])))
+                
+    def create_peak_signals(self):
+        for i in range(self.pPopup.npeaks):
+            self.pPopup.peak_cbox[i].stateChanged.connect(self.peakState)
+            self.pPopup.peak_cbox[i].setChecked(True)
+            self.isChecked[i] = True
+        print("isChecked", self.isChecked)
+            
+    def update_peak_output(self, peaks, properties):
+        for i in range(len(peaks)):
+            s = "Peak"+str(i+1)+"\n\tpeak @ " + str(peaks[i])+", FWHM="+str(int(properties['widths'][i]))
+            self.pPopup.peak_results.append(s)
+
+    def peakAnalClear(self):
+        self.pPopup.peak_results.clear()
+
+        for i in range(len(self.peak_pts)):
+            self.peak_pts[i].remove()
+        for i in self.peak_txt:
+            i.remove()
+        self.peak_vl.remove()
+        self.peak_hl.remove()
+        self.wPlot.canvas.draw()
+                
+    def btnstate(self,b):
+        if b.text() == "Show Peaks":
+            if b.isChecked() == True:
+                a = None
+                if self.isZoomed:
+                    a = plt.gca()
+                else:
+                    a = self.select_plot(self.selected_plot_index)
+
+                self.drawPeaks(a, self.peaks, self.properties, self.dataw)
+            else:
+                for i in range(len(self.peak_pts)):
+                    self.peak_pts[i].remove()
+                for i in self.peak_txt:
+                    i.remove()
+                self.peak_vl.remove()
+                self.peak_hl.remove()
+                self.isChecked.clear()
+                for i in range(len(self.peaks)):
+                    self.pPopup.peak_cbox[i].setChecked(False)                                    
+                    self.isChecked[i] = False
+                self.wPlot.canvas.draw()
+
+    def drawPeaks(self, axis, peaks, properties, data):
+        self.peak_txt = []
+        self.peak_pts = axis.plot(peaks, data[peaks], "v", color="red")
+        self.peak_vl = axis.vlines(x=peaks, ymin=data[peaks] - properties["prominences"], ymax = data[peaks], color = "red")
+        self.peak_hl = axis.hlines(y=properties["width_heights"], xmin=properties["left_ips"], xmax=properties["right_ips"], color = "red")
+        for i in range(len(peaks)):
+            self.peak_txt.append(axis.text(peaks[i], int(data[peaks[i]]*1.1), str(peaks[i])))
+            self.pPopup.peak_cbox[i].setChecked(True)
+        self.wPlot.canvas.draw()
+        
+    def analyzePeak(self):
+        try:
+            width = int(self.pPopup.peak_width.text())
+            minx = self.get_histo_xmin(self.selected_plot_index)
+            maxx = self.get_histo_xmax(self.selected_plot_index)
+            binx = self.get_histo_xbin(self.selected_plot_index)
+            X = self.create_range(binx, minx, maxx)
+            self.dataw = self.get_data(self.selected_plot_index)
+            self.peaks, self.properties = find_peaks(self.dataw, prominence=1, width=width)
+            
+            self.update_peak_output(self.peaks, self.properties)
+
+            self.pPopup.npeaks = len(self.peaks)
+            self.pPopup.create_peakChecks()
+
+            self.pPopup.show_box.setChecked(True)
+            #self.create_peak_signals()
+            
+        except:
+            pass
+        
+    ############################
+    ## end of Peak Analyzer
+    ############################                    
+    
+    ############################
     ## begin of Clustering
     ############################                
 
@@ -2707,11 +2840,13 @@ class MainWindow(QMainWindow):
         
     def drawFigure(self):
         self.alpha = self.clPopup.alpha_slider.value()/10
-        self.zoom = self.clPopup.zoom_slider.value()/10
+        self.zoomX = self.clPopup.zoomX_slider.value()/10
+        self.zoomY = self.clPopup.zoomY_slider.value()/10        
 
-        ax = plt.axes([self.xstart, self.ystart, self.zoom, self.zoom], frameon=True)
+        ax = plt.axes([self.xstart, self.ystart, self.zoomX, self.zoomY], frameon=True)
         ax.axis('off') 
         self.imgplot = ax.imshow(self.LISEpic,
+                                 aspect='auto',
                                  alpha=self.alpha)
 
         self.wPlot.canvas.draw()
@@ -2729,13 +2864,21 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-    def zoomFigure(self):
-        self.clPopup.zoom_label.setText("Zoom Level ({} %)".format(self.clPopup.zoom_slider.value()*10))
+    def zoomFigureX(self):
+        self.clPopup.zoomX_label.setText("Zoom X Level ({} %)".format(self.clPopup.zoomX_slider.value()*10))
         try:
             self.deleteFigure()
             self.drawFigure()
         except:
-            pass        
+            pass
+
+    def zoomFigureY(self):
+        self.clPopup.zoomY_label.setText("Zoom Y Level ({} %)".format(self.clPopup.zoomY_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass                
             
     def addFigure(self):
         try:
