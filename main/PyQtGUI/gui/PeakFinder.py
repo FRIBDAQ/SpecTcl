@@ -18,21 +18,20 @@ class PeakFinder(QDialog):
         
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.create_peakBox())
-        #self.layout.addWidget(self.create_optionBox())        
         self.setLayout(self.layout)
+        self.isCreated = False
         
-        #self.closeButton.clicked.connect(self.close)
-
     def create_peakChecks(self):
-        pCheck = QGroupBox("Peak Selection")
-
+        self.pCheck = QGroupBox("Peak Selection")
+        self.isCreated = True
+        
         row = 0
         col = 0
         counter = 0
         self.peak_cbox = []
         deflayout = QGridLayout()
         for i in range(self.npeaks):
-            title = "Peak "+str(i)
+            title = "Peak "+str(i+1)
             self.peak_cbox.append(QCheckBox(title,self))
             if (i%4 == 0) and i != 0:
                 row += 1
@@ -42,10 +41,26 @@ class PeakFinder(QDialog):
                 col = i-counter*4
             deflayout.addWidget(self.peak_cbox[i], row, col)
 
-        pCheck.setLayout(deflayout)
+        self.pCheck.setLayout(deflayout)
         
-        self.layout.addWidget(pCheck)
+        self.layout.addWidget(self.pCheck)
 
+    def remove_peakChecks(self):
+        if self.isCreated == True:
+            self.pCheck.setParent(None)
+            '''
+            for button in self.pCheck.findChildren(QCheckBox):
+                button.deleteLater()
+
+            for grid in self.pCheck.findChildren(QGridLayout):
+                grid.deleteLater()
+
+            for box in self.pCheck.findChildren(QGroupBox):                
+                box.deleteLater()
+                
+            self.layout.removeWidget(self.pCheck)
+            '''
+        self.isCreated = False
             
     def create_peakBox(self):
         peakBox = QGroupBox("Peak Finder")
@@ -80,16 +95,4 @@ class PeakFinder(QDialog):
         peakBox.setLayout(layout)
         
         return peakBox
-
-    def create_optionBox(self):
-        optionsBox = QGroupBox("Options")
-
-        self.closeButton = QPushButton("Dismiss", self)
-        
-        layoutC = QVBoxLayout()
-        layoutC.addWidget(self.closeButton)
-        layoutC.addStretch(1)
-        optionsBox.setLayout(layoutC)
-
-        return optionsBox
 

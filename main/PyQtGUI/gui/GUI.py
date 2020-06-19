@@ -127,7 +127,6 @@ class MainWindow(QMainWindow):
         self.optionAll = False
         self.isCluster = False
         self.onFigure = False
-        self.isChecked = {}
         
         # dictionary for spectcl gates
         self.gate_dict = {}
@@ -158,6 +157,12 @@ class MainWindow(QMainWindow):
         self.clusterptsW = []
 
         self.LISEpic = None
+
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}                
+        self.peak_txt = {}
+        self.isChecked = {}
         
         self.max_ds = 10
 
@@ -203,6 +208,7 @@ class MainWindow(QMainWindow):
 
         # peak finder option window 
         self.pPopup = PeakFinder()
+
         # clustering 
         self.clPopup = Cluster2D()
 
@@ -253,7 +259,7 @@ class MainWindow(QMainWindow):
         self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
         self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
 
-        self.pPopup.show_box.stateChanged.connect(lambda:self.btnstate(self.pPopup.show_box))
+        self.pPopup.show_box.stateChanged.connect(lambda:self.showAll(self.pPopup.show_box))
         
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
@@ -2501,40 +2507,31 @@ class MainWindow(QMainWindow):
     ############################
 
     def peakState(self, state):
-        self.pPopup.show_box.setChecked(False)
         for i, btn in enumerate(self.pPopup.peak_cbox):
             if btn.isChecked() == False:
-                self.isChecked[i] = False                
+                try:
+                    self.removePeak(i)
+                    self.isChecked[i] = False                    
+                except:
+                    pass
             else:
-                self.isChecked[i] = True                 
-                
-        print(self.isChecked)
-        self.singlePeakCheck();
-        self.wPlot.canvas.draw()                
+                if self.isChecked[i] == False:
+                    self.drawSinglePeaks(self.peaks, self.properties, self.dataw, i)
+                    self.isChecked[i] = True
 
-    def singlePeakCheck(self):
-        self.peakAnalClear()
-
-        for index in self.isChecked:
-            if index == True:
-                print(self.peaks[index], int(self.dataw[self.peaks[index]]*1.1), str(self.peaks[index]))
-                    
-    def drawSinglePeaks(self, peaks, properties, data, index):
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
+        checkAll = False in self.isChecked.values()
+        if checkAll == False:
+            self.pPopup.show_box.setChecked(True)
         else:
-            a = self.select_plot(self.selected_plot_index)
+            self.pPopup.show_box.setChecked(False)
 
-        #self.peak_pts = a.plot(peaks[index], data[peaks[index]], "x")
-        self.peak_txt[index] = append(a.text(peaks[index], int(data[peaks[index]]*1.1), str(peaks[index])))
+        self.wPlot.canvas.draw()                
                 
     def create_peak_signals(self):
         for i in range(self.pPopup.npeaks):
+            self.isChecked[i] = False                    
             self.pPopup.peak_cbox[i].stateChanged.connect(self.peakState)
             self.pPopup.peak_cbox[i].setChecked(True)
-            self.isChecked[i] = True
-        print("isChecked", self.isChecked)
             
     def update_peak_output(self, peaks, properties):
         for i in range(len(peaks)):
@@ -2543,48 +2540,65 @@ class MainWindow(QMainWindow):
 
     def peakAnalClear(self):
         self.pPopup.peak_results.clear()
+        self.removeAllPeaks()
+        self.pPopup.show_box.setChecked(False)
+        self.pPopup.remove_peakChecks()
 
-        for i in range(len(self.peak_pts)):
-            self.peak_pts[i].remove()
-        for i in self.peak_txt:
-            i.remove()
-        self.peak_vl.remove()
-        self.peak_hl.remove()
+        self.resetPeakDict()
+
+    def removePeak(self, i):
+        self.peak_pos[i][0].remove()
+        del self.peak_pos[i]
+        self.peak_vl[i].remove()
+        del self.peak_vl[i]
+        self.peak_hl[i].remove()
+        del self.peak_hl[i]
+        self.peak_txt[i].remove()
+        del self.peak_txt[i]        
+        
+    def resetPeakDict(self):
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}
+        self.peak_txt = {}
+        
+    def removeAllPeaks(self):
+        try:
+            for i in self.peak_pos:
+                self.pPopup.peak_cbox[i].setChecked(False)                                    
+        except:
+            pass
+
+        self.resetPeakDict()
         self.wPlot.canvas.draw()
-                
-    def btnstate(self,b):
+
+    def allOn(self):
+        for i in self.peak_pos:
+            self.pPopup.peak_cbox[i].setChecked(False)                                    
+        
+    def showAll(self,b):
         if b.text() == "Show Peaks":
             if b.isChecked() == True:
-                a = None
-                if self.isZoomed:
-                    a = plt.gca()
-                else:
-                    a = self.select_plot(self.selected_plot_index)
-
-                self.drawPeaks(a, self.peaks, self.properties, self.dataw)
+                print("all ON",self.isChecked)
+                # if all(value == False for value in self.isChecked.values()):
+                #     self.allOn()
             else:
-                for i in range(len(self.peak_pts)):
-                    self.peak_pts[i].remove()
-                for i in self.peak_txt:
-                    i.remove()
-                self.peak_vl.remove()
-                self.peak_hl.remove()
-                self.isChecked.clear()
-                for i in range(len(self.peaks)):
-                    self.pPopup.peak_cbox[i].setChecked(False)                                    
-                    self.isChecked[i] = False
-                self.wPlot.canvas.draw()
+                print("all OFF",self.isChecked)                
+                #if all(value == True for value in self.isChecked.values()):                
+                #    self.removeAllPeaks()
+                
+    def drawSinglePeaks(self, peaks, properties, data, index):
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
 
-    def drawPeaks(self, axis, peaks, properties, data):
-        self.peak_txt = []
-        self.peak_pts = axis.plot(peaks, data[peaks], "v", color="red")
-        self.peak_vl = axis.vlines(x=peaks, ymin=data[peaks] - properties["prominences"], ymax = data[peaks], color = "red")
-        self.peak_hl = axis.hlines(y=properties["width_heights"], xmin=properties["left_ips"], xmax=properties["right_ips"], color = "red")
-        for i in range(len(peaks)):
-            self.peak_txt.append(axis.text(peaks[i], int(data[peaks[i]]*1.1), str(peaks[i])))
-            self.pPopup.peak_cbox[i].setChecked(True)
-        self.wPlot.canvas.draw()
-        
+        self.peak_pos[index] = a.plot(peaks[index], data[peaks[index]], "v", color="red")
+        self.peak_vl[index] = a.vlines(x=peaks[index], ymin=data[peaks[index]] - properties["prominences"][index], ymax = data[peaks[index]], color = "red")
+        self.peak_hl[index] = a.hlines(y=properties["width_heights"][index], xmin=properties["left_ips"][index], xmax=properties["right_ips"][index], color = "red")        
+        self.peak_txt[index] = a.text(peaks[index], int(data[peaks[index]]*1.1), str(peaks[index]))
+
     def analyzePeak(self):
         try:
             width = int(self.pPopup.peak_width.text())
@@ -2599,10 +2613,8 @@ class MainWindow(QMainWindow):
 
             self.pPopup.npeaks = len(self.peaks)
             self.pPopup.create_peakChecks()
+            self.create_peak_signals()
 
-            self.pPopup.show_box.setChecked(True)
-            #self.create_peak_signals()
-            
         except:
             pass
         
