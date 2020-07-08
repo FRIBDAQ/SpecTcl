@@ -29,8 +29,8 @@ class Configuration(QWidget):
         self.button1D = QRadioButton("1D")
         self.button2D = QRadioButton("2D")
         self.button2D_option = QComboBox()
-        self.button2D_option.addItem("Dark")
         self.button2D_option.addItem("Light")
+        self.button2D_option.addItem("Dark")
             
         typelayout = QVBoxLayout()
         typelayout.addWidget(self.button1D)

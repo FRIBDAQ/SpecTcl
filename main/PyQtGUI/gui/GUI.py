@@ -13,8 +13,10 @@ import itertools
 import time
 import multiprocessing
 
+from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
 
 import cv2
 
@@ -53,6 +55,9 @@ from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
 from Clustering import Cluster2D
 from PeakFinder import PeakFinder
+from ClusterPlot import ClusterPlot
+from ClusterPlot import KMeanPlot
+from CannyEdge import cannyEdgePlot
 
 DEBOUNCE_DUR = 0.25
 t = None
@@ -152,6 +157,10 @@ class MainWindow(QMainWindow):
         self.tmp = []
         self.pol2line = []
         self.points = []
+        self.points_w = []        
+        self.old_threshold = 0
+        self.old_algo = ""
+        self.dbres = None
         self.clusterpts = []
         self.clusterw = []                
         self.clusterptsW = []
@@ -212,6 +221,13 @@ class MainWindow(QMainWindow):
         # clustering 
         self.clPopup = Cluster2D()
 
+        # create popup window for kmean analysis
+        self.kmeanPopup = KMeanPlot()
+        # create popup window for cluster
+        self.clplotPopup = ClusterPlot()                
+
+        # canny edge
+        self.cannyPopup = cannyEdgePlot()
         
         #################
         # Signals
@@ -259,9 +275,10 @@ class MainWindow(QMainWindow):
         self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
         self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
 
-        self.pPopup.show_box.stateChanged.connect(lambda:self.showAll(self.pPopup.show_box))
+        #self.pPopup.show_box.stateChanged.connect(lambda:self.showAll(self.pPopup.show_box))
         
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
+        self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
         self.clPopup.loadButton.clicked.connect(self.loadFigure)
         self.clPopup.addButton.clicked.connect(self.addFigure)
@@ -302,6 +319,9 @@ class MainWindow(QMainWindow):
         self.resPopup.close()
         self.clPopup.close()
         self.pPopup.close()                
+        self.kmeanPopup.close()
+        self.clplotPopup.close()
+        self.cannyPopup.close()        
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -1465,7 +1485,7 @@ class MainWindow(QMainWindow):
         self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
             
     # histo plotting
-    def plot_histogram(self, axis, index):
+    def plot_histogram(self, axis, index, threshold=0.1):
         hdim = self.get_histo_dim(index)                    
         minx = self.get_histo_xmin(index)
         maxx = self.get_histo_xmax(index)
@@ -1480,9 +1500,9 @@ class MainWindow(QMainWindow):
                     self.palette = copy(plt.cm.afmhot)
                 else:
                     self.palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                self.palette.set_bad(color='white')
-                self.h_lst[index].set_cmap(self.palette)
+                    w = np.ma.masked_where(w < threshold, w)
+                    self.palette.set_bad(color='white')
+                    self.h_lst[index].set_cmap(self.palette)
             self.h_lst[index].set_data(w)
 
         self.wPlot.figure.canvas.restore_region(self.axbkg[index])
@@ -1559,7 +1579,7 @@ class MainWindow(QMainWindow):
     # options for clustering 2D
     def clusterPopup(self):
         self.clPopup.show()
-    
+        
     # check histogram dimension from GUI
     def check_histogram(self):
         if self.wConf.button1D.isChecked():
@@ -1669,18 +1689,24 @@ class MainWindow(QMainWindow):
             df = self.spectrum_list.loc[select]
             w = df.iloc[0]['data']
 
+        print("hist:", hname)
+        print("hdim:", hdim)
+        print(w)
+        print(sum(w), len(w))
+        
         if hdim == 1:
             empty = sum(w)
         else:
-            empty = sum(w[1])
+            print(len(w[0]))
+            empty = len(w[0])
 
         if (empty == 0):
             self.isEmpty = True
-            QMessageBox.about(self, "Warning", "The shared memory is still empty...")
+            QMessageBox.about(self, "Warning", "Getting data - The shared memory is still empty...")
         else:
             self.isEmpty = False
             return w
-
+    
     def change_bkg(self):
         if any(x == 2 for x in self.h_dim) == True:
             indices = [i for i, x in enumerate(self.h_dim) if x == 2]
@@ -1800,7 +1826,7 @@ class MainWindow(QMainWindow):
         self.createRegion()
         self.polygon = self.createPolygon()
         print("end of create gate")
-        
+
     def createRegion(self):
         ax = plt.gca()        
         self.cleanRegion()
@@ -2172,12 +2198,12 @@ class MainWindow(QMainWindow):
 
         x = []
         y = []
-        z = []
-        self.fillPoints(w, x, y, z, self.points)
+        if len(self.points) == 0:
+            self.fillPoints(w, x, y, self.points_w, self.points)
         isInside = p.contains_points(self.points)
         x = list(compress(x, isInside))
         y = list(compress(y, isInside))        
-        z = list(compress(z, isInside))
+        z = list(compress(self.points_w, isInside))
         
         area = sum(z)
         centroid_x, centroid_y = self.centroid(x, y)
@@ -2190,7 +2216,8 @@ class MainWindow(QMainWindow):
             if sum(col):
                 for j, val in enumerate(col):
                     x,y = self.indexToPos(j,i)
-                    if val:
+                    if val>=self.clPopup.threshold_slider.value():
+                        #print(x,y,val)
                         xx.append(x)
                         yy.append(y)
                         zz.append(val)                                                
@@ -2205,7 +2232,7 @@ class MainWindow(QMainWindow):
         biny = float(self.wConf.listParams_bins[1].text())
         xstep = (maxx-minx)/binx
         ystep = (maxy-miny)/biny        
-        return (i+0.5)*xstep, (j+0.5)*ystep
+        return minx+(i+0.5)*xstep, miny+(j+0.5)*ystep
 
         
     def findInterval(self, name_histo, name_gate):
@@ -2519,12 +2546,13 @@ class MainWindow(QMainWindow):
                     self.drawSinglePeaks(self.peaks, self.properties, self.dataw, i)
                     self.isChecked[i] = True
 
+        '''
         checkAll = False in self.isChecked.values()
         if checkAll == False:
             self.pPopup.show_box.setChecked(True)
         else:
             self.pPopup.show_box.setChecked(False)
-
+        '''
         self.wPlot.canvas.draw()                
                 
     def create_peak_signals(self):
@@ -2541,11 +2569,12 @@ class MainWindow(QMainWindow):
     def peakAnalClear(self):
         self.pPopup.peak_results.clear()
         self.removeAllPeaks()
-        self.pPopup.show_box.setChecked(False)
+        #self.pPopup.show_box.setChecked(False)
         self.pPopup.remove_peakChecks()
 
         self.resetPeakDict()
-
+        
+        
     def removePeak(self, i):
         self.peak_pos[i][0].remove()
         del self.peak_pos[i]
@@ -2634,18 +2663,46 @@ class MainWindow(QMainWindow):
         df = self.spectrum_list.loc[select]
         w = df.iloc[0]['data']
 
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        xmin, xmax = a.get_xlim()            
+        ymin, ymax = a.get_ylim()
+        polygon = Polygon([(xmin,ymin), (xmax,ymin), (xmax,ymax), (xmin,ymax)])
+        # remove the duplicated last vertex
+        poly = polygon.xy[:-1]
+        p = Path(poly)
+
+        # set value for threshold and algo
+        self.old_threshold = self.clPopup.threshold_slider.value()
+        self.old_algo = self.clPopup.clusterAlgo.currentText()
+        
         x = []
         y = []
-        self.fillPoints(w, x, y, self.clusterw, self.clusterpts)
+        print("Filling points..")
+        self.fillPoints(w, x, y, self.points_w, self.points)
+
+        #print(self.points)
+        isInside = p.contains_points(self.points)
+        self.clusterpts = list(compress(self.points, isInside))
+        self.clusterw = list(compress(self.points_w, isInside))
+
+        #print(len(self.clusterpts), len(self.clusterw))
+        #print(self.clusterpts[0:10], self.clusterw[0:10])
+        
         self.isCluster = True
         
     def analyzeCluster(self):
-        if self.isCluster == False:
+        algo = self.clPopup.clusterAlgo.currentText()        
+        if self.isCluster == False or (self.old_threshold != self.clPopup.threshold_slider.value()):
             self.start = time.time()
             self.initializeCluster()
             self.stop = time.time()
             print("Time elapsed for initialization of clustering:", self.stop-self.start)
-        
+
         cluster_center=[]
         nclusters = int(self.clPopup.clusterN.currentText())
         algo = self.clPopup.clusterAlgo.currentText()
@@ -2653,11 +2710,15 @@ class MainWindow(QMainWindow):
         self.start = time.time()
         if algo == "K-Mean":
             self.kmean(nclusters)
+        elif algo == "Gaussian Mixture Model":
+            self.gmm(nclusters)
+        elif algo == "Image Segmentation":
+            self.imageSegmentation(nclusters)
         else:
-            self.gmm(nclusters)            
+            self.cannyEdge()
         self.stop = time.time()
         print("Time elapsed for clustering:", self.stop-self.start)
-
+        
     # kmean algo
     def kmean(self, nclusters):
         # create kmeans object
@@ -2792,6 +2853,99 @@ class MainWindow(QMainWindow):
     
         return Weight
 
+    def imageSegmentation(self, nclusters):
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        xmin, xmax = a.get_xlim()
+        ymin, ymax = a.get_ylim()        
+            
+        #create picture for clustering analysis
+        filename = 'imgSeg.jpg'
+        extent = a.get_window_extent().transformed(self.wPlot.figure.dpi_scale_trans.inverted())
+        self.wPlot.figure.savefig(filename, bbox_inches=extent.expanded(0.8, 0.9))
+
+        #
+        self.clplotPopup.show()
+        self.clplotPopup.plotClusters(filename)
+        #
+        self.kmeanPopup.create_clusterChecks(nclusters)
+        self.kmeanPopup.show()
+        
+        self.kmeanPopup.plot(filename, nclusters, xmin, xmax, ymin, ymax)
+
+    def cannyEdge(self):
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        xmin, xmax = a.get_xlim()
+        ymin, ymax = a.get_ylim()        
+            
+        #create picture for clustering analysis
+        filename = 'cannyE.jpg'
+        extent = a.get_window_extent().transformed(self.wPlot.figure.dpi_scale_trans.inverted())
+        self.wPlot.figure.savefig(filename, bbox_inches=extent.expanded(0.8, 0.9))
+
+        self.cannyPopup.show()
+        self.cannyPopup.plotEdge(filename, xmin, xmax, ymin, ymax)
+    
+    '''
+    def dbscan(self):
+        
+        if self.dbres is not None:
+            print("self.dbres.remove()")
+            self.dbres.remove()
+            self.wPlot.canvas.draw()
+            
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(self.clusterpts)
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+        
+        dbscan = DBSCAN(eps=float(self.clPopup.eps.text()), min_samples =int(self.clPopup.minpts.text()))
+        #clusters = dbscan.fit(X_scaled)        
+        clusters = dbscan.fit_predict(X_scaled)
+
+        labels = dbscan.labels_
+
+        # Number of clusters in labels, ignoring noise if present.
+        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+        n_noise_ = list(labels).count(-1)
+
+        print('Estimated number of clusters: %d' % n_clusters_)
+        print('Estimated number of noise points: %d' % n_noise_)
+
+        # plot the cluster assignments
+        X = np.array(self.clusterpts)
+        self.dbres = a.scatter(X[:, 0], X[:, 1], c=clusters, cmap="plasma")
+
+        self.wPlot.canvas.draw()
+    '''
+    
+    def thresholdFigure(self):
+        self.clPopup.threshold_label.setText("Threshold Level ({})".format(self.clPopup.threshold_slider.value()))
+        try:
+            a = None
+            if self.isZoomed:
+                a = plt.gca()
+            else:
+                a = self.select_plot(self.selected_plot_index)
+
+            self.plot_histogram(a, self.selected_plot_index,self.clPopup.threshold_slider.value())
+            self.wPlot.canvas.draw()
+        except:
+            pass
+        
     def loadFigure(self):
         fileName = self.openLoadFileNameDialog()
         try:

@@ -30,21 +30,46 @@ class Cluster2D(QDialog):
         
         self.clusterN_label = QLabel("Number of Clusters")
         self.clusterN = QComboBox()
-        for i in range(10):
+        for i in range(20):
             self.clusterN.addItem(str(i+1))
         self.clusterAlgo_label = QLabel("Clustering Algorithm")
         self.clusterAlgo = QComboBox()        
+        self.clusterAlgo.addItem("Image Segmentation")
+        self.clusterAlgo.addItem("Canny Edge")                        
         self.clusterAlgo.addItem("K-Mean")
-        self.clusterAlgo.addItem("Gaussian Mixture Model")        
+        self.clusterAlgo.addItem("Gaussian Mixture Model")
+        self.threshold_label = QLabel("Threshold Level (0)")
+        self.threshold_slider = QSlider(QtCore.Qt.Horizontal, self)
+        self.threshold_slider.setMinimum(0)
+        self.threshold_slider.setMaximum(300)
+        self.threshold_slider.setTickInterval(1)
+        self.threshold_slider.setValue(0)
+        #self.eps_label = QLabel("Eps")
+        #self.eps = QLineEdit(self)
+        #self.eps.setFixedWidth(60)
+        #self.eps.setText("0.15")
+        #self.minpts_label = QLabel("Min Pts")
+        #self.minpts = QLineEdit(self)        
+        #self.minpts.setFixedWidth(60)
+        #self.minpts.setText("10")
         self.analyzerButton = QPushButton("Analyze", self)
-        self.closeButton = QPushButton("Dismiss", self)
+        #self.closeButton = QPushButton("Dismiss", self)
 
+        #lay = QHBoxLayout()
+        #lay.addWidget(self.eps_label)
+        #lay.addWidget(self.eps)        
+        #lay.addWidget(self.minpts_label)
+        #lay.addWidget(self.minpts)        
+        
         layoutC = QVBoxLayout()
         layoutC.addWidget(self.clusterN_label)
         layoutC.addWidget(self.clusterN)
         layoutC.addWidget(self.clusterAlgo_label)
-        layoutC.addWidget(self.clusterAlgo)        
-        layoutC.addWidget(self.analyzerButton)
+        layoutC.addWidget(self.clusterAlgo)
+        layoutC.addWidget(self.threshold_label)
+        layoutC.addWidget(self.threshold_slider)        
+        #layoutC.addLayout(lay)
+        layoutC.addWidget(self.analyzerButton)       
         layoutC.addStretch(1)
         clusterBox.setLayout(layoutC)
         
@@ -131,6 +156,7 @@ class Cluster2D(QDialog):
         
         return liseBox        
 
+    '''
     def create_optionBox(self):        
         optionsBox = QGroupBox("Options")
 
@@ -140,3 +166,4 @@ class Cluster2D(QDialog):
         optionsBox.setLayout(layoutC)
         
         return optionsBox
+    '''

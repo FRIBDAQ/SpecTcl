@@ -65,7 +65,7 @@ class PeakFinder(QDialog):
     def create_peakBox(self):
         peakBox = QGroupBox("Peak Finder")
 
-        self.show_box = QCheckBox("Show Peaks")
+        #self.show_box = QCheckBox("Show Peaks")
         
         self.peak_width_label = QLabel("Peak Width (in bins)")
         self.peak_width = QLineEdit()
@@ -84,7 +84,7 @@ class PeakFinder(QDialog):
         lay = QHBoxLayout()
         lay.addWidget(self.peak_analysis)
         lay.addWidget(self.peak_analysis_clear)        
-        lay.addWidget(self.show_box)
+        #lay.addWidget(self.show_box)
         
         layout = QVBoxLayout()
         layout.addLayout(layy)
