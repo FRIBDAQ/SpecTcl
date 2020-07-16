@@ -2,6 +2,7 @@
 import io
 import sys, os
 sys.path.append(os.getcwd())
+sys.path.append("../Script")
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *

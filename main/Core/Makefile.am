@@ -252,6 +252,8 @@ Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 
 Spectra_INCLUDES = SpectraLocalDisplay.h SpectraProcess.h
 
+PyQt_SRC = PyQtDisplay.cpp PyQtProcess.cpp
+PyQt_INCLUDE = PyQtDisplay.h PyQtProcess.h
 
 SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
@@ -336,6 +338,7 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 				$(Sorter_SRC) \
 				$(TclGrammerApp_SRC) \
 				$(Spectra_SRC) \
+				$(PyQt_SRC) \
 				$(SpectrumIO_SRC) \
 				$(TreeParam_SRC) \
 				$(Xamine_SRC)
@@ -371,6 +374,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(Gates_INCLUDES) \
 				$(Sorter_INCLUDES) \
 				$(Spectra_INCLUDES) \
+				$(PyQt_INCLUDES) \
 				$(TclGrammerApp_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \

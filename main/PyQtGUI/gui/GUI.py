@@ -234,7 +234,7 @@ class MainWindow(QMainWindow):
         #################
 
         # top menu signals
-        self.wTop.exitButton.clicked.connect(self.closeAll)
+        #self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
