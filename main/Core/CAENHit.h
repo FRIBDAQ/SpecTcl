@@ -31,18 +31,20 @@
  *    themselves from a pointer to event data.
  */
 class CAENHit {
+public:
+    typedef enum _HItType {PSD PHA} HitType;
 protected:
+    HitType   m_type;
     uint64_t  m_timeTag;
     uint32_t  m_channel;
     std::vector<uint16_t> m_trace1;
     std::vector<uint16_t> m_trace2;
-protected:
-    typedef enum _HItType {PSD PHA} HitType;
-    HitType   m_type;
+    
     
     // All the other bits ad pieces are type dependent.
 
 public:
+    HitType  getType() const;
     uint64_t getTimeTag() const;
     uint32_t getChannel() const;
     const std::vector<uint16_t>& trace1() const;
