@@ -47,6 +47,7 @@ import pandas as pd
 import numpy as np
 import CPyConverter as cpy
 
+import algo_factory
 
 # import widgets
 from MenuGUI import Menu
@@ -59,13 +60,16 @@ from ClusterPlot import ClusterPlot
 from ClusterPlot import KMeanPlot
 from CannyEdge import cannyEdgePlot
 
+
 DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
+        self.factory = factory
+        
         self.setWindowTitle("Project Robot Alba")
         '''
         self.setWindowFlags(
@@ -76,6 +80,13 @@ class MainWindow(QMainWindow):
             QtCore.Qt.WindowStaysOnTopHint
         )
         '''
+
+        #check if there are arguments or not
+        try:
+             self.args = dict(args)
+             print("self.args",self.args)
+        except:
+            pass
         
         # global variables
         self.timer = QtCore.QTimer()
@@ -221,6 +232,9 @@ class MainWindow(QMainWindow):
         # clustering 
         self.clPopup = Cluster2D()
 
+        # initialize factory from algo_creator
+        self.factory.initialize(self.clPopup.clusterAlgo)
+        
         # create popup window for kmean analysis
         self.kmeanPopup = KMeanPlot()
         # create popup window for cluster
@@ -234,7 +248,7 @@ class MainWindow(QMainWindow):
         #################
 
         # top menu signals
-        #self.wTop.exitButton.clicked.connect(self.closeAll)
+        self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
@@ -2708,6 +2722,19 @@ class MainWindow(QMainWindow):
         algo = self.clPopup.clusterAlgo.currentText()
 
         self.start = time.time()
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+        
+        config = self.factory._configs.get(algo)
+        print("ML algo config", config)
+        MLalgo = self.factory.create(algo, **config)
+        MLalgo.start(self.clusterpts, self.clusterw, nclusters, a)
+        
+        '''
         if algo == "K-Mean":
             self.kmean(nclusters)
         elif algo == "Gaussian Mixture Model":
@@ -2716,8 +2743,11 @@ class MainWindow(QMainWindow):
             self.imageSegmentation(nclusters)
         else:
             self.cannyEdge()
+        '''
         self.stop = time.time()
         print("Time elapsed for clustering:", self.stop-self.start)
+
+        self.wPlot.canvas.draw()
         
     # kmean algo
     def kmean(self, nclusters):
