@@ -93,10 +93,10 @@ CAENHit::trace2() const
  *                identical allowing this be factored out.
  */
 void
-CANHit::unpackTraces(void* pData)
+CAENHit::unpackTraces(void* pData)
 {
-    uint32_t* p32 = static_cast<uint32_t>(pData);
-    uint32_t* nSamples = *p32++;
+    uint32_t* p32 = static_cast<uint32_t*>(pData);
+    uint32_t nSamples = *p32++;
 
     if (nSamples) {
         uint8_t*  pDual    = reinterpret_cast<uint8_t*>(p32);
@@ -124,7 +124,7 @@ CANHit::unpackTraces(void* pData)
  *    Set the hit type.
  */
 CAENPHAHit::CAENPHAHit() :
-    m_type(CAENHit::PHA)
+    CAENHit(CAENHit::PHA)
 {}
 /**
  *  getEnergy
@@ -180,9 +180,12 @@ CAENPHAHit::unpack(void* pData)
 /**
  * constructor
  *    Set the hit type.
+ *  @param cfdMultiplier the multiplier for the fine time computation
+ *         fine time in ps is multiplier * finetime/1024
  */
-CAENPSDHit::CAENPSDHit() :
-    m_type(CAENHit::PSD)
+CAENPSDHit::CAENPSDHit(int cfdMultiplier) :
+    CAENHit(CAENHit::PSD),
+    m_cfdMultiplier(cfdMultiplier)
 {}
 
 /**
@@ -244,18 +247,22 @@ CAENPSDHit::getCFDTime() const
 double
 CAENPSDHit::getTime() const
 {
-    return 0.0;                 // STUB until Pierluigi tells me how.
+    double result = getTimeTag();
+    double fine   = getCFDTime();
+    fine = fine * m_cfdMultiplier /1024.0; // fine time in ps.
+    result = result + fine/1000.0;     // Fine time in ns. not ps.
+    return result;                 // STUB until Pierluigi tells me how.
 }
 /**
  * unpack
  *    Unpacks the raw hit data from the event into the
  */
 void
-CAENPSDHit::unpack(void* pData) const
+CAENPSDHit::unpack(void* pData) 
 {
     uint32_t* p32 = static_cast<uint32_t*>(pData);
     
-    p++;
+    p32++;
     
     uint64_t* p64 = reinterpret_cast<uint64_t*>(p32);
     m_timeTag = *p64++;
@@ -267,10 +274,10 @@ CAENPSDHit::unpack(void* pData) const
     m_longGateCharge  = *p32++;
     m_baseline        = *p32++;
     m_purFlag         = *p32++;
-    m_cfdTime         = (*p32++) & 0x7ff;
+    m_CFDTime         = (*p32++) & 0x7ff;
     
     if (*p32++ > 0) {
-        unpackTraces(p);
+        unpackTraces(p32);
     }
     
 }

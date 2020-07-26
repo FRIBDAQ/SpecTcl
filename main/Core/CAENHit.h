@@ -20,7 +20,7 @@
  */
 #ifndef CAENHIT_H
 #define CAENHIT_H
-#include <stdint>
+#include <stdint.h>
 #include <vector>
 /**
  * @class CAENHit
@@ -32,7 +32,7 @@
  */
 class CAENHit {
 public:
-    typedef enum _HItType {PSD PHA} HitType;
+    typedef enum _HitType {PSD, PHA} HitType;
 protected:
     HitType   m_type;
     uint64_t  m_timeTag;
@@ -44,6 +44,7 @@ protected:
     // All the other bits ad pieces are type dependent.
 
 public:
+    CAENHit(HitType type) : m_type(type) {}
     HitType  getType() const;
     uint64_t getTimeTag() const;
     uint32_t getChannel() const;
@@ -56,7 +57,7 @@ public:
 public:
     virtual void unpack(void* pData) = 0;
     
-private:
+protected:
     void unpackTraces(void* pTrace);
 };
 
@@ -77,7 +78,7 @@ public:
     uint16_t getExtra1() const;
     uint16_t getExtra2() const;
     
-    virtual unpack(void* pData) const;
+    virtual void unpack(void* pData) ;
 };
 /**
  * @class CAENPSDHit
@@ -91,9 +92,10 @@ private:
     uint16_t m_baseline;
     uint16_t m_purFlag;
     uint16_t m_CFDTime;
+    int      m_cfdMultiplier;
     
 public:
-    CAENPSDHit();
+    CAENPSDHit(int cfdMultiplier);
     
     uint16_t getShortCharge() const;
     uint16_t getLongCharge()  const;
@@ -102,7 +104,7 @@ public:
     uint16_t getCFDTime()     const;
     double   getTime()        const;
   
-    virtual unpack(void* pData) const;
+    virtual void unpack(void* pData);
 };
 
 

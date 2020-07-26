@@ -212,7 +212,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
 	 CPipelineManager.cpp FragmentIndex.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
-	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp
+	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp CAENHit.cpp
 
 # TapeCommand.h removed
 
@@ -233,7 +233,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
 	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
 	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
-	CUnpackEvbCommand.h
+	CUnpackEvbCommand.h CAENHit.h
 
 # TapeCommand.h removed
 
