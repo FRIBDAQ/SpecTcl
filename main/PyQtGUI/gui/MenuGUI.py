@@ -28,6 +28,7 @@ class Menu(QWidget):
                 self.serverLabel.setText('Server:')
                 self.server = QLineEdit(self)
                 self.server.setText(host+":"+port)
+                self.server.setFixedWidth(200);
                 self.exitButton = QPushButton("Exit", self)
                 self.updateButton = QPushButton("Get Data", self)
                 self.configButton = QPushButton("Options", self)
