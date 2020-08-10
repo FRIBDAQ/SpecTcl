@@ -168,7 +168,8 @@ unittest_SOURCES = SegUnpackerTest.cpp \
 
 unittest_CXXFLAGS= -I@top_srcdir@/Core \
 		   -I@top_srcdir@/Utility \
-		    @CPPUNIT_CFLAGS@ \
+			-I@top_srcdir@/ddas \
+			@CPPUNIT_CFLAGS@ \
 		    @TCL_CPPFLAGS@ \
 		    @LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 

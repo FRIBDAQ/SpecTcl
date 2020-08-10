@@ -47,7 +47,7 @@
 #include "BufferTranslator.h"
 #include <histotypes.h>
 #include <string>
-#include <ParameterMapper.h>
+#include "ParameterMapper.h"
 
 class CAnalyzer;
 class CBufferDecoder;
