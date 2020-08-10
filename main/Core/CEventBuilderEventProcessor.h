@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 class CTreeParameter;
-
+class CParameterMapper;
 
 /**
  * @class CEventBuilderEventProcessor
@@ -70,13 +70,17 @@ private:
     CTreeParameter*      m_seconds;
     std::string          m_baseName;     // Construct parametrs from this.
     unsigned             m_nEvents;      // Number of events.
-    
+    DAQ::DDAS::CParameterMapper*     m_mapper;
+
     // Canonicals:
     
 public:
     CEventBuilderEventProcessor(double clockMHz, std::string baseName);
     virtual ~CEventBuilderEventProcessor();
-    
+
+    virtual CEventBuilderEventProcessor* clone() { return new CEventBuilderEventProcessor(*this); }
+    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
     // Event processor methods we need to override - all of them since we
     // have to pass control over to the registered event processor methods:
     

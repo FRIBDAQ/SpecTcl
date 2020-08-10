@@ -9,16 +9,34 @@ PyQtGUI_LDFLAGS = @PYTHON_LDFLAGS@
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/QtGUI
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/Script
-	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/Skel
+	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/Skel 
 	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/kmean_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/gmm_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/imgseg_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/cannye_creator.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/ImgSegPlot.py @prefix@/Skel
-	$(INSTALL_DATA) @srcdir@/CannyEdgePlot.py @prefix@/Skel
-
+	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/Skel
+	if [ -s @prefix@/Skel/Script ] ; \
+	then \
+	     rm -rf @prefix@/Skel/Script ; \
+	fi;
+	ln -s @prefix@/Script @prefix@/Skel
+	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/VMUSBSkel
+	if [ -s @prefix@/VMUSBSkel/Script ] ; \
+	then \
+	     rm -rf @prefix@/VMUSBSkel/Script ; \
+	fi;
+	ln -s @prefix@/Script @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
+	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/DDASSkel
+	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/DDASSkel
+	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/DDASSkel
+	if [ -s @prefix@/DDASSkel/Script ] ; \
+	then \
+	     rm -rf @prefix@/DDASSkel/Script ; \
+	fi;
+	ln -s @prefix@/Script @prefix@/DDASSkel
 
 EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py \
-	Clustering.py CannyEdge.py ClusterPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py
+	Clustering.py CannyEdge.py ClusterPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py
+

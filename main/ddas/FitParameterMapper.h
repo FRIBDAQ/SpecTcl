@@ -16,8 +16,8 @@
 */
 
 
-#ifndef DAQ_DDAS_CPARAMETERMAPPER_H
-#define DAQ_DDAS_CPARAMETERMAPPER_H
+#ifndef DAQ_DDAS_FITPARAMETERMAPPER_H
+#define DAQ_DDAS_FITPARAMETERMAPPER_H
 
 #include "DDASFitHit.h"
 #include <memory>
@@ -29,8 +29,9 @@ namespace DAQ {
 namespace DDAS {
 
   class FitParameterMapper {
-    public:
-      virtual void mapToParameters(const std::vector<DDASFitHit>& data, CEvent& rEvent) = 0;
+  public:
+    virtual void mapToParameters(const std::vector<DDASFitHit>& data, CEvent& rEvent) = 0;
+    virtual FitParameterMapper* clone() = 0;
   };
 
 } // end DDAS namespace

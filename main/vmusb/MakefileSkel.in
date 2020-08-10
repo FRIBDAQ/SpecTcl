@@ -42,6 +42,7 @@ CStackUnpacker.o \
 CV1729Unpacker.o \
 CV1x90Unpacker.o \
 CV977Unpacker.o \
+CMyProcessor.o \
 LICENCE.o \
 MySpecTclApp.o 
 

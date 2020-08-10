@@ -75,13 +75,13 @@ DisplayInterface_INCLUDES =  Display.h \
 Events_SRC = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \
 	RunControl.cpp TCLRunFileHandler.cpp TKRunControl.cpp EventSink.cpp \
-	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp
+	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp ZMQRDPatternClass.cpp ThreadAPI.cpp CRingFileBlockReader.cpp ThreadAnalyzer.cpp
 
 Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
-	NSCLJumboBufferDecoder.h DopeVector.h
+	NSCLJumboBufferDecoder.h DopeVector.h ZMQRDPatternClass.h ThreadAPI.h CRingFileBlockReader.h ThreadAnalyzer.h zhelpers.hpp
 
 # Removed TapeException.cpp, Tapefile
 
@@ -348,8 +348,9 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 libTclGrammerApp_la_CXXFLAGS = -I@top_srcdir@/Utility \
 			-I/mnt/misc/sw/x86_64/Debian/8/root/gnu/6.08.00/include \
 				-I@top_srcdir@/Display \
-				 -I@top_srcdir@/factories \
-				 -I@top_srcdir@/Tape \
+				-I@top_srcdir@/factories \
+				-I@top_srcdir@/ddas \
+				-I@top_srcdir@/Tape \
 				$(COMMONCXXFLAGS)	\
 				 @LIBTCLPLUS_CFLAGS@ \
 				 @TCL_CPPFLAGS@
@@ -425,7 +426,7 @@ docbuftests_SOURCES  = TestRunner.cpp \
 			docexceptiontests.cpp \
 			callbacktests.cpp
 
-spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS)
+spectrumPkgTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas 
 spectrumPkgTests_LDADD    = $(commonTestLdFlags)
 spectrumPkgTests_SOURCES  = TestRunner.cpp SpectrumPackageTests.cpp
 
@@ -436,7 +437,7 @@ displayInterfaceTests_SOURCES = TestRunner.cpp \
 				DisplayFactoryTests.cpp \
 				DisplayInterfaceTests.cpp
 
-sorterTests_CXXFLAGS = $(commonTestCXXFLAGS)
+sorterTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
@@ -446,7 +447,7 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 				CParameterMappingTest.h CAxisTests.h \
 				m2projtest.cpp factoryTests.cpp
 
-treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS)
+treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
 	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
@@ -457,34 +458,34 @@ treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreePara
 	TreeTestSupport.h
 
 
-fitTests_CXXFLAGS = $(commonTestCXXFLAGS)
+fitTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 fitTests_LDADD = $(commonTestLdFlags)
 fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 
-xamineTests_CXXFLAGS = $(commonTestCXXFLAGS)
+xamineTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 xamineTests_LDADD = $(commonTestLdFlags)
 xamineTests_SOURCES = TestRunner.cpp TestXamineShMem.cpp TestXamineShMem.h \
 					XamineShMemDisplayImplTests.cpp
 
-spectraDisplayTests_CXXFLAGS = $(commonTestCXXFLAGS)
+spectraDisplayTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 spectraDisplayTests_LDADD = $(commonTestLdFlags)
 spectraDisplayTests_SOURCES = TestRunner.cpp \
 			TestXamineShMem.cpp TestXamineShMem.h \
 			SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
 
-spectclCmdTests_CXXFLAGS = $(commonTestCXXFLAGS)
+spectclCmdTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 spectclCmdTests_LDADD    = $(commonTestLdFlags)
 spectclCmdTests_SOURCES  = TestRunner.cpp \
 			SharedMemoryKeyCommandTest.cpp \
 			SharedMemorySizeCommandTest.cpp
 
-evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS)
+evbProcessorTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 evbProcessorTests_LDADD = $(commonTestLdFlags)
 evbProcessorTests_SOURCES = TestRunner.cpp evbProcessorTests.cpp \
 	pipemgrtests.cpp pipecmdtests.cpp pipeevptests.cpp evbunpackCmdTests.cpp
 
 
-fragIndexTests_CXXFLAGS=$(commonTestCXXFLAGS)
+fragIndexTests_CXXFLAGS=$(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 fragIndexTests_LDADD=$(commonTestLdFlags)
 fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragidxtests.cpp
 

@@ -46,6 +46,10 @@ private:
 public:
     RootEventProcessor();
 
+    virtual RootEventProcessor* clone() { return new RootEventProcessor(*this); }
+    DAQ::DDAS::CParameterMapper* m_mapper;
+    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    
     // Event processor interface subset we need to implement.
     
     virtual Bool_t OnBegin(CAnalyzer& rA, CBufferDecoder& rB);

@@ -71,6 +71,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
+bool isOnline = false;
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -193,8 +194,6 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   }
 
   // Disconnect the current event source and connect the new one.
-
-  
   CFile* pNew   = new CDiskFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);
@@ -273,6 +272,9 @@ int CDataSourcePackage::AttachPipeSource(CTCLResult& rResult) {
   //      TCL_OK         - Success.
   //      TCL_ERROR - Failure.
   // Exceptions:
+
+  isOnline = true;
+  
   if(gpRunControl->getRunning()) { // Analysis is active...
     rResult = "Analysis is active and must first be stopped";
     return TCL_ERROR;

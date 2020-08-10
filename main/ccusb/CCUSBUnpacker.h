@@ -64,8 +64,9 @@ public:
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
 			    CBufferDecoder& rDecoder);
-
-
+  virtual CCUSBUnpacker* clone() { return new CCUSBUnpacker(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
 
 };
 

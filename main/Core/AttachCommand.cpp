@@ -71,8 +71,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
-
-
+#include "ZMQRDPatternClass.h"
+bool toClose = false;
 
 // Class level members:
 
@@ -95,7 +95,8 @@ static const SwitchDef SwitchTable[] = {
   {"-format", CAttachCommand::keFormat},
   {"-test", CAttachCommand::keTest},
   {"-list", CAttachCommand::keList},
-  {"-null", CAttachCommand::keNull}
+  {"-null", CAttachCommand::keNull},
+  {"-closeThreads", CAttachCommand::keCloseThreads}
 };
 
 typedef enum {
@@ -106,6 +107,7 @@ typedef enum {
 #endif  
   ePipe,
   eTest,
+  eThread,
   eNull} SourceType;		// Possible source types:
 
 struct OptionInfo {
@@ -198,6 +200,10 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
       numSourceTypes++;
       options.eSource = eNull;
       break;
+    case keCloseThreads:
+      toClose = true;
+      options.eSource = eThread;
+      break;
 
       // -size nBytes.
 
@@ -251,9 +257,11 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // together with numSourceTypes summarizes what we found.
 
   if(numSourceTypes != 1) {	// Require exactly one src type:
-    rResult = "You must have exactly one data source type\n";
-    Usage(rResult);
-    return TCL_ERROR;
+    if (!toClose){
+      rResult = "You must have exactly one data source type\n";
+      Usage(rResult);
+      return TCL_ERROR;
+    }
   }
 
 
@@ -320,6 +328,10 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case eNull:
     status = AttachNull(rResult, options.Connection,
 		      options.nBytes);
+    break;
+  case eThread:
+    status = CloseThreads(rResult, options.Connection,
+                          options.nBytes);
     break;
   case eUnspecified:		// Prior tests should have
   default:			// prevented these cases...
@@ -531,7 +543,14 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
   return TCL_OK;
 }
 
-
+int CAttachCommand::CloseThreads(CTCLResult& rResult,
+                                 const string& rName,
+                                 long nBytes)
+{
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->setThreadState(1);
+  return TCL_OK;
+}
 /*!
    Register a new buffer decoder type to the attach command's decoder
    factory.
@@ -574,7 +593,8 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "        -test  When connection selects one of the test data";
   rResult += "               sources\n";
   rResult += "        -null  No events will be made available.\n";
-
+  rResult += "        -closeThreads  Kill the running threads.\n";
+  
   vector<string> formats = m_decoderFactory.getDescriptions();
 
   rResult += "Available format types are:\n";

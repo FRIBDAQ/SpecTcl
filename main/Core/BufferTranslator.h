@@ -59,6 +59,7 @@ public:
     return answer;
   }
   virtual uint64_t getQuad(uint64_t value) = 0;
+  virtual BufferTranslator* clone() const = 0;
 };
 
 /*-----------------------------------------------------------------------------
@@ -76,6 +77,7 @@ class SwappingBufferTranslator: public BufferTranslator
   // Accessor functions
   virtual void GetBlock( const Address_t, int, int );
   virtual uint64_t getQuad(uint64_t value);
+  BufferTranslator* clone() const {return new SwappingBufferTranslator(*this);}
 };
 
 /*-----------------------------------------------------------------------------
@@ -93,6 +95,7 @@ class NonSwappingBufferTranslator: public BufferTranslator
   // Accessor functions
   virtual void GetBlock( const Address_t, int, int );
   virtual uint64_t getQuad(uint64_t value);
+  BufferTranslator* clone() const {return new NonSwappingBufferTranslator(*this);}
 };
 
 /*-----------------------------------------------------------------------------

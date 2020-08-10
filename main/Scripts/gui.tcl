@@ -313,6 +313,15 @@ proc toggleTheButton {w cmd} {
     } 
 }
 
+proc toggleTheButton2 {w cmd cmd2} {
+    global RunState
+    $cmd
+    $cmd2
+    if { $RunState } {
+	$w configure -background {tomato}
+    } 
+}
+
 proc UpdateButtons {name element op} {
     global RunState
     if { ! $RunState } {
@@ -325,7 +334,10 @@ proc UpdateButtons {name element op} {
 proc Exit {} {
     set answer [tk_messageBox -icon question -type yesno -title Exit \
 		    -message {Are you sure you want to exit SpecTcl?}]
-    if {$answer == "yes"} exit
+    if {$answer == "yes"} {
+	attach -closeThreads
+	exit
+    }
 }
 
 proc updateInfo nms {
@@ -334,6 +346,8 @@ proc updateInfo nms {
     global RunNumber
     global RunState
     global BuffersAnalyzed
+    global AverageRate
+    global ElapsedTime
     global type
     global filename
 
@@ -349,17 +363,42 @@ proc updateInfo nms {
 	} else {
 	    set state Inactive
 	}
-	
+
+	.np.head configure -text \
+	    [format "Number of Threads: %s " $::NumberOfThreads]
+	.dc.head configure -text \
+	    [format "Data Chunk Size per Thread: %s " $::DataChunkSize]		
 	.title.head configure -text \
-	    [format "Run title: %s " $RunTitle]
+	    [format "Run Title: %s " $RunTitle]
 	.source.head configure -text \
 	    [format "Data Source:%s %s (%s)" $type $filename $state]	
 	.runno.head configure -text \
-	    [format "Run number: %s " $RunNumber] 
+	    [format "Run Number: %s " $RunNumber] 
 	.buffer.head configure -text \
-	    [format "Analyzed buffers: %s " $BuffersAnalyzed]
+	    [format "Analyzed Buffers: %s " $BuffersAnalyzed]
+	.rate.head configure -text \
+	    [format "Avg. Rate (Mb/s): %s " $AverageRate]	
+	.time.head configure -text \
+	    [format "Elapsed Time (s): %s " $ElapsedTime]	
     }
 }
+
+proc onlineSize {} {
+    set value [expr $::DataChunkSize]
+    puts $value
+    set wording "You are trying to analyze $::DataChunkSize bytes at the time. This may not be optimal for low rate experiments. Please modify the corresponding field."
+    set answer [tk_messageBox -message [format "%s" $wording] -type ok -icon question]
+}
+
+# Display number of threads
+frame .np
+label .np.head -text {Number of threads: } -background LightSteelBlue1 
+pack  .np.head -side left -expand 1
+
+# Display number of threads
+frame .dc
+label .dc.head -text {Data Chunk Size per Thread: } -background LightSteelBlue1 
+pack  .dc.head -side left -expand 1
 
 # Display run title
 frame .title
@@ -381,6 +420,16 @@ frame .buffer
 label .buffer.head -text {Analyzed Buffers: } -background LightSteelBlue1 
 pack  .buffer.head -side left -expand 1
 
+# Create average rate frame
+frame .rate
+label .rate.head -text {Avg. Rate (Mb/s): } -background LightSteelBlue1 
+pack  .rate.head -side left -expand 1
+
+# Display elapsed time
+frame .time
+label .time.head -text {Elapsed Time: } -background LightSteelBlue1 
+pack  .time.head -side left -expand 1
+
 # load/save spectra frame
 frame .spfr
 button .spfr.b1 -background {DarkGoldenrod2} -text "Load spectra" -command readSpectrumFile
@@ -392,17 +441,17 @@ pack .spfr -fill both -expand 1
 set loadPath .treegui.notebook.spectra.topmost.fileio.load
 set savePath .treegui.notebook.spectra.topmost.fileio.save
 
-button .clearall -background {gold} -text "Clear spectra" -command {clear -all}
+button .clearall -background {gold} -text "Clear" -command {clear -all}
 button .load -background {SkyBlue2} -text "Load configuration" -command {$loadPath invoke}
 button .save -background {SkyBlue2} -text "Save configuration" -command {$savePath invoke} 
-button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton .attonl attachOnline]
+button .attonl -background {DarkOliveGreen2} -text "Attach online" -command [list toggleTheButton2 .attonl onlineSize attachOnline]
 button .attfile -background {DarkOliveGreen2} -text "Attach to file" -command [list toggleTheButton .attfile attachFile]
 button .attfilelist -background {DarkOliveGreen2} -text "Attach list of files" -command [list toggleTheButton .attfilelist attachRunList]
 button .attfilefilt -background {DarkOliveGreen2} -text "Attach filter file" -command [list toggleTheButton .attfilefilt attachFilter]
 button .detach -background {plum3} -text "Detach" -command detach
 button .exit -background {MediumPurple2} -text Exit -command "Exit"
 
-pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .title .source .runno .buffer .exit -side top -fill x 
+pack .spfr .clearall .load .save .attonl .attfile .attfilelist .attfilefilt .detach .np .dc .title .source .runno .buffer .rate .time .exit -side top -fill x 
 
 updateInfo 1000
 trace variable RunState w  UpdateButtons

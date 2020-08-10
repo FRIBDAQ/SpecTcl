@@ -23,8 +23,8 @@ SUBDIRS = Replace \
 					tkcon \
 					compress \
 					docs \
-					scalerWrapper \
 					packaged \
+					scalerWrapper \
 					Python db PyQtGUI
 
 ACLOCAL_AMFLAGS=-I m4

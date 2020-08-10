@@ -1,10 +1,17 @@
-
-FILES =MyParameters.h \
-				MyParameters.cpp \
-				MyParameterMapper.h \
-				MyParameterMapper.cpp \
-				MySpecTclApp.h \
-				MySpecTclApp.cpp
+FILES = MyParameters.h \
+	MyParameters.cpp \
+	MyParameterMapper.h \
+	MyParameterMapper.cpp \
+	MyPipelineData.h \
+	MyPipelineData.cpp \
+	MyParameters2.h \
+	MyParameters2.cpp \
+	MyVariables.h \
+	MyVariables.cpp \
+	MyCalibrator.h \
+	MyCalibrator.cpp \
+	MySpecTclApp.h \
+	MySpecTclApp.cpp
 
 DESTDIR = @prefix@/DDASSkel
 

@@ -39,14 +39,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tcl.h>
 #include <tk.h>
 #include <stdio.h>
+#include "ZMQRDPatternClass.h"
+#include "ThreadAPI.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
-
-
-const UInt_t knWaitTime = 1; // default Ms to wait for file to be readable.
+const UInt_t knWaitTime = 500; // default Ms to wait for file to be readable.
 ULong_t        nWaitTime(knWaitTime);
 
 // Functions for class CTCLRunFileHandler
@@ -103,7 +103,22 @@ CTCLRunFileHandler::operator()()
     ;
 
   // Process data from the file.
+  try {
+    if(ZMQRDClass::getInstance()){
+      if (ZMQRDClass::getInstance()->workDone() == 0) {
+	ThreadAPI::getInstance()->JoinThreads();
+	ZMQRDClass::getInstance()->finish();
+	m_pRun->OnEnd();
+      }
+      else {
+	Set();
+      }
+    }
+  }
+  catch (...) {}
+  
 
+  /*
   const CFile* pSource = m_pRun->getEventSource();
   if(pSource->IsReadable(nWaitTime)) {
     m_pRun->OnBuffer(m_nBufferSize); // If a buffer is available process else.
@@ -111,5 +126,5 @@ CTCLRunFileHandler::operator()()
   else {
     Set();			// Repropagate.
   }
-
+  */
 }

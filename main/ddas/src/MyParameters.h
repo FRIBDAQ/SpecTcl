@@ -1,33 +1,14 @@
-
 #ifndef MYPARAMETERS_H
 #define MYPARAMETERS_H
 
 #include <config.h>
 #include <TreeParameter.h>
 #include <string>
+#include <PipelineData.h>
+#include <vector>
+#include "MyPipelineData.h"
+#include "MyParameters2.h"
 
-
-// The tree-like structure of data will be :
-// 
-//  MyParameters
-//  |
-//  +-- multiplicity
-//  |
-//  +-- ChannelData (chan[0])
-//  |   +-- energy
-//  |   \-- timestamp
-//  |
-//  +-- ChannelData (chan[1])
-//  |   +-- energy
-//  |   \-- timestamp
-//  |
-//  ... (45 more channel data objects)
-//  |
-//  \-- ChannelData (chan[47])
-//      +-- energy
-//      \-- timestamp
-//
-//
 struct ChannelData {
 
   CTreeParameter energy;
@@ -41,29 +22,31 @@ struct ChannelData {
   // rawdata.timestamp.
   //
   // \param name  name of parent in tree structure
+
+  ChannelData();
+  ChannelData(const ChannelData& rhs);
   void Initialize(std::string name);
+  void Reset();
 };
 
 //____________________________________________________________
 // Struct for top-level events
 // 
-//  This contains 48 channels of data because we have 3 modules
-//  in our system, each with 16 channels a piece.
-//
-//  We also want to keep some information for the number of ddas hits
-//  per event (i.e. the multiplicity)
 struct MyParameters {
 
-  ChannelData          chan[48];
+  ChannelData      chan[1000];
   CTreeParameter   multiplicity;
-
-  // Constructor
-  //
-  // This is the root of the tree structure. The name of this
-  // will be used to name the branches of the tree.
-  //
-  // \param name  name of root
+  MyPipelineData   data;
+  MyParameters2    example;
+  
+  // Ctor
   MyParameters(std::string name);
+  // Dtor
+  ~MyParameters(){};
+  // Copy Ctor
+  MyParameters(const MyParameters& rhs);
+
+  void Reset();
 };
 
 #endif

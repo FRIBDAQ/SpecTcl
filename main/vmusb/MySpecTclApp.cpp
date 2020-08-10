@@ -36,6 +36,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CRateCommand.h"
 #include "CRateEventProcessor.h"
 #include "CFitButton.h"
+#include "CMyProcessor.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -68,9 +69,8 @@ elements 1 and 2 and putting the result into element 0.
 void 
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
 { 
-  RegisterEventProcessor(*(new CStackUnpacker), "adc-data");
-  //  RegisterEventProcessor(*(new CRateEventProcessor), "rate-stripchart");
-  
+  RegisterEventProcessor(*(new CStackUnpacker), "vmusb");
+  RegisterEventProcessor(*(new CMyProcessor), "example");
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:

@@ -49,6 +49,7 @@ class CFilterEventProcessor;
 
 class CAnalyzer {
   // Attributes:
+ public:  
   UInt_t          m_nEventThreshold; // Events processed before histogramming.
   UInt_t          m_nParametersInEvent;	// Parameters in an event.
   CEventList      m_EventList;

@@ -166,6 +166,16 @@ Bool_t CEventProcessor::operator()(const Address_t pEvent,
 				   CBufferDecoder& rDecoder) {
   return kfTRUE;
 }
+
+Bool_t CEventProcessor::operator()(const Address_t pEvent,
+                                   CEvent& rEvent,
+                                   CAnalyzer& rAnalyzer,
+                                   CBufferDecoder& rDecoder,
+                                   BufferTranslator& trans,
+                                   long thread) {
+  return kfTRUE;
+}
+
 /*!
    Called whenever an unrecognized buffer type is encountered.
    This is done to allow the user to take application specific 

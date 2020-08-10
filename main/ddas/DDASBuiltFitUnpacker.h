@@ -16,8 +16,8 @@
 */
 
 
-#ifndef DAQ_DDAS_DDASBUILTUNPACKER_H
-#define DAQ_DDAS_DDASBUILTUNPACKER_H
+#ifndef DAQ_DDAS_DDASBUILTFITUNPACKER_H
+#define DAQ_DDAS_DDASBUILTFITUNPACKER_H
 
 #include <config.h>
 #include "FragmentIndex.h"
@@ -66,14 +66,20 @@ namespace DAQ {
      * likely to be an issue in the future unless you try to analyze your
      * system on a computer with a strange architecture.
      */
+
+    typedef std::vector<DDASFitHit> DDASFitHitV;
+
     class CDDASBuiltFitUnpacker : public  CEventProcessor
     {
 
       private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
+        std::vector<int>      m_threadId;
+        std::vector<DDASFitHitV> m_VectorList;
         std::vector<DDASFitHit>  m_channelList;      ///< list of parsed data
         FitParameterMapper*     m_pParameterMapper; ///< the user's mapper
-
+        int max;
+      
       public:
 
         /*! Constructor
@@ -82,12 +88,20 @@ namespace DAQ {
          * \param rParameterMapper  user's mapper (must be dynamically allocated, 
          *                          ownership transfers to class)
          */
-        CDDASBuiltFitUnpacker(const std::set<uint32_t>& validSourceIds, 
-                          FitParameterMapper& rParameterMapper);
+        CDDASBuiltFitUnpacker(const std::set<uint32_t>& validSourceIds);
+
+        /**
+         * Copy constructor
+         *  Note the user must provide a good copy constructor for their parameter
+         * mapper
+        */
+        CDDASBuiltFitUnpacker(const CDDASBuiltFitUnpacker& rhs);
 
         /*! Destructor*/
         ~CDDASBuiltFitUnpacker();
 
+        virtual CDDASBuiltFitUnpacker* clone() { return new CDDASBuiltFitUnpacker(*this); }
+      
         // Setters and getters
         
         /*! \brief Pass in new set of source ids
@@ -113,6 +127,8 @@ namespace DAQ {
          */
         void setParameterMapper(FitParameterMapper& rParameterMapper);
 
+        std::vector<DDASFitHit> copyChannelList(std::vector<DDASFitHit>& chnList);
+      
         /*! Retrieve the active mapper   */
         FitParameterMapper& getParameterMapper() const;
 
@@ -141,18 +157,19 @@ namespace DAQ {
          *
          */
         virtual Bool_t operator()(const Address_t pEvent,
-            CEvent&         rEvent,
-            CAnalyzer&      rAnalyzer,
-            CBufferDecoder& rDecoder);
+				  CEvent&         rEvent,
+				  CAnalyzer&      rAnalyzer,
+				  CBufferDecoder& rDecoder,
+				  BufferTranslator& trans,
+                                  long thread);
 
         // Utility methods
       protected:
         void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,
-                          CAnalyzer& rAnalyzer);
+                          CAnalyzer& rAnalyzer, BufferTranslator& trans);
 
-        Bool_t selectivelyParseData(uint16_t* p16);
-
-        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo);
+        Bool_t selectivelyParseData(uint16_t* p16, std::vector<DDASFitHit>& channellist, long thread);
+        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo, std::vector<DDASFitHit>& channellist, long thread);
     };
 
   } // end DDAS namespace

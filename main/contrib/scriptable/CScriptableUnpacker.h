@@ -99,8 +99,13 @@ public:
     CScriptableUnpacker (std::string CreatorName = std::string("module"),
 			 std::string TopLevelName= std::string("unpack")); //!< Constructor.
     virtual  ~CScriptableUnpacker ( ); //!< Destructor.
+
+    virtual CScriptableUnpacker* clone() { return new CScriptableUnpacker(*this); }
+    DAQ::DDAS::CParameterMapper* m_mapper;
+    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
 private:
-    CScriptableUnpacker (const CScriptableUnpacker& rSource ); //!< Copy construction.
+    //CScriptableUnpacker (const CScriptableUnpacker& rSource ); //!< Copy construction.
     CScriptableUnpacker& operator= (const CScriptableUnpacker& rhs); //!< Assignment.
     int operator== (const CScriptableUnpacker& rhs) const; //!< == comparison.
     int operator!= (const CScriptableUnpacker& rhs) const; //!< != comparison.

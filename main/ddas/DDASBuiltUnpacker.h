@@ -66,14 +66,20 @@ namespace DAQ {
      * likely to be an issue in the future unless you try to analyze your
      * system on a computer with a strange architecture.
      */
+    
+    typedef std::vector<DDASHit> DDASHitV;
+
     class CDDASBuiltUnpacker : public  CEventProcessor
     {
 
       private:
         std::set<uint32_t>    m_sourceIds;        ///< source ids to parse
+        std::vector<int>      m_threadId;
+        std::vector<DDASHitV> m_VectorList;
         std::vector<DDASHit>  m_channelList;      ///< list of parsed data
         CParameterMapper*     m_pParameterMapper; ///< the user's mapper
-
+        int max;
+      
       public:
 
         /*! Constructor
@@ -82,12 +88,20 @@ namespace DAQ {
          * \param rParameterMapper  user's mapper (must be dynamically allocated, 
          *                          ownership transfers to class)
          */
-        CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds, 
-                          CParameterMapper& rParameterMapper);
+        CDDASBuiltUnpacker(const std::set<uint32_t>& validSourceIds);
 
+        /**
+         * Copy constructor
+         *  Note the user must provide a good copy constructor for their parameter
+         * mapper
+         */
+        CDDASBuiltUnpacker(const CDDASBuiltUnpacker& rhs);
+      
         /*! Destructor*/
         ~CDDASBuiltUnpacker();
 
+      virtual CDDASBuiltUnpacker* clone() { return new CDDASBuiltUnpacker(*this); }
+      
         // Setters and getters
         
         /*! \brief Pass in new set of source ids
@@ -113,9 +127,10 @@ namespace DAQ {
          */
         void setParameterMapper(CParameterMapper& rParameterMapper);
 
+        std::vector<DDASHit> copyChannelList(std::vector<DDASHit>& chnList);
+      
         /*! Retrieve the active mapper   */
         CParameterMapper& getParameterMapper() const;
-
         /*! \brief Process the raw data and call user's mapper
          *
          * This is designed to process data downstream from the event builder. The parsing handles
@@ -141,18 +156,21 @@ namespace DAQ {
          *
          */
         virtual Bool_t operator()(const Address_t pEvent,
-            CEvent&         rEvent,
-            CAnalyzer&      rAnalyzer,
-            CBufferDecoder& rDecoder);
+                                  CEvent&         rEvent,
+                                  CAnalyzer&      rAnalyzer,
+                                  CBufferDecoder& rDecoder,
+                                  BufferTranslator& trans,
+                                  long thread);
+
 
         // Utility methods
       protected:
-        void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,
-                          CAnalyzer& rAnalyzer);
+      void setEventSize(const Address_t pEvent, CBufferDecoder& rDecoder,
+			CAnalyzer& rAnalyzer, BufferTranslator& trans);
 
-        Bool_t selectivelyParseData(uint16_t* p16);
+      Bool_t selectivelyParseData(uint16_t* p16, std::vector<DDASHit>& channellist, long thread);
+      Bool_t parseAndStoreFragment(FragmentInfo& fragInfo, std::vector<DDASHit>& channellist, long thread);
 
-        Bool_t parseAndStoreFragment(FragmentInfo& fragInfo);
     };
 
   } // end DDAS namespace

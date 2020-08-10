@@ -11,7 +11,7 @@ libSqlite3pp_la_LDFLAGS=@SQLITE3_LDFLAGS@
 
 libSpecTclDb_la_CXXFLAGS=-I@top_srcdir@/Core @SQLITE3_CFLAGS@ \
 	-I@top_srcdir@/Utility @ROOT_CFLAGS@ @TCL_CPPFLAGS@ \
-	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories \
+	@LIBTCLPLUS_CFLAGS@ -I@top_srcdir@/factories -I@top_srcdir@/ddas \
 	-DTCLLIBS=@prefix@/TclLibs -g
 libSpecTclDb_la_LDFLAGS=libSqlite3pp.la \
 	@builddir@/../Core/libTclGrammerApp.la   \
@@ -31,8 +31,8 @@ include_HEADERS=CDBEvents.h DBEvents.h  \
 
 libSpecTclDbTcl_la_DEPENDENCIES = libSpecTclDb.la libSqlite3pp.la
 libSpecTclDbTcl_la_CXXFLAGS=@SQLITE3_CFLAGS@ -g @TCL_CPPFLAGS@ \
-	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Core \
-	-I@top_srcdir@/Utility -I@top_srcdir@/factories
+	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@ -I@top_srcdir@/Core -I@top_srcdir@/ddas \
+	-I@top_srcdir@/Utility -I@top_srcdir@/factories 
 libSpecTclDbTcl_la_LDFLAGS=libSpecTclDb.la libSqlite3pp.la \
         @builddir@/../Core/libTclGrammerApp.la   \
         @SQLITE3_LDFLAGS@ @ROOT_LDFLAGS@ @LIBTCLPLUS_LDFLAGS@ @ROOT_LDFLAGS@

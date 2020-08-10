@@ -44,12 +44,15 @@
 
 // Include files:
 
+#include "BufferTranslator.h"
 #include <histotypes.h>
 #include <string>
+#include <ParameterMapper.h>
 
 class CAnalyzer;
 class CBufferDecoder;
 class CEvent;
+class CParameterMapper;
 
 class CEventProcessor {
  public:
@@ -58,16 +61,30 @@ class CEventProcessor {
   CEventProcessor(const CEventProcessor& aCEventProcessor); // Copy Constructor.
   virtual ~CEventProcessor(); //Destructor
 
+  // Clone
+  virtual CEventProcessor* clone() = 0;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) = 0;
+  
   // Operators:
   CEventProcessor& operator= (const CEventProcessor& aCEventProcessor); // Assignment operator.
   int operator==(const CEventProcessor& aCEventProcessor) const; // Equality operator.
   int operator!=(const CEventProcessor& aCEventProcessor) const {
     return !(*this == aCEventProcessor);
   }
+
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
-			    CBufferDecoder& rDecoder); // Physics Event.
+			    CBufferDecoder& rDecoder
+			    ); // Physics Event.
+
+  virtual Bool_t operator()(const Address_t pEvent,
+			    CEvent& rEvent,
+			    CAnalyzer& rAnalyzer,
+			    CBufferDecoder& rDecoder,
+			    BufferTranslator& trans,
+			    long thread
+			    ); // Physics Event.  
 
   // Functions:
   virtual Bool_t OnAttach(CAnalyzer& rAnalyzer); // Called on registration.

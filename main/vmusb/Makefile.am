@@ -21,6 +21,7 @@ CV1x90Unpacker.cpp \
 CV977Unpacker.cpp \
 CMTDC32Unpacker.cpp \
 CMQDC32Unpacker.cpp \
+CMyProcessor.cpp \
 LICENCE.cpp \
 MySpecTclApp.cpp 
 
@@ -47,6 +48,7 @@ CV1x90Unpacker.h \
 CV977Unpacker.h \
 CMTDC32Unpacker.h \
 CMQDC32Unpacker.h \
+CMyProcessor.h \
 MySpecTclApp.h
 
 # Removed: 	-I@top_srcdir@/Tape 
@@ -56,6 +58,7 @@ VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core  \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/factories    \
+	-I@top_srcdir@/ddas \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@ @ROOT_CFLAGS@
 

@@ -31,7 +31,7 @@
 #include "CMQDC32Unpacker.h"
 
 #include <Event.h>
-#include <TCLAnalyzer.h>
+#include <ThreadAnalyzer.h>
 #include <Analyzer.h>
 #include <BufferDecoder.h>
 
@@ -116,10 +116,12 @@ Bool_t
 CStackUnpacker::operator()(const Address_t pEvent,
 			   CEvent&         rEvent,
 			   CAnalyzer&      rAnalyzer,
-			   CBufferDecoder& rDecoder)
+			   CBufferDecoder& rDecoder,
+                           BufferTranslator& trans,
+                           long thread)
 {
-  CTclAnalyzer&    analyzer(dynamic_cast<CTclAnalyzer&>(rAnalyzer));
-  TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pEvent);
+  CThreadAnalyzer& analyzer(dynamic_cast<CThreadAnalyzer&>(rAnalyzer));
+  TranslatorPointer<UShort_t> p(trans, pEvent);
   vector<uint16_t> event;
   StackInfo        info;
 
@@ -135,8 +137,6 @@ CStackUnpacker::operator()(const Address_t pEvent,
   // Unpack each module in the stack:
 
   unsigned int offset = 0;
-
-
 
   for (int i = 0; i < myMap.size(); i++) {
     CParamMapCommand::AdcMapping* pMap = myMap[i];
@@ -165,8 +165,6 @@ CStackUnpacker::operator()(const Address_t pEvent,
     return kfFALSE;
   }
  
-
-  
   return kfTRUE;
 
 }

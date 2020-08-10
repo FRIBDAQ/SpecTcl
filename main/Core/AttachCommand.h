@@ -75,7 +75,8 @@ public:
     keTest,
     keList,
     keNull,
-    keNotSwitch
+    keNotSwitch,
+    keCloseThreads    
   };
   typedef CCreator<CBufferDecoder>            CDecoderCreator;
   typedef CExtensibleFactory<CBufferDecoder>  CDecoderFactory;
@@ -119,7 +120,9 @@ public:
 		 long nBytes);
   int AttachNull(CTCLResult& rResult,  const std::string& Connection,
 		 long nBytes);
-
+  int CloseThreads(CTCLResult& rResult,  const std::string& Connection,
+                   long nBytes);
+  
   static void addDecoderType(std::string type, CDecoderCreator* creator);
 protected:
   static void Usage(CTCLResult& rResult);

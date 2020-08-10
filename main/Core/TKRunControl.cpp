@@ -40,13 +40,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tk.h>
 #include <iostream>
 
+#include "ZMQRDPatternClass.h"
+#include "ThreadAPI.h"
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
+//bool isTest = false;
+
 //  Static member initializations:
 
 UInt_t CTKRunControl::m_nDefaultBufferSize=8*kn1K; // Default buffer size.
+
+//double start_time;
 
 // Functions for class CTKRunControl
 
@@ -60,12 +67,23 @@ UInt_t CTKRunControl::m_nDefaultBufferSize=8*kn1K; // Default buffer size.
 void 
 CTKRunControl::Start() 
 {
-// Starts analyzing data.
-// Exceptions:  
+  // Starts analyzing data.
+  // Exceptions:
 
-
+  //  if (!isTest){
+  Tcl_ThreadId tid = CTclGrammerApp::getInstance()->getThread();
+  
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
+  
+  // Let's set the file descriptor before starting all the threads
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->setFd(getEventSource()->getFd());
+  
+  ThreadAPI* api = ThreadAPI::getInstance();
+  api->SetNThreads(NBR_WORKERS);
+  api->CreateThreads();
+
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -97,8 +115,7 @@ CTKRunControl::OnEnd()
   // in our case, we execute the script stored in m_sEndScript
 
   CRunControl::OnEnd();
-
-  cerr << "End file encountered on Data Source\n";
+  cerr << "End encountered on Data Source\n";
   try {				// May need this later when user scripts allowed
     m_pInterp->Eval(m_sEndScript);
   }
@@ -115,7 +132,7 @@ CTKRunControl::OnEnd()
 void
 CTKRunControl::OnBuffer(UInt_t nBytes)
 {
-  if(getRunning())m_FileHandler.Set();		// Re-enable file handler.
+  if(getRunning())m_FileHandler.Set();		// Re-enable file handler.  
+  
   CRunControl::OnBuffer(nBytes); // Note on end of file this will clear().
-
 }

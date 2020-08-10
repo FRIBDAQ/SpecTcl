@@ -10,7 +10,8 @@ libRootInterface_la_SOURCES=TreeBuilder.h TreeBuilder.cpp \
 
 libRootInterface_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
 	-I@top_srcdir@/factories					\
-	@ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
+	-I@top_srcdir@/ddas \
+@ROOT_CFLAGS@ @LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
 
 libRootInterface_la_LIBADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@
 
@@ -33,6 +34,6 @@ unittests_LDADD = libRootInterface_la-TreeBuilder.lo \
 unittests_CXXFLAGS=@CPPUNIT_CFLAGS@ $(ROOT_CFLAGS) -I@top_srcdir@/Core \
 	-I@top_srcdir@/Utility
 
-TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
+
 TESTS=unittests
 

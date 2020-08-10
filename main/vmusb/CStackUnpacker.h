@@ -72,7 +72,10 @@ private:
 public:
   CStackUnpacker();
   virtual ~CStackUnpacker();
-
+  virtual CStackUnpacker* clone() { return new CStackUnpacker(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
   // As we have no object data the default canonicals are just fine for us.
 
   // Virtual overrides.
@@ -81,7 +84,9 @@ public:
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,
 			    CAnalyzer&      rAnalyzer,
-			    CBufferDecoder& rDecoder);
+			    CBufferDecoder& rDecoder,
+                            BufferTranslator& trans,
+                            long thread);
 
   // Utilties:
 

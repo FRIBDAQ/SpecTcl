@@ -9,7 +9,7 @@ libSpecTclPython_la_SOURCES=CPythonCommand.cpp CPythonCommand.h \
 
 
 libSpecTclPython_la_CXXFLAGS=-I@top_srcdir@/Core -I@top_srcdir@/Utility \
-	@PYTHON_CXXFLAGS@ -I@top_srcdir@/factories		\
+	@PYTHON_CXXFLAGS@ -I@top_srcdir@/factories -I@top_srcdir@/ddas \
 	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ -Wno-write-strings
 
 libSpecTclPython_la_LIBADD= @top_builddir@/Core/libTclGrammerApp.la   \

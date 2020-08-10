@@ -53,7 +53,8 @@ libScripted_la_SOURCES =  $(MainSources)
 libScripted_la_CPPFLAGS =   -I@top_srcdir@/Utility \
 			    -I@top_srcdir@/Display \
 			    -I@top_srcdir@/Core \
-			    @TCL_CPPFLAGS@ \
+				-I@top_srcdir@/ddas \
+				@TCL_CPPFLAGS@ \
 			    @TK_CPPFLAGS@ \
 			    -DINSTALLED_IN='"$(prefix)"' \
 			    @XINCLUDES@ \
@@ -107,7 +108,8 @@ ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
 ScriptedSpecTcl_CPPFLAGS =  -I@top_srcdir@/Utility \
 			    -I@top_srcdir@/Display \
 			    -I@top_srcdir@/Core \
-			    @TCL_CPPFLAGS@ \
+				-I@top_srcdir@/ddas \
+				@TCL_CPPFLAGS@ \
 			    @TK_CPPFLAGS@ \
 			    -DINSTALLED_IN='"$(prefix)"' \
 			    @XINCLUDES@ \

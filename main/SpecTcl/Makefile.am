@@ -7,6 +7,7 @@ SpecTcl_SOURCES = MySpecTclApp.cpp  MySpecTclApp.h
 
 SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 		 -I@top_srcdir@/Utility \
+		 -I@top_srcdir@/ddas \
 		 @LIBTCLPLUS_CFLAGS@ \
 		 @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 

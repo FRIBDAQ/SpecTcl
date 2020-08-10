@@ -45,14 +45,10 @@ AC_PROG_LIBTOOL
 
 # PYthon C/C++ extension environment build flags:
 
-
-
-
 PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
 AC_SUBST(PYTHON_CXXFLAGS)
 PYTHON_LDFLAGS=`pkg-config python3 --libs`
 AC_SUBST(PYTHON_LDFLAGS)
-
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O

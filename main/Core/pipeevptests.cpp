@@ -21,6 +21,11 @@ public:
   bool   called;
 public:
   SucceedingEventProcessor() : called(false) {}
+
+  virtual SucceedingEventProcessor* clone() { return new SucceedingEventProcessor(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,
                             CAnalyzer& rAnalyzer,
@@ -76,6 +81,10 @@ public:
   bool called;
 public:
   FailingEventProcessor() : called(false) {}
+  virtual FailingEventProcessor* clone() { return new FailingEventProcessor(*this); }
+  DAQ::DDAS::CParameterMapper* m_mapper;
+  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,
                             CAnalyzer& rAnalyzer,

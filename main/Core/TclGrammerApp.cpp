@@ -100,7 +100,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdexcept>
 #include <memory>
 
-
+#include "ZMQRDPatternClass.h"
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -127,9 +127,6 @@ static const char* printVersionScript =
 
 static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome TclLibs]\n";
 
-
-
-
 // File scoped unbound variables:
 
 int SpecTclArgc;
@@ -137,6 +134,8 @@ char** SpecTclArgv;
 
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
+static const UInt_t knProcs          = 10;
+static const UInt_t knChunk          = 1024*1024*16;
 static const UInt_t knDisplaySize    = 8;
 
 static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
@@ -145,6 +144,8 @@ static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 static const char* ProtectedVariables[] = {
+  "NumberOfThread",
+  //  "DataChunkSize",  // commenting this allows the TCLVariable to be modified later on					   
   "DisplayMegabytes",
   "ParameterCount",
   "EventListSize",
@@ -250,6 +251,8 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
    into the program called SpecTcl.
 */
 CTclGrammerApp::CTclGrammerApp() :
+  m_nProcs(knProcs),
+  m_nChunk(knChunk),
   m_nDisplaySize(knDisplaySize),
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
@@ -265,13 +268,16 @@ CTclGrammerApp::CTclGrammerApp() :
   m_pDataSourcePackage(0),
   m_pGatePackage(0),
   m_RCFile(string("tcl_rcFilename"),            kfFALSE),
+  m_TclnProcs(string("NumberOfThreads"),        kfFALSE), // number of workers
+  m_TclDataChunk(string("DataChunkSize"),       kfFALSE), // data chunk size to transfer
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
   m_TclDisplayType(string("DisplayType"),       kfFALSE),
   m_pMultiTestSource((CMultiTestSource*)kpNULL),
   m_nUpdateRate(1000),                              // Seconds between periodic events.
-  m_pGatingObserver(NULL)
+  m_pGatingObserver(NULL),
+  m_nMainThread(Tcl_GetCurrentThread())  
 {
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
@@ -309,10 +315,18 @@ CTclGrammerApp::~CTclGrammerApp() {
 void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
 					    const char* name) {
   
-  SpecTcl* api = SpecTcl::getInstance();
-  api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
-  
+  //  SpecTcl* api = SpecTcl::getInstance();
+  //  api->AddEventProcessor(rEventProcessor, name);  // Auto registers.
+
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->addEventProcessor(rEventProcessor, name);  
 }  
+
+void CTclGrammerApp::RegisterData(void* map)
+{
+  ZMQRDClass* zmqAPI = ZMQRDClass::getInstance();
+  zmqAPI->RegisterData(map);
+}
 
 //  Function:
 //    void BindTCLVariables(CTCLInterpreter& rInterp)
@@ -332,6 +346,8 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   // parameter:
   //
   // m_RCFile         - Name of early init file.
+  // m_TclnProcs      - Number of working threads
+  // m_TclDataChunk   - Data chunk size to analyze
   // m_TclDisplaySize - Number of megabytes of display storage.
   // m_ParameterCount - Guess at largest parameter number which will be stuffed
   // m_TclEventListSize - Number of event batched for analysis.
@@ -356,6 +372,8 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   HomeDir.Set((char*)kpInstalledBase);
 #endif
   m_RCFile.Bind(rInterp);
+  m_TclnProcs.Bind(rInterp);
+  m_TclDataChunk.Bind(rInterp);
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
@@ -473,6 +491,8 @@ void CTclGrammerApp::SetLimits() {
   //   m_nListSize       - # events in a histogramming batch (EventListSize).
 
   // By this time the initial RC files have been run.
+  UpdateUInt(m_TclnProcs,   m_nProcs);
+  UpdateULong(m_TclDataChunk,   m_nChunk);
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
@@ -909,7 +929,6 @@ int CTclGrammerApp::operator()() {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
-
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);
 
@@ -987,10 +1006,9 @@ int CTclGrammerApp::operator()() {
 
   //  Setup the user's analysis pipeline:
 
-
   CreateAnalysisPipeline(*gpAnalyzer);
   CTreeParameter::BindParameters();           // Needed by treeparameter.
-
+  CTreeParameter::InitializeEventList();      // Needed for threaded event lists
   
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely
@@ -998,17 +1016,17 @@ int CTclGrammerApp::operator()() {
   SourceFunctionalScripts(*gpInterpreter);
   
   // Now that SpecTcl is essentially set up, we can initialize the analyzer
-  
+  ZMQRDClass::getInstance()->OnInitialize();
+  /*
   SpecTcl*      pApi      = SpecTcl::getInstance();
   CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
   pAnalyzer->OnInitialize();
+  */
   
   // Set up the first incantaion of TimedUpdates.
   
   Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
 
-
-  
   // Additional credits.
 
   cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
@@ -1063,6 +1081,25 @@ void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
       rValue = nResult;
     }
     else {			// Value not unsigned complain and no update
+      cerr << "The value of the Tcl variable " << rVar.getVariableName();
+      cerr << " is " << pValue;
+      cerr << " which does not decode to an unsigned int.\n";
+      cerr << "SpecTcl will ignore this value and use its internal default.\n";
+      cerr.flush();
+    }
+  }
+  // No update.
+}
+
+void CTclGrammerApp::UpdateULong(CTCLVariable& rVar, uint64_t& rValue) {
+  uint64_t nResult;
+
+  const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));
+  if(pValue) {
+    if(sscanf(pValue, "%uld", &nResult) > 0) {
+      rValue = nResult;
+    }
+    else {                      // Value not unsigned complain and no update
       cerr << "The value of the Tcl variable " << rVar.getVariableName();
       cerr << " is " << pValue;
       cerr << " which does not decode to an unsigned int.\n";
