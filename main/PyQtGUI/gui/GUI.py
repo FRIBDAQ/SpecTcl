@@ -48,6 +48,7 @@ import numpy as np
 import CPyConverter as cpy
 
 import algo_factory
+import fit_factory
 
 # import widgets
 from MenuGUI import Menu
@@ -61,10 +62,11 @@ DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, factory, *args, **kwargs):
+    def __init__(self, factory, fit_factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.factory = factory
+        self.fit_factory = fit_factory        
         
         self.setWindowTitle("Project Robot Alba")
         '''
@@ -230,6 +232,8 @@ class MainWindow(QMainWindow):
 
         # initialize factory from algo_creator
         self.factory.initialize(self.clPopup.clusterAlgo)
+        # initialize factory from fit_creator
+        self.fit_factory.initialize(self.wConf.fit_list)
         
         #################
         # Signals
@@ -2208,7 +2212,7 @@ class MainWindow(QMainWindow):
     ############################
     ## Fitting functions
     ############################
-    
+    '''
     def gauss(self, x, amplitude, mean, standard_deviation):
         return amplitude*np.exp(-(x-mean)**2.0 / (2*standard_deviation**2))
 
@@ -2233,7 +2237,7 @@ class MainWindow(QMainWindow):
         g = self.gauss(x, amplitude, mean, standard_deviation)
         pol2 = self.pol1(x,p0,p1,p2)
         return f*g+(1-f)*pol2        
-    
+    '''
     ############################
     ## end of Fitting functions
     ############################    
@@ -2249,7 +2253,7 @@ class MainWindow(QMainWindow):
         if self.wConf.fit_range_max.text():            
             right = int(self.wConf.fit_range_max.text())            
         return left, right
-
+    '''
     def createInitPars(self, fit_func, lst):
         # gauss
         ax = plt.gca()
@@ -2301,7 +2305,7 @@ class MainWindow(QMainWindow):
                     self.createInitPars(f, lst)
         else:
             self.createInitPars(fit_func, lst)
-                    
+
     def fittingFunction(self, x, y, xmin, xmax):
         popt = None
         pcov = None
@@ -2349,7 +2353,8 @@ class MainWindow(QMainWindow):
         else:
             print("fittedValues--> TBD")
         return y_fit
-            
+    '''
+    
     def fit(self):
         x = []
         y = []
@@ -2362,13 +2367,17 @@ class MainWindow(QMainWindow):
         else:
             ax = self.select_plot(self.selected_plot_index)
 
+        config = self.fit_factory._configs.get(fit_funct)
+        print("Fit function", config)
+        fit = self.fit_factory.create(fit_funct, **config)
+
         # remove any previous fit on plot
         try:
             self.fitln.remove()
         except:
             pass
         if histo_name == "":
-            QMessageBox.about(self, "Warning", "The shared memory is still empty...")
+            QMessageBox.about(self, "Warning", "Histogram not existing. The shared memory is still empty...")
         else:
             if self.wConf.button1D.isChecked():
                 # input points for fitting function
@@ -2377,6 +2386,11 @@ class MainWindow(QMainWindow):
                 df = self.spectrum_list.loc[select]
                 ytmp = df.iloc[0]['data']
                 xmin, xmax = self.axislimits(ax)
+                if self.wConf.fit_range_min.text():
+                    xmin = float(self.wConf.fit_range_min.text())
+                if self.wConf.fit_range_max.text():
+                    xmax = float(self.wConf.fit_range_max.text())
+                print("Sub range:", xmin, xmax)
                 # create new tmp list with subrange for fitting
                 for i in range(len(xtmp)):
                     if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -2384,21 +2398,12 @@ class MainWindow(QMainWindow):
                         y.append(ytmp[i])
                 x = np.array(x)
                 y = np.array(y)
-                npoints = 10000
-                popt, pcov = self.fittingFunction(x,y,xmin,xmax)
                 try:
-                    x_fit = np.linspace(x[0],x[-1],npoints)
-                    y_fit = self.fittedValues(x_fit, popt)
-                    self.fitln, = ax.plot(x_fit,y_fit, 'r-')
-                    self.wConf.fit_results.append(fit_funct)
-                    for i in range(len(popt)):
-                        s = 'Par['+str(i)+']: '+str(round(popt[i],3))+'+/-'+str(round(pcov[i][i],3))
-                        self.wConf.fit_results.append(s)
+                    self.fitln = fit.start(x, y, xmin, xmax, ax, self.wConf.fit_results)
                 except:
                     pass
             else:
-                print("Please use the Clustering2D panel!")                
-                
+                print("2D fitting is not implemented")                
 
         self.wPlot.canvas.draw()
 
