@@ -925,52 +925,44 @@ class MainWindow(QMainWindow):
             index_s_lst = [i for i, e in enumerate(lst_all) if e == "s"]
             # index contour gates
             index_c_lst = [i for i, e in enumerate(lst_all) if e == "c"]
+            # index band gates
+            index_b_lst = [i for i, e in enumerate(lst_all) if e == "b"]
+            # index gamma slice gates
+            index_gs_lst = [i for i, e in enumerate(lst_all) if e == "gs"]
+            # index gamma contour gates
+            index_gc_lst = [i for i, e in enumerate(lst_all) if e == "gc"]
+            # index gamma band gates
+            index_gb_lst = [i for i, e in enumerate(lst_all) if e == "gb"]                        
 
             print("index_s_lst", index_s_lst)
-            print("index_c_lst", index_c_lst)            
+            print("index_c_lst", index_c_lst)
+            print("index_b_lst", index_b_lst)
+            print("index_gs_lst", index_gs_lst)
+            print("index_gc_lst", index_gc_lst)
+            print("index_gb_lst", index_gb_lst)                        
             
-            if self.checkVersion(httplib2.__version__) < self.checkVersion("0.10"):
-                while len(lst_all) != 0:
-                    if min(index_s_lst) < min(index_c_lst):
-                        ll.append(lst_all[:5])
-                        del lst_all[:5]
-                        s_list_id = index_s_lst.index(min(index_s_lst))
-                        index_s_lst.pop(s_list_id)
-                        if len(index_s_lst) == 0:
-                            index_s_lst.insert(s_list_id,999)
-                    elif min(index_c_lst) < min(index_s_lst):
-                        ll.append(lst_all[:4])
-                        del lst_all[:4]
-                        c_list_id = index_c_lst.index(min(index_c_lst))
-                        index_c_lst.pop(c_list_id)
-                        if len(index_c_lst) == 0:
-                            index_c_lst.insert(c_list_id,999)                        
-                    else:
-                        break    
-                            
-                # loop over list of gate
-                for i in ll:
-                    # loop over gate details
-                    tmp = []
-                    for j in i:
-                        isString = isinstance(j, str)
-                        if (isString and len(j) > 1):
-                            lst_name.append(j)
-                        else:
-                            tmp.append(j)
-                    lst_value.append(tmp)
-                        
-            else:
-                # adding slice gates
-                for i in range(len(index_s_lst)):
-                    ll.append(lst_all[index_s_lst[i]-1:index_s_lst[i]+4])
-                # adding contour gates
-                for i in range(len(index_c_lst)):
-                    ll.append(lst_all[index_c_lst[i]-1:index_c_lst[i]+3])
-
-                for lst in ll:
-                    lst_name.append(lst[0])
-                    lst_value.append(lst[1:])
+            # adding slice gates
+            for i in range(len(index_s_lst)):
+                ll.append(lst_all[index_s_lst[i]-1:index_s_lst[i]+4])
+            # adding contour gates
+            for i in range(len(index_c_lst)):
+                ll.append(lst_all[index_c_lst[i]-1:index_c_lst[i]+3])
+            # adding band gates
+            for i in range(len(index_b_lst)):
+                ll.append(lst_all[index_b_lst[i]-1:index_b_lst[i]+3])
+            # adding gamma slice gates
+            for i in range(len(index_gs_lst)):
+                ll.append(lst_all[index_gs_lst[i]-1:index_gs_lst[i]+4])
+            # adding gamma contour gates
+            for i in range(len(index_gc_lst)):
+                ll.append(lst_all[index_gc_lst[i]-1:index_gc_lst[i]+3])
+            # adding gamma band gates
+            for i in range(len(index_gb_lst)):
+                ll.append(lst_all[index_gb_lst[i]-1:index_gb_lst[i]+3])
+                
+            for lst in ll:
+                lst_name.append(lst[0])
+                lst_value.append(lst[1:])
 
             ziplst = zip(lst_name, lst_value)
             self.gate_dict = dict(ziplst)
