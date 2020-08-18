@@ -16,8 +16,12 @@ class Configuration(QWidget):
             self.oldrow = 0
             self.oldcol = 0
 
+            l = QVBoxLayout()
+            l.addWidget(self.create_typeBox())
+            l.addWidget(self.create_gateTypeBox())
+            
             layout = QHBoxLayout()
-            layout.addWidget(self.create_typeBox())
+            layout.addLayout(l)
             layout.addWidget(self.create_defBox())
             layout.addWidget(self.create_algoBox())            
             layout.addWidget(self.create_lstBox())
@@ -41,10 +45,38 @@ class Configuration(QWidget):
         typelayout.addStretch(1)
         
         spectrumTypeBox.setLayout(typelayout)
-        spectrumTypeBox.setMaximumHeight(self.width)
+        spectrumTypeBox.setMaximumHeight(0.5*self.width)
             
         return spectrumTypeBox
-    
+
+    def create_gateTypeBox(self):
+        gateTypeBox = QGroupBox("Gate Type")
+        self.s = QRadioButton("Slice")
+        self.c = QRadioButton("Contour")
+        self.b = QRadioButton("Band")
+        self.gs = QRadioButton("Gamma Slice")
+        self.gc = QRadioButton("Gamma Contour")
+        self.gb = QRadioButton("Gamma Band")        
+        self.buttonGateTypeDict = { "s": self.s, "c": self.c, "b": self.b, "gs": self.gs, "gc": self.gc, "gb": self.gb}
+        
+        layout = QGridLayout()
+        layout.addWidget(self.s, 0, 0)
+        layout.addWidget(self.c, 0, 1)
+        layout.addWidget(self.b, 0, 2)
+        layout.addWidget(self.gs, 1, 0)
+        layout.addWidget(self.gc, 1, 1)
+        layout.addWidget(self.gb, 1, 2)                
+
+        gateTypeBox.setLayout(layout)
+        gateTypeBox.setMaximumHeight(0.5*self.width)
+
+        return gateTypeBox
+
+    def resetGateType(self):
+        lst_btn = list(self.buttonGateTypeDict.values())
+        for button in lst_btn:
+            button.setChecked(False)
+        
     def create_defBox(self):
         spectrumCreateBox = QGroupBox("Spectrum Definition")
                 

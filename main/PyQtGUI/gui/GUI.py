@@ -12,6 +12,8 @@ import threading
 import itertools
 import time
 import multiprocessing
+import math
+import re
 
 from sklearn import metrics
 from sklearn.cluster import KMeans
@@ -36,6 +38,7 @@ from scipy.signal import find_peaks
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -62,12 +65,15 @@ DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
+
+    stop_signal = pyqtSignal()
+
     def __init__(self, factory, fit_factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.factory = factory
         self.fit_factory = fit_factory        
-        
+
         self.setWindowTitle("Project Robot Alba")
         '''
         self.setWindowFlags(
@@ -92,6 +98,7 @@ class MainWindow(QMainWindow):
 
         # dictionaries for parameters
         self.param_list = {}
+        self.nparams = 0
         # dataframe for spectra
         self.spectrum_list = pd.DataFrame()
 
@@ -144,6 +151,9 @@ class MainWindow(QMainWindow):
         
         # dictionary for spectcl gates
         self.gate_dict = {}
+        self.gateTypeDict = {}
+        self.gateType = ""
+        
         #dictionary for gates - key:gate name entry: line (with label)
         self.dict_region = {}
         self.counter = 0
@@ -250,6 +260,7 @@ class MainWindow(QMainWindow):
         self.wTop.loadButton.clicked.connect(self.loadGeo)
 
         self.wTop.createGate.clicked.connect(self.createGate)
+        self.wTop.createGate.setEnabled(False)
         self.wTop.editGate.clicked.connect(self.editGate)
         self.wTop.editGate.setEnabled(False)
         self.wTop.editGate.setToolTip("Key bindings for editing a gate:\n"
@@ -379,6 +390,7 @@ class MainWindow(QMainWindow):
             self.wPlot.canvas.draw()
         else:
             print("inside on_singleclick - ZOOM true")            
+            self.wTop.createGate.setEnabled(True)
             self.wTop.editGate.setEnabled(True)
             self.isSelected = False
             if self.toCreateGate == True:
@@ -401,6 +413,7 @@ class MainWindow(QMainWindow):
         global t
         # select plot
         if self.isZoomed == False:
+            self.wTop.createGate.setEnabled(False)            
             self.wTop.editGate.setEnabled(False)
             self.clickToIndex(self.selected_plot_index)
             # clear existing figure
@@ -411,6 +424,7 @@ class MainWindow(QMainWindow):
                 print("double click try zoom")
                 # we are in zoomed mode
                 self.isZoomed = True
+                self.wTop.createGate.setEnabled(True)                
                 self.wTop.editGate.setEnabled(True)                
                 self.add(self.selected_plot_index) # this creates the histogram axes
                 self.wPlot.canvas.draw() # this drawing command creates the renderer 
@@ -461,6 +475,7 @@ class MainWindow(QMainWindow):
                 self.toCreateGate = False
                 self.timer.start()
             else:
+                self.wTop.createGate.setEnabled(False)                
                 self.wTop.editGate.setEnabled(False)
                 #draw the back the original canvas
                 self.wPlot.figure.clear()
@@ -748,11 +763,18 @@ class MainWindow(QMainWindow):
         else:
             print("Operation error: ", er)
             print(reply.errorString())
-            
+
+    def incrementNumbers(self, parameter, new_number):
+        number = (re.findall(r'\d+',parameter))[0]
+        out = parameter.replace(number,str(new_number).zfill(int(math.log10(self.nparams))+1))
+        return out
+        
     def formatLinetoShMem(self, lst):
         server = "http://"+self.wTop.server.text()
         reqStr = server + "/spectcl/gate/edit"
         reqStr += "?name=" + self.wTop.listGate.currentText()
+        self.nparams = int(self.getParameterCount())+1
+
         if self.wConf.button1D.isChecked():
             x, y = map(list, zip(*lst))
             x, y = map(list, zip(*x))
@@ -760,13 +782,26 @@ class MainWindow(QMainWindow):
             high = max(x)
             reqStr += "&high=" + str(high)
             reqStr += "&low="  + str(low)
-            reqStr += "&type=s"
-            reqStr += "&parameter=" + self.wConf.listParams[0].currentText()
+            if self.gateType == "s":
+                reqStr += "&type=s"
+                reqStr += "&parameter=" + self.wConf.listParams[0].currentText()
+            else:
+                reqStr += "&type=gs"                
+                param_str = self.wConf.listParams[0].currentText()
+                for i in range(self.nparams):
+                    new_param_str = self.incrementNumbers(param_str, i)
+                    reqStr += "&parameter=" + new_param_str
             self.sendRequest(reqStr)
         else:
-            reqStr += "&type=c"
-            reqStr += "&xparameter=" + self.wConf.listParams[0].currentText()
-            reqStr += "&yparameter=" + self.wConf.listParams[1].currentText()            
+            reqStr += "&type="+self.gateType
+            if self.gateType == "c" or self.gateType == "b":
+                reqStr += "&xparameter=" + self.wConf.listParams[0].currentText()
+                reqStr += "&yparameter=" + self.wConf.listParams[1].currentText()            
+            else:
+                param_str = self.wConf.listParams[0].currentText()
+                for i in range(self.nparams):
+                    new_param_str = self.incrementNumbers(param_str, i)
+                    reqStr += "&parameter=" + new_param_str                
             
             points = lst.get_xydata()
             points = points[:-1]
@@ -774,7 +809,7 @@ class MainWindow(QMainWindow):
                 reqStr += "&xcoord("+str(index)+")="+str(points[index][0])
                 reqStr += "&ycoord("+str(index)+")="+str(points[index][1])
             self.sendRequest(reqStr)            
-
+        
     def formatShMemToLine(self, name):
         lst_tmp = []
         x = []
@@ -805,6 +840,7 @@ class MainWindow(QMainWindow):
                     else:
                         print("Not implemented yet")                        
                 else:
+                    self.gateTypeDict[key] = value[0]
                     if value[0] == "s":
                         for i in range(2):
                             l = mlines.Line2D([value[i+2],value[i+2]], [self.ylow,self.yhigh])
@@ -826,6 +862,7 @@ class MainWindow(QMainWindow):
 
         # adding gate to dictionary of regions
         self.dict_region[name] = lst_tmp
+        print("gate type dict", self.gateTypeDict)
         
     ###############################################
     # end of connection to SpecTcl REST interface
@@ -861,10 +898,19 @@ class MainWindow(QMainWindow):
         except:
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
+    # get parameter count
+    def getParameterCount(self):
+        lst_param = list(self.param_list.values())
+        lst_param = [x for x in lst_param if any(c.isdigit() for c in x)]
+        res = max(list(map(lambda sub:int(''.join([ele for ele in sub if ele.isnumeric()])), lst_param)))
+        return res
+        
     # update and create parameter list
     def update_parameter_list(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/parameter/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
             tmp = json.loads(tmpl.decode())
             tmpid = []
             tmpname = []
@@ -889,7 +935,9 @@ class MainWindow(QMainWindow):
     # update and create spectrum list
     def update_spectrum_parameters(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/spectrum/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
             tmp = json.loads(tmpl.decode())
             tmppar = []
             for dic in tmp['detail']:
@@ -910,7 +958,9 @@ class MainWindow(QMainWindow):
     # update and create gate list
     def update_gate_list(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/gate/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/gate/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/gate/list")[1]
             tmp = json.loads(tmpl.decode())
             lst_name = []
             lst_value = []
@@ -1482,7 +1532,7 @@ class MainWindow(QMainWindow):
     # options for clustering 2D
     def clusterPopup(self):
         self.clPopup.show()
-        
+
     # check histogram dimension from GUI
     def check_histogram(self):
         if self.wConf.button1D.isChecked():
@@ -1706,10 +1756,11 @@ class MainWindow(QMainWindow):
         # check for histogram existance
         name = self.wConf.histo_list.currentText()
         gate_name = self.wTop.listGate.currentText()
+        gate_parameter = self.wConf.listParams[0].currentText()
+        
         if (name==""):
             return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
         else:
-            gate_name = "default_gate_"+str(self.counter)
             # creating entry in combobox if it doesn't exist
             allItems = [self.wTop.listGate.itemText(i) for i in range(self.wTop.listGate.count())]
             result = gate_name in allItems
@@ -1717,14 +1768,34 @@ class MainWindow(QMainWindow):
                 self.counter += 1
                 gate_name = "default_gate_"+str(self.counter)
                 result = gate_name in allItems
-                
+
+            # gate name
             text, okPressed = QInputDialog.getText(self, "Gate name", "Please choose a name for the gate:", QLineEdit.Normal, gate_name)
             if okPressed:
                 gate_name = text
                 self.wTop.listGate.addItem(gate_name)
                 # update boxes
                 self.wTop.listGate.setCurrentText(gate_name)
-            
+
+            # gate type
+            items = ("s", "c", "b", "gs", "gc", "gb")
+            item, okPressed = QInputDialog.getItem(self, "Gate type", "Please choose a type for the gate:", items, 0, False)
+            if okPressed:
+                self.gateType = item
+                
+                # gate parameters for gamma gates
+                if self.gateType == "gs" or self.gateType == "gc" or self.gateType == "gb":
+                    text, okPressed = QInputDialog.getText(self, "Gate parameter", "Please choose a parameter for the gamma gate:", QLineEdit.Normal, gate_parameter) 
+                    if okPressed:
+                        gate_parameter = text
+
+        # adding gate
+        self.gateTypeDict[gate_name] = self.gateType
+        print(self.gateTypeDict)
+        self.wConf.resetGateType()
+        (self.wConf.buttonGateTypeDict[self.gateType]).setChecked(True)
+                
+
         self.toCreateGate = True;
         self.createRegion()
         self.polygon = self.createPolygon()
@@ -1868,6 +1939,7 @@ class MainWindow(QMainWindow):
         if self.wTop.slider.value() != 0:
             self.timer.stop() 
 
+        self.wConf.resetGateType()
         hname = self.wConf.spectrum_name.text()
         # remove lines
         for k1 in self.artist_dict:
@@ -1996,15 +2068,18 @@ class MainWindow(QMainWindow):
             if self.selected_plot_index is not None:
                 name = self.wTop.listGate.currentText()
                 key = self.get_histo_name(self.selected_plot_index)
+                gtype = self.gateTypeDict[name]
+                self.wConf.resetGateType()
+                (self.wConf.buttonGateTypeDict[gtype]).setChecked(True)
                 if self.isZoomed:
                     a = plt.gca()
                 else:
                     a = self.select_plot(self.selected_plot_index)
                 if self.wConf.button1D.isChecked():
-                    print("does the gate", name, " exists in", key, "?", self.existGate(key))
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                     self.plot1DGate(a, key, name)
                 else:
-                    print("does the gate", name, " exists in", key, "?", self.existGate(key))
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                     self.plot2DGate(a, key, name)
                     
         self.wPlot.canvas.draw()
