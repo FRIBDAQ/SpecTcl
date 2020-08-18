@@ -74,7 +74,9 @@ snit::widget spectrumAxis {
 
 	# Top row of stuff:
 
-	ttk::menubutton $win.parametermenubutton -text "Parameter" -menu $win.parametermenu -takefocus 0
+	#ttk::menubutton $win.parametermenubutton -text "Parameter" -menu $win.parametermenu -takefocus 0
+    ttk::button      $win.parametermenubutton -text "Parameter" \
+                -takefocus 0 -command [mymethod _postParameterMenu]
 	treeMenu        $win.parametermenu -command [mymethod Dispatch -command %L %N]
 	ttk::label      $win.lowlabel      -text Low
 	ttk::label      $win.highlabel     -text High
@@ -188,5 +190,55 @@ snit::widget spectrumAxis {
         }
         return [string is double $value]
     }
+    #----------------------------------------------------------------
+    #  Private utility methods/procs
+    #
+    
+    ##
+    # _postParameterMenu
+    #   If there are parameters we post the parameter selection menu.
+    #   if not, we popup a dialog indicating there are no parameters
+    #   to choose from.
+    method _postParameterMenu {} {
+        if {[llength $options(-parameters)] == 0} {
+            tk_messageBox -type ok -icon info -title "No parameters" \
+                -message {No parameters have been defined}
+        } else {
+            #  To post we need the widget position and shape
+            #  We assume the x/y are at the top left of the menubutton:
+            
+            set postxy [bottomLeft $win.parametermenubutton]
+            $win.parametermenu post [lindex $postxy 0] [lindex $postxy 1]
+        }
+    }
+    ##
+    # bottomLeft
+    #  Given the gemoetry string that describes the menu button, we
+    #  compute where to post the menu.  THe menu will be posted below
+    #  the button left justified with the button.
+    #
+    # @param widget - widget we want the info form.
+    # @return list - 2 element list of the x/y coordinates at which to post
+    #               the menu.
+    # @note when requesting the geometry for anything other than a top level,
+    #       we are getting the position relative to the container.
+    #       therefore all we can trust are the dimensions.
+    #       fortunately rootx, rooty will give us the upper left corner
+    #       of the widget in screen coordinates.
+        
+    
+    proc bottomLeft {widget} {
+        set x [winfo rootx $widget]
+        set y [winfo rooty $widget]
+        
+        set geometry [winfo geometry $widget]
+        set geolist  [split $geometry "x+"]
+        set height   [lindex $geolist 1];   # WidxHt+x+h.
+        
+        set y [expr {$y + $height}]
+        
+        return [list $x $y]
+    }
+
     
 }

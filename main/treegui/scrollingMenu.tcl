@@ -63,7 +63,7 @@ snit::widgetadaptor scrollingMenu  {
 
 
     constructor args {
-	installhull using menu -postcommand [mymethod _checkEmpty]
+	installhull using menu
 
 	$self configurelist $args
     }
@@ -112,21 +112,6 @@ snit::widgetadaptor scrollingMenu  {
     #
     # Private methods:
 
-    # _checkEmpty
-    #
-    #   Called in response to a post request. Note that the menu is not yet
-    #   posted.
-    #   -  If there are no items, pop up a message box waring that's the case.
-    #   -  If there are no items, schedule an unpost.
-    #  This is addressing:  daqdev/SpecTcl#389
-    #
-    method _checkEmpty {} {
-        if {$itemCount == 0} {
-            after 500 $win unpost;              #Schedule the unpost.
-            tk_messageBox -type ok -icon warning -title {Empty menu} \
-                -message "Pull down menu has no items to choose from"
-        }
-    }
     
     ##
     # This is called when it's time to setup scrolling for the menu.
