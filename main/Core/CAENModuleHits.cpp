@@ -31,6 +31,22 @@ CAENModuleHits::CAENModuleHits(int sid) : m_nSourceId(sid)
 {
     m_Hits.reserve(16);            // Current module size.
 }
+/**
+ * copy constructor
+ */
+CAENModuleHits::CAENModuleHits(const CAENModuleHits& rhs)
+{
+    copyIn(rhs);
+}
+/**
+ * assignment
+ */
+CAENModuleHits&
+CAENModuleHits::operator=(const CAENModuleHits& rhs)
+{
+    if(this != &rhs) copyIn(rhs);
+    return *this;
+}
 
 /**
  * destructor
@@ -87,3 +103,15 @@ CAENModuleHits::getSourceId() const
 {
     return m_nSourceId;
 }
+ /////////////////////// private methods ///////////
+ 
+ /**
+  * copyIn
+  *    Copy contents from another object.
+  */
+ void
+ CAENModuleHits::copyIn(const CAENModuleHits& rhs)
+ {
+    m_nSourceId = rhs.m_nSourceId;
+    m_Hits       = rhs.m_Hits;
+ }

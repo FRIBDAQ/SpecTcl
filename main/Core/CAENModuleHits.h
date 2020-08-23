@@ -36,13 +36,17 @@ private:
     int                       m_nSourceId;
     std::vector<CAENHit*>     m_Hits;
 public:
-    CAENModuleHits(int sid);
+    CAENModuleHits(int sid=0);
+    CAENModuleHits(const CAENModuleHits& rhs);
+    CAENModuleHits& operator=(const CAENModuleHits& rhs);
+    
     virtual ~CAENModuleHits();
     void clear();
     void addHit(CAENHit* pHit);
     const std::vector<CAENHit*> getHits() const;
     int getSourceId() const;
-    
+private:
+    void copyIn(const CAENModuleHits& rhs);
 };
 
 #endif
