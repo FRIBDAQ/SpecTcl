@@ -77,6 +77,18 @@ public:
 };
 
 /**
+ * This seems senseless but it's a mechanism to support
+ * determining if a mapper is for PHA firmware.  We have to supply
+ * at least one virtual method *implementation* for dynamic cast to
+ * work.
+ */
+
+class CAENPHAMapper {
+public:
+    virtual void assignParameters(const CAENModuleHits& module) {}
+};
+
+/**
  * @class CAENPHAArrayMapper
  *   This pre-built parameter mapper takes four parameter names 
  *   and builds four tree parameter arrays for them indexed by
@@ -87,7 +99,7 @@ public:
  *           you need to histogram them -- after all you may not
  *           actually have enabled extra1 and extra2.
  */
-class CAENPHAArrayMapper : public CAENParameterMap
+class CAENPHAArrayMapper : public CAENPHAMapper
 {
 protected:
     CTreeParameterArray* m_pTimes;
@@ -116,7 +128,7 @@ public:
  *       - Empty parameter names indicate an unused or uninteresting
  *         value.
  */
-class CAENPHAParameterMapper : public CAENParameterMap
+class CAENPHAParameterMapper : public CAENPHAMapper
 {
 protected:
     std::vector<CTreeParameter*> m_Times;
@@ -134,6 +146,15 @@ public:
     
     virtual void assignParameters(const CAENModuleHits& module);
 };
+
+// Similarly this base class allows us to determin if a an object
+// is a mapper for PSD
+
+class CAENPSDMapper {
+public:
+    virtual void assignParameters(const CAENModuleHits& module) {}
+};
+
 /**
  * @class CAENPSDArrayMapper
  *    Same as for CAENPHAArrayMapper but we're unpacking
@@ -143,7 +164,7 @@ public:
  *    internal implementation details about how the
  *    PUR flag parameter is handled.
  */
-class CAENPSDArrayMapper : public CAENParameterMap
+class CAENPSDArrayMapper : public CAENPSDMapper
 {
 protected:
     CTreeParameterArray* m_pShortGate;
@@ -169,7 +190,7 @@ public:
  *    keep parameters from being assigned values by
  *    the mappers.
  */
-class CAENPSDParameterMapper : public CAENParameterMap
+class CAENPSDParameterMapper : public CAENPSDMapper
 {
 protected:
     std::vector<CTreeParameter*> m_shortGate;
