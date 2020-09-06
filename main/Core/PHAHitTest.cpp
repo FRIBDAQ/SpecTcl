@@ -27,6 +27,7 @@ class CAENPHAHitTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(CAENPHAHitTest);
     CPPUNIT_TEST(nowf);
     CPPUNIT_TEST(singlewf);
+    CPPUNIT_TEST(doublewf);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -41,6 +42,7 @@ public:
 protected:
     void nowf();
     void singlewf();
+    void doublewf();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CAENPHAHitTest);
@@ -99,4 +101,33 @@ void CAENPHAHitTest::singlewf()
   for (int i = 0; i < 10; i++) {
     EQ(uint16_t(i), t[i]);
   }
+}
+void CAENPHAHitTest::doublewf()
+{
+    // Hit with two wave forms.
+
+    uint16_t data[] = {    
+        36, 0x0000,                 // Word count.
+        0x005c, 0x0000,                 // Byte count.
+        0x1,    0x0000,                 // Channel #
+        0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
+        100,                            // energy.
+        200,                            // extras 1
+        300,                            // extras 2,
+        10, 0,                            // no waveforms10 samples
+        1,                             // dual trace.
+        0,1,2,3,4,5,6,7,8,9,            // the trace
+        9,8,7,6,5,4,3,2,1,0
+    };
+    m_pHit->unpack(data);
+    EQ(size_t(10), m_pHit->trace1().size());
+    EQ(size_t(10), m_pHit->trace2().size());
+    const std::vector<uint16_t>& t(m_pHit->trace1());
+    for (int i = 0; i < 10; i++) {
+      EQ(uint16_t(i), t[i]);
+    }
+    const std::vector<uint16_t>& t2(m_pHit->trace2());
+    for (int i = 9; i >= 0; i--) {
+        EQ(uint16_t(i), t2[9-i]);
+    }
 }
