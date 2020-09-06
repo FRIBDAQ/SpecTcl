@@ -164,16 +164,17 @@ void
 CAENPHAHit::unpack(void* pData)
 {
     uint32_t* p32 = static_cast<uint32_t*>(pData);
-    p32++;                            // Skip the size.
+    p32++;                            // Skip the size in words
+    p32++;                            // and in bytes as well.
     m_channel  = *p32++;
     uint64_t* p64 = reinterpret_cast<uint64_t*>(p32);
     m_timeTag = *p64++;
-    p32 = reinterpret_cast<uint32_t*>(p64);
-    m_energy = *p32++;
-    m_extra1 = *p32++;
-    m_extra2 = *p32++;
+    uint16_t* p16 = reinterpret_cast<uint16_t*>(p64);
+    m_energy = *p16++;
+    m_extra1 = *p16++;
+    m_extra2 = *p16++;
     
-    unpackTraces(p32);
+    unpackTraces(p16);
 }
 ///////////////////////CAENPSDHIt ////////////////////////////
 
