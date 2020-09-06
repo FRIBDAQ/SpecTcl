@@ -97,13 +97,24 @@ CAENHit::unpackTraces(void* pData)
 {
     uint32_t* p32 = static_cast<uint32_t*>(pData);
     uint32_t nSamples = *p32++;
-
+    m_trace1.clear();
+    m_trace2.clear();
+    
     if (nSamples) {
-        uint8_t*  pDual    = reinterpret_cast<uint8_t*>(p32);
-        bool      dual      = (*pDual++)  != 0;
-        m_trace1.clear();
-        m_trace2.clear();
-        uint16_t* pTrace = reinterpret_cast<uint16_t*>(pDual);
+
+        bool dual;
+        uint16_t* pTrace;
+        if (m_type == PSD) {
+            uint8_t* pDual = reinterpret_cast<uint8_t*>(p32);
+            dual = (*pDual++) != 0;
+            pTrace = reinterpret_cast<uint16_t*>(pDual);
+        } else {
+            uint16_t* pDual = reinterpret_cast<uint16_t*>(p32);
+            dual = (*pDual++) != 0;
+            pTrace = pDual;
+        }
+        
+
         
         // First trace:
         
