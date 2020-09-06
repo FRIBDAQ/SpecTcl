@@ -392,7 +392,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
 					spectclCmdTests evbProcessorTests \
-					gateTests fragIndexTests
+					gateTests fragIndexTests caendpptests
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -411,6 +411,10 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
+
+caendpptests_SOURCES = TestRunner.cpp
+caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
+caendpptests_LDADD   = $(commonTestLdFlags)
 
 scalertests_CXXFLAGS = $(commonTestCXXFLAGS)
 scalertests_LDADD    = $(commonTestLdFlags)
@@ -461,6 +465,8 @@ treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreePara
 	TreeTestSupport.h
 
 
+
+
 fitTests_CXXFLAGS = $(commonTestCXXFLAGS)
 fitTests_LDADD = $(commonTestLdFlags)
 fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
@@ -495,6 +501,6 @@ fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragid
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
-		spectclCmdTests evbProcessorTests fragIndexTests
+		spectclCmdTests evbProcessorTests fragIndexTests caendpptests
 
 
