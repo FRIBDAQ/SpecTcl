@@ -430,6 +430,15 @@ class MainWindow(QMainWindow):
                 self.wPlot.canvas.draw() # this drawing command creates the renderer 
                 a = plt.gca()
                 self.plot_histogram(a, self.selected_plot_index) # the previous step is fundamental for blitting
+                # remove color bar just for gating
+                if self.h_dim[self.selected_plot_index] == 2:
+                    im = a.images
+                    if im is not None:
+                        try:
+                            cb = im[-1].colorbar
+                            cb.remove()
+                        except IndexError:
+                            pass
                 self.drawAllGate()
             except:
                 QMessageBox.about(self, "Warning", "There are no histograms defined...")
@@ -1402,7 +1411,6 @@ class MainWindow(QMainWindow):
         else:
             a = self.select_plot(index)
         # if 2d histo I need a bit more efforts for the colorbar
-        '''
         if self.h_dim[index] == 2:
             im = a.images
             if im is not None:
@@ -1411,7 +1419,7 @@ class MainWindow(QMainWindow):
                     cb.remove()
                 except IndexError:
                     pass
-        ''' 
+
         a.clear()
 
     # deletes all the plots and reinitializes the canvas
@@ -1486,6 +1494,7 @@ class MainWindow(QMainWindow):
                 w = np.ma.masked_where(w < 0.1, w)
                 self.palette.set_bad(color='white')
 
+                
             # create histogram
             self.h_lst[index] = axis.imshow(w,
                                             interpolation='none',
@@ -1496,7 +1505,7 @@ class MainWindow(QMainWindow):
                                             cmap=self.palette)
 
         self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
-            
+        
     # histo plotting
     def plot_histogram(self, axis, index, threshold=0.1):
         hdim = self.get_histo_dim(index)                    
@@ -1522,7 +1531,13 @@ class MainWindow(QMainWindow):
         axis.draw_artist(self.h_lst[index])
         self.wPlot.figure.canvas.blit(axis.bbox)
 
-        #self.wPlot.figure.canvas.flush_events()
+        # setup colorbar only for 2D
+        if hdim == 2:
+            divider = make_axes_locatable(axis)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            # add colorbar
+            self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
+        
         self.wPlot.canvas.draw_idle()
         
     # options for clustering 2D
