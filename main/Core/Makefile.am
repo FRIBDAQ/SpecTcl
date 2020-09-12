@@ -412,7 +412,8 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
 
-caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp
+caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
+	modulehittests.cpp
 caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
 caendpptests_LDADD   = $(commonTestLdFlags)
 
