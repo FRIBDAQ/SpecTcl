@@ -107,6 +107,7 @@ CAENHit::unpackTraces(void* pData)
         if (m_type == PSD) {
             uint8_t* pDual = reinterpret_cast<uint8_t*>(p32);
             dual = (*pDual++) != 0;
+            pDual++;                // Skip trace selector.
             pTrace = reinterpret_cast<uint16_t*>(pDual);
         } else {
             uint16_t* pDual = reinterpret_cast<uint16_t*>(p32);
@@ -259,7 +260,7 @@ CAENPSDHit::getCFDTime() const
 double
 CAENPSDHit::getTime() const
 {
-    double result = getTimeTag();
+    double result = getTimeTag();      // Alread in ns.
     double fine   = getCFDTime();
     fine = fine * m_cfdMultiplier /1024.0; // fine time in ps.
     result = result + fine/1000.0;     // Fine time in ns. not ps.
@@ -274,21 +275,22 @@ CAENPSDHit::unpack(void* pData)
 {
     uint32_t* p32 = static_cast<uint32_t*>(pData);
     
-    p32++;
+    p32 += 2;           // Size in words and size in bytes.
     
     uint64_t* p64 = reinterpret_cast<uint64_t*>(p32);
     m_timeTag = *p64++;
     
-    p32 = reinterpret_cast<uint32_t*>(p64);
-    m_channel = *p32++;
+    uint16_t* p16 = reinterpret_cast<uint16_t*>(p64);
+    m_channel = *p16++;
     
-    m_shortGateCharge = *p32++;
-    m_longGateCharge  = *p32++;
-    m_baseline        = *p32++;
-    m_purFlag         = *p32++;
+    m_shortGateCharge = *p16++;
+    m_longGateCharge  = *p16++;
+    m_baseline        = *p16++;
+    m_purFlag         = *p16++;
+    p32               = reinterpret_cast<uint32_t*>(p16);
     m_CFDTime         = (*p32++) & 0x7ff;
     
-    if (*p32++ > 0) {
+    if (*p32++ > sizeof(uint32_t)) {
         unpackTraces(p32);
     }
     
