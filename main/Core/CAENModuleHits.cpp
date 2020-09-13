@@ -87,7 +87,7 @@ CAENModuleHits::addHit(CAENHit* pHit)
  *    are mutable.
  * @return const std::vector<CAENHit*> 
  */
-const std::vector<CAENHit*>
+const std::vector<CAENHit*>&
 CAENModuleHits::getHits() const
 {
     return m_Hits;

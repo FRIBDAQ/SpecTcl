@@ -43,7 +43,7 @@ public:
     virtual ~CAENModuleHits();
     void clear();
     void addHit(CAENHit* pHit);
-    const std::vector<CAENHit*> getHits() const;
+    const std::vector<CAENHit*>& getHits() const;
     int getSourceId() const;
 private:
     void copyIn(const CAENModuleHits& rhs);
