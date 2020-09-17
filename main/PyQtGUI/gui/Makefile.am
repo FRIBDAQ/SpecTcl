@@ -21,4 +21,4 @@ install-exec-hook:
 
 
 EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py \
-	Clustering.py CannyEdge.py ClusterPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py
+	Clustering.py CannyEdgePlot.py ClusterPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py
