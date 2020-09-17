@@ -253,7 +253,7 @@ Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 Spectra_INCLUDES = SpectraLocalDisplay.h SpectraProcess.h
 
 PyQt_SRC = PyQtDisplay.cpp PyQtProcess.cpp
-PyQt_INCLUDE = PyQtDisplay.h PyQtProcess.h
+PyQt_INCLUDES = PyQtDisplay.h PyQtProcess.h
 
 SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
