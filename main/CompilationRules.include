@@ -24,6 +24,10 @@
 #   CXXLD        - Link for C++
 #   CCLD         - Link for C.
 
+DEFINES=-DHAVE_CONFIG
+CXXFLAGS=$(DEFINES)
+CCFLAGS=$(DEFINES)
+
 
 #  C++ compilations.  note that all the build rules should be identical
 #
