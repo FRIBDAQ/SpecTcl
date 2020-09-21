@@ -172,7 +172,11 @@ CMADC32Unpacker::operator()(CEvent&    rEvent,
 			if (id != pMap->vsn) {
 				throw std::string("MADC32 unpack failed - bad ending");
 			}
-			datum = header;           // Should be able to keep going.			
+			datum = getLong(event, offset);           // Should be able to keep going.
+			offset += 2;
+		} else {
+			datum = getLong(event, offset);
+			offset +=2;
 		}
   }
 	// actually should not get here...

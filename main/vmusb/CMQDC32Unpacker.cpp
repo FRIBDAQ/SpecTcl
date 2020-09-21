@@ -137,36 +137,53 @@ CMQDC32Unpacker::operator()(CEvent&                       rEvent,
   unsigned long datum = getLong(event, offset);
   longsRead++;
   offset += 2;
-  while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-    bool overflow = (datum & DATA_ISOVERFLOW) != 0;
-    if (!overflow) {
-      int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-      int value   = datum & DATA_VALUEMASK;
-      int id      = pMap->map[channel];
-      if (id != -1) {
-	rEvent[id] = value;
-      }
-    }
-    datum   = getLong(event, offset);
-    longsRead++;
-    offset += 2;
+  while (1) {
+		if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
+			bool overflow = (datum & DATA_ISOVERFLOW) != 0;
+			if (!overflow) {
+				int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+				int value   = datum & DATA_VALUEMASK;
+				int id      = pMap->map[channel];
+				if (id != -1) {
+					rEvent[id] = value;
+				}
+			}
+			datum   = getLong(event, offset);
+			longsRead++;
+			offset += 2;
+		} else if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
+			// The datum should be the trailer.. verify this.. If so,
+			// then save the count field ans parameter 32.
+		
+			
+				uint32_t value = datum & TRAILER_COUNTMASK;
+				int      id    = pMap->map[32];
+				if (id != -1) {
+					rEvent[id] = longsRead;
+				}
+				// Next long is:
+				//   0xffffffff - all done.
+				//   Another header long - in which case we're in split mode.
+				
+				header = getLong(event, offset);
+				offset += 2;
+				type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
+				if (type != TYPE_HEADER) return offset;   // 0xffffffff
+				id     = (header & HDR_IDMASK) >> HDR_IDSHFT;
+				if (id != pMap->vsn) {
+					// Wrong id is bad:
+					
+					throw std::string("Incorrect VSN in second header of split mode MQDC32");
+				}
+				// Header means we can just keep going:
+				
+				datum = getLong(event, offset);         // Next channel word.
+				offset += 2;
+		} else {
+			datum = getLong(event, offset);
+			offset += 2;
+		}
   }
-  // The datum should be the trailer.. verify this.. If so,
-  // then save the count field ans parameter 32.
 
-  if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-    uint32_t value = datum & TRAILER_COUNTMASK;
-    int      id    = pMap->map[32];
-    if (id != -1) {
-      rEvent[id] = value;
-    }
-  }
-  else {
-    longsRead--;		// Really should not happen!!
-  }
-    
-  // There will be a 0xffffffff longword for the BERR at the end of the
-  // readout.
-
-  return offset + 2;
+  return offset;
 }
