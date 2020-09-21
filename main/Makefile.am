@@ -27,6 +27,12 @@ SUBDIRS = Replace \
 					packaged \
 					Python db PyQtGUI
 
+#  Subdirs with test targets:
+
+TEST_SUBDIRS= contrib  PyQtGUI/test RootInterface \
+	ddas Core db
+
+
 ACLOCAL_AMFLAGS=-I m4
 
 # Gri TestFiles need to be figured out still..
@@ -95,5 +101,5 @@ install-exec-local:
 	$(MANDB) $(prefix)/docs/man
 	$(INSTALL_DATA) @srcdir@/Porting.txt  @prefix@
 
-#check-TESTS:
-#	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
+check-TESTS:
+	for d in $(TEST_SUBDIRS); do (cd $$d; make check-TESTS); done
