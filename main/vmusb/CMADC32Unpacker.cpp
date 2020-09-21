@@ -101,12 +101,15 @@ CMADC32Unpacker::~CMADC32Unpacker()
              header error flag.
 */
 unsigned int 
-CMADC32Unpacker::operator()(CEvent&                       rEvent,
+CMADC32Unpacker::operator()(CEvent&    rEvent,
 			    vector<unsigned short>&       event,
 			    unsigned int                  offset,
 			    CParamMapCommand::AdcMapping* pMap)
 {
-
+	// Null out the word count:
+	
+		
+	
   // For now, the MADC and VM-usb are not cooperating on 
   // ending the event on BERR.  For each BERR 'transfer' the
   // VM-USB puts a 16 bit word of 0xffff in the event.
@@ -137,36 +140,43 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
   unsigned long datum = getLong(event, offset);
   longsRead++;
   offset += 2;
-  while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-    bool overflow = (datum & DATA_ISOVERFLOW) != 0;
-    if (!overflow) {
-      int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-      int value   = datum & DATA_VALUEMASK;
-      int id      = pMap->map[channel];
-      if (id != -1) {
-	rEvent[id] = value;
-      }
-    }
-    datum   = getLong(event, offset);
-    longsRead++;
-    offset += 2;
+  while (true) {
+		if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
+			bool overflow = (datum & DATA_ISOVERFLOW) != 0;
+			if (!overflow) {
+				int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+				int value   = datum & DATA_VALUEMASK;
+				id      = pMap->map[channel];
+				if (id != -1) {
+					rEvent[id] = value;
+				}
+			}
+			datum   = getLong(event, offset);
+			longsRead++;
+			offset += 2;
+		} else if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
+			uint32_t value = datum & TRAILER_COUNTMASK;
+			id    = pMap->map[32];
+			if (id != -1) {
+				rEvent[id] = value;
+			}
+			// It's possible we're in dual gate mode, in that case,
+			// the next longword could be another header (for this module)
+			// in that case, carry on:
+			
+			header = getLong(event, offset);
+			offset +=2;                   // 0xffffffff or our header else error:
+			type   = (header &  ALL_TYPEMASK) >> ALL_TYPESHFT;
+			if (type != TYPE_HEADER) return offset; // 0xffffffff presumably.
+			id     = (header & HDR_IDMASK) >> HDR_IDSHFT;
+			if (id != pMap->vsn) {
+				throw std::string("MADC32 unpack failed - bad ending");
+			}
+			datum = header;           // Should be able to keep going.			
+		}
   }
-  // The datum should be the trailer.. verify this.. If so,
-  // then save the count field ans parameter 32.
+	// actually should not get here...
 
-  if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-    uint32_t value = datum & TRAILER_COUNTMASK;
-    int      id    = pMap->map[32];
-    if (id != -1) {
-      rEvent[id] = value;
-    }
-  }
-  else {
-    longsRead--;		// Really should not happen!!
-  }
-    
-  // There will be a 0xffffffff longword for the BERR at the end of the
-  // readout.
-
-  return offset + 2;
+  return offset;
+  
 }
