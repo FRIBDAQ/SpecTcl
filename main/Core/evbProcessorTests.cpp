@@ -26,15 +26,15 @@ class EvbTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testInit);
   CPPUNIT_TEST(addProcessor1);
   CPPUNIT_TEST(addProcessor2);
-  
+
   CPPUNIT_TEST(dispatch0);
   CPPUNIT_TEST(dispatch1);
   CPPUNIT_TEST(dispatch2);
   CPPUNIT_TEST(dispatch3);
-  
+
   CPPUNIT_TEST(begin1);           // Boring and repetetive but so is the code.
   CPPUNIT_TEST(begin2);
-  
+
   CPPUNIT_TEST(attach1);
   CPPUNIT_TEST(attach2);
   
@@ -58,13 +58,15 @@ class EvbTest : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(init1);
   CPPUNIT_TEST(init2);
+
   CPPUNIT_TEST_SUITE_END();
   
 protected:
+
   void testInit();
   void addProcessor1();
   void addProcessor2();
-  
+
   void dispatch0();
   void dispatch1();
   void dispatch2();
@@ -96,26 +98,30 @@ protected:
   
   void init1();
   void init2();
+
 private:
-    CHistogrammer*               m_pHistogrammer;
-    CEventBuilderEventProcessor* m_processor;    
+  CHistogrammer*               m_pHistogrammer;
+  CEventBuilderEventProcessor* m_processor;    
 public:
   void setUp() {
     m_pHistogrammer = new CHistogrammer;
     gpEventSink     = m_pHistogrammer;
     m_processor    = new CEventBuilderEventProcessor(100.0, "evb");
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     delete m_pHistogrammer;
     gpEventSink = nullptr;
     delete m_processor;
-    
   }
 
 };
 
 //  Dummy event processors we'll use.
-
 class noop : public CEventProcessor       // Do nothing event processor.
 {
 public:
@@ -258,6 +264,7 @@ public:
 };
 // Event body generators.
 
+
 /*
  * makeEmptyFragments
  * 
@@ -271,6 +278,7 @@ public:
  * @return void* - Pointer to the event.  This will be dynamically allocated
  *                the caller must use free(3) to release storage.
 */
+
 static void*
 makeEmptyFragments(const std::vector<std::pair<uint32_t, uint64_t> >& info)
 {
@@ -329,6 +337,7 @@ getParameterValue(CEvent& event, const char* name)
     
     return event[id];
 }
+
 CPPUNIT_TEST_SUITE_REGISTRATION(EvbTest);
 
 /** When the tree parameters have been registered:
@@ -339,15 +348,16 @@ CPPUNIT_TEST_SUITE_REGISTRATION(EvbTest);
  */
 
 void EvbTest::testInit() {
+
     CEventBuilderEventProcessor& p(*m_processor);  // I'm typing lazy.
-    
+
     EQ(100.0, p.m_ClockMHz);
     EQ(std::string("evb"), p.m_baseName);
     EQ(unsigned(0), p.m_nEvents);
     
     ASSERT(p.m_sourceHandlers.empty());
     ASSERT(p.m_timeDifferenceParams.empty());
-    
+
     // Tree parameters are not null:
     
     ASSERT(p.m_sourceCount);
@@ -358,7 +368,7 @@ void EvbTest::testInit() {
     // After binding the tree parameters I should be able to locate the
     // correct parameters by  name.  We'll assume if we can do that the
     // tree parameters are all set.
-    
+
     CTreeParameter::BindParameters();
     
     SpecTcl* pApi = SpecTcl::getInstance();
@@ -374,6 +384,7 @@ void EvbTest::testInit() {
     
     pParam = pApi->FindParameter("evb.run_time");
     ASSERT(pParam);
+
 }
 
 
@@ -383,6 +394,7 @@ void EvbTest::testInit() {
  *  - A parameter for it's presence has been created  evb.sid_present
  *  - A placeholder has been created in the time difference matrix.
  */
+
 void EvbTest::addProcessor1()
 {
    noop evp1;
@@ -453,6 +465,7 @@ void EvbTest::addProcessor2()
     
     ASSERT(pApi->FindParameter("evb.tdiffs.123-321"));
 }
+
 /**
  *   If i dispatch events with no event processors registered, the unrecognized
  *   source count should be the number of fragment in the event.  Event number
@@ -461,11 +474,11 @@ void EvbTest::addProcessor2()
 void EvbTest::dispatch0()
 {
     CTreeParameter::BindParameters();
+    long dummy = 0;
     CEvent event;
-    CTreeParameter::setEvent(event);     // Set the current event
-    
+    CTreeParameter::setEvent(event, dummy);     // Set the current event
+
     // Make an event:
-    
     std::vector<std::pair<uint32_t, uint64_t> > descriptor =
     {
         {0, 100000000},             // Sourceid/timestamp pairs. 1 second into run.
@@ -492,22 +505,25 @@ void EvbTest::dispatch0()
         throw;
     }
     free(pEvent);
-    
+
 }
+
 /**
  *  I dispatch an event with two fragments.  One has a handler, one does not.
  *  Check that
  *  - The handler got called.
  *  - The variables are all set properly.
  */
+
 void EvbTest::dispatch1()
 {
     countevents handler;
     m_processor->addEventProcessor(1, handler);
     CEvent      event;
+    long dummy = 0;
     
     CTreeParameter::BindParameters();
-    CTreeParameter::setEvent(event);
+    CTreeParameter::setEvent(event, dummy);
     
     // Make the event.  Use a try/catch block to ensure it's freed in the
     // presence of assertion failures:
@@ -548,21 +564,24 @@ void EvbTest::dispatch1()
     }
     free(pEvent);
 }
+
 /**
  *  If I have two event processors, and an event that has both of their
  *  sources, Both get called.  I should also be able to get a good time
  *  difference in addition to all the other neat stuff.
  */
- void EvbTest::dispatch2()
+
+void EvbTest::dispatch2()
 {
     countevents handler1;
     countevents handler2;
     m_processor->addEventProcessor(1, handler1);
     m_processor->addEventProcessor(2, handler2);
     CEvent      event;
+    long dummy = 0;
     
     CTreeParameter::BindParameters();
-    CTreeParameter::setEvent(event);
+    CTreeParameter::setEvent(event, dummy);
     
     // Make the event.  Use a try/catch block to ensure it's freed in the
     // presence of assertion failures:
@@ -606,10 +625,12 @@ void EvbTest::dispatch1()
     }
     free(pEvent);
 }
+
 /**
  * Dispatching an event processor which returns kfFalse blocks the
  * execution of subsequent ones.
  */
+
 void EvbTest::dispatch3()
 {
     failure     handler1;
@@ -618,10 +639,11 @@ void EvbTest::dispatch3()
     m_processor->addEventProcessor(1, handler1);
     m_processor->addEventProcessor(2, handler2);
     
-   CEvent      event;
+    CEvent      event;
+    long dummy = 0;
     
     CTreeParameter::BindParameters();
-    CTreeParameter::setEvent(event);
+    CTreeParameter::setEvent(event, dummy);
     
     // Make the event.  Use a try/catch block to ensure it's freed in the
     // presence of assertion failures:
@@ -650,10 +672,12 @@ void EvbTest::dispatch3()
     }
     free(pEvent);    
 }
-/**
+
+/*
  * Dispatching on Begin resets the event counter and invokes all
  * registered event processors.
  */
+
 void EvbTest::begin1()
 {
     countevents h1;
@@ -674,10 +698,12 @@ void EvbTest::begin1()
     EQ(unsigned(1), h2.m_calls);
     EQ(unsigned(0), m_processor->m_nEvents);   // Begin zeroes this.
 }
-/*
+
+ /*
  *  Failure aborts event processor processing for begin as well, but
  *  regardless the event counter is zeroed.
  */
+
 void EvbTest::begin2()
 {
     failure h1;
@@ -694,6 +720,7 @@ void EvbTest::begin2()
     
     EQ(unsigned(0), h2.m_calls);
 }
+
 /* On attach dispatches to all handlers.
  */
 
@@ -711,8 +738,10 @@ void EvbTest::attach1()
     EQ(unsigned(1), h1.m_calls);
     EQ(unsigned(1), h2.m_calls);  // both got called.
 }
+
 /*  On attach aborts processing if an event processor returns kfFALSE.
  */
+
 void EvbTest::attach2()
 {
     failure h1;
@@ -973,3 +1002,4 @@ void EvbTest::init2()
     
     EQ(unsigned(0), h2.m_calls);
 }
+

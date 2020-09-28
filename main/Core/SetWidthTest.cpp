@@ -35,6 +35,11 @@ private:
 
 public:
   void setUp() {
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     TreeTestSupport::ClearMap();

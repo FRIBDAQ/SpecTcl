@@ -374,10 +374,20 @@ CTreeParameter::setEvent(CEvent& rEvent)
   m_pEvent = &rEvent;
 }
 
-int 
+void
+CTreeParameter::setCurrentThread(int id)
+{
+  pthread_key_create(&glob_var_key,NULL);
+  int* p = (int*)malloc(sizeof(int));
+  *p = (int)(id);
+  pthread_setspecific(glob_var_key, p);
+  int* idd = (int*)pthread_getspecific(glob_var_key);
+}
+
+long
 CTreeParameter::getCurrentThread()
 {
-  long* id = (long*)pthread_getspecific(glob_var_key);
+  int* id = (int*)pthread_getspecific(glob_var_key);
   return (int)(*id);
 }
 
@@ -1007,7 +1017,7 @@ CTreeParameter::setInvalid()
   }
   
   //  (*m_pEvent)[id].clear();
-  (m_pEventThread[getCurrentThread()])[id].clear();  
+  (*m_pEventThread[getCurrentThread()])[getId()].clear();
   
 }
 
@@ -1185,7 +1195,7 @@ CTreeParameter::testClearMap()
   for(int i =0; i < trees.size(); i++) {
     delete trees[i];
   }
-
+  
   m_ObjectRegistry.clear();
 }
 void

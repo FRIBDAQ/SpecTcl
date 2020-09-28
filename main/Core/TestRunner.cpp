@@ -4,6 +4,8 @@
 #include <iostream>
 #include <TCLApplication.h>
 #include <Analyzer.h>
+#include <thread>
+#include <sstream>
 
 using namespace std;
 

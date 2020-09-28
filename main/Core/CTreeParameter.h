@@ -197,7 +197,8 @@ public:
   static void setEvent(CEvent& rEvent, long id);
   bool isBound() const;
 
-  static int getCurrentThread();
+  static void setCurrentThread(int id);
+  static long getCurrentThread();
   
   // Iteration and location.
   

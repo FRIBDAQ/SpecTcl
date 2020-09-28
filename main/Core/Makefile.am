@@ -253,7 +253,7 @@ Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 Spectra_INCLUDES = SpectraLocalDisplay.h SpectraProcess.h
 
 PyQt_SRC = PyQtDisplay.cpp PyQtProcess.cpp
-PyQt_INCLUDE = PyQtDisplay.h PyQtProcess.h
+PyQt_INCLUDES = PyQtDisplay.h PyQtProcess.h
 
 SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
@@ -449,13 +449,18 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 
 treeParamTests_CXXFLAGS  = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas
 treeParamTests_LDADD     = $(commonTestLdFlags)
-treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
-	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
-	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
-	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
-	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp \
-	TreeTestSupport.h
+treeParamTests_SOURCES   = TestRunner.cpp \
+			TreeParameterTest.cpp \
+			testStubs.cpp \
+			TreeTestSupport.h \
+			ListTest.cpp \
+			SetWidthTest.cpp \
+			TestSuite.cpp \
+			MatchTest.cpp      TreeVariableArrayTests.cpp \
+			SetAllVTest.cpp    TreeVariableCommandTests.cpp \
+			SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
+			SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
+			SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  
 
 
 fitTests_CXXFLAGS = $(commonTestCXXFLAGS) -I@top_srcdir@/ddas

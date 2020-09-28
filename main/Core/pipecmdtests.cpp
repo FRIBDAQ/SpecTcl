@@ -19,32 +19,33 @@
 
 class pcmdTests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(pcmdTests);
+
   CPPUNIT_TEST(mk_1);
   CPPUNIT_TEST(mk_2);
   CPPUNIT_TEST(mk_3);
   CPPUNIT_TEST(mk_4);
-  
+
   CPPUNIT_TEST(ls_1);
   CPPUNIT_TEST(ls_2);
   CPPUNIT_TEST(ls_3);
-  
+
   CPPUNIT_TEST(add_1);     // add one to a default.
   CPPUNIT_TEST(add_2);     // Add a few sprinked around.
   CPPUNIT_TEST(add_3);     // Too few parameters.
   CPPUNIT_TEST(add_4);     // Too many parameters.
   CPPUNIT_TEST(add_5);     // Bad pipeline name.
   CPPUNIT_TEST(add_6);     // bad event processor name.
-  
+
   CPPUNIT_TEST(current_1);    // List empty pipeline.
   CPPUNIT_TEST(current_2);    // List pipeline with stuff.
   CPPUNIT_TEST(current_3);    // too many parameters.
-  
+
   CPPUNIT_TEST(lall_1);      // list-all with no processors added.
   CPPUNIT_TEST(lall_2);      // list-all with evps added to default.
   CPPUNIT_TEST(lall_3);      // list-all with evps added to several pipes.
   CPPUNIT_TEST(lall_4);     // list-all with matching pattern.
   CPPUNIT_TEST(lall_5);     // Too many command parameters.
-  
+
   CPPUNIT_TEST(use_1);      // Use a valid pipeline.
   CPPUNIT_TEST(use_2);      // Use with not enough parameters.
   CPPUNIT_TEST(use_3);      // Use undefined pipeline name.
@@ -61,7 +62,7 @@ class pcmdTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(clr_3);      // clear no pipeline name - error.
   CPPUNIT_TEST(clr_4);      // Clear extra parameter error
   CPPUNIT_TEST(clr_5);      // Clear nox pipeline error.
-  
+
   CPPUNIT_TEST(clone_1);    // Clone duplicates the event processors.
   CPPUNIT_TEST(clone_2);    // Clone of an empty pipeline is perfectly fine too.
   CPPUNIT_TEST(clone_3);    // CLone with too few parameters.
@@ -75,6 +76,7 @@ class pcmdTests : public CppUnit::TestFixture {
   CPPUNIT_TEST(rmevp_1);
   CPPUNIT_TEST(rmevp_2);
   CPPUNIT_TEST(rmevp_3);
+
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -301,10 +303,9 @@ void pcmdTests::registerProcessors()
   DummyProcessor* pDummy = new DummyProcessor;
 
   pMgr->registerEventProcessor("evp1", pDummy);
-  pMgr->registerEventProcessor("evp2", pDummy);
-  pMgr->registerEventProcessor("evp3", pDummy);
-  pMgr->registerEventProcessor("aProcessor", pDummy);
-
+  pMgr->registerEventProcessor("evp2", pDummy->clone());
+  pMgr->registerEventProcessor("evp3", pDummy->clone());
+  pMgr->registerEventProcessor("aProcessor", pDummy->clone());
 }
 
 // add_1 - add an event processor to default.
@@ -313,12 +314,13 @@ void pcmdTests::add_1()
 {
   CPipelineManager* pMgr = CPipelineManager::getInstance();
   registerProcessors();
-  
+
   m_pInterp->GlobalEval("pman add default aProcessor");
   std::vector<std::string> evps = pMgr->getEventProcessorsInPipeline("default");
   
   EQ(size_t(1), evps.size());
   EQ(std::string("aProcessor"), evps[0]);
+
 }
 // add_2 add event processors to several pipelines
 

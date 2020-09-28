@@ -45,6 +45,12 @@ public:
     m_pRawInterp = Tcl_CreateInterp();
     m_pInterp    = new CTCLInterpreter(m_pRawInterp);
     m_pResult    = new CTCLResult(m_pInterp);
+
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     

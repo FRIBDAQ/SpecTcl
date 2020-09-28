@@ -29,11 +29,13 @@ class fileupktests : public CppUnit::TestFixture {
   
   CPPUNIT_TEST(badParse);
   CPPUNIT_TEST(duplicateAddress);
-  
+
+
   CPPUNIT_TEST(singleGoodHit);
   CPPUNIT_TEST(multiGoodHits);
   
   CPPUNIT_TEST(unmappedHit);
+
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -47,9 +49,16 @@ public:
     
     m_pHistogrammer = new CHistogrammer;
     gpEventSink     = m_pHistogrammer;
+
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
     
+    long dummy = 0;
     m_pEvent = new CEvent;
-    CTreeParameter::setEvent(*m_pEvent);
+    CTreeParameter::setEvent(*m_pEvent, dummy);
     
   }
   void tearDown() {
@@ -159,10 +168,10 @@ void fileupktests::construction() {
     CPPUNIT_ASSERT_NO_THROW(CFileDrivenParameterMapper nullMapper("/dev/null"));
     
     // Map should be empty:
-    
     CFileDrivenParameterMapper nullMapper("/dev/null");
     EQ(std::string("/dev/null"), nullMapper.m_configFile);
     ASSERT(nullMapper.m_map.empty());
+
 }
 
 

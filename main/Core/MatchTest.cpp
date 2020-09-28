@@ -42,6 +42,11 @@ public:
     m_pParam1 = new CTreeParameter("Larry", "cm");
     m_pParam2 = new CTreeParameter("Curly", "mm");
     m_pGeorgeArray = new CTreeParameterArray("george", 10, 1);
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     delete m_pParam1;

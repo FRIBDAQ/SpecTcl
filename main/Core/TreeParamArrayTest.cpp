@@ -35,6 +35,11 @@ private:
 
 public:
   void setUp() {
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     TreeTestSupport::ClearMap();
@@ -140,6 +145,7 @@ TreeParamArrayTests::Destruction()
     ASSERT(p == CTreeParameter::end());
   }
 }
+
 //
 void
 TreeParamArrayTests::Reset()
@@ -149,8 +155,9 @@ TreeParamArrayTests::Reset()
 
   CTreeParameterArray a("george",100,0);
   CTreeParameter::BindParameters();
+  long dummy = 0;
   CEvent event;
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   for (int i =0; i < 100; i++) {
     a[i] = (double)i;
@@ -180,3 +187,4 @@ TreeParamArrayTests::Iteration()
 
   
 }
+

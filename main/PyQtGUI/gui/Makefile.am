@@ -41,5 +41,5 @@ install-exec-hook:
 	ln -s @prefix@/Script @prefix@/DDASSkel
 
 EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py \
-	Clustering.py CannyEdge.py ClusterPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
+	Clustering.py CannyEdgePlot.py ImgSegPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \
 	fit_factory.py fit_skel_creator.py fit_gaus_creator.py fit_exp_creator.py fit_p1_creator.py fit_p2_creator.py fit_gp1_creator.py fit_gp2_creator.py

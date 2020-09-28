@@ -26,6 +26,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
+#include <pthread.h>
 
 #include "CTreeParameter.h"
 #include "CTreeException.h"
@@ -33,12 +34,11 @@
 #include <Parameter.h>
 
 #include "TreeTestSupport.h"
+#include "ZMQRDPatternClass.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-
-
 
 class TreeParamTests : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TreeParamTests);
@@ -78,10 +78,16 @@ private:
 
 public:
   void setUp() {
+    int id = 0;
+    // Initialize event list
+    CTreeParameter::InitializeEventList();        
+    // create key
+    CTreeParameter::setCurrentThread(id);
   }
   void tearDown() {
     TreeTestSupport::ClearMap();
-  }
+  }  
+
 protected:
   void InitialState();
   void Constructors();
@@ -100,7 +106,6 @@ protected:
   void Validity();
   void ChangeManagement();
   void Throws();
-  
   void DoubleInit1();
   void DoubleInit2();
   void DoubleInit3();
@@ -119,14 +124,7 @@ private:
   void CheckDoubleInit(CTreeParameter& param);
 };
 
-
-
-// Test functions:
-
-
-
 //  Must be a member to get acces to m_pEvent (friendship)
-
 void
 TreeParamTests::CheckProperlyBound(CTreeParameter& param)
 {
@@ -149,6 +147,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TreeParamTests);
 // In the initial state, begin() == end()
 // size.
 
+
 void 
 TreeParamTests::InitialState()
 {
@@ -160,6 +159,7 @@ TreeParamTests::InitialState()
 //  we must instantiate with new as the tree params in the map will be deleted.
 //  This is not an issue in 'normal' use as the lifetime of a tree parameter is the
 //  program lifetime.
+
 void
 TreeParamTests::Constructors()
 {
@@ -242,9 +242,9 @@ TreeParamTests::Binding()
   CTreeParameter* pNameAndUnits= new CTreeParameter("name&units", "cm");
   CTreeParameter* pLowHighUnits= new CTreeParameter("lowhighunits",
 						    1.0, 2.0, "mm");
-
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   // Only the default constructed guy should be unbound and
   // all the others should also have a nonzero m_pParameter attribute as well.
@@ -259,6 +259,7 @@ TreeParamTests::Binding()
 
   
 }
+
 //
 void
 TreeParamTests::SimpleAssigns()
@@ -267,9 +268,9 @@ TreeParamTests::SimpleAssigns()
   CTreeParameter* pNameOnly    = new CTreeParameter("nameonly");
   CTreeParameter* pNameAndUnits= new CTreeParameter("name&units", "cm");
 
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
-
+  CTreeParameter::setEvent(event, dummy);
 
   // Assign a float to the Nameonly guy:  CTreeParameter can
   // use doubles all it wants but at present, CEvent holds floats, not doubles!!xv
@@ -288,7 +289,9 @@ TreeParamTests::SimpleAssigns()
 
   CheckConstructed(*pNameAndUnits, "Constructed with name and units",
 		   "name&units", 100, 1.0, 100.0, 99.0/100, "cm", false);
+
 }
+
 //
 void
 TreeParamTests::OpAssigns()
@@ -297,8 +300,9 @@ TreeParamTests::OpAssigns()
   CTreeParameter* pNameOnly    = new CTreeParameter("nameonly");
   CTreeParameter* pNameAndUnits= new CTreeParameter("name&units", "cm");
 
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   // +/- =.
 
@@ -325,10 +329,10 @@ TreeParamTests::OpAuto()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
-  CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
 
+  long dummy = 0;
+  CTreeParameter::BindParameters();
+  CTreeParameter::setEvent(event, dummy);
 
   // Autoincrement.
 
@@ -356,15 +360,17 @@ TreeParamTests::OpAuto()
   
   
 }
+
 //
 void
 TreeParamTests::ParamId()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;  
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   int nId            = NameOnly.getId();
   CParameter* pParam = TreeTestSupport::getParameter(NameOnly);
@@ -372,15 +378,17 @@ TreeParamTests::ParamId()
 
   ASSERT(nId = npId);
 }
+
 //
 void
 TreeParamTests::SetGetValue()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   NameOnly = 1234;
 
@@ -388,15 +396,17 @@ TreeParamTests::SetGetValue()
   ASSERT(0.0 == NameOnly.getValue());
   
 }
+
 //
 void
 TreeParamTests::SetGetBins()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
 
   UInt_t bins = NameOnly.getBins();
@@ -405,15 +415,17 @@ TreeParamTests::SetGetBins()
 
   ASSERT(bins == NameOnly.getBins());
 }
+
 //
 void
 TreeParamTests::StartStopControl()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   double start = NameOnly.getStart();
   double stop  = NameOnly.getStop();
@@ -438,10 +450,10 @@ TreeParamTests::IncControl()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
-  CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
 
+  long dummy = 0;
+  CTreeParameter::BindParameters();
+  CTreeParameter::setEvent(event, dummy);
 
   UInt_t oldChans = NameOnly.getBins();
   double oldStart = NameOnly.getStart();
@@ -455,17 +467,18 @@ TreeParamTests::IncControl()
   EQMSG("Start", oldStart, NameOnly.getStart());
   EQMSG("Stop",  oldStart + (Inc*oldChans), NameOnly.getStop());
 
-
 }
+
 //  Units:
 void 
 TreeParamTests::UnitControl()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
 
   NameOnly.setUnit("arbitrary");
@@ -478,10 +491,10 @@ TreeParamTests::Validity()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
-  CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
 
+  long dummy = 0;  
+  CTreeParameter::BindParameters();
+  CTreeParameter::setEvent(event, dummy);
 
   // At this time we should have an 'invalid' parameter:
 
@@ -512,22 +525,22 @@ TreeParamTests::Validity()
   ASSERT(!NameOnly.isValid());
 
   // And finally, Reset All should  as well:
-
   NameOnly = 5.555;
   CTreeParameter::ResetAll();
   ASSERT(!NameOnly.isValid());
 
-
 }
+
 //
 void 
 TreeParamTests::ChangeManagement()
 {
   CEvent event;
   CTreeParameter& NameOnly(*(new CTreeParameter("nameonly")));
-  
+
+  long dummy = 0;
   CTreeParameter::BindParameters();
-  CTreeParameter::setEvent(event);
+  CTreeParameter::setEvent(event, dummy);
 
   // Should be in unchanged state:
 
@@ -597,22 +610,20 @@ TreeParamTests::Throws()
   EQMSG("Bound", false, thrown);
 
   try {
-    TreeTestSupport::ThrowIfNoEvent(NameOnly, "Testing");
+    TreeTestSupport::ThrowIfNoEvent(NameOnly, "testing");
   }
   catch (...) {
     thrown = true;
   }
-  EQMSG("No parameter", true, thrown);
+  EQMSG("No parameter", false, thrown);
   thrown = false;
-
-  CTreeParameter::setEvent(event);
-
+  
+  long dummy = 0;
+  CTreeParameter::setEvent(event, dummy);
+  
   // This is already known to work.
 
-
 }
-
-
 
 /**
  * DoubleInit1
