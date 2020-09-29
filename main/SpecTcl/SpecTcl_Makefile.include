@@ -16,7 +16,7 @@ include $(INSTDIR)/etc/Directories.include
 
 #  Build up the compilation flags:
 
-CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS) $(ROOTCFLAGS)
+CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS) $(ROOTCFLAGS) -DHAVE_CONFIG_H
 
 # The c compilation flags for now are just the same as the c++ flags:
 
