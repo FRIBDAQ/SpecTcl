@@ -19,6 +19,11 @@ install-exec-hook:
 	     rm -rf @prefix@/Skel/Script ; \
 	fi;
 	ln -s @prefix@/Script @prefix@/Skel
+	if [ -s @prefix@/Skel/Lib ] ; \
+	then \
+	     rm -rf @prefix@/Skel/Lib ; \
+	fi;
+	ln -s @prefix@/lib @prefix@/Skel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/VMUSBSkel
@@ -29,6 +34,11 @@ install-exec-hook:
 	     rm -rf @prefix@/VMUSBSkel/Script ; \
 	fi;
 	ln -s @prefix@/Script @prefix@/VMUSBSkel
+	if [ -s @prefix@/VMUSBSkel/Lib ] ; \
+	then \
+	     rm -rf @prefix@/VMUSBSkel/Lib ; \
+	fi;
+	ln -s @prefix@/lib @prefix@/VMUSBSkel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/DDASSkel
@@ -39,6 +49,11 @@ install-exec-hook:
 	     rm -rf @prefix@/DDASSkel/Script ; \
 	fi;
 	ln -s @prefix@/Script @prefix@/DDASSkel
+	if [ -s @prefix@/DDASSkel/Lib ] ; \
+	then \
+	     rm -rf @prefix@/DDASSkel/Lib ; \
+	fi;
+	ln -s @prefix@/lib @prefix@/DDASSkel/Lib
 
 EXTRA_DIST = ConfigGUI.py GUI.py __init__.py Main.py MenuGUI.py OutputGUI.py Plot.py shm_parser.py \
 	Clustering.py CannyEdgePlot.py ImgSegPlot.py Joystick.py PeakFinder.py algo_factory.py skel_creator.py skel_plot.py kmean_creator.py gmm_creator.py imgseg_creator.py cannye_creator.py \

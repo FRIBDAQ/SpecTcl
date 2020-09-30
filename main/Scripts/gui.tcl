@@ -377,7 +377,7 @@ proc updateInfo nms {
 	.buffer.head configure -text \
 	    [format "Analyzed Buffers: %s " $BuffersAnalyzed]
 	.rate.head configure -text \
-	    [format "Avg. Rate (Mb/s): %s " $AverageRate]	
+	    [format "Avg. Rate (MB/s): %s " $AverageRate]	
 	.time.head configure -text \
 	    [format "Elapsed Time (s): %s " $ElapsedTime]	
     }
