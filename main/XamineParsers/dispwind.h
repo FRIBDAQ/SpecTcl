@@ -389,7 +389,7 @@ public:
     void unexpand() { expanded = FALSE; }
     void expand(int l, int h) { xlow = l;
                                 xhigh= h;
-                                                        expanded = TRUE;
+                                expanded = TRUE;
                               }
 
     int isexpanded() { return expanded; }

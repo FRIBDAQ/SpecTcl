@@ -420,11 +420,11 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   /* Figure out the area of interest. */
 
   int xl, xh;			/* The region of interest. */
-  xl = 0;			/* Assume no expansion... */
-  xh = xamine_shared->getxdim(spno) - 1;	/* That's the default AOI. */
+  xl = 1;			/* Assume no expansion... */
+  xh = xamine_shared->getxdim(spno) - 2;	/* -2 because inclusive and dead root channels */
   if(at1->isexpanded()) {	/* If expanded, then we must use the exp. */
-    xl = at1->lowlimit();	/* limits in the window attributes object */
-    xh = at1->highlimit();
+    xl = at1->lowlimit()+1;	/* limits in the window attributes object */
+    xh = at1->highlimit()+1; // +1 because of root underflow chan.
   }				/* xl,xh now define the area of interest. */
 
   /* Determine the reduction parameters and method and instantiate a sampler */
@@ -458,26 +458,38 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
     switch(at1->getrend()) {
     case histogram:
       if(at1->isflipped()) {
-	drawer = (Channel *) new HChannelF(d, win, gc, orgx, orgy, chanw);
+							drawer = (Channel *) new HChannelF(
+								d, win, gc, orgx, orgy, chanw
+							);
       }
       else {
-	drawer = (Channel *) new HChannel(d, win, gc, orgx,orgy, chanw);
+							drawer = (Channel *) new HChannel(
+									d, win, gc, orgx,orgy, chanw
+							);
       }
       break;
     case lines:
       if(at1->isflipped()) {
-	drawer = (Channel *)new LChannelF(d, win, gc, orgx, orgy, chanw);
+								drawer = (Channel *)new LChannelF(
+										d, win, gc, orgx, orgy, chanw
+								);
       }
       else {
-	drawer = (Channel *) new LChannel(d, win, gc, orgx,orgy, chanw);
+									drawer = (Channel *) new LChannel(
+										d, win, gc, orgx,orgy, chanw
+									);
       }
       break;
     case points:
       if(at1->isflipped()) {
-	drawer = (Channel *) new PChannelF(d,win, gc, orgx, orgy, chanw);
+								drawer = (Channel *) new PChannelF(
+											d,win, gc, orgx, orgy, chanw
+								);
       }
       else {
-	drawer = (Channel *) new PChannel(d, win, gc, orgx, orgy, chanw);
+									drawer = (Channel *) new PChannel(
+												d, win, gc, orgx, orgy, chanw
+									);
       }
       break;
     default:

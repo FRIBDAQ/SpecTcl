@@ -50,7 +50,7 @@ extern volatile spec_shared *xamine_shared;
 static float
 channelWidth(float lo, float hi, float chans)
 {
-    return chans/(hi - lo);  
+    return (hi - lo)/chans;  
 }
 
 /*!
@@ -99,16 +99,15 @@ int Xamine_XMappedToChan(int specno, float value)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
-  float nch = xamine_shared->getxdim(specno);
+  float nch = xamine_shared->getxdim(specno) -2;  // Remove root chans.
   
   // There's really an extra 1/2 channel xhi we need o allow for.
   
-  xhi += (0.5) * channelWidth(xlo, xhi, nch);
+  xhi +=  channelWidth(xlo, xhi, nch);
 
-  float x = Transform(xlo, xhi, 0.0, (float)(nch), value);
-  int ix =  (int)(x + copysign(1.0, x)*0.5);
-  if (ix >= nch) ix = nch - 1;
-  return ix;
+  float x = Transform(xlo, xhi, 0.0, (float)(nch+1), value);
+  
+  return x;
 
 }
 
@@ -132,15 +131,13 @@ int Xamine_YMappedToChan(int specno, float value)
 
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
-  float nch = xamine_shared->getydim(specno);
+  float nch = xamine_shared->getydim(specno) -2; // Remove root chans.
   
-  yhi += (0.5) * channelWidth(ylo, yhi, nch);
+  yhi +=  channelWidth(ylo, yhi, nch);
 
-  float y = Transform(ylo, yhi, 0.0, (float)(nch), value);
-  int iy =  (int)(y + copysignf(1.0, y)*0.5);
-  if (iy >= nch) iy = nch - 1;
+  float y = Transform(ylo, yhi, 0.0, (float)(nch+1), value);
   
-  return iy;
+  return y;
 }
 
 /*
@@ -160,9 +157,14 @@ float Xamine_XChanToMapped(int specno, float chan)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
-  int   nch = xamine_shared->getxdim(specno);
+  int   nch = xamine_shared->getxdim(specno) - 2; // Remove root chans
 
-  return Transform(-1.0, (float)(nch - 1),    
+  // We go to the end of the last channel so xhi must be adjusted by
+  // a channel width?
+  
+  xhi += channelWidth(xlo, xhi, nch);
+  
+  return Transform(0, (float)(nch-1),    
 		   xlo, xhi, chan);                  
 }
 
@@ -183,8 +185,13 @@ float Xamine_YChanToMapped(int specno, float chan)
 {
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
-  int   nch = xamine_shared->getydim(specno);
+  int   nch = xamine_shared->getydim(specno) -2;  // remove root chan.
+  
+  // We go to the end of the last y channel so we need to add
+  // one more channel width to yhi:
+  
+  yhi += channelWidth(ylo,  yhi, nch);
 
-  return Transform(-1.0, (float)(nch-1), ylo, yhi, chan);
+  return Transform(0, (float)(nch), ylo, yhi, chan); // Remove root chans
 
 }
