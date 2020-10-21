@@ -61,9 +61,11 @@ unsigned int Xamine_ComputeScaling(win_attributed *att, XMWidget *pane);
 class Sampler {
  public:
   virtual unsigned int chan(int i) = 0;	     /* Sample a channel i. */
-  virtual void          setsample(int first,  /* Set sequential sample parameters */
-				  float step) = 0;
-  virtual void          setsample(int first) = 0;
+  virtual void          setsample(  /* Set sequential sample parameters */
+     int first, float step
+  ) = 0;
+				  
+  virtual void         setsample(int first) = 0;
   virtual unsigned int sample() = 0;	     /* Get a sample and move to next one. */
 };
 
@@ -76,9 +78,9 @@ class Samplel : public Sampler {	    /* Sample longword */
   Samplel(volatile unsigned int *b, float s = 1.0) {
     base  = b; 
     step  = s;
-    offset= 0;
+    offset= 1;                // Don't show root's underflow.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset = (float)f;
     step   = s;
@@ -107,9 +109,9 @@ class Samplew : public Sampler { /* Sample shortword */
   Samplew(volatile unsigned short *b, float s = 1.0) {
     base  = b; 
     step  = s;
-    offset= 0;
+    offset= 1;         // Remove root's underflow.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset = (float)f;
     step   = s;
@@ -136,9 +138,9 @@ class Suml : public Sampler {	/* Sample via summing (long) */
   Suml(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;            // Remove root's underflow channel.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
@@ -163,9 +165,9 @@ class Sumw : public Sampler {	/* Sample via summing (word) */
   Sumw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
@@ -193,9 +195,9 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
   Avgl(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
@@ -223,9 +225,9 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
   Avgw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;

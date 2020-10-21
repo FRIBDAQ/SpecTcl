@@ -876,19 +876,23 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
     /* Figure out the area of interest: */
     int spno = at2->spectrum();
 
-    int xl = 0;
-    int yl = 0;
-    int xh = xamine_shared->getxdim(spno)-1;
-    int yh = xamine_shared->getydim(spno)-1;
+    int xl = 1;
+    int yl = 1;
+    int xh = xamine_shared->getxdim(spno)-2;   // Root
+    int yh = xamine_shared->getydim(spno)-2;   // Root.
 
     /*   Generate the sampler : */
 
     if(at2->isflipped()) {
       if(at2->isexpanded()) {
-								xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
+								xl = (at2->isexpandedfirst() ? at2->xlowlim()  : at2->ylowlim());
 								xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
 								yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
 								yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
+								xl++;
+								xh++;               // Root compensation.
+								yl++;
+								yh++;
       }
       ctx->sampler = 
 							Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
@@ -901,6 +905,10 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
 							xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
 							yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
 							yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
+							xl++;
+							xh++;                         // Root Compensation.
+							yl++;
+							yh++;
 							//	if(at2->ismapped()) {
 	     }
       ctx->sampler = 
@@ -937,7 +945,7 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
 									;
     } else {
       while((!(plot_done = DrawSegment(ctx))) &&(entry_time == time(NULL)))
-									;
+								;
     }
     if(plot_done) {	/* Done drawing... */
       DeleteSegmentContext((XtPointer)ctx); /* Kill off the segment. */

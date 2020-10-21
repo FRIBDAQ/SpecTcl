@@ -76,12 +76,12 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
     win_1d* a1 = (win_1d*)a;
     if(a1->ismapped()) {
       if(a1->isflipped()) {
-	xmarg = (int)((float)(*xs) * XAMINE_MAPPED_MARGINSIZE);
-	ymarg = (int)((float)(*ys) * XAMINE_MARGINSIZE);
+        xmarg = (int)((float)(*xs) * XAMINE_MAPPED_MARGINSIZE);
+        ymarg = (int)((float)(*ys) * XAMINE_MARGINSIZE);
       }
       else {
-	xmarg = (int)((float)(*xs) * XAMINE_MARGINSIZE);
-	ymarg = (int)((float)(*ys) * XAMINE_MAPPED_MARGINSIZE);
+        xmarg = (int)((float)(*xs) * XAMINE_MARGINSIZE);
+        ymarg = (int)((float)(*ys) * XAMINE_MAPPED_MARGINSIZE);
       }
     }
     else {
@@ -340,8 +340,8 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     chanhi  = (int)a->highlimit()+ 1;
   }
   else {
-    chanlow = -1;
-    chanhi  = (int)spectra->getxdim(spec)-1; //  Root adjustment.
+    chanlow = 0;
+    chanhi  = (int)spectra->getxdim(spec)-2; //  Root adjustment.
   }
   cntslow = 0; 
   cntshi  = attributes->getfsval();
@@ -377,12 +377,9 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
       channel = chanhi - 1;
     }
     
-    // if((channel < chanlow) || (channel > chanhi)) {
-    //   loc->counts = 0;
-    //  }
-    // else {
-    loc->counts  = spectra->getchannel(spec, channel+1); // +1 removes Root offset.
-    // }
+    
+    loc->counts  = spectra->getchannel(spec, channel); // +1 removes Root offset.
+    
     if(attributes->islog()) {
       countpos = LogPosition(cntspix, cntslow, cntshi, cntssize);
     }
@@ -463,7 +460,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   cntshi = attributes->getfsval();
 
   chanlo = 0;
-  chanhi = spectra->getxdim(specno) ; // Goes to the end of the last chan.
+  chanhi = spectra->getxdim(specno) - 2 ; // Goes to the end of the last chan.
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
     chanhi = att->highlimit() +1; // Goes to end of last channel.
@@ -559,22 +556,14 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     xh++;
     yh++;
     if(att->isexpandedfirst()) {
-      /*
-	int temp = xl;
-	xl = yl;
-	yl = temp;
-
-	temp = xh;
-	xh = yh;
-	yh = temp;
-      */
+      
     }
   }
   else {
-    xl = -1;			// Root underflow chan is -1.
-    xh = spectra->getxdim(spec) -1 ;
-    yl = -1;			/* These are in spectrum orientation so... */
-    yh = spectra->getydim(spec)- 1;
+    xl = 0;
+    xh = spectra->getxdim(spec) -2 ;
+    yl = 0;			
+    yh = spectra->getydim(spec)- 2;
   }
 
   /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
@@ -603,9 +592,9 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   // xp = (int)LinearPosition(xpix, xl, xh, nx);
   // yp = (int)LinearPosition(ypix, yl, yh, ny);
 
-  xp = floor(Transform(0.0, (float)(nx-1),
+  xp = floor(Transform(0.0, (float)(nx),
 		       (float)xl, (float)xh, (float)xpix));
-  yp = floor(Transform(0.0, (float)(ny-1),
+  yp = floor(Transform(0.0, (float)(ny),
 		       (float)yl, (float)yh, (float)ypix));
 		      
 
@@ -627,10 +616,10 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 
   if( ((xp >= xl) && (yp >= yl) && (xp <= xh) && (yp <= yh))) {
     if(attributes->isflipped()) {
-      loc->counts = spectra->getchannel(spec, yp+1, xp+1);
+      loc->counts = spectra->getchannel(spec, yp, xp);
     }
     else {
-      loc->counts = spectra->getchannel(spec, xp+1, yp+1);
+      loc->counts = spectra->getchannel(spec, xp, yp);
     }
   }
   else {

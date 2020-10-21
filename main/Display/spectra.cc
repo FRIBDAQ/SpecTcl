@@ -262,12 +262,12 @@ unsigned int spec_shared::getchannel(int id, int ix) volatile
   
   switch(gettype(id)) {
   case undefined:
-    fprintf(stderr, "Attempted getchannel from undefined spectrum %d\n",id-1);
+    
     return 0;
   case twodlong:      // Ignore 2-d spectra.
   case twodbyte:
   case twodword:
-    fprintf(stderr,"Attempted 1d getchannel from 2-d %d\n",id-1);
+    
     return 0;
   case onedlong:
   case onedword:
@@ -285,28 +285,21 @@ unsigned int spec_shared::getchannel(int id, int ix) volatile
       
       if (gettype(id) == onedlong) {
         if((char *)(lptr+ix) > Xamine_MemoryTop()) {
-          fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, ix-1);
           return 0;
         }
         return (unsigned int)lptr[ix];
       } else {
         if ((char*)(sptr+ix) > Xamine_MemoryTop()) {
-          fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, ix-1);
           return 0;
         }    
         return (unsigned int)(sptr[ix]);
       }
     }
-    fprintf(
-        stderr, "Xindex out of range 0-%d (was %d) in 1d getchannel\n",
-        xdim-2, ix-1
-    );
-   
+    
     return 0;
   
   default:
-    fprintf(stderr,"Invalid spectrum type %d for spectrum %d in 1d getchannel\n", 
-	    gettype(id), id);
+    
     return 0;
   }
 }
@@ -351,33 +344,26 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
       
       if (gettype(id) == twodlong) {
         if((char *)(lptr+idx) > Xamine_MemoryTop()) {
-            fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, idx-1);
             return 0;
       }
       return (unsigned int)lptr[idx];
     } else if (gettype(id) == twodbyte) {
         if ((char*)(sptr+idx) > Xamine_MemoryTop()) {
-            fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, idx-1);
             return 0;
         }
         return (unsigned int)(sptr[idx]);
     } else {  // Byte spectrum.
         if ((char*)(bptr+idx) > Xamine_MemoryTop()) {
-            fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, idx-1);
             return 0;
         }
         return (unsigned int)(bptr[idx]);
     }
     // Out of range:
-    fprintf(
-        stderr,"Invalid index on 2d getchannel 0-%d, 0-%d, %d,%d\n",
-	    getxdim(id)-2, getydim(id)-2, ix-1, iy-1
-    );
     return 0;
   }
   default:
-    fprintf(stderr,"Invalid spectrum type %d for spectrum %d\n",
-	    gettype(id), id);
+    
+	  
     return 0;
   }
 }

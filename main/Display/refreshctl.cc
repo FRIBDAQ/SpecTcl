@@ -818,8 +818,8 @@ Boolean Xamine_Refresh(XtPointer client_data)
     /* If necessary set the scaling: */
     {
       if(!def->manuallyscaled()) {
-	unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
-	def->setfsval(fs);
+        unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
+        def->setfsval(fs);
       }
     }
     /*
@@ -834,13 +834,13 @@ Boolean Xamine_Refresh(XtPointer client_data)
     */
     {
       if(!def->is1d()) {
-	win_2d *d2 = (win_2d *)def;
-	if( (d2->getrend() == color) &&
-	   !(Xamine_ColorDisplay())) {
-	  win_2d defaults;
-	  Xamine_Construct2dDefaultProperties(&defaults);
-	  d2->setrend(defaults.getrend());
-	}
+          win_2d *d2 = (win_2d *)def;
+          if( (d2->getrend() == color) &&
+             !(Xamine_ColorDisplay())) {
+            win_2d defaults;
+            Xamine_Construct2dDefaultProperties(&defaults);
+            d2->setrend(defaults.getrend());
+          }
       }
     }
     return False;
@@ -960,7 +960,7 @@ Xamine_RedrawSpectrum(int specid)
       win_attributed *at = Xamine_GetDisplayAttributes(r,c);
       if(at != NULL) {
         if(at->spectrum() == specid)
-	  Xamine_RedrawPane(c, r);
+          Xamine_RedrawPane(c, r);
       }
     }
 }
