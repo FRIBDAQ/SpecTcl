@@ -943,6 +943,19 @@ int CTclGrammerApp::operator()() {
     CHttpdServer server(gpInterpreter);
     try {
         if(!server.isRunning()) server.start(nPort);
+        char hostbuffer[256];
+        int hostname;
+        hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+        std::string host(hostbuffer);
+        host += ".nscl.msu.edu";
+      
+        std::cout << "hostname: " << host << std::endl;
+        std::cout << "port: " << atoi(httpdPort) << std::endl;  
+      
+        int p = atoi(httpdPort);
+        std::string port = std::to_string(p);
+        ::setenv("RESThost", host.c_str(), 1);
+        ::setenv("RESTport", port.c_str(), 1);
     }
     catch (std::exception& e) {
         std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
@@ -950,19 +963,7 @@ int CTclGrammerApp::operator()() {
     }
   }
 
-  char hostbuffer[256];
-  int hostname;
-  hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-  std::string host(hostbuffer);
-  host += ".nscl.msu.edu";
 
-  std::cout << "hostname: " << host << std::endl;
-  std::cout << "port: " << atoi(httpdPort) << std::endl;  
-
-  int p = atoi(httpdPort);
-  std::string port = std::to_string(p);
-  ::setenv("RESThost", host.c_str(), 1);
-  ::setenv("RESTport", port.c_str(), 1);
   
   SelectDisplayer();
 
