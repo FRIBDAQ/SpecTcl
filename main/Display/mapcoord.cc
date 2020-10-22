@@ -32,11 +32,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <math.h>
 #include "mapcoord.h"
 #include "dispshare.h"
+#include <panemgr.h>
 
 #include <iostream>
+#include <set>
 
 extern volatile spec_shared *xamine_shared;
 
+
+std::set<spec_type> OnedSpectrumTypes = {onedword, onedlong};
+std::set<spec_type> TwodSpectrumTypes = {twodlong, twodword, twodbyte};
 
 /**
  * channelWidth
@@ -51,6 +56,63 @@ static float
 channelWidth(float lo, float hi, float chans)
 {
     return (hi - lo)/chans;  
+}
+
+// Return the x channel range of a spectrum.
+
+static std::pair<int,int>
+getXChannelRange(int specno, int row, int col)
+{
+// We need to get the win_attributed object corresponding to the
+  // spectrum in order to figure out the range displayed if expanded.
+  
+  win_attributed* pAttrib = Xamine_GetDisplayAttributes(row, col);
+  
+  // Figure out the range of displayed channels.. full range unless expanded:
+  // Default this to the full spectrum we eliminate the root over/underflow chans.
+  // These are rerpesented in channel coordinates not channel numbers.
+  
+  int xl = 0;
+  int xh = xamine_shared->getxdim(specno) - 3;
+  if ((OnedSpectrumTypes.count(Xamine_SpectrumType(specno)) > 0) &&
+      (reinterpret_cast<win_1d*>(pAttrib))->isexpanded()) {
+      win_1d* p1d = dynamic_cast<win_1d*>(pAttrib);
+      xl = p1d->lowlimit();
+      xh = p1d->highlimit();
+  } else if ((TwodSpectrumTypes.count(Xamine_SpectrumType(specno)) > 0) &&
+              (reinterpret_cast<win_2d*>(pAttrib))->isexpanded()) {
+      win_2d* p2d = dynamic_cast<win_2d*>(pAttrib);
+      xl = p2d->xlowlim();
+      xh = p2d->xhilim();
+  }
+  return std::pair<int, int>(xl, xh);
+}
+static std::pair<int, int>
+getYChannelRange(int specno, int row, int col)
+{
+  // We need to get the win_attributed object corresponding to the
+  // spectrum in order to figure out the range displayed if expanded.
+  
+  win_attributed* pAttrib = Xamine_GetDisplayAttributes(row, col);
+  
+  // Figure out the range of displayed channels.. full range unless expanded:
+  // Default this to the full spectrum we eliminate the root over/underflow chans.
+  // These are rerpesented in channel coordinates not channel numbers.
+  
+  int yl = 0;
+  int yh = xamine_shared->getydim(specno) - 3;
+  win_2d* p2d = dynamic_cast<win_2d*>(pAttrib);
+  
+  if (p2d->isexpanded()) {
+    // We can only be called for a 2-d Spectrum:
+  
+    
+    yl = p2d->xlowlim();
+    yh = p2d->xhilim();
+  
+    
+  }
+  return std::pair<int, int>(yl, yh);
 }
 
 /*!
@@ -195,3 +257,115 @@ float Xamine_YChanToMapped(int specno, float chan)
   return Transform(0, (float)(nch), ylo, yhi, chan); // Remove root chans
 
 }
+/**
+ * Xamine_XChanToPixelRange
+ *    Each X channel displayed takes up a range of pixels on the screen.
+ *    Given the set of pixel coordinates that make up a spectrum's display
+ *    area, this function returns that range.  We take into account any
+ *    spectrum expansion that might be in effect as well.
+ *
+ *  @param specno - specturm number.
+ *  @param row, col - Pane coordinates
+ *  @param pixlow - Low pixel number that's used to display channels.
+ *                  if the spectrum is flipped, this is the top pixel;
+ *                  if not the left pixel.
+ *  @param pixhigh - High pixel number that's used to display channels.
+ *                  If the sepctrum si flipped, this is the bottom pixel;
+ *                  if not the right pixel
+ *  @param chan   - channel
+ *  @returns std::pair<int, int> The low/high range of pixels taken up by the
+ *                 chanel in it's axis direction.
+ *          
+ */
+std::pair<int,int>
+Xamine_XChanToPixelRange(int specno, int row, int col, int pixlow, int pixhigh, int chan)
+{
+  std::pair<int,int> result;
+  
+  auto range = getXChannelRange(specno, row, col);
+  int xl = range.first;
+  int xh = range.second;
+    
+  // Now we can do the two transforms that get us the low and high pixel limits
+  // of the channel; we use that our high limit is the low limit of the next channel.
+  
+  result.first = Transform(xl, xh, pixlow, pixhigh, chan);
+  result.second = Transform(xl, xh, pixlow, pixhigh, chan+1);
+
+  
+  
+  return result;
+}
+/**
+ * Xamine_YChanToPixelRange
+ *    see Xamine_XChanToPixelRange... this does the same but for the Y channel
+ *    of a 2-d spectrum.  For this to make sense, the spectrum must be one of a
+ *    2-d spectrum.
+ *    
+ *  @param specno - specturm number.
+ *  @param row, col - Pane coordinates
+ *  @param pixlow - Low pixel number that's used to display channels.
+ *                  if the spectrum is flipped, this is the top pixel;
+ *                  if not the left pixel.
+ *  @param pixhigh - High pixel number that's used to display channels.
+ *                  If the sepctrum si flipped, this is the bottom pixel;
+ *                  if not the right pixel
+ *  @param chan   - channel
+ *  @returns std::pair<int, int> The low/high range of pixels taken up by the
+ *                 chanel in it's axis direction.
+ *          
+ */
+std::pair<int,int>
+Xamine_YChanToPixelRange(int specno, int row, int col, int pixlow, int pixhigh, int chan)
+{
+  std::pair<int,int> result;
+  
+  
+  auto range = getYChannelRange(specno, row, col);
+  int yl = range.first;
+  int yh = range.second;
+  
+  // Now we can do the two transforms that get us the low and high pixel limits
+  // of the channel; we use that our high limit is the low limit of the next channel.
+  
+  result.first = Transform(yl, yh, pixlow, pixhigh, chan);
+  result.second = Transform(yl, yh, pixlow, pixhigh, chan+1);
+  
+  return result;
+}
+/**
+ * Xamine_XPixelToChannel
+ *    Given a pixel coordinate figures out the channel that pixel lives in.
+ *    If the spectrum is flipped it's up to the caller to use the y pixel range.
+ *
+ *  @param specno    - Xamine Spectrum id.
+ *  @param row, col  - Pane in which we're operating.
+ *  @param pixlow, pixhigh - range of pixels that are used to plot the spectrum chans.
+ *  @param x         - X-Pixel coordinate.
+ *  @return int     - X Channel associated with that pixel. This will be the truncated
+ *                    transform value. 
+ *  
+ */
+int
+Xamine_XPixelToChannel(
+  int specno, int row, int col, int pixlow, int pixhigh, int x
+)
+{
+  auto range = getXChannelRange(specno, row, col);
+  return Transform(pixlow, pixhigh, range.first, range.second, x);
+  
+}
+/**
+ * Xamine_YPixelToChannel
+ *   Same as above but for a Y coordinate.
+ */
+int
+Xamine_YPixelToChannel(
+  int specno, int row, int col, int pixlow, int pixhigh, int y
+)
+{
+  auto range = getYChannelRange(specno, row, col);
+  return Transform(pixlow, pixhigh, range.first, range.second, y);
+}
+
+
