@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import io
 import pickle
-import sys, os
+import traceback, sys, os
 sys.path.append(os.getcwd())
 sys.path.append("./Lib")
+import subprocess
+import signal
+import logging
 
 from copy import copy
 import json
@@ -38,7 +41,7 @@ from scipy.signal import find_peaks
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -60,6 +63,13 @@ from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
 from Clustering import Cluster2D
 from PeakFinder import PeakFinder
+from logger import log, setup_logging, set_logger
+from notebook_process import testnotebook, startnotebook, stopnotebook
+from WebWindow import WebWindow
+
+SETTING_BASEDIR = "workdir"
+SETTING_EXECUTABLE = "exec"
+DEBUG = False
 
 DEBOUNCE_DUR = 0.25
 t = None
@@ -74,7 +84,7 @@ class MainWindow(QMainWindow):
         self.factory = factory
         self.fit_factory = fit_factory        
 
-        self.setWindowTitle("Project Robot Alba")
+        self.setWindowTitle("CutiePie")
         '''
         self.setWindowFlags(
             QtCore.Qt.Window |
@@ -288,6 +298,9 @@ class MainWindow(QMainWindow):
         self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
         self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
 
+        self.wConf.jup_start.clicked.connect(self.jupyterStart)
+        self.wConf.jup_stop.clicked.connect(self.jupyterStop)
+        
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
@@ -2822,6 +2835,91 @@ class MainWindow(QMainWindow):
         
     ############################
     ## end of Clustering
-    ############################                
+    ############################
 
+    ############################
+    ## Jupyter Notebook
+    ############################                    
+
+    def jupyterStop(self):
+        # stop the notebook process
+        log("Sending interrupt signal to jupyter-notebook")
+        self.wConf.jup_start.setEnabled(True)
+        self.wConf.jup_stop.setEnabled(False)        
+        self.wConf.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.wConf.jup_stop.setStyleSheet("")        
+        stopnotebook()
+        
+    def jupyterStart(self):
+        # dump dataframe to compressed file
+        self.spectrum_list.to_pickle(self.wConf.jup_df_filename.text(), compression="bz2")                
+        
+        s = QSettings()
+        execname = s.value(SETTING_EXECUTABLE, "jupyter-notebook")
+        if not testnotebook(execname):
+            while True:
+                QMessageBox.information(None, "Error", "It appears that Jupyter Notebook isn't where it usually is. " +
+                                        "Ensure you've installed Jupyter correctly and then press Ok to " +
+                                        "find the executable 'jupyter-notebook'", QMessageBox.Ok)
+                if testnotebook(execname):
+                    break
+                execname = QFileDialog.getOpenFileName(None, "Find jupyter-notebook executable", QDir.homePath())
+                if not execname:
+                    # user hit cancel
+                    sys.exit(0)
+                else:
+                    execname = execname[0]
+                    if testnotebook(execname):
+                        log("Jupyter found at %s" % execname)
+                        #save setting
+                        s.setValue(SETTING_EXECUTABLE, execname)
+                        break
+
+        # setup logging
+        # try to write to a log file, or redirect to stdout if debugging
+        logname = "JupyterQtPy-"+time.strftime("%Y%m%d-%H%M%S")+".log"
+        logfile = os.path.join(str(QDir.currentPath()), ".JupyterQtPy", logname)
+        if not os.path.isdir(os.path.dirname(logfile)):
+            os.mkdir(os.path.dirname(logfile))
+            try:
+                if DEBUG:
+                    raise IOError()  # force logging to console
+                setup_logging(logfile)
+            except IOError:
+                # no writable directory, log to console
+                setup_logging(None)
+                    
+        # workdir
+        directory = s.value(SETTING_BASEDIR, QDir.currentPath())
+
+        # setting window
+        view = WebWindow(None, None)
+        view.setWindowTitle("Jupyter CutiePie: %s" % directory)
+
+        # logging on docked console
+        qtlogger = QtLogger(view)
+        qtlogger.newlog.connect(view.loggerdock.log)
+        set_logger(lambda message: qtlogger.newlog.emit(message))
+        
+        log("Setting home directory --> "+str(directory))
+        
+        # start the notebook process
+        webaddr = startnotebook(execname, directory=directory)
+        view.loadmain(webaddr)
+
+        # resume regular logging
+        setup_logging(logfile)
+        
+        self.wConf.jup_start.setEnabled(False)
+        self.wConf.jup_stop.setEnabled(True)        
+        self.wConf.jup_start.setStyleSheet("")        
+        self.wConf.jup_stop.setStyleSheet("background-color:#DC143C;")
+        
+# redirect logging 
+class QtLogger(QObject):
+    newlog = pyqtSignal(str)
     
+    def __init__(self, parent):
+        super(QtLogger, self).__init__(parent)
+
+        

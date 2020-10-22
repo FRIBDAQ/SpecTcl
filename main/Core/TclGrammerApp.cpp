@@ -550,7 +550,7 @@ void CTclGrammerApp::CreateDisplays()
     }
 
     // Set up PyQt display to use the appropriate display size
-    pCreator = gpDisplayInterface->getFactory().getCreator("pyqt");
+    pCreator = gpDisplayInterface->getFactory().getCreator("qtpy");    
     if (pCreator != NULL) {
       std::cout << "pCreator is OK" << std::endl;
     } else {
@@ -578,7 +578,7 @@ void CTclGrammerApp::CreateDisplays()
     // Create the displays so they can chosen.
     m_pDisplayInterface->createDisplay("xamine",  "xamine");
     m_pDisplayInterface->createDisplay("batch",   "null");
-    m_pDisplayInterface->createDisplay("pyqt",   "pyqt");    
+    m_pDisplayInterface->createDisplay("qtpy",   "qtpy");    
 #ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
 #endif

@@ -154,13 +154,13 @@ void
 CPyQt::start()
 {
   // Starts the autonomous display subsystem.
-  std::cout << "Starting PyQtGUI display..." << std::endl;
+  std::cout << "Starting CutiePy display..." << std::endl;
    try {
      m_pMemory->attach();
      m_pProcess->exec();
     }
     catch (...) {
-      perror("PyQtGUI failed to start!! ");
+      perror("CutiePie failed to start!! ");
       exit(errno);      
     }
 }

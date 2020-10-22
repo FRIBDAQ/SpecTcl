@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
@@ -133,14 +134,33 @@ class Configuration(QWidget):
         self.peak_option = QPushButton("Options", self)
         self.cluster_name_label = QLabel("Clustering 2D")
         self.cluster_option = QPushButton("Options", self)
-
+        self.jup_start_label = QLabel("Jupyter Notebook")
+        self.jup_start = QPushButton("Start", self)
+        self.jup_stop = QPushButton("Stop", self)                
+        self.jup_df_label = QLabel("Saving dataframe to")
+        self.jup_df_filename = QLineEdit()
+        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".bz2"
+        self.jup_df_filename.setText(filename)
+        
+        self.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.jup_stop.setEnabled(False)
+        
+        
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.jup_start)
+        hlayout.addWidget(self.jup_stop)
+        hlayout.addStretch()
+        
         vlayout = QVBoxLayout()
         vlayout.addWidget(self.peak_name_label)        
         vlayout.addWidget(self.peak_option)
         vlayout.addWidget(self.cluster_name_label)
         vlayout.addWidget(self.cluster_option)
-        vlayout.addStretch()
-        
+        vlayout.addWidget(self.jup_start_label)
+        vlayout.addLayout(hlayout)
+        #vlayout.addWidget(self.jup_df_label)
+        vlayout.addWidget(self.jup_df_filename)
+
         algoBox.setLayout(vlayout)
         algoBox.setMaximumHeight(self.width)
 
