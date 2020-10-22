@@ -49,6 +49,13 @@
 #define XAMINE_TICK_MAXCOUNT 10   /* Maximum number of ticks.       */
 #define XAMINE_MAPPED_TICK_MAXCOUNT 7 /* Max. number of ticks if mapped */
 #define XAMINE_TICK_LABEL_INTERVALDIVISOR 2.3
-void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs);
 
+// Screen range:
+
+struct Rectangle {
+    Dimension xbase, ybase;     // Upper left.
+    Dimension xmax,  ymax;      // Lower right.
+};
+void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs);
+Rectangle Xamine_GetSpectrumDrawingRegion(XMWidget* pane, win_attributed* attribs);
 #endif
