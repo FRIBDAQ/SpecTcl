@@ -36,15 +36,37 @@
 
 #ifndef MAPCOORD_H
 #define MAPCOORD_H
+#include <utility>
 
+// Generic transformation function
+//  Transforms a point on a numberline from a source coordinate system
+//  to a destination coordinate system.
 
 float Transform(float fSourceLow, float fSourceHigh,
 		float fDestLow,   float fDestHigh, 
 		float point);
+
+// Two transforms and their inverses need to be captured:
+
+//     Mapped coordinates <--> Channel coordinates
+
 int Xamine_XMappedToChan(int specno, float value);
 int Xamine_YMappedToChan(int specno, float value);
 float Xamine_XChanToMapped(int specno, float chan);
 float Xamine_YChanToMapped(int specno, float chan);
+
+//     Screen coordinates <---> Channel coordinates.
+//     note channel to pixel transforms produce an inclusive range of pixels
+//     that display the channel.
+
+std::pair<int, int> Xamine_XChanToPixelRange(
+	int specno, int row, int col, int pixlow, int pixhigh, int chan
+);
+std::pair<int, int> Xamine_YChanToPixelRange(
+	int specno, int row, int col, int pixlow, int pixhigh, int chan
+);
+int Xamine_XPixelToChannel(int specno, int row, int col, int pixlow, int pixhigh, int x);
+int Xamine_YPixelToChannel(int specno, int row, int col, int pixlow, int pixhigh, int y);
 
 #endif
 
