@@ -33,6 +33,7 @@
 #include "dispwind.h"
 #include "dispshare.h"
 #include "XMWidget.h"
+#include <utility>
 
 
 #define SMOOTH1D_PIXELS    1
@@ -66,7 +67,7 @@ class Sampler {
   ) = 0;
 				  
   virtual void         setsample(int first) = 0;
-  virtual unsigned int sample() = 0;	     /* Get a sample and move to next one. */
+  virtual std::pair<unsigned, unsigned> sample() = 0;	     /* Get a sample and move to next one. */
 };
 
 class Samplel : public Sampler {	    /* Sample longword */
@@ -87,7 +88,7 @@ class Samplel : public Sampler {	    /* Sample longword */
   }
   virtual void setsample(int f) { setsample (f, step); }
   
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;		    /* Will become the sample value */
     int      first = (int)(offset + 0.5);
     offset        +=  step;
@@ -96,7 +97,7 @@ class Samplel : public Sampler {	    /* Sample longword */
       if(s < base[i]) s = base[i];
     }
 
-    return s;
+    return std::pair<unsigned, unsigned>(s, last - first);
   }
 };
 
@@ -117,7 +118,7 @@ class Samplew : public Sampler { /* Sample shortword */
     step   = s;
   }
   virtual void setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;		    /* Will become the sample value */
     int      first = (int)(offset + 0.5);
     offset        +=  step;
@@ -125,7 +126,7 @@ class Samplew : public Sampler { /* Sample shortword */
     for(int i = first; i < last; i++) {
       if(s < base[i]) s = base[i];
     }
-    return s;
+    return std::pair<unsigned, unsigned>(s, last - first);
   }
 };
 
@@ -146,13 +147,14 @@ class Suml : public Sampler {	/* Sample via summing (long) */
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;
+    unsigned first = offset;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++)
       s += base[i];
     offset += step;
-    return s;
+    return std::pair<unsigned,unsigned>(s, last - first);
   }
 };
 
@@ -173,13 +175,14 @@ class Sumw : public Sampler {	/* Sample via summing (word) */
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    int first = offset;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++)
       s += (unsigned int)base[i];
     offset += step;
-    return s;
+    return std::pair<unsigned, unsigned>(s, last-first);
   }
 };
 /*  The Avg* classes are the same as the Sum* methods but just divide by
@@ -203,8 +206,9 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    int first = offset;
     int chans = 0;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++) {
@@ -212,7 +216,7 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
       chans++;
     }
     offset += step;
-    return (s/chans);
+    return std::pair<unsigned, unsigned>((s/chans), last-first);
   }
 };
 
@@ -233,8 +237,9 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    unsigned first = offset;
     unsigned int chans = 0;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++) {
@@ -242,7 +247,7 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
       chans++;
     }
     offset += step;
-    return (s/chans);
+    return std::pair<unsigned, unsigned>((s/chans), last-first);
   }
 };
 

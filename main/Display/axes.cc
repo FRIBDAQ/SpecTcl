@@ -365,7 +365,7 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
   if (!font) return;
 
   for (double x = low; x < hi; x += value_interval) {
-    int xpix = Transform(low, hi, xbase, nx, x);
+    int xpix = Transform(low, hi, xbase, nx+xbase, x);
     ticks.draw(xpix, ybase+2, xpix, ybase-height);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0)) {
@@ -655,7 +655,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   if (!font) return;
   
   for (float y = low; y < hi; y += value_interval)  {
-    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
+    int ypix = ny - Transform(low, hi, 0, ny, y);
     ticks.draw(xbase-2, ypix, xbase+height, ypix);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0))
@@ -926,23 +926,27 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 
     
     low = 0;
-    hi  = xamine_shared->getxdim(attribs->spectrum()) - 3; /*Suppress overflow chan*/
+    hi  = xamine_shared->getxdim(attribs->spectrum()) - 2; /*Suppress overflow chan*/
     
     if(attribs->is1d()) {
       win_1d *att = (win_1d *)attribs;
       int specno = att->spectrum();
       if(att->isexpanded()) {
-        low = att->lowlimit();
-        hi  = att->highlimit() +1;
+        low = att->lowlimit();  
+        hi  = att->highlimit();
+        if(attribs->ismapped()) hi--;
       }
     }
     else {
       win_2d *att = (win_2d *)attribs;
 
-      // The + 1 on high makes the expansion [low,hi].
+      // The expansion is [low,hi).
       if(att->isexpanded()) {
         low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
-        hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim()) +1;
+        hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
+        // Note there's already a compensation for the channel width so:
+        // take that out here.
+        if (attribs->ismapped()) hi--;
       }
     }
 
@@ -963,6 +967,11 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     else {
       float f_low = Xamine_XChanToMapped(attribs->spectrum(), low);
       float f_hi  = Xamine_XChanToMapped(attribs->spectrum(), hi);
+      // We're really plotting one channel width past the f_hi:
+      int nchans= hi -low;
+      if (nchans < 0) nchans = -nchans;    // In case the axis goes backwards.
+      f_hi += channelWidth(f_low, f_hi, nchans);
+      
       xamine_shared->getxlabel_map(xlabel, attribs->spectrum());
       if(attribs->isflipped()) {
         DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_low, 

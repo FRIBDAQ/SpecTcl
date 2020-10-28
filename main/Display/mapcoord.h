@@ -38,22 +38,27 @@
 #define MAPCOORD_H
 #include <utility>
 
+// Width of a channel in real coords.
+
+double
+channelWidth(double lo, double hi, double chans);
+
 // Generic transformation function
 //  Transforms a point on a numberline from a source coordinate system
 //  to a destination coordinate system.
 
-float Transform(float fSourceLow, float fSourceHigh,
-		float fDestLow,   float fDestHigh, 
-		float point);
+float Transform(double fSourceLow, double fSourceHigh,
+		double fDestLow,   double fDestHigh, 
+		double point);
 
 // Two transforms and their inverses need to be captured:
 
 //     Mapped coordinates <--> Channel coordinates
 
-int Xamine_XMappedToChan(int specno, float value);
-int Xamine_YMappedToChan(int specno, float value);
-float Xamine_XChanToMapped(int specno, float chan);
-float Xamine_YChanToMapped(int specno, float chan);
+int Xamine_XMappedToChan(int specno, double value);
+int Xamine_YMappedToChan(int specno, double value);
+float Xamine_XChanToMapped(int specno, double chan);
+float Xamine_YChanToMapped(int specno, double chan);
 
 //     Screen coordinates <---> Channel coordinates.
 //     note channel to pixel transforms produce an inclusive range of pixels
