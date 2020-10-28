@@ -142,74 +142,12 @@ getSuperpositionColor(Display* d, XMWidget* wid, int n)
 void Xamine_getsubwindow(XMWidget *pane, win_attributed *att, 
 			 int *orgx, int *orgy, Dimension *nx, Dimension *ny)
 {
-	
-  /* Initial guess for size is gotten from the widget's size in the
-  ** resource set:
-  */
+	Rectangle roi =  Xamine_GetSpectrumDrawingRegion(pane, att);
+	*orgx = roi.xbase;
+	*orgy = roi.ybase;
+	*nx   = roi.xmax - roi.xbase;
+	*ny   = roi.ybase;
 
-  pane->GetAttribute(XmNwidth, nx);
-  pane->GetAttribute(XmNheight, ny);
-  *orgx = 0;
-  *orgy = *ny;
-
-  /* This can be modified by the margins... if there is an axis set, then
-  ** there is a full margin of  XAMINE_MARGINSIZE scale pixels.
-  */
-  win_1d* at1 = NULL;
-  win_2d* at2 = NULL;
-  if(att->is1d()) {
-    at1 = (win_1d*) att;
-  } else {
-    at2 = (win_2d*) att;
-  }
-
-  if(att->showaxes()) {
-    int newnx,newny;
-
-
-    /* Factor axis margins into the size and origin of the channel region */
-
-    newnx = (int)((float)*nx *(1.0 - XAMINE_MARGINSIZE));
-
-    /* If it's a 2d and user mapped, or a 1d and user mapped and flipped, 
-       then account for the pushed in margins on the y-axis side 
-    */
-    if(((at2 != NULL) && (at2->ismapped())) ||
-       ((at1 != NULL) && (at1->ismapped()) && (at1->isflipped()))) {
-      newnx = (int)((float)*nx *(1.0 - XAMINE_MAPPED_MARGINSIZE));
-    }
-    *orgx = (*nx - newnx);
-    *nx   = newnx;
-
-    newny = (int)((float)*ny *(1.0 - XAMINE_MARGINSIZE));
-
-    /* If it's user mapped and not flipped, or a 2d and flipped and user 
-       mapped, then account for the pushed in margins on the x-axis side
-    */
-    if(((at1 != NULL) && (at1->ismapped()) && (!at1->isflipped())) ||
-       ((at2 != NULL) && (at2->ismapped()))) {
-      newny = (int)((float)*ny *(1.0 - XAMINE_MAPPED_MARGINSIZE));
-    }
-    *orgy = newny;
-    *ny   = newny;
-    return;
-  }
-  /* If there are only titles present, then the X axis margin is present in
-  ** half size and the Y axis margin is absent.
-  */
-  if(att->showname()    ||  att->shownum()  ||
-     att->showdescrip() ||  att->showpeak() ||
-     att->showupdt()    ||  att->showlbl()) {
-    int newny;
-
-    newny = (int)((float)*ny * (1.0 - XAMINE_MARGINSIZE/2.0));
-    if(((at1 != NULL) && (at1->ismapped())) ||
-       ((at2 != NULL) && (at2->ismapped()))) {
-      newny = (int)((float)*ny * (1.0 - XAMINE_MAPPED_MARGINSIZE/2.0));
-    }
-    *ny   = newny;
-    *orgy = newny;
-  }
   
 }
 
