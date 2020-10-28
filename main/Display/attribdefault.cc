@@ -390,6 +390,7 @@ AttributeForm::AttributeForm(const char *name, XMForm &work_area)
   work_area.SetTopAttachment(*flipped, XmATTACH_FORM);
   work_area.SetLeftAttachment(*flipped, XmATTACH_FORM);
   work_area.SetRightAttachment(*flipped, XmATTACH_FORM);
+  flipped->Disable();                    // No longer supporting flipped.
 
   logscale = new XMToggleButton("LogScale", work_area);
   logscale->Label("Logarithmic Counts Scale");
@@ -706,7 +707,7 @@ void Xamine_SetDefaultAttributes(XMWidget *w, XtPointer user_d, XtPointer cd)
   dialog->Flipped(dflt->isflipped());
   dialog->LogScale(dflt->islog());
   dialog->Mapping(dflt->ismapped());
-
+  
   dialog->AutoScale( (dflt->getfs() == -1));
   sprintf(number, "%d", dflt->getfsval());
   dialog->FullScale(number);
