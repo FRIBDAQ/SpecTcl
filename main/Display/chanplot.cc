@@ -142,6 +142,7 @@ getSuperpositionColor(Display* d, XMWidget* wid, int n)
 void Xamine_getsubwindow(XMWidget *pane, win_attributed *att, 
 			 int *orgx, int *orgy, Dimension *nx, Dimension *ny)
 {
+	
   /* Initial guess for size is gotten from the widget's size in the
   ** resource set:
   */

@@ -52,8 +52,8 @@ std::set<spec_type> TwodSpectrumTypes = {twodlong, twodword, twodbyte};
  * @param chans - Number of channels allocated for the range [lo hi).
  * @return float - width of a channel in real coordinates.
  */
-static float
-channelWidth(float lo, float hi, float chans)
+double
+channelWidth(double lo, double hi, double chans)
 {
     return (hi - lo)/chans;  
 }
@@ -128,9 +128,9 @@ getYChannelRange(int specno, int row, int col)
     \retval  the coordinate transformed as indicated by the
              two coordinate windows.
 */
-float Transform(float fSourceLow, float fSourceHigh,
-		float fDestLow,   float fDestHigh, 
-		float point)
+float Transform(double fSourceLow, double fSourceHigh,
+		double fDestLow,   double fDestHigh, 
+		double point)
 {
   double  fraction;
   if (fSourceHigh - fSourceLow != 0) {
@@ -157,17 +157,17 @@ float Transform(float fSourceLow, float fSourceHigh,
 **     The integer value of the channel which this mapped coordinate
 **     corresponds to or -1.0 on failure
 */
-int Xamine_XMappedToChan(int specno, float value)
+int Xamine_XMappedToChan(int specno, double value)
 {
-  float xlo = xamine_shared->getxmin_map(specno);
-  float xhi = xamine_shared->getxmax_map(specno);
-  float nch = xamine_shared->getxdim(specno) -2;  // Remove root chans.
+  double xlo = xamine_shared->getxmin_map(specno);
+  double xhi = xamine_shared->getxmax_map(specno);
+  double nch = xamine_shared->getxdim(specno) -2;  // Remove root chans.
   
   // There's really an extra 1/2 channel xhi we need o allow for.
   
   xhi +=  channelWidth(xlo, xhi, nch);
 
-  float x = Transform(xlo, xhi, 0.0, (float)(nch+1), value);
+  float x = Transform(xlo, xhi, 0.0, (nch+1), value);
   
   return x;
 
@@ -187,17 +187,17 @@ int Xamine_XMappedToChan(int specno, float value)
 **     The integer value of the channel which this mapped coordinate
 **     corresponds to, or -1.0 if failure.
 */
-int Xamine_YMappedToChan(int specno, float value)
+int Xamine_YMappedToChan(int specno, double value)
 {
 
 
-  float ylo = xamine_shared->getymin_map(specno);
-  float yhi = xamine_shared->getymax_map(specno);
-  float nch = xamine_shared->getydim(specno) -2; // Remove root chans.
+  double ylo = xamine_shared->getymin_map(specno);
+  double yhi = xamine_shared->getymax_map(specno);
+  double nch = xamine_shared->getydim(specno) -2; // Remove root chans.
   
   yhi +=  channelWidth(ylo, yhi, nch);
 
-  float y = Transform(ylo, yhi, 0.0, (float)(nch+1), value);
+  float y = Transform(ylo, yhi, 0.0, (nch+1), value);
   
   return y;
 }
@@ -215,18 +215,18 @@ int Xamine_YMappedToChan(int specno, float value)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_XChanToMapped(int specno, float chan)
+float Xamine_XChanToMapped(int specno, double chan)
 {
-  float xlo = xamine_shared->getxmin_map(specno);
-  float xhi = xamine_shared->getxmax_map(specno);
-  int   nch = xamine_shared->getxdim(specno) - 2; // Remove root chans
+  double xlo = xamine_shared->getxmin_map(specno);
+  double xhi = xamine_shared->getxmax_map(specno);
+  int   nch = xamine_shared->getxdim(specno) - 3; // Remove root chans
 
   // We go to the end of the last channel so xhi must be adjusted by
   // a channel width?
   
-  xhi += channelWidth(xlo, xhi, nch);
+ xhi += channelWidth(xlo, xhi, nch);
   
-  return Transform(0, (float)(nch-1),    
+  return Transform(0, (nch+1),    
 		   xlo, xhi, chan);                  
 }
 
@@ -243,10 +243,10 @@ float Xamine_XChanToMapped(int specno, float chan)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_YChanToMapped(int specno, float chan)
+float Xamine_YChanToMapped(int specno, double chan)
 {
-  float ylo = xamine_shared->getymin_map(specno);
-  float yhi = xamine_shared->getymax_map(specno);
+  double ylo = xamine_shared->getymin_map(specno);
+  double yhi = xamine_shared->getymax_map(specno);
   int   nch = xamine_shared->getydim(specno) -2;  // remove root chan.
   
   // We go to the end of the last y channel so we need to add
@@ -254,7 +254,7 @@ float Xamine_YChanToMapped(int specno, float chan)
   
   yhi += channelWidth(ylo,  yhi, nch);
 
-  return Transform(0, (float)(nch), ylo, yhi, chan); // Remove root chans
+  return Transform(0, (nch), ylo, yhi, chan); // Remove root chans
 
 }
 /**
