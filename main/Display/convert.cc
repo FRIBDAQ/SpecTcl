@@ -324,7 +324,10 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   
   if (a->islog()) {
     if (base > 0) base = log10(base);
-    if (maximum > 0) maximum = log10(base);
+    if (maximum > 0) {
+      maximum = log10(maximum);
+      maximum = ceil(maximum);   // since we have a complete set of decades.
+    }
   }
   double ht = Transform(drawRegion.ybase, 0, base, maximum, ypix);
   
@@ -389,7 +392,10 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   
   if (attributes->islog()) {
     if (base > 0) base = log10(base);
-    if (maximum > 0) maximum = log10(base);
+    if (maximum > 0) {
+      maximum = log10(maximum);
+      maximum = ceil(maximum);     // we display a complete set of decades.
+    }
   }
   // Transform from counts -> pixels:
   
