@@ -73,7 +73,7 @@ getXChannelRange(int specno, int row, int col)
   // These are rerpesented in channel coordinates not channel numbers.
   
   int xl = 0;
-  int xh = xamine_shared->getxdim(specno) - 3;
+  int xh = xamine_shared->getxdim(specno) - 2;
   if ((OnedSpectrumTypes.count(Xamine_SpectrumType(specno)) > 0) &&
       (reinterpret_cast<win_1d*>(pAttrib))->isexpanded()) {
       win_1d* p1d = dynamic_cast<win_1d*>(pAttrib);
@@ -85,7 +85,10 @@ getXChannelRange(int specno, int row, int col)
       xl = p2d->xlowlim();
       xh = p2d->xhilim();
   }
-  return std::pair<int, int>(xl, xh);
+  std::pair<int, int> result;
+  result.first = xl;
+  result.second = xh;
+  return result;
 }
 static std::pair<int, int>
 getYChannelRange(int specno, int row, int col)
@@ -100,7 +103,7 @@ getYChannelRange(int specno, int row, int col)
   // These are rerpesented in channel coordinates not channel numbers.
   
   int yl = 0;
-  int yh = xamine_shared->getydim(specno) - 3;
+  int yh = xamine_shared->getydim(specno) - 2;
   win_2d* p2d = dynamic_cast<win_2d*>(pAttrib);
   
   if (p2d->isexpanded()) {
@@ -112,7 +115,10 @@ getYChannelRange(int specno, int row, int col)
   
     
   }
-  return std::pair<int, int>(yl, yh);
+  std::pair<int, int> result;
+  result.first = yl;
+  result.second = yh;
+  return result;
 }
 
 /*!
@@ -219,14 +225,14 @@ float Xamine_XChanToMapped(int specno, double chan)
 {
   double xlo = xamine_shared->getxmin_map(specno);
   double xhi = xamine_shared->getxmax_map(specno);
-  int   nch = xamine_shared->getxdim(specno) - 3; // Remove root chans
+  int   nch = xamine_shared->getxdim(specno) - 2; // Remove root chans
 
   // We go to the end of the last channel so xhi must be adjusted by
   // a channel width?
   
- xhi += channelWidth(xlo, xhi, nch);
+ xhi += channelWidth(xlo, xhi, nch-1);
   
-  return Transform(0, (nch+1),    
+  return Transform(0, (nch),    
 		   xlo, xhi, chan);                  
 }
 
