@@ -54,6 +54,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "gc.h"
 #include "xaminegc.h"
 #include "gcmgr.h"
+
+
 /*
 ** Static storage... the dash lists for the superposition graphical contexts
 ** are stored here.
