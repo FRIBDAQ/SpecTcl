@@ -563,13 +563,13 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
     while(!last) {
       spno = s.Spectrum();
       if((xamine_shared->gettype(spno) == undefined) || !(
-	 (xamine_shared->gettype(spno) == onedword)  ||
-	 (xamine_shared->gettype(spno) == onedlong) ) )  {
-	supers.DeleteCurrent();      // The superposed spectrum vanished.
-	last = supers.Last();
-      }
-      else {
-	break;
+							(xamine_shared->gettype(spno) == onedword)  ||
+							(xamine_shared->gettype(spno) == onedlong) )
+					 )  {
+							supers.DeleteCurrent();      // The superposed spectrum vanished.
+							last = supers.Last();
+						} else {
+							break;
       }
     }
     if(last) break;
