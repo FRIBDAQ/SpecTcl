@@ -192,6 +192,9 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
 			}
 			if (maximum > 0) {
 				maximum = log10(maximum);
+				// Note we have a complete set of decades so:
+				
+				maximum = ceil(maximum);
 			}
 		}
 		
