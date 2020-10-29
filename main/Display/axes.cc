@@ -365,7 +365,8 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
   if (!font) return;
 
   for (double x = low; x < hi; x += value_interval) {
-    int xpix = Transform(low, hi, xbase, nx+xbase, x);
+    
+    int xpix = Transform(low, hi, xbase, nx, x);
     ticks.draw(xpix, ybase+2, xpix, ybase-height);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0)) {
@@ -934,7 +935,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       if(att->isexpanded()) {
         low = att->lowlimit();  
         hi  = att->highlimit();
-        if(attribs->ismapped()) hi--;
+        //if(attribs->ismapped()) hi--;
       }
     }
     else {
@@ -946,7 +947,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
         hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
         // Note there's already a compensation for the channel width so:
         // take that out here.
-        if (attribs->ismapped()) hi--;
+        //if (attribs->ismapped()) hi--;
       }
     }
 
@@ -968,9 +969,9 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       float f_low = Xamine_XChanToMapped(attribs->spectrum(), low);
       float f_hi  = Xamine_XChanToMapped(attribs->spectrum(), hi);
       // We're really plotting one channel width past the f_hi:
-      int nchans= hi -low;
-      if (nchans < 0) nchans = -nchans;    // In case the axis goes backwards.
-      f_hi += channelWidth(f_low, f_hi, nchans);
+      
+      //if (nchans < 0) nchans = -nchans;    // In case the axis goes backwards.
+      //f_hi += channelWidth(f_low, f_hi, nchans);
       
       xamine_shared->getxlabel_map(xlabel, attribs->spectrum());
       if(attribs->isflipped()) {
