@@ -457,9 +457,9 @@ void Xamine_PlotObject(grobj_generic *obj, Boolean final)
     for(int c = 0; c < nc; c++) {
       win_attributed *att = Xamine_GetDisplayAttributes(r, c);
       if(att != NULL) {
-	XMWidget *w = Xamine_GetDrawingArea(r, c);
-	if(obj->getspectrum()   == att->spectrum() )
-	  obj->draw(w, att, final);
+				XMWidget *w = Xamine_GetDrawingArea(r, c);
+				if(obj->getspectrum()   == att->spectrum() )
+					obj->draw(w, att, final);
       }
     }
 }
