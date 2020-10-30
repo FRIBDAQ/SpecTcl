@@ -906,9 +906,9 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
 							yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
 							yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
 							xl++;
-							xh++;                         // Root Compensation.
+							//xh++;                         // Root Compensation.
 							yl++;
-							yh++;
+							//yh++;
 							//	if(at2->ismapped()) {
 	     }
       ctx->sampler = 
