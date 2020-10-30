@@ -414,7 +414,7 @@ void Integrate_1dw::Perform()
   /* Hoist the spectrum base pointer to allow efficient pointer usage in the
   ** summing pass..
   */
-  unsigned short *s = &(spectrum[lolim]);
+  unsigned short *s = &(spectrum[lolim+1]);
 
   /* Do the sum. */
 
@@ -481,7 +481,7 @@ void Integrate_1dl::Perform()
   /* Hoist the spectrum base pointer to allow efficient pointer usage in the
   ** summing pass..
   */
-  unsigned int *s = (unsigned int *)&spectrum[lolim];
+  unsigned int *s = (unsigned int *)&spectrum[lolim+1]; // +1 root.
 
   /* Do the sum. */
 
@@ -541,8 +541,9 @@ void Integrate_2db::Perform()
   ** the spectrum:
   */
   int nlines             = e->scan_lines;	/* Loop pass count. */
-  unsigned char *line    = spectrum + (e->ybase * xchans);  /* base of scan */
-
+  unsigned char *line    = spectrum + ((e->ybase + 1) * xchans) + 1;  /* base of scan */
+    // +1's above for root.
+		
   /* Now loop over all the scan lines represented by the edge table:      */
   /* In each pass of the loop, pairs of points in the active edge table   */
   /* define integration limits.  After each loop pass, dead line segments */
@@ -560,7 +561,7 @@ void Integrate_2db::Perform()
       int lo = (int)active.bases[j].xnow;
       int hi = (int)active.bases[j+1].xnow; /* sum limits. */
       unsigned char *s = line + lo;
-      for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+      for(int k = lo; k < hi; k ++) { /* Sum over one interior region. */
 	double  xchannel = XChannel(k);
 	double  ychannel = YChannel(y);
 	float   ch       = (float)*s++;
@@ -632,7 +633,7 @@ void Integrate_2dw::Perform()
   ** the spectrum:
   */
   int nlines             = e->scan_lines;	/* Loop pass count. */
-  unsigned short *line    = spectrum + (e->ybase * xchans);  /* base of scan */
+  unsigned short *line    = spectrum + ((e->ybase +1) * xchans) + 1;  /* base of scan */
 
   /* Now loop over all the scan lines represented by the edge table:      */
   /* In each pass of the loop, pairs of points in the active edge table   */
@@ -655,7 +656,7 @@ void Integrate_2dw::Perform()
       int lo = (int)active.bases[j].xnow;
       int hi = (int)active.bases[j+1].xnow; /* sum limits. */
       unsigned short *s = line + lo;
-      for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+      for(int k = lo; k < hi; k ++) { /* Sum over one interior region. */
 	double xchannel = XChannel(k);
 	double ychannel = YChannel(y);
 	if (inside(k, 0, xdimension) && inside(y, 0, ydimension)) {
@@ -725,7 +726,7 @@ Integrate_2dl::Perform()
   ** the spectrum:
   */
   int nlines             = e->scan_lines;	/* Loop pass count. */
-  unsigned int *line    = spectrum + (e->ybase * xchans);  /* base of scan */
+  unsigned int *line    = spectrum + ((e->ybase +1) * xchans) +1;  /* base of scan */
 
   /* Now loop over all the scan lines represented by the edge table:      */
   /* In each pass of the loop, pairs of points in the active edge table   */
@@ -750,7 +751,7 @@ Integrate_2dl::Perform()
 	int lo = (int)active.bases[j].xnow;
 	int hi = (int)active.bases[j+1].xnow; /* sum limits. */
 	unsigned int *s = line + lo;
-	for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+	for(int k = lo; k < hi; k ++) { /* Sum over one interior region. */
 	  double xchannel = XChannel(k);
 	  double ychannel = YChannel(y);
 
