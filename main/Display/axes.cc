@@ -656,7 +656,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   if (!font) return;
   
   for (float y = low; y < hi; y += value_interval)  {
-    int ypix = ny - Transform(low, hi, 0, ny, y);
+    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
     ticks.draw(xbase-2, ypix, xbase+height, ypix);
     if (label_ticks && (font != nullptr)) {
       if((rem != 0.0) || (mant != 0.0))
@@ -1016,7 +1016,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     } else {			/* 2-d spectrum. Figure out hi/low like X */
       win_2d *att = (win_2d *)attribs;
       low = 0;                                   // Root channel compensation.
-      hi  = xamine_shared->getydim(att->spectrum())-3;
+      hi  = xamine_shared->getydim(att->spectrum())-2;
       // The +1 deals with the root channels.
       // The + 2 on high makes the expansion [low,hi].
       if(att->isexpanded() && att->isflipped()) {
@@ -1024,7 +1024,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
         hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) + 1;
       } else if(att->isexpanded()) {
         low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
-        hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) +1 ;
+        hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
       } else if(att->isflipped()) {
         low = 1;
         hi  = xamine_shared->getxdim(att->spectrum()) - 3;

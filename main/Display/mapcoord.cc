@@ -258,7 +258,7 @@ float Xamine_YChanToMapped(int specno, double chan)
   // We go to the end of the last y channel so we need to add
   // one more channel width to yhi:
   
-  yhi += channelWidth(ylo,  yhi, nch);
+  yhi += channelWidth(ylo,  yhi, nch - 1);
 
   return Transform(0, (nch), ylo, yhi, chan); // Remove root chans
 
