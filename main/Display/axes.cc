@@ -633,7 +633,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
 
   // Compute the interval to display between successive tick marks
  
-  value_interval = ComputeMappedTickInterval((hi-low), (ybase+1));
+  value_interval = ComputeMappedTickInterval((hi-low), (ybase));
   if(value_interval == 0) {
     value_interval = 0.2;
   }
