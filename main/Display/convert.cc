@@ -421,105 +421,34 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 {
   int spec = attributes->spectrum();
   win_2d *att = (win_2d *)attributes;
+  
   /* First figure out how many pixels are in the X and Y channel direction. */
 
-  Dimension nxs;
-  Dimension nys;
-
-  pane->GetAttribute(XmNwidth, &nxs);
-  pane->GetAttribute(XmNheight, &nys);
+  int index;
+  pane->GetAttribute(XmNuserData, &index);
+  int row = index/WINDOW_MAXAXIS;
+  int col = index/WINDOW_MAXAXIS;
+  Rectangle drawRegion = Xamine_GetSpectrumDrawingRegion(pane, attributes);
   
-  int nx = nxs;
-  int ny = nys;
-
-  /*  Figure the X/Y channel limits represented by nx and ny pixels */
-  int xl,xh;
-  int yl,yh;
+  // Now the X/Y coordinates are just linear transforms.
+  // The counts are gotte4n from the channel indexes and the
   
-  if(att->isexpanded()) {
-    xl = (att->isflipped() ? att->ylowlim() : att->xlowlim());
-    xh = (att->isflipped() ? att->yhilim()  : att->xhilim());
-    yl = (att->isflipped() ? att->xlowlim() : att->ylowlim());
-    yh = (att->isflipped() ? att->xhilim()  : att->yhilim());
-    xh++;
-    yh++;
-    if(att->isexpandedfirst()) {
-      
-    }
-  }
-  else {
-    xl = 0;
-    xh = spectra->getxdim(spec) -2 ;
-    yl = 0;			
-    yh = spectra->getydim(spec)- 2;
-  }
-
-  /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
+  int cx = Xamine_XPixelToChannel(
+    spec, row, col, drawRegion.xbase, drawRegion.xmax, xpix
+  );
+  int cy = Xamine_YPixelToChannel(
+    spec, row, col, drawRegion.ybase, 0, ypix
+  );
+  // Now we get the value:
   
-  if(att->isflipped()) {
-    int temp;
-    temp = xl;
-    xl   = yl;
-    yl   = temp;
-    
-    temp = xh;
-    xh   = yh;
-    yh   = temp;  
-  }
-
-  /* Next normalize the coordinates to Cartesians relative to the
-  ** start of the spectrum display region.
-  */
-
-  Normalize(attributes, &nx, &ny, &xpix, &ypix);
-
-  /* Get channel values: */
-
-  int xp, yp;
-
-  // xp = (int)LinearPosition(xpix, xl, xh, nx);
-  // yp = (int)LinearPosition(ypix, yl, yh, ny);
-
-  xp = floor(Transform(0.0, (float)(nx),
-		       (float)xl, (float)xh, (float)xpix));
-  yp = floor(Transform(0.0, (float)(ny),
-		       (float)yl, (float)yh, (float)ypix));
-		      
-
-  if((att->isflipped() && att->isexpanded() && att->isexpandedfirst()) ||
-     (!att->isflipped() && att->isexpanded() && !att->isexpandedfirst())) {
-    loc->ypos = xp;
-    loc->xpos = yp;
-    int temp = xl;
-    xl = yl;
-    yl = temp;
-    temp = xh;
-    xh = yh;
-    yh = temp;
-  }
-  else {
-    loc->xpos = xp;
-    loc->ypos = yp;
-  }
-
-  if( ((xp >= xl) && (yp >= yl) && (xp <= xh) && (yp <= yh))) {
-    if(attributes->isflipped()) {
-      loc->counts = spectra->getchannel(spec, yp, xp);
-    }
-    else {
-      loc->counts = spectra->getchannel(spec, xp, yp);
-    }
-  }
-  else {
-    loc->counts = 0;
-  }
-
-  if(clipping) {
-    if(xp < xl) loc->xpos = xl;
-    if(xp > xh) loc->xpos = xh;
-    if(yp < yl) loc->ypos = yl;
-    if(yp > yh) loc->ypos = yh;
-  }
+  int counts = spectra->getchannel(spec, cx, cy);
+  
+  // FIll in the locator:
+  
+  loc->xpos = cx;
+  loc->ypos = cy;
+  loc->counts = counts;
+  
 }
 
 /*

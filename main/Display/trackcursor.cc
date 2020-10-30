@@ -165,51 +165,10 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   ** Underlying spectrum
   */
   if(atts->is1d()) {
-		// Get the channel:
 		
-		int chan = Xamine_XPixelToChannel(
-					sid, row, col, drawingRegion.xbase, drawingRegion.xmax, wx
-		);
-		int value= xamine_shared->getchannel(sid, chan);
-		if (atts->ismapped()) {
-			chan = Xamine_XChanToMapped(sid, chan);
-		}
-		
-		// Have to transform the Y coordinate to an height; figure out
-		// the Y range and do it for linear:
-		
-		double base = 0;			/* Assume zero bias... */
-		if(atts->hasfloor()) base = atts->getfloor();
-		double maximum  = atts->getfsval();	/* Assume no ceiling. */
-		if(atts->hasceiling()  && (atts->getceiling() < maximum)) {
-			maximum = atts->getceiling();
-		}
-		// Correct if log:
-		
-		if (atts->islog()) {
-			if (base > 0) {
-				base = log10(base);
-			}
-			if (maximum > 0) {
-				maximum = log10(maximum);
-				// Note we have a complete set of decades so:
-				
-				maximum = ceil(maximum);
-			}
-		}
-		
-		double height = Transform(drawingRegion.ybase, 0, base, maximum, wy);
-		
-		if (atts->islog()) {
-			height = exp10(height);
-		}
-    // Now get the locator and set it's values:
-		
-		Xamine_Location* l = Xamine_GetCursorLocator();
-		l->Xpos(chan);
-		l->Ypos(height);
-		l->Counts(value);
-		return;
+		Xamine_Convert1d cvt(w, atts, xamine_shared);
+		cvt.ScreenToSpec(&locdata, wx, wy);
+		//return;
   }
   else {
     Xamine_Convert2d cvt(w, atts, xamine_shared);
