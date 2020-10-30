@@ -424,7 +424,7 @@ CSpectrum::AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue)
   } else if (nAxis < m_nChannels.size()) {
     Float_t l = m_fLows[nAxis];       // The assumption these are all equi-sized
     Float_t h = m_fHighs[nAxis];      // holds as these were added via AddAxis.
-    UInt_t  n = m_nChannels[nAxis];
+    UInt_t  n = m_nChannels[nAxis] -2; // Take the root channels out.
     
     return (l + (nAxisValue * (h - l) / n));
     
