@@ -468,74 +468,26 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
 {
   int spec = attributes->spectrum();
   win_2d *a = (win_2d *)attributes;
-  /* First figure out the number of pixels in X and Y directions.
-  ** We'll use the translated origin coordinates later to adjust the
-  ** computed pixels into Full window X-11 coordinates:
-  */
-
-  Dimension nxs, nys;
-  pane->GetAttribute(XmNwidth, &nxs);
-  pane->GetAttribute(XmNheight, &nys);
-
-  int orgx = 0;
-  int orgy = nys;
-
-  int nx = nxs;
-  int ny = nys;
-
-  Normalize(attributes, &nx, &ny, &orgx, &orgy);
-
-  /* Figure out the channel ranges represented by each axis, here's where
-  ** we need to take into account any axis flipping.
-  */
-
-  int xl,xh,yl,yh;
   
-  if(a->isexpanded()) {
-    xl = a->xlowlim();
-    xh = a->xhilim();		/* These are in screen orientation. */
-    yl = a->ylowlim();
-    yh = a->yhilim();
-  }
-  else {
-    xl = 0;
-    xh = spectra->getxdim(spec);
-    yl = 0;			/* These are in spectrum orientation and */
-    yh = spectra->getydim(spec); /* Must therefore be flipped if the  */
-				/* spectrum is in flipped orientation.  */
-    if(a->isflipped()) {
-      int temp;
-      temp = xl;
-      xl   = yl;
-      yl   = temp;
-      temp = xh;
-    xh   = yh;
-      yh   = temp;
-    }
-
-  }
-  /* Figure out the pixel positions relative to the origin in cartesian
-  ** coordinates.
-  */
-
-
-  // *xpix = (int)LinearPosition(chanx - xl,1, nx, (xh-xl + 1));
-  // *ypix = (int)LinearPosition(chany - yl,1, ny, (yh-yl + 1));
-
-  *xpix = (int)(Transform((float)xl, (float)xh,
-			  0.0, (float)(nx), (float)chanx));
-  *ypix = (int)(Transform((float)yl, (float)yh, 
-			  0.0, (float)(ny), (float)chany));
-		
-  /* Adjust pixel coordinates into X/Y X-11 positions: */
-
-  *xpix -= orgx;
-  *ypix = ny - (*ypix);
-  if(clipping) {
-    if(*xpix < orgx) *xpix = orgx;
-    if(*xpix > nxs)  *xpix = nxs;
-    if(*ypix < 0)    *ypix = 0;
-    if(*ypix > ny)   *ypix = ny;
-    
-  } 
+  // Figure out the drawing rectangle:
+  
+  int index;
+  pane->GetAttribute(XmNuserData, &index);
+  int row = index/WINDOW_MAXAXIS;
+  int col = index/WINDOW_MAXAXIS;
+  Rectangle drawRegion = Xamine_GetSpectrumDrawingRegion(pane, attributes);
+  
+  // This is simple now that flips are disabled.  We're going to put the
+  // position at the lower left of the channel block.
+  
+  auto xpixrange = Xamine_XChanToPixelRange(
+    spec, row, col, drawRegion.xbase, drawRegion.xmax, chanx
+  );
+  *xpix = xpixrange.first;
+  
+  auto ypixrange = Xamine_YChanToPixelRange(
+    spec, row, col, drawRegion.ybase, 0, chany
+  );
+  *ypix = ypixrange.first;
+ 
 }
