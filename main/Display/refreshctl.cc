@@ -59,6 +59,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "gc.h"
 #include "xaminegc.h"
 #include "gcmgr.h"
+#include <stdint.h>
 /*
  ** Macros:
  */
@@ -240,7 +241,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  long     cellno;
+  uintptr_t     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
@@ -446,7 +447,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  long index;
+  uintptr_t index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -622,7 +623,7 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  long      index;
+  uintptr_t      index;
   int       col, row;
   pane_db   *pdb;
   
