@@ -55,6 +55,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <iostream>
 #include <math.h>
+#include <stdint.h>
 
 /*
 ** External references:
@@ -125,7 +126,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   /* raw position into the real position:                             */
 
   struct spec_location locdata;
-  long                  index;
+  uintptr_t                  index;
   int          row, col;
   pane_db     *pdb;
   win_attributed *atts;

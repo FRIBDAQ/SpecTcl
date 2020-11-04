@@ -46,6 +46,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "mapcoord.h"
 #include <iostream>
 #include <math.h>
+#include <stdint.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -295,7 +296,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   
   // Pane manager coordinates:
   
-  int index;
+  uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
   int col = index/WINDOW_MAXAXIS;
@@ -357,7 +358,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 {
   int specno = attributes->spectrum();
-  int index;
+  uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
   int col = index/WINDOW_MAXAXIS;
@@ -424,7 +425,7 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   
   /* First figure out how many pixels are in the X and Y channel direction. */
 
-  int index;
+  uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
   int col = index/WINDOW_MAXAXIS;
@@ -471,7 +472,7 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   
   // Figure out the drawing rectangle:
   
-  int index;
+  uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
   int col = index/WINDOW_MAXAXIS;

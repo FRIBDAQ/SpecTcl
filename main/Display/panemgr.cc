@@ -92,6 +92,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "XamineSpectrumInterface.h"
 #include <SpectrumQueryInterface.h>
 #include <memory>
+#include <stdint.h>
 /*
 ** Defines:
 */
@@ -225,7 +226,7 @@ void pane_db::init_panedb(XMForm *parent, win_title title)
 		XmNheight, (Dimension)XAMINE_PANEMGR_YPIXELS,
 		NULL);
   
-  int k = 0;
+  uintptr_t k = 0;
   Arg pane_args[2];
   Arg frame_args[4];
 
@@ -635,7 +636,7 @@ void Xamine_PaneInputCallback(XMWidget *pane, XtPointer client_data,
   /* If this is the current input and there's a defined pane callback, then */
   /* call it and return.                                                    */
 
-  long row, col, index;
+  uintptr_t row, col, index;
 
   XmProcessTraversal(pane->getid(), XmTRAVERSE_CURRENT);
   pane->GetAttribute(XmNuserData, &index); /* Get the pane index. */
