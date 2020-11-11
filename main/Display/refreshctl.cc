@@ -124,7 +124,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   */
   long index = (long)userd;
   int column = index  % WINDOW_MAXAXIS;
-  int row    = column / WINDOW_MAXAXIS;
+  int row    = index / WINDOW_MAXAXIS;
 
   /* Set the timer id to null before proceding.  */
 
