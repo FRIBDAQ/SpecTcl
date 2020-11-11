@@ -299,7 +299,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
-  int col = index/WINDOW_MAXAXIS;
+  int col = index % WINDOW_MAXAXIS;
   
   // Drawing region:
   
@@ -361,7 +361,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
-  int col = index/WINDOW_MAXAXIS;
+  int col = index % WINDOW_MAXAXIS;
   auto drawregion = Xamine_GetSpectrumDrawingRegion(pane, attributes);
   
   // Note this is simplified now that flips are disabled.  We place the x position
@@ -428,7 +428,7 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
-  int col = index/WINDOW_MAXAXIS;
+  int col = index % WINDOW_MAXAXIS;
   Rectangle drawRegion = Xamine_GetSpectrumDrawingRegion(pane, attributes);
   
   // Now the X/Y coordinates are just linear transforms.
@@ -475,7 +475,7 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   uintptr_t index;
   pane->GetAttribute(XmNuserData, &index);
   int row = index/WINDOW_MAXAXIS;
-  int col = index/WINDOW_MAXAXIS;
+  int col = index % WINDOW_MAXAXIS;
   Rectangle drawRegion = Xamine_GetSpectrumDrawingRegion(pane, attributes);
   
   // This is simple now that flips are disabled.  We're going to put the
