@@ -135,25 +135,25 @@ CAENPHAParameterMapper::CAENPHAParameterMapper(
     if (extras2.size() > 16) throw std::range_error(message);
     
     for (int i =0; i < 16; i++) {
-        if((times.size() < i) && times[i] != "") {
+        if((i < times.size() ) && times[i] != "") {
             m_Times.push_back(new CTreeParameter(times[i]));
         } else {
             m_Times.push_back(nullptr);
         }
         
-        if ((energies.size() < i) && (energies[i] != "")) {
+        if ((i < energies.size()) && (energies[i] != "")) {
             m_Energies.push_back(new CTreeParameter(energies[i], 16 ));
         } else {
             m_Energies.push_back(nullptr);
         }
         
-        if ((extras1.size() < i) && (extras1[i] != "")) {
+        if (i< (extras1.size()) && (extras1[i] != "")) {
             m_Extras1.push_back(new CTreeParameter(extras1[i], 16));
         } else {
             m_Extras1.push_back(nullptr);
         }
         
-        if ((extras2.size() < i) && (extras2[i] != "")) {
+        if ((i < extras2.size()) && (extras2[i] != "")) {
             m_Extras2.push_back(new CTreeParameter(extras2[i], 16));
         } else {
             m_Extras2.push_back(nullptr);
@@ -195,9 +195,9 @@ CAENPHAParameterMapper::assignParameters(const CAENModuleHits& module)
         
         
         if (m_Times[ch])   *(m_Times[ch])    = hit.getTimeTag();
-        if (m_Energies[i]) *(m_Energies[ch]) = hit.getEnergy();
-        if (m_Extras1[i])  *(m_Extras1[ch] ) = hit.getExtra1();
-        if (m_Extras2[i])  *(m_Extras2[ch])  = hit.getExtra2();
+        if (m_Energies[ch]) *(m_Energies[ch]) = hit.getEnergy();
+        if (m_Extras1[ch])  *(m_Extras1[ch] ) = hit.getExtra1();
+        if (m_Extras2[ch])  *(m_Extras2[ch])  = hit.getExtra2();
     }
 }
 ///////////////////////////////////////////////////////////////////
