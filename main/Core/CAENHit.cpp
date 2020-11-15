@@ -262,7 +262,7 @@ CAENPSDHit::getTime() const
 {
     double result = getTimeTag();      // Alread in ns.
     double fine   = getCFDTime();
-    fine = fine * m_cfdMultiplier /1024.0; // fine time in ps.
+    fine = fine * m_cfdMultiplier; // fine time in ps.
     result = result + fine/1000.0;     // Fine time in ns. not ps.
     return result;                 // STUB until Pierluigi tells me how.
 }

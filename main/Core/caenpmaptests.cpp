@@ -48,6 +48,8 @@ class caenmaptest : public CppUnit::TestFixture {
     
     CPPUNIT_TEST(psdarray_1);
     CPPUNIT_TEST(psdarray_2);
+    
+    CPPUNIT_TEST(psdmap_1);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void phaarray_1();
@@ -59,6 +61,8 @@ protected:
     
     void psdarray_1();
     void psdarray_2();
+    
+    void psdmap_1();
 private:
     CHistogrammer* m_pHistogrammer;
     CEvent*  m_pEvent;                  // Fake event.
@@ -421,7 +425,7 @@ void caenmaptest::psdarray_2()
     fakehit.m_longGateCharge  = 1000;
     fakehit.m_baseline        = 12;
     fakehit.m_purFlag         = 0;
-    fakehit.m_CFDTime         = 1024;         // 1ps.
+    fakehit.m_CFDTime         = 1;         // 1ps.
     
     
     CAENModuleHits hits;             // Hit container 'decoded'.
@@ -436,7 +440,7 @@ void caenmaptest::psdarray_2()
     fakehit2.m_longGateCharge  = 2345;
     fakehit2.m_baseline = 20;
     fakehit2.m_purFlag  = 1;                 // Piled up.
-    fakehit2.m_CFDTime  = 1024;           // 2ps
+    fakehit2.m_CFDTime  = 1;           // 2ps
     hits.addHit(&fakehit2);
     
     map.assignParameters(hits);
@@ -484,5 +488,36 @@ void caenmaptest::psdarray_2()
     EQ(double(2345), longc);
     EQ(double(20), base);
     EQ(double(20), purflag);
+    
+}
+void caenmaptest::psdmap_1()
+{
+    // individually specified parameter names:
+    
+    std::vector<std::string> shortnames = {
+        "short1", "short2", "front", "", "lastshort"
+    };
+    std::vector<std::string> longnames = {
+        "long1", "", "back", "long4", "lastlong"
+    };
+    std::vector<std::string> basenames = {
+        "base1", "base2", "", "baselast"
+    };
+    std::vector<std::string> timenames = {
+        "time1", "time2", "time3", "time4", "lasttime"
+    };
+    std::vector<std::string> pupnames = {
+        "pup1", "pup2", "pup3", "pup4", "pup5"
+    };
+    CAENPSDParameterMapper
+        mapper(shortnames, longnames, basenames, timenames, pupnames);
+
+    // We need a  few tree parameters of our own to see the data
+    // This test will put data into channel1  so:
+    
+    CTreeParameter s1("short1");                     // NO data.
+    CTreeParameter s2("short2");                     // data.
+    
+    CTreeParameter l1("long1");                     // no data.
     
 }
