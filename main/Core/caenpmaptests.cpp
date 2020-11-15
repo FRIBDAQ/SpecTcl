@@ -45,6 +45,9 @@ class caenmaptest : public CppUnit::TestFixture {
     CPPUNIT_TEST(phamap_1);
     CPPUNIT_TEST(phamap_2);
     CPPUNIT_TEST(phamap_3);
+    
+    CPPUNIT_TEST(psdarray_1);
+    CPPUNIT_TEST(psdarray_2);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void phaarray_1();
@@ -53,6 +56,9 @@ protected:
     void phamap_1();
     void phamap_2();
     void phamap_3();
+    
+    void psdarray_1();
+    void psdarray_2();
 private:
     CHistogrammer* m_pHistogrammer;
     CEvent*  m_pEvent;                  // Fake event.
@@ -326,5 +332,157 @@ void caenmaptest::phamap_3()
     double e2v = e2;
     EQ(double(12366), t2v);
     EQ(double(2), e2v);
+    
+}
+
+void caenmaptest::psdarray_1()
+{
+    // Psd array parameter mapper:
+    
+    CAENPSDArrayMapper map("time", "short", "long", "baseline", "PURflag");
+    
+    // Now the stuff I can pull stuff out of:
+    
+    CTreeParameterArray times("time", 16, 0);
+    CTreeParameterArray shorts("short", 16, 0);
+    CTreeParameterArray longs("long", 16, 0);
+    CTreeParameterArray bline("baseline", 16, 0);
+    CTreeParameterArray pur("PURflag", 16, 0);
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Now a PSD hit for channel 7:
+    
+    CAENPSDHit fakehit(1);            // CFDMultiplier is 1.
+    fakehit.m_timeTag = 1234;
+    fakehit.m_channel = 7;
+    fakehit.m_shortGateCharge = 100;
+    fakehit.m_longGateCharge  = 1000;
+    fakehit.m_baseline        = 12;
+    fakehit.m_purFlag         = 0;
+    fakehit.m_CFDTime         = 0;
+    
+    CAENModuleHits hits;             // Hit container 'decoded'.
+    hits.addHit(&fakehit);
+    CPPUNIT_ASSERT_NO_THROW(map.assignParameters(hits));
+    
+    // The tree parameter values for [7] in the arrays are all valid:
+    
+    ASSERT(times[7].isValid());
+    ASSERT(shorts[7].isValid());
+    ASSERT(longs[7].isValid());
+    ASSERT(bline[7].isValid());
+    ASSERT(pur[7].isValid());
+    
+    // Now that we established the values are valid we can check
+    // the contents.  Since the CFD value is 0, we expect just the timetag
+    // for the time (since we put ns in the value).
+    
+    double time = times[7];
+    double shortc = shorts[7];       // short and long are, of course reserved 
+    double longc = longs[7];         // words.
+    double b     = bline[7];
+    double pileup= pur[7];
+    
+    // Note the pileup flag sets 20 for true and 40 for not true.
+           
+   EQ(double(1234), time);
+   EQ(double(100), shortc);
+   EQ(double(1000), longc);
+   EQ(double(12), b);
+   EQ(double(40), pileup);
+}
+void caenmaptest::psdarray_2()
+{
+    // A couple of hits -- make the fine time matter.
+    
+    // Psd array parameter mapper:
+    
+    CAENPSDArrayMapper map("time", "short", "long", "baseline", "PURflag");
+    
+    // Now the stuff I can pull stuff out of:
+    
+    CTreeParameterArray times("time", 16, 0);
+    CTreeParameterArray shorts("short", 16, 0);
+    CTreeParameterArray longs("long", 16, 0);
+    CTreeParameterArray bline("baseline", 16, 0);
+    CTreeParameterArray pur("PURflag", 16, 0);
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Now a PSD hit for channel 7:
+    
+    CAENPSDHit fakehit(1);            // CFDMultiplier is 1.
+    fakehit.m_timeTag = 1234;
+    fakehit.m_channel = 7;
+    fakehit.m_shortGateCharge = 100;
+    fakehit.m_longGateCharge  = 1000;
+    fakehit.m_baseline        = 12;
+    fakehit.m_purFlag         = 0;
+    fakehit.m_CFDTime         = 1024;         // 1ps.
+    
+    
+    CAENModuleHits hits;             // Hit container 'decoded'.
+    hits.addHit(&fakehit);
+    
+    // Now a PSD hit for channel 9:
+    
+    CAENPSDHit fakehit2(2);
+    fakehit2.m_timeTag = 2000;
+    fakehit2.m_channel = 9;
+    fakehit2.m_shortGateCharge = 250;
+    fakehit2.m_longGateCharge  = 2345;
+    fakehit2.m_baseline = 20;
+    fakehit2.m_purFlag  = 1;                 // Piled up.
+    fakehit2.m_CFDTime  = 1024;           // 2ps
+    hits.addHit(&fakehit2);
+    
+    map.assignParameters(hits);
+    
+    // [7] and [9] of the arrays should be valid.  Note going to check
+    // the others to ensure they're not valid.
+    
+    ASSERT(times[7].isValid());
+    ASSERT(times[9].isValid());
+    ASSERT(shorts[7].isValid());
+    ASSERT(shorts[9].isValid());
+    ASSERT(longs[7].isValid());
+    ASSERT(longs[9].isValid());
+    ASSERT(bline[7].isValid());
+    ASSERT(bline[9].isValid());
+    ASSERT(pur[7].isValid());
+    ASSERT(pur[9].isValid());
+    
+    // Now check the values...remember the times fold in the CFD time too:
+    
+    double time, shortc, longc, base, purflag;
+    // Channel 7:
+    time = times[7];
+    shortc = shorts[7];
+    longc = longs[7];
+    base = bline[7];
+    purflag = pur[7];
+    
+    EQ(double(1234.001), time);
+    EQ(double(100), shortc);
+    EQ(double(1000), longc);
+    EQ(double(12), base);
+    EQ(double(40), purflag);
+    
+    // Channel 9:
+    
+    time = times[9];
+    shortc = shorts[9];
+    longc = longs[9];
+    base  = bline[9];
+    purflag = pur[9];
+    
+    EQ(double(2000.002), time);
+    EQ(double(250), shortc);
+    EQ(double(2345), longc);
+    EQ(double(20), base);
+    EQ(double(20), purflag);
     
 }
