@@ -50,6 +50,7 @@ class caenmaptest : public CppUnit::TestFixture {
     CPPUNIT_TEST(psdarray_2);
     
     CPPUNIT_TEST(psdmap_1);
+    CPPUNIT_TEST(psdmap_2);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void phaarray_1();
@@ -63,6 +64,7 @@ protected:
     void psdarray_2();
     
     void psdmap_1();
+    void psdmap_2();
 private:
     CHistogrammer* m_pHistogrammer;
     CEvent*  m_pEvent;                  // Fake event.
@@ -519,5 +521,183 @@ void caenmaptest::psdmap_1()
     CTreeParameter s2("short2");                     // data.
     
     CTreeParameter l1("long1");                     // no data.
+    
+    CTreeParameter b1("base1");                     // no data 
+    CTreeParameter b2("base2");                    // data
+    
+    CTreeParameter t1("time1");                     // no data
+    CTreeParameter t2("time2");                     // data.
+    
+    CTreeParameter p1("pup1");                      // no data.
+    CTreeParameter p2("pup2");                      // data.
+    
+    // Bind the parameters and the event:
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Now we create a hit receptacle and a hit.
+    
+    CAENPSDHit fakehit(1);
+    CAENModuleHits hits;
+    
+    // Fill in the hit.
+    
+    fakehit.m_timeTag = 1234;
+    fakehit.m_channel = 1;
+    fakehit.m_shortGateCharge = 100;
+    fakehit.m_longGateCharge  = 1000;
+    fakehit.m_baseline        = 12;
+    fakehit.m_purFlag         = 0;
+    fakehit.m_CFDTime         = 1;         // 1ps.
+    
+    // Put the hit in the receptacle and process the hits:
+    
+    hits.addHit(&fakehit);
+    mapper.assignParameters(hits);
+    
+    //  Check that the parameters that should not be assigned are not:
+    
+    ASSERT(!s1.isValid());
+    ASSERT(!l1.isValid());
+    ASSERT(!b1.isValid());
+    ASSERT(!t1.isValid());
+    ASSERT(!p1.isValid());
+    
+    // Check that the parameters that should have values have been assigned:
+    
+    ASSERT(s2.isValid());
+    ASSERT(b2.isValid());
+    ASSERT(t2.isValid());
+    ASSERT(p2.isValid());
+    
+    // Finally check that the assigned parameters have the correct values.
+    
+    EQ(double(1234.001), (double)t2);
+    EQ(double(100.0), (double)s2);
+    EQ(double(12), (double)b2);
+    EQ(double(40.0), (double)p2);
+}
+
+void caenmaptest::psdmap_2()
+{
+    // individually specified parameter names:
+    
+    std::vector<std::string> shortnames = {
+        "short1", "short2", "front", "", "lastshort"
+    };
+    std::vector<std::string> longnames = {
+        "long1", "", "back", "long4", "lastlong"
+    };
+    std::vector<std::string> basenames = {
+        "base1", "base2", "", "baselast"
+    };
+    std::vector<std::string> timenames = {
+        "time1", "time2", "time3", "time4", "lasttime"
+    };
+    std::vector<std::string> pupnames = {
+        "pup1", "pup2", "pup3", "pup4", "pup5"
+    };
+    CAENPSDParameterMapper
+        mapper(shortnames, longnames, basenames, timenames, pupnames);
+
+    // We need a  few tree parameters of our own to see the data
+    // This test will put data into channel1  so:
+    
+    CTreeParameter s1("short1");                     // NO data.
+    CTreeParameter s2("short2");                     // data.
+    CTreeParameter s3("lastshort");                  // data (hit2).
+    
+    CTreeParameter l1("long1");                     // no data.
+    CTreeParameter l2("lastlong");                  // data (hit2).
+    
+    CTreeParameter b1("base1");                     // no data 
+    CTreeParameter b2("base2");                    // data
+    
+    
+    CTreeParameter t1("time1");                     // no data
+    CTreeParameter t2("time2");                     // data.
+    CTreeParameter t3("lasttime");                  // data (hit 2).
+    
+    CTreeParameter p1("pup1");                      // no data.
+    CTreeParameter p2("pup2");                      // data.
+    CTreeParameter p3("pup5");                      // data (hit2).
+    
+    
+    // Bind the parameters and the event:
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Now we create a hit receptacle and a hit.
+    
+    CAENPSDHit fakehit(1);
+    CAENModuleHits hits;
+    
+    // Fill in the hit.
+    
+    fakehit.m_timeTag = 1234;
+    fakehit.m_channel = 1;
+    fakehit.m_shortGateCharge = 100;
+    fakehit.m_longGateCharge  = 1000;
+    fakehit.m_baseline        = 12;
+    fakehit.m_purFlag         = 0;
+    fakehit.m_CFDTime         = 1;         // 1ps.
+    
+    // Put the hit in the receptacle.
+    
+    hits.addHit(&fakehit);
+    
+    // Now a second hit in channel 4
+    
+    CAENPSDHit fakehit2(2);                  // 250MHz module.
+    fakehit2.m_timeTag = 1300;
+    fakehit2.m_channel = 4;
+    fakehit2.m_shortGateCharge = 200;
+    fakehit2.m_longGateCharge = 1500;
+    fakehit2.m_baseline  = 20;
+    fakehit2.m_purFlag   = 1;                 // Pile up puts the value in 20
+    fakehit2.m_CFDTime   = 1;                 // 2 ps.
+    
+    // Add the second hit and process them:
+    
+    hits.addHit(&fakehit2);
+    mapper.assignParameters(hits);
+   
+   // There should be parameters that are not assigned.
+   
+    ASSERT(!s1.isValid());
+    ASSERT(!l1.isValid());
+    ASSERT(!b1.isValid());
+    ASSERT(!t1.isValid());
+    ASSERT(!p1.isValid());
+    
+    // Check that the parameters that should have values have been assigned:
+    
+    ASSERT(s2.isValid());
+    ASSERT(b2.isValid());
+    ASSERT(t2.isValid());
+    ASSERT(p2.isValid());
+    
+    ASSERT(s3.isValid());
+    ASSERT(t3.isValid());
+    ASSERT(p3.isValid());
+    ASSERT(l2.isValid());
+    
+    // Check all the values for set parameters are correct:
+    
+    // Hit1 parameters:
+    
+    EQ(double(1234.001), (double)t2);
+    EQ(double(100.0), (double)s2);
+    EQ(double(12), (double)b2);
+    EQ(double(40.0), (double)p2);
+    
+    // Hit 2 parameters:
+    
+    EQ(double(1300.002), (double)t3);
+    EQ(double(1500), (double)l2);
+    EQ(double(200), (double)s3);
+    EQ(double(20), (double)p3);
     
 }
