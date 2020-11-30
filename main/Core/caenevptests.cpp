@@ -33,6 +33,8 @@
 #include <Histogrammer.h>
 #include <Globals.h>
 
+class CAnalyzer;
+class CBufferDecoder;
 
 class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(aTestSuite);
@@ -42,11 +44,19 @@ class aTestSuite : public CppUnit::TestFixture {
 private:
     CHistogrammer* m_pHistogrammer;
     CEvent*  m_pEvent;                  // Fake event.
+
+    CAnalyzer*      m_pAnalyzer;
+    CBufferDecoder* m_pDecoder;
 public:
     void setUp() {
         m_pHistogrammer = new CHistogrammer;
         gpEventSink = m_pHistogrammer;
         m_pEvent = new CEvent;
+        
+        // The analyzer and buffer decoder are unused:
+        
+        m_pAnalyzer = nullptr;
+        m_pDecoder  = nullptr;
     }
     void tearDown() {
         delete m_pEvent;
