@@ -1,5 +1,4 @@
 
-
 lib_LTLIBRARIES = libTclGrammerApp.la
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
@@ -413,7 +412,7 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 
 
 caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
-	modulehittests.cpp parsertest.cpp caenpmaptests.cpp
+	modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
 
 caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
 caendpptests_LDADD   = $(commonTestLdFlags)
