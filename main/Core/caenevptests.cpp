@@ -32,6 +32,7 @@
 #include <TreeParameter.h>
 #include <Histogrammer.h>
 #include <Globals.h>
+#include <stdint.h>
 
 class CAnalyzer;
 class CBufferDecoder;
@@ -46,10 +47,7 @@ class CBufferDecoder;
 class TestProcessor : public CAENEventProcessor
 {
 public:
-    size_t m_nDisposeCount;              // # times dispose was called.
-public:
     TestProcessor();
-    void disposeMapEntry(int sid, CAENParameterMap* pMap);
 };
 
 /**
@@ -57,9 +55,9 @@ public:
  *    Creates the three parameter maps and registers them for sid 1-3
  *    with dynamic maps.
  */
-TestProcessor::TestProcessor() :
-    m_nDisposeCount(0)
+TestProcessor::TestProcessor() 
 {
+    setTestMode();
     addParameterMap(
         1,
         new CAENPHAArrayMapper("pha_t", "pha_e", "pha_ex1", "pha_ex2")
@@ -75,24 +73,10 @@ TestProcessor::TestProcessor() :
         2
     );                      // 250MHz PSD module.
 }
-/**
- *   disposeMapEntry
- *   
- * Provide code to destroy the parameter maps and count the number of
- *  times called:
- *    @param sid - the source id for the event processor.
- *    @param pMap - Pointer to the map to destroy.
- */
-void
-TestProcessor::disposeMapEntry(int sid, CAENParameterMap* pMap)
-{
-    delete pMap;
-    m_nDisposeCount++;
-}
 
-class aTestSuite : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(aTestSuite);
-    CPPUNIT_TEST(test_1);
+class caenevptest : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(caenevptest);
+    CPPUNIT_TEST(parse_1);
     CPPUNIT_TEST_SUITE_END();
     
 private:
@@ -118,11 +102,70 @@ public:
         gpEventSink = nullptr;
     }
 protected:
-    void test_1();
+    void parse_1();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(aTestSuite);
+CPPUNIT_TEST_SUITE_REGISTRATION(caenevptest);
 
-void aTestSuite::test_1()
+void caenevptest::parse_1()
 {
+    // Empty event fills nothing:
+    
+    TestProcessor p;
+    
+    // PHA1
+    
+    CTreeParameterArray pha_t("pha_t", 16, 0);
+    CTreeParameterArray pha_e("pha_e", 16, 0);
+    CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
+    CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    
+    // PSD1
+    
+    CTreeParameterArray psd1_t("psd1_t", 16, 0);
+    CTreeParameterArray psd1_s("psd1_s", 16, 0);
+    CTreeParameterArray psd1_l("psd1_l", 16, 0);
+    CTreeParameterArray psd1_b("psd1_b", 16, 0);
+    CTreeParameterArray psd1_p("psd1_p", 16, 0);
+    
+    // PSD2
+    
+    CTreeParameterArray psd2_t("psd2_t", 16, 0);
+    CTreeParameterArray psd2_s("psd2_s", 16, 0);
+    CTreeParameterArray psd2_l("psd2_l", 16, 0);
+    CTreeParameterArray psd2_b("psd2_b", 16, 0);
+    CTreeParameterArray psd2_p("psd2_p", 16, 0);
+    
+    // Bind it all
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    
+    // An empty event:
+    
+    uint32_t event(sizeof(uint32_t));
+    p(&event, *m_pEvent, *m_pAnalyzer, *m_pDecoder);
+    
+    // Nothing gets set:
+    
+    for (int i = 0; i < 16; i++) {
+        ASSERT(!pha_t[i].isValid());
+        ASSERT(!pha_e[i].isValid());
+        ASSERT(!pha_ex1[i].isValid());
+        ASSERT(!pha_ex2[i].isValid());
+        
+        ASSERT(!psd1_s[i].isValid());
+        ASSERT(!psd1_l[i].isValid());
+        ASSERT(!psd1_b[i].isValid());
+        ASSERT(!psd1_p[i].isValid());
+        ASSERT(!psd1_t[i].isValid());
+        
+        ASSERT(!psd2_t[i].isValid());
+        ASSERT(!psd2_s[i].isValid());
+        ASSERT(!psd2_l[i].isValid());
+        ASSERT(!psd2_b[i].isValid());
+        ASSERT(!psd2_p[i].isValid());
+        
+    }
 }
