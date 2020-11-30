@@ -78,7 +78,7 @@ public:
     );
     
 protected:
-    void addParameterMap(int sid, CAENParameterMap* map);
+    void addParameterMap(int sid, CAENParameterMap* map, int mult=1);
     virtual void disposeMapEntry(int sid, CAENParameterMap* pMap);
 };
 

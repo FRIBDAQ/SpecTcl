@@ -144,10 +144,11 @@ CAENEventProcessor::operator()(
  *    of object the mapper works for.
  * @param sid - source id to associate with this map.
  * @param map - Pointer to the map.
+ * @param mult - CFD multiplier (only used for PSD modules)
  * @throw std::bad_cast if the type of the map cannot be determined.
  */
 void
-CAENEventProcessor::addParameterMap(int sid, CAENParameterMap* map)
+CAENEventProcessor::addParameterMap(int sid, CAENParameterMap* map, int mult)
 {
     CAENHit::HitType type;
     if (dynamic_cast<CAENPSDMapper*>(map)) {
@@ -157,7 +158,7 @@ CAENEventProcessor::addParameterMap(int sid, CAENParameterMap* map)
     } else {
         throw std::bad_cast();       // Bad map -- can't determine type.
     }
-    m_pParser->addModule(sid, type);
+    m_pParser->addModule(sid, type, mult);
     
 }
 /**
