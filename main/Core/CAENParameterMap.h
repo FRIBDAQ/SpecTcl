@@ -83,7 +83,8 @@ public:
  * work.
  */
 
-class CAENPHAMapper {
+class CAENPHAMapper : public CAENParameterMap
+{
 public:
     virtual void assignParameters(const CAENModuleHits& module) {}
 };
@@ -150,7 +151,8 @@ public:
 // Similarly this base class allows us to determin if a an object
 // is a mapper for PSD
 
-class CAENPSDMapper {
+class CAENPSDMapper : public CAENParameterMap
+{
 public:
     virtual void assignParameters(const CAENModuleHits& module) {}
 };
