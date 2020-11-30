@@ -1,4 +1,4 @@
-/*
+/* 
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2017.
 
@@ -35,6 +35,60 @@
 
 class CAnalyzer;
 class CBufferDecoder;
+
+/**
+ * Here is our test CAENEventProcessor derived class.
+ *  - it creates three parameter maps:
+ *    * A PHA one.
+ *    * A PSD one with multiplier 1 (500MHz module).
+ *    * A PSD one with multiplier 2 (250MHz module).
+ */
+class TestProcessor : public CAENEventProcessor
+{
+public:
+    size_t m_nDisposeCount;              // # times dispose was called.
+public:
+    TestProcessor();
+    void disposeMapEntry(int sid, CAENParameterMap* pMap);
+};
+
+/**
+ * TestProcessor constructor
+ *    Creates the three parameter maps and registers them for sid 1-3
+ *    with dynamic maps.
+ */
+TestProcessor::TestProcessor() :
+    m_nDisposeCount(0)
+{
+    addParameterMap(
+        1,
+        new CAENPHAArrayMapper("pha_t", "pha_e", "pha_ex1", "pha_ex2")
+    );
+    addParameterMap(
+        2,
+        new CAENPSDArrayMapper("psd1_t", "psd1_s", "psd1_l", "psd1_b", "psd1_p"),
+        1
+    );                      // 500MHz PSD module.
+    addParameterMap(
+        2,
+        new CAENPSDArrayMapper("psd2_t", "psd2_s", "psd2_l", "psd2_b", "psd1_p"),
+        2
+    );                      // 250MHz PSD module.
+}
+/**
+ *   disposeMapEntry
+ *   
+ * Provide code to destroy the parameter maps and count the number of
+ *  times called:
+ *    @param sid - the source id for the event processor.
+ *    @param pMap - Pointer to the map to destroy.
+ */
+void
+TestProcessor::disposeMapEntry(int sid, CAENParameterMap* pMap)
+{
+    delete pMap;
+    m_nDisposeCount++;
+}
 
 class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(aTestSuite);
