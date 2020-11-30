@@ -21,6 +21,18 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
+#include "CAENEventProcessor.h"
+#include "CAENParameterMap.h"
+#include "CAENModuleHits.h"
+#include "CAENHit.h"              // Makes it easier to fake hits.
+#include <string>
+#include <map>
+#include <config.h>
+#include <Event.h>
+#include <TreeParameter.h>
+#include <Histogrammer.h>
+#include <Globals.h>
+
 
 class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(aTestSuite);
@@ -28,13 +40,18 @@ class aTestSuite : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE_END();
     
 private:
-
+    CHistogrammer* m_pHistogrammer;
+    CEvent*  m_pEvent;                  // Fake event.
 public:
     void setUp() {
-        
+        m_pHistogrammer = new CHistogrammer;
+        gpEventSink = m_pHistogrammer;
+        m_pEvent = new CEvent;
     }
     void tearDown() {
-        
+        delete m_pEvent;
+        delete m_pHistogrammer;
+        gpEventSink = nullptr;
     }
 protected:
     void test_1();
