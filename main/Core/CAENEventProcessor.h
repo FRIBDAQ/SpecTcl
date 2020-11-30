@@ -49,12 +49,11 @@ class CAENParameterMap;
  *    Those calls build up a map of sourcid -> mapper which
  *    is used in the second stage of processing.
  *
- *    In order to avoid problems with memory leaks if parameter
- *    maps are dynamically created, we provide the virtual method
- *    disposeMapEntry called by the destructor.  The method is called
- *    for each parameter map that was entered.  If a map was
- *    dynamically allocated it can be deleted here.  The default
- *    implementation assumes this is not necessary and does nothing.
+ *    Memory management of the mappers is a bit problematic.
+ *    We can't provide some virtual function that's called from the
+ *    destructor because destructors don't support polymporphism.
+ *    We are therefore going to require that all parameter mappers are
+ *    dynamically created via new.  In practice, this not a huge problem.
  *
  *   @note the parser is declared as protected. This allows for derived
  *         classes to directly manipulate it (e.g. to provide a
@@ -64,6 +63,7 @@ class CAENEventProcessor : public CEventProcessor
 {
 private:
     CAENParser*                      m_pParser;
+    bool                             m_testMode;
 protected:
     std::map<int, CAENParameterMap*> m_pMaps;
 public:
@@ -79,7 +79,8 @@ public:
     
 protected:
     void addParameterMap(int sid, CAENParameterMap* map, int mult=1);
-    virtual void disposeMapEntry(int sid, CAENParameterMap* pMap);
+    void disposeMapEntry(int sid, CAENParameterMap* pMap);
+    void setTestMode() {m_testMode = true;}
 };
 
 #endif

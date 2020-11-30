@@ -38,7 +38,8 @@
  *    Creates our parrser.
  */
 CAENEventProcessor::CAENEventProcessor() :
-    m_pParser(nullptr)
+    m_pParser(nullptr),
+    m_testMode(false)
 {
     m_pParser = new CAENParser;
 }
@@ -83,11 +84,20 @@ CAENEventProcessor::operator()(
 {
     // If we have a TCLAnalyzer we need to set it's event
     // size.  Failed dynamic casts result in a nullptr so:
+    // Note that in testing, the analyzer may be a null reference
+    // but directly testing for that is evidently optimized out because
+    // the compiler things that null references are not allowed so
+    // this kludge is used:
     
-    CTclAnalyzer* pTclA = dynamic_cast<CTclAnalyzer*>(&rAnalyzer);
-    if (pTclA)  {
-        uint32_t* p32 = static_cast<uint32_t*>(pEvent);
-        pTclA->SetEventSize(*p32);
+    
+    
+    
+    if (!m_testMode) {    
+        CTclAnalyzer* pTclA = dynamic_cast<CTclAnalyzer*>(&rAnalyzer);
+        if (pTclA)  {
+            uint32_t* p32 = static_cast<uint32_t*>(pEvent);
+            pTclA->SetEventSize(*p32);
+        }
     }
     // The rest is in a try/catch block to handle exceptions as
     // a failed event processing.
@@ -163,12 +173,13 @@ CAENEventProcessor::addParameterMap(int sid, CAENParameterMap* map, int mult)
 }
 /**
  * disposeMapEntry
- *    Default implementation which assumes the maps are *not*
- *    dynamically created.
+ *    destroy map entries.
  *
  *  @param sid  - source id of the map to dispose.
  *  @param pMap - Pointer to the map.
  */
 void
 CAENEventProcessor::disposeMapEntry(int sid, CAENParameterMap* pMap)
-{}
+{
+    delete pMap;
+}
