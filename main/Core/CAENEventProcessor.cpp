@@ -169,6 +169,7 @@ CAENEventProcessor::addParameterMap(int sid, CAENParameterMap* map, int mult)
         throw std::bad_cast();       // Bad map -- can't determine type.
     }
     m_pParser->addModule(sid, type, mult);
+    m_pMaps[sid] = map;
     
 }
 /**
