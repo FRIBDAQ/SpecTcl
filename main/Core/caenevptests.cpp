@@ -83,10 +83,12 @@ class caenevptest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(caenevptest);
     CPPUNIT_TEST(parse_1);
     CPPUNIT_TEST(parse_2);
+    CPPUNIT_TEST(parse_3);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void parse_1();
     void parse_2();
+    void parse_3();
     
 private:
     CHistogrammer* m_pHistogrammer;
@@ -411,4 +413,93 @@ void caenevptest::parse_2()
     EQ(double(100), double(pha_e[1]));
     EQ(double(5), double(pha_ex1[1]));
     EQ(double(7), double(pha_ex2[1]));
+}
+void caenevptest::parse_3()
+{
+    // Single PSD hit in module 2:   This is a 250MHz psd module.
+    
+    TestProcessor p;
+    
+    // Local copies of the tree parameter arrays I care about:
+    
+    // PHA1
+    
+    CTreeParameterArray pha_t("pha_t", 16, 0);
+    CTreeParameterArray pha_e("pha_e", 16, 0);
+    CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
+    CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    
+    // PSD1 - a channel here will have data.
+    
+    CTreeParameterArray psd1_t("psd1_t", 16, 0);
+    CTreeParameterArray psd1_s("psd1_s", 16, 0);
+    CTreeParameterArray psd1_l("psd1_l", 16, 0);  
+    CTreeParameterArray psd1_b("psd1_b", 16, 0);
+    CTreeParameterArray psd1_p("psd1_p", 16, 0);
+    
+    // PSD2
+    
+    CTreeParameterArray psd2_t("psd2_t", 16, 0);
+    CTreeParameterArray psd2_s("psd2_s", 16, 0);
+    CTreeParameterArray psd2_l("psd2_l", 16, 0);
+    CTreeParameterArray psd2_b("psd2_b", 16, 0);
+    CTreeParameterArray psd2_p("psd2_p", 16, 0);
+    
+    // Bind it all
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Make a psd hit in channel 2 of psd1:
+    
+    uint8_t hit[100];               //PSD hit buffer.
+    uint8_t item[200];              //Ringitem buffer.
+    uint32_t event[200];            // Event buffer.
+    
+    size_t hitSize = makePsdHit(hit, 2, 100, 200, 50, 123, 3, 0);
+    size_t itemSize = makeRingItem(item, 2, 123, hitSize, hit);
+    size_t fragSize = makeFragment(&(event[1]), item);
+    event[0] = fragSize + sizeof(uint32_t);
+    
+    p(event, *m_pEvent, *m_pAnalyzer, *m_pDecoder);
+    
+    // Check that only the right channels got hit
+    
+    for (int i = 0; i < 16; i++) {
+        ASSERT(!pha_t[i].isValid());
+        ASSERT(!pha_e[i].isValid());
+        ASSERT(!pha_ex1[i].isValid());
+        ASSERT(!pha_ex2[i].isValid());
+        
+        if (i != 2) {
+            ASSERT(!psd1_s[i].isValid());
+            ASSERT(!psd1_l[i].isValid());
+            ASSERT(!psd1_b[i].isValid());
+            ASSERT(!psd1_p[i].isValid());
+            ASSERT(!psd1_t[i].isValid());
+        } else {
+            ASSERT(psd1_s[i].isValid());
+            ASSERT(psd1_l[i].isValid());
+            ASSERT(psd1_b[i].isValid());
+            ASSERT(psd1_p[i].isValid());
+            ASSERT(psd1_t[i].isValid());
+        }
+        
+        ASSERT(!psd2_t[i].isValid());
+        ASSERT(!psd2_s[i].isValid());
+        ASSERT(!psd2_l[i].isValid());
+        ASSERT(!psd2_b[i].isValid());
+        ASSERT(!psd2_p[i].isValid());
+        
+    }
+    
+    // check that the correct values are in the correct channels.
+    // note the CFD multiplier for this module is 1.
+    
+    EQ(double(100), double(psd1_s[2]));
+    EQ(double(200), double(psd1_l[2]));
+    EQ(double(50), double(psd1_b[2]));
+    EQ(double(40), double(psd1_p[2]));
+    EQ(double(123.003), double(psd1_t[2]));
+              
 }
