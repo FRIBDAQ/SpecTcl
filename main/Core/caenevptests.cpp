@@ -85,12 +85,14 @@ class caenevptest : public CppUnit::TestFixture {
     CPPUNIT_TEST(parse_2);
     CPPUNIT_TEST(parse_3);
     CPPUNIT_TEST(parse_4);
+    CPPUNIT_TEST(parse_5);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void parse_1();
     void parse_2();
     void parse_3();
     void parse_4();
+    void parse_5();
     
 private:
     CHistogrammer* m_pHistogrammer;
@@ -184,7 +186,7 @@ caenevptest::makeRingItem(
     
     // Fill in the data:
     
-    *pBody = (payloadSize)/sizeof(uint16_t) + 1;   // Readout does this.
+    *pBody = (payloadSize)/sizeof(uint16_t) + 2;   // Readout does this.
     memcpy(pBody+1 , pPayload, payloadSize);
     
     // Fill in the ring item header:
@@ -543,7 +545,7 @@ void caenevptest::parse_4()
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     
-    // Make a psd hit in channel 2 of psd1:
+    // Make a psd hit in channel 5 of psd3:
     
     uint8_t hit[100];               //PSD hit buffer.
     uint8_t item[200];              //Ringitem buffer.
@@ -593,3 +595,148 @@ void caenevptest::parse_4()
     EQ(double(123.006), (double)psd2_t[5]);
     
 }
+void caenevptest::parse_5()
+{
+    // Put a variety of hits in the event.
+    
+    TestProcessor p;
+    
+    // Local copies of the tree parameter arrays I care about:
+    
+    // PHA1
+    
+    CTreeParameterArray pha_t("pha_t", 16, 0);
+    CTreeParameterArray pha_e("pha_e", 16, 0);
+    CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
+    CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    
+    // PSD1 - a channel here will have data.
+    
+    CTreeParameterArray psd1_t("psd1_t", 16, 0);
+    CTreeParameterArray psd1_s("psd1_s", 16, 0);
+    CTreeParameterArray psd1_l("psd1_l", 16, 0);  
+    CTreeParameterArray psd1_b("psd1_b", 16, 0);
+    CTreeParameterArray psd1_p("psd1_p", 16, 0);
+    
+    // PSD2
+    
+    CTreeParameterArray psd2_t("psd2_t", 16, 0);
+    CTreeParameterArray psd2_s("psd2_s", 16, 0);
+    CTreeParameterArray psd2_l("psd2_l", 16, 0);
+    CTreeParameterArray psd2_b("psd2_b", 16, 0);
+    CTreeParameterArray psd2_p("psd2_p", 16, 0);
+    
+    // Bind it all
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    // Make a PHA hit in channel 1 of module 1,
+    // Make a PSD hit in channel 2 of module 2
+    // make a PSD hit in channel 3 of module 3.
+    // Note that the make* operations copy and we use that to recycle hit and item
+    // buffers:
+    
+    uint8_t hit[100];               //PSD hit buffer.
+    uint8_t item[200];              //Ringitem buffer.
+    uint32_t event[2000];            // Event buffer.
+    uint8_t* pDest =
+        reinterpret_cast<uint8_t*>(&(event[1]));   // Hold space for final size.
+    uint32_t totalSize(sizeof(uint32_t));
+    
+    //    PHA Hit module 1.
+    
+    size_t hitSize = makePhaHit(hit, 1, 1234, 100, 200, 300);
+    size_t itemSize = makeRingItem(item, 1, 1234, hitSize, hit);
+    size_t fragSize = makeFragment(pDest, item);
+    totalSize += fragSize;
+    pDest     += fragSize;
+    
+    //    PSD Hit module 2: - no pileup.
+    
+    hitSize = makePsdHit(hit, 2,  100, 200, 10, 1235, 10, 0);
+    itemSize = makeRingItem(item, 2, 1235, hitSize, hit);
+    fragSize = makeFragment(pDest, item);
+    totalSize += fragSize;
+    pDest     += fragSize;
+    
+    //   PSD Hit module 3 - no pileup.
+    
+    hitSize = makePsdHit(hit, 3, 110, 220, 15, 1236, 6, 0);
+    itemSize = makeRingItem(item, 3, 1236, hitSize, hit);
+    fragSize = makeFragment(pDest, item);
+    totalSize += fragSize;
+    pDest     += fragSize;
+    
+    // Top off the event and process it:
+    
+    event[0] = totalSize;           // That's why we initted it with sizeof(uint32_t)
+    p(event, *m_pEvent, *m_pAnalyzer, *m_pDecoder);
+    
+    // Only [1] in pha, [2] in psd1 and [3] in psd2 get set:
+    
+    for (int i =0; i < 16; i++) {
+        if (i != 1) {
+            ASSERT(!pha_t[i].isValid());
+            ASSERT(!pha_e[i].isValid());
+            ASSERT(!pha_ex1[i].isValid());
+            ASSERT(!pha_ex2[i].isValid());
+        } else {
+            ASSERT(pha_t[i].isValid());
+            ASSERT(pha_e[i].isValid());
+            ASSERT(pha_ex1[i].isValid());
+            ASSERT(pha_ex2[i].isValid());
+        }
+        
+        if (i != 2) {
+            ASSERT(!psd1_s[i].isValid());
+            ASSERT(!psd1_l[i].isValid());
+            ASSERT(!psd1_b[i].isValid());
+            ASSERT(!psd1_p[i].isValid());
+            ASSERT(!psd1_t[i].isValid());
+        } else {
+            ASSERT(psd1_s[i].isValid());
+            ASSERT(psd1_l[i].isValid());
+            ASSERT(psd1_b[i].isValid());
+            ASSERT(psd1_p[i].isValid());
+            ASSERT(psd1_t[i].isValid());
+        }
+        
+        if (i != 3) {
+            ASSERT(!psd2_t[i].isValid());
+            ASSERT(!psd2_s[i].isValid());
+            ASSERT(!psd2_l[i].isValid());
+            ASSERT(!psd2_b[i].isValid());
+            ASSERT(!psd2_p[i].isValid());
+        } else {
+            ASSERT(psd2_t[i].isValid());
+            ASSERT(psd2_s[i].isValid());
+            ASSERT(psd2_l[i].isValid());
+            ASSERT(psd2_b[i].isValid());
+            ASSERT(psd2_p[i].isValid());
+        }
+    }
+    // Values for PHA[1]
+    
+    EQ(double(1234), double(pha_t[1]));
+    EQ(double(100), double(pha_e[1]));
+    EQ(double(200), double(pha_ex1[1]));
+    EQ(double(300), double(pha_ex2[1]));
+    
+    // Values for PSD1[2] - cfd * 1
+    
+    EQ(double(100), double(psd1_s[2]));
+    EQ(double(200), double(psd1_l[2]));
+    EQ(double(10), double(psd1_b[2]));
+    EQ(double(40), double(psd1_p[2]));
+    EQ(double(1235.01), double(psd1_t[2]));
+    
+    // Values for PSD2[3] - CFD * 2
+    
+    EQ(double(110), double(psd2_s[3]));
+    EQ(double(220), double(psd2_l[3]));
+    EQ(double(15), double(psd2_b[3]));
+    EQ(double(40), double(psd2_p[3]));
+    EQ(double(1236.012), double(psd2_t[3]));
+}
+
