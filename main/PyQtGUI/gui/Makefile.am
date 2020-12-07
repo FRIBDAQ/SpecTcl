@@ -7,7 +7,12 @@ PyQtGUI_CXXFLAGS = @PYTHON_CXXFLAGS@
 PyQtGUI_LDFLAGS = @PYTHON_LDFLAGS@
 
 install-exec-hook:
-	$(mkinstalldirs) @prefix@/QtGUI
+	$(mkinstalldirs) @prefix@/share/d3web
+	$(INSTALL_DATA) @srcdir@/d3.js/d3.v6.min.js @prefix@/share/d3web
+	$(INSTALL_DATA) @srcdir@/d3.js/plotly-1.57.1.js @prefix@/share/d3web
+	$(INSTALL_DATA) @srcdir@/d3.js/style.css @prefix@/share/d3web
+	$(INSTALL_DATA) @srcdir@/d3.js/TimeAndDate.js @prefix@/share/d3web	
+	$(INSTALL_DATA) @srcdir@/d3.js/index.html @prefix@/share/d3web	
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/Script
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/Skel 
 	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/Skel

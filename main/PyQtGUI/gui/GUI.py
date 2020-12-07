@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         self.nparams = 0
         # dataframe for spectra
         self.spectrum_list = pd.DataFrame()
-
+        
         # dictionary for histogram
         self.h_dict = {}
         self.h_dict_output = {}  # for saving pane geometry
@@ -917,6 +917,8 @@ class MainWindow(QMainWindow):
             self.create_gate_list()        
             #self.update_spectrum_info()
             self.isCluster = False
+
+            self.createDf()
         except:
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
@@ -1672,8 +1674,10 @@ class MainWindow(QMainWindow):
 
         print("hist:", hname)
         print("hdim:", hdim)
+        print("data for ", hname)
+        print(type(w))
         print(w)
-        print(sum(w), len(w))
+        print("sum ", sum(w), "len", len(w))
         
         if hdim == 1:
             empty = sum(w)
@@ -2841,6 +2845,23 @@ class MainWindow(QMainWindow):
     ## Jupyter Notebook
     ############################                    
 
+    def createDf(self):
+        print("Create dataframe for Jupiter and web")
+        data_to_list = []
+        for index, row in self.spectrum_list.iterrows():
+            tmp = row['data'].tolist()
+            data_to_list.append(tmp)
+            print("len(data_to_list) --> ", row['names'], " ", len(tmp))
+
+        print("data_to_list; len ", len(data_to_list), " D1030 len ", len(data_to_list[14]))
+        print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
+        self.spectrum_list = self.spectrum_list.drop('data', 1)
+        self.spectrum_list['data'] = np.array(data_to_list)
+
+        print(len(self.spectrum_list['data'][14]))
+        print(self.spectrum_list['data'][14])        
+        self.spectrum_list.to_csv("df-updated.csv")
+    
     def jupyterStop(self):
         # stop the notebook process
         log("Sending interrupt signal to jupyter-notebook")
@@ -2849,11 +2870,11 @@ class MainWindow(QMainWindow):
         self.wConf.jup_start.setStyleSheet("background-color:#3CB371;")
         self.wConf.jup_stop.setStyleSheet("")        
         stopnotebook()
-        
+
     def jupyterStart(self):
         # dump dataframe to compressed file
-        self.spectrum_list.to_pickle(self.wConf.jup_df_filename.text(), compression="bz2")                
-        
+        #self.spectrum_list.to_pickle(self.wConf.jup_df_filename.text(), compression="bz2")                
+
         s = QSettings()
         execname = s.value(SETTING_EXECUTABLE, "jupyter-notebook")
         if not testnotebook(execname):
