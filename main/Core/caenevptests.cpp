@@ -86,6 +86,7 @@ class caenevptest : public CppUnit::TestFixture {
     CPPUNIT_TEST(parse_3);
     CPPUNIT_TEST(parse_4);
     CPPUNIT_TEST(parse_5);
+    CPPUNIT_TEST(parse_6);
     CPPUNIT_TEST_SUITE_END();
 protected:
     void parse_1();
@@ -93,6 +94,7 @@ protected:
     void parse_3();
     void parse_4();
     void parse_5();
+    void parse_6();
     
 private:
     CHistogrammer* m_pHistogrammer;
@@ -637,9 +639,9 @@ void caenevptest::parse_5()
     // Note that the make* operations copy and we use that to recycle hit and item
     // buffers:
     
-    uint8_t hit[100];               //PSD hit buffer.
+    uint8_t hit[100];               // hit buffer.
     uint8_t item[200];              //Ringitem buffer.
-    uint32_t event[2000];            // Event buffer.
+    uint32_t event[5000];            // Event buffer.
     uint8_t* pDest =
         reinterpret_cast<uint8_t*>(&(event[1]));   // Hold space for final size.
     uint32_t totalSize(sizeof(uint32_t));
@@ -740,3 +742,127 @@ void caenevptest::parse_5()
     EQ(double(1236.012), double(psd2_t[3]));
 }
 
+void caenevptest::parse_6()
+{
+    TestProcessor p;
+    // Module have multiple hits.
+    
+    CTreeParameterArray pha_t("pha_t", 16, 0);
+    CTreeParameterArray pha_e("pha_e", 16, 0);
+    CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
+    CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    
+    // PSD1 - a channel here will have data.
+    
+    CTreeParameterArray psd1_t("psd1_t", 16, 0);
+    CTreeParameterArray psd1_s("psd1_s", 16, 0);
+    CTreeParameterArray psd1_l("psd1_l", 16, 0);  
+    CTreeParameterArray psd1_b("psd1_b", 16, 0);
+    CTreeParameterArray psd1_p("psd1_p", 16, 0);
+    
+    // PSD2
+    
+    CTreeParameterArray psd2_t("psd2_t", 16, 0);
+    CTreeParameterArray psd2_s("psd2_s", 16, 0);
+    CTreeParameterArray psd2_l("psd2_l", 16, 0);
+    CTreeParameterArray psd2_b("psd2_b", 16, 0);
+    CTreeParameterArray psd2_p("psd2_p", 16, 0);
+    
+    // Bind it all
+    
+    CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(*m_pEvent);
+    
+    uint8_t hit[100];               //PSD hit buffer.
+    uint8_t item[200];              //Ringitem buffer.
+    uint32_t event[2000];            // Event buffer.
+    size_t totalSize(sizeof(uint32_t));               // total size of the event.
+    uint8_t* pDest = reinterpret_cast<uint8_t*>(&(event[1]));
+    
+    // Hits in the even channels of pha:
+    
+     //    PHA Hit module 1.
+    
+    for (int i =0; i < 16; i+=2) {
+        size_t hitSize = makePhaHit(hit, i, 1234+i, 100+i, 200+i*2, 300+i*3);
+        size_t itemSize = makeRingItem(item, 1, 1234+i, hitSize, hit);
+        size_t fragSize = makeFragment(pDest, item);
+        totalSize += fragSize;
+        pDest     += fragSize;
+    }
+    
+    // PSD1 hits in odd channels:
+    
+    for (int i = 1; i < 16; i+=2) {
+        size_t hitSize = makePsdHit(hit, i,  100+2*i, 200+4*i, 10+i, 1235+i, 10, 0);
+        size_t itemSize = makeRingItem(item, 2, 1235, hitSize, hit);
+        size_t fragSize = makeFragment(pDest, item);
+        totalSize += fragSize;
+        pDest     += fragSize;
+    }
+    // PSD2 hits in all channels:
+    
+    for (int i = 0; i < 16; i++) {
+        size_t hitSize = makePsdHit(hit, i, 110+i, 220+i, 15+i, 1236+i, 6, 0);
+        size_t itemSize = makeRingItem(item, 3, 1236, hitSize, hit);
+        size_t fragSize = makeFragment(pDest, item);
+        totalSize += fragSize;
+        pDest     += fragSize;
+    }
+    
+    // Top off the event and process it:
+    
+    event[0] = totalSize;           // That's why we initted it with sizeof(uint32_t)
+    p(event, *m_pEvent, *m_pAnalyzer, *m_pDecoder);
+    // Let's look at the PHA - odd channels are invalid and even channels valid
+    // with known values:
+    
+    for (int i=0; i < 16; i++) {
+        if ((i % 2) == 1) {                      // Odd channels.
+            ASSERT(!pha_t[i].isValid());
+            ASSERT(!pha_e[i].isValid());
+            ASSERT(!pha_ex1[i].isValid());
+            ASSERT(!pha_ex2[i].isValid());
+        } else {
+            // These will throw if the values are not valid:
+            
+            EQ(double(1234+i), double(pha_t[i]));
+            EQ(double(100+i), double(pha_e[i]));
+            EQ(double(200+i*2), double(pha_ex1[i]));
+            EQ(double(300+i*3), double(pha_ex2[i]));
+        }
+    }
+    // Let's look at PSD1:
+    
+    for (int i =0; i < 16; i++) {
+        if ((i %2) == 1) {
+            // valid
+            
+            EQ(double(100+2*i), double(psd1_s[i]));
+            EQ(double(200+4*i), double(psd1_l[i]));
+            EQ(double(10+i), double(psd1_b[i]));
+            EQ(double(1235+i)+0.01, double(psd1_t[i]));
+            EQ(double(40), double(psd1_p[i]));
+            
+        } else {
+            // invalid
+            
+            ASSERT(!(psd1_s[i].isValid()));
+            ASSERT(!(psd1_l[i].isValid()));
+            ASSERT(!(psd1_b[i].isValid()));
+            ASSERT(!(psd1_t[i].isValid()));
+            ASSERT(!(psd1_p[i].isValid()));
+        }
+    }
+    // Let's look at PSD2:
+    
+    for (int i = 0; i < 16; i++) {
+        // All should be valid:
+        
+        EQ(double(110+i), double(psd2_s[i]));
+        EQ(double(220+i), double(psd2_l[i]));
+        EQ(double(15+i), double(psd2_b[i]));
+        EQ(double(1236+i)+0.012, double(psd2_t[i]));
+        EQ(double(40), double(psd2_p[i]));
+    }
+}
