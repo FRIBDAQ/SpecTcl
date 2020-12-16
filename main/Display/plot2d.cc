@@ -885,32 +885,29 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
 
     if(at2->isflipped()) {
       if(at2->isexpanded()) {
-	xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
-	xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
-	yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
-	yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
+								xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
+								xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
+								yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
+								yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
       }
       ctx->sampler = 
-	Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
-				at2->getrend(), at2->getreduction(),
-				xl, xh, yl, yh, ny, nx,
-				&ctx->ystep, &ctx->xstep);
-    }
-    else {
+							Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
+						at2->getrend(), at2->getreduction(),
+						xl, xh, yl, yh, ny, nx,
+						&ctx->ystep, &ctx->xstep);
+    } else {
       if(at2->isexpanded()) {
-	xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
-	xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
-	yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
-	yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
-	//	if(at2->ismapped()) {
-	// xh++;
-	//  }
-      }
+							xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
+							xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
+							yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
+							yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
+							//	if(at2->ismapped()) {
+	     }
       ctx->sampler = 
-	Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
-				at2->getrend(), at2->getreduction(),
-				xl, xh, yl, yh, nx, ny,
-				&ctx->xstep, &ctx->ystep);
+							Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
+						at2->getrend(), at2->getreduction(),
+						xl, xh, yl, yh, nx, ny,
+						&ctx->xstep, &ctx->ystep);
     }
     /* Choose the drawer */
 
@@ -926,8 +923,7 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
     context->destroyer = DeleteSegmentContext;
 
     return False;		/* That's enough work for the first time. */
-  }
-  else {
+		} else {
     Boolean plot_done;
     Draw2dContext *ctx = (Draw2dContext *)context->ctx;
     time_t entry_time = time(NULL);
@@ -938,11 +934,10 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
     */
     if(ctx->attributes->islog()) {
       while((!(plot_done = DrawLogSegment(ctx))) && (entry_time == time(NULL)))
-	;
-    }
-    else {
+									;
+    } else {
       while((!(plot_done = DrawSegment(ctx))) &&(entry_time == time(NULL)))
-	;
+									;
     }
     if(plot_done) {	/* Done drawing... */
       DeleteSegmentContext((XtPointer)ctx); /* Kill off the segment. */
