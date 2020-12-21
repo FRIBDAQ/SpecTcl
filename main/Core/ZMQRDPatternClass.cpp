@@ -101,7 +101,8 @@ typedef struct _HistoEvent {
 } HistoEvent, *pHistoEvent;
 
 static EventProcessingPipeline* pipecopy;
-static std::vector<DAQ::DDAS::CParameterMapper*> data(NBR_WORKERS);
+//static std::vector<DAQ::DDAS::CParameterMapper*> data(NBR_WORKERS);
+static std::vector<DAQ::DDAS::FitParameterMapper*> data(NBR_WORKERS);
 
 void
 ZMQRDClass::ResizeAll()
@@ -400,7 +401,8 @@ ZMQRDClass::clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline
   std::cout << msg << std::endl;
   for (int i=0; i<NBR_WORKERS; i++){    
     if (isDDAS){
-      data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
+      //data[i] = ((DAQ::DDAS::CParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();
+      data[i] = ((DAQ::DDAS::FitParameterMapper*)(ZMQRDClass::getInstance()->GetData()))->clone();      
       if (debug)
 	std::cout << "Thread " << i << " original data: " << ZMQRDClass::getInstance()->GetData() << " copy data: " << &data[i] << std::endl;
     }

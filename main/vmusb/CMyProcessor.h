@@ -21,7 +21,8 @@ class CMyProcessor : public  CEventProcessor
   virtual ~CMyProcessor();
   virtual CMyProcessor* clone() { return new CMyProcessor(*this); }
 
-  void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper){};
+  //void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper){};
+  void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper){};  
   
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,

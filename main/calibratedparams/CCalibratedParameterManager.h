@@ -66,10 +66,12 @@ public:
     int operator== (const CCalibratedParameterManager& rhs) const; //!< == comparison.
     int operator!= (const CCalibratedParameterManager& rhs) const; //!< != comparison.
     virtual CCalibratedParameterManager* clone() { return new CCalibratedParameterManager(*this); }
-    DAQ::DDAS::CParameterMapper* m_mapper;
-    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
-  
-// Class operations:
+    //DAQ::DDAS::CParameterMapper* m_mapper;
+    DAQ::DDAS::FitParameterMapper* m_mapper;  
+    //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+
+  // Class operations:
 
 public:
 

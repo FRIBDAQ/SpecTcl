@@ -37,10 +37,12 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <ParameterMapper.h>
+//#include <ParameterMapper.h>
+#include <FitParameterMapper.h>
 
 class CEventProcessor;
-class CParameterMapper;
+//class CParameterMapper;
+class FitParameterMapper;
 
 class CThreadAnalyzer : public CAnalyzer {
 
@@ -71,7 +73,9 @@ public:
 
   // The following override base class members:
   virtual void OnStateChange(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder);
-  virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map);
+  virtual void OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize,
+			 //Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map);
+			 Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::FitParameterMapper& map);			 
   virtual void OnOther(UInt_t nType, EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnScaler(EventProcessingPipeline& source, CBufferDecoder& rDecoder);
   virtual void OnEndFile();
@@ -92,7 +96,8 @@ public:
   
  protected:
   
-  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map);
+  //virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map);
+  virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::FitParameterMapper& map);  
 
  private:
   CEvent* CreateEvent() {

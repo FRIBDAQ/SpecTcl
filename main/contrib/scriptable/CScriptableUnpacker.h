@@ -101,8 +101,10 @@ public:
     virtual  ~CScriptableUnpacker ( ); //!< Destructor.
 
     virtual CScriptableUnpacker* clone() { return new CScriptableUnpacker(*this); }
-    DAQ::DDAS::CParameterMapper* m_mapper;
-    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    //DAQ::DDAS::CParameterMapper* m_mapper;
+    DAQ::DDAS::FitParameterMapper* m_mapper;  
+    //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
   
 private:
     //CScriptableUnpacker (const CScriptableUnpacker& rSource ); //!< Copy construction.

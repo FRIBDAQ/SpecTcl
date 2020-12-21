@@ -1,7 +1,7 @@
 #ifndef MYPARAMETERMAPPER_H
 #define MYPARAMETERMAPPER_H
 
-#include <ParameterMapper.h>
+#include <FitParameterMapper.h>
 #include <MyParameters.h>
 //#include <MyPipelineData.h>
 
@@ -18,7 +18,7 @@ class MyParameters;
 //
 // It operates on a MyParameters structure containing TreeParameters but 
 // does not own it.
-class MyParameterMapper : public DAQ::DDAS::CParameterMapper
+class MyParameterMapper : public DAQ::DDAS::FitParameterMapper
 {
   public:
   
@@ -37,13 +37,13 @@ class MyParameterMapper : public DAQ::DDAS::CParameterMapper
     //
     // \param channelData   the hit data
     // \param rEvent        the SpecTcl event
-    virtual void mapToParameters(const std::vector<DAQ::DDAS::DDASHit>& channelData, 
+    virtual void mapToParameters(const std::vector<DAQ::DDAS::DDASFitHit>& channelData, 
                                   CEvent& rEvent);
 
     // Compute channel index from crate, slot, and channel information
     //
     // \param hit   the ddas hit
-    int computeGlobalIndex(const DAQ::DDAS::DDASHit& hit);
+    int computeGlobalIndex(const DAQ::DDAS::DDASFitHit& hit);
 };
 #endif
 

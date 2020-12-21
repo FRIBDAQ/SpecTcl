@@ -86,7 +86,9 @@ void CThreadAnalyzer::OnStateChange(UInt_t nType, EventProcessingPipeline& sourc
   calling each processor and giving it a chance to process the event.
   Returns the value of m_nEventSize.  Aborts the event if necessary.
 */
-UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder, EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map) {
+UInt_t CThreadAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent, CBufferDecoder& rDecoder,
+				//EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::CParameterMapper& map) {
+				EventProcessingPipeline& pipecopy, BufferTranslator& trans, long thread, DAQ::DDAS::FitParameterMapper& map) {				
 
   EventProcessorIterator p = pipecopy.begin();
 
@@ -221,7 +223,9 @@ CThreadAnalyzer::OnEndFile() {
 // Operation Type:
 //    override for default behavior (extension).
 //
-void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline, BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map) {
+void CThreadAnalyzer::OnPhysics(long thread, CBufferDecoder& rDecoder, UInt_t nBufferSize, Address_t pData, EventProcessingPipeline& pipeline,
+				//BufferTranslator& trans, CEventList& lst, DAQ::DDAS::CParameterMapper& map) {
+				BufferTranslator& trans, CEventList& lst, DAQ::DDAS::FitParameterMapper& map) {				
   UInt_t    nEvents     = 1;
   UInt_t    nEventNo    = 0;
   UInt_t    nOffset     = 0;

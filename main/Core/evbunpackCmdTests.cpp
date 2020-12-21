@@ -156,8 +156,10 @@ class DummyProcessor : public CEventProcessor {
 public:
   bool attached;
   virtual DummyProcessor* clone() { return new DummyProcessor(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
 
   DummyProcessor() : attached(0) {}
   Bool_t OnAttach(CAnalyzer& rA) {

@@ -1,6 +1,7 @@
 #include <config.h>
 #include "MySpecTclApp.h"
-#include "DDASBuiltUnpacker.h"
+//#include "DDASBuiltUnpacker.h"
+#include "DDASBuiltFitUnpacker.h"
 #include "MyParameterMapper.h"
 #include "MyParameters.h"
 #include "MyParameters2.h"
@@ -13,8 +14,9 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
   MyParameters* pParams = new MyParameters("ddas");
   MyParameterMapper* pMapper = new MyParameterMapper(*pParams);
   RegisterData(pMapper);
-  RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltUnpacker({1, 2, 3 })), "Raw");
-  RegisterEventProcessor(*(new MyCalibrator()), "Cal");
+  //RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltUnpacker({1, 2, 3 })), "Raw");
+  RegisterEventProcessor(*(new DAQ::DDAS::CDDASBuiltFitUnpacker({1, 2, 3 })), "Raw");  
+  //  RegisterEventProcessor(*(new MyCalibrator()), "Cal");
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:

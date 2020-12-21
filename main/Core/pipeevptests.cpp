@@ -23,8 +23,10 @@ public:
   SucceedingEventProcessor() : called(false) {}
 
   virtual SucceedingEventProcessor* clone() { return new SucceedingEventProcessor(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
   
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,
@@ -82,8 +84,10 @@ public:
 public:
   FailingEventProcessor() : called(false) {}
   virtual FailingEventProcessor* clone() { return new FailingEventProcessor(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
 
   virtual Bool_t operator()(const Address_t pEvent,
                             CEvent& rEvent,

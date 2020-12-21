@@ -85,8 +85,10 @@ class CFixedEventUnpacker : public  CEventProcessor
 {
 public:
   virtual CFixedEventUnpacker* clone() { return new CFixedEventUnpacker(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }    
 
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,
@@ -142,8 +144,10 @@ class CAddFirst2 : public CEventProcessor
 {
 public:
   virtual CAddFirst2* clone() { return new CAddFirst2(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
 
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent&         rEvent,

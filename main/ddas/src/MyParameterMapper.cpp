@@ -5,7 +5,7 @@
 std::mutex mu;
 
 // Make it possible to write DDASHit instead of DAQ::DDAS::DDASHit.
-using DAQ::DDAS::DDASHit;
+using DAQ::DDAS::DDASFitHit;
 
 int max = -1;
 
@@ -25,7 +25,7 @@ MyParameterMapper::MyParameterMapper(const MyParameterMapper& rhs) :
   m_chanMap(rhs.m_chanMap)
 {}
 
-void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
+void MyParameterMapper::mapToParameters(const std::vector<DDASFitHit>& channelData,
                                         CEvent& rEvent)
 {
   m_params.data.m_chanHit.clear();
@@ -53,7 +53,7 @@ void MyParameterMapper::mapToParameters(const std::vector<DDASHit>& channelData,
 }
 
 
-int MyParameterMapper::computeGlobalIndex(const DDASHit& hit) 
+int MyParameterMapper::computeGlobalIndex(const DDASFitHit& hit) 
 {
   int crateId = hit.GetCrateID();
   int slotIdx = hit.GetSlotID()-2;

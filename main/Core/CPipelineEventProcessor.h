@@ -24,7 +24,8 @@
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
 
-class CParameterMapper;
+//class CParameterMapper;
+class FitParameterMapper;
 
 /**
  * @class CPipelineEventProcessor
@@ -49,10 +50,12 @@ public:
     CPipelineEventProcessor(CTclAnalyzer::EventProcessingPipeline* pipe);
     virtual ~CPipelineEventProcessor();
 
-  DAQ::DDAS::CParameterMapper*     m_mapper;
+  //DAQ::DDAS::CParameterMapper*     m_mapper;
+  DAQ::DDAS::FitParameterMapper*     m_mapper;  
 
   virtual CPipelineEventProcessor* clone() { return new CPipelineEventProcessor(*this); }
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
   
 public:
   virtual Bool_t operator()(const Address_t pEvent,

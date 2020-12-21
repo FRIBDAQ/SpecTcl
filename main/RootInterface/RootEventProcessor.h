@@ -47,8 +47,10 @@ public:
     RootEventProcessor();
 
     virtual RootEventProcessor* clone() { return new RootEventProcessor(*this); }
-    DAQ::DDAS::CParameterMapper* m_mapper;
-    virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    //DAQ::DDAS::CParameterMapper* m_mapper;
+    DAQ::DDAS::FitParameterMapper* m_mapper;  
+    //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+    virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
     
     // Event processor interface subset we need to implement.
     

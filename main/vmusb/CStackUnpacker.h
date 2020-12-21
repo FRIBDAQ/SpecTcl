@@ -73,8 +73,10 @@ public:
   CStackUnpacker();
   virtual ~CStackUnpacker();
   virtual CStackUnpacker* clone() { return new CStackUnpacker(*this); }
-  DAQ::DDAS::CParameterMapper* m_mapper;
-  virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  //DAQ::DDAS::CParameterMapper* m_mapper;
+  DAQ::DDAS::FitParameterMapper* m_mapper;  
+  //virtual void setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }
+  virtual void setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper) { m_mapper = &rParameterMapper; }  
   
   // As we have no object data the default canonicals are just fine for us.
 

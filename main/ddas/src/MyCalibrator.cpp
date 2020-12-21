@@ -15,7 +15,8 @@ MyCalibrator::~MyCalibrator() {
 }
 
 void
-MyCalibrator::setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper)
+//MyCalibrator::setParameterMapper(DAQ::DDAS::CParameterMapper& rParameterMapper)
+MyCalibrator::setParameterMapper(DAQ::DDAS::FitParameterMapper& rParameterMapper)
 {
   m_pParameterMapper = reinterpret_cast<MyParameterMapper*>(&rParameterMapper);
 }
