@@ -507,7 +507,7 @@ void caenevptest::parse_3()
     EQ(double(200), double(psd1_l[2]));
     EQ(double(50), double(psd1_b[2]));
     EQ(double(40), double(psd1_p[2]));
-    EQ(double(123.003), double(psd1_t[2]));
+    EQ(double(123.0 + 3.0/1024), double(psd1_t[2]));
               
 }
 void caenevptest::parse_4()
@@ -594,7 +594,7 @@ void caenevptest::parse_4()
     EQ(double(200), (double)psd2_l[5]);
     EQ(double(50), (double)psd2_b[5]);
     EQ(double(40), (double)psd2_p[5]);
-    EQ(double(123.006), (double)psd2_t[5]);
+    EQ(double(123.0 + 6.0/1024.0), (double)psd2_t[5]);
     
 }
 void caenevptest::parse_5()
@@ -731,7 +731,7 @@ void caenevptest::parse_5()
     EQ(double(200), double(psd1_l[2]));
     EQ(double(10), double(psd1_b[2]));
     EQ(double(40), double(psd1_p[2]));
-    EQ(double(1235.01), double(psd1_t[2]));
+    EQ(double(1235.0 + 10.0/1024.0), double(psd1_t[2]));
     
     // Values for PSD2[3] - CFD * 2
     
@@ -739,7 +739,7 @@ void caenevptest::parse_5()
     EQ(double(220), double(psd2_l[3]));
     EQ(double(15), double(psd2_b[3]));
     EQ(double(40), double(psd2_p[3]));
-    EQ(double(1236.012), double(psd2_t[3]));
+    EQ(double(1236.0 + 12/1024.0), double(psd2_t[3]));
 }
 
 void caenevptest::parse_6()
@@ -841,7 +841,7 @@ void caenevptest::parse_6()
             EQ(double(100+2*i), double(psd1_s[i]));
             EQ(double(200+4*i), double(psd1_l[i]));
             EQ(double(10+i), double(psd1_b[i]));
-            EQ(double(1235+i)+0.01, double(psd1_t[i]));
+            EQ(double(1235+i)+10.0/1024.0, double(psd1_t[i]));
             EQ(double(40), double(psd1_p[i]));
             
         } else {
@@ -862,7 +862,7 @@ void caenevptest::parse_6()
         EQ(double(110+i), double(psd2_s[i]));
         EQ(double(220+i), double(psd2_l[i]));
         EQ(double(15+i), double(psd2_b[i]));
-        EQ(double(1236+i)+0.012, double(psd2_t[i]));
+        EQ(double(1236+i)+12.0/1024.0, double(psd2_t[i]));
         EQ(double(40), double(psd2_p[i]));
     }
 }

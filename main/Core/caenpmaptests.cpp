@@ -427,7 +427,7 @@ void caenmaptest::psdarray_2()
     fakehit.m_longGateCharge  = 1000;
     fakehit.m_baseline        = 12;
     fakehit.m_purFlag         = 0;
-    fakehit.m_CFDTime         = 1;         // 1ps.
+    fakehit.m_CFDTime         = 1;         // 1/1024 ns
     
     
     CAENModuleHits hits;             // Hit container 'decoded'.
@@ -442,7 +442,7 @@ void caenmaptest::psdarray_2()
     fakehit2.m_longGateCharge  = 2345;
     fakehit2.m_baseline = 20;
     fakehit2.m_purFlag  = 1;                 // Piled up.
-    fakehit2.m_CFDTime  = 1;           // 2ps
+    fakehit2.m_CFDTime  = 1;           // 2*/1024 ns.
     hits.addHit(&fakehit2);
     
     map.assignParameters(hits);
@@ -471,7 +471,7 @@ void caenmaptest::psdarray_2()
     base = bline[7];
     purflag = pur[7];
     
-    EQ(double(1234.001), time);
+    EQ(double(1234.0 + 1.0/1024.0), time);
     EQ(double(100), shortc);
     EQ(double(1000), longc);
     EQ(double(12), base);
@@ -485,7 +485,7 @@ void caenmaptest::psdarray_2()
     base  = bline[9];
     purflag = pur[9];
     
-    EQ(double(2000.002), time);
+    EQ(double(2000.0 + 2.0/1024.0), time);
     EQ(double(250), shortc);
     EQ(double(2345), longc);
     EQ(double(20), base);
@@ -573,7 +573,7 @@ void caenmaptest::psdmap_1()
     
     // Finally check that the assigned parameters have the correct values.
     
-    EQ(double(1234.001), (double)t2);
+    EQ(double(1234.0 + 1.0/1024.0), (double)t2);
     EQ(double(100.0), (double)s2);
     EQ(double(12), (double)b2);
     EQ(double(40.0), (double)p2);
@@ -688,14 +688,14 @@ void caenmaptest::psdmap_2()
     
     // Hit1 parameters:
     
-    EQ(double(1234.001), (double)t2);
+    EQ(double(1234.0 +  1.0/1024.0), (double)t2);
     EQ(double(100.0), (double)s2);
     EQ(double(12), (double)b2);
     EQ(double(40.0), (double)p2);
     
     // Hit 2 parameters:
     
-    EQ(double(1300.002), (double)t3);
+    EQ(double(1300.0 + 2.0/1024.0), (double)t3);
     EQ(double(1500), (double)l2);
     EQ(double(200), (double)s3);
     EQ(double(20), (double)p3);

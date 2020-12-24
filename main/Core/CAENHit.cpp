@@ -193,8 +193,22 @@ CAENPHAHit::unpack(void* pData)
 /**
  * constructor
  *    Set the hit type.
- *  @param cfdMultiplier the multiplier for the fine time computation
- *         fine time in ps is multiplier * finetime/1024
+ *  @param cfdMultiplier the multiplier that gives the number of ns
+ *            Between which the CFD interpolates.  In most cases this is
+ *            2 for a 500MHz module and 4 for a 250MHz module, however
+ *            the values of bits 10:11 in the CFD settings register can change
+ *            This. See the table below:
+ *            
+ *            |  Bits 11:10 |   Mult for 250MHz | Mult for 500Mhz |
+ *            |=============|===================|=================|
+ *            |   00        |    4              |       2         |
+ *            |   01        |    16             |       8         |
+ *            |   10        |    24             |       12        |
+ *            |   11        |    32             |       16        |
+ *
+ *      Because these bits control the number of samples across which the
+ *      CFD interpolates and the interpolation is 1024 bins withinh that time range.
+ *        
  */
 CAENPSDHit::CAENPSDHit(int cfdMultiplier) :
     CAENHit(CAENHit::PSD),
@@ -262,8 +276,8 @@ CAENPSDHit::getTime() const
 {
     double result = getTimeTag();      // Alread in ns.
     double fine   = getCFDTime();
-    fine = fine * m_cfdMultiplier; // fine time in ps.
-    result = result + fine/1000.0;     // Fine time in ns. not ps.
+    fine = (fine * m_cfdMultiplier*1000)/1024.0 ; // fine time in ps.
+    result = result + fine/1000;     // Fine time in ns. not ps.
     return result;                 // STUB until Pierluigi tells me how.
 }
 /**
