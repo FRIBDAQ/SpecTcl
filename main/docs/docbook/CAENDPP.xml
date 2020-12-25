@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl CAEN-DPP analysis</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>December 26, 2019</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            In collaboration with Lousiana State University, CAEN has developed
+            support for the CAEN xx725 and CAEN xx730 digitizers running digital
+            pulse processing (DPP) firmware for Pulse Height Analysis (PHA) and
+            Pulse Shape Discrimination (PSD).  This document describes developments
+            within NSCLSpecTcl that provide support to unpack data from these
+            digitizers with minimal programming onthe part of the user.
+        </para>
+        <para>
+            This document is organized in the following chapters:
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  <link linkend='ch.background' endterm='ch.background.title' />
+                    provides background information needed to understand the
+                    remainder
+                    of the document. 
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  <link linkend='ch.description' endterm='ch.description.title' /> 
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  <link linkend='app.reference' endterm='app.reference.title'/>
+                  Provides manpage style reference information for the classes
+                  that implement the software in a top-down order.
+               </para>
+            </listitem>
+        </itemizedlist>
+    </chapter>
+    <chapter id='ch.background'>
+        <title id='ch.background.title'>Background information</title>
+        <para>
+            CAEN DPP Digitizers emit a series of hits.  The hits from each
+            digitizer are time ordered.  Due to buffering, however, the hits
+            from a crate full of digitizers cannot be readout and emitted in time
+            order.  
+        </para>
+        <para>
+            The NSCL event builder can then weave together hits across modules and
+            build events made up of hits that live within a coincidence window.
+            The event builder determines the outermost packaging of events
+            and, therefore must be used, even if only a single channel is used,
+            in order to create events that are compatible with the unpacking
+            software described in this manual.
+        </para>
+        <para>
+            The hit formats used in the Readout Support for CAEN DPP digitizers,
+            don't tag the hit type (DPP-PSD or DPP-PHA) it is, therefore,
+            the responsibility of the programmer tailoring the unpacking of
+            data from CAEN-DPP digitizers to know the  DPP firmware
+            loaded into each digitizer and their source ids.
+        </para>
+    </chapter>
+    <chapter id='ch.description'>
+        <title id='ch.description.title'>Description of the software</title>
+        <para>
+            This chapter will provide a tutorial introduction to the use of
+            the software provided in SpecTcl to unpack DPP-PSD and DPP-PHA
+            digitizers.  It's important to note that we only support
+            CAEN xx730   (500MHz) and CAEN xx725 (250MHz) digitizers.
+            Full reference material describing the classes discussed in this
+            chapter are available in
+            <link linkend='app.reference' endterm='app.reference.title' />.
+        </para>
+        <para>
+            This chapter assumes that you are familiar with:
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  SpecTcl concepts, specifically event processors and the event
+                  processing pipeline.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  C++ Programming concepts.   That  you understand classes and
+                  objects, how to derive new classes from old classes and
+                  how to instantiate objects that are instances of classes.
+               </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            This chapter will run through two examples that show how to
+            decode data from a hypothetical setup with three digitizers;
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  A DPP-PHA digitizer with source id 1. Note that for decoding
+                  DPP-PHA digitizer data it is not necessary to know the
+                  frequency of the digitizer.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  A DPP-PSD XX730 (500MHz) digitizer with source id 2.  In order
+                  to apply the CFD fine time correction to the digitizer
+                  timestamp, it is necessary to know the digitizer frequency.
+                  It is also important to know the values of bits 10 and 11
+                  of the digitizer's CFD settings register as these affect
+                  the time interval over which the CFD interpolates a fine time.
+                  In this case, we will assumem that the value of both of these
+                  bits is 0 (interpolate between adjacent samples).  See the
+                  reference information for the CAENParameterMap classes
+                  for a description of what to do if you have non-zero values
+                  for these bits.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  A DPP-PSD XX725 (250MHz) digitizer with source id 3.  We'll
+                  assume again that bits 10 and 11 of the CFD settings register
+                  are both zero.
+               </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            The process of writing code to unpack CAEN Digitizer data is as
+            follows:
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  Assign parameter names  to each channel of each digitizer.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Define a class derived from <classname>CAENEventProcessor</classname>.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  In your event processor's constructor register parameter mapping
+                  object for each digitizer.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Instantiate your event processor in  your
+                  <filename>MySpecTclApp.cpp</filename> file and
+                  add it to the event processing pipeline in your implementation
+                  of its <methodname>CreateAnalysisPipeline</methodname>
+                  method.
+               </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            In the remainder of this chapter we'll go through these operations
+            step by step.  We'll show how to assign uniform parameter names
+            (a tree parameter array) to a digitizer as well as how to
+            define a map that isn't uniform (where you need to define the
+            parameter names for each parameter from each channel you care about).
+        </para>
+        <para>
+            Before thinking about how to assign parameter names to module channels,
+            it's important to know the set of parameters we can decode from
+            each module.  The set of parameters differs from
+            DPP-PHA and DPP-PSD.
+        </para>
+        <variablelist>
+            <title>Parameters produced by DPP-PHA channels</title>
+            <varlistentry>
+               <term>Time Tag</term>
+               <listitem>
+                   <para>
+                    This is the raw trigger time for the hit.  The PHA module
+                    is not capable of running a CFD trigger and therefore does not
+                    have a fine time correction.  This time will be converted
+                    by the readout program to nanoseconds
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Energy</term>
+               <listitem>
+                   <para>
+                    The pulse height from the digital pulse processing
+                    algorithm.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Extras 1</term>
+               <listitem>
+                   <para>
+                    If programmed to produce an extras1, this will contain
+                    its' value
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Extras 2</term>
+               <listitem>
+                   <para>
+                    If programmed to produce two extras, this will contain
+                    the value of extras2.
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <variablelist>
+            <title>Parameters produced by DPP-PSD channels</title>
+            <varlistentry>
+               <term>Short Gate charge</term>
+               <listitem>
+                   <para>
+                    The baseline subtracted integration of the part of the pulse
+                    in the short gate.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Long Gate charge</term>
+               <listitem>
+                   <para>
+                    The baseline subtracted integration of the part of the pulse
+                    in the long gate.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>baseline</term>
+               <listitem>
+                   <para>
+                    The computation of the pulse baseline
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Trigger time</term>
+               <listitem>
+                   <para>
+                    The trigger coarse time, with the CFD interpolated fine time
+                    folded into it, in nanoseconds.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Pile up flag</term>
+               <listitem>
+                   <para>
+                    This is given the value 20 if there is a pile up and 40 if
+                    there was not one.  This allows you to histogram the parameter
+                    giving two separated narrow peaks on which gates can be
+                    set (e.g. to only increment a histoigram with no pileup).
+                   </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <section>
+            <title>Assigning parameters</title>
+            <para>
+                There are four classes that allow us to assign parameters to
+                channels from a module (source id).  
+                These are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><classname>CAENPHArrayMapper</classname></term>
+                   <listitem>
+                       <para>
+                        Allows you to provide the basename of a tree parameter
+                        array for each parameter type in a PHA module.
+                        There will be an array with
+                        elements numbered 0 through 15 for the channels.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><classname>CAENPHAParameterMapper</classname></term>
+                   <listitem>
+                       <para>
+                        Allows you to provide a vector of individual names
+                        for each parameter for each channel of a PHA module.
+                        This also supports
+                        omitting decoding parameters from unused channels.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><classname>CAENPSDArryaMapper</classname></term>
+                   <listitem>
+                       <para>
+                        Allows you to provide the basename of a tree parameter
+                        array for each parameter type in a PSD module.
+                        There will be an array with elements numbered
+                        0-15 for the channels.  You can also control how, or if
+                        the CFD fine time is added into the coarse time.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><classname>CAENPSDParameterMapper</classname></term>
+                   <listitem>
+                       <para>
+                        Allows you to provide a vector of indivudal names for
+                        each parameter for each channel of a PSD module.
+                        This supports omitting the decode of unused channels and
+                        describing how to combine any CFD fine time with the
+                        coarse time tag.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                These are all derived from
+                the common base class <classname>CAENParameterMap</classname>.
+                The interface of this class provides a virtual method;
+                <methodname>assignParameters</methodname> which takes hits
+                from the module it is responsible for and assigns values to
+                SpecTcl tree parameters as defined by the specific
+                subclasses above.
+            </para>
+            <para>
+                With this in mind let's assign parameters to each of our three
+                hypothetical modules.  We'll assign uniform array basenames to
+                source ids 1 and 2 (DPP-PHA and 500MHz DPP-PSD modules).  We'll
+                define individual parameters for the first few even channels of
+                source id 3 (the 250MHz DPP-PSD module).
+            </para>
+            <para>
+                The base names we'll use for the DPP-PHA will be:
+            </para>
+            <variablelist>
+                <title>DPP-PHA basenames (for source id 1)</title>
+                <varlistentry>
+                   <term>pha.time</term>
+                   <listitem>
+                       <para>
+                         For the trigger time tags.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>pha.energy</term>
+                   <listitem>
+                       <para>
+                        For the energy
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>extras 1</term>
+                   <listitem>
+                       <para>
+                        We're going to ignore this word.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>pha.missedtrigs</term>
+                   <listitem>
+                       <para>
+                        Assuming the extras 2 word  has been programmed to enable
+                        recording of the missed triggers count.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                For the 500MHz DPP-PSD module (source id 2 we'll use the
+                following parameter basenames)/
+            </para>
+            <variablelist>
+                <title>DPP-PHA 500MHz basenames (source id 2)</title>
+                <varlistentry>
+                   <term>psd1.shortQ</term>
+                   <listitem>
+                       <para>
+                        Charge integration of the short gate.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>psd1.longQ</term>
+                   <listitem>
+                       <para>
+                        Charge integration of the long gate.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>psd1.baseline</term>
+                   <listitem>
+                       <para>
+                        Baseline computation.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>psd1.time</term>
+                   <listitem>
+                       <para>
+                        Full time (trigger tag with CFD interpolation)
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>psd.pileup</term>
+                   <listitem>
+                       <para>
+                        Pileup flag.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                For source id 3, the 250MHz DPP-PSD module, let's assume that
+                channel 0 and 2 are a start and stop detector package for time of
+                flight (yes I know I should have put those in the 500MHz digitizer
+                but this is just a programming example). Let's further assume that
+                rather than needing to do pulse shape discrimnation, we've just
+                set the long gate to give us a current integrated energy.l
+                Let's assume that
+                all other channels are unused and don't need to have parameters
+                assigned to them. We'll assign parameters as follows:
+            </para>
+            <variablelist>
+                <title>DPP-PSD 250MHz  module (source id 3)</title>
+                <varlistentry>
+                   <term>start.time</term>
+                   <listitem>
+                       <para>
+                        Channel 0 time (start time.)
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>start.E</term>
+                   <listitem>
+                       <para>
+                        Channel 0 long gate charge integration.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>start.baseline</term>
+                   <listitem>
+                       <para>
+                        channel 0 baseline computation.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>start.pileup</term>
+                   <listitem>
+                       <para>
+                        channel 0  pileup flag.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                
+                <varlistentry>
+                   <term>stop.time</term>
+                   <listitem>
+                       <para>
+                        Channel 2 time (stop time)
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>stop.E</term>
+                   <listitem>
+                       <para>
+                        Channel 2 long gate charge integration.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>stop.baseline</term>
+                   <listitem>
+                       <para>
+                        Channel 2 baseline computation.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>stop.pileup</term>
+                   <listitem>
+                       <para>
+                        Channel 2 pileup flag.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Define our event processor class</title>
+            <para>
+                The <classname>CAENEventProcessor</classname> class provides
+                a base class for analyzing event built data that includes
+                data from CAENDPP digitizers.  By itself, it can't do anything
+                useful.  It expects you to derive a new class from it and
+                provide that class with set of parameter maps that describe
+                the parameters assigned to the channels of each digitizer.
+            </para>
+            <para>
+                The definition of this class is shown below:
+            </para>
+            <example>
+                <title>DPPEventProcessor.h</title>
+                <programlisting>
+#ifndef DPPEVENTPROCESSOR_H
+#define DPPEVENTPROCESSOR_H                 <co id='dppheader.guard' />
+
+#include &lt;CAENEventProcessor.h&gt;       <co id='dppheader.basedef' />
+
+class MyDPPEventProcessor : public CAENEventProcessor  <co id='dppheader.derive' />
+{
+public:
+  MyDPPEventProcessor();                    <co id='dppheader.constructor' />
+};
+
+#endif
+                   
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='dppheader.guard' >
+                    <para>
+                        This construct and the #endif at the bottom of the
+                        file should be used in all header files.  It allows the
+                        header to be included more than once (which can happen
+                        inadvertently) without triggering compiler complaints
+                        about multiple definitions.   Therefore it is known
+                        as an <firstterm>include gauard</firstterm>
+                    </para>
+                    <para>
+                        In order to prevent collision with preprocessor names
+                        used to guard other headers, by convention the
+                        preprocessor name checked and defined is usually
+                        derived from the header file name; in this case
+                        <filename>DPPEventProcessor.h</filename>.
+                    </para>
+                </callout>
+                <callout arearefs='dppheader.basedef' >
+                    <para>
+                        Defines a  new class
+                        <classname>MyDPPEventProcessor</classname>
+                        derived from the base class
+                        <classname>CAENEventProcessor</classname>.  This
+                        allows us to specify the set of parameter maps the
+                        base class will use when assigning parameters from
+                        event fragments.
+                    </para>
+                </callout>
+                <callout arearefs='dppheader.constructor' >
+                    <para>
+                        We need to implement a constructor.  It is in the
+                        constructor that we'll create parameter maps and
+                        hand them to the base class for its use.
+                        This is the only job we really have to get raw
+                        parameters decoded.
+                    </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section>
+            <title>Registering Marameter Mappings</title>
+            <para>
+                In this section we'll, present code that describes the
+                parameter mappings we developed and informs the
+                <classname>CAENEventProcessor</classname> base class
+                of <classname>MyDPPEventProcessor</classname> of them.
+                This is done by createing a parameter mapping object
+                for each module and passing it to the
+                <classname>CAAENEventProcessor::</classname><methodname>addParameterMap</methodname>
+                method. 
+            </para>
+            <para>
+                Here's the code to do that.
+            </para>
+            <example>
+                <title>DPPEventProcessor.cpp</title>
+                <programlisting>
+#include "DPPEventProcessor.h"      <co id='dppimp.include' />
+#include &lt;CAENParameterMap.h&gt; <co id='dppimp.mapperinc' />
+#include &lt;vector&gt;             <co id='dppimp.mapperaddinc' />
+#include &lt;string&gt;
+
+MyDPPEventProcessor::MyDPPEventProcessor()   <co id='dppimp.constructor' />
+{
+  addParameterMap(1, new CAENPHAArrayMapper(  <co id='dppimp.src1' />
+     "pha.time", "pha.energy", nullptr, "pha.missedtrigs"
+  ));
+  addParameterMap(2, new CAENPSDArrayMapper(   <co id='dppimp.src2' />
+     "psd1.time" ,"psd1.shortQ", "psd1.longQ", "psd1.baseline", "psd1.pileup"),
+     2
+  );
+  std::vector&lt;std::string&gt; src3times={"start.time", "", "stop.time"}; <co id='dppimp.src3params' />
+  std::vector&lt;std::string&gt; src3charge={"start.E", "", "stop.E"};
+  std::vector&lt;std::string&gt; src3bl={"start.baseline", "", "stop.baseline"};
+  std::vector&lt;std::string&gt; src3pup={"start.pileup","", "stop.pileup"};
+  std::vector&lt;std::string&gt; src3unused;
+  addParameterMap(3, new CAENPSDParameterMapper(    <co id='dppimp.src3' />
+      src3charge, src3unused, src3bl, src3times, src3pup),
+      4
+  );
+}
+                   
+                </programlisting>
+            </example>
+            <para>
+                Lets' look at this constructor implementation step by step so
+                we can understand what's going on and, in the process gain some
+                understanding of both the
+                <classname>CAENEventProcessor</classname> class and the parameter
+                mapper classes.
+            </para>
+            <calloutlist>
+                <callout arearefs='dppimp.include' >
+                    <para>
+                        As usual we need to include the class definition
+                        in order to implement it.
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.mapperinc' >
+                    <para>
+                        Including this header brings in the definitions
+                        for four parameter mapping classes so we can
+                        make instances of them to register with the
+                        <classname>CAENEventProcessor</classname> base
+                        class.
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.mapperaddinc' >
+                    <para>
+                        These headers include class definitions we'll need
+                        when creating the channel by channel parameter name
+                        definitions needed by
+                        <classname>CAENPSDParameterMapper</classname>.
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.constructor' >
+                    <para>
+                        Begins the implementation of our event processor's
+                        constructor.  This is where we're going to add
+                        parameter definitions to the base class.  Note that
+                        our case is simple enough we can do everything in line
+                        and the constructor is understandable.  For larger
+                        systems it may be wise to break the implementation
+                        down into method calls where each method
+                        defines the parameter mapping for some part of the
+                        system. 
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.src1' >
+                    <para>
+                        This creates and registers the parameter mapper
+                        for source id 1.  It does this using a call to the
+                        base class's
+                        <methodname>addParameterMap</methodname> method.
+                        This method takes two mandatory parameters and one
+                        optional parameter which we'll discuss when we
+                        look at the registration of the PSD parameter maps.
+                    </para>
+                    <para>
+                        The first parameter is the source id for which the
+                        map is being registered.  If a fragment from a data source
+                        without a map is encountered in an event, it will be
+                        ignored by the event processor.  This allows you to mix
+                        CAEN digitizers with other modules (as long as the timestamps
+                        are synchronized an in nanoseconds).
+                    </para>
+                    <para>
+                        The second parameter is a pointer to a
+                        <classname>CAENParameterMap</classname>. Remember this
+                        is the base class for all of the parameter map classes.
+                        The <methodname>addParameterMap</methodname> method
+                        expects this to be a dynamically created object.
+                        Normally, event processors live for the life time
+                        of the program, however if you have an application that
+                        dynamically creates/destroys event processors (e.g. to
+                        make use of the dynamic pipeline manager), this is important
+                        as when a <classname>CAENEventProcessor</classname>
+                        is destroyed, it will <literal>delete</literal>
+                        all registered parameter mapper objects.
+                    </para>
+                    <para>
+                        The mapper we register is a <classname>CAENPHAArrayMapper</classname>.
+                        As you can see it is dynamically created. Its parameters
+                        are, in order, the time tag, energy, extras1 and extras2
+                        parameter base names.   16 element tree parameter
+                        arrays are created for each of these.
+                    </para>
+                    <para>
+                        Note that we pass a <literal>nullptr</literal> as
+                        the basename for the extras1 parameter.  If you pass
+                        a null pointer for a parameter basename, the
+                        array parameter mappers will simply not assign those
+                        parts of a hit to SpecTcl parameters.
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.src2' >
+                    <para>
+                        Registers the parameter map for source id 2, our
+                        500MHz DPP-PSD module.  This should be readily
+                        undertansdable from the discussion of the registration
+                        for source id 1 above.
+                    </para>
+                    <para>
+                        Note that for PSD parameter maps, if the CFD time is
+                        included in the extras word, the final parameter (which defaults to 0)
+                        is the number of nanoseconds across which the CFD
+                        time interpolation is performed.  Normally, this is
+                        just the number of nanoseconds per sample.  However
+                        CFD parameters can be set to interpolate between multiple samples
+                        as well, in which case, again, that affects this parameter
+                        (I think).
+                    </para>
+                    <para>
+                        If the CFD is not selected, then you can omit this parameter.
+                        Since the default is zero, and in part of the computation
+                        of the fine time the extras word bit field
+                        that normally contains the CFD fine time is multiplied
+                        by this value this will result in no CFD fine time interpolation.
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.src3params' >
+                    <para>
+                        In this section, we prepare vectors that contain
+                        parameter names that will be passed to the
+                        <classname>CAENPSDParameterMapper</classname> constructor.
+                        The principle is the same for
+                        <classname>CAENPHAParameterMapper</classname>.  Each
+                        parameter must have a vector of parameter name strings.
+                        If the vector is fewer than 16 elements long, the remaining
+                        channels are ignored.  If a parameter name is an
+                        empty string, that channel is ignored.  This is
+                        why there are empty
+                        strings for channel 1, and an empty array (which will
+                        be used for the short gate charge integration).
+                    </para>
+                </callout>
+                <callout arearefs='dppimp.src3' >
+                    <para>
+                        This adds the parameter map for source 3, our
+                        250MHz DPP-PSD digitizer.  Note that we've specified
+                        the interpolation time of the CFD to be 4ns.
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                As you can see setting up the parameter mappings is an easy, although for
+                larger setups potentially tedious task.  Once those mappings are
+                set up, however, the base class event processing code takes care
+                of everything else to get us raw parameters.  Note that to do
+                a real Time of flight we'll need to get differences between the
+                start and stop detector times.  We'll show how to do this in
+                the section
+                <link linkend='sec.computing' endterm='sec.computing.title' />.
+            </para>
+        </section>
+        <section id='sec.computing'>
+            <title id='sec.computing.title'>But I need to compute time differences!!!</title>
+            <para></para>
+        </section>
+    </chapter>
+    <appendix id='app.reference'>
+        <title id='app.reference.title'>Reference pages</title>
+        <para></para>
+    </appendix>
+</book>
