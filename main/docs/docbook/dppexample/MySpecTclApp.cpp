@@ -28,6 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Event.h>
 #include <TreeParameter.h>
 #include "DPPEventProcessor.h"
+#include "TOFEventProcessor.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -258,7 +259,7 @@ void
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 {
   RegisterEventProcessor(*(new MyDPPEventProcessor), "CAEN_DPP");
-
+  RegisterEventProcessor(*(new TOFEventProcessor), "TOF_COMPUTATION");
 
 }
 

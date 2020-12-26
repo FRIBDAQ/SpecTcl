@@ -26,6 +26,8 @@
             Pulse Shape Discrimination (PSD).  This document describes developments
             within NSCLSpecTcl that provide support to unpack data from these
             digitizers with minimal programming onthe part of the user.
+            The features documented in this manual are first deployed in SpecTcl
+            version 5.4-000
         </para>
         <para>
             This document is organized in the following chapters:
@@ -275,6 +277,13 @@
                 </listitem>
             </varlistentry>
         </variablelist>
+        <para>
+            The sections that follow will include code fragments from the
+            complete example that is installed in
+            <filename>$SpecTclHome/share/examples/caendpp</filename>.  Note
+            that to get that example to compile, you'll need to adjust the
+            definition of <literal>INSTDIR</literal> in the Makefile.
+        </para>
         <section>
             <title>Assigning parameters</title>
             <para>
@@ -779,13 +788,646 @@ MyDPPEventProcessor::MyDPPEventProcessor()   <co id='dppimp.constructor' />
                 <link linkend='sec.computing' endterm='sec.computing.title' />.
             </para>
         </section>
+        <section>
+            <title>Adding the event processor to the pipeline and build</title>
+            <para>
+                We have a class definition and we have a class implementation.
+                What we need to tie all this into SpecTcl is to create an instance
+                of our event processor class and put it into the SpecTcl
+                event processing pipeline.  We also need to build our class into
+                our tailored version of SpecTcl.
+            </para>
+            <para>
+                Assuming you've pulled down a Skeleton for SpecTcl in the same
+                directory as your event processor class; We need to edit
+                the skeleton application (<filename>MySpecTclApp.cpp</filename>)
+                as follows:
+            </para>
+            <example>
+                <title>Changes to <filename>MySpecTclApp.cpp</filename></title>
+                <programlisting>
+#include &lt;config.h&gt;
+#include "MySpecTclApp.h"
+#include "EventProcessor.h"
+#include "TCLAnalyzer.h"
+#include &lt;Event.h&gt;
+#include &lt;TreeParameter.h&gt;
+#include "DPPEventProcessor.h"                <co id='skel.addheader' />
+                    ...
+void
+CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
+{
+  RegisterEventProcessor(*(new MyDPPEventProcessor), "CAEN_DPP"); <co id='skel.register' />
+
+
+}
+                    
+                </programlisting>
+            </example>
+            <calloutlist>
+                <callout arearefs='skel.addheader' >
+                    <para>
+                        We must make our skeleton source aware of the class
+                        definition for our event processor.
+                    </para>
+                </callout>
+                <callout arearefs='skel.addheader' >
+                    <para>
+                        This line instantiates a new instance of our
+                        event processing class and registers it in the
+                        event processing pipeline as an event processor
+                        named <literal>CAEN_DPP</literal>.  
+                    </para>
+                </callout>
+            </calloutlist>
+            <para>
+                Finally we need to edit the skeleton's <filename>Makefile</filename>.
+                The support libraries have been incorporated into the SpecTcl
+                core library so all that's really needed is to ensure that
+                our event processor class implementation is built into
+                our tailored SpecTcl.  This is done by adding the
+                <filename>DPPEventProcessor.o</filename> to the definition
+                of the <literal>OBJECTS</literal> macro in the
+                Makefile.
+            </para>
+            <example>
+                <title>Changes to the SpecTcl Makefile</title>
+                <programlisting>
+                    ...
+OBJECTS=MySpecTclApp.o DPPEventProcessor.o
+                    ...
+                </programlisting>
+            </example>
+        </section>
         <section id='sec.computing'>
             <title id='sec.computing.title'>But I need to compute time differences!!!</title>
-            <para></para>
+            <para>
+                The example we worked through in the previous sections
+                of this chapter got us raw parameter unpacking.  However,
+                we've got a pair of raw parameters; <literal>start.time</literal>
+                and <literal>stop.time</literal> that represent the start and
+                stop times of a time of flight measurement.  This
+                section shows how to compute the time of flight parameter
+                which we'll call <literal>TOF</literal>.
+            </para>
+            <para>
+                In this section, we are going to make use of two SpecTcl
+                features, one of which is well known and one not so well
+                known/understood:
+            </para>
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      SpecTcl supports a logical pipline of event processors.
+                      Each event processor has access not only to the raw event,
+                      but to the parameters that have been produced by prior
+                      stages of the pipeline.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      If you create two tree parameter objects that have the
+                      same name, they wil map to the same underlying SpecTcl
+                      parameter.  Since the <classname>CAENEventProcessor</classname>
+                      creates tree parameters, this allows us to easily access
+                      the start and stop times it creates.
+                   </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                Here are the steps we must take:
+            </para>
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      Create a new event processor definition that has
+                      start and stop time tree parameter member variables,
+                      as well as a TOF tree parameter member for the results
+                      of our computation.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Implement the constructor of this event processor to
+                      initialize the tree parameter members to have the same
+                      names (<literal>start.time</literal> and <literal>stop.tim</literal>)
+                      as the parameter names we assigned in the event
+                      processor that produces raw parameters.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Implement the function call operator; <methodname>operator()</methodname>
+                      to perform the time difference for events where both the
+                      start and stop times have been assigned values.
+                   </para>
+                </listitem>
+            </itemizedlist>
+            <section>
+                <title>
+                    Defining an event processor class to compute TOF
+                </title>
+                <para>
+                    Here's the class definition for our TOF event processor:
+                </para>
+                <example>
+                    <title>TOF Event processor definition; <filename>TOFEventProcessor.h</filename></title>
+                    <programlisting>
+#ifndef TOFEVENTPROCESSOR_H
+#define TOFEVENTPROCESSOR_H
+#include &lt;EventProcessor.h&gt;      <co id='tofdef.evpinc' />
+#include &lt;TreeParameter.h&gt;       <co id='tofdef.tpinc'  />
+
+class TOFEventProcessor :  public CEventProcessor   <co id='tof.classdef' />
+{
+private:
+  CTreeParameter m_start;              
+  CTreeParameter m_stop;               <co id='tofdef.members' />
+  CTreeParameter m_tof;
+public:
+  TOFEventProcessor();                 <co id='tofdef.constructor' />
+  Bool_t operator()(                   <co id='tofdef.fcall' />
+    Address_t pEvent, CEvent&amp; rEvent, CAnalyzer&amp; a, CBufferDecoder&amp; d
+  );
+
+};
+
+
+#endif
+
+                    </programlisting>
+                </example>
+                <calloutlist>
+                    <callout arearefs='tofdef.evpinc' >
+                        <para>
+                            We're writing an event processor.  This means
+                            deriving a class from <classname>CEventProcessor</classname>.
+                            Doing that requires including
+                            <filename>EventProcessor.h</filename> that
+                            defines this base class and its interfaces.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofdef.tpinc' >
+                        <para>
+                            Our event processor will include member data
+                            that are <classname>CTreeParameter</classname>
+                            objects.  The <filename>TreeParameter.h</filename>
+                            header defines the tree parameter, tree parameter array,
+                            tree variable and tree variable array classes.
+                        </para>
+                    </callout>
+                    <callout arearefs='tof.classdef' >
+                        <para>
+                            This line starts  our class definition. Our event
+                            processor class is named <classname>TOFEventProcessor</classname>
+                            and, as all event processors must, derives from
+                            the <classname>CEventProcessor</classname>
+                            base class.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofdef.constructor' >
+                        <para>
+                            We need to implement a constructor to construct the
+                            <classname>CTreeParameter</classname> member data
+                            of our class with the correct parameter names.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofdef.fcall' >
+                        <para>
+                            The event processor's function call operator
+                            (<methodname>operator()</methodname>) is called for each
+                            event.  We must implement this to compute
+                            event by event time differences into
+                            <varname>m_tof</varname>
+                        </para>
+                    </callout>
+                </calloutlist>
+            </section>
+            <section>
+                <title>Implementing <classname>TOFEventProcessor</classname>
+                (<filename>TOFEventProcessor.cpp</filename></title>
+                <example>
+                    <title>TOFEventProcessor.cpp</title>
+                    <programlisting>
+#include "TOFEventProcessor.h" 
+
+
+TOFEventProcessor::TOFEventProcessor() :
+  m_start("start.time",  "ns"),
+  m_stop("stop.time", "ns"),            <co id='tofimp.init' />
+  m_tof("TOF",  "ns")
+{}
+
+Bool_t
+TOFEventProcessor::operator()(
+     Address_t pEvent, CEvent&amp; rEvent, CAnalyzer&amp; a, CBufferDecoder&amp; d
+)
+{
+  if (m_start.isValid() &amp;&amp; m_stop.isValid()) {  <co id='tofimp.valid' />
+    m_tof = m_stop - m_start;                           <co id='tofimp.tof' />
+  }
+  return kfTRUE;                                        <co id='tofimp.retval' />
+}
+
+                    </programlisting>
+
+                </example>
+                <calloutlist>
+                    <callout arearefs='tofimp.init' >
+                        <para>
+                            These three lines initialize the tree parameter
+                            member variables.  THe first two have the same
+                            names as the time parameters in the time of flight
+                            start and stop digitizer channels.  The third
+                            represents a new parameter that we will fill in
+                            from our TOF computation.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofimp.valid' >
+                        <para>
+                            Assigning a value to a tree parameter makes that
+                            parameter valid.  This condition protects against
+                            computing time differences if one or both of the
+                            start/stop times were not in the event.  Whenever you
+                            perform computations that depend on SpecTcl parameters,
+                            you should ensure the dependent parameters are valid.
+                        </para>
+                        <para>
+                            If a SpecTcl parameter value is fetched prior to being
+                            assigned, it will raise an exception and that will
+                            abort the processing of that event.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofimp.tof' >
+                        <para>
+                            Among other things, tree parameter objects can be
+                            treated as if they were <literal>double</literal>
+                            variables in the sense that you can compute with them
+                            and assign them values.  This line computes
+                            the TOF and assigns it to the time of flight parameter.
+                        </para>
+                    </callout>
+                    <callout arearefs='tofimp.retval' >
+                        <para>
+                            Event processing pipeline elements must return a value.
+                            The value <literal>kfTRUE</literal> indicates that
+                            SpecTcl should continue processing this event.  If
+                            an event processing method returns <literal>kfFALSE</literal>,
+                            any subsequent elements of the pipeline are not run
+                            and the event is not histogrammed.
+                        </para>
+                        <para>
+                            A common error is not to include this return value.
+                            This results in random events being discarded.
+                        </para>
+                    </callout>
+                </calloutlist>
+            </section>
+            <section>
+                <title>Adding the TOF computation to our SpecTcl</title>
+                <para>
+                    We need to make a couple of additions to
+                    <filename>MySpecTclApp.cpp</filename> that, if you
+                    followed the previous sections, should be familiar:
+                </para>
+                <example>
+                    <title>TOF modifications to <filename>MySpecTclApp.cpp</filename></title>
+                    <programlisting>
+    ...
+#include "DPPEventProcessor.h"
+#include "TOFEventProcessor.h"                  // Added line
+    ...
+
+void
+CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)
+{
+  RegisterEventProcessor(*(new MyDPPEventProcessor), "CAEN_DPP");
+  RegisterEventProcessor(*(new TOFEventProcessor), "TOF_COMPUTATION"); //added line
+
+}
+    
+                    </programlisting>
+                </example>
+                <para>
+                    Similarly we need to add TOFEventProcessor.o to the
+                    <literal>OBJECTS</literal> definition in Makefile:
+                </para>
+                <example>
+                    <title>Adding TOFEventProcessor to the SpecTcl Build</title>
+                    <programlisting>
+OBJECTS=MySpecTclApp.o DPPEventProcessor.o TOFEventProcessor.o
+                    </programlisting>
+                </example>
+            </section>
         </section>
     </chapter>
     <appendix id='app.reference'>
         <title id='app.reference.title'>Reference pages</title>
-        <para></para>
+        <para>
+            This appendix provides reference material for the classes
+            that support the CAEN DPP unpacking subsystem.  Rather than
+            providing these pages in alphabetical order, they will be provided
+            in the order you are likely to need them (if at all).  It's very
+            possible that you will not need to use most of theses man pages,
+            however they are provided for completeness.
+        </para>
+        <refentry>
+           <refmeta>
+              <refentrytitle>CAENEventProcessor</refentrytitle>
+              <manvolnum>3caendpp</manvolnum>
+           </refmeta>
+           <refnamediv>
+              <refname>CAENEventProcessor</refname>
+              <refpurpose>Process event built data containing CAEN DPP hits.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CAENEventProcessor.h&gt;
+class CAENEventProcessor : public CEventProcessor
+{
+public:
+    CAENEventProcessor();
+    virtual ~CAENEventProcessor();
+
+    virtual Bool_t operator()(
+        const Address_t pEvent,
+        CEvent&amp; rEvent,
+        CAnalyzer&amp; rAnalyzer,
+        CBufferDecoder&amp; rDecoder
+    );
+
+protected:
+    void addParameterMap(int sid, CAENParameterMap* map, int mult=1);
+};
+
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                     <title>DESCRIPTION</title>
+                  <para>
+                    This class is a base class for event processors that
+                    can decode event built data that includes hits from
+                    CAEN-DPP digitizers.  This class must be subclassed
+                    and the constructor for the subclass defines the
+                    destination parameters for each channel of each module
+                    by instantiating <classname>CAENParameterMap</classname>
+                    subclasses and making them known to the object by
+                    invoking
+                    <methodname>addParameterMap</methodname> to
+                    make a correspondence between the map instance and
+                    a module's source id.
+                  </para>
+                  <para>
+                    Note that <methodname>addParameterMap</methodname>
+                    includes an optional <parameter>mult</parameter> parameter.
+                    This parameter must be supplied for DPP-PSD digitizers.
+                    It controls how the CFD bits in the extras word are folded
+                    into the time parameter.
+                  </para>
+                  <para>
+                    The DPP-PSD CFD divides the time between interpolation samples
+                    into 1024 time buckets. The <parameter>mult</parameter>
+                    parameter must be this interpolation interval in
+                    nano-seconds.  If the CFD is not used to get a fine time,
+                    <parameter>mult</parameter> should be zero.
+                  </para>
+                  <para>
+                    In most cases, the <parameter>mult</parameter> parameter
+                    should be the digitizer sampling interval;
+                    <literal>2</literal> for 500MHz digitizers or
+                    <literal>4</literal> for 250MHz digitizers.
+                    It is possible, however to lengthen the interpolation
+                    interval by setting bits 10:11 of the CFD control register.
+                    This is useful for very steep zero crossings since the interpolation
+                    precision drops as the zero crossing gets steep.
+                  </para>
+                  <para>
+                    The table below describes the value of <parameter>mult</parameter>
+                    to use for the combinations of these two bits:
+                  </para>
+                  <table>
+                    <title>Value of <parameter>mult</parameter></title>
+                    <tgroup cols='3' align='left' colsep='2' rowsep='1'>
+                        <thead>
+                            <row>
+                                <entry>Bits 10:11 value</entry>
+                                <entry>Mult for 250MHz digitizer (725)</entry>
+                                <entry>Mult for 500Mhz digitizer (750)</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>00</entry><entry>4</entry><entry>2</entry>
+                            </row>
+                            <row>
+                                <entry>01</entry><entry>16</entry><entry>8</entry>
+                            </row>
+                            <row>
+                                <entry>10</entry><entry>24</entry><entry>12</entry>
+                            </row>
+                            <row>
+                                <entry>11</entry><entry>32</entry><entry>16</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                  </table>
+            </refsect1>
+        </refentry>
+        <refentry>
+           <refmeta>
+              <refentrytitle>CAENParameterMap</refentrytitle>
+              <manvolnum>3caendpp</manvolnum>
+           </refmeta>
+           <refnamediv>
+              <refname>CAENParameterMap</refname>
+              <refpurpose>Describe parameter mapping classes.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CAENParameterMap.h&gt;
+
+class CAENParameterMap
+{
+public:
+    virtual ~CAENParameterMap() {}
+
+    virtual void assignParameters(const CAENModuleHits&amp; module) = 0;
+};
+
+//////////////////////////// PHA Maps   //////////////////
+
+class CAENPHAMapper : public CAENParameterMap
+{
+public:
+    virtual void assignParameters(const CAENModuleHits&amp; module) {}
+};
+
+class CAENPHAArrayMapper : public CAENPHAMapper
+{
+public:
+    CAENPHAArrayMapper(
+        const char* time, const char* energy,
+        const char* extra1, const char* extra2
+    );
+    virtual void assignParameters(const CAENModuleHits&amp; module);
+};
+class CAENPHAParameterMapper : public CAENPHAMapper
+{
+public:
+    CAENPHAParameterMapper(
+        const std::vector&lt;std::string&gt;&amp; times,
+        const std::vector&lt;std::string&gt;&amp; energies,
+        const std::vector&lt;std::string&gt;&amp; extras1,
+        const std::vector&lt;std::string&gt;&amp; extras2
+    );
+
+    virtual void assignParameters(const CAENModuleHits&amp; module);
+};
+//////////////////////// PSD MAPS //////////////////////////////////
+
+
+class CAENPSDMapper : public CAENParameterMap
+{
+public:
+    virtual void assignParameters(const CAENModuleHits&amp; module) {}
+};
+
+class CAENPSDArrayMapper : public CAENPSDMapper
+{
+public:
+    CAENPSDArrayMapper(
+        const char* time, const char* shortGate, const char* longGate,
+        const char* baseline,
+        const char* pur = 0     // Default is not defined.
+    );
+
+    virtual void assignParameters(const CAENModuleHits&amp; module);
+};
+
+class CAENPSDParameterMapper : public CAENPSDMapper
+{
+public:
+    CAENPSDParameterMapper(
+        const std::vector&lt;std::string&gt;&amp; shortGates,
+        const std::vector&lt;std::string&gt;&amp; longGates,
+        const std::vector&lt;std::string&gt;&amp; baselines,
+        const std::vector&lt;std::string&gt;&amp; times,
+        const std::vector&lt;std::string&gt;&amp; pur
+    );
+
+    virtual void assignParameters(const CAENModuleHits&amp; module);
+};
+
+
+
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                     <title>DESCRIPTION</title>
+                  <para>
+                    The classes described on this page all
+                    derive from <classname>CAENParameterMap</classname>
+                    and exist to provide mappings between channels of a single
+                    CAEN-DPP module and parameters the
+                    <classname>CAENEventProcessor</classname> will assign
+                    values to for raw parameters from those channels.
+                  </para>
+                  <para>
+                    There are two main subclasses in this class hierarchy.
+                    The <classname>CAENPHAMapper</classname> subtree of
+                    classes maps parameters for modules with DPP-PHA firmware
+                    while the <classname>CAENPSDMapper</classname> does the
+                    same for parameters for modules with DPP-PSD firmware.
+                  </para>
+                  <para>
+                    Each of these classes, in turn, has two subclasses.
+                    One to create simple tree parameter arrays from basenames
+                    for each parameter type and another that allows full control
+                    over the parameter names for each channel and each raw
+                    parameter of the digitizer.
+                  </para>
+                  <para>
+                    The remainder of this section describes the constructors
+                    of each of these four leaf classes, as the only involvement
+                    you'll typically need to have at the application level is to
+                    construct these and register them with a class
+                    derived from <classname>CAENEventProcessor</classname>.
+                  </para>
+                <refsect2>
+                    <title>CAENPHAArrayMapper</title>
+                    <para>
+                        This class's construtor manufactures tree parameter
+                        arrays with 16 elements, on array for each raw parameter
+                        the digitizer can produce and one element in each array
+                        per channel.
+                    </para>
+                    <para>
+                        The constructor looks like this:
+                    </para>
+                    <constructorsynopsis>
+                        <methodname>CAENPHAArrayMapper</methodname>
+                        <methodparam>
+                            <type>const char* </type><parameter>time</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char* </type><parameter>energy</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char* </type><parameter>extra1</parameter>
+                            
+                        </methodparam>
+                        <methodparam>
+                            <type> const char* </type><parameter>extra2</parameter>
+                            
+                        </methodparam>
+                    </constructorsynopsis>
+                    <para>
+                        Each parameter is the base name of one of the possible
+                        raw parameters the digitizer can produce.
+                        If you supply a <literal>nullptr</literal> instead of
+                        a pointer to a C string, that parameter is not assigned
+                        any parameter.
+                    </para>
+                    <para>
+                        Note that the time parameter will be expressed in
+                        units of nanoseconds when unpacked.
+                    </para>
+                </refsect2>
+                <refsect2>
+                    <title>
+                        CAENPHAParameterMapper
+                    </title>
+                    <constructorsynopsis>
+                        <methodname>CAENPHAParameterMapper</methodname>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type><parameter>times</parameter>
+                            
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type><parameter>energies</parameter>
+                            
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type><parameter>extras1</parameter>
+                            
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type><parameter>extras2</parameter>
+                            
+                        </methodparam>
+                    </constructorsynopsis>
+                    <para>
+                        This class provides complete control over all parameter
+                        names from all  channnels.  Each
+                        parameter is a vector of at most 16 strings.
+                        The strings represent the parameter names for that
+                        type of parameter for each channel of the digitizer.
+                        Trailing unused channels may be omitted and an empty string
+                        (<literal>""</literal>) can be used to indicate
+                        a channel is unused.
+                    </para>
+                </refsect2>
+            </refsect1>
+        </refentry>
     </appendix>
 </book>

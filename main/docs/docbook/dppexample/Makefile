@@ -21,7 +21,7 @@ USERLDFLAGS=
 #   Append your objects to the definitions below:
 #
 
-OBJECTS=MySpecTclApp.o DPPEventProcessor.o
+OBJECTS=MySpecTclApp.o DPPEventProcessor.o TOFEventProcessor.o
 
 #
 #  Finally the makefile targets.
