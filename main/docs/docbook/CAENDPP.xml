@@ -1353,6 +1353,29 @@ public:
                     construct these and register them with a class
                     derived from <classname>CAENEventProcessor</classname>.
                   </para>
+                  <para>
+                    Objects from these classes collaborate with some scheme
+                    to create hit objects from CAEN data.  Typically, this is
+                    a <classname>CAENEventProcessor</classname> derived event
+                    processor.   That object will create container of hits for
+                    each module and call:
+                  </para>
+                  <methodsynopsis>
+                     <type>virtual void </type>
+                     <methodname>assignParameters</methodname>
+                     <methodparam>
+                         <type>const CAENModuleHits&amp; </type>
+                         <parameter>module</parameter>
+                     </methodparam>
+                  </methodsynopsis>
+                  <para>
+                    for the appropriate parameter mapper. Note that for PSD
+                    modules, the individual hits arlready know how to convert
+                    the coarse and CFD time interpolations into a high resolution
+                    time.  Therefore PSD parameter maps themselves don't need this
+                    information and just ask each hit for their high resolution
+                    time.
+                  </para>
                 <refsect2>
                     <title>CAENPHAArrayMapper</title>
                     <para>
@@ -1427,7 +1450,697 @@ public:
                         a channel is unused.
                     </para>
                 </refsect2>
+                <refsect2>
+                    <title>CAENPSDParameterMapper</title>
+                    <para>
+                        Very similar to <classname>CAENPHAParameterMapper</classname>,
+                        however the parameters are base names for the tree
+                        parameters into which DPP-PSD modules raw parameters
+                        will be unpacked:
+                    </para>
+                    <constructorsynopsis>
+                        <methodname>CAENPSDArrayMapper</methodname>
+                        <methodparam>
+                            <type>const char* </type><parameter>time</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char* </type><parameter>shortGate</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type> const char* </type><parameter>longGate</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char* </type><parameter>baseline</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const char* </type><parameter>pur</parameter>
+                            <initializer>0</initializer>
+                        </methodparam>
+                    </constructorsynopsis>
+                    <para>
+                        Note that the time parameters unpacked are the high
+                        resolution times that are computed from the time tag and
+                        the CFD correction.  If, you want the coarse time only,
+                        ensure that the PSD hits passed to this object have
+                        a CFD multiplier value of 0.
+                    </para>
+                    <para>
+                        If you want both the coarse time and the fine time,
+                        derive from this class a class that constructs a tree
+                        parameter array for the coarse time.  In that class implement
+                        the <methodname>assignParameters</methodname> method
+                        to first invoke the base class <methodname>assignParameters</methodname>
+                        method and then to iterate over the hits that have been
+                        passed in, extracting the channel number and time tag from
+                        each hit via its <methodname>getChannel</methodname>
+                        and <methodname>getTimeTag</methodname> methods and
+                        set the appropriate element of your tree parameter array.
+                    </para>
+                </refsect2>
+                <refsect2>
+                    <title>
+                        <classname>CAENPSDParameterMapper</classname>
+                    </title>
+                    <para>
+                        By a method similar to the <classname>CAENPHAParameterMapper</classname>,
+                        instances of this class allow you detailed control over
+                        all parameter names:
+                    </para>
+                    <constructorsynopsis>
+                        <methodname>CAENPSDParameterMapper</methodname>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp;</type>
+                            <parameter> shortGates</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type>
+                            <parameter>longGates</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type>
+                            <parameter>baselines</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp; </type>
+                            <parameter>times</parameter>
+                        </methodparam>
+                        <methodparam>
+                            <type>const std::vector&lt;std::string&gt;&amp;</type>
+                            <parameter> pur</parameter>
+                        </methodparam>
+                    </constructorsynopsis>
+                    <para>
+                        As with <classname>CAENPHAPasrameterMapper</classname>,
+                        if a vector's slot has an empty string for a value,
+                        that channel will not be assigned a parameter.  If the
+                        vector has fewer than 16 elements, the remaining
+                        channels will not be assigned a value.  The intent is
+                        to support sparsely populated modules.
+                    </para>
+                </refsect2>
             </refsect1>
+        </refentry>
+        <refentry>
+           <refmeta>
+              <refentrytitle>CAENParser</refentrytitle>
+              <manvolnum>3caendpp</manvolnum>
+           </refmeta>
+           <refnamediv>
+              <refname>CAENParser</refname>
+              <refpurpose>Parse event built data into CAENHit objects</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CAENParser.h&gt;
+
+class CAENParser
+{
+public:
+    CAENParser();
+    void operator()(void* pEventBody);
+    void clear();
+    const std::vector&lt;CAENModuleHits*&gt;&amp; getHitModules() const;
+    void addModule(int sid, CAENHit::HitType type, int multiplier=0);
+};
+
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                     <title>DESCRIPTION</title>
+                  <para>
+                    This class process an event of event built data into a set
+                    of CAEN hits.  After construction, and before being handed
+                    any events, <methodname>addModule</methodname> must be
+                    called for each module in use to establish its source id,
+                    its module type (DPP-PSD or DPP-PHA) and, for DPP-PSD modules,
+                    the CFD interpolation time range in nanoseconds.
+                  </para>
+                  <para>
+                    Once properly set up the flow is to pass an event
+                    to the instance via the function call operation, then
+                    fetch the decoded hits out of the parser using
+                    <methodname>getHitModules</methodname>.  Once the hits
+                    are processed, the parser must be readied for the next
+                    event by invoking <methodname>clear</methodname>.
+                  </para>
+                  <para>
+                    One application programming use case for this class is
+                    to use it to decode events outside of the SpecTcl
+                    environment, e.g. when building Root trees from
+                    CAEN DPP event data.
+                  </para>
+            </refsect1>
+            <refsect1>
+                <title>METHODS</title>
+                <variablelist>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>void </type>
+                           <methodname>operator</methodname>
+                           <methodparam>
+                               <type>void* </type><parameter>pEventBody</parameter>
+                           </methodparam>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Given the body of an event, parses the fragments
+                            of the CAEN DPP modules into hits which can be
+                            retreived using <methodname>getHitModules</methodname>.
+                           </para>
+                           <para>
+                            Given an object that is derived from
+                            the NSCLDAQ class
+                            <classname>CRingItem</classname>, you can
+                            use that object's
+                            <methodname>getBodyPointer</methodname> to get
+                            the pointer that must be passed to this method.
+                           </para>
+                           <para>
+                            Given a pinter to a <type>RingItem</type> struct,
+                            (defined in <filename>DataFormat.h</filename>),
+                            if the field <structfield>s_body.u_noBodyHeader.s_mbz</structfield>
+                            is either <literal>0</literal> (NSCLDAQ 11) or
+                            <literal>sizeof(uint32_t)</literal> (NSCLDAQ 12 or later),
+                            The pointer to pass is given by the field
+                            <structfield>s_body.u_noBodyHeader.s_body</structfield>.
+                            Otherwise it's given by
+                            <structfield>s_body>u_hasBodyHeader.s_body</structfield>.
+                            Note, as well, that the NSCLDAQ support for CAEN-DPP readout
+                            always produces a body header for a
+                            <literal>PHYSICS_EVENT</literal> ring item.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>void </type>
+                           <methodname>clear</methodname>
+                           <void />
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Prepares an instance for the next event by
+                            clearing the hits it has parsed and stored from
+                            the previous event (it is harmless to call this
+                            when there are no hits).
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>const std::vector&lt;CAENModuleHits*&gt;&amp; </type>
+                           <methodname>getHitModules</methodname>
+                           <void />
+                           <modifier>const</modifier>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Returns a const reference to the hits parsed from
+                            the most recent event.  See the reference for
+                            <classname>CAENModuleHits</classname> for information
+                            about what you get back.
+                           </para>
+                           <para>
+                            As the return value is actually a reference to the
+                            hits stored inside the instance, it is
+                            <literal>const</literal> so that you are not
+                            allowed to modify the vector's contents.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>void </type>
+                           <methodname>addModule</methodname>
+                           <methodparam>
+                               <type>int </type><parameter>sid</parameter>
+                           </methodparam>
+                           <methodparam>
+                               <type>CAENHit::HitType </type><parameter>type</parameter>
+                           </methodparam>
+                           <methodparam>
+                               <type>int </type><parameter>multiplier</parameter>
+                               <initializer>0</initializer>
+                           </methodparam>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            After constructing an instance, the parser must be
+                            told which source ids to pay attention to and how
+                            to construct hits for each hit from a source id.
+                            This method allows that information to be stored
+                            in the parser.  
+                           </para>
+                           <para>
+                            <parameter>sid</parameter> is the source id of a module
+                            that is being described.  Recall that in the
+                            CAEN-DPP support for NSCLDAQ, each module must be
+                            given an event builder source id.
+                           </para>
+                           <para>
+                            <parameter>type</parameter> is the type of modules
+                            represented by that source id.  The
+                            <filename>CAENHit.h</filename> header describes
+                            the legal values for this as
+                            <literal>CAENHit::PSD</literal> and
+                            <literal>CAENHit::PHA</literal> with obvious meanings.
+                           </para>
+                           <para>
+                            <parameter>multiplier</parameter> need only be
+                            provided for <literal>CAENHit::PSD</literal>
+                            modules for which the CFD will be integrated into
+                            a high precision time value.  This value represents
+                            the range in time over which the CFD interpolates in
+                            nanoseconds.  The <classname>CAENEventProcessor</classname>
+                            reference page provides a table that describes
+                            the value to use for this parameter to get
+                            correct fine times.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </refsect1>
+        </refentry>
+        <refentry>
+           <refmeta>
+              <refentrytitle>CAENModuleHits</refentrytitle>
+              <manvolnum>3caendpp</manvolnum>
+           </refmeta>
+           <refnamediv>
+              <refname>CAENModuleHits</refname>
+              <refpurpose>Container for hits from a CAEN DPP module</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CAENModuleHits.h*&gt;
+
+class CAENHit;
+
+class CAENModuleHits {
+public:
+    CAENModuleHits(int sid=0);
+    CAENModuleHits(const CAENModuleHits&amp; rhs);
+    CAENModuleHits&amp; operator=(const CAENModuleHits&amp; rhs);
+
+    void clear();
+    void addHit(CAENHit* pHit);
+    const std::vector&lt;CAENHit*&gt;&amp; getHits() const;
+    int getSourceId() const;
+
+};
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                     <title>DESCRIPTION</title>
+                  <para>
+                    <classname>CAENModuleHits</classname> instances
+                    are containers for the hits from a single CAEN DPP module.
+                    While not required by the software, the firmware in these
+                    modules requires that the hits are homogeneous in type
+                    (PSD or PHA only).  
+                  </para>
+                  <para>
+                    The object provides copy construction
+                    and assignment however these must both be used with care
+                    since it is the hit creator that is responsible for
+                    managing hit storage; if the hits are dynamically created,
+                    understanding when deletion is possible can be difficult
+                    if there are many instances of the container.
+                    It's safest only to make copies (via copy construction
+                    or assignment) for very short lived objects, e.g. for
+                    pass by value to functions/methods or or a block local
+                    variable that is destroyed after the block is exited.
+                  </para>
+            </refsect1>
+            <refsect1>
+                <title>METHODS</title>
+                <variablelist>
+                    <varlistentry>
+                       <term>
+                        <constructorsynopsis>
+                            <methodname>CAENModuleHits</methodname>
+                            <methodparam>
+                                <type>int </type><parameter>sid</parameter>
+                                <initializer>0</initializer>
+                            </methodparam>
+                        </constructorsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            The constructor requires a the source id
+                            (<parameter>sid</parameter>) of
+                            the module it will hold hits for.  The
+                            main purpose of instances of this class is to
+                            hold the hits that are associated with one module
+                            and carry that association.
+                           </para>
+                           <para>
+                            This allows some  parser, such as
+                            <classname>CAENParser</classname> to produce
+                            hits for modules and pass those hits on to
+                            other code in a self-descriptive manner.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>void </type>
+                           <methodname>clear</methodname>
+                           <void />
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Clears the vector of hits encapsulated by
+                            this instance of the class. Note, as we will
+                            reiterate in the description of
+                            <methodname>addHit</methodname>, storage management
+                            of the hits themselves is the responsibility of
+                            the object that creates those hits.
+                           </para>
+                           <para>
+                            Normally at the time this method is called, it is
+                            appropriate to destroy the hits themselves if they
+                            were dynamically allocated. 
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>void </type>
+                           <methodname>addHit</methodname>
+                           <methodparam>
+                               <type>CAENHit* </type><parameter>pHit</parameter>
+                           </methodparam>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Associates a hit with the module represented by
+                            this instance.  It is the caller's responsibility
+                            to ensure the hit is of the correct type for the
+                            firmware loaded in that module.  The caller
+                            is also responsible for owning and managing
+                            the storage associated with this hit. 
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>const std::vector&lt;CAENHit*&gt;&amp; </type>
+                           <methodname>getHits</methodname>
+                           <void />
+                           <modifier>const</modifier>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Returns a const reference to the vector of hits
+                            that have been added to this instance since the
+                            last time <methodname>clear</methodname> was
+                            called.  The reference refers to storage that is
+                            internal to the object.  Therefore the reference
+                            is const and the vector cannot be modified nor
+                            should the hits within the vector be modified.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>
+                        <methodsynopsis>
+                           <type>int </type>
+                           <methodname>getSourceId</methodname>
+                           <void />
+                           <modifier>const</modifier>
+                        </methodsynopsis>
+                       </term>
+                       <listitem>
+                           <para>
+                            Returns the source id used to construct this
+                            instance. 
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>               
+            </refsect1>
+        </refentry>
+        <refentry>
+           <refmeta>
+              <refentrytitle>CAENHit</refentrytitle>
+              <manvolnum>3caendpp</manvolnum>
+           </refmeta>
+           <refnamediv>
+              <refname>CAENHit</refname>
+              <refpurpose>CAEN-DPP hit classes.</refpurpose>
+            </refnamediv>
+            <refsynopsisdiv>
+                <programlisting>
+#include &lt;CAENHit.h&*gt;
+
+class CAENHit {
+public:
+    typedef enum _HitType {PSD, PHA} HitType;
+
+public:
+    CAENHit(HitType type);
+    HitType  getType() const;
+    uint64_t getTimeTag() const;
+    uint32_t getChannel() const;
+    const std::vector&lt;uint16_t&gt;&amp; trace1() const;
+    const std::vector&lt;uint16_t&gt;&amp; trace2() const;
+
+public:
+    virtual void unpack(void* pData) = 0;
+};
+
+
+class CAENPHAHit : public CAENHit
+{
+public:
+    CAENPHAHit();
+
+    uint16_t getEnergy() const;
+    uint16_t getExtra1() const;
+    uint16_t getExtra2() const;
+
+    virtual void unpack(void* pData) ;
+};
+
+
+class CAENPSDHit : public CAENHit
+{
+
+public:
+    CAENPSDHit(int cfdMultiplier);
+
+    uint16_t getShortCharge() const;
+    uint16_t getLongCharge()  const;
+    uint16_t getBaseline()    const;
+    uint16_t getPURFlag()     const;
+    uint16_t getCFDTime()     const;
+    double   getTime()        const;
+
+    virtual void unpack(void* pData);
+};
+
+                </programlisting>
+            </refsynopsisdiv>
+            <refsect1>
+                     <title>DESCRIPTION</title>
+                  <para>
+                    This class hierarchy provides a hit type independent
+                    mechanism to unpack hit data into the parameters a hit
+                    contains.  The caller is responsible for knowing what
+                    type of  hit (PSD or PHA) a fragment contains, instantiating
+                    that hit and then asking that hit to unpack the data
+                    from that hit via the <methodname>unpack</methodname>
+                    virtual method.
+                  </para>
+                  <para>
+                    This method must be handed a pointer to the body of the
+                    ring item inside the fragment that is being processed.
+                    Event built data, which the NSCLDAQ support for CAEN-DPP
+                    modules produces, consists of a series of fragments.  Each
+                    fragment has a header and a body. The body of each fragment
+                    is the original ring item that contained the fragment
+                    before it was built into the event.  It is the body
+                    of <emphasis>this</emphasis> ring item that must
+                    be handed to the <methodname>unpack</methodname>
+                    methods as the <parameter>pData</parameter> parameter.
+                  </para>
+                  <para>
+                    Having discussed the <methodname>unpack</methodname>
+                    virtual method and its expectations here, we will
+                    omit discussion of that method from the sections
+                    that follow that describe each class in this class hierarchy.
+                  </para>
+                <refsect2>
+                    <title>CAENHit</title>
+                    <para>
+                        This class is the base class of the hierachy.  It provides
+                        storage and accessors for the data that are common to all
+                        hit types. It also provides a utility to unpack and
+                        access any traces acquired by the module.
+                    </para>
+                    <para>
+                        The pure virtual <methodname>unpack</methodname> method
+                        described in detail in <literal>DESCRIPTION</literal> above
+                        must be implemented by concrete subclasses to unpack the
+                        data in hit types for which they're responsible.
+                    </para>
+                    <para>
+                        The <classname>CAENHit</classname> class supports the
+                        following methods:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CAENHit</methodname>
+                                <methodparam>
+                                    <type>HitType </type><parameter>type</parameter>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The constructor stores the hit type.  This
+                                can be used by consumers of hits to do the appropriate
+                                dynamic casts to gain a concrete hit type from
+                                a generic hit pointer or reference.
+                               </para>
+                               <para>
+                                The <parameter>type</parameter> parameter must be
+                                one of
+                                <literal>CAENHit::PHA</literal> for modules with
+                                DPP-PHA firmware or <literal>CAENHit::PSD</literal>
+                                for moduls with DPP-PSD firmware.  At present,
+                                there is no NSCLDAQ/SpecTcl support for DPP-CI
+                                firmware. In any event, the DPP-PSD firmware can
+                                be used to do charge integration with a suitably
+                                long long gate.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>HitType  </type>
+                               <methodname>getType</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the hit type used to construct this
+                                instance. This will be the value of the
+                                <parameter>type</parameter> parameter passed to
+                                our constructor.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint64_t </type>
+                               <methodname>getTimeTag</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the hit's trigger time tag as it is
+                                recorded by NSCLDAQ.  This value has been
+                                handled 32 bit timstamp wraps and
+                                calibrated the time tag to nanoseconds.
+                                Note that users of DPP-PSD modules that want the
+                                trigger time combined with the CFD zero crossing interpolation
+                                for high resolution time should use those hits
+                                <methodname>getTime</methodname> method not this
+                                method.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint32_t </type>
+                               <methodname>getChannel</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the channel within the module
+                                in which this hit occured. 
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const std::vector&lt;uint16_t&gt;&amp; </type>
+                               <methodname>trace1</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a reference to the vector into which the
+                                first of two possible recorded analog traces can
+                                be stored.  If no first trace was stored,
+                                the <methodname>size</methodname> method of the
+                                vector will give a size of <literal>0</literal>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>const std::vector&lt;uint16_t&gt;&amp; </type>
+                               <methodname>trace2</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns a reference to the vector into which the
+                                second of two possible recorded analog traces
+                                can be stored.  If no second trace was stored
+                                the <methodname>size</methodname> method of the
+                                vector will return <literal>0</literal>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                            
+                    </variablelist>
+                </refsect2>
+                <refsect2>
+                    <title>CAENPHAHit</title>
+                    <para></para>
+                </refsect2>
+                <refsect2>
+                    <title>CAENPSDHit</title>
+                    <para></para>
+                </refsect2>
+            </refsect1>
+
         </refentry>
     </appendix>
 </book>
