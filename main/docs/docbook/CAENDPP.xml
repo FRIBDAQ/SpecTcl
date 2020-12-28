@@ -1932,7 +1932,7 @@ public:
 
     uint16_t getEnergy() const;
     uint16_t getExtra1() const;
-    uint16_t getExtra2() const;
+    uint32_t getExtra2() const;
 
     virtual void unpack(void* pData) ;
 };
@@ -2133,11 +2133,209 @@ public:
                 </refsect2>
                 <refsect2>
                     <title>CAENPHAHit</title>
-                    <para></para>
+                    <para>
+                        The unpack method for <classname>CAENPHAHit</classname>
+                        unpacks the raw parameters and, if present, traces from
+                        a DPP-PHA hit.  The trigger time is made available via
+                        the base class method
+                        <methodname>getTimeTag</methodname>.
+                        If you selected fine time interpolation you'll need to
+                        add compute that yourself from the extra2 word.
+                    </para>
+                    <para>
+                        The following methods are specific to
+                        <classname>CAENPHAHit</classname>:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getEnergy</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns energy for the event computed by the
+                                DPP-PHA firmware for the hit's trace.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getExtra1</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If an extra1 word was selected in the digitizer
+                                setup, this returns the value of that word.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint32_t </type>
+                               <methodname>getExtra2 </methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                If an extras 2 word was selected in the digitizer
+                                setup, this returns the value of that word for
+                                this hit.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
                 </refsect2>
                 <refsect2>
                     <title>CAENPSDHit</title>
-                    <para></para>
+                    <para>
+                        The <methodname>unpack</methodname> method of this
+                        class unpacks the parameters of a DPP-PSD digitizer.
+                        Access methods specific to this class allow access
+                        to both the raw parameters and the high resolution
+                        time computed from the time tag and the CFD interpolation
+                        if that's used.
+                    </para>
+                    <para>
+                        The class provides the following constructor and
+                        data access methods:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CAENPSDHit</methodname>
+                                <methodparam>
+                                    <type>int </type><parameter>cfdMultiplier</parameter>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The <parameter>cfdMultiplier</parameter> parameter
+                                provides the number of nanoseconds over which the
+                                CFD interpolates the fine time.  See
+                                the table of values in the reference page for
+                                <classname>CAENEventProcessor</classname> for
+                                the values this should take.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getShortCharge</methodname>
+                               <void />
+                               <modifier> const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the short gate charge computed by
+                                the DPP-PSD firmware.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getLongCharge</methodname>
+                               <void />
+                               <modifier> const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the charge in the long gate computed
+                                by the DPP-PSD firmware.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>
+                                uint16_t 
+                               </type>
+                               <methodname>getBaseline</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the signal baseline computed by the
+                                DPP-PSD firmware.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getPURFlag</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Gets the value of the pile up rejection
+                                flag.  
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>uint16_t </type>
+                               <methodname>getCFDTime</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Returns the bottom 10 bits of the extras
+                                word which are assumed to have the CFD interpolation
+                                value.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term>
+                            <methodsynopsis>
+                               <type>double   </type>
+                               <methodname>getTime</methodname>
+                               <void />
+                               <modifier>const</modifier>
+                            </methodsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                Computes the fine time from the coarse time tag
+                                and the extras word which is assumed to have
+                                the CFD interpolation in its bottom 10 bits.
+                                This requires a correct value for the CFD
+                                multiplier at construction time.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
                 </refsect2>
             </refsect1>
 

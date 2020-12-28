@@ -302,7 +302,7 @@ CAENPSDHit::unpack(void* pData)
     m_baseline        = *p16++;
     m_purFlag         = *p16++;
     p32               = reinterpret_cast<uint32_t*>(p16);
-    m_CFDTime         = (*p32++) & 0x7ff;
+    m_CFDTime         = (*p32++) & 0xff;
     
     if (*p32++ > sizeof(uint32_t)) {
         unpackTraces(p32);
