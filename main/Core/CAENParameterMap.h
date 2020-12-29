@@ -107,10 +107,12 @@ protected:
     CTreeParameterArray* m_pEnergies;
     CTreeParameterArray* m_pExtras1;
     CTreeParameterArray* m_pExtras2;
+    CTreeParameterArray* m_pHpTimes;
 public:
     CAENPHAArrayMapper(
         const char* time, const char* energy,
-        const char* extra1, const char* extra2
+        const char* extra1, const char* extra2,
+        const char* hptime
     );
     virtual ~CAENPHAArrayMapper();
     virtual void assignParameters(const CAENModuleHits& module);
@@ -136,12 +138,14 @@ protected:
     std::vector<CTreeParameter*> m_Energies;
     std::vector<CTreeParameter*> m_Extras1;
     std::vector<CTreeParameter*> m_Extras2;
+    std::vector<CTreeParameter*> m_hpTimes;
 public:
     CAENPHAParameterMapper(
         const std::vector<std::string>& times,
         const std::vector<std::string>& energies,
         const std::vector<std::string>& extras1,
-        const std::vector<std::string>& extras2
+        const std::vector<std::string>& extras2,
+        const std::vector<std::string>& hptimes
     );
     virtual ~CAENPHAParameterMapper();
     

@@ -87,21 +87,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(caenmaptest);
 
 void caenmaptest::phaarray_1()
 {
-    CAENPHAArrayMapper testMap("time", "energy", "extra1", "extra2");
+    CAENPHAArrayMapper testMap("time", "energy", "extra1", "extra2", "hptime");
     CTreeParameterArray times("time", 16, 0);
     CTreeParameterArray energies("energy", 16, 0);
     CTreeParameterArray extra1("extra1", 16, 0);
     CTreeParameterArray extra2("extra2", 16, 0);
+    CTreeParameterArray hptime("hptime", 16, 0);
     
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     CAENModuleHits  fakeHits;
-    CAENPHAHit   fakehit;
+    CAENPHAHit   fakehit(1);
     fakehit.m_energy = 1;
     fakehit.m_extra1 = 100;
     fakehit.m_extra2 = 200;
     fakehit.m_timeTag = 12345;
     fakehit.m_channel = 2;
+    fakehit.m_fineTimeMult = 1;
     fakeHits.addHit(&fakehit);
     testMap.assignParameters(fakeHits);
     
@@ -117,34 +119,40 @@ void caenmaptest::phaarray_1()
     EQ(double(fakehit.m_extra1), e1);
     double e2 = extra2[2];
     EQ(double(fakehit.m_extra2), e2);
+    double expectedhptime = double(fakehit.m_timeTag) +  double(fakehit.m_extra2)/65536.0;
+    EQ(expectedhptime, double(hptime[2]));
+    
 }
 
 void caenmaptest::phaarray_2()
 {
     // Two hits.
-    CAENPHAArrayMapper testMap("time", "energy", "extra1", "extra2");
+    CAENPHAArrayMapper testMap("time", "energy", "extra1", "extra2", "hpt");
     CTreeParameterArray times("time", 16, 0);
     CTreeParameterArray energies("energy", 16, 0);
     CTreeParameterArray extra1("extra1", 16, 0);
     CTreeParameterArray extra2("extra2", 16, 0);
+    CTreeParameterArray hptimes("hpt", 16, 0);
     
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     CAENModuleHits  fakeHits;
-    CAENPHAHit   fakehit1;
+    CAENPHAHit   fakehit1(1);
     fakehit1.m_energy = 1;
     fakehit1.m_extra1 = 100;
     fakehit1.m_extra2 = 200;
     fakehit1.m_timeTag = 12345;
     fakehit1.m_channel = 2;
+    fakehit1.m_fineTimeMult = 1;
     fakeHits.addHit(&fakehit1);
     
-    CAENPHAHit fakehit2;
+    CAENPHAHit fakehit2(1);
     fakehit2.m_energy = 2;
     fakehit2.m_extra1 = 200;
     fakehit2.m_extra2 = 300;
     fakehit2.m_timeTag = 12366;
     fakehit2.m_channel = 1;
+    fakehit2.m_fineTimeMult = 2;
     fakeHits.addHit(&fakehit2);
     
     testMap.assignParameters(fakeHits);
@@ -159,6 +167,8 @@ void caenmaptest::phaarray_2()
     EQ(double(fakehit1.m_extra1), e1);
     double e2 = extra2[2];
     EQ(double(fakehit1.m_extra2), e2);
+    double hptime = double(fakehit1.m_timeTag) + double(fakehit1.m_extra2)/65536.0;
+    EQ(hptime, double(hptimes[2]));
     
     // CHannel 1:
     
@@ -170,6 +180,8 @@ void caenmaptest::phaarray_2()
     EQ(double(fakehit2.m_timeTag), t);
     EQ(double(fakehit2.m_extra1), e1);
     EQ(double(fakehit2.m_extra2), e2);
+    hptime = double(fakehit2.m_timeTag) + 2*double(fakehit2.m_extra2)/65536.0;
+    EQ(hptime, double(hptimes[1]));
     
     
 }
@@ -185,23 +197,26 @@ void caenmaptest::phamap_1()
     std::vector<std::string> extras2 = {
         "extra2", "ext", "eeeeee"
     };
+    std::vector<std::string> hpts = {"hpt0"};
     
     CTreeParameter t1("time1", 16);
     CTreeParameter e1("e1", 16);
     CTreeParameter extra("extra2", 16);
+    CTreeParameter hpt("hpt0", 16);
     
     
-    CAENPHAParameterMapper testmap(times, energies, extras1, extras2);
+    CAENPHAParameterMapper testmap(times, energies, extras1, extras2, hpts);
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     
     CAENModuleHits  fakeHits;
-    CAENPHAHit   fakehit1;
+    CAENPHAHit   fakehit1(1);
     fakehit1.m_energy = 1;
     fakehit1.m_extra1 = 100;
     fakehit1.m_extra2 = 200;
     fakehit1.m_timeTag = 12345;
     fakehit1.m_channel = 0;
+    fakehit1.m_fineTimeMult = 1;
     fakeHits.addHit(&fakehit1);
     
     CPPUNIT_ASSERT_NO_THROW(testmap.assignParameters(fakeHits));
@@ -209,13 +224,16 @@ void caenmaptest::phamap_1()
     ASSERT(t1.isValid());
     ASSERT(e1.isValid());
     ASSERT(extra.isValid());
+    ASSERT(hpt.isValid());
     double t = t1;
     double e = e1;
     double ex= extra;
+    double hptime = double(fakehit1.m_timeTag) + double(fakehit1.m_extra2)/65536.0;
     
     EQ(double(1.0), e);
     EQ(double(12345), t);
     EQ(double(200), ex);
+    EQ(hptime, double(hpt));
     
     
     
@@ -233,15 +251,16 @@ void caenmaptest::phamap_2()
     std::vector<std::string> extras2 = {
         "extra2", "ext", "eeeeee"
     };
+    std::vector<std::string> finetimes ={"ft0", "ft1", "ft2", "ft3", "ft4"};
     
     CTreeParameter en("low-energy");
     
-    CAENPHAParameterMapper testmap(times, energies, extras1, extras2);
+    CAENPHAParameterMapper testmap(times, energies, extras1, extras2, finetimes);
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     
     CAENModuleHits  fakeHits;
-    CAENPHAHit   fakehit1;
+    CAENPHAHit   fakehit1(1);
     fakehit1.m_energy = 1;
     fakehit1.m_extra1 = 100;
     fakehit1.m_extra2 = 200;
@@ -271,25 +290,29 @@ void caenmaptest::phamap_3()
     std::vector<std::string> extras2 = {
         "extra2", "ext", "eeeeee"
     };
+    std::vector<std::string> ftnames={"ft0", "ft1"};
     
     // Parameters we can claw out of hit1 in channel 1:
     
     CTreeParameter t1("time");
     CTreeParameter ex1("ext");
+    CTreeParameter ft1("ft1");
     
     // parameters we can claw out of hit 2 in channel 3
     
     CTreeParameter t2("time-trial");
     CTreeParameter e2("energy");
+
     
     // Parameters that should not be valid
     
     CTreeParameter invt("time1");
     CTreeParameter inve("low-energy");
     CTreeParameter invex("eeeeee");
+    CTreeParameter ft0("ft0");
     
     
-    CAENPHAParameterMapper testmap(times, energies, extras1, extras2);
+    CAENPHAParameterMapper testmap(times, energies, extras1, extras2, ftnames);
     CTreeParameter::BindParameters();
     CTreeParameter::setEvent(*m_pEvent);
     
@@ -297,7 +320,7 @@ void caenmaptest::phamap_3()
     
     // Hit1 (channel1):
     
-    CAENPHAHit   fakehit1;
+    CAENPHAHit   fakehit1(1);
     fakehit1.m_energy = 1;
     fakehit1.m_extra1 = 100;
     fakehit1.m_extra2 = 200;
@@ -307,7 +330,7 @@ void caenmaptest::phamap_3()
     
     // Hit 2 (channel 3)
     
-    CAENPHAHit fakehit2;
+    CAENPHAHit fakehit2(1);
     fakehit2.m_energy = 2;
     fakehit2.m_extra1 = 200;
     fakehit2.m_extra2 = 300;
@@ -323,9 +346,11 @@ void caenmaptest::phamap_3()
     ASSERT(ex1.isValid());
     ASSERT(t2.isValid());
     ASSERT(e2.isValid());
+    ASSERT(ft1.isValid());
     ASSERT(!(invt.isValid()));
     ASSERT(!(inve.isValid()));
     ASSERT(!(invex.isValid()));
+    ASSERT(!(ft0.isValid()));
     
     // Check the values of valid hits:
     
@@ -333,6 +358,8 @@ void caenmaptest::phamap_3()
     double ex1v = ex1;
     EQ(double(12345), t1v);
     EQ(double(200), ex1v);
+    double finetime = 12345.0 + 1.0*200.0/65536.0;
+    EQ(finetime, double(ft1));
     
     double t2v = t2;
     double e2v = e2;

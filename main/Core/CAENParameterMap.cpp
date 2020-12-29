@@ -34,6 +34,7 @@
  *    @param energy - base parameter for energy.
  *    @param extra1 - Base parameter for extra1.
  *    @param extra2 - Base parameter for extra2.
+ *    @param hptime - High precision time
  *
  *    @note if a parameter base name is not supplied no tree parameter
  *    array will be created for it and it will not be unpacked.
@@ -41,11 +42,12 @@
  */
 CAENPHAArrayMapper::CAENPHAArrayMapper(
     const char* time, const char* energy,
-    const char* extra1, const char* extra2
+    const char* extra1, const char* extra2, const char* hptime
 
 ) :
     m_pTimes(nullptr), m_pEnergies(nullptr),
-    m_pExtras1(nullptr), m_pExtras2(nullptr)
+    m_pExtras1(nullptr), m_pExtras2(nullptr),
+    m_pHpTimes(nullptr)
 {
     if (time) {
         m_pTimes = new CTreeParameterArray(time, 16, 0); 
@@ -59,6 +61,9 @@ CAENPHAArrayMapper::CAENPHAArrayMapper(
     if (extra2) {
         m_pExtras2 = new CTreeParameterArray(extra2, 16, 16, 0);
     }
+    if (hptime) {
+        m_pHpTimes = new CTreeParameterArray(hptime, 16, 0);
+    }
 }
 /**
  * destrutor destroy the arrays
@@ -69,6 +74,7 @@ CAENPHAArrayMapper::~CAENPHAArrayMapper()
     delete m_pEnergies;
     delete m_pExtras1;
     delete m_pExtras2;
+    delete m_pHpTimes;
 }
 /**
  * assignParameters
@@ -85,10 +91,11 @@ CAENPHAArrayMapper::assignParameters(const CAENModuleHits& module)
         const CAENPHAHit& hit(dynamic_cast<const CAENPHAHit&>(*hits[i]));
         unsigned ch = hit.getChannel();
         assert(ch < 16);             // Can't be bigger than 15.
-        (*m_pTimes)[ch]    = hit.getTimeTag();
-        (*m_pEnergies)[ch] = hit.getEnergy();
-        (*m_pExtras1)[ch]  = hit.getExtra1();
-        (*m_pExtras2)[ch]  = hit.getExtra2();
+        if (m_pTimes)    (*m_pTimes)[ch]    = hit.getTimeTag();
+        if (m_pEnergies) (*m_pEnergies)[ch] = hit.getEnergy();
+        if (m_pExtras1)  (*m_pExtras1)[ch]  = hit.getExtra1();
+        if (m_pExtras2)  (*m_pExtras2)[ch]  = hit.getExtra2();
+        if (m_pHpTimes)  (*m_pHpTimes)[ch]  = hit.getTime();
     }
 }
 //////////////////////////////////////////////////////////////////
@@ -114,6 +121,7 @@ CAENPHAArrayMapper::assignParameters(const CAENModuleHits& module)
  *  @param extras1 - names of the extra1 parametres.  A tree parameter
  *        with resolution 16 bits will be made for each used parameter.
  *  @param extras2 - Names of the extra2 parameters.
+ *  @param hpttimes - High precision time parameter names.
  *  @throws std::range_error - if any of the name vectors is longer than
  *        16 elements.
  */
@@ -121,7 +129,8 @@ CAENPHAParameterMapper::CAENPHAParameterMapper(
     const std::vector<std::string>& times,
     const std::vector<std::string>& energies,
     const std::vector<std::string>& extras1,
-    const std::vector<std::string>& extras2
+    const std::vector<std::string>& extras2,
+    const std::vector<std::string>& hptimes
 )
 {
     // Range check the input arrays:
@@ -133,6 +142,7 @@ CAENPHAParameterMapper::CAENPHAParameterMapper(
     if (energies.size() > 16) throw std::range_error(message);
     if (extras1.size() > 16) throw std::range_error(message);
     if (extras2.size() > 16) throw std::range_error(message);
+    if (hptimes.size() > 16) throw std::range_error(message);
     
     for (int i =0; i < 16; i++) {
         if((i < times.size() ) && times[i] != "") {
@@ -158,6 +168,12 @@ CAENPHAParameterMapper::CAENPHAParameterMapper(
         } else {
             m_Extras2.push_back(nullptr);
         }
+        if ((i < hptimes.size()) && (hptimes[i] != "")) {
+            m_hpTimes.push_back(new CTreeParameter(hptimes[i], 16));
+            
+        } else {
+            m_hpTimes.push_back(nullptr);
+        }
     }
     // Note that _all_ of the member arrays have 16 elements now.
     // we make use of that to simplify the destructor and
@@ -175,6 +191,7 @@ CAENPHAParameterMapper::~CAENPHAParameterMapper()
         delete m_Energies[i];
         delete m_Extras1[i];
         delete m_Extras2[i];
+        delete m_hpTimes[i];
     }
 }
 /**
@@ -198,6 +215,7 @@ CAENPHAParameterMapper::assignParameters(const CAENModuleHits& module)
         if (m_Energies[ch]) *(m_Energies[ch]) = hit.getEnergy();
         if (m_Extras1[ch])  *(m_Extras1[ch] ) = hit.getExtra1();
         if (m_Extras2[ch])  *(m_Extras2[ch])  = hit.getExtra2();
+        if (m_hpTimes[ch]) *(m_hpTimes[ch])  = hit.getTime();
     }
 }
 ///////////////////////////////////////////////////////////////////

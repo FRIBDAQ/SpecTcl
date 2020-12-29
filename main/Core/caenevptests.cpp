@@ -65,7 +65,8 @@ TestProcessor::TestProcessor()
     setTestMode();
     addParameterMap(
         1,
-        new CAENPHAArrayMapper("pha_t", "pha_e", "pha_ex1", "pha_ex2")
+        new CAENPHAArrayMapper("pha_t", "pha_e", "pha_ex1", "pha_ex2", "pha_ft"),
+        2
     );
     addParameterMap(
         2,
@@ -262,8 +263,8 @@ caenevptest::makePhaHit(void* p, int chan, int time, int e, int ex1, int ex2)
     uint16_t* p16       = reinterpret_cast<uint16_t*>(p64);
     *p16++              = e;
     *p16++              = ex1;
-    *p16++              = ex2;
     p32                 = reinterpret_cast<uint32_t*>(p16);
+    *p32++              = ex2;
     *p32++              = 0;     // no waveform samples.
     
     // figure out the size of the hit:
@@ -288,6 +289,7 @@ void caenevptest::parse_1()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1
     
@@ -323,6 +325,7 @@ void caenevptest::parse_1()
         ASSERT(!pha_e[i].isValid());
         ASSERT(!pha_ex1[i].isValid());
         ASSERT(!pha_ex2[i].isValid());
+        ASSERT(!pha_ft[i].isValid());
         
         ASSERT(!psd1_s[i].isValid());
         ASSERT(!psd1_l[i].isValid());
@@ -353,6 +356,7 @@ void caenevptest::parse_2()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1
     
@@ -395,11 +399,13 @@ void caenevptest::parse_2()
             ASSERT(!pha_e[i].isValid());
             ASSERT(!pha_ex1[i].isValid());
             ASSERT(!pha_ex2[i].isValid());
+            ASSERT(!pha_ft[i].isValid());
         } else {
             ASSERT(pha_t[i].isValid());
             ASSERT(pha_e[i].isValid());
             ASSERT(pha_ex1[i].isValid());
             ASSERT(pha_ex2[i].isValid());
+            ASSERT(pha_ft[i].isValid());
         }
         ASSERT(!psd1_s[i].isValid());
         ASSERT(!psd1_l[i].isValid());
@@ -420,6 +426,10 @@ void caenevptest::parse_2()
     EQ(double(100), double(pha_e[1]));
     EQ(double(5), double(pha_ex1[1]));
     EQ(double(7), double(pha_ex2[1]));
+    
+    // Fine time:
+    double ft = double(1234) + 2.0*7.0/65536.0;
+    EQ(ft, double(pha_ft[1]));
 }
 void caenevptest::parse_3()
 {
@@ -435,6 +445,7 @@ void caenevptest::parse_3()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1 - a channel here will have data.
     
@@ -477,6 +488,7 @@ void caenevptest::parse_3()
         ASSERT(!pha_e[i].isValid());
         ASSERT(!pha_ex1[i].isValid());
         ASSERT(!pha_ex2[i].isValid());
+        ASSERT(!pha_ft[i].isValid());
         
         if (i != 2) {
             ASSERT(!psd1_s[i].isValid());
@@ -525,6 +537,7 @@ void caenevptest::parse_4()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1 - a channel here will have data.
     
@@ -567,6 +580,7 @@ void caenevptest::parse_4()
         ASSERT(!pha_e[i].isValid());
         ASSERT(!pha_ex1[i].isValid());
         ASSERT(!pha_ex2[i].isValid());
+        ASSERT(!pha_ft[i].isValid());
         
         ASSERT(!psd1_s[i].isValid());
         ASSERT(!psd1_l[i].isValid());
@@ -611,6 +625,7 @@ void caenevptest::parse_5()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1 - a channel here will have data.
     
@@ -683,11 +698,13 @@ void caenevptest::parse_5()
             ASSERT(!pha_e[i].isValid());
             ASSERT(!pha_ex1[i].isValid());
             ASSERT(!pha_ex2[i].isValid());
+            ASSERT(!pha_ft[i].isValid());
         } else {
             ASSERT(pha_t[i].isValid());
             ASSERT(pha_e[i].isValid());
             ASSERT(pha_ex1[i].isValid());
             ASSERT(pha_ex2[i].isValid());
+            ASSERT(pha_ft[i].isValid());
         }
         
         if (i != 2) {
@@ -724,6 +741,8 @@ void caenevptest::parse_5()
     EQ(double(100), double(pha_e[1]));
     EQ(double(200), double(pha_ex1[1]));
     EQ(double(300), double(pha_ex2[1]));
+    double fineTime = 1234 + double(300)*2.0/65536.0;
+    EQ(fineTime, double(pha_ft[1]));
     
     // Values for PSD1[2] - cfd * 1
     
@@ -751,6 +770,7 @@ void caenevptest::parse_6()
     CTreeParameterArray pha_e("pha_e", 16, 0);
     CTreeParameterArray pha_ex1("pha_ex1", 16, 0);
     CTreeParameterArray pha_ex2("pha_ex2", 16, 0);
+    CTreeParameterArray pha_ft("pha_ft", 16, 0);
     
     // PSD1 - a channel here will have data.
     
@@ -759,6 +779,7 @@ void caenevptest::parse_6()
     CTreeParameterArray psd1_l("psd1_l", 16, 0);  
     CTreeParameterArray psd1_b("psd1_b", 16, 0);
     CTreeParameterArray psd1_p("psd1_p", 16, 0);
+
     
     // PSD2
     
@@ -823,6 +844,7 @@ void caenevptest::parse_6()
             ASSERT(!pha_e[i].isValid());
             ASSERT(!pha_ex1[i].isValid());
             ASSERT(!pha_ex2[i].isValid());
+            ASSERT(!pha_ft[i].isValid());
         } else {
             // These will throw if the values are not valid:
             
@@ -830,6 +852,7 @@ void caenevptest::parse_6()
             EQ(double(100+i), double(pha_e[i]));
             EQ(double(200+i*2), double(pha_ex1[i]));
             EQ(double(300+i*3), double(pha_ex2[i]));
+            double time = double(1234+i) + 2.0*double(300+i)/65536.0;
         }
     }
     // Let's look at PSD1:

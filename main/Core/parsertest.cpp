@@ -170,7 +170,7 @@ void parsertest::add_3()
     m_pParser->addModule(1, CAENHit::PSD);
     m_pParser->addModule(2, CAENHit::PHA);
     
-    EQ(size_t(2), m_pParser->m_modules.size());\
+    EQ(size_t(2), m_pParser->m_modules.size());
     // Using blocks like this allows a re-use of the assertions
     //  from add_1, add_3
     
@@ -204,7 +204,7 @@ void parsertest::parse_1()
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
         200,                            // extras 1
-        300,                            // extras 2,
+        300, 0,                           // extras 2,
         0, 0                            // no waveforms 0 sample count.
     };
     event.putFragment(sizeof(data), 0x12345, 1, data);
@@ -253,7 +253,7 @@ void parsertest::parse_2()
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
         200,                            // extras 1
-        300,                            // extras 2,
+        300,0,                            // extras 2,
         0, 0                            // no waveforms 0 sample count.
     };
     event.putFragment(sizeof(data), 0x12345, 1, data);

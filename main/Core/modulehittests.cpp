@@ -70,7 +70,7 @@ void modhittest::hit_1()
 {
     // Inserting a PHA hit gives us one hit and it's a PHA:
     
-    CAENPHAHit hit;
+    CAENPHAHit hit(1);
     m_pHits->addHit(&hit);
     
     EQ(size_t(1), m_pHits->getHits().size());
@@ -90,7 +90,7 @@ void modhittest::hit_3()
 {
     // Multiple hits also work:
     //
-    CAENPHAHit hit1;
+    CAENPHAHit hit1(1);
     CAENPSDHit hit2(1);
     m_pHits->addHit(&hit1);
     m_pHits->addHit(&hit2);
@@ -104,7 +104,7 @@ void modhittest::clear_1()
 {
     // Clear flushesc contents of vector.
     
-    CAENPHAHit hit1;
+    CAENPHAHit hit1(1);
     CAENPSDHit hit2(1);
     m_pHits->addHit(&hit1);
     m_pHits->addHit(&hit2);
@@ -116,7 +116,7 @@ void modhittest::copycons_1()
 {
     // COpy construction:
     
-    CAENPHAHit hit1;
+    CAENPHAHit hit1(1);
     CAENPSDHit hit2(1);
     m_pHits->addHit(&hit1);
     m_pHits->addHit(&hit2);
@@ -133,7 +133,7 @@ void modhittest::assign_1()
 {
     // Test assignment
     
-     CAENPHAHit hit1;
+     CAENPHAHit hit1(1);
     CAENPSDHit hit2(1);
     m_pHits->addHit(&hit1);
     m_pHits->addHit(&hit2);

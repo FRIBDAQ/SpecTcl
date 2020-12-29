@@ -141,7 +141,7 @@ CAENParser::makeHit(const ModuleInfo& info)
         }
         break;
         case CAENHit::PHA: {
-            pResult = new CAENPHAHit;
+            pResult = new CAENPHAHit(info.s_multiplier);
         }
         break;
         default: {

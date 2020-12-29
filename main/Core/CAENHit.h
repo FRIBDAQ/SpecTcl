@@ -70,13 +70,15 @@ class CAENPHAHit : public CAENHit
 private:
     uint16_t m_energy;
     uint16_t m_extra1;
-    uint16_t m_extra2;
+    uint32_t m_extra2;
+    int      m_fineTimeMult;
 public:
-    CAENPHAHit();
+    CAENPHAHit(int mult);
     
     uint16_t getEnergy() const;
     uint16_t getExtra1() const;
     uint16_t getExtra2() const;
+    double   getTime()   const;
     
     virtual void unpack(void* pData) ;
 };

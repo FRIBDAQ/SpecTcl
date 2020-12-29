@@ -135,8 +135,9 @@ CAENHit::unpackTraces(void* pData)
  * constructor
  *    Set the hit type.
  */
-CAENPHAHit::CAENPHAHit() :
-    CAENHit(CAENHit::PHA)
+CAENPHAHit::CAENPHAHit(int mult) :
+    CAENHit(CAENHit::PHA),
+    m_fineTimeMult(mult)
 {}
 /**
  *  getEnergy
@@ -167,6 +168,21 @@ CAENPHAHit::getExtra2() const
     return m_extra2;
 }
 /**
+ * getTime
+ *    Compute the high resolution time assuming that extras2 bottom 16
+ *    bits is the time interpolation value.
+ * @return double - high resolution time.
+ */
+double
+CAENPHAHit::getTime() const
+{
+    uint64_t coarseTime = getTimeTag();
+    double interpolation = (double)(m_fineTimeMult) * 1000.0 *
+                            (double)(m_extra2 & 0xffff)/double(65536);   // Interpolation in ps.
+    double result = (double)(coarseTime) + interpolation/1000.0; /// back in ns.
+    return result;
+}
+/**
  * unpack
  *    Given a pointer to the hit information unpacks
  *    the event into the member data
@@ -184,7 +200,9 @@ CAENPHAHit::unpack(void* pData)
     uint16_t* p16 = reinterpret_cast<uint16_t*>(p64);
     m_energy = *p16++;
     m_extra1 = *p16++;
-    m_extra2 = *p16++;
+    p32      = reinterpret_cast<uint32_t*>(p16);
+    m_extra2 = *p32++;                    // extra2 is 32 bits.
+    p16      = reinterpret_cast<uint16_t*>(p32);
     
     unpackTraces(p16);
 }

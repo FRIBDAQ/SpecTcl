@@ -34,7 +34,7 @@ private:
     CAENPHAHit* m_pHit;
 public:
     void setUp() {
-        m_pHit = new CAENPHAHit;
+        m_pHit = new CAENPHAHit(2);
     }
     void tearDown() {
         delete m_pHit;
@@ -62,7 +62,7 @@ void CAENPHAHitTest::nowf()
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
         200,                            // extras 1
-        300,                            // extras 2,
+        300,  0,                          // extras 2,
         0, 0                            // no waveforms 0 sample count.
     };
     m_pHit->unpack(data);
@@ -75,6 +75,12 @@ void CAENPHAHitTest::nowf()
     EQ(uint16_t(200), m_pHit->getExtra1());
     EQ(uint16_t(300), m_pHit->getExtra2());
     
+    // Fine time:
+    
+    double expectedTime = (double(0xef9abc56781234)) + 300.0*2/32678.0;
+    EQ(expectedTime, m_pHit->getTime());
+    
+    
 }
 void CAENPHAHitTest::singlewf()
 {
@@ -86,7 +92,7 @@ void CAENPHAHitTest::singlewf()
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
         200,                            // extras 1
-        300,                            // extras 2,
+        300, 0,                           // extras 2,
         10, 0,                            // no waveforms10 samples
         0,                             // one trace.
         0,1,2,3,4,5,6,7,8,9            // the trace
@@ -113,7 +119,7 @@ void CAENPHAHitTest::doublewf()
         0x1234, 0x5678, 0x9abc, 0xef,   // timestamp.
         100,                            // energy.
         200,                            // extras 1
-        300,                            // extras 2,
+        300, 0,                           // extras 2,
         10, 0,                            // no waveforms10 samples
         1,                             // dual trace.
         0,1,2,3,4,5,6,7,8,9,            // the trace
