@@ -377,7 +377,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(Gates_INCLUDES) \
 				$(Sorter_INCLUDES) \
 				$(Spectra_INCLUDES) \
-				$(PyQt_INCLUDES) \
+				$(PyQt_INCLUDE) \
 				$(TclGrammerApp_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \
