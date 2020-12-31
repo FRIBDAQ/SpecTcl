@@ -6,8 +6,8 @@
 MyDPPEventProcessor::MyDPPEventProcessor()
 {
   addParameterMap(1, new CAENPHAArrayMapper(
-     "pha.time", "pha.energy", nullptr, "pha.missedtrigs"
-  ));
+       "pha.time", "pha.energy", nullptr, "pha.extra2", "pha.finetime"
+  ), 2);
   addParameterMap(2, new CAENPSDArrayMapper(
      "psd1.time" ,"psd1.shortQ", "psd1.longQ", "psd1.baseline", "psd1.pileup"),
      2   

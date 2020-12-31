@@ -115,9 +115,7 @@
         <itemizedlist>
             <listitem>
                <para>
-                  A DPP-PHA digitizer with source id 1. Note that for decoding
-                  DPP-PHA digitizer data it is not necessary to know the
-                  frequency of the digitizer.
+                  A DPP-PHA XX730 (500MHz) digitizer with source id 1.
                </para>
             </listitem>
             <listitem>
@@ -224,6 +222,17 @@
                    <para>
                     If programmed to produce two extras, this will contain
                     the value of extras2.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term>Fine time</term>
+               <listitem>
+                   <para>
+                    If the extras2 word has been programmed to contain the
+                    RC-CR2 time interpolation, a fine time stamp with resolution
+                    much higher than the digitization frequency can be computed
+                    and stored.
                    </para>
                 </listitem>
             </varlistentry>
@@ -385,11 +394,29 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                   <term>pha.missedtrigs</term>
+                   <term>pha.extras2</term>
                    <listitem>
                        <para>
-                        Assuming the extras 2 word  has been programmed to enable
-                        recording of the missed triggers count.
+                        The raw extras 2 word. Note that we're going to assume
+                        that this has been programmed to contain the
+                        RC-CR2 interpolated time in its lower 16 bits.
+                        The parameter, by itself is pretty useless, to
+                        get the top 16 bits you'll need to create a second
+                        event processor to pull those bits out and assign
+                        them to some other set of parameters.
+                        This technique will be demontrated in
+                        <link linkend='sec.computing' endterm='sec.computing.title' />
+                        below.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term>pha.finetime</term>
+                   <listitem>
+                       <para>
+                        Will contain the high resolution time computed from
+                        the time tag (pha.time) and bottom 16 bits of the
+                        extras2 word.
                        </para>
                     </listitem>
                 </varlistentry>
@@ -618,8 +645,8 @@ public:
 MyDPPEventProcessor::MyDPPEventProcessor()   <co id='dppimp.constructor' />
 {
   addParameterMap(1, new CAENPHAArrayMapper(  <co id='dppimp.src1' />
-     "pha.time", "pha.energy", nullptr, "pha.missedtrigs"
-  ));
+     "pha.time", "pha.energy", nullptr, "pha.extra2", "pha.finetime
+  ), 2);
   addParameterMap(2, new CAENPSDArrayMapper(   <co id='dppimp.src2' />
      "psd1.time" ,"psd1.shortQ", "psd1.longQ", "psd1.baseline", "psd1.pileup"),
      2
@@ -688,8 +715,7 @@ MyDPPEventProcessor::MyDPPEventProcessor()   <co id='dppimp.constructor' />
                         base class's
                         <methodname>addParameterMap</methodname> method.
                         This method takes two mandatory parameters and one
-                        optional parameter which we'll discuss when we
-                        look at the registration of the PSD parameter maps.
+                        optional parameter.
                     </para>
                     <para>
                         The first parameter is the source id for which the
@@ -726,6 +752,14 @@ MyDPPEventProcessor::MyDPPEventProcessor()   <co id='dppimp.constructor' />
                         a null pointer for a parameter basename, the
                         array parameter mappers will simply not assign those
                         parts of a hit to SpecTcl parameters.
+                    </para>
+                    <para>
+                        The last parameter is the range, in nanoseconds over
+                        which the fine time is interpolated.  For our
+                        500MHz digitizer, this is 2s/sample.  For DPP-PHA
+                        digitizers, since the interpolation is always
+                        between adjacent samples, this should always be the
+                        sample timing.
                     </para>
                 </callout>
                 <callout arearefs='dppimp.src2' >
@@ -923,6 +957,13 @@ OBJECTS=MySpecTclApp.o DPPEventProcessor.o
                    </para>
                 </listitem>
             </itemizedlist>
+            <para>
+                Note that the techniques described in this section can be
+                expanded to perform an wide variety of computations on
+                extracted parameters, for example the parameter in the top
+                16 bits of the extras2 word could be extracted into a new
+                parameter or calibrated energies could be computed and so on.
+            </para>
             <section>
                 <title>
                     Defining an event processor class to compute TOF
@@ -1182,7 +1223,16 @@ protected:
                     includes an optional <parameter>mult</parameter> parameter.
                     This parameter must be supplied for DPP-PSD digitizers.
                     It controls how the CFD bits in the extras word are folded
-                    into the time parameter.
+                    into the time parameter.  
+                  </para>
+                  <para>
+                    Similarly, if you want a sensible
+                    fine time out of the DPP-PHA digitizer via its RC-CR2
+                    interpolation this value must be supplied and must be the
+                    time between digitizer samples in ns; e.g.
+                    2 for a xx730 (500MHz) DPP-PHA module and 4 for a xx725
+                    (250MHz) DPP-PHA module.  The RC-CR2 interpolation always
+                    interpolates between adjacent samples.
                   </para>
                   <para>
                     The DPP-PSD CFD divides the time between interpolation samples
@@ -1267,7 +1317,7 @@ class CAENPHAArrayMapper : public CAENPHAMapper
 public:
     CAENPHAArrayMapper(
         const char* time, const char* energy,
-        const char* extra1, const char* extra2
+        const char* extra1, const char* extra2, const char* finetime
     );
     virtual void assignParameters(const CAENModuleHits&amp; module);
 };
@@ -1278,7 +1328,8 @@ public:
         const std::vector&lt;std::string&gt;&amp; times,
         const std::vector&lt;std::string&gt;&amp; energies,
         const std::vector&lt;std::string&gt;&amp; extras1,
-        const std::vector&lt;std::string&gt;&amp; extras2
+        const std::vector&lt;std::string&gt;&amp; extras2,
+        const std::vector&lt;std::string&gt;&amp; finetimes
     );
 
     virtual void assignParameters(const CAENModuleHits&amp; module);
@@ -1370,10 +1421,10 @@ public:
                   </methodsynopsis>
                   <para>
                     for the appropriate parameter mapper. Note that for PSD
-                    modules, the individual hits arlready know how to convert
-                    the coarse and CFD time interpolations into a high resolution
-                    time.  Therefore PSD parameter maps themselves don't need this
-                    information and just ask each hit for their high resolution
+                    and PHA
+                    modules, the individual hits already know how to fold
+                    their respective interpolations into the time tag to produce
+                    a high precision time.
                     time.
                   </para>
                 <refsect2>
@@ -1403,6 +1454,9 @@ public:
                             <type> const char* </type><parameter>extra2</parameter>
                             
                         </methodparam>
+                        <methodparam>
+                            <type>const char*</type><parameter>finetimes</parameter>
+                        </methodparam>
                     </constructorsynopsis>
                     <para>
                         Each parameter is the base name of one of the possible
@@ -1412,7 +1466,7 @@ public:
                         any parameter.
                     </para>
                     <para>
-                        Note that the time parameter will be expressed in
+                        Note that the time parameters will be expressed in
                         units of nanoseconds when unpacked.
                     </para>
                 </refsect2>
@@ -1437,6 +1491,11 @@ public:
                         <methodparam>
                             <type>const std::vector&lt;std::string&gt;&amp; </type><parameter>extras2</parameter>
                             
+                        </methodparam>
+                        <methodparam>
+                            <type>
+                                const std::vector&lt;std::string&gt;&amp;
+                            </type><parameter>finetimes</parameter>
                         </methodparam>
                     </constructorsynopsis>
                     <para>
@@ -1572,8 +1631,9 @@ public:
                     of CAEN hits.  After construction, and before being handed
                     any events, <methodname>addModule</methodname> must be
                     called for each module in use to establish its source id,
-                    its module type (DPP-PSD or DPP-PHA) and, for DPP-PSD modules,
-                    the CFD interpolation time range in nanoseconds.
+                    its module type (DPP-PSD or DPP-PHA) and, and the fine time
+                    interpolation interval (<parameter>multiplier</parameter>)
+                    in nanoseconds.
                   </para>
                   <para>
                     Once properly set up the flow is to pass an event
@@ -1906,7 +1966,7 @@ public:
             </refnamediv>
             <refsynopsisdiv>
                 <programlisting>
-#include &lt;CAENHit.h&*gt;
+#include &lt;CAENHit.h&gt;
 
 class CAENHit {
 public:
@@ -1928,7 +1988,7 @@ public:
 class CAENPHAHit : public CAENHit
 {
 public:
-    CAENPHAHit();
+    CAENPHAHit(int multiplier);
 
     uint16_t getEnergy() const;
     uint16_t getExtra1() const;
@@ -2139,14 +2199,36 @@ public:
                         a DPP-PHA hit.  The trigger time is made available via
                         the base class method
                         <methodname>getTimeTag</methodname>.
-                        If you selected fine time interpolation you'll need to
-                        add compute that yourself from the extra2 word.
+                        If you have programmed the extras2 word to include the
+                        RC-CR2 interpolated fine time you can call
+                        <parameter>getTime</parameter> to return the trigger
+                        time with that interpolation rolled in.
                     </para>
                     <para>
                         The following methods are specific to
                         <classname>CAENPHAHit</classname>:
                     </para>
                     <variablelist>
+                        <varlistentry>
+                           <term>
+                            <constructorsynopsis>
+                                <methodname>CAENPHAHit</methodname>
+                                <methodparam>
+                                    <type>int</type><parameter>mult</parameter>
+                                </methodparam>
+                            </constructorsynopsis>
+                           </term>
+                           <listitem>
+                               <para>
+                                The <parameter>mult</parameter> parameter should
+                                be the number of nanoseconds in the interval
+                                within  which the RC-CR2 interpolation interpolates
+                                the trigger time.  This must be the sampling time
+                                e.g. <literal>2</literal> for 500MHz digitizers
+                                and <literal>4</literal> for 250MHz digitizers.
+                               </para>
+                            </listitem>
+                        </varlistentry>
                         <varlistentry>
                            <term>
                             <methodsynopsis>
