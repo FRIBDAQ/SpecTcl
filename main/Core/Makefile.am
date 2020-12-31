@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libTclGrammerApp.la
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
@@ -377,7 +376,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(Gates_INCLUDES) \
 				$(Sorter_INCLUDES) \
 				$(Spectra_INCLUDES) \
-				$(PyQt_INCLUDE) \
+				$(PyQt_INCLUDES) \
 				$(TclGrammerApp_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \
