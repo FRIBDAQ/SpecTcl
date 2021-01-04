@@ -64,8 +64,8 @@ CPyQtProcess::exec()
       throw CErrnoException("CPyQtProcess::exec() - Unable to fork()");
     } else if (m_pid == 0){
 
-      close(STDOUT_FILENO);
-      close(STDERR_FILENO);
+      //close(STDOUT_FILENO);
+      //close(STDERR_FILENO);
       close(STDIN_FILENO);
       
       /*

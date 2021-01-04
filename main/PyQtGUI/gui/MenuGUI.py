@@ -28,7 +28,8 @@ class Menu(QWidget):
                 self.serverLabel.setText('Server:')
                 self.server = QLineEdit(self)
                 self.server.setText(host+":"+port)
-                #self.exitButton = QPushButton("Exit", self)
+                self.server.setFixedWidth(200);
+                self.exitButton = QPushButton("Exit", self)
                 self.updateButton = QPushButton("Get Data", self)
                 self.configButton = QPushButton("Options", self)
                 self.saveButton = QPushButton("Save Geometry", self)
@@ -42,7 +43,7 @@ class Menu(QWidget):
                 layout = QHBoxLayout()
                 layout.addWidget(self.serverLabel)
                 layout.addWidget(self.server)                
-                #layout.addWidget(self.exitButton)
+                layout.addWidget(self.exitButton)
                 layout.addWidget(self.updateButton)
                 layout.addWidget(self.slider_label)
                 layout.addWidget(self.slider)

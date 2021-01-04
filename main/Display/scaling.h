@@ -33,6 +33,7 @@
 #include "dispwind.h"
 #include "dispshare.h"
 #include "XMWidget.h"
+#include <utility>
 
 
 #define SMOOTH1D_PIXELS    1
@@ -61,10 +62,12 @@ unsigned int Xamine_ComputeScaling(win_attributed *att, XMWidget *pane);
 class Sampler {
  public:
   virtual unsigned int chan(int i) = 0;	     /* Sample a channel i. */
-  virtual void          setsample(int first,  /* Set sequential sample parameters */
-				  float step) = 0;
-  virtual void          setsample(int first) = 0;
-  virtual unsigned int sample() = 0;	     /* Get a sample and move to next one. */
+  virtual void          setsample(  /* Set sequential sample parameters */
+     int first, float step
+  ) = 0;
+				  
+  virtual void         setsample(int first) = 0;
+  virtual std::pair<unsigned, unsigned> sample() = 0;	     /* Get a sample and move to next one. */
 };
 
 class Samplel : public Sampler {	    /* Sample longword */
@@ -76,16 +79,16 @@ class Samplel : public Sampler {	    /* Sample longword */
   Samplel(volatile unsigned int *b, float s = 1.0) {
     base  = b; 
     step  = s;
-    offset= 0;
+    offset= 1;                // Don't show root's underflow.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset = (float)f;
     step   = s;
   }
   virtual void setsample(int f) { setsample (f, step); }
   
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;		    /* Will become the sample value */
     int      first = (int)(offset + 0.5);
     offset        +=  step;
@@ -94,7 +97,7 @@ class Samplel : public Sampler {	    /* Sample longword */
       if(s < base[i]) s = base[i];
     }
 
-    return s;
+    return std::pair<unsigned, unsigned>(s, last - first);
   }
 };
 
@@ -107,15 +110,15 @@ class Samplew : public Sampler { /* Sample shortword */
   Samplew(volatile unsigned short *b, float s = 1.0) {
     base  = b; 
     step  = s;
-    offset= 0;
+    offset= 1;         // Remove root's underflow.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset = (float)f;
     step   = s;
   }
   virtual void setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;		    /* Will become the sample value */
     int      first = (int)(offset + 0.5);
     offset        +=  step;
@@ -123,7 +126,7 @@ class Samplew : public Sampler { /* Sample shortword */
     for(int i = first; i < last; i++) {
       if(s < base[i]) s = base[i];
     }
-    return s;
+    return std::pair<unsigned, unsigned>(s, last - first);
   }
 };
 
@@ -136,21 +139,22 @@ class Suml : public Sampler {	/* Sample via summing (long) */
   Suml(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;            // Remove root's underflow channel.
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned,unsigned> sample() {
     unsigned int s = 0;
+    unsigned first = offset;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++)
       s += base[i];
     offset += step;
-    return s;
+    return std::pair<unsigned,unsigned>(s, last - first);
   }
 };
 
@@ -163,21 +167,22 @@ class Sumw : public Sampler {	/* Sample via summing (word) */
   Sumw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    int first = offset;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++)
       s += (unsigned int)base[i];
     offset += step;
-    return s;
+    return std::pair<unsigned, unsigned>(s, last-first);
   }
 };
 /*  The Avg* classes are the same as the Sum* methods but just divide by
@@ -193,16 +198,17 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
   Avgl(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    int first = offset;
     int chans = 0;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++) {
@@ -210,7 +216,7 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
       chans++;
     }
     offset += step;
-    return (s/chans);
+    return std::pair<unsigned, unsigned>((s/chans), last-first);
   }
 };
 
@@ -223,16 +229,17 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
   Avgw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
-    offset= 0.0;
+    offset= 1.0;
   }
-  virtual unsigned int chan(int i) { return base[i]; }
+  virtual unsigned int chan(int i) { return base[i+1]; }
   virtual void         setsample(int f, float s) {
     offset  = (float)f;
     step   = s;
   }
   virtual void          setsample(int f) { setsample(f, step); }
-  virtual unsigned int sample() {
+  virtual std::pair<unsigned, unsigned> sample() {
     unsigned int s = 0;
+    unsigned first = offset;
     unsigned int chans = 0;
     int last = (int)(offset + step);
     for(int i = (int)offset; i < last; i++) {
@@ -240,7 +247,7 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
       chans++;
     }
     offset += step;
-    return (s/chans);
+    return std::pair<unsigned, unsigned>((s/chans), last-first);
   }
 };
 

@@ -54,10 +54,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "gc.h"
 #include "chanplot.h"
 #include "colormgr.h"
+#include "mapcoord.h"
 
 #include <iostream>
 
 #include <math.h>
+#include <stdint.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -401,7 +403,7 @@ void grobj_sum1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -474,7 +476,7 @@ void grobj_cut1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -547,7 +549,7 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -622,7 +624,7 @@ void grobj_contour::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -701,7 +703,7 @@ void grobj_band::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -777,7 +779,7 @@ void grobj_sum2d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -856,7 +858,7 @@ void grobj_mark2d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   pane->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -1018,7 +1020,7 @@ void grobj_ptlist1::draw(XMWidget *p, win_attributed *at, Boolean final)
   **  so that if the window is contaiminated while accepting points, the 
   **  partial point set will be visible.
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   p->GetAttribute(XmNuserData, &index); // This is the pane number.
   row = index % WINDOW_MAXAXIS;
   col = index / WINDOW_MAXAXIS;
@@ -1152,7 +1154,7 @@ void grobj_ptlist2::draw(XMWidget *p, win_attributed *at, Boolean final)
   **  so that if the window is contaiminated while accepting points, the 
   **  partial point set will be visible.
   */
-  long index, row, col;
+  uintptr_t index, row, col;
   p->GetAttribute(XmNuserData, &index); // This is the pane number.
   row = index % WINDOW_MAXAXIS;
   col = index / WINDOW_MAXAXIS;
@@ -1256,7 +1258,7 @@ void grobj_Peak1d::draw(XMWidget* pWindow,
   // we rely on the fact that the pane widget has the pane number in it's
   // user data field:
 
-  long index, row, col;
+  uintptr_t index, row, col;
   pWindow->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
@@ -1722,7 +1724,7 @@ grobj_Fitline::draw(XMWidget* pWindow, win_attributed* pAttributes,
   // we rely on the fact that the pane widget has the pane number in it's
   // user data field:
 
-  long index, row, col;
+  uintptr_t index, row, col;
   pWindow->GetAttribute(XmNuserData, &index);
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;

@@ -103,12 +103,14 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
 				reduction_mode sr, int xl, int xh, int nx,
 				float *chanw)
 {
-  /* First determine what the channel width is and if sampling is needed */
-  *chanw = (float)nx/(xh-xl+1);
+	/* First determine what the channel width is and if sampling is needed */
+	float pixlow = Transform(xl, xh, 0, nx, xl);
+	float pixhigh= Transform(xl, xh, 0, nx, xl+1);
+	*chanw = pixhigh - pixlow;             // Use width of first channel
 
-  /* If reduction is not required, then jimmy up a simple sampler that
-  ** samples all channels:
-  */
+	/* If reduction is not required, then jimmy up a simple sampler that
+	** samples all channels:
+	*/
   if(*chanw > (float)onedpixtable[rend]) {            
     switch(st) {
     case onedlong:
@@ -132,37 +134,37 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
     case sampled:		/* Reduce by sampling. */
       switch(st) {		/* Chose spectrum type... */
       case onedlong:
-	return (Sampler *)new Samplel(b, step);
+				return (Sampler *)new Samplel(b, step);
       case onedword:
-	return (Sampler *)new Samplew((unsigned short *)b, step);
+				return (Sampler *)new Samplew((unsigned short *)b, step);
       default:	
-	fprintf(stderr,"* in Plot1d/GenerateSampler invalid spectype %d\n",
-		st);
-	return (Sampler*) NULL;
+				fprintf(stderr,"* in Plot1d/GenerateSampler invalid spectype %d\n",
+				st);
+				return (Sampler*) NULL;
       }
     case summed:		/* Reduce by summing */
       switch(st) {		/* Chose spectrum type: */
       case onedlong:
-	return (Sampler *)new Suml(b, step);
+				return (Sampler *)new Suml(b, step);
       case onedword:
-	return (Sampler *)new Sumw((unsigned short *)b, step);
+				return (Sampler *)new Sumw((unsigned short *)b, step);
       default:
-	fprintf(stderr,
-		"Plot1d/GenerateSampler invalid spectrum type %d\n",
-		st);
-	return (Sampler*)NULL;
+				fprintf(stderr,
+					"Plot1d/GenerateSampler invalid spectrum type %d\n",
+					st);
+				return (Sampler*)NULL;
       }
     case averaged:		/* Reduce by averaging */
       switch(st) {		/* Chose spectrum type: */
       case onedlong:
-	return (Sampler *)new Avgl(b, step);
+				return (Sampler *)new Avgl(b, step);
       case onedword:
-	return (Sampler *)new Avgw((unsigned short *)b, step);
+				return (Sampler *)new Avgw((unsigned short *)b, step);
       default:
-	fprintf(stderr,
-		"Plot1d/GenerateSampler invalid spectrum type %d\n",
-		st);
-	return (Sampler*) NULL;
+				fprintf(stderr,
+					"Plot1d/GenerateSampler invalid spectrum type %d\n",
+					st);
+				return (Sampler*) NULL;
       }
     default:			/* Error. */
       fprintf(stderr,
@@ -238,9 +240,9 @@ unsigned int Scale1d(int specid, win_1d *att, int resolution)
   unsigned int   scale  = 0;
   channels->setsample(chanl);           /* Set the starting location. */
   while(pix1 <= pix2) {
-	unsigned int val = channels->sample(); /* Get a channel..            */
-	if(val > scale) scale = val;         /* If necessary update the scale */
-	pix1 += channel_width;
+		unsigned int val = channels->sample().first; /* Get a channel..            */
+		if(val > scale) scale = val;         /* If necessary update the scale */
+		pix1 += channel_width;
   }
 
   /*  Now that we're done, delete the sampler: */
@@ -322,22 +324,25 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
   if(!must_reduce) {
     switch(st) {
     case twodlong:
-      sampler = (Sampler2 *)new Sample2l((unsigned int *)
-					 xamine_shared->getbase(specno),
-					 1.0, 1.0, 
-					 xamine_shared->getxdim(specno));
+      sampler = (Sampler2 *)new Sample2l(
+					(unsigned int *)xamine_shared->getbase(specno),
+					1.0, 1.0, 
+					xamine_shared->getxdim(specno)
+			);
       break;
     case twodword:
-      sampler = (Sampler2 *)new Sample2w((unsigned short *)
-					 xamine_shared->getbase(specno),
+      sampler = (Sampler2 *)new Sample2w(
+					 (unsigned short *)xamine_shared->getbase(specno),
 					 1.0, 1.0, 
-					 xamine_shared->getxdim(specno));
+					 xamine_shared->getxdim(specno)
+			);
       break;
     case twodbyte:
-      sampler = (Sampler2 *)new Sample2b((unsigned char *)
-					 xamine_shared->getbase(specno),
+      sampler = (Sampler2 *)new Sample2b(
+					 (unsigned char *)xamine_shared->getbase(specno),
 					 1.0, 1.0, 
-					 xamine_shared->getxdim(specno));
+					 xamine_shared->getxdim(specno)
+			);
       break;
     default:
       fprintf(stderr, "Invalid spectrum type in GenerateSampler2 %d\n",
@@ -345,8 +350,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
       return (Sampler2*)NULL;
     }
     sampler->setsample(xl, xh, yl); /* Set the region of interest params. */
-  }
-  else {
+  }  else {                              // must reduce.
     /* If control passes here then we have to do some form of reduction.
     ** First we need to determine what the X/Y bin sizes are for the re-binned
     ** histogram.  Next we need to select an appropriate sampler object based
@@ -361,93 +365,108 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
     case sampled:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Sample2l((unsigned int *)
-					      xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Sample2l(
+					   (unsigned int *)xamine_shared->getbase(specno),
 					   xstep, ystep, 
-					   xamine_shared->getxdim(specno));
-	break;
-
+					   xamine_shared->getxdim(specno)
+				);
+				break;
       case twodword:
-	sampler = (Sampler2 *)new Sample2w((unsigned short *)
-					      xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Sample2w(
+						(unsigned short *)xamine_shared->getbase(specno),
 					   xstep, ystep, 
-					   xamine_shared->getxdim(specno));
-	break;
+					   xamine_shared->getxdim(specno)
+				);
+				break;
       case twodbyte:
-	sampler = (Sampler2 *)new Sample2b((unsigned char *)
-					      xamine_shared->getbase(specno),
+					sampler = (Sampler2 *)new Sample2b(
+					   (unsigned char *)xamine_shared->getbase(specno),
 					   xstep,ystep,
-					   xamine_shared->getxdim(specno));
-	break;
+					   xamine_shared->getxdim(specno)
+					);
+				break;
       default:
-	fprintf(stderr,
-		"GenerateSampler2 invalid spectype %d\n",
-		st);
-	return (Sampler2*)NULL;
-      }
+				fprintf(
+					stderr,
+					"GenerateSampler2 invalid spectype %d\n",
+					st
+				);
+				return (Sampler2*)NULL;
+      }                      // Sampled case.
       break;
     case summed:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Sum2l((unsigned int *)
-					   xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Sum2l(
+					(unsigned int *)xamine_shared->getbase(specno),
 					xstep, ystep, 
-					xamine_shared->getxdim(specno));
-	break;
+					xamine_shared->getxdim(specno)
+				);
+				break;
       case twodword:
-	sampler = (Sampler2 *)new Sum2w((unsigned short *)
-					   xamine_shared->getbase(specno),
+					sampler = (Sampler2 *)new Sum2w(
+					(unsigned short *)xamine_shared->getbase(specno),
 					xstep, ystep, 
-					xamine_shared->getxdim(specno));
-	break;
+					xamine_shared->getxdim(specno)
+				);
+				break;
       case twodbyte:
-	sampler = (Sampler2 *)new Sum2b((unsigned char *)
-					   xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Sum2b(
+					(unsigned char *)xamine_shared->getbase(specno),
 					xstep,ystep,
 					xamine_shared->getxdim(specno));
-	break;
+				break;
       default:
-	fprintf(stderr,
-		"GenerateSampler2 invalid spectype %d\n",
-		st);
-	return (Sampler2*)NULL;
-      }
+				fprintf(
+					stderr,
+					"GenerateSampler2 invalid spectype %d\n",
+					st
+				);
+				return (Sampler2*)NULL;
+      }                             // Summed.
       break;
     case averaged:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Average2l((unsigned int *)
-					       xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Average2l(
+					    (unsigned int *)xamine_shared->getbase(specno),
 					    xstep, ystep, 
-					    xamine_shared->getxdim(specno));
-	break;
+					    xamine_shared->getxdim(specno)
+				);
+				break;
       case twodword:
-	sampler = (Sampler2 *)new Average2w((unsigned short *)
-					       xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Average2w(
+					    (unsigned short *)xamine_shared->getbase(specno),
 					    xstep, ystep, 
-					    xamine_shared->getxdim(specno));
-	break;
+					    xamine_shared->getxdim(specno)
+				);
+				break;
       case twodbyte:
-	sampler = (Sampler2 *)new Average2b((unsigned char *)
-					       xamine_shared->getbase(specno),
+				sampler = (Sampler2 *)new Average2b(
+					    (unsigned char *)xamine_shared->getbase(specno),
 					    xstep,ystep,
-					    xamine_shared->getxdim(specno));
-	break;
+					    xamine_shared->getxdim(specno)
+				);
+				break;
       default:
-	fprintf(stderr,
-		"GenerateSampler2 invalid spectype %d\n",
-		st);
-	return (Sampler2*)NULL;
-      }
+				fprintf(
+						stderr,
+						"GenerateSampler2 invalid spectype %d\n",
+						st
+				);
+				return (Sampler2*)NULL;
+      }                                // Averaged
       break;
     default:
-      fprintf(stderr,
+      fprintf(
+				stderr,
 	      "GenerateSampler2 detected invalid spectrum rendition %d\n",
-	      sr);
+				 sr
+			);
       return (Sampler2*)NULL;
-    }
+    }                               // Switch on type.
     sampler->setsample(xl,xh,yl);
-  }
+  }                             // Reduction needed.
   return sampler;
 }
 
@@ -561,10 +580,11 @@ unsigned int Xamine_ComputeScaling(win_attributed *att, XMWidget *pane)
 	 if(att->isflipped()) resolution = ny;
 	 if(att->showaxes())
 		resolution = (int)((float)resolution*(1.0 - XAMINE_MARGINSIZE));
-	 fs = Scale1d(specid, (win_1d *)att,
-			  resolution);
+	   fs = Scale1d(
+				specid, (win_1d *)att, resolution
+		  );
 	 //	 if(fs <= 0) fs = 1;
-	 fs = (unsigned int)((float)fs*1.1); /* Give some margin for the top. */
+	   fs = (unsigned int)((float)fs*1.1); /* Give some margin for the top. */
 	 return fs;
   }
   else {			/* 2d spectrum */

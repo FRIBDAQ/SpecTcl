@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libTclGrammerApp.la
 
 COMMONCXXFLAGS = -DINSTALLED_IN='"@prefix@"' -DVERSION='"@VERSION@"' @ROOT_CFLAGS@
@@ -256,7 +255,7 @@ Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
 Spectra_INCLUDES = SpectraLocalDisplay.h SpectraProcess.h
 
 PyQt_SRC = PyQtDisplay.cpp PyQtProcess.cpp
-PyQt_INCLUDE = PyQtDisplay.h PyQtProcess.h
+PyQt_INCLUDES = PyQtDisplay.h PyQtProcess.h
 
 SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
@@ -377,7 +376,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 				$(Gates_INCLUDES) \
 				$(Sorter_INCLUDES) \
 				$(Spectra_INCLUDES) \
-				$(PyQt_INCLUDE) \
+				$(PyQt_INCLUDES) \
 				$(TclGrammerApp_INCLUDES) \
 				$(SpectrumIO_INCLUDES) \
 				$(TreeParam_INCLUDES) \

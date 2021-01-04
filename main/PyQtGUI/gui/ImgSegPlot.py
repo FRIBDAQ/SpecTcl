@@ -19,57 +19,16 @@ from sklearn.preprocessing import StandardScaler
 
 import cv2
 
-class ClusterPlot(QDialog):
+class ImgSegPlot(QDialog):
     def __init__(self, *args, **kwargs):
-        super(ClusterPlot, self).__init__(*args, **kwargs)
+        super(ImgSegPlot, self).__init__(*args, **kwargs)
 
         self.nclust = 0
+        self.criteria = 0
+        self.attempt = 0
+        self.flags = 0
         self.isChecked = {}
-        
-        # a figure instance to plot on
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
-        self.toolbar = NavigationToolbar(self.canvas, self)
 
-        # set the layout
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.toolbar)
-        self.layout.addWidget(self.canvas)
-        self.setLayout(self.layout)
-
-    def loadFigure(self, filename):
-        img = cv2.imread(filename)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        return img
-        
-    def plotClusters(self, filename):
-        img = self.loadFigure(filename)
-
-        r, g, b = cv2.split(img)
-        r = r.flatten()
-        g = g.flatten()
-        b = b.flatten()
-
-        # create an axis
-        self.ax = Axes3D(self.figure)
-        # discards the old graph
-        self.ax.clear()
-        self.ax.scatter(r, g, b, s=2)        
-        self.ax.set_xlabel('R axis')
-        self.ax.set_ylabel('G axis')
-        self.ax.set_zlabel('B axis')
-        self.ax.set_title("RGB distribution")
-        
-        # refresh canvas
-        self.canvas.draw_idle()
-        
-class KMeanPlot(QDialog):
-    def __init__(self, *args, **kwargs):
-        super(KMeanPlot, self).__init__(*args, **kwargs)
-
-        self.nclust = 0
-        self.isChecked = {}
-        
         # a figure instance to plot on
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
@@ -90,7 +49,13 @@ class KMeanPlot(QDialog):
         img = cv2.imread(filename)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img
-        
+
+    def setConfig(self, clusters, criteria, attempt, flags):
+        self.nclust = clusters
+        self.criteria = criteria
+        self.attempt = attempt
+        self.flags = flags
+    
     def plot(self, filename, nclusters, xmin, xmax, ymin, ymax):
 
         self.image = self.loadFigure(filename)
@@ -100,11 +65,8 @@ class KMeanPlot(QDialog):
         # convert to float
         pixel_values = np.float32(pixel_values)
 
-        # define stopping criteria
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-
         # number of clusters (K)
-        _, self.labels, (centers) = cv2.kmeans(pixel_values, nclusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+        _, self.labels, (centers) = cv2.kmeans(pixel_values, nclusters, None, self.criteria, self.attempt, self.flags)
 
         # convert back to 8 bit values
         centers = np.uint8(centers)

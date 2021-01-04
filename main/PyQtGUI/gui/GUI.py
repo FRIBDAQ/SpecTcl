@@ -47,6 +47,7 @@ import pandas as pd
 import numpy as np
 import CPyConverter as cpy
 
+import algo_factory
 
 # import widgets
 from MenuGUI import Menu
@@ -55,17 +56,16 @@ from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
 from Clustering import Cluster2D
 from PeakFinder import PeakFinder
-from ClusterPlot import ClusterPlot
-from ClusterPlot import KMeanPlot
-from CannyEdge import cannyEdgePlot
 
 DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
+        self.factory = factory
+        
         self.setWindowTitle("Project Robot Alba")
         '''
         self.setWindowFlags(
@@ -76,6 +76,13 @@ class MainWindow(QMainWindow):
             QtCore.Qt.WindowStaysOnTopHint
         )
         '''
+
+        #check if there are arguments or not
+        try:
+             self.args = dict(args)
+             print("self.args",self.args)
+        except:
+            pass
         
         # global variables
         self.timer = QtCore.QTimer()
@@ -221,20 +228,15 @@ class MainWindow(QMainWindow):
         # clustering 
         self.clPopup = Cluster2D()
 
-        # create popup window for kmean analysis
-        self.kmeanPopup = KMeanPlot()
-        # create popup window for cluster
-        self.clplotPopup = ClusterPlot()                
-
-        # canny edge
-        self.cannyPopup = cannyEdgePlot()
+        # initialize factory from algo_creator
+        self.factory.initialize(self.clPopup.clusterAlgo)
         
         #################
         # Signals
         #################
 
         # top menu signals
-        #self.wTop.exitButton.clicked.connect(self.closeAll)
+        self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
@@ -255,13 +257,9 @@ class MainWindow(QMainWindow):
         self.wTop.drawGate.clicked.connect(lambda: self.drawGate(self.optionAll))
         self.wTop.cleanGate.clicked.connect(self.clearGate)
 
-        # button for testing functions
-        #self.wTop.test.clicked.connect(self.drawAllGate)        
-        
         # configuration signals
         self.at_startup()
 
-        #self.wConf.histo_list.activated.connect(self.update_spectrum_info)
         self.wConf.histo_geo_row.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
         self.wConf.histo_geo_col.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
         self.wConf.histo_geo_add.clicked.connect(self.add_plot)
@@ -275,8 +273,6 @@ class MainWindow(QMainWindow):
         self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
         self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
 
-        #self.pPopup.show_box.stateChanged.connect(lambda:self.showAll(self.pPopup.show_box))
-        
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
@@ -319,9 +315,6 @@ class MainWindow(QMainWindow):
         self.resPopup.close()
         self.clPopup.close()
         self.pPopup.close()                
-        self.kmeanPopup.close()
-        self.clplotPopup.close()
-        self.cannyPopup.close()        
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -458,13 +451,6 @@ class MainWindow(QMainWindow):
                     self.artist2D[self.wTop.listGate.currentText()] = self.polygon
                     self.artist_dict[key] = self.artist2D
 
-                '''
-                key = self.wConf.spectrum_name.text()
-                if key in self.artist_dict:
-                    self.artist_dict[key].append(self.wTop.listGate.currentText())
-                else:
-                    self.artist_dict[key] = [self.wTop.listGate.currentText()]
-                '''
                 print(self.artist_dict)
                     
                 # exiting gating mode
@@ -1441,15 +1427,6 @@ class MainWindow(QMainWindow):
             self.vmax = self.get_histo_zoomMax(index)
 
             # setup up palette
-            '''
-            if (self.wConf.button2D_option.currentText() == 'Dark'):
-                palette = 'afmhot'
-            else:
-                palette = copy(plt.cm.afmhot)
-                w = np.ma.masked_where(w < 0.1, w)
-                palette.set_bad(color='white')
-            '''
-
             if (self.wConf.button2D_option.currentText() == 'Dark'):
                 if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
                     self.palette = 'afmhot'
@@ -1463,16 +1440,6 @@ class MainWindow(QMainWindow):
                 w = np.ma.masked_where(w < 0.1, w)
                 self.palette.set_bad(color='white')
 
-            '''
-            interpolation='none'
-            extent=[float(minx),float(maxx),float(miny),float(maxy)]
-            aspect='auto'
-            origin='lower'
-            vmin=self.vmin
-            vmax=self.vmax
-            cmap=self.palette
-            '''
-            
             # create histogram
             self.h_lst[index] = axis.imshow(w,
                                             interpolation='none',
@@ -1512,66 +1479,6 @@ class MainWindow(QMainWindow):
         #self.wPlot.figure.canvas.flush_events()
         self.wPlot.canvas.draw_idle()
         
-    # histo plotting 
-    '''
-    def plot_histogram(self, axis, index):
-        w = self.get_data(index)
-        
-        hdim = self.get_histo_dim(index)                    
-        minx = self.get_histo_xmin(index)
-        maxx = self.get_histo_xmax(index)
-        binx = self.get_histo_xbin(index)
-
-        if hdim == 1:
-            # update axis
-            self.yhigh = self.get_histo_zoomMax(index)
-            axis.set_ylim(0,self.yhigh)
-            X = self.create_range(binx, minx, maxx)
-            # create histogram
-            self.h_lst[index], self.bins, _ = axis.hist(X,
-                                                        len(X),
-                                                        weights=w,
-                                                        range=[minx,maxx],
-                                                        histtype='step')
-            axis.set_xlim(left=minx, right=maxx)
-            #x_label = str(df.iloc[0]['parameters'])
-            #plt.xlabel(x_label,fontsize=10)
-            self.h_zoom_max[index] = self.yhigh
-            #self.binList.append(self.bins)
-        else:
-            miny = self.get_histo_ymin(index)
-            maxy = self.get_histo_ymax(index)
-            binsy = self.get_histo_ybin(index)
-
-            # update axis
-            self.vmax = self.get_histo_zoomMax(index)
-                
-            #divider = make_axes_locatable(axis)
-            #cax = divider.append_axes("right", 0.25, pad=0.05)
-
-            if (self.wConf.button2D_option.currentText() == 'Dark'):
-                palette = 'plasma'
-            else:
-                palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                palette.set_bad(color='white')
-                    
-            # search by name if the histogram has been plotted before
-            #if self.checkValue(index, name) == False:
-            # print("creating 2d", name, "in index", index)
-            self.h_lst[index] = axis.imshow(w,
-                                            interpolation='none',
-                                            extent=[float(minx),float(maxx),float(miny),float(maxy)],
-                                            aspect='auto',
-                                            origin='lower',
-                                            vmin=self.vmin, vmax=self.vmax,
-                                            cmap=palette)
-            #else:
-                #    print("filling 2d", name, "in index", index)                    
-                #    self.h_lst[index].set_data(w)
-                #self.h_lst_cb[index] = plt.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
-                #self.h_zoom_max[index] = self.vmax
-    '''
     # options for clustering 2D
     def peakPopup(self):
         self.pPopup.show()
@@ -2025,19 +1932,6 @@ class MainWindow(QMainWindow):
         self.artist1D[name] = tmp
         self.artist_dict[key] = self.artist1D
             
-        #self.artist1D[name] = tmp
-        #self.artist_dict[key] = self.artist1D
-
-            
-        '''
-        gname = self.wTop.listGate.currentText() 
-        if key in self.artist_dict:
-            if any(x == gname for x in self.artist_dict[key]) == False:
-                self.artist_dict[key].append(gname)
-        else:
-            self.artist_dict[key] = [gname]
-        '''
-        
     def plot2DGate(self, axis, key, name):
         new_line = mlines.Line2D([],[])
         for line in self.dict_region[name]:                
@@ -2055,15 +1949,6 @@ class MainWindow(QMainWindow):
                 self.artist2D[name] = []                
         self.artist2D[name] = new_line
         self.artist_dict[key] = self.artist2D            
-
-        '''
-        gname = self.wTop.listGate.currentText() 
-        if key in self.artist_dict:
-            if any(x == gname for x in self.artist_dict[key]) == False:            
-                self.artist_dict[key].append(gname)            
-        else:
-            self.artist_dict[key] = [gname]
-        '''
 
     def drawAllGate(self):
         if self.wTop.slider.value() != 0:
@@ -2239,13 +2124,6 @@ class MainWindow(QMainWindow):
         interval = []
         for line in self.dict_region[name_gate]:
             interval.append(line.get_xdata()[0])
-        '''
-        for i, plot in enumerate(self.wPlot.figure.axes):
-            if (self.h_dict[i]["name"] == name_histo):
-                for i,line in enumerate(plot.lines[:]):
-                    if (line.get_label() == name_gate):
-                        interval.append(line.get_xydata())
-        '''
         return interval
         
     def integrate1D(self, name):
@@ -2266,7 +2144,6 @@ class MainWindow(QMainWindow):
             binx = self.get_histo_xbin(index_histo)
             X = self.create_range(binx, minx, maxx)
             tmp = self.get_data(index_histo)
-            #tmp = np.array(self.binList[index_histo])
             try:
                 a = sorted(self.findInterval(name_histo, name_gate))
                 index_list = [i for i, e in enumerate(X) if e > a[0] and e < a[1]]
@@ -2708,230 +2585,23 @@ class MainWindow(QMainWindow):
         algo = self.clPopup.clusterAlgo.currentText()
 
         self.start = time.time()
-        if algo == "K-Mean":
-            self.kmean(nclusters)
-        elif algo == "Gaussian Mixture Model":
-            self.gmm(nclusters)
-        elif algo == "Image Segmentation":
-            self.imageSegmentation(nclusters)
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
         else:
-            self.cannyEdge()
+            a = self.select_plot(self.selected_plot_index)
+
+        config = self.factory._configs.get(algo)
+        print("ML algo config", config)
+        MLalgo = self.factory.create(algo, **config)
+        # add hooks for popup windows i.e. more arguments that won't be used
+        MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
         self.stop = time.time()
         print("Time elapsed for clustering:", self.stop-self.start)
-        
-    # kmean algo
-    def kmean(self, nclusters):
-        # create kmeans object
-        kmeans = KMeans(n_init = 5, n_clusters=nclusters)
-
-        # fit kmeans object to data
-        kmeans.fit(self.clusterpts, sample_weight=self.clusterw)
-
-        cluster_center = kmeans.cluster_centers_
-
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-        
-        confidPerc = self.soft_clustering_weights(self.clusterpts,cluster_center)
-
-        prob_dict = {}
-        for i in range(len(confidPerc[0])):
-            prob_dict[i] = self.extract(confidPerc, i)
-
-        # CL 90%/CL 95%
-        bool_dict_90 = {}
-        bool_dict_95 = {}        
-        w_90 = {}
-        w_95 = {}        
-        sum90 = 0
-        sum95 = 0        
-        for i in range(len(cluster_center)):
-            self.addPoint(a, [cluster_center[i][0], cluster_center[i][1]])
-            bool_dict_90[i] = [True if x>0.9 else False for i, x in enumerate(prob_dict[i])]
-            bool_dict_95[i] = [True if x>0.95 else False for i, x in enumerate(prob_dict[i])]            
-            w_90[i] = list(compress(self.clusterw, bool_dict_90[i]))
-            w_95[i] = list(compress(self.clusterw, bool_dict_95[i]))            
-            sum90 += sum(w_90[i])
-            sum95 += sum(w_95[i])        
-
-        print("#########################################")            
-        print("# Results of K-Mean clustering analysis #")
-        print("#########################################")                    
-        for i in range(len(cluster_center)):
-            print("Cluster", i," with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
-        print("Confidence Level 90% -->", sum90/sum(self.clusterw),"%")
-        print("Confidence Level 95% -->", sum95/sum(self.clusterw),"%")             
-        print("#########################################")
-        
-        self.wPlot.canvas.draw()                    
-
-    
-    def extract(self, lst, index): 
-        return [item[index] for item in lst] 
-        
-    def addPoint(self, axis, new_point):
-        patch = Circle((new_point[0], new_point[1]), radius=10, color="red")
-        axis.add_patch(patch)
-
-    def draw_ellipse(self, position, covariance, ax=None, **kwargs):
-        """Draw an ellipse with a given position and covariance"""
-        ax = ax or plt.gca()
-    
-        # Convert covariance to principal axes
-        if covariance.shape == (2, 2):
-            U, s, Vt = np.linalg.svd(covariance)
-            angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-            width, height = 2 * np.sqrt(s)
-        else:
-            angle = 0
-            width, height = 2 * np.sqrt(covariance)
-    
-        # Draw the Ellipse
-        for nsig in range(1, 4):
-            ax.add_patch(Ellipse(position, nsig * width, nsig * height,
-                                 angle, **kwargs))
-
-    def addEllipse(self, axis, mean, cov, weight):
-        w_factor = 0.2 / weight.max()
-        for pos, covar, w in zip(mean, cov, weight):
-            self.draw_ellipse(pos, covar, axis, color="red", alpha=w * w_factor)
-            
-    # gaussian mixture model
-    def gmm(self, nclusters):
-        # create GM object
-        model = GaussianMixture(n_components=nclusters)
-
-        # fit GM object to data        
-        model.fit(self.clusterpts)
-        cluster_center = model.means_
-
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-
-        # draw ellipses
-        self.addEllipse(a, model.means_, model.covariances_, model.weights_)
-
-        print("###################################################")            
-        print("# Results of Gaussian Mixture clustering analysis #") 
-        print("###################################################")                            
-        for i in range(len(cluster_center)):
-            print("Cluster",i,"with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
-        print("###################################################")
-        
-        self.wPlot.canvas.draw()                    
-
-    # soft clustering confidence method
-    def soft_clustering_weights(self, data, cluster_centers, **kwargs):
-        """
-        Function to calculate the weights from soft k-means
-        data: Array of data. shape = N x F, for N data points and F Features
-        cluster_centers: Array of cluster centres. shape = Nc x F, for Nc number of clusters. Input kmeans.cluster_centers_ directly.
-        param: m - keyword argument, fuzziness of the clustering. Default 2
-        """
-        # Fuzziness parameter m>=1. Where m=1 => hard segmentation
-        m = 2
-        if 'm' in kwargs:
-            m = kwargs['m']
-            
-        Nclusters = cluster_centers.shape[0]
-        Ndp = len(data)
-            
-        # Get distances from the cluster centres for each data point and each cluster
-        EuclidDist = np.zeros((Ndp, Nclusters))
-        for i in range(Nclusters):
-            EuclidDist[:,i] = np.sum((data-np.matlib.repmat(cluster_centers[i], Ndp, 1))**2,axis=1)
-    
-        # Denominator of the weight from wikipedia:
-        invWeight = EuclidDist**(2/(m-1))*np.matlib.repmat(np.sum((1./EuclidDist)**(2/(m-1)),axis=1).reshape(-1,1),1,Nclusters)
-        Weight = 1./invWeight
-    
-        return Weight
-
-    def imageSegmentation(self, nclusters):
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-
-        xmin, xmax = a.get_xlim()
-        ymin, ymax = a.get_ylim()        
-            
-        #create picture for clustering analysis
-        filename = 'imgSeg.jpg'
-        extent = a.get_window_extent().transformed(self.wPlot.figure.dpi_scale_trans.inverted())
-        self.wPlot.figure.savefig(filename, bbox_inches=extent.expanded(0.8, 0.9))
-
-        #
-        self.clplotPopup.show()
-        self.clplotPopup.plotClusters(filename)
-        #
-        self.kmeanPopup.create_clusterChecks(nclusters)
-        self.kmeanPopup.show()
-        
-        self.kmeanPopup.plot(filename, nclusters, xmin, xmax, ymin, ymax)
-
-    def cannyEdge(self):
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-
-        xmin, xmax = a.get_xlim()
-        ymin, ymax = a.get_ylim()        
-            
-        #create picture for clustering analysis
-        filename = 'cannyE.jpg'
-        extent = a.get_window_extent().transformed(self.wPlot.figure.dpi_scale_trans.inverted())
-        self.wPlot.figure.savefig(filename, bbox_inches=extent.expanded(0.8, 0.9))
-
-        self.cannyPopup.show()
-        self.cannyPopup.plotEdge(filename, xmin, xmax, ymin, ymax)
-    
-    '''
-    def dbscan(self):
-        
-        if self.dbres is not None:
-            print("self.dbres.remove()")
-            self.dbres.remove()
-            self.wPlot.canvas.draw()
-            
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(self.clusterpts)
-
-        a = None
-        if self.isZoomed:
-            a = plt.gca()
-        else:
-            a = self.select_plot(self.selected_plot_index)
-        
-        dbscan = DBSCAN(eps=float(self.clPopup.eps.text()), min_samples =int(self.clPopup.minpts.text()))
-        #clusters = dbscan.fit(X_scaled)        
-        clusters = dbscan.fit_predict(X_scaled)
-
-        labels = dbscan.labels_
-
-        # Number of clusters in labels, ignoring noise if present.
-        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-        n_noise_ = list(labels).count(-1)
-
-        print('Estimated number of clusters: %d' % n_clusters_)
-        print('Estimated number of noise points: %d' % n_noise_)
-
-        # plot the cluster assignments
-        X = np.array(self.clusterpts)
-        self.dbres = a.scatter(X[:, 0], X[:, 1], c=clusters, cmap="plasma")
 
         self.wPlot.canvas.draw()
-    '''
-    
+
     def thresholdFigure(self):
         self.clPopup.threshold_label.setText("Threshold Level ({})".format(self.clPopup.threshold_slider.value()))
         try:

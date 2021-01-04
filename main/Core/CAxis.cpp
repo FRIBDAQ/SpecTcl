@@ -108,9 +108,10 @@ CAxis::CAxis (const CAxis& aCAxis ) :
   m_fLow(aCAxis.m_fLow),
   m_fHigh(aCAxis.m_fHigh),
   m_nChannels(aCAxis.m_nChannels),
+  m_fScaleFactor(aCAxis.m_fScaleFactor),
   m_ParameterSpecification(aCAxis.m_ParameterSpecification)
 {
-  ComputeScale();		// Could init too.
+ 
 }
 /*!
   Assignment:
@@ -204,7 +205,14 @@ CAxis::ComputeScale()
   // w  = (r/(n-1)).
   // so:
 
-  Float_t  range = (m_fHigh - m_fLow);
+  Float_t  range = (m_fHigh - m_fLow);    // Raw range.. we need to
+                                         // add a channel worth to this:
+                                         
+  double width =  range/(m_nChannels-1);
+                                         
+  range += width;      // Add in the width of the last channel.
+  m_fHigh += width;   // New high is the right end of the last channel.
+  
 
   // The scale factor is the reciprocal of the channel width:
 

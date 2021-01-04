@@ -48,6 +48,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "panemgr.h"
 #include "dispshare.h"
 #include "dispwind.h"
+#include "mapcoord.h"
+
 #include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -79,13 +81,21 @@ int   min_pixels[] = {  SMOOTH1D_PIXELS,
 
 class Channel	{	    /* Base class... never meant to be instantiated. */
  protected:
-  float width;			/* Number of pixels per channel. */
+  int pixl, pixh;      // Pixel range of the plot area.
+		int numchans;     // CHannel range of the plot area.
  public:
-  Channel(float w) {
-    width = w;
+  Channel(int pixlo, int pixhi, int nchans) :
+			pixl(pixlo), pixh(pixhi), numchans(nchans) 
+		{
+    
   }
   virtual ~Channel()  {}
-  virtual void drawchan(unsigned short height) = 0;
+  virtual void drawchan(std::pair<unsigned, unsigned>htandchans) = 0;
+		double width(int chan1, int nchans) {
+			double lowlim = Transform(0, numchans-1, pixl, pixh, chan1);
+			double hilim  = Transform(0, numchans-1, pixl, pixh, chan1+nchans);
+			return hilim-lowlim;             // Extent of the channel.
+		}
 };
 
 /*
@@ -93,13 +103,13 @@ class Channel	{	    /* Base class... never meant to be instantiated. */
 */
 class HChannel : public Channel, public XLineBatch {
  protected:
-  float xpos;
-  float xbase;
+  double xpos;
+  double xbase;
   short   yorg;
   int   channel;
  public:
-  HChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    Channel(wi), XLineBatch(d, w, c) {
+  HChannel(Display *d, Drawable w, GC c, short x0, short y0, short xhi, int nchans) :
+    Channel(x0,xhi, nchans), XLineBatch(d, w, c) {
       xpos = (float)x0;
       xbase= (float)x0;
       channel = 0;
@@ -108,11 +118,13 @@ class HChannel : public Channel, public XLineBatch {
       draw(x0, y0);
     }
   virtual ~HChannel() { }
-  virtual void drawchan(unsigned short height) {
+  virtual void drawchan(std::pair<unsigned, unsigned>htandchans) {
+			unsigned short height = htandchans.first;
+			unsigned       nchans = htandchans.second;
     draw((short)xpos,yorg-height);		/* Go to channel level... */
-    channel++;
-    xpos = xbase + channel*width;; // prevents round off problems from multiple sums.
+    xpos = xpos + width(channel,nchans); // prevents round off problems from multiple sums.
     draw((short)xpos,yorg-height);		/* Go across channel */
+				channel+=nchans;
   }
 };
 
@@ -123,8 +135,9 @@ class HChannelF : public Channel, public XLineBatch {
   float ybase;
   int   channel;
  public:
-  HChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    Channel(wi), XLineBatch(d, w, c) {
+  HChannelF(Display *d, Drawable w, GC c, short x0, short y0, int ymax, int nchans) :
+    Channel(y0, ymax, nchans),
+				XLineBatch(d, w, c) {
       ypos = (float)y0;
       ybase = ypos;
       channel = 0;
@@ -132,11 +145,13 @@ class HChannelF : public Channel, public XLineBatch {
       xorg = x0;
     }
   virtual ~HChannelF() { }
-  virtual void drawchan(unsigned short height) {
+  virtual void drawchan(std::pair<unsigned, unsigned> htandchans) {
+			unsigned height = htandchans.first;
+			unsigned nchans = htandchans.second;
     draw(xorg+height, (short)ypos);		/* Go to channel level... */
-    channel++;
-    ypos = ybase - width*channel; // This avoids accumulated errors.
+    ypos = ypos - width(channel, nchans); 
     draw(xorg+height, (short)ypos);		/* Go across channel */
+				channel+=nchans;
   }
 };
 
@@ -148,15 +163,20 @@ class LChannel : public Channel, public XLineBatch {
  protected:
   float xpos;
   short yorg;
+		int channel;
  public:
-  LChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-     Channel(wi), XLineBatch(d, w, c) {
-      xpos = (float)x0 - width/2; /* Set up for first channel. */
+  LChannel(Display *d, Drawable w, GC c, short x0, short y0, short xmax, int nchans) :
+     Channel(x0, xmax, nchans), XLineBatch(d, w, c) {
+      xpos = (float)x0 - width(0, 1)/2; /* Set up for first channel. */
       yorg = y0;
+						channel = 0;
     }
-  virtual void drawchan(unsigned short height) {
-    xpos += width;		/* This is center of the channel... */
+  virtual void drawchan(std::pair<unsigned, unsigned>htandchans) {
+			unsigned height = htandchans.first;
+			unsigned nchans = htandchans.second;
+    xpos += width(channel,nchans);		/* This is center of the channel... */
     draw((short)xpos, yorg-height);	/* Draw a channel */
+				channel+=nchans;
   }
 };
 
@@ -164,15 +184,20 @@ class LChannelF : public Channel, public XLineBatch {
  protected:
   float ypos;
   short xorg;
+		int  channel;
  public:
-  LChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-     Channel(wi), XLineBatch(d, w, c) {
-      ypos = (float)y0 + width/2; /* Set up for first channel. */
+  LChannelF(Display *d, Drawable w, GC c, short x0, short y0, short ymax, int nchans) :
+     Channel(y0, ymax, nchans), XLineBatch(d, w, c) {
+						channel  = 0;
+      ypos = (float)y0 - width(0, 1)/2; /* Set up for first channel. width is <0 */
       xorg = x0; 
     }
-  virtual void drawchan(unsigned short height) {
-    ypos -= width;		/* This is center of the channel... */
+  virtual void drawchan(std::pair<unsigned, unsigned>htandchans) {
+			unsigned height = htandchans.first;
+			unsigned nchans = htandchans.second;
+    ypos += width(channel, nchans);		/* This is center of the channel... width < 0*/
     draw(xorg+height, (short)ypos);	/* Draw a channel */
+				channel+=nchans;
   }
 };
 
@@ -183,15 +208,20 @@ class PChannel : public Channel, public XPointBatch {
  protected:
   float xpos;
   short yorg;
+		int channel;
  public:
-  PChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-     Channel(wi), XPointBatch(d, w, c) {
-      xpos = (float)x0 - width/2; /* Set up for first channel. */
+  PChannel(Display *d, Drawable w, GC c, short x0, short y0, int xmax, int nchans) :
+     Channel(x0, xmax, nchans), XPointBatch(d, w, c) {
+						channel = 0;
+      xpos = (float)x0 - width(0,1 )/2; /* Set up for first channel. */
       yorg = y0;
     }
-  virtual void drawchan(unsigned short height) {
-    xpos += width;		/* This is center of the channel... */
+  virtual void drawchan(std::pair<unsigned, unsigned>htandchans) {
+			unsigned height = htandchans.first;
+			unsigned nchans = htandchans.second;
+    xpos += width(channel, nchans);		/* This is center of the channel... */
     draw((short)xpos, yorg-height);	/* Draw a channel */
+				channel += nchans;
   }
 };
 
@@ -199,15 +229,20 @@ class PChannelF : public Channel, public XPointBatch {
  protected:
   float ypos;
   short xorg;
+		int channel;
  public:
-  PChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-     Channel(wi), XPointBatch(d, w, c) {
-      ypos = (float)y0 + width/2; /* Set up for first channel. */
+  PChannelF(Display *d, Drawable w, GC c, short x0, short y0, int ymax, int nchans) :
+     Channel(y0, ymax, nchans), XPointBatch(d, w, c) {
+						channel = 0;
+      ypos = (float)y0 - width(0,1)/2; /* Set up for first channel. width < 0*/
       xorg = x0;
     }
-  virtual void drawchan(unsigned short height) {
-    ypos -= width;		/* This is center of the channel... */
+  virtual void drawchan(std::pair<unsigned, unsigned> htandchans) {
+			unsigned height= htandchans.first;
+			unsigned nchans = htandchans.second;
+    ypos += width(channel,nchans);		/* This is center of the channel... width < 0*/
     draw(xorg+ height, (short)ypos);	/* Draw a channel */
+				channel+=nchans;
   }
 };
 
@@ -238,8 +273,10 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
   float fnx      = (float)nx;	/* Number of x pixels in fp... */
   unsigned int   range    = maximum - base;
 
+		
   while(channels < fnx) {
-    unsigned long value = s->sample();
+			 std::pair<unsigned, unsigned>htandchans = s->sample();
+    unsigned long value = htandchans.first;
     if(value <= base) {
       value = 0;
     } else {
@@ -252,7 +289,8 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
     */
 
     value = (unsigned long)((float)ny*((float)value)/((float)range));
-    d->drawchan((short)value);
+				htandchans.first = value;
+    d->drawchan(htandchans);
 
     channels += xw;		/* Go on to the next channel position */
   }
@@ -304,7 +342,8 @@ static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny,
   float offset = xw/2.0;
   float fnx    = (float)nx;
   while (offset < fnx) {
-    double value = (float)s->sample(); /* Get a sample. */
+			 std::pair<unsigned, unsigned> htandchans = s->sample();
+    double value = htandchans.first;
     if (value == 1.0) {
       value = 1.5;		// This kludge allows 1 count chans to be seen
     }
@@ -315,8 +354,8 @@ static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny,
     if(value < 0.0) value = 0.0;
     if(value > loginterval) value = loginterval;
     int y = (int)((float)ny*(value/loginterval));
-
-    d->drawchan((short)y);
+    htandchans.first = y;
+    d->drawchan(htandchans);
 
 
     offset += xw;
@@ -420,11 +459,11 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   /* Figure out the area of interest. */
 
   int xl, xh;			/* The region of interest. */
-  xl = 0;			/* Assume no expansion... */
-  xh = xamine_shared->getxdim(spno) - 1;	/* That's the default AOI. */
+  xl = 1;			/* Assume no expansion... */
+  xh = xamine_shared->getxdim(spno) - 1;	/* -2 because inclusive and dead root channels */
   if(at1->isexpanded()) {	/* If expanded, then we must use the exp. */
-    xl = at1->lowlimit();	/* limits in the window attributes object */
-    xh = at1->highlimit();
+    xl = at1->lowlimit()+1;	/* limits in the window attributes object */
+    xh = at1->highlimit()+1; // +1 because of root underflow chan.
   }				/* xl,xh now define the area of interest. */
 
   /* Determine the reduction parameters and method and instantiate a sampler */
@@ -432,7 +471,9 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   /* using the Y axis resolution.                                            */
   
   Sampler *sample;		/* Will point to the instantiated sampler */
-
+  int nchans = (xh - xl);           // # of channels tot plot
+		nchans = (nchans >= 0) ? nchans : -nchans;  //  could have been negative...
+		nchans++;                      // We plot to the end of the last channel.
   while(1) {
     if(at1->isflipped()) {
       sample = Xamine_GenerateSampler(xamine_shared->getbase(spno),
@@ -458,26 +499,38 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
     switch(at1->getrend()) {
     case histogram:
       if(at1->isflipped()) {
-	drawer = (Channel *) new HChannelF(d, win, gc, orgx, orgy, chanw);
+							drawer = (Channel *) new HChannelF(
+								d, win, gc, orgx, orgy, orgy+ny, nchans
+							);
       }
       else {
-	drawer = (Channel *) new HChannel(d, win, gc, orgx,orgy, chanw);
+							drawer = (Channel *) new HChannel(
+									d, win, gc, orgx,orgy, orgx+nx, nchans
+							);
       }
       break;
     case lines:
       if(at1->isflipped()) {
-	drawer = (Channel *)new LChannelF(d, win, gc, orgx, orgy, chanw);
+								drawer = (Channel *)new LChannelF(
+										d, win, gc, orgx, orgy, orgy+ny, nchans
+								);
       }
       else {
-	drawer = (Channel *) new LChannel(d, win, gc, orgx,orgy, chanw);
+									drawer = (Channel *) new LChannel(
+										d, win, gc, orgx,orgy, orgx+nx, nchans
+									);
       }
       break;
     case points:
       if(at1->isflipped()) {
-	drawer = (Channel *) new PChannelF(d,win, gc, orgx, orgy, chanw);
+								drawer = (Channel *) new PChannelF(
+											d,win, gc, orgx, orgy, orgy+ny, nchans
+								);
       }
       else {
-	drawer = (Channel *) new PChannel(d, win, gc, orgx, orgy, chanw);
+									drawer = (Channel *) new PChannel(
+												d, win, gc, orgx, orgy, orgx+nx, nchans
+									);
       }
       break;
     default:
@@ -510,13 +563,13 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
     while(!last) {
       spno = s.Spectrum();
       if((xamine_shared->gettype(spno) == undefined) || !(
-	 (xamine_shared->gettype(spno) == onedword)  ||
-	 (xamine_shared->gettype(spno) == onedlong) ) )  {
-	supers.DeleteCurrent();      // The superposed spectrum vanished.
-	last = supers.Last();
-      }
-      else {
-	break;
+							(xamine_shared->gettype(spno) == onedword)  ||
+							(xamine_shared->gettype(spno) == onedlong) )
+					 )  {
+							supers.DeleteCurrent();      // The superposed spectrum vanished.
+							last = supers.Last();
+						} else {
+							break;
       }
     }
     if(last) break;

@@ -24,10 +24,17 @@ import numpy as np
 
 import cv2
 
-class cannyEdgePlot(QDialog):
+class CannyEdgePlot(QDialog):
     def __init__(self, *args, **kwargs):
-        super(cannyEdgePlot, self).__init__(*args, **kwargs)
+        super(CannyEdgePlot, self).__init__(*args, **kwargs)
 
+        self.sigma = 0
+        self.kernel_size = 0
+        self.lowthreshold = 0
+        self.highthreshold = 0
+        self.weak_pixel = 0
+        self.strong_pixel = 0
+        
         # a figure instance to plot on
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
@@ -44,10 +51,18 @@ class cannyEdgePlot(QDialog):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img
 
+    def setConfig(self, sigma, kernel_size, lowthreshold, highthreshold, weak_pixel, strong_pixel):
+        self.sigma = sigma
+        self.kernel_size = kernel_size
+        self.lowthreshold = lowthreshold
+        self.highthreshold = highthreshold
+        self.weak_pixel = weak_pixel
+        self.strong_pixel = strong_pixel
+    
     def plotEdge(self, filename, xmin, xmax, ymin, ymax):
         img = self.loadFigure(filename)
 
-        detector = cannyEdgeDetector(img)
+        detector = cannyEdgeDetector(img, self.sigma, self.kernel_size, self.lowthreshold, self.highthreshold, self.weak_pixel, self.strong_pixel)
         img_edge = detector.detect()
 
         # create an axis
@@ -62,7 +77,7 @@ class cannyEdgePlot(QDialog):
         self.canvas.draw_idle()
         
 class cannyEdgeDetector:
-    def __init__(self, imgs, sigma=1, kernel_size=7, weak_pixel=75, strong_pixel=255, lowthreshold=0.05, highthreshold=0.15):
+    def __init__(self, imgs, sigma, kernel_size, lowthreshold, highthreshold, weak_pixel, strong_pixel):
         self.imgs = imgs
         self.imgs_final = []
         self.img_smoothed = None
