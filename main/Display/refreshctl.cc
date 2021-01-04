@@ -59,6 +59,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "gc.h"
 #include "xaminegc.h"
 #include "gcmgr.h"
+#include <stdint.h>
 /*
  ** Macros:
  */
@@ -123,7 +124,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   */
   long index = (long)userd;
   int column = index  % WINDOW_MAXAXIS;
-  int row    = column / WINDOW_MAXAXIS;
+  int row    = index / WINDOW_MAXAXIS;
 
   /* Set the timer id to null before proceding.  */
 
@@ -240,7 +241,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  long     cellno;
+  uintptr_t     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
@@ -446,7 +447,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  long index;
+  uintptr_t index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -622,7 +623,7 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  long      index;
+  uintptr_t      index;
   int       col, row;
   pane_db   *pdb;
   
@@ -818,8 +819,8 @@ Boolean Xamine_Refresh(XtPointer client_data)
     /* If necessary set the scaling: */
     {
       if(!def->manuallyscaled()) {
-	unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
-	def->setfsval(fs);
+        unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
+        def->setfsval(fs);
       }
     }
     /*
@@ -834,13 +835,13 @@ Boolean Xamine_Refresh(XtPointer client_data)
     */
     {
       if(!def->is1d()) {
-	win_2d *d2 = (win_2d *)def;
-	if( (d2->getrend() == color) &&
-	   !(Xamine_ColorDisplay())) {
-	  win_2d defaults;
-	  Xamine_Construct2dDefaultProperties(&defaults);
-	  d2->setrend(defaults.getrend());
-	}
+          win_2d *d2 = (win_2d *)def;
+          if( (d2->getrend() == color) &&
+             !(Xamine_ColorDisplay())) {
+            win_2d defaults;
+            Xamine_Construct2dDefaultProperties(&defaults);
+            d2->setrend(defaults.getrend());
+          }
       }
     }
     return False;
@@ -960,7 +961,7 @@ Xamine_RedrawSpectrum(int specid)
       win_attributed *at = Xamine_GetDisplayAttributes(r,c);
       if(at != NULL) {
         if(at->spectrum() == specid)
-	  Xamine_RedrawPane(c, r);
+          Xamine_RedrawPane(c, r);
       }
     }
 }

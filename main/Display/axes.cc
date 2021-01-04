@@ -228,6 +228,8 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
 			     int low,  int hi, 
 			     Boolean label_ticks)
 {
+  
+  
   float interval;		/* Number of pixels between ticks. */
   int height;			/* Height of a tick. */
   float value_represented;	/* The value represented by a tick. */
@@ -262,25 +264,21 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
   }
   if (!font) return;		// Can't get a font so forget it.
 
-
-  while(xbase < nx) {
-    if( (int)value_represented != last_value) {
-      last_value = (int)value_represented;
-      ticks.draw(xbase,ybase+2, xbase,ybase-height);
-      if((label_ticks) && (font != NULL)) {
-	long labelValue = (unsigned long)value_represented;
-	sprintf(label, "%ld", labelValue);
-	Xamine_DrawCenteredString(disp, win, font, gc,
-				  (xbase - labelwidth/2), (ybase+labelheight),
-				  (xbase + labelwidth/2), (ybase),
-				  label);
-      
-      }
+  
+  for (int chan = low; chan < hi; chan += value_interval) {
+    int xpix = Transform(low, hi, xbase, nx, chan);
+    ticks.draw(xpix, ybase+2, xpix, ybase-height);
+    if (label_ticks && (font != NULL)) {
+      sprintf(label, "%d", chan);
+      Xamine_DrawCenteredString(
+        disp, win, font, gc,
+        xpix-labelwidth/2, (ybase + labelheight),
+        xpix+labelwidth/2, (ybase), label
+      );
     }
-    value_represented += value_interval;
-    xb += interval;
-    xbase = (int)(xb + 0.5);
   }
+ 
+  
   ticks.flush();
 }
 
@@ -345,10 +343,12 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
     value_interval = 0.2;
 
 
+
   rem = value_interval - (int)value_interval;  
   interval = ((float)(nx-xbase) * value_interval) / (hi-low);
   height   = (int)(ybase * XAMINE_TICK_FRACTION);
 
+  
   // Now get the size of the biggest string we can represent given our
   // space constraints and choose the appropriate font.
   int labelheight  = (int)((float)(ny)*XAMINE_MAPPED_MARGINSIZE / 3.0);
@@ -364,28 +364,27 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
   }
   if (!font) return;
 
-  // Draw the ticks until we run out of space on the spectrum
-  while(xbase < nx) {
-    if(value_represented != last_value) {
-      last_value = value_represented;
-      ticks.draw(xbase,ybase+2, xbase,ybase-height);
-      if((label_ticks) && (font != NULL)) {
-	if((rem != 0.0) || (mant != 0.0)) 
-	  sprintf(label, "%.2f", value_represented);
-	else
-	  sprintf(label, "%.0f", value_represented);
-	Xamine_DrawCenteredString(disp, win, font, gc,
-				  (xbase - labelwidth/2), (ybase+labelheight),
-				  (xbase + labelwidth/2), (ybase),
-				  label);
-      
+  for (double x = low; x < hi; x += value_interval) {
+    
+    int xpix = Transform(low, hi, xbase, nx, x);
+    ticks.draw(xpix, ybase+2, xpix, ybase-height);
+    if (label_ticks && (font != nullptr)) {
+      if((rem != 0.0) || (mant != 0.0)) {
+        sprintf(label, "%.f", x);
       }
+      else {
+        sprintf(label, "%.0f", x);
+      }
+      Xamine_DrawCenteredString(
+        disp, win, font, gc,
+        xpix - labelwidth/2, ybase+labelheight,
+        xpix + labelwidth/2, ybase, label
+      );
+      
     }
-    value_represented += value_interval;
-    xb += interval;
-    xbase = (int)(xb + 0.5);
+    
   }
-
+  
   // Finally, draw the unit label below the axis
   Xamine_DrawCenteredString(disp, win, font, gc,
 			    (nx/2 - labelwidth/2), (ybase+(2*labelheight)),
@@ -571,24 +570,21 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
   if (!font) return;
-  while(ybase > 0) {
-    if(last_value != (unsigned int)value_represented) {
-      last_value = (unsigned int)value_represented;
-      ticks.draw(xbase-2,ybase, xbase+height,ybase);
-      if(label_ticks && (font != NULL)) {
-	long labelValue = (unsigned long)value_represented;
-	sprintf(label, "%ld", labelValue);
-	Xamine_DrawCenteredString(disp, win , font, gc,
-				  0, (ybase + labelheight/2),
-				  labelwidth, (ybase - labelheight/2),
-				  label);
-      }
-    }
-    value_represented += value_interval;
-    yb    -= interval;
-    ybase  = (int)(yb + 0.5);
-
+  
+  for (int y = low; y < hi; y += value_interval) {
+    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
+    
+    
+    ticks.draw(xbase-2, ypix, xbase+height, ypix);
+    sprintf(label, "%d", y);
+    Xamine_DrawCenteredString(
+      disp, win, font, gc,
+      0, (ypix+labelheight/2),
+      labelwidth, (ypix - labelheight/2),
+      label
+    );
   }
+  
   ticks.flush();
 }
 
@@ -637,7 +633,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
 
   // Compute the interval to display between successive tick marks
  
-  value_interval = ComputeMappedTickInterval((hi-low), (ybase+1));
+  value_interval = ComputeMappedTickInterval((hi-low), (ybase));
   if(value_interval == 0) {
     value_interval = 0.2;
   }
@@ -658,28 +654,28 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
   if (!font) return;
-  while(ybase > 0) {
-    if(last_value != value_represented) {
-      last_value = value_represented;
-      ticks.draw(xbase-2,ybase, xbase+height,ybase);
-      if(label_ticks && (font != NULL)) {
-	if((rem != 0.0) || (mant != 0.0))
-	  sprintf(label, "%.2f", value_represented);
-	else
-	  sprintf(label, "%.0f", value_represented);
-	Xamine_DrawCenteredString(disp, win , font, gc,
-				  labelwidth,
-				  (ybase + labelheight/2), 
-				  (2 * labelwidth),
-				  (ybase - labelheight/2), label);
-      }
+  
+  for (float y = low; y < hi; y += value_interval)  {
+    int ypix = ny - Transform(low, hi, ny-ybase, ny, y);
+    ticks.draw(xbase-2, ypix, xbase+height, ypix);
+    if (label_ticks && (font != nullptr)) {
+      if((rem != 0.0) || (mant != 0.0))
+        sprintf(label, "%.2f", y);
+      else
+      sprintf(label, "%.0f", y);
+    Xamine_DrawCenteredString(
+        disp, win , font, gc,
+        labelwidth,
+        (ypix + labelheight/2), 
+        (2 * labelwidth),
+        (ypix - labelheight/2), label
+      );
     }
-    value_represented += value_interval;
-    yb    -= interval;
-    ybase  = (int)(yb + 0.5);
   }
-
+  
+ 
   // Now we need to draw the y label down the side of the spectrum
+  
   int lh = (int)((float)(150) / XAMINE_TICK_LABEL_INTERVALDIVISOR);
   int lw = labelwidth;
   int length = strlen(ylabel);
@@ -694,6 +690,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
 			      (int)((float)ny / (length*2)) + ((lh/2)*(i+1)), 
 			      c);
   }
+
   ticks.flush();
 }
 
@@ -804,7 +801,55 @@ static void DrawLogYTicks(Display *disp, Window win, GC gc,
   }
   ticks.flush();
 }
-
+/**
+ * Xamine_GetSpectrumDrawingRegion
+ *    Given a widget pane and the associated spectrum
+ *    attributes, determines the pixel region within that canvas
+ *    in which the spectrum channels are drawn.  Note this also
+ *    determines the bounding box on which the spectrum axes get
+ *    drawn.
+ * @param pane    - the pane canvas widget.
+ * @param attribs - Associated spectrum attributes.
+ * @return Rectangle -struct that contains the spectrum drawing region
+ *                    with the margins applied.
+ */
+Rectangle
+Xamine_GetSpectrumDrawingRegion(XMWidget* pane, win_attributed* attribs)
+{
+  Dimension nx, ny;
+  Dimension xbase, ybase;
+
+  pane->GetAttribute(XmNwidth, &nx);
+  pane->GetAttribute(XmNheight, &ny);
+
+  xbase = (int)((float)nx * (float)XAMINE_MARGINSIZE);
+  ybase = ny - (int)((float)ny * (float)XAMINE_MARGINSIZE);
+  if(attribs->is1d()) {
+    win_1d* at1 = (win_1d*) attribs;
+    if(at1->ismapped()) {
+      if(at1->isflipped())
+        xbase = (int)((float)nx * (float)XAMINE_MAPPED_MARGINSIZE);
+      else 
+        ybase = ny - (int)((float)ny * (float)XAMINE_MAPPED_MARGINSIZE);
+    }
+  } else {
+    win_2d* at2 = (win_2d*) attribs;
+    if(at2->ismapped()) {
+      xbase = (int)((float)nx * (float)XAMINE_MAPPED_MARGINSIZE);
+      ybase = ny - (int)((float)ny * (float)XAMINE_MAPPED_MARGINSIZE);
+    }
+  }
+  // Stuff the result and return it:
+  
+  Rectangle result;
+  result.xbase = xbase;
+  result.ybase = ybase;
+  result.xmax  = nx;
+  result.ymax  = ny;
+  
+  return result;
+ 
+}
 /*
 ** Functional Description:
 **   Xamine_DrawAxes:
@@ -851,27 +896,12 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
   */
   Dimension nx, ny;
   Dimension xbase, ybase;
-
-  pane->GetAttribute(XmNwidth, &nx);
-  pane->GetAttribute(XmNheight, &ny);
-
-  xbase = (int)((float)nx * (float)XAMINE_MARGINSIZE);
-  ybase = ny - (int)((float)ny * (float)XAMINE_MARGINSIZE);
-  if(attribs->is1d()) {
-    win_1d* at1 = (win_1d*) attribs;
-    if(at1->ismapped()) {
-      if(at1->isflipped())
-	xbase = (int)((float)nx * (float)XAMINE_MAPPED_MARGINSIZE);
-      else 
-	ybase = ny - (int)((float)ny * (float)XAMINE_MAPPED_MARGINSIZE);
-    }
-  } else {
-    win_2d* at2 = (win_2d*) attribs;
-    if(at2->ismapped()) {
-      xbase = (int)((float)nx * (float)XAMINE_MAPPED_MARGINSIZE);
-      ybase = ny - (int)((float)ny * (float)XAMINE_MAPPED_MARGINSIZE);
-    }
-  }
+  Rectangle spectrumRegion = Xamine_GetSpectrumDrawingRegion(pane, attribs);
+  
+  xbase = spectrumRegion.xbase;
+  ybase = spectrumRegion.ybase;
+  nx = spectrumRegion.xmax;
+  ny = spectrumRegion.ymax;
 
   /* Draw the axis lines: */
 
@@ -894,38 +924,42 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     int mapped = 0;
     spec_label xlabel;
     spec_label ylabel;
-    // This -1 puts the underflow channel at -1.
+
     
-    low = -1;
-    hi  = xamine_shared->getxdim(attribs->spectrum()) - 1; /* Assume unexpanded.*/
+    low = 0;
+    hi  = xamine_shared->getxdim(attribs->spectrum()) - 2; /*Suppress overflow chan*/
     
     if(attribs->is1d()) {
       win_1d *att = (win_1d *)attribs;
       int specno = att->spectrum();
       if(att->isexpanded()) {
-	low = att->lowlimit();
-	hi  = att->highlimit() +1;
+        low = att->lowlimit();  
+        hi  = att->highlimit();
+        //if(attribs->ismapped()) hi--;
       }
     }
     else {
       win_2d *att = (win_2d *)attribs;
 
-      // The + 1 on high makes the expansion [low,hi].
+      // The expansion is [low,hi).
       if(att->isexpanded()) {
-	low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
-	hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim()) +1;
+        low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
+        hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
+        // Note there's already a compensation for the channel width so:
+        // take that out here.
+        //if (attribs->ismapped()) hi--;
       }
     }
 
     /* If it's not mapped, just draw like normal */
     if(!attribs->ismapped()) { 
       if(attribs->isflipped()) 
-	DrawLinearYTicks(disp, win, gc, xbase, ybase, nx, ny, low, hi,
-			 attribs->labelaxes());
+        DrawLinearYTicks(disp, win, gc, xbase, ybase, nx, ny, low, hi,
+             attribs->labelaxes());
       else
 
-	DrawLinearXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
-			 attribs->labelaxes());
+        DrawLinearXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
+             attribs->labelaxes());
     }
 
     /* Otherwise, we need to compute the mapped spectrum range and draw
@@ -934,13 +968,18 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     else {
       float f_low = Xamine_XChanToMapped(attribs->spectrum(), low);
       float f_hi  = Xamine_XChanToMapped(attribs->spectrum(), hi);
+      // We're really plotting one channel width past the f_hi:
+      
+      //if (nchans < 0) nchans = -nchans;    // In case the axis goes backwards.
+      //f_hi += channelWidth(f_low, f_hi, nchans);
+      
       xamine_shared->getxlabel_map(xlabel, attribs->spectrum());
       if(attribs->isflipped()) {
-	DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_low, 
-			 f_hi, xlabel, attribs->labelaxes());
+        DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_low, 
+             f_hi, xlabel, attribs->labelaxes());
       }      else {
-	DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_low,
-			 f_hi, xlabel, attribs->labelaxes());
+        DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_low,
+             f_hi, xlabel, attribs->labelaxes());
       }
     }
 
@@ -954,72 +993,67 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       hi  = attribs->getfsval();
       if(attribs->hasfloor()) low = attribs->getfloor();
       if(attribs->hasceiling()) {
-	unsigned int ceil = attribs->getceiling();
-	hi = ceil < hi ? ceil : hi;
+        unsigned int ceil = attribs->getceiling();
+        hi = ceil < hi ? ceil : hi;
       }
       if(attribs->islog()) {
-	if(attribs->isflipped()) {
-	  DrawLogXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi, 
-			attribs->labelaxes());
-	}
-	else {
-	  DrawLogYTicks(disp, win, gc, xbase, ybase, nx,ny, low,hi,
-			attribs->labelaxes());
-	}
+        if(attribs->isflipped()) {
+          DrawLogXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi, 
+            attribs->labelaxes());
+        } else {
+          DrawLogYTicks(disp, win, gc, xbase, ybase, nx,ny, low,hi,
+            attribs->labelaxes());
+        }
+      } else {
+        if(attribs->isflipped()) {
+          DrawLinearXTicks(disp, win,gc, xbase,ybase, nx,ny, low,hi,
+               attribs->labelaxes());
+        } else {
+          DrawLinearYTicks(disp, win, gc, xbase,ybase, nx,ny, low,hi,
+               attribs->labelaxes());
+        }
       }
-      else {
-	if(attribs->isflipped()) {
-	  DrawLinearXTicks(disp, win,gc, xbase,ybase, nx,ny, low,hi,
-			   attribs->labelaxes());
-	}
-	else {
-	  DrawLinearYTicks(disp, win, gc, xbase,ybase, nx,ny, low,hi,
-			   attribs->labelaxes());
-	}
-      }
-    }
-    else {			/* 2-d spectrum. Figure out hi/low like X */
+    } else {			/* 2-d spectrum. Figure out hi/low like X */
       win_2d *att = (win_2d *)attribs;
-      low = -1;
-      hi  = xamine_shared->getydim(att->spectrum())-1;
-      // The + 1 on high makes the expansion [low,hi].
+      low = 0;                                   // Root channel compensation.
+      hi  = xamine_shared->getydim(att->spectrum())-2;
+      // The +1 deals with the root channels.
+      // The + 2 on high makes the expansion [low,hi].
       if(att->isexpanded() && att->isflipped()) {
-	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
-	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) +1;
+        low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
+        hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) + 1;
+      } else if(att->isexpanded()) {
+        low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
+        hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
+      } else if(att->isflipped()) {
+        low = 1;
+        hi  = xamine_shared->getxdim(att->spectrum()) - 3;
       }
-      // The + 1 on high makes the expansion [low,hi].
-      else if(att->isexpanded()) {
-	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
-	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) +1;
-      }
-      else if(att->isflipped()) {
-	low = 0;
-	hi  = xamine_shared->getxdim(att->spectrum());
-      }
+      
       
       /* If not mapped, just draw like normal */
       if(!attribs->ismapped()) { 
-	if(attribs->isflipped()) 
-	  DrawLinearXTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
-			   attribs->labelaxes()); 
-	else 
-	  DrawLinearYTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
-			   attribs->labelaxes()); 
-      }
+        if(attribs->isflipped()) 
+          DrawLinearXTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
+               attribs->labelaxes()); 
+        else 
+          DrawLinearYTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
+               attribs->labelaxes()); 
+      }  else {
 
       /* Otherwise, compute the mapped spectrum range and draw the
       ** mapped spectrum ticks
       */
-      else {
-	float f_ylow = Xamine_YChanToMapped(attribs->spectrum(), low);
-	float f_yhi  = Xamine_YChanToMapped(attribs->spectrum(), hi);
-	xamine_shared->getylabel_map(ylabel, attribs->spectrum());
-	if(attribs->isflipped())
-	  DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_ylow, 
-			   f_yhi, ylabel, attribs->labelaxes());
-	else
-	  DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_ylow, 
-			   f_yhi, ylabel, attribs->labelaxes());  
+     
+        float f_ylow = Xamine_YChanToMapped(attribs->spectrum(), low);
+        float f_yhi  = Xamine_YChanToMapped(attribs->spectrum(), hi);
+        xamine_shared->getylabel_map(ylabel, attribs->spectrum());
+        if(attribs->isflipped())
+          DrawMappedXTicks(disp, win, gc, xbase, ybase, nx, ny, f_ylow, 
+               f_yhi, ylabel, attribs->labelaxes());
+        else
+          DrawMappedYTicks(disp, win, gc, xbase, ybase, nx, ny, f_ylow, 
+               f_yhi, ylabel, attribs->labelaxes());  
       }
     }
   }

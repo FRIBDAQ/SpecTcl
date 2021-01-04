@@ -50,10 +50,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "spcdisplay.h"
 #include "dispshare.h"
 #include "mapcoord.h"
-
+#include "axes.h"
 
 
 #include <iostream>
+#include <math.h>
+#include <stdint.h>
 
 /*
 ** External references:
@@ -124,7 +126,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   /* raw position into the real position:                             */
 
   struct spec_location locdata;
-  long                  index;
+  uintptr_t                  index;
   int          row, col;
   pane_db     *pdb;
   win_attributed *atts;
@@ -137,6 +139,19 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   pdb = Xamine_GetPaneDb();
   atts= pdb->getdef(col, row); 
   if(atts == NULL) return;	/* Spectrum disappeared before we got there */
+	
+	// This rectangle defines the pixel coordinate window in which we draw.
+	
+	Rectangle drawingRegion = Xamine_GetSpectrumDrawingRegion(w, atts);
+	
+	// We need to do two mappings:
+	//  pixel -> channel
+	//  channel-> world coords -- if mapped.
+	//  Note that the Y value depends on the 1/2 d-dness.
+	//  For 1d, Y is the height in counts.  For 2-d the y coordinate
+	//
+	
+	
 
   /* If the spectrum has become undefined, then we remove it which will	    */
   /* also update it and clear the pane.					    */
@@ -151,8 +166,10 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   ** Underlying spectrum
   */
   if(atts->is1d()) {
-    Xamine_Convert1d cvt(w, atts, xamine_shared);
-    cvt.ScreenToSpec(&locdata, wx, wy);
+		
+		Xamine_Convert1d cvt(w, atts, xamine_shared);
+		cvt.ScreenToSpec(&locdata, wx, wy);
+		//return;
   }
   else {
     Xamine_Convert2d cvt(w, atts, xamine_shared);
@@ -166,38 +183,34 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   /* Display the center of the bin as the cursor location */
   float fx, ffy;
   float fy = 0, ffx = 0;
-  fx = (Xamine_XChanToMapped(sid, locdata.xpos+1) + 
-	Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
-  fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) +
-	 Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
+  fx = (Xamine_XChanToMapped(sid, locdata.xpos));
+  fy = (Xamine_YChanToMapped(sid, locdata.ypos));
 
   // These only make sense if we are 2-d, or flipped
   if((atts->is1d()) || (atts->isflipped())) {
-    ffy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
-	  Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
-    ffx = (Xamine_XChanToMapped(sid, locdata.xpos+1) +
-	   Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
+    ffy = (Xamine_YChanToMapped(sid, locdata.ypos));
+    ffx = (Xamine_XChanToMapped(sid, locdata.xpos));
   }
 
   if(atts->ismapped()) {
     if(atts->is1d()) {
       if(atts->isflipped()) {
-	l->Xpos(locdata.xpos);
-	l->YMappedPos(ffy);
+				l->Xpos(locdata.xpos);
+				l->YMappedPos(ffy);
       }
       else {
-	l->XMappedPos(fx);
+				l->XMappedPos(fx);
       	l->Ypos(locdata.ypos);
       }
     }
     else {
       if(atts->isflipped()) {
-	l->XMappedPos(ffx);
-	l->YMappedPos(ffy);
+				l->XMappedPos(ffx);
+				l->YMappedPos(ffy);
       }
       else {
-	l->XMappedPos(fx);
-	l->YMappedPos(fy);
+				l->XMappedPos(fx);
+				l->YMappedPos(fy);
       }
     }
   }

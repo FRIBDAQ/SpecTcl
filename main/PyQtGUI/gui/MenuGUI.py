@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
@@ -20,10 +21,14 @@ class Menu(QWidget):
         def create_menuBox(self):
                 menuBox = QGroupBox("Menu")
 
+                host = os.environ["RESThost"]
+                port = os.environ["RESTport"]
+                
                 self.serverLabel = QLabel(self)
                 self.serverLabel.setText('Server:')
                 self.server = QLineEdit(self)
-                self.server.setText("localhost:8080")
+                self.server.setText(host+":"+port)
+                self.server.setFixedWidth(200);
                 self.exitButton = QPushButton("Exit", self)
                 self.updateButton = QPushButton("Get Data", self)
                 self.configButton = QPushButton("Options", self)

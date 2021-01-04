@@ -25,12 +25,14 @@
 #include "NullDisplay.h"
 #include "Xamineplus.h"
 #include "SpectraLocalDisplay.h"
+#include "PyQtDisplay.h"
 
 CSpecTclDisplayInterface::CSpecTclDisplayInterface()
     : CDisplayInterface()
 {
     getFactory().addCreator("null",   *(new CNullDisplayCreator));
     getFactory().addCreator("xamine", *(new CXamineCreator()));
+    getFactory().addCreator("pyqt", *(new CPyQtCreator()));    
 #ifdef USE_SPECTRA
     getFactory().addCreator("spectra",
                             *(new Spectra::CSpectraLocalDisplayCreator()));

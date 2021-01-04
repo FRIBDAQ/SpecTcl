@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTclDisplayManager.h"
 #include "SpectraLocalDisplay.h"
 #include "XamineEventHandler.h"
+#include "PyQtDisplay.h"
 
 #include "SpecTcl.h"
 
@@ -528,6 +529,21 @@ void CTclGrammerApp::CreateDisplays()
         throw std::runtime_error("Failed to cast to a CXamineCreator");
     }
 
+    // Set up PyQt display to use the appropriate display size
+    pCreator = gpDisplayInterface->getFactory().getCreator("pyqt");
+    if (pCreator != NULL) {
+      std::cout << "pCreator is OK" << std::endl;
+    } else {
+        throw std::runtime_error("Failed to cast to a pCreator");      
+    }
+    CPyQtCreator* pPyQtCreator = dynamic_cast<CPyQtCreator*>(pCreator);
+    if (pPyQtCreator != NULL) {
+        pPyQtCreator->setSharedMemory(pShMem);
+    } else {
+        throw std::runtime_error("Failed to cast to a CPyQtCreator");
+    }    
+
+    
 #ifdef USE_SPECTRA
     // Set up the Xamine display to use the appropriate display size
     pCreator = gpDisplayInterface->getFactory().getCreator("spectra");
@@ -542,6 +558,7 @@ void CTclGrammerApp::CreateDisplays()
     // Create the displays so they can chosen.
     m_pDisplayInterface->createDisplay("xamine",  "xamine");
     m_pDisplayInterface->createDisplay("batch",   "null");
+    m_pDisplayInterface->createDisplay("pyqt",   "pyqt");    
 #ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
 #endif
@@ -559,6 +576,7 @@ void CTclGrammerApp::SelectDisplayer()
 {
     SpecTcl* pApi = SpecTcl::getInstance();
 
+    std::cout << "Inside SelectDisplayer: m_displayType -> " << m_displayType << std::endl;
     m_pDisplayInterface->setCurrentDisplay(m_displayType);
 
     CDisplay* pDisplay = m_pDisplayInterface->getCurrentDisplay();
@@ -925,12 +943,27 @@ int CTclGrammerApp::operator()() {
     CHttpdServer server(gpInterpreter);
     try {
         if(!server.isRunning()) server.start(nPort);
+        char hostbuffer[256];
+        int hostname;
+        hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+        std::string host(hostbuffer);
+        host += ".nscl.msu.edu";
+      
+        std::cout << "hostname: " << host << std::endl;
+        std::cout << "port: " << atoi(httpdPort) << std::endl;  
+      
+        int p = atoi(httpdPort);
+        std::string port = std::to_string(p);
+        ::setenv("RESThost", host.c_str(), 1);
+        ::setenv("RESTport", port.c_str(), 1);
     }
     catch (std::exception& e) {
         std::cerr << "Unable to start the SpecTcl REST server: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
   }
+
+
   
   SelectDisplayer();
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import io
 import pickle
 import sys, os
@@ -13,15 +13,25 @@ import itertools
 import time
 import multiprocessing
 
+from sklearn import metrics
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+
+import cv2
+
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
-from matplotlib.patches import Polygon
+import matplotlib.image as mpimg
+
+from matplotlib.patches import Polygon, Circle, Ellipse
 from matplotlib.path import Path
 from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
 
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
@@ -37,20 +47,25 @@ import pandas as pd
 import numpy as np
 import CPyConverter as cpy
 
+import algo_factory
 
 # import widgets
 from MenuGUI import Menu
 from Plot import Plot
 from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
+from Clustering import Cluster2D
+from PeakFinder import PeakFinder
 
 DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
+        self.factory = factory
+        
         self.setWindowTitle("Project Robot Alba")
         '''
         self.setWindowFlags(
@@ -61,6 +76,13 @@ class MainWindow(QMainWindow):
             QtCore.Qt.WindowStaysOnTopHint
         )
         '''
+
+        #check if there are arguments or not
+        try:
+             self.args = dict(args)
+             print("self.args",self.args)
+        except:
+            pass
         
         # global variables
         self.timer = QtCore.QTimer()
@@ -115,6 +137,8 @@ class MainWindow(QMainWindow):
         # tools for selected plots
         self.rec = None
         self.optionAll = False
+        self.isCluster = False
+        self.onFigure = False
         
         # dictionary for spectcl gates
         self.gate_dict = {}
@@ -126,6 +150,8 @@ class MainWindow(QMainWindow):
         self.listLine = []
         self.xs = []
         self.ys = []        
+        self.xstart = 0
+        self.ystart = 0        
         
         # editing gates
         self.showverts = True
@@ -138,7 +164,22 @@ class MainWindow(QMainWindow):
         self.tmp = []
         self.pol2line = []
         self.points = []
+        self.points_w = []        
+        self.old_threshold = 0
+        self.old_algo = ""
+        self.dbres = None
+        self.clusterpts = []
+        self.clusterw = []                
+        self.clusterptsW = []
 
+        self.LISEpic = None
+
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}                
+        self.peak_txt = {}
+        self.isChecked = {}
+        
         self.max_ds = 10
 
         self.copied_line_attributes = ('xdata', 'ydata', 'animated', 'antialiased', 'color',  
@@ -180,13 +221,22 @@ class MainWindow(QMainWindow):
         # output popup window
         self.resPopup = OutputPopup()
         self.table_row = []
+
+        # peak finder option window 
+        self.pPopup = PeakFinder()
+
+        # clustering 
+        self.clPopup = Cluster2D()
+
+        # initialize factory from algo_creator
+        self.factory.initialize(self.clPopup.clusterAlgo)
         
         #################
         # Signals
         #################
 
         # top menu signals
-        self.wTop.exitButton.clicked.connect(self.close)
+        self.wTop.exitButton.clicked.connect(self.closeAll)
         self.wTop.updateButton.clicked.connect(self.update)                
         self.wTop.slider.valueChanged.connect(self.self_update)
 
@@ -207,13 +257,9 @@ class MainWindow(QMainWindow):
         self.wTop.drawGate.clicked.connect(lambda: self.drawGate(self.optionAll))
         self.wTop.cleanGate.clicked.connect(self.clearGate)
 
-        # button for testing functions
-        #self.wTop.test.clicked.connect(self.drawAllGate)        
-        
         # configuration signals
         self.at_startup()
 
-        #self.wConf.histo_list.activated.connect(self.update_spectrum_info)
         self.wConf.histo_geo_row.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
         self.wConf.histo_geo_col.activated.connect(lambda: self.initialize_canvas(int(self.wConf.histo_geo_row.currentText()), int(self.wConf.histo_geo_col.currentText())))
         self.wConf.histo_geo_add.clicked.connect(self.add_plot)
@@ -223,6 +269,25 @@ class MainWindow(QMainWindow):
         self.wConf.button2D_option.activated.connect(self.change_bkg)        
         self.wConf.histo_geo_all.stateChanged.connect(self.applyAll)
 
+        self.wConf.peak_option.clicked.connect(self.peakPopup)
+        self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
+        self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
+
+        self.wConf.cluster_option.clicked.connect(self.clusterPopup)
+        self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
+        self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
+        self.clPopup.loadButton.clicked.connect(self.loadFigure)
+        self.clPopup.addButton.clicked.connect(self.addFigure)
+        self.clPopup.deleteButton.clicked.connect(self.deleteFigure)
+        self.clPopup.alpha_slider.valueChanged.connect(self.transFigure)
+        self.clPopup.zoomX_slider.valueChanged.connect(self.zoomFigureX)
+        self.clPopup.zoomY_slider.valueChanged.connect(self.zoomFigureY)        
+        self.clPopup.joystick.mousemoved.connect(self.moveFigure)
+        self.clPopup.upButton.clicked.connect(self.fineUpMove)
+        self.clPopup.downButton.clicked.connect(self.fineDownMove)
+        self.clPopup.leftButton.clicked.connect(self.fineLeftMove)
+        self.clPopup.rightButton.clicked.connect(self.fineRightMove)                
+        
         self.wConf.fit_button.clicked.connect(self.fit)
 
         # output
@@ -244,6 +309,12 @@ class MainWindow(QMainWindow):
         ################################        
         # implementation of Signals
         ################################        
+
+    def closeAll(self):
+        self.close()
+        self.resPopup.close()
+        self.clPopup.close()
+        self.pPopup.close()                
         
     def connect(self):
         self.resizeID = self.wPlot.canvas.mpl_connect("resize_event", self.on_resize)
@@ -380,13 +451,6 @@ class MainWindow(QMainWindow):
                     self.artist2D[self.wTop.listGate.currentText()] = self.polygon
                     self.artist_dict[key] = self.artist2D
 
-                '''
-                key = self.wConf.spectrum_name.text()
-                if key in self.artist_dict:
-                    self.artist_dict[key].append(self.wTop.listGate.currentText())
-                else:
-                    self.artist_dict[key] = [self.wTop.listGate.currentText()]
-                '''
                 print(self.artist_dict)
                     
                 # exiting gating mode
@@ -789,6 +853,7 @@ class MainWindow(QMainWindow):
             self.create_spectrum_list()                    
             self.create_gate_list()        
             #self.update_spectrum_info()
+            self.isCluster = False
         except:
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
@@ -1035,6 +1100,8 @@ class MainWindow(QMainWindow):
                 print(self.h_dict_output)
                 self.add_plot()
 
+            self.update_plot()
+            
         except TypeError:
             pass
 
@@ -1360,15 +1427,6 @@ class MainWindow(QMainWindow):
             self.vmax = self.get_histo_zoomMax(index)
 
             # setup up palette
-            '''
-            if (self.wConf.button2D_option.currentText() == 'Dark'):
-                palette = 'afmhot'
-            else:
-                palette = copy(plt.cm.afmhot)
-                w = np.ma.masked_where(w < 0.1, w)
-                palette.set_bad(color='white')
-            '''
-
             if (self.wConf.button2D_option.currentText() == 'Dark'):
                 if self.checkVersion(matplotlib.__version__) < self.checkVersion("2.0.0"):
                     self.palette = 'afmhot'
@@ -1382,16 +1440,6 @@ class MainWindow(QMainWindow):
                 w = np.ma.masked_where(w < 0.1, w)
                 self.palette.set_bad(color='white')
 
-            '''
-            interpolation='none'
-            extent=[float(minx),float(maxx),float(miny),float(maxy)]
-            aspect='auto'
-            origin='lower'
-            vmin=self.vmin
-            vmax=self.vmax
-            cmap=self.palette
-            '''
-            
             # create histogram
             self.h_lst[index] = axis.imshow(w,
                                             interpolation='none',
@@ -1404,7 +1452,7 @@ class MainWindow(QMainWindow):
         self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
             
     # histo plotting
-    def plot_histogram(self, axis, index):
+    def plot_histogram(self, axis, index, threshold=0.1):
         hdim = self.get_histo_dim(index)                    
         minx = self.get_histo_xmin(index)
         maxx = self.get_histo_xmax(index)
@@ -1419,9 +1467,9 @@ class MainWindow(QMainWindow):
                     self.palette = copy(plt.cm.afmhot)
                 else:
                     self.palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                self.palette.set_bad(color='white')
-                self.h_lst[index].set_cmap(self.palette)
+                    w = np.ma.masked_where(w < threshold, w)
+                    self.palette.set_bad(color='white')
+                    self.h_lst[index].set_cmap(self.palette)
             self.h_lst[index].set_data(w)
 
         self.wPlot.figure.canvas.restore_region(self.axbkg[index])
@@ -1431,67 +1479,14 @@ class MainWindow(QMainWindow):
         #self.wPlot.figure.canvas.flush_events()
         self.wPlot.canvas.draw_idle()
         
-    # histo plotting 
-    '''
-    def plot_histogram(self, axis, index):
-        w = self.get_data(index)
+    # options for clustering 2D
+    def peakPopup(self):
+        self.pPopup.show()
         
-        hdim = self.get_histo_dim(index)                    
-        minx = self.get_histo_xmin(index)
-        maxx = self.get_histo_xmax(index)
-        binx = self.get_histo_xbin(index)
-
-        if hdim == 1:
-            # update axis
-            self.yhigh = self.get_histo_zoomMax(index)
-            axis.set_ylim(0,self.yhigh)
-            X = self.create_range(binx, minx, maxx)
-            # create histogram
-            self.h_lst[index], self.bins, _ = axis.hist(X,
-                                                        len(X),
-                                                        weights=w,
-                                                        range=[minx,maxx],
-                                                        histtype='step')
-            axis.set_xlim(left=minx, right=maxx)
-            #x_label = str(df.iloc[0]['parameters'])
-            #plt.xlabel(x_label,fontsize=10)
-            self.h_zoom_max[index] = self.yhigh
-            #self.binList.append(self.bins)
-        else:
-            miny = self.get_histo_ymin(index)
-            maxy = self.get_histo_ymax(index)
-            binsy = self.get_histo_ybin(index)
-
-            # update axis
-            self.vmax = self.get_histo_zoomMax(index)
-                
-            #divider = make_axes_locatable(axis)
-            #cax = divider.append_axes("right", 0.25, pad=0.05)
-
-            if (self.wConf.button2D_option.currentText() == 'Dark'):
-                palette = 'plasma'
-            else:
-                palette = copy(plt.cm.plasma)
-                w = np.ma.masked_where(w < 0.1, w)
-                palette.set_bad(color='white')
-                    
-            # search by name if the histogram has been plotted before
-            #if self.checkValue(index, name) == False:
-            # print("creating 2d", name, "in index", index)
-            self.h_lst[index] = axis.imshow(w,
-                                            interpolation='none',
-                                            extent=[float(minx),float(maxx),float(miny),float(maxy)],
-                                            aspect='auto',
-                                            origin='lower',
-                                            vmin=self.vmin, vmax=self.vmax,
-                                            cmap=palette)
-            #else:
-                #    print("filling 2d", name, "in index", index)                    
-                #    self.h_lst[index].set_data(w)
-                #self.h_lst_cb[index] = plt.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
-                #self.h_zoom_max[index] = self.vmax
-    '''
-    
+    # options for clustering 2D
+    def clusterPopup(self):
+        self.clPopup.show()
+        
     # check histogram dimension from GUI
     def check_histogram(self):
         if self.wConf.button1D.isChecked():
@@ -1601,18 +1596,24 @@ class MainWindow(QMainWindow):
             df = self.spectrum_list.loc[select]
             w = df.iloc[0]['data']
 
+        print("hist:", hname)
+        print("hdim:", hdim)
+        print(w)
+        print(sum(w), len(w))
+        
         if hdim == 1:
             empty = sum(w)
         else:
-            empty = sum(w[1])
+            print(len(w[0]))
+            empty = len(w[0])
 
         if (empty == 0):
             self.isEmpty = True
-            QMessageBox.about(self, "Warning", "The shared memory is still empty...")
+            QMessageBox.about(self, "Warning", "Getting data - The shared memory is still empty...")
         else:
             self.isEmpty = False
             return w
-
+    
     def change_bkg(self):
         if any(x == 2 for x in self.h_dim) == True:
             indices = [i for i, x in enumerate(self.h_dim) if x == 2]
@@ -1732,7 +1733,7 @@ class MainWindow(QMainWindow):
         self.createRegion()
         self.polygon = self.createPolygon()
         print("end of create gate")
-        
+
     def createRegion(self):
         ax = plt.gca()        
         self.cleanRegion()
@@ -1931,19 +1932,6 @@ class MainWindow(QMainWindow):
         self.artist1D[name] = tmp
         self.artist_dict[key] = self.artist1D
             
-        #self.artist1D[name] = tmp
-        #self.artist_dict[key] = self.artist1D
-
-            
-        '''
-        gname = self.wTop.listGate.currentText() 
-        if key in self.artist_dict:
-            if any(x == gname for x in self.artist_dict[key]) == False:
-                self.artist_dict[key].append(gname)
-        else:
-            self.artist_dict[key] = [gname]
-        '''
-        
     def plot2DGate(self, axis, key, name):
         new_line = mlines.Line2D([],[])
         for line in self.dict_region[name]:                
@@ -1961,15 +1949,6 @@ class MainWindow(QMainWindow):
                 self.artist2D[name] = []                
         self.artist2D[name] = new_line
         self.artist_dict[key] = self.artist2D            
-
-        '''
-        gname = self.wTop.listGate.currentText() 
-        if key in self.artist_dict:
-            if any(x == gname for x in self.artist_dict[key]) == False:            
-                self.artist_dict[key].append(gname)            
-        else:
-            self.artist_dict[key] = [gname]
-        '''
 
     def drawAllGate(self):
         if self.wTop.slider.value() != 0:
@@ -2104,12 +2083,12 @@ class MainWindow(QMainWindow):
 
         x = []
         y = []
-        z = []
-        self.fillPoints(w, x, y, z, self.points)
+        if len(self.points) == 0:
+            self.fillPoints(w, x, y, self.points_w, self.points)
         isInside = p.contains_points(self.points)
         x = list(compress(x, isInside))
         y = list(compress(y, isInside))        
-        z = list(compress(z, isInside))
+        z = list(compress(self.points_w, isInside))
         
         area = sum(z)
         centroid_x, centroid_y = self.centroid(x, y)
@@ -2122,7 +2101,8 @@ class MainWindow(QMainWindow):
             if sum(col):
                 for j, val in enumerate(col):
                     x,y = self.indexToPos(j,i)
-                    if val:
+                    if val>=self.clPopup.threshold_slider.value():
+                        #print(x,y,val)
                         xx.append(x)
                         yy.append(y)
                         zz.append(val)                                                
@@ -2137,20 +2117,13 @@ class MainWindow(QMainWindow):
         biny = float(self.wConf.listParams_bins[1].text())
         xstep = (maxx-minx)/binx
         ystep = (maxy-miny)/biny        
-        return (i+0.5)*xstep, (j+0.5)*ystep
+        return minx+(i+0.5)*xstep, miny+(j+0.5)*ystep
 
         
     def findInterval(self, name_histo, name_gate):
         interval = []
         for line in self.dict_region[name_gate]:
             interval.append(line.get_xdata()[0])
-        '''
-        for i, plot in enumerate(self.wPlot.figure.axes):
-            if (self.h_dict[i]["name"] == name_histo):
-                for i,line in enumerate(plot.lines[:]):
-                    if (line.get_label() == name_gate):
-                        interval.append(line.get_xydata())
-        '''
         return interval
         
     def integrate1D(self, name):
@@ -2171,7 +2144,6 @@ class MainWindow(QMainWindow):
             binx = self.get_histo_xbin(index_histo)
             X = self.create_range(binx, minx, maxx)
             tmp = self.get_data(index_histo)
-            #tmp = np.array(self.binList[index_histo])
             try:
                 a = sorted(self.findInterval(name_histo, name_gate))
                 index_list = [i for i, e in enumerate(X) if e > a[0] and e < a[1]]
@@ -2425,11 +2397,344 @@ class MainWindow(QMainWindow):
                 except:
                     pass
             else:
-                print("2D Fitting TBD")                
+                print("Please use the Clustering2D panel!")                
                 
 
         self.wPlot.canvas.draw()
 
     ############################
     ## end of Fitting
-    ############################            
+    ############################
+
+    ############################
+    ## begin of Peak Analyzer
+    ############################
+
+    def peakState(self, state):
+        for i, btn in enumerate(self.pPopup.peak_cbox):
+            if btn.isChecked() == False:
+                try:
+                    self.removePeak(i)
+                    self.isChecked[i] = False                    
+                except:
+                    pass
+            else:
+                if self.isChecked[i] == False:
+                    self.drawSinglePeaks(self.peaks, self.properties, self.dataw, i)
+                    self.isChecked[i] = True
+
+        '''
+        checkAll = False in self.isChecked.values()
+        if checkAll == False:
+            self.pPopup.show_box.setChecked(True)
+        else:
+            self.pPopup.show_box.setChecked(False)
+        '''
+        self.wPlot.canvas.draw()                
+                
+    def create_peak_signals(self):
+        for i in range(self.pPopup.npeaks):
+            self.isChecked[i] = False                    
+            self.pPopup.peak_cbox[i].stateChanged.connect(self.peakState)
+            self.pPopup.peak_cbox[i].setChecked(True)
+            
+    def update_peak_output(self, peaks, properties):
+        for i in range(len(peaks)):
+            s = "Peak"+str(i+1)+"\n\tpeak @ " + str(peaks[i])+", FWHM="+str(int(properties['widths'][i]))
+            self.pPopup.peak_results.append(s)
+
+    def peakAnalClear(self):
+        self.pPopup.peak_results.clear()
+        self.removeAllPeaks()
+        #self.pPopup.show_box.setChecked(False)
+        self.pPopup.remove_peakChecks()
+
+        self.resetPeakDict()
+        
+        
+    def removePeak(self, i):
+        self.peak_pos[i][0].remove()
+        del self.peak_pos[i]
+        self.peak_vl[i].remove()
+        del self.peak_vl[i]
+        self.peak_hl[i].remove()
+        del self.peak_hl[i]
+        self.peak_txt[i].remove()
+        del self.peak_txt[i]        
+        
+    def resetPeakDict(self):
+        self.peak_pos = {}
+        self.peak_vl = {}
+        self.peak_hl = {}
+        self.peak_txt = {}
+        
+    def removeAllPeaks(self):
+        try:
+            for i in self.peak_pos:
+                self.pPopup.peak_cbox[i].setChecked(False)                                    
+        except:
+            pass
+
+        self.resetPeakDict()
+        self.wPlot.canvas.draw()
+
+    def allOn(self):
+        for i in self.peak_pos:
+            self.pPopup.peak_cbox[i].setChecked(False)                                    
+        
+    def showAll(self,b):
+        if b.text() == "Show Peaks":
+            if b.isChecked() == True:
+                print("all ON",self.isChecked)
+                # if all(value == False for value in self.isChecked.values()):
+                #     self.allOn()
+            else:
+                print("all OFF",self.isChecked)                
+                #if all(value == True for value in self.isChecked.values()):                
+                #    self.removeAllPeaks()
+                
+    def drawSinglePeaks(self, peaks, properties, data, index):
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        self.peak_pos[index] = a.plot(peaks[index], data[peaks[index]], "v", color="red")
+        self.peak_vl[index] = a.vlines(x=peaks[index], ymin=data[peaks[index]] - properties["prominences"][index], ymax = data[peaks[index]], color = "red")
+        self.peak_hl[index] = a.hlines(y=properties["width_heights"][index], xmin=properties["left_ips"][index], xmax=properties["right_ips"][index], color = "red")        
+        self.peak_txt[index] = a.text(peaks[index], int(data[peaks[index]]*1.1), str(peaks[index]))
+
+    def analyzePeak(self):
+        try:
+            width = int(self.pPopup.peak_width.text())
+            minx = self.get_histo_xmin(self.selected_plot_index)
+            maxx = self.get_histo_xmax(self.selected_plot_index)
+            binx = self.get_histo_xbin(self.selected_plot_index)
+            X = self.create_range(binx, minx, maxx)
+            self.dataw = self.get_data(self.selected_plot_index)
+            self.peaks, self.properties = find_peaks(self.dataw, prominence=1, width=width)
+            
+            self.update_peak_output(self.peaks, self.properties)
+
+            self.pPopup.npeaks = len(self.peaks)
+            self.pPopup.create_peakChecks()
+            self.create_peak_signals()
+
+        except:
+            pass
+        
+    ############################
+    ## end of Peak Analyzer
+    ############################                    
+    
+    ############################
+    ## begin of Clustering
+    ############################                
+
+    def initializeCluster(self):
+        # histo name
+        name_histo = self.wConf.histo_list.currentText()
+        # converts data to points
+        select = self.spectrum_list['names'] == name_histo
+        df = self.spectrum_list.loc[select]
+        w = df.iloc[0]['data']
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        xmin, xmax = a.get_xlim()            
+        ymin, ymax = a.get_ylim()
+        polygon = Polygon([(xmin,ymin), (xmax,ymin), (xmax,ymax), (xmin,ymax)])
+        # remove the duplicated last vertex
+        poly = polygon.xy[:-1]
+        p = Path(poly)
+
+        # set value for threshold and algo
+        self.old_threshold = self.clPopup.threshold_slider.value()
+        self.old_algo = self.clPopup.clusterAlgo.currentText()
+        
+        x = []
+        y = []
+        print("Filling points..")
+        self.fillPoints(w, x, y, self.points_w, self.points)
+
+        #print(self.points)
+        isInside = p.contains_points(self.points)
+        self.clusterpts = list(compress(self.points, isInside))
+        self.clusterw = list(compress(self.points_w, isInside))
+
+        #print(len(self.clusterpts), len(self.clusterw))
+        #print(self.clusterpts[0:10], self.clusterw[0:10])
+        
+        self.isCluster = True
+        
+    def analyzeCluster(self):
+        algo = self.clPopup.clusterAlgo.currentText()        
+        if self.isCluster == False or (self.old_threshold != self.clPopup.threshold_slider.value()):
+            self.start = time.time()
+            self.initializeCluster()
+            self.stop = time.time()
+            print("Time elapsed for initialization of clustering:", self.stop-self.start)
+
+        cluster_center=[]
+        nclusters = int(self.clPopup.clusterN.currentText())
+        algo = self.clPopup.clusterAlgo.currentText()
+
+        self.start = time.time()
+
+        a = None
+        if self.isZoomed:
+            a = plt.gca()
+        else:
+            a = self.select_plot(self.selected_plot_index)
+
+        config = self.factory._configs.get(algo)
+        print("ML algo config", config)
+        MLalgo = self.factory.create(algo, **config)
+        # add hooks for popup windows i.e. more arguments that won't be used
+        MLalgo.start(self.clusterpts, self.clusterw, nclusters, a, self.wPlot.figure)
+        self.stop = time.time()
+        print("Time elapsed for clustering:", self.stop-self.start)
+
+        self.wPlot.canvas.draw()
+
+    def thresholdFigure(self):
+        self.clPopup.threshold_label.setText("Threshold Level ({})".format(self.clPopup.threshold_slider.value()))
+        try:
+            a = None
+            if self.isZoomed:
+                a = plt.gca()
+            else:
+                a = self.select_plot(self.selected_plot_index)
+
+            self.plot_histogram(a, self.selected_plot_index,self.clPopup.threshold_slider.value())
+            self.wPlot.canvas.draw()
+        except:
+            pass
+        
+    def loadFigure(self):
+        fileName = self.openLoadFileNameDialog()
+        try:
+            #self.LISEpic = mpimg.imread(fileName)
+            self.LISEpic = cv2.imread(fileName)
+            cv2.resize(self.LISEpic, (200, 100))
+            self.clPopup.loadLISE_name.setText(fileName)
+        except TypeError:
+            pass
+
+    def fineUpMove(self):
+        self.imgplot.remove()        
+        self.ystart += 0.002
+        self.drawFigure()
+        
+    def fineDownMove(self):
+        self.imgplot.remove()        
+        self.ystart -= 0.002
+        self.drawFigure()
+        
+    def fineLeftMove(self):
+        self.imgplot.remove()        
+        self.xstart -= 0.002
+        self.drawFigure()
+
+    def fineRightMove(self):        
+        self.imgplot.remove()        
+        self.xstart += 0.002
+        self.drawFigure()
+        
+    def moveFigure(self):
+        #print(self.clPopup.joystick.direction, self.clPopup.joystick.distance)
+        try:
+            self.imgplot.remove()        
+            if self.clPopup.joystick.direction == "up":
+                self.ystart += self.clPopup.joystick.distance*0.03
+            elif self.clPopup.joystick.direction == "down":
+                self.ystart -= self.clPopup.joystick.distance*0.03
+            elif self.clPopup.joystick.direction == "left":
+                self.xstart -= self.clPopup.joystick.distance*0.03
+            else:
+                self.xstart += self.clPopup.joystick.distance*0.03        
+            self.drawFigure()
+        except:
+            pass
+            
+    def indexToStartPosition(self, index):
+        row = self.wConf.row
+        col = self.wConf.col
+        xoffs = float(1/(2*col))
+        yoffs = float(1/(2*row))       
+        i, j = self.plot_position(index)
+        xstart = xoffs*(2*j+1)-0.1
+        ystart = yoffs*(2*i+1)+0.1       
+
+        self.xstart = xstart
+        self.ystart = 1-ystart
+        
+    def drawFigure(self):
+        self.alpha = self.clPopup.alpha_slider.value()/10
+        self.zoomX = self.clPopup.zoomX_slider.value()/10
+        self.zoomY = self.clPopup.zoomY_slider.value()/10        
+
+        ax = plt.axes([self.xstart, self.ystart, self.zoomX, self.zoomY], frameon=True)
+        ax.axis('off') 
+        self.imgplot = ax.imshow(self.LISEpic,
+                                 aspect='auto',
+                                 alpha=self.alpha)
+
+        self.wPlot.canvas.draw()
+
+    def deleteFigure(self):
+        self.imgplot.remove()
+        self.onFigure = False
+        self.wPlot.canvas.draw()
+
+    def transFigure(self):
+        self.clPopup.alpha_label.setText("Transparency Level ({} %)".format(self.clPopup.alpha_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def zoomFigureX(self):
+        self.clPopup.zoomX_label.setText("Zoom X Level ({} %)".format(self.clPopup.zoomX_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass
+
+    def zoomFigureY(self):
+        self.clPopup.zoomY_label.setText("Zoom Y Level ({} %)".format(self.clPopup.zoomY_slider.value()*10))
+        try:
+            self.deleteFigure()
+            self.drawFigure()
+        except:
+            pass                
+            
+    def addFigure(self):
+        try:
+            self.indexToStartPosition(self.selected_plot_index)
+
+            if self.onFigure == False:
+                self.drawFigure()
+                self.onFigure = True
+        except:
+            pass
+            
+    def openLoadFileNameDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Open file...", "","Image Files (*.png *.jpg);;All Files (*)", options=options)
+        if fileName:
+            return fileName
+        
+    ############################
+    ## end of Clustering
+    ############################                
+
+    
