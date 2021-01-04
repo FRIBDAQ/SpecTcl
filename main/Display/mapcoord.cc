@@ -110,10 +110,9 @@ getYChannelRange(int specno, int row, int col)
     // We can only be called for a 2-d Spectrum:
   
     
-    yl = p2d->xlowlim();
-    yh = p2d->xhilim();
+    yl = p2d->ylowlim();
+    yh = p2d->yhilim();        
   
-    
   }
   std::pair<int, int> result;
   result.first = yl;
