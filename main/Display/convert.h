@@ -46,13 +46,13 @@
 ** that you can get when translating a screen position.
 */
 struct spec_location {
-									/* Meaning of the cursor position... note if 2-d then
-									** xpos and ypos are channel numbers
-									*/
-									int xpos; /* X position channels or count [flipped] */
-		       int ypos;  /* Y position channels [flipped] or counts */
-		       unsigned int counts; /* # counts in the spectrum here */
-		     };
+	/* Meaning of the cursor position... note if 2-d then
+	** xpos and ypos are channel numbers
+	*/
+	int xpos; /* X position channels or count [flipped] */
+	int ypos;  /* Y position channels [flipped] or counts */
+	unsigned int counts; /* # counts in the spectrum here */
+};
 
 /*
 ** The class below is a base class for all of the converters.
