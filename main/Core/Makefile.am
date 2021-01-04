@@ -212,7 +212,9 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	XamineEventHandler.cpp SharedMemoryKeyCommand.cpp SharedMemorySizeCommand.cpp \
 	 CPipelineManager.cpp FragmentIndex.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
-	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp
+	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
+	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
+	CAENEventProcessor.cpp
 
 # TapeCommand.h removed
 
@@ -233,7 +235,8 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	XamineEventHandler.h SharedMemoryKeyCommand.h SharedMemorySizeCommand.h \
 	CPipelineCommand.h CPipelineManager.h fragment.h FragmentIndex.h \
 	CEventBuilderEventProcessor.h CPipelineEventProcessor.h \
-	CUnpackEvbCommand.h
+	CUnpackEvbCommand.h CAENHit.h CAENModuleHits.h CAENParser.h \
+	CAENParameterMap.h CAENEventProcessor.h
 
 # TapeCommand.h removed
 
@@ -389,7 +392,7 @@ noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					sorterTests treeParamTests fitTests \
 					xamineTests spectraDisplayTests \
 					spectclCmdTests evbProcessorTests \
-					gateTests fragIndexTests
+					gateTests fragIndexTests #caendpptests
 
 commonTestCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -408,6 +411,11 @@ commonTestLdFlags = @builddir@/libTclGrammerApp.la \
 		@TK_LIBS@ \
 		@TCL_LIBS@ @ROOT_LDFLAGS@
 
+#caendpptests_SOURCES = TestRunner.cpp PHAHitTest.cpp PSDHitTest.cpp \
+#        modulehittests.cpp parsertest.cpp caenpmaptests.cpp caenevptests.cpp
+
+#caendpptests_CXXFLAGS= $(commonTestCXXFLAGS)
+#caendpptests_LDADD   = $(commonTestLdFlags)
 
 scalertests_CXXFLAGS = $(commonTestCXXFLAGS)
 scalertests_LDADD    = $(commonTestLdFlags)
@@ -497,6 +505,6 @@ fragIndexTests_SOURCES = TestRunner.cpp FragmentIndex.cpp FragmentIndex.h fragid
 TESTS_ENVIRONMENT=LD_LIBRARY_PATH=$(ROOT_LIBRARY_DIR)
 TESTS = gateTests scalertests docbuftests spectrumPkgTests displayInterfaceTests \
 	sorterTests treeParamTests fitTests xamineTests spectraDisplayTests \
-		spectclCmdTests evbProcessorTests fragIndexTests
+		spectclCmdTests evbProcessorTests fragIndexTests #caendpptests
 
 

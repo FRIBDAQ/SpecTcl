@@ -9,6 +9,9 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/DDAS
 	$(mkinstalldirs) @prefix@/share/parallel
 	$(mkinstalldirs) @prefix@/share/batch
+	$(mkinstalldirs) @prefix@/share/caendpp
+	$(mkinstalldirs) @prefix@/share/examples
+	$(mkinstalldirs) @prefix@/share/examples/caendpp
 	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
 	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
 	$(INSTALL_DATA) @builddir@/userguide/* @srcdir@/userguideimages/* @prefix@/share/UserGuide
@@ -17,13 +20,17 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
 	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
 	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
+	$(INSTALL_DATA) @builddir@/caendpp/*  @prefix@/share/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/*.cpp @prefix@/share/examples/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/*.h @prefix@/share/examples/caendpp
+	$(INSTALL_DATA) @srcdir@/dppexample/Makefile @prefix@/share/examples/caendpp
 
 
 
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
-	 parallel.xml batch.xml
+	 parallel.xml batch.xml CAENDPP.xml dppexample
 
 BUILT_SOURCES = @builddir@/docs_built
 
@@ -37,4 +44,4 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
 	@HTMLDOCBOOK@ @srcdir@/parallel.xml	    -o @builddir@/parallel
 	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
-
+	@HTMLDOCBOOK@ @srcdir@/CAENDPP.xml          -o @builddir@/caendpp

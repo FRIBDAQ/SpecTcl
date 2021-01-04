@@ -174,6 +174,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   else {
     Xamine_Convert2d cvt(w, atts, xamine_shared);
     cvt.ScreenToSpec(&locdata, wx, wy);
+
   }
   /* Get the location object pointer and set new values: */
 
