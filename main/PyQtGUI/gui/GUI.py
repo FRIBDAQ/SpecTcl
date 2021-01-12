@@ -2853,13 +2853,13 @@ class MainWindow(QMainWindow):
             data_to_list.append(tmp)
             print("len(data_to_list) --> ", row['names'], " ", len(tmp))
 
-        print("data_to_list; len ", len(data_to_list), " D1030 len ", len(data_to_list[14]))
+        #print("data_to_list; len ", len(data_to_list), " D1030 len ", len(data_to_list[14]))
         print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
         self.spectrum_list = self.spectrum_list.drop('data', 1)
         self.spectrum_list['data'] = np.array(data_to_list)
 
-        print(len(self.spectrum_list['data'][14]))
-        print(self.spectrum_list['data'][14])        
+        #print(len(self.spectrum_list['data'][14]))
+        #print(self.spectrum_list['data'][14])        
         self.spectrum_list.to_csv("df-updated.csv")
     
     def jupyterStop(self):

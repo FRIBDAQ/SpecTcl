@@ -24,7 +24,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "MySpecTclApp.h"
 #include "EventProcessor.h"
-//#include "TCLAnalyzer.h"
 #include "ThreadAnalyzer.h"
 #include <Event.h>
 #include <TreeParameter.h>
@@ -104,39 +103,26 @@ CFixedEventUnpacker::operator()(const Address_t pEvent,
 				BufferTranslator& trans,
 				long thread)
 {
-  std::cout << "Inside CFixedEventUnpacker" << std::endl;
-
-  /*
-  // This sample unpacker unpacks a fixed length event which is
-  // preceded by a word count.
-  //
-  TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pEvent);
-  CTclAnalyzer&      rAna((CTclAnalyzer&)rAnalyzer);
+  CThreadAnalyzer& analyzer(dynamic_cast<CThreadAnalyzer&>(rAnalyzer));
+  TranslatorPointer<UShort_t> p(trans, pEvent);
   UShort_t  nWords = *p++;
   Int_t     i      = 1;
+  analyzer.SetEventSize(nWords*sizeof(uint16_t));
 
-  // At least one member of the pipeline must tell the analyzer how
-  // many bytes were in the raw event so it knows where to find the
-  // next event.
+  nWords--;			
+  int param = 0;		
 
-  rAna.SetEventSize(nWords*sizeof(UShort_t)); // Set event size.
-
-  nWords--;			// The word count is self inclusive.
-  int param = 0;		// No more than 10 parameters.
-
-  while(nWords && (param < 10)) {		// Put parameters in the event starting at 1.
+  while(nWords && (param < 10)) {	
     event.raw[param] = *p++;
     nWords--;
     param++;
   }
-  */
   
   return kfTRUE;		// kfFALSE would abort pipeline.
 }
 
 // CAddFirst2 - Sample unpacker which adds a pair of unpacked parameters
 //   together to get a new parameter.
-
 
 class CAddFirst2 : public CEventProcessor
 {
@@ -189,16 +175,12 @@ elements 1 and 2 and putting the result into element 0.
 
 // Instantiate the unpackers we'll use.
 
-//static CFixedEventUnpacker Stage1;
-//static CAddFirst2          Stage2;
-
-
 void
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 {
 
   RegisterEventProcessor(*(new CFixedEventUnpacker), "Raw");  
-  //RegisterEventProcessor(Stage2, "Computed");
+  RegisterEventProcessor(*(new CAddFirst2), "Computed");
 }
 
 // Constructors, destructors and other replacements for compiler cannonicals:
