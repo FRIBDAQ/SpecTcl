@@ -1730,7 +1730,7 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   char cols[10];
   sprintf(rows, "%d", Xamine_Panerows());
   sprintf(cols, "%d", Xamine_Panecols());
-  char ci[10];
+  char ci[100];
   int fs = pAttributes->getfsval();
   sprintf(ci, "%d", (fs / 4));
 

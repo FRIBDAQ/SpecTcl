@@ -679,11 +679,11 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   int lh = (int)((float)(150) / XAMINE_TICK_LABEL_INTERVALDIVISOR);
   int lw = labelwidth;
   int length = strlen(ylabel);
-  char c[2];
+  char c[4];
   float fontsize_percent = (1 - (2*((float)length/100.0)));
   lh = (int)(lh*fontsize_percent);
   for(int i = 0; i < length; i++) {
-    sprintf(c, "%1c\0", ylabel[i]);
+    sprintf(c, "%1c", ylabel[i]);
     Xamine_DrawCenteredString(disp, win, font, gc,
 			      0, (int)((float)ny / (length*2)) + ((lh/2)*i), 
 			      lw,

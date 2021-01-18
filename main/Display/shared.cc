@@ -475,7 +475,7 @@ PrintOffsets()
   printf("  dsp_types   = %p\n", (void*)pShape->dsp_types);
   printf("  dsp_map     = %p\n", (void*)pShape->dsp_map);
   printf("  dsp_spectra = %p\n", (void*)&(pShape->dsp_spectra));
-  printf("  Total size  = %d\n", sizeof(spec_shared));
+  printf("  Total size  = %ld\n", sizeof(spec_shared));
 }
 
 

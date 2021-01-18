@@ -1657,7 +1657,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       time_t tim = time(NULL);
       if(tim != (time_t)-1) {
 	struct tm* t = localtime(&tim);
-	char time_string[30];
+	char time_string[80];
 	sprintf(time_string, "SpecTcl: %04d/%02d/%02d %02d:%02d:%02d", 
 		(t->tm_year+1900), (t->tm_mon+1), t->tm_mday, 
 		t->tm_hour, t->tm_min, t->tm_sec);
