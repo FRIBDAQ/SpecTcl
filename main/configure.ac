@@ -47,11 +47,24 @@ AC_PROG_LIBTOOL
 # PYthon C/C++ extension environment build flags:
 
 
+# At some point PYTHON folks decided to move their flags from
+#  e.g. python3 to python3-embed... therefore the following
+#  gymnastics:
 
+AC_MSG_CHECKING([How to configure python header/loader flags])
+pkg-config python3-embed --exists
+if test $? -eq 0
+then
+   AC_MSG_RESULT([python3-embed package will be used])
+   pypackage="python3-embed"
+else
+   AC_MSG_RESULT([python3 package will be used])
+   pypackage="python3"
+fi
 
-PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
+PYTHON_CXXFLAGS=`pkg-config ${pypackage} --cflags`
 AC_SUBST(PYTHON_CXXFLAGS)
-PYTHON_LDFLAGS=`pkg-config python3 --libs`
+PYTHON_LDFLAGS=`pkg-config ${pypackage} --libs`
 AC_SUBST(PYTHON_LDFLAGS)
 
 
