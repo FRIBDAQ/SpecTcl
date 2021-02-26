@@ -40,6 +40,7 @@ using namespace std;
 // Globally scoped storage..
 
 static int nParameters = 0;
+bool eventsStarted(false);
 
 
 /*
@@ -62,7 +63,7 @@ void Usage()
 string createOutputName(string inputName)
 {
   string result;
-  char* pPeriod = rindex(inputName.c_str(), '.');
+  const char* pPeriod = rindex(inputName.c_str(), '.');
   if (!pPeriod) {
     result = inputName + ".asc";
   }
@@ -118,19 +119,24 @@ translateEvent(CXdrInputStream& in, ostream& out)
 void translateRecord(CXdrInputStream& in, ostream& out)
 {
   string type;
+  int parametersInHeader;
   
   in >> type;
   
   if (type == "header") {
-    in >> nParameters;
-    for (int i =0; i < nParameters; i++) {
+    in >> parametersInHeader;
+    nParameters += parametersInHeader;
+    for (int i =0; i < parametersInHeader; i++) {
       string name;
       in >> name;
       out << name << " ";
     } 
-    out << endl;
   }
   else {
+    if (!eventsStarted) {
+      out << std::endl;
+      eventsStarted = true;
+    }
     if (nParameters == 0) {	// NO header!!!
       cerr << " bad input file.. missing header ";
       in.Disconnect();
@@ -187,6 +193,8 @@ main(int argc, char** argv)
   }
 
   for (int i =0; i < argc; i++) {
+    eventsStarted = false;
+    nParameters = 0;
     string inputName = argv[i];
     string outputName = createOutputName(inputName);
 

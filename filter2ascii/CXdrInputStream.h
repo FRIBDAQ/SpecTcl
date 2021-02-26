@@ -104,14 +104,14 @@ protected:
 
    //!  Give name and connect.
 public:
-  void Connect(const std::string& rName) throw (std::string) {
+  void Connect(const std::string& rName)  {
     m_sConnectionId = rName;
     Connect();
   }
 
   //! Get an arbitrarily typed item from the buffer:
 
- void Get(void* item, xdrproc_t cvt) throw (std::string);
+ void Get(void* item, xdrproc_t cvt) ;
 
   //  Stream-like operations:
 
@@ -126,8 +126,8 @@ public:
 
   // overrides:
 
-  virtual void Connect() throw (std::string);
-  virtual void Disconnect() throw(std::string);
+  virtual void Connect() ;
+  virtual void Disconnect(); 
 
 protected:
   virtual int  Read(void* pBuffer);
@@ -136,8 +136,8 @@ protected:
 protected:
   // Utility functions.
 
-  void DoRead() throw(std::string);	//!< Drive a read and all book-keeping
-  void ConditionalRead() throw (std::string); //!< Read if buffer done.
+  void DoRead();
+  void ConditionalRead() ;
 
 };
    
