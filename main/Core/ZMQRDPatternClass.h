@@ -30,6 +30,14 @@
 #include "ThreadAnalyzer.h"
 #include "CRingBufferDecoder.h" 
 #include <BufferTranslator.h>
+#include <EventSink.h>
+#include <EventSinkPipeline.h>
+
+#include <TNtuple.h>
+#include <TRandom.h>
+#include <TROOT.h>
+#include <ROOT/TSeq.hxx>
+#include <ROOT/TBufferMerger.hxx>
 
 extern int NBR_WORKERS;
 extern bool debug;
@@ -47,11 +55,13 @@ extern pthread_key_t glob_var_key;
 
 class CRingFormatHelper;
 class CRingFormatHelperFactory;
+class CEventSink;
+class CEventSinkPipeline;
 
 struct arg_struct {
   int thread_id;
-  int thread_state;
   zmq::context_t* thread_ctx;
+  ROOT::Experimental::TBufferMerger* thread_rbuf;  
 };
 
 class ZMQRDClass
@@ -69,7 +79,7 @@ class ZMQRDClass
   static CTCLVariable* m_pRunState;
   static CTCLVariable* m_pAverageRate;    
   static CTCLVariable* m_pElapsedTime;  
-
+  
   int m_nFd;  
   static int m_threadState;  
   
@@ -77,12 +87,12 @@ class ZMQRDClass
 
   static ZMQRDClass* getInstance();
   void ResizeAll();
-  
+
   void setFd(int fd);
   int  getFd();  
   static void setThreadState(int state); // 0: running 1: abrupt exit mode
   static int getThreadState();
-  
+
   MapEventProcessors                 m_processors;
   static EventProcessingPipeline*    m_pipeline;
   static BufferTranslator*           m_pTranslator;
@@ -106,6 +116,8 @@ class ZMQRDClass
 
   void OnInitialize();
   void addEventProcessor(CEventProcessor& eventProcessor, const char* name_proc = 0);
+  void InfoProcs();
+
   static void createTranslator(uint32_t* pBuffer);
   static void processRingItems(long thread, CRingFileBlockReader::pDataDescriptor descrip, void* pData, Vpairs& vec);
   static void marshall(long thread, CEventList& lst, Vpairs& vec);
@@ -115,8 +127,9 @@ class ZMQRDClass
   static uint64_t converter(const char* s);
 
   static EventProcessingPipeline* getPipeline();
+  static void updatePipeline();
   static void clonePipeline(EventProcessingPipeline* copy, EventProcessingPipeline* source);
-  
+
   static inline uint64_t hrDiff(const timespec& end, const timespec& start)
   {
     timespec temp;
@@ -130,7 +143,6 @@ class ZMQRDClass
     return (uint64_t)((temp.tv_sec * 1.0e9) + temp.tv_nsec);
   }
   static void show_progress_bar(std::ostream& os, float bytes, size_t items, std::string message, char symbol);
-  
   
   void printStats();
   void finish();

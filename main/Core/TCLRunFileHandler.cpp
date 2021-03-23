@@ -37,7 +37,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include "TKRunControl.h"
 #include "TCLVariable.h"
 #include <tcl.h>
-#include <tk.h>
 #include <stdio.h>
 #include "ZMQRDPatternClass.h"
 #include "ThreadAPI.h"
@@ -97,7 +96,6 @@ CTCLRunFileHandler::operator()()
 //
 
   // Drain the Tcl events:
-
   Tcl_Interp* pInterp = m_pInterp->getInterpreter();
   while(Tcl_DoOneEvent(TCL_DONT_WAIT))
     ;
@@ -117,7 +115,6 @@ CTCLRunFileHandler::operator()()
   }
   catch (...) {}
   
-
   /*
   const CFile* pSource = m_pRun->getEventSource();
   if(pSource->IsReadable(nWaitTime)) {

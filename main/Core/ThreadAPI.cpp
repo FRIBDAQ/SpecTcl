@@ -81,7 +81,6 @@ ThreadAPI::CreateThreads()
     //    pthread_create(workers + worker_nbr, NULL, ZMQRDClass::worker_task, (void *)(intptr_t)worker_nbr);
     args = new struct arg_struct;
     args->thread_id = worker_nbr;
-    args->thread_state = ZMQRDClass::getInstance()->getThreadState();
     args->thread_ctx = ThreadAPI::getInstance()->getContext();
     pthread_create(workers + worker_nbr, NULL, ZMQRDClass::worker_task, (void *)args);    
   }

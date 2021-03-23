@@ -387,6 +387,30 @@ ZMQRDClass::marshall(long thread, CEventList& lst, Vpairs& vec)
   dp = NULL;
 }
 
+void
+ZMQRDClass::InfoProcs()
+{
+  std::cout << "Number of registered processors: " << m_processors.size() << std::endl;
+  std::map<std::string, CEventProcessor*>::iterator it;
+  for (it = m_processors.begin(); it != m_processors.end(); it++)
+    std::cout << it->first << " " << it->second << std::endl;
+}
+
+void
+ZMQRDClass::updatePipeline()
+{
+  std::cout << "ZMQRDClass::updatePipeline" << std::endl;
+  delete [] pipecopy;
+  pipecopy = new EventProcessingPipeline[NBR_WORKERS];
+  m.lock();
+  ZMQRDClass::clonePipeline(pipecopy, m_pipeline);
+  m.unlock();
+  EventProcessorIterator p;
+  for (p = pipecopy->begin(); p != pipecopy->end(); p++) {
+    std::cout << p->first << std::endl;
+  }
+}
+
 EventProcessingPipeline*
 ZMQRDClass::getPipeline()
 {
@@ -714,11 +738,11 @@ ZMQRDClass::show_progress_bar(std::ostream& os, float bytes, size_t items, std::
 void *
 ZMQRDClass::worker_task(void *args)
 {
+
   struct arg_struct* a = (struct arg_struct*)(args); 
   long thread = (long)a->thread_id;
-  int t_state = a->thread_state;
   zmq::context_t * context = static_cast<zmq::context_t*>(a->thread_ctx);
-  
+
   //  long thread = (long)(args);
   long* p = (long*)malloc(sizeof(long));
   *p = thread;

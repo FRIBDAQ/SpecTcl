@@ -24,7 +24,6 @@
 #include <Xamineplus.h>
 #include "GateFactory.h"
 #include <Point.h>
-#include <tk.h>
 #include <string>
 #include <vector>
 #include <list>

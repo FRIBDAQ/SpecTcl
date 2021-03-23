@@ -840,7 +840,7 @@ else
   AC_MSG_NOTICE([Using root-config ... $ROOTCONFIG])
 fi
 
-ROOT_CFLAGS=`$ROOTCONFIG --cflags`
+ROOT_CFLAGS=`$ROOTCONFIG --libs --cflags`
 ROOT_LDFLAGS="`$ROOTCONFIG --glibs`  -Wl,-rpath=`$ROOTCONFIG --libdir` "
 ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)

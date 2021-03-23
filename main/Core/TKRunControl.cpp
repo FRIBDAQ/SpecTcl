@@ -37,7 +37,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <TCLInterpreter.h>
 #include <TCLException.h>
 #include <tcl.h>
-#include <tk.h>
 #include <iostream>
 
 #include "ZMQRDPatternClass.h"
@@ -83,7 +82,6 @@ CTKRunControl::Start()
   ThreadAPI* api = ThreadAPI::getInstance();
   api->SetNThreads(NBR_WORKERS);
   api->CreateThreads();
-
 }
 //////////////////////////////////////////////////////////////////////////
 //
