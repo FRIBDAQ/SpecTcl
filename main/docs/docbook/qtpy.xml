@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>CutiePie (QtPy) (version 6.0-dev)</title>
+      <author><firstname>Giordano</firstname><surname>Cerizza</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>April 14, 2021</date>
+             <authorinitials>GC</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+	  This manual describes a new alternative to the Xamine histogram visualizer. It based on Python bindings for C++ and adopts common Python libraries for basic and
+	  more advanced numerical algorithms. The GUI is written on PyQt5. Among the new features, the ability to implement new Machine Learning (ML) algorithms for clustering
+	  and functions to fit spectra.
+        </para>
+        <para>
+	  This document is organized as follows:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+		  Description of CutiePie design.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Analysis features.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  How to customize and add your own ML algorithms and fitting functions.
+                </para>
+            </listitem>	   
+        </itemizedlist>
+        <para>
+	  CutiePie is a histogram visualizer linked to the SpecTcl TreeGui. It accesses the shared memory location and imports spectum and gate definitions. The communication between CutiePie and SpecTcl
+	  is bidirectional. Creation of gates in CutiePie are mirrored in SpecTcl and viceversa. On the other hands, CutiePie extends some functionalities and provides hooks to Python-based analysis tools
+	  (i.e. Jupiter notebook). 
+        </para>
+    </chapter>
+    <chapter>
+      <title>A brief design description.</title>
+      <para>
+	The core of CutiePie is based on the Python/C API to extend the Python interpreter with new modules written in C/C++.
+	These modules can not only define new functions but also new object types and their methods. To simplify the process, SIP has been chosen.
+	SIP is a collection of tools that makes it very easy to create Python bindings for C and C++ libraries. It comprises
+	a set of build tools and a sip module. The build tools process a set of specification files and generates C or C++ code which is then compiled
+	to create the bindings extension module. Several extension modules may be installed in the same Python package. Extension modules can be built
+	so that they are independent of the version of Python being used.
+	With parts of SpecTcl converted to Python modules, the only part left to take care is the GUI. Qt is set of cross-platform C++ libraries that
+	implement high-level APIs for accessing many aspects of modern desktop and mobile systems. PyQt5 is a comprehensive set of Python bindings for Qt v5 and allows
+	the creation of GUI widgets, classes for accessing SQL databases, XML parser, SVG support. PyQt5 is a good example of modern technology, with known commercial applications,
+	that improves the SpecTcl histogram visualization and offers multiple hooks to a variety of data analysis tools.
+      </para>
+    </chapter>
+    <chapter>    
+      <title>Features</title>    
+      <para>
+	The idea behind introducing an alternative to Xamine was to provide the same basic functions developed over the years. On top of that, building new tools while keeping the graphics simple
+	and clean. As shown in the Figure 3-1, there main boxes are:
+	<figure>
+	  <title>CutiePie GUI main window.</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="main.jpg" format="JPG"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+	<itemizedlist>
+            <listitem>
+                <para>
+                  Menu: it contains widgets to access the data, set polling time to the shared memory for automatic updates, maximization of the plots ("Options"), and load/save window geometry.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                  Gate: it automatically loads in a scrolldown menu any gate previously defined in SpecTcl and gives option to create/draw/edit/delete/clear a 1D/2D gate.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Output: it provides a quick calculation sheet for integrations over 1D/2D gate. It allows the export of the sheet in csv format for further analysis.
+		  <figure>
+		    <title>Output popup window.</title>
+		    <mediaobject>
+		      <imageobject>
+			<imagedata fileref="integrateWin.jpg" format="JPG"/>
+		      </imageobject>
+		    </mediaobject>
+		  </figure>		
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Spectrum type/definition: it updates the information of the visualized spectrum as created in SpecTcl.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Special functions: it contains all the new advanced features that CutiePie offers
+		  <itemizedlist>
+		    <listitem>
+                      <para>
+			Peak finder: for 1D spectra, it automatically scans the histogram and outputs the peak position and the FWHM. The variable parameter in the search is the peak width threshold
+			in units of bins. Found peaks can be displayed on the plot and singularly turned off.
+			<figure>
+			  <title>Peak finder popup window.</title>
+			  <mediaobject>
+			    <imageobject>
+			      <imagedata fileref="peakFinder.jpg" format="JPG"/>
+			    </imageobject>
+			  </mediaobject>
+			</figure>
+                      </para>
+		    </listitem>
+		    <listitem>
+		      <para>
+			Clustering 2D: for 2D scatter plots, several algorithms have been implemented for users to be used right away. Nevertheless, it is advisable to learn before hand if
+			they fulfill your needs. The four algorithms are:
+			<itemizedlist>
+			  <listitem> <para> K-Mean </para> </listitem>
+			  <listitem> <para> Gaussian Mixture </para> </listitem>
+			  <listitem> <para> Image Segmentation </para> </listitem> 			  
+			  <listitem> <para> Canny Edge </para> </listitem> 			       
+			</itemizedlist>		    
+			Figure 3-4 shows the options for the algorithms. Number of cluster is dedicate to K-Mean and Gaussian Mixture, while threshold level for Image Segmentation and Canny Edge.
+			The reason is within the algorithms itself and the libraries.
+			<figure>
+                          <title>Clustering popup window.</title>
+                          <mediaobject>
+                            <imageobject>
+                              <imagedata fileref="clustering.jpg" format="JPG"/>
+                            </imageobject>
+                          </mediaobject>
+                        </figure>
+			An example of the K-Mean algorithm output is showed in Figure 3-5. Graphically on the plot, statistical ellipses are overlayed to the data. On terminal,
+			xy-position of the found clusters and confidence levels (at 90% and 95%) are calculated.
+			<figure>
+                          <title>Example of K-Mean algorithm to syntetic data.</title>
+                          <mediaobject>
+                            <imageobject>
+                              <imagedata fileref="clustering2.jpg" format="JPG"/>
+                            </imageobject>
+                          </mediaobject>
+                        </figure>
+		      </para>
+		    </listitem>
+		    <listitem>
+		      <para>
+			Overlaying image: the menu consists of open file, a joystick for gross and fine controls for positioning the image, X- and Y-zoom for adapting the figure to the plot,
+			and transparency level controls. This option has been introduced for simplify the comparison between simulated and real data (i.e. S800 CRDC masking, PID, ...).
+			<figure>
+			  <title>Overlay image popup window.</title>
+			  <mediaobject>
+			    <imageobject>
+			      <imagedata fileref="overlay0.jpg" format="JPG"/>
+			    </imageobject>
+			  </mediaobject>
+			</figure>
+			Here an example of a giant anteater picture overlaid to a two dimensional spectrum.
+			<figure>
+			  <title>Example of overlaid image on a plot.</title>
+			  <mediaobject>
+			    <imageobject>
+			      <imagedata fileref="overlay.jpg" format="JPG"/>
+			    </imageobject>
+			  </mediaobject>
+			</figure>			
+		      </para>		      
+		    </listitem>
+		    <listitem>
+		      <para>
+			Jupyter notebook: when clicking "Start", a local server starts to run Jupyter Notebook. At the same time, the data available in the shared memory are dumped into a
+			dataframe formatted as csv file. This solution allows users to perform data analysis on an interactive web tool with hooks to Python and ROOT libraries. 
+			<figure>
+			  <title>Example of Jupyter notebook.</title>
+			  <mediaobject>
+			    <imageobject>
+			      <imagedata fileref="jup.jpg" format="JPG"/>
+			    </imageobject>
+			  </mediaobject>
+			</figure>			
+		      </para>		      
+		    </listitem>
+		  </itemizedlist>		    
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Spectrum list:  it updates the information of the visualized spectrum as created in SpecTcl. On the right side, a scroll-down menu with predefined fitting functions,
+		  fitting range options, and the fit output.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+		  Plot area: the bottom half of the visualizer (expandable by clicking "Menu"->"Options") automatically formats when a geometry window is defined. Zooming, axes redefinition,
+		  saving options are available above the histograms.
+                </para>
+            </listitem>	    	    	    
+        </itemizedlist>
+      </para>
+    </chapter>
+
+    <chapter>    
+      <title>How to customize ML algo and fitting functions</title>    
+      <para>
+	To simplify the implementation of specific ML algorithms or fitting functions, CutiePie implements a factory for handling models and offers simple skeletons to fill in.
+	Below a look at the skeleton for ML and fitting with examples of the implementation for K-Mean and Gaussian fit.
+      </para>
+      <example>
+	<title>ML algorithm skeleton.</title>
+	<programlisting>
+	  import io
+	  import sys, os
+	  sys.path.append(os.getcwd())
+	  
+	  import algo_factory
+	  
+	  # Skeleton algo parameters
+	  # param_1 = 5
+	  # param_2 = 'test',
+	  # param_3 = 100
+	  
+	  class SkelAlgo:
+       	      def __init__(self, param_1, param_2, param_3):
+                 self.param_1 = param_1
+		 self.param_2 = param_2
+		 self.param_3 = param_3
+	  
+	  # implementation of the algorithm, the argument are mandatory even if not used
+	      def start(self, data, weigths, nclusters, axis, figure=None):
+              print("Skeleton example. Implementation is all yours.")
+	  
+	  class SkelAlgoBuilder:
+	      def __init__(self):
+                 self._instance = None
+	  
+	      def __call__(self, param_1 = 5, param_2 = 'test', param_3 = 100, **_ignored):
+                 if not self._instance:
+                    self._instance = SkelAlgo(param_1, param_2, param_3)
+                 return self._instance
+        </programlisting>
+      </example>
+
+      <example>
+	<title>Example of ML algorithm based on the skeleton. The output is shown in Figure 3-5.</title>
+	<programlisting>
+	  ...
+	  def start(self, data, weigths, nclusters, axis, figure=None):
+	     # create kmeans object
+             kmeans = KMeans(nclusters, self.init, self.n_init, self.max_iter, self.tol, self.precompute_distances, self.verbose, self.random_state, self.algorithm)
+             # fit kmeans object to data
+             kmeans.fit(data, sample_weight=weigths)
+	  
+             cluster_center = kmeans.cluster_centers_
+             confidPerc = self.soft_clustering_weights(data,cluster_center)
+	  
+             prob_dict = {}
+             for i in range(len(confidPerc[0])):
+                  prob_dict[i] = self.extract(confidPerc, i)
+
+             # CL 90%/CL 95%
+             bool_dict_90 = {}
+             bool_dict_95 = {}
+             w_90 = {}
+             w_95 = {}
+             sum90 = 0
+             sum95 = 0
+             for i in range(len(cluster_center)):
+                  self.addPoint(axis, [cluster_center[i][0], cluster_center[i][1]])
+		  bool_dict_90[i] = [True if x>0.9 else False for i, x in enumerate(prob_dict[i])]
+		  bool_dict_95[i] = [True if x>0.95 else False for i, x in enumerate(prob_dict[i])]
+		  w_90[i] = list(compress(weigths, bool_dict_90[i]))
+		  w_95[i] = list(compress(weigths, bool_dict_95[i]))
+		  sum90 += sum(w_90[i])
+		  sum95 += sum(w_95[i])
+
+             print("#########################################")
+             print("# Results of K-Mean clustering analysis #")
+             print("#########################################")
+             for i in range(len(cluster_center)):
+                  print("Cluster", i," with center (x,y)=(",cluster_center[i][0],",",cluster_center[i][1],")")
+             print("Confidence Level 90% -->", sum90/sum(weigths),"%")
+             print("Confidence Level 95% -->", sum95/sum(weigths),"%")
+             print("#########################################")
+	   ...
+        </programlisting>
+      </example>
+
+      <example>
+	<title>Fitting function skeleton.</title>
+	<programlisting>
+	  import io
+	  import sys, os
+	  sys.path.append(os.getcwd())
+
+	  import pandas as pd
+	  import numpy as np
+
+	  
+	  import fit_factory
+
+	  # Skeleton fit parameters
+	  # param_1 = 1
+	  # param_2 = 1,
+	  # param_3 = 10
+
+	  class SkelFit:
+     	     def __init__(self, param_1, param_2, param_3):
+                 self.param_1 = param_1
+                 self.param_2 = param_2
+                 self.param_3 = param_3
+
+             # implementation of the algorithm, the argument are mandatory even if not used
+   	     def start(self, x, y, xmin, xmax, axis, fit_results):
+                 print("Skeleton example. Implementation is all yours.")
+
+	  class SkelFitBuilder:
+             def __init__(self):
+                self._instance = None
+
+             def __call__(self, param_1 = 1, param_2 = 2, param_3 = 10, **_ignored):
+                if not self._instance:
+                   self._instance = SkelFit(param_1, param_2, param_3)
+                return self._instance
+        </programlisting>
+      </example>	        
+
+      <example>
+	<title>Example of ML algorithm based on the skeleton.</title>
+	<programlisting>
+	  ...
+	  # function defined by the user
+	  def gauss(self, x, amplitude, mean, standard_deviation):
+              return amplitude*np.exp(-(x-mean)**2.0 / (2*standard_deviation**2))
+
+	  # implementation of the fitting algorithm
+	  def start(self, x, y, xmin, xmax, axis, fit_results):
+              fitln =None
+              amplitude = 2000
+              mean = xmin+(xmax-xmin)/2
+              standard_deviation = mean/10
+              p_init = [amplitude, mean, standard_deviation]
+              print(p_init)
+
+              popt, pcov = curve_fit(self.gauss, x, y, p0=p_init, maxfev=5000)
+
+              # plotting fit curve and printing results
+              try:
+                 x_fit = np.linspace(x[0],x[-1], 10000)
+                 y_fit = self.gauss(x_fit, *popt)
+	      
+                 fitln, = axis.plot(x_fit,y_fit, 'r-')
+                 for i in range(len(popt)):
+                     s = 'Par['+str(i)+']: '+str(round(popt[i],3))+'+/-'+str(round(pcov[i][i],3))
+                     fit_results.append(s)
+	      except:
+                 pass
+              return fitln
+	  ...
+        </programlisting>
+      </example>
+    </chapter>        
+</book>

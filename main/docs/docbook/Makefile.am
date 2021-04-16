@@ -8,6 +8,7 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/share/pgmref
 	$(mkinstalldirs) @prefix@/share/DDAS
 	$(mkinstalldirs) @prefix@/share/parallel
+	$(mkinstalldirs) @prefix@/share/qtpy
 	$(mkinstalldirs) @prefix@/share/batch
 	$(mkinstalldirs) @prefix@/share/caendpp
 	$(mkinstalldirs) @prefix@/share/examples
@@ -18,6 +19,8 @@ install-exec-local:
 	$(INSTALL_DATA) @builddir@/cmdref/* @srcdir@/cmdrefimages/*  @prefix@/share/cmdref
 	$(INSTALL_DATA) @builddir@/pgmguide/* @srcdir@/pgmguideimages/* @prefix@/share/pgmguide
 	$(INSTALL_DATA) @builddir@/pgmref/*   @prefix@/share/pgmref
+	$(INSTALL_DATA) @builddir@/parallel/*      @prefix@/share/parallel
+	$(INSTALL_DATA) @builddir@/qtpy/*      @prefix@/share/qtpy
 	$(INSTALL_DATA) @builddir@/DDAS/*      @prefix@/share/DDAS
 	$(INSTALL_DATA) @builddir@/batch/*    @prefix@/share/batch
 	$(INSTALL_DATA) @builddir@/caendpp/*  @prefix@/share/caendpp
@@ -30,7 +33,7 @@ install-exec-local:
 
 EXTRA_DIST = analysis.xml UserGuide.xml CommandReference.xml images.tar.gz userguideimages \
 	cmdrefimages ProgrammingGuide.xml pgmguideimages pgmref.xml DDAS.xml \
-	 parallel.xml batch.xml CAENDPP.xml dppexample
+	 parallel.xml qtpy.xml batch.xml CAENDPP.xml dppexample
 
 BUILT_SOURCES = @builddir@/docs_built
 
@@ -43,6 +46,7 @@ BUILT_SOURCES = @builddir@/docs_built
 	@HTMLDOCBOOK@ @srcdir@/pgmref.xml           -o @builddir@/pgmref
 	@HTMLDOCBOOK@ @srcdir@/DDAS.xml		    -o @builddir@/DDAS
 	@HTMLDOCBOOK@ @srcdir@/parallel.xml	    -o @builddir@/parallel
+	@HTMLDOCBOOK@ @srcdir@/qtpy.xml	            -o @builddir@/qtpy
 	@HTMLDOCBOOK@ @srcdir@/batch.xml	    -o @builddir@/batch
 	@HTMLDOCBOOK@ @srcdir@/CAENDPP.xml          -o @builddir@/caendpp
 
