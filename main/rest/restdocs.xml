@@ -1485,7 +1485,7 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply
                     Sample return value:
                 </para>
                 <informalexample>
-                    <cmdsynopsis><command>
+                    <programlisting>
 {
     "status" : "OK",
     "detail" : [{
@@ -1498,7 +1498,7 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply
     }
     ]
 }      
-                    </command></cmdsynopsis>
+                    </programlisting>
                 </informalexample>
             </section>
         </section>
