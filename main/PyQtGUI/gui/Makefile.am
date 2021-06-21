@@ -20,6 +20,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/Skel
+	$(INSTALL_DATA) @srcdir@/../../Scripts/SpecTclInit.tcl @prefix@/Skel
 	if [ -s @prefix@/Skel/Script ] ; \
 	then \
 	     rm -rf @prefix@/Skel/Script ; \
@@ -36,6 +37,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/VMUSBSkel
+	$(INSTALL_DATA) @srcdir@/../../Scripts/SpecTclInit.tcl @prefix@/VMUSBSkel
 	if [ -s @prefix@/VMUSBSkel/Script ] ; \
 	then \
 	     rm -rf @prefix@/VMUSBSkel/Script ; \
@@ -52,6 +54,7 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/jupyterqtpy_notebook_config.py @prefix@/DDASSkel
+	$(INSTALL_DATA) @srcdir@/../../Scripts/SpecTclInit.tcl @prefix@/DDASSkel
 	if [ -s @prefix@/DDASSkel/Script ] ; \
 	then \
 	     rm -rf @prefix@/DDASSkel/Script ; \
