@@ -83,6 +83,39 @@
             <listitem><para>Start the REST server.</para></listitem>
         </itemizedlist>
         <para>
+            For SpecTcl 5.3 and later, starting the REST interface is much simpler
+            than described in the remainder of this document.  This is because
+            The REST
+            In SpecTclInit.tcl simply set the <literal>HTTPDPort</literal> variable
+            in <filename>SpecTclInit.tcl</filename> to the desired server port.
+            Note that:
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      Port numbers below 1024 are privileged ports and cannot
+                      be used by programs that are not running as <literal>root</literal>
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      If the desired port is in use, SpecTcl will search for a
+                      nearby unused port.  
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      When the REST interface starts,
+                      the actual port number selected will be output to the terminal on which
+                      SpecTcl was started.
+                   </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>
+            The remainder of this section only applies to versionf of SpecTcl
+            earlier than 5.3.
+        </para>
+        <para>
             If the REST plugin was installed in the <filename>$SpecTclHome/TclLibs</filename>
             directory tree, SpecTcl will ensure that it is visible to the
             Tcl package auto load path.  If not you will need to make an approprate
@@ -143,7 +176,7 @@ startSpecTclHttpdServer $port               <co id='start' />
         </calloutlist>
     </chapter>
     <chapter>
-        <title>REST requests supproted.</title>
+        <title>REST requests supported.</title>
         <section>
             <title>General Request format</title>
             <para>
@@ -1315,6 +1348,158 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/gate
                     as folds where they can cut down the set of parameters
                     that can actually increment spectra.
                 </para>
+            </section>
+        </section>
+        <section>
+            <title>Gate Applications.</title>
+            <para>
+                The <literal>/spectcl/apply</literal> set of URLs provide access
+                to the SpecTcl <command>apply</command> command.  This set of
+                URLs can
+            </para>
+            <itemizedlist>
+                <listitem>
+                   <para>
+                      Apply a gate to a spectrum.  Applying a gate to a spectrum
+                      only allows that spectrum to be incremented for events
+                      that make that gate <literal>true</literal>
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      List the gate applied to a spectrum.  Note that to make the
+                      SpecTcl logic regular, all Spectra actually have exactly
+                      one gate applied to them.  Always.  
+                   </para>
+                   <para>
+                      When Spectra are initially created, the gate
+                      <literal>-TRUE-</literal> is applied which is a True
+                      gate.  True gates are true regardless of the event contents.
+                   </para>
+                </listitem>
+            </itemizedlist>
+            <section>
+                <title>Applying a gate to a spectrum.</title>
+                <para>
+                    To apply a gate to a spectrum the URI of the form:
+                </para>
+                <informalexample>
+                <cmdsynopsis><command>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply               
+                </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Should be used.  This URI has two required query parameters:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                       <term>gate</term>
+                       <listitem>
+                           <para>
+                            The name of the gate to apply to the spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term>spectrum</term>
+                       <listitem>
+                           <para>
+                            The name of the spectrum to which the gate is applied.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    The response from the server, on success, is
+                    
+                </para>
+                <informalexample>
+                    <programlisting>
+{
+    "status" : "OK",
+    "detail" : ""
+}          
+                    </programlisting>
+                </informalexample>
+                <para>
+                    Any other value for the status attribute is an error return
+                    message and the detail attribute furthere clarifies the
+                    error.
+                </para>            
+            </section>
+            <section>
+                <title>Listing gate applications</title>
+                <para>
+                    To list the gates applied to a spectrum  a URI of the form.
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply                          
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Should be used.  This URI accepts a single optional
+                    query parameter <literal>pattern</literal> whose value is a
+                    glob pattern string that filters the output by spectrum
+                    names that match that pattern.  If this parameter
+                    is omitted it defaults to <literal>*</literal> which
+                    lists the gates applied to all spectra.
+                </para>
+                <para>
+                    The result is a JSON object with attributes
+                    <literal>status</literal> and <literal>detail</literal>.
+                    The <literal>status</literal> attribute value will always
+                    be a the string <literal>OK</literal> as this URI produces
+                    no errors.
+                </para>
+                <para>
+                    The <literal>detail</literal> attribute value is an array
+                    of JSON objects.  Each element of the array describes
+                    a single gate application for a matching spectrum.
+                    The attributes of these objects are:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                       <term><literal>spectrum</literal></term>
+                       <listitem>
+                           <para>
+                            The value of this attribute is the name of a
+                            spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>gate</literal></term>
+                       <listitem>
+                           <para>
+                            The value of this attribute is the name of the
+                            gate applied to this spectrum.  Note again,
+                            that every spectrum has a gate applied to it, however
+                            some spectra may have a <literal>true</literal>
+                            gate applied to themto effectively un gate them.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    Sample return value:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+{
+    "status" : "OK",
+    "detail" : [{
+        "name" : "some.spectrum",
+        "gate" : "some.gate"
+    },
+    {
+        "name" : "ungated.spectrum",
+        "gate" : "-TRUE-"
+    }
+    ]
+}      
+                    </command></cmdsynopsis>
+                </informalexample>
             </section>
         </section>
         
