@@ -402,6 +402,9 @@ proc ::SpecTcl::_returnObject {{status OK} {detail ""}} {
     if {($status eq "OK") && ($detail eq "")} {
 	return [json::write object status [json::write string $status]]
     }
+	if {$detail eq ""} {
+		set detail [json::write string $detail]
+	}
     return [json::write object \
 		status [json::write string $status] detail $detail]
 }
