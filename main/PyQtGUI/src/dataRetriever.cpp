@@ -26,15 +26,29 @@ dataRetriever::getInstance()
 }
 
 void
+dataRetriever::SetHostPort(std::string host, std::string port)
+{
+  std::cout << "Inside dataRetriever::SetHostPort()" << std::endl;
+  std::cout << host << "," << port << std::endl;  
+  _hostname = host;
+  _port = port;
+}
+
+void
 dataRetriever::InitShMem()
 {
+  std::cout << "Inside dataRetriever::InitShMem()" << std::endl;
+  std::cout << _hostname << "," << _port << std::endl;  
+  
   std::array<char, 512> buffer;
   std::string filename, tmp;
 
   std::string command = "python3 ";
   const char* pwd = getenv("PWD");
-  filename = std::string(pwd)+"/shm_parser.py";
-  command += filename;
+  filename = std::string(pwd)+"/../Script/shm_parser.py";
+  command += filename+" "+_hostname+" "+_port;
+  //command += filename;  
+  std::cout << "command --> " << command << std::endl;
   FILE* pipe = popen(command.c_str(), "r");
 
   if (!pipe)
@@ -76,7 +90,6 @@ dataRetriever::InitShMem()
     perror("Map to shared memory failed!!");
     exit(errno);
   }
-
   
 }
 

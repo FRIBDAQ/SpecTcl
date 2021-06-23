@@ -2,7 +2,9 @@
 import io
 import sys, os
 sys.path.append(os.getcwd())
+print(os.getcwd())
 sys.path.append("./Script")
+sys.path.append(os.environ.get("INSTDIR")+"/Script")
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
@@ -152,3 +154,4 @@ app = QApplication(sys.argv)
 gui = MainWindow(factory, fitfactory)
 gui.show()
 sys.exit(app.exec_())
+

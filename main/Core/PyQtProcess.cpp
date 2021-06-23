@@ -100,7 +100,7 @@ CPyQtProcess::generatePath() const {
   // Makefile rule sets INSTALLED_IN to @prefix@
   std::string defaultPyQtPath(INSTALLED_IN);
 
-  defaultPyQtPath += "/bin/PyQtGUI";
+  defaultPyQtPath += "/bin/_CutiePie";
 
   // environment variable overrides
   std::string PyQtPath;

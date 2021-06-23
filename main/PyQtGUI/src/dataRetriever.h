@@ -9,6 +9,9 @@ class dataRetriever{
   std::vector<std::string> shm;
   std::string key;
   unsigned int size;
+
+  std::string _hostname;
+  std::string _port;
   
   spec_shared *shmem;
   spec_shared *spectra;
@@ -22,6 +25,7 @@ class dataRetriever{
 
   static dataRetriever* getInstance();
 
+  void SetHostPort(std::string host, std::string port);  
   void InitShMem();
   std::string ShMemKeyGet() { return key; }
   unsigned int ShMemSizeGet() { return size; }

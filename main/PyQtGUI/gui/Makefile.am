@@ -1,10 +1,10 @@
-bin_PROGRAMS = PyQtGUI
+bin_PROGRAMS = _CutiePie
 
 include_HEADERS = CPyHelper.h
 
-PyQtGUI_SOURCES = gui.cpp
-PyQtGUI_CXXFLAGS = @PYTHON_CXXFLAGS@
-PyQtGUI_LDFLAGS = @PYTHON_LDFLAGS@
+_CutiePie_SOURCES = gui.cpp 
+_CutiePie_CXXFLAGS = @PYTHON_CXXFLAGS@
+_CutiePie_LDFLAGS = @PYTHON_LDFLAGS@
 
 install-exec-hook:
 	$(mkinstalldirs) @prefix@/share/d3web

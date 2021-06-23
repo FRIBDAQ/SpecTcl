@@ -4,9 +4,12 @@ import pickle
 import traceback, sys, os
 sys.path.append(os.getcwd())
 sys.path.append("./Lib")
+sys.path.append(os.environ.get("INSTDIR")+"/Lib")
 import subprocess
 import signal
 import logging
+import ctypes
+from ctypes import *
 
 from copy import copy
 import json
@@ -897,8 +900,15 @@ class MainWindow(QMainWindow):
     def update(self):
         # this snippet tests if the rest server is up and running
         try:
+            # update hostname and port from GUI
+            hostnameport = str(self.wTop.server.text()).split(":")
+            hostname = hostnameport[0]
+            port = hostnameport[1]
+            b_hostname = hostname.encode('utf-8')
+            b_port = port.encode('utf-8')
+            print(b_hostname, b_port)
             # creates a dataframe for spectrum info
-            s = cpy.CPyConverter().Update()
+            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'))
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],
                  'names': s[1],
@@ -919,7 +929,8 @@ class MainWindow(QMainWindow):
             self.isCluster = False
 
             self.createDf()
-        except:
+        except Exception as e:
+            print(e)
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
     # get parameter count
