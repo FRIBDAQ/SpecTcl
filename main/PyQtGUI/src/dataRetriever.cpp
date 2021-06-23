@@ -44,8 +44,8 @@ dataRetriever::InitShMem()
   std::string filename, tmp;
 
   std::string command = "python3 ";
-  const char* pwd = getenv("PWD");
-  filename = std::string(pwd)+"/../Script/shm_parser.py";
+  const char* pwd = getenv("INSTDIR");
+  filename = std::string(pwd)+"/Script/shm_parser.py";
   command += filename+" "+_hostname+" "+_port;
   //command += filename;  
   std::cout << "command --> " << command << std::endl;
