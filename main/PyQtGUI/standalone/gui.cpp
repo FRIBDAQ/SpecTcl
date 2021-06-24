@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
 
     conf.fileScan();
 
-    path = conf.getHomeScriptDir();
     std::cout << "\t#################################" << std::endl;
     std::cout << "\t# Usage for CutiePie standalone #:" << std::endl;
     std::cout << "\t#################################" << std::endl;

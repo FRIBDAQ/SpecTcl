@@ -48,7 +48,7 @@ CutiePieConfig::fileCreate()
   outfile << "MAIN" << std::endl;
   outfile << instPath << std::endl;
   outfile << "USER" << std::endl;
-  outfile << "/user/algo_dir:/user/home/algo" << std::endl; 
+  outfile << "/user/mrbanana/home/algo" << std::endl; 
   outfile.close();
   std::cout << "File " << filename << "  created" << std::endl;  
 }
@@ -68,10 +68,11 @@ CutiePieConfig::fileScan()
 	iter = count+1;
 	if(count = iter){
 	  getline(file,line);
-	  homescript = line;
+	  homescript = line;	  
 	}
-	iter = 0;
       }
+      count = 0;
+      iter = 0;
       if (line == "USER"){
 	iter = count+1;
 	if(count = iter){
@@ -79,8 +80,8 @@ CutiePieConfig::fileScan()
 	  userscript = line;
 	}
       }
-    file.close();
     }
+    file.close();
   }
   else
     std::cout << "Unable to open config file" << std::endl;

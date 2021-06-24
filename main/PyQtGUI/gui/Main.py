@@ -5,6 +5,7 @@ sys.path.append(os.getcwd())
 print(os.getcwd())
 sys.path.append("./Script")
 sys.path.append(os.environ.get("INSTDIR")+"/Script")
+sys.path.append(os.environ.get("USERDIR"))
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
