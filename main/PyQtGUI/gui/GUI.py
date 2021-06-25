@@ -4,7 +4,7 @@ import pickle
 import traceback, sys, os
 sys.path.append(os.getcwd())
 sys.path.append("./Lib")
-sys.path.append(os.environ.get("INSTDIR")+"/Lib")
+sys.path.append(str(os.environ.get("INSTDIR"))+"/Lib")
 import subprocess
 import signal
 import logging
@@ -908,6 +908,7 @@ class MainWindow(QMainWindow):
             b_port = port.encode('utf-8')
             print(b_hostname, b_port)
             # creates a dataframe for spectrum info
+            print("before cpy.CPyConverter().Update")
             s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'))
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],

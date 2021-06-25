@@ -15,7 +15,6 @@ install-exec-hook:
 	$(INSTALL_DATA) @srcdir@/d3.js/index.html @prefix@/share/d3web	
 	$(INSTALL_DATA) @srcdir@/*.py @prefix@/Script
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/Skel 
-	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/Skel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/Skel
@@ -32,7 +31,6 @@ install-exec-hook:
 	fi;
 	ln -s @prefix@/lib @prefix@/Skel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/VMUSBSkel
-	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/VMUSBSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/VMUSBSkel
@@ -49,7 +47,6 @@ install-exec-hook:
 	fi;
 	ln -s @prefix@/lib @prefix@/VMUSBSkel/Lib
 	$(INSTALL_DATA) @srcdir@/Main.py @prefix@/DDASSkel
-	$(INSTALL_DATA) @srcdir@/shm_parser.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/skel_creator.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/skel_plot.py @prefix@/DDASSkel
 	$(INSTALL_DATA) @srcdir@/fit_skel_creator.py @prefix@/DDASSkel

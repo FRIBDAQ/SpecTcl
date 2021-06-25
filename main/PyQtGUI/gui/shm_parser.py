@@ -15,15 +15,14 @@ def cleaning(args):
     return lst
             
 try:
-    args = cleaning(sys.argv)
-    '''
     try:
+        args = cleaning(sys.argv)
+        h = args[1]
+        p = args[2]
+    except:
         h = os.environ['RESThost']
         p = os.environ['RESTport']
-    except:
-    '''
-    h = args[1]
-    p = args[2]
+
     key_address = "http://"+h+":"+p+"/spectcl/shmem/key"    
     key = httplib2.Http().request(key_address)[1]    
     var = json.loads(key.decode())

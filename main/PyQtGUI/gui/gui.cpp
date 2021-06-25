@@ -16,11 +16,17 @@ int main(int argc, char *argv[])
 {
   CPyHelper pInstance;
 
-  PyObject *obj = Py_BuildValue("s", "Main.py");
-  FILE *file = _Py_fopen_obj(obj, "r+");
-  if(file != NULL) {
-    PyRun_SimpleFile(file, "Main.py");
+ try {
+    PyObject *obj = Py_BuildValue("s", "Main.py");    
+    FILE *file = _Py_fopen_obj(obj, "r+");
+    if(file != NULL) {
+      PyRun_SimpleFile(file, "Main.py");
+    }
   }
+  catch (std::exception& e)
+    {
+      std::cout << e.what() << '\n';
+    }
 
   return 0;
 }
