@@ -1434,7 +1434,7 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply
                 </para>
                 <informalexample>
                     <cmdsynopsis><command>
-http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/apply                          
+http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/list                          
                     </command></cmdsynopsis>
                 </informalexample>
                 <para>
