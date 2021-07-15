@@ -32,7 +32,7 @@ CSpecTclDisplayInterface::CSpecTclDisplayInterface()
 {
     getFactory().addCreator("null",   *(new CNullDisplayCreator));
     getFactory().addCreator("xamine", *(new CXamineCreator()));
-    getFactory().addCreator("pyqt", *(new CPyQtCreator()));    
+    getFactory().addCreator("qtpy", *(new CPyQtCreator()));    
 #ifdef USE_SPECTRA
     getFactory().addCreator("spectra",
                             *(new Spectra::CSpectraLocalDisplayCreator()));

@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
@@ -16,8 +17,12 @@ class Configuration(QWidget):
             self.oldrow = 0
             self.oldcol = 0
 
+            l = QVBoxLayout()
+            l.addWidget(self.create_typeBox())
+            l.addWidget(self.create_gateTypeBox())
+            
             layout = QHBoxLayout()
-            layout.addWidget(self.create_typeBox())
+            layout.addLayout(l)
             layout.addWidget(self.create_defBox())
             layout.addWidget(self.create_algoBox())            
             layout.addWidget(self.create_lstBox())
@@ -41,10 +46,38 @@ class Configuration(QWidget):
         typelayout.addStretch(1)
         
         spectrumTypeBox.setLayout(typelayout)
-        spectrumTypeBox.setMaximumHeight(self.width)
+        spectrumTypeBox.setMaximumHeight(0.5*self.width)
             
         return spectrumTypeBox
-    
+
+    def create_gateTypeBox(self):
+        gateTypeBox = QGroupBox("Gate Type")
+        self.s = QRadioButton("Slice")
+        self.c = QRadioButton("Contour")
+        self.b = QRadioButton("Band")
+        self.gs = QRadioButton("Gamma Slice")
+        self.gc = QRadioButton("Gamma Contour")
+        self.gb = QRadioButton("Gamma Band")        
+        self.buttonGateTypeDict = { "s": self.s, "c": self.c, "b": self.b, "gs": self.gs, "gc": self.gc, "gb": self.gb}
+        
+        layout = QGridLayout()
+        layout.addWidget(self.s, 0, 0)
+        layout.addWidget(self.c, 0, 1)
+        layout.addWidget(self.b, 0, 2)
+        layout.addWidget(self.gs, 1, 0)
+        layout.addWidget(self.gc, 1, 1)
+        layout.addWidget(self.gb, 1, 2)                
+
+        gateTypeBox.setLayout(layout)
+        gateTypeBox.setMaximumHeight(0.5*self.width)
+
+        return gateTypeBox
+
+    def resetGateType(self):
+        lst_btn = list(self.buttonGateTypeDict.values())
+        for button in lst_btn:
+            button.setChecked(False)
+        
     def create_defBox(self):
         spectrumCreateBox = QGroupBox("Spectrum Definition")
                 
@@ -101,14 +134,33 @@ class Configuration(QWidget):
         self.peak_option = QPushButton("Options", self)
         self.cluster_name_label = QLabel("Clustering 2D")
         self.cluster_option = QPushButton("Options", self)
-
+        self.jup_start_label = QLabel("Jupyter Notebook")
+        self.jup_start = QPushButton("Start", self)
+        self.jup_stop = QPushButton("Stop", self)                
+        self.jup_df_label = QLabel("Saving dataframe to")
+        self.jup_df_filename = QLineEdit()
+        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".bz2"
+        self.jup_df_filename.setText(filename)
+        
+        self.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.jup_stop.setEnabled(False)
+        
+        
+        hlayout = QHBoxLayout()
+        hlayout.addWidget(self.jup_start)
+        hlayout.addWidget(self.jup_stop)
+        hlayout.addStretch()
+        
         vlayout = QVBoxLayout()
         vlayout.addWidget(self.peak_name_label)        
         vlayout.addWidget(self.peak_option)
         vlayout.addWidget(self.cluster_name_label)
         vlayout.addWidget(self.cluster_option)
-        vlayout.addStretch()
-        
+        vlayout.addWidget(self.jup_start_label)
+        vlayout.addLayout(hlayout)
+        #vlayout.addWidget(self.jup_df_label)
+        vlayout.addWidget(self.jup_df_filename)
+
         algoBox.setLayout(vlayout)
         algoBox.setMaximumHeight(self.width)
 
@@ -129,24 +181,24 @@ class Configuration(QWidget):
         self.histo_geo_all = QCheckBox("Select All",self)
         self.fit_label = QLabel("Fitting Functions 1D")
         self.fit_list = QComboBox()
-        self.fit_list.addItem("Gaussian")
-        self.fit_list.addItem("Expo")
-        self.fit_list.addItem("Pol1")
-        self.fit_list.addItem("Pol2")
-        self.fit_list.addItem("Pol3")
-        self.fit_list.addItem("GPol1")
-        self.fit_list.addItem("GPol2")                
-        self.fit_list.addItem("Custom")
+        #self.fit_list.addItem("Gaussian")
+        #self.fit_list.addItem("Expo")
+        #self.fit_list.addItem("Pol1")
+        #self.fit_list.addItem("Pol2")
+        #self.fit_list.addItem("Pol3")
+        #self.fit_list.addItem("GPol1")
+        #self.fit_list.addItem("GPol2")                
+        #self.fit_list.addItem("Custom")
         self.fit_button = QPushButton("Fit", self)
         self.fit_range_label = QLabel("Fitting Range")
         self.fit_range_label_min = QLabel("Min X")
         self.fit_range_label_max = QLabel("Max X")
         self.fit_range_min = QLineEdit(self)
         self.fit_range_max = QLineEdit(self)
-        self.fit_range_label_min_2 = QLabel("Min Y")
-        self.fit_range_label_max_2 = QLabel("Max Y")
-        self.fit_range_min_2 = QLineEdit(self)
-        self.fit_range_max_2 = QLineEdit(self)        
+        #self.fit_range_label_min_2 = QLabel("Min Y")
+        #self.fit_range_label_max_2 = QLabel("Max Y")
+        #self.fit_range_min_2 = QLineEdit(self)
+        #self.fit_range_max_2 = QLineEdit(self)        
         self.fit_results_label = QLabel("Fit output")
         self.fit_results = QTextEdit()
         self.fit_results.setReadOnly(True)
@@ -184,13 +236,13 @@ class Configuration(QWidget):
         vlayout2b.addWidget(self.fit_range_min)
         vlayout2b.addWidget(self.fit_range_max)
 
-        vlayout2c = QHBoxLayout()
-        vlayout2c.addWidget(self.fit_range_label_min_2)
-        vlayout2c.addWidget(self.fit_range_label_max_2)
+        #vlayout2c = QHBoxLayout()
+        #vlayout2c.addWidget(self.fit_range_label_min_2)
+        #vlayout2c.addWidget(self.fit_range_label_max_2)
         
-        vlayout2d = QHBoxLayout()
-        vlayout2d.addWidget(self.fit_range_min_2)
-        vlayout2d.addWidget(self.fit_range_max_2)        
+        #vlayout2d = QHBoxLayout()
+        #vlayout2d.addWidget(self.fit_range_min_2)
+        #vlayout2d.addWidget(self.fit_range_max_2)        
                 
         vlayout2 = QVBoxLayout()
         vlayout2.addWidget(self.fit_label)
@@ -199,8 +251,8 @@ class Configuration(QWidget):
         vlayout2.addWidget(self.fit_range_label)
         vlayout2.addLayout(vlayout2a)
         vlayout2.addLayout(vlayout2b)
-        vlayout2.addLayout(vlayout2c)
-        vlayout2.addLayout(vlayout2d)        
+        #vlayout2.addLayout(vlayout2c)
+        #vlayout2.addLayout(vlayout2d)        
         vlayout2.addStretch()
         
         vlayout3 = QVBoxLayout()

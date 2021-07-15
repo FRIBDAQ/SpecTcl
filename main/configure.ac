@@ -1,7 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-
-AC_INIT(SpecTcl,5.4-000, scientificsoftware@nscl.msu.edu)
+AC_INIT(SpecTcl,5.5-000-hybrid, scientificsoftware@nscl.msu.edu)
 
 
 
@@ -46,27 +45,10 @@ AC_PROG_LIBTOOL
 
 # PYthon C/C++ extension environment build flags:
 
-
-# At some point PYTHON folks decided to move their flags from
-#  e.g. python3 to python3-embed... therefore the following
-#  gymnastics:
-
-AC_MSG_CHECKING([How to configure python header/loader flags])
-pkg-config python3-embed --exists
-if test $? -eq 0
-then
-   AC_MSG_RESULT([python3-embed package will be used])
-   pypackage="python3-embed"
-else
-   AC_MSG_RESULT([python3 package will be used])
-   pypackage="python3"
-fi
-
-PYTHON_CXXFLAGS=`pkg-config ${pypackage} --cflags`
+PYTHON_CXXFLAGS=`pkg-config python3 --cflags`
 AC_SUBST(PYTHON_CXXFLAGS)
-PYTHON_LDFLAGS=`pkg-config ${pypackage} --libs`
+PYTHON_LDFLAGS=`pkg-config python3 --libs`
 AC_SUBST(PYTHON_LDFLAGS)
-
 
 # needed for autotools version earlier than 1.14
 AM_PROG_CC_C_O
@@ -858,7 +840,7 @@ else
   AC_MSG_NOTICE([Using root-config ... $ROOTCONFIG])
 fi
 
-ROOT_CFLAGS=`$ROOTCONFIG --cflags`
+ROOT_CFLAGS=`$ROOTCONFIG --libs --cflags`
 ROOT_LDFLAGS="`$ROOTCONFIG --glibs`  -Wl,-rpath=`$ROOTCONFIG --libdir` "
 ROOT_LIBRARY_DIR=`$ROOTCONFIG --libdir`
 AC_SUBST(ROOT_CFLAGS)
@@ -979,6 +961,7 @@ AC_OUTPUT(Makefile
 	  PyQtGUI/src/Makefile
 	  PyQtGUI/sip/Makefile
 	  PyQtGUI/gui/Makefile
-	  PyQtGUI/test/Makefile	  
+	  PyQtGUI/test/Makefile
+	  PyQtGUI/standalone/Makefile	  	  
 	  )
           

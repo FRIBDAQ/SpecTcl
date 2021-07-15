@@ -39,6 +39,7 @@
 
 #include <list>
 #include <string>
+#include <stdint.h>
 
 class CTCLInterpreter;
 class CAnalyzer;
@@ -82,6 +83,8 @@ class CTclGrammerApp {
 
 private:
   // Private Member data:
+  UInt_t                    m_nProcs;
+  uint64_t                  m_nChunk;
   UInt_t                    m_nDisplaySize;
   UInt_t                    m_nParams;
   UInt_t                    m_nListSize;
@@ -97,6 +100,8 @@ private:
   CDataSourcePackage*       m_pDataSourcePackage;
   CGatePackage*             m_pGatePackage;
   CTCLVariable              m_RCFile;
+  CTCLVariable              m_TclnProcs;
+  CTCLVariable              m_TclDataChunk;
   CTCLVariable              m_TclDisplaySize;
   CTCLVariable              m_TclParameterCount;
   CTCLVariable              m_TclEventListSize;
@@ -106,7 +111,7 @@ private:
   CGatingDisplayObserver*   m_pGatingObserver;
   
   int m_nUpdateRate;
-
+  Tcl_ThreadId              m_nMainThread;
  public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
@@ -129,6 +134,16 @@ private:
 
   // Selectors:
  public:
+  Tcl_ThreadId getThread() const { return m_nMainThread; }
+
+  //Get accessor function for non-static attribute data member
+  UInt_t getDataChunkSize() const {
+    return m_nChunk;
+  }
+  //Get accessor function for non-static attribute data member
+  UInt_t getNthreads() const {
+    return m_nProcs;
+  }  
   //Get accessor function for non-static attribute data member
   UInt_t getDisplaySize() const {
     return m_nDisplaySize;
@@ -184,6 +199,10 @@ private:
   //Get accessor function for non-static attribute data member
   CTCLVariable getTclDisplaySize() const {
     return m_TclDisplaySize;
+  }
+  //Get accessor function for non-static attribute data member
+  CTCLVariable getDataChunkSizeVar() const {
+    return m_TclDataChunk;
   }
   //Get accessor function for non-static attribute data member
   CTCLVariable getTclParameterCount() const {
@@ -282,6 +301,7 @@ private:
  public:
   void RegisterEventProcessor(CEventProcessor& rEventProcessor,
 			      const char* name = 0); // Add event processor to pipeline tail
+  void RegisterData(void* map);
   virtual void BindTCLVariables(CTCLInterpreter& rInterp); // Bind any CTCLVariables to interpreter.
   virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter); // Source variable definition scripts.
   virtual void SetLimits(); // Finalize limit variables.
@@ -337,6 +357,7 @@ private:
   // Utilities:
 protected:
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
+  static void UpdateULong(CTCLVariable& rVar, uint64_t& rValue);
   static void UpdateString(CTCLVariable& rVar, std::string& rString);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
 private:
