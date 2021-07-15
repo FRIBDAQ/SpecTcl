@@ -30,7 +30,7 @@ class CPyConverter {
    std::vector<float> m_maxy;
    
    void extractInfo(char* speclist);
-   PyObject* Update();
+   PyObject* Update(char* hostname, char* port);
    PyObject* ShMemToNpArray(void* addr, int size, int nbinx, int nbiny);
    PyObject* DebugFillSpectra();   
 

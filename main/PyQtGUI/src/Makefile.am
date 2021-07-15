@@ -3,7 +3,7 @@ lib_LTLIBRARIES = libCPyConverter.la
 libCPyConverter_la_SOURCES = CPyConverter.cpp dataRetriever.cpp dataAccess.cpp \
 	CPyConverter.h dataRetriever.h dataAccess.h dataTypes.h
 
-libCPyConverter_la_CXXFLAGS = -std=c++11 -c -g -fPIC @PYTHON_CXXFLAGS@
+libCPyConverter_la_CXXFLAGS = -std=c++11 -c -g -fPIC @PYTHON_CXXFLAGS@ -DINSTALLED_IN='"@prefix@"'
 
 libCPyConverter_la_LDFLAGS = -shared @PYTHON_LDFLAGS@ -version-info 0:0:0
 

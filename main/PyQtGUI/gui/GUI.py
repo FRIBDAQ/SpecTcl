@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 import io
 import pickle
-import sys, os
+import traceback, sys, os
 sys.path.append(os.getcwd())
-sys.path.append("../lib")
+sys.path.append("./Lib")
+sys.path.append(str(os.environ.get("INSTDIR"))+"/Lib")
+import subprocess
+import signal
+import logging
+import ctypes
+from ctypes import *
 
 from copy import copy
 import json
@@ -12,6 +18,8 @@ import threading
 import itertools
 import time
 import multiprocessing
+import math
+import re
 
 from sklearn import metrics
 from sklearn.cluster import KMeans
@@ -36,6 +44,7 @@ from scipy.signal import find_peaks
 from PyQt5 import QtCore, QtNetwork
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -48,6 +57,7 @@ import numpy as np
 import CPyConverter as cpy
 
 import algo_factory
+import fit_factory
 
 # import widgets
 from MenuGUI import Menu
@@ -56,17 +66,28 @@ from ConfigGUI import Configuration
 from OutputGUI import OutputPopup
 from Clustering import Cluster2D
 from PeakFinder import PeakFinder
+from logger import log, setup_logging, set_logger
+from notebook_process import testnotebook, startnotebook, stopnotebook
+from WebWindow import WebWindow
+
+SETTING_BASEDIR = "workdir"
+SETTING_EXECUTABLE = "exec"
+DEBUG = False
 
 DEBOUNCE_DUR = 0.25
 t = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, factory, *args, **kwargs):
+
+    stop_signal = pyqtSignal()
+
+    def __init__(self, factory, fit_factory, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.factory = factory
-        
-        self.setWindowTitle("Project Robot Alba")
+        self.fit_factory = fit_factory        
+
+        self.setWindowTitle("CutiePie")
         '''
         self.setWindowFlags(
             QtCore.Qt.Window |
@@ -90,9 +111,10 @@ class MainWindow(QMainWindow):
 
         # dictionaries for parameters
         self.param_list = {}
+        self.nparams = 0
         # dataframe for spectra
         self.spectrum_list = pd.DataFrame()
-
+        
         # dictionary for histogram
         self.h_dict = {}
         self.h_dict_output = {}  # for saving pane geometry
@@ -142,6 +164,9 @@ class MainWindow(QMainWindow):
         
         # dictionary for spectcl gates
         self.gate_dict = {}
+        self.gateTypeDict = {}
+        self.gateType = ""
+        
         #dictionary for gates - key:gate name entry: line (with label)
         self.dict_region = {}
         self.counter = 0
@@ -230,6 +255,8 @@ class MainWindow(QMainWindow):
 
         # initialize factory from algo_creator
         self.factory.initialize(self.clPopup.clusterAlgo)
+        # initialize factory from fit_creator
+        self.fit_factory.initialize(self.wConf.fit_list)
         
         #################
         # Signals
@@ -246,6 +273,7 @@ class MainWindow(QMainWindow):
         self.wTop.loadButton.clicked.connect(self.loadGeo)
 
         self.wTop.createGate.clicked.connect(self.createGate)
+        self.wTop.createGate.setEnabled(False)
         self.wTop.editGate.clicked.connect(self.editGate)
         self.wTop.editGate.setEnabled(False)
         self.wTop.editGate.setToolTip("Key bindings for editing a gate:\n"
@@ -273,6 +301,9 @@ class MainWindow(QMainWindow):
         self.pPopup.peak_analysis.clicked.connect(self.analyzePeak)
         self.pPopup.peak_analysis_clear.clicked.connect(self.peakAnalClear)        
 
+        self.wConf.jup_start.clicked.connect(self.jupyterStart)
+        self.wConf.jup_stop.clicked.connect(self.jupyterStop)
+        
         self.wConf.cluster_option.clicked.connect(self.clusterPopup)
         self.clPopup.threshold_slider.valueChanged.connect(self.thresholdFigure)
         self.clPopup.analyzerButton.clicked.connect(self.analyzeCluster)
@@ -375,6 +406,7 @@ class MainWindow(QMainWindow):
             self.wPlot.canvas.draw()
         else:
             print("inside on_singleclick - ZOOM true")            
+            self.wTop.createGate.setEnabled(True)
             self.wTop.editGate.setEnabled(True)
             self.isSelected = False
             if self.toCreateGate == True:
@@ -397,6 +429,7 @@ class MainWindow(QMainWindow):
         global t
         # select plot
         if self.isZoomed == False:
+            self.wTop.createGate.setEnabled(False)            
             self.wTop.editGate.setEnabled(False)
             self.clickToIndex(self.selected_plot_index)
             # clear existing figure
@@ -407,11 +440,21 @@ class MainWindow(QMainWindow):
                 print("double click try zoom")
                 # we are in zoomed mode
                 self.isZoomed = True
+                self.wTop.createGate.setEnabled(True)                
                 self.wTop.editGate.setEnabled(True)                
                 self.add(self.selected_plot_index) # this creates the histogram axes
                 self.wPlot.canvas.draw() # this drawing command creates the renderer 
                 a = plt.gca()
                 self.plot_histogram(a, self.selected_plot_index) # the previous step is fundamental for blitting
+                # remove color bar just for gating
+                if self.h_dim[self.selected_plot_index] == 2:
+                    im = a.images
+                    if im is not None:
+                        try:
+                            cb = im[-1].colorbar
+                            cb.remove()
+                        except IndexError:
+                            pass
                 self.drawAllGate()
             except:
                 QMessageBox.about(self, "Warning", "There are no histograms defined...")
@@ -457,6 +500,7 @@ class MainWindow(QMainWindow):
                 self.toCreateGate = False
                 self.timer.start()
             else:
+                self.wTop.createGate.setEnabled(False)                
                 self.wTop.editGate.setEnabled(False)
                 #draw the back the original canvas
                 self.wPlot.figure.clear()
@@ -744,11 +788,18 @@ class MainWindow(QMainWindow):
         else:
             print("Operation error: ", er)
             print(reply.errorString())
-            
+
+    def incrementNumbers(self, parameter, new_number):
+        number = (re.findall(r'\d+',parameter))[0]
+        out = parameter.replace(number,str(new_number).zfill(int(math.log10(self.nparams))+1))
+        return out
+        
     def formatLinetoShMem(self, lst):
         server = "http://"+self.wTop.server.text()
         reqStr = server + "/spectcl/gate/edit"
         reqStr += "?name=" + self.wTop.listGate.currentText()
+        self.nparams = int(self.getParameterCount())+1
+
         if self.wConf.button1D.isChecked():
             x, y = map(list, zip(*lst))
             x, y = map(list, zip(*x))
@@ -756,13 +807,26 @@ class MainWindow(QMainWindow):
             high = max(x)
             reqStr += "&high=" + str(high)
             reqStr += "&low="  + str(low)
-            reqStr += "&type=s"
-            reqStr += "&parameter=" + self.wConf.listParams[0].currentText()
+            if self.gateType == "s":
+                reqStr += "&type=s"
+                reqStr += "&parameter=" + self.wConf.listParams[0].currentText()
+            else:
+                reqStr += "&type=gs"                
+                param_str = self.wConf.listParams[0].currentText()
+                for i in range(self.nparams):
+                    new_param_str = self.incrementNumbers(param_str, i)
+                    reqStr += "&parameter=" + new_param_str
             self.sendRequest(reqStr)
         else:
-            reqStr += "&type=c"
-            reqStr += "&xparameter=" + self.wConf.listParams[0].currentText()
-            reqStr += "&yparameter=" + self.wConf.listParams[1].currentText()            
+            reqStr += "&type="+self.gateType
+            if self.gateType == "c" or self.gateType == "b":
+                reqStr += "&xparameter=" + self.wConf.listParams[0].currentText()
+                reqStr += "&yparameter=" + self.wConf.listParams[1].currentText()            
+            else:
+                param_str = self.wConf.listParams[0].currentText()
+                for i in range(self.nparams):
+                    new_param_str = self.incrementNumbers(param_str, i)
+                    reqStr += "&parameter=" + new_param_str                
             
             points = lst.get_xydata()
             points = points[:-1]
@@ -770,7 +834,7 @@ class MainWindow(QMainWindow):
                 reqStr += "&xcoord("+str(index)+")="+str(points[index][0])
                 reqStr += "&ycoord("+str(index)+")="+str(points[index][1])
             self.sendRequest(reqStr)            
-
+        
     def formatShMemToLine(self, name):
         lst_tmp = []
         x = []
@@ -801,6 +865,7 @@ class MainWindow(QMainWindow):
                     else:
                         print("Not implemented yet")                        
                 else:
+                    self.gateTypeDict[key] = value[0]
                     if value[0] == "s":
                         for i in range(2):
                             l = mlines.Line2D([value[i+2],value[i+2]], [self.ylow,self.yhigh])
@@ -822,6 +887,7 @@ class MainWindow(QMainWindow):
 
         # adding gate to dictionary of regions
         self.dict_region[name] = lst_tmp
+        print("gate type dict", self.gateTypeDict)
         
     ###############################################
     # end of connection to SpecTcl REST interface
@@ -834,8 +900,16 @@ class MainWindow(QMainWindow):
     def update(self):
         # this snippet tests if the rest server is up and running
         try:
+            # update hostname and port from GUI
+            hostnameport = str(self.wTop.server.text()).split(":")
+            hostname = hostnameport[0]
+            port = hostnameport[1]
+            b_hostname = hostname.encode('utf-8')
+            b_port = port.encode('utf-8')
+            print(b_hostname, b_port)
             # creates a dataframe for spectrum info
-            s = cpy.CPyConverter().Update()
+            print("before cpy.CPyConverter().Update")
+            s = cpy.CPyConverter().Update(bytes(hostname, encoding='utf-8'), bytes(port, encoding='utf-8'))
             self.spectrum_list = pd.DataFrame(
                 {'id': s[0],
                  'names': s[1],
@@ -854,13 +928,25 @@ class MainWindow(QMainWindow):
             self.create_gate_list()        
             #self.update_spectrum_info()
             self.isCluster = False
-        except:
+
+            self.createDf()
+        except Exception as e:
+            print(e)
             QMessageBox.about(self, "Warning", "update - The rest interface for SpecTcl was not started...")
 
+    # get parameter count
+    def getParameterCount(self):
+        lst_param = list(self.param_list.values())
+        lst_param = [x for x in lst_param if any(c.isdigit() for c in x)]
+        res = max(list(map(lambda sub:int(''.join([ele for ele in sub if ele.isnumeric()])), lst_param)))
+        return res
+        
     # update and create parameter list
     def update_parameter_list(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/parameter/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/parameter/list")[1]
             tmp = json.loads(tmpl.decode())
             tmpid = []
             tmpname = []
@@ -885,7 +971,9 @@ class MainWindow(QMainWindow):
     # update and create spectrum list
     def update_spectrum_parameters(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/spectrum/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/spectrum/list")[1]
             tmp = json.loads(tmpl.decode())
             tmppar = []
             for dic in tmp['detail']:
@@ -906,7 +994,9 @@ class MainWindow(QMainWindow):
     # update and create gate list
     def update_gate_list(self):
         try:
-            tmpl = httplib2.Http().request("http://localhost:8080/spectcl/gate/list")[1]
+            server = "http://"+self.wTop.server.text()+"/spectcl/gate/list"
+            tmpl = httplib2.Http().request(server)[1]
+            #tmpl = httplib2.Http().request("http://localhost:8080/spectcl/gate/list")[1]
             tmp = json.loads(tmpl.decode())
             lst_name = []
             lst_value = []
@@ -921,52 +1011,44 @@ class MainWindow(QMainWindow):
             index_s_lst = [i for i, e in enumerate(lst_all) if e == "s"]
             # index contour gates
             index_c_lst = [i for i, e in enumerate(lst_all) if e == "c"]
+            # index band gates
+            index_b_lst = [i for i, e in enumerate(lst_all) if e == "b"]
+            # index gamma slice gates
+            index_gs_lst = [i for i, e in enumerate(lst_all) if e == "gs"]
+            # index gamma contour gates
+            index_gc_lst = [i for i, e in enumerate(lst_all) if e == "gc"]
+            # index gamma band gates
+            index_gb_lst = [i for i, e in enumerate(lst_all) if e == "gb"]                        
 
             print("index_s_lst", index_s_lst)
-            print("index_c_lst", index_c_lst)            
+            print("index_c_lst", index_c_lst)
+            print("index_b_lst", index_b_lst)
+            print("index_gs_lst", index_gs_lst)
+            print("index_gc_lst", index_gc_lst)
+            print("index_gb_lst", index_gb_lst)                        
             
-            if self.checkVersion(httplib2.__version__) < self.checkVersion("0.10"):
-                while len(lst_all) != 0:
-                    if min(index_s_lst) < min(index_c_lst):
-                        ll.append(lst_all[:5])
-                        del lst_all[:5]
-                        s_list_id = index_s_lst.index(min(index_s_lst))
-                        index_s_lst.pop(s_list_id)
-                        if len(index_s_lst) == 0:
-                            index_s_lst.insert(s_list_id,999)
-                    elif min(index_c_lst) < min(index_s_lst):
-                        ll.append(lst_all[:4])
-                        del lst_all[:4]
-                        c_list_id = index_c_lst.index(min(index_c_lst))
-                        index_c_lst.pop(c_list_id)
-                        if len(index_c_lst) == 0:
-                            index_c_lst.insert(c_list_id,999)                        
-                    else:
-                        break    
-                            
-                # loop over list of gate
-                for i in ll:
-                    # loop over gate details
-                    tmp = []
-                    for j in i:
-                        isString = isinstance(j, str)
-                        if (isString and len(j) > 1):
-                            lst_name.append(j)
-                        else:
-                            tmp.append(j)
-                    lst_value.append(tmp)
-                        
-            else:
-                # adding slice gates
-                for i in range(len(index_s_lst)):
-                    ll.append(lst_all[index_s_lst[i]-1:index_s_lst[i]+4])
-                # adding contour gates
-                for i in range(len(index_c_lst)):
-                    ll.append(lst_all[index_c_lst[i]-1:index_c_lst[i]+3])
-
-                for lst in ll:
-                    lst_name.append(lst[0])
-                    lst_value.append(lst[1:])
+            # adding slice gates
+            for i in range(len(index_s_lst)):
+                ll.append(lst_all[index_s_lst[i]-1:index_s_lst[i]+4])
+            # adding contour gates
+            for i in range(len(index_c_lst)):
+                ll.append(lst_all[index_c_lst[i]-1:index_c_lst[i]+3])
+            # adding band gates
+            for i in range(len(index_b_lst)):
+                ll.append(lst_all[index_b_lst[i]-1:index_b_lst[i]+3])
+            # adding gamma slice gates
+            for i in range(len(index_gs_lst)):
+                ll.append(lst_all[index_gs_lst[i]-1:index_gs_lst[i]+4])
+            # adding gamma contour gates
+            for i in range(len(index_gc_lst)):
+                ll.append(lst_all[index_gc_lst[i]-1:index_gc_lst[i]+3])
+            # adding gamma band gates
+            for i in range(len(index_gb_lst)):
+                ll.append(lst_all[index_gb_lst[i]-1:index_gb_lst[i]+3])
+                
+            for lst in ll:
+                lst_name.append(lst[0])
+                lst_value.append(lst[1:])
 
             ziplst = zip(lst_name, lst_value)
             self.gate_dict = dict(ziplst)
@@ -1356,7 +1438,6 @@ class MainWindow(QMainWindow):
         else:
             a = self.select_plot(index)
         # if 2d histo I need a bit more efforts for the colorbar
-        '''
         if self.h_dim[index] == 2:
             im = a.images
             if im is not None:
@@ -1365,7 +1446,7 @@ class MainWindow(QMainWindow):
                     cb.remove()
                 except IndexError:
                     pass
-        ''' 
+
         a.clear()
 
     # deletes all the plots and reinitializes the canvas
@@ -1440,6 +1521,7 @@ class MainWindow(QMainWindow):
                 w = np.ma.masked_where(w < 0.1, w)
                 self.palette.set_bad(color='white')
 
+                
             # create histogram
             self.h_lst[index] = axis.imshow(w,
                                             interpolation='none',
@@ -1450,7 +1532,7 @@ class MainWindow(QMainWindow):
                                             cmap=self.palette)
 
         self.axbkg[index] = self.wPlot.figure.canvas.copy_from_bbox(axis.bbox)
-            
+        
     # histo plotting
     def plot_histogram(self, axis, index, threshold=0.1):
         hdim = self.get_histo_dim(index)                    
@@ -1476,7 +1558,13 @@ class MainWindow(QMainWindow):
         axis.draw_artist(self.h_lst[index])
         self.wPlot.figure.canvas.blit(axis.bbox)
 
-        #self.wPlot.figure.canvas.flush_events()
+        # setup colorbar only for 2D
+        if hdim == 2:
+            divider = make_axes_locatable(axis)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            # add colorbar
+            self.wPlot.figure.colorbar(self.h_lst[index], cax=cax, orientation='vertical')
+        
         self.wPlot.canvas.draw_idle()
         
     # options for clustering 2D
@@ -1486,7 +1574,7 @@ class MainWindow(QMainWindow):
     # options for clustering 2D
     def clusterPopup(self):
         self.clPopup.show()
-        
+
     # check histogram dimension from GUI
     def check_histogram(self):
         if self.wConf.button1D.isChecked():
@@ -1598,8 +1686,10 @@ class MainWindow(QMainWindow):
 
         print("hist:", hname)
         print("hdim:", hdim)
+        print("data for ", hname)
+        print(type(w))
         print(w)
-        print(sum(w), len(w))
+        print("sum ", sum(w), "len", len(w))
         
         if hdim == 1:
             empty = sum(w)
@@ -1710,10 +1800,11 @@ class MainWindow(QMainWindow):
         # check for histogram existance
         name = self.wConf.histo_list.currentText()
         gate_name = self.wTop.listGate.currentText()
+        gate_parameter = self.wConf.listParams[0].currentText()
+        
         if (name==""):
             return QMessageBox.about(self,"Warning!", "Please create at least one spectrum")
         else:
-            gate_name = "default_gate_"+str(self.counter)
             # creating entry in combobox if it doesn't exist
             allItems = [self.wTop.listGate.itemText(i) for i in range(self.wTop.listGate.count())]
             result = gate_name in allItems
@@ -1721,14 +1812,34 @@ class MainWindow(QMainWindow):
                 self.counter += 1
                 gate_name = "default_gate_"+str(self.counter)
                 result = gate_name in allItems
-                
+
+            # gate name
             text, okPressed = QInputDialog.getText(self, "Gate name", "Please choose a name for the gate:", QLineEdit.Normal, gate_name)
             if okPressed:
                 gate_name = text
                 self.wTop.listGate.addItem(gate_name)
                 # update boxes
                 self.wTop.listGate.setCurrentText(gate_name)
-            
+
+            # gate type
+            items = ("s", "c", "b", "gs", "gc", "gb")
+            item, okPressed = QInputDialog.getItem(self, "Gate type", "Please choose a type for the gate:", items, 0, False)
+            if okPressed:
+                self.gateType = item
+                
+                # gate parameters for gamma gates
+                if self.gateType == "gs" or self.gateType == "gc" or self.gateType == "gb":
+                    text, okPressed = QInputDialog.getText(self, "Gate parameter", "Please choose a parameter for the gamma gate:", QLineEdit.Normal, gate_parameter) 
+                    if okPressed:
+                        gate_parameter = text
+
+        # adding gate
+        self.gateTypeDict[gate_name] = self.gateType
+        print(self.gateTypeDict)
+        self.wConf.resetGateType()
+        (self.wConf.buttonGateTypeDict[self.gateType]).setChecked(True)
+                
+
         self.toCreateGate = True;
         self.createRegion()
         self.polygon = self.createPolygon()
@@ -1872,6 +1983,7 @@ class MainWindow(QMainWindow):
         if self.wTop.slider.value() != 0:
             self.timer.stop() 
 
+        self.wConf.resetGateType()
         hname = self.wConf.spectrum_name.text()
         # remove lines
         for k1 in self.artist_dict:
@@ -2000,15 +2112,18 @@ class MainWindow(QMainWindow):
             if self.selected_plot_index is not None:
                 name = self.wTop.listGate.currentText()
                 key = self.get_histo_name(self.selected_plot_index)
+                gtype = self.gateTypeDict[name]
+                self.wConf.resetGateType()
+                (self.wConf.buttonGateTypeDict[gtype]).setChecked(True)
                 if self.isZoomed:
                     a = plt.gca()
                 else:
                     a = self.select_plot(self.selected_plot_index)
                 if self.wConf.button1D.isChecked():
-                    print("does the gate", name, " exists in", key, "?", self.existGate(key))
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                     self.plot1DGate(a, key, name)
                 else:
-                    print("does the gate", name, " exists in", key, "?", self.existGate(key))
+                    print("does the gate", name, "of type", gtype, " exists in", key, "?", self.existGate(key))
                     self.plot2DGate(a, key, name)
                     
         self.wPlot.canvas.draw()
@@ -2208,7 +2323,7 @@ class MainWindow(QMainWindow):
     ############################
     ## Fitting functions
     ############################
-    
+    '''
     def gauss(self, x, amplitude, mean, standard_deviation):
         return amplitude*np.exp(-(x-mean)**2.0 / (2*standard_deviation**2))
 
@@ -2233,7 +2348,7 @@ class MainWindow(QMainWindow):
         g = self.gauss(x, amplitude, mean, standard_deviation)
         pol2 = self.pol1(x,p0,p1,p2)
         return f*g+(1-f)*pol2        
-    
+    '''
     ############################
     ## end of Fitting functions
     ############################    
@@ -2249,7 +2364,7 @@ class MainWindow(QMainWindow):
         if self.wConf.fit_range_max.text():            
             right = int(self.wConf.fit_range_max.text())            
         return left, right
-
+    '''
     def createInitPars(self, fit_func, lst):
         # gauss
         ax = plt.gca()
@@ -2301,7 +2416,7 @@ class MainWindow(QMainWindow):
                     self.createInitPars(f, lst)
         else:
             self.createInitPars(fit_func, lst)
-                    
+
     def fittingFunction(self, x, y, xmin, xmax):
         popt = None
         pcov = None
@@ -2349,7 +2464,8 @@ class MainWindow(QMainWindow):
         else:
             print("fittedValues--> TBD")
         return y_fit
-            
+    '''
+    
     def fit(self):
         x = []
         y = []
@@ -2362,13 +2478,17 @@ class MainWindow(QMainWindow):
         else:
             ax = self.select_plot(self.selected_plot_index)
 
+        config = self.fit_factory._configs.get(fit_funct)
+        print("Fit function", config)
+        fit = self.fit_factory.create(fit_funct, **config)
+
         # remove any previous fit on plot
         try:
             self.fitln.remove()
         except:
             pass
         if histo_name == "":
-            QMessageBox.about(self, "Warning", "The shared memory is still empty...")
+            QMessageBox.about(self, "Warning", "Histogram not existing. The shared memory is still empty...")
         else:
             if self.wConf.button1D.isChecked():
                 # input points for fitting function
@@ -2377,6 +2497,11 @@ class MainWindow(QMainWindow):
                 df = self.spectrum_list.loc[select]
                 ytmp = df.iloc[0]['data']
                 xmin, xmax = self.axislimits(ax)
+                if self.wConf.fit_range_min.text():
+                    xmin = float(self.wConf.fit_range_min.text())
+                if self.wConf.fit_range_max.text():
+                    xmax = float(self.wConf.fit_range_max.text())
+                print("Sub range:", xmin, xmax)
                 # create new tmp list with subrange for fitting
                 for i in range(len(xtmp)):
                     if (xtmp[i]>=xmin and xtmp[i]<xmax):
@@ -2384,21 +2509,12 @@ class MainWindow(QMainWindow):
                         y.append(ytmp[i])
                 x = np.array(x)
                 y = np.array(y)
-                npoints = 10000
-                popt, pcov = self.fittingFunction(x,y,xmin,xmax)
                 try:
-                    x_fit = np.linspace(x[0],x[-1],npoints)
-                    y_fit = self.fittedValues(x_fit, popt)
-                    self.fitln, = ax.plot(x_fit,y_fit, 'r-')
-                    self.wConf.fit_results.append(fit_funct)
-                    for i in range(len(popt)):
-                        s = 'Par['+str(i)+']: '+str(round(popt[i],3))+'+/-'+str(round(pcov[i][i],3))
-                        self.wConf.fit_results.append(s)
+                    self.fitln = fit.start(x, y, xmin, xmax, ax, self.wConf.fit_results)
                 except:
                     pass
             else:
-                print("Please use the Clustering2D panel!")                
-                
+                print("2D fitting is not implemented")                
 
         self.wPlot.canvas.draw()
 
@@ -2735,6 +2851,108 @@ class MainWindow(QMainWindow):
         
     ############################
     ## end of Clustering
-    ############################                
+    ############################
 
+    ############################
+    ## Jupyter Notebook
+    ############################                    
+
+    def createDf(self):
+        print("Create dataframe for Jupiter and web")
+        data_to_list = []
+        for index, row in self.spectrum_list.iterrows():
+            tmp = row['data'].tolist()
+            data_to_list.append(tmp)
+            print("len(data_to_list) --> ", row['names'], " ", len(tmp))
+
+        #print("data_to_list; len ", len(data_to_list), " D1030 len ", len(data_to_list[14]))
+        print([list((i, len(data_to_list[i]))) for i in range(len(data_to_list))])
+        self.spectrum_list = self.spectrum_list.drop('data', 1)
+        self.spectrum_list['data'] = np.array(data_to_list)
+
+        #print(len(self.spectrum_list['data'][14]))
+        #print(self.spectrum_list['data'][14])        
+        self.spectrum_list.to_csv("df-updated.csv")
     
+    def jupyterStop(self):
+        # stop the notebook process
+        log("Sending interrupt signal to jupyter-notebook")
+        self.wConf.jup_start.setEnabled(True)
+        self.wConf.jup_stop.setEnabled(False)        
+        self.wConf.jup_start.setStyleSheet("background-color:#3CB371;")
+        self.wConf.jup_stop.setStyleSheet("")        
+        stopnotebook()
+
+    def jupyterStart(self):
+        # dump dataframe to compressed file
+        #self.spectrum_list.to_pickle(self.wConf.jup_df_filename.text(), compression="bz2")                
+
+        s = QSettings()
+        execname = s.value(SETTING_EXECUTABLE, "jupyter-notebook")
+        if not testnotebook(execname):
+            while True:
+                QMessageBox.information(None, "Error", "It appears that Jupyter Notebook isn't where it usually is. " +
+                                        "Ensure you've installed Jupyter correctly and then press Ok to " +
+                                        "find the executable 'jupyter-notebook'", QMessageBox.Ok)
+                if testnotebook(execname):
+                    break
+                execname = QFileDialog.getOpenFileName(None, "Find jupyter-notebook executable", QDir.homePath())
+                if not execname:
+                    # user hit cancel
+                    sys.exit(0)
+                else:
+                    execname = execname[0]
+                    if testnotebook(execname):
+                        log("Jupyter found at %s" % execname)
+                        #save setting
+                        s.setValue(SETTING_EXECUTABLE, execname)
+                        break
+
+        # setup logging
+        # try to write to a log file, or redirect to stdout if debugging
+        logname = "JupyterQtPy-"+time.strftime("%Y%m%d-%H%M%S")+".log"
+        logfile = os.path.join(str(QDir.currentPath()), ".JupyterQtPy", logname)
+        if not os.path.isdir(os.path.dirname(logfile)):
+            os.mkdir(os.path.dirname(logfile))
+            try:
+                if DEBUG:
+                    raise IOError()  # force logging to console
+                setup_logging(logfile)
+            except IOError:
+                # no writable directory, log to console
+                setup_logging(None)
+                    
+        # workdir
+        directory = s.value(SETTING_BASEDIR, QDir.currentPath())
+
+        # setting window
+        view = WebWindow(None, None)
+        view.setWindowTitle("Jupyter CutiePie: %s" % directory)
+
+        # logging on docked console
+        qtlogger = QtLogger(view)
+        qtlogger.newlog.connect(view.loggerdock.log)
+        set_logger(lambda message: qtlogger.newlog.emit(message))
+        
+        log("Setting home directory --> "+str(directory))
+        
+        # start the notebook process
+        webaddr = startnotebook(execname, directory=directory)
+        view.loadmain(webaddr)
+
+        # resume regular logging
+        setup_logging(logfile)
+        
+        self.wConf.jup_start.setEnabled(False)
+        self.wConf.jup_stop.setEnabled(True)        
+        self.wConf.jup_start.setStyleSheet("")        
+        self.wConf.jup_stop.setStyleSheet("background-color:#DC143C;")
+        
+# redirect logging 
+class QtLogger(QObject):
+    newlog = pyqtSignal(str)
+    
+    def __init__(self, parent):
+        super(QtLogger, self).__init__(parent)
+
+        

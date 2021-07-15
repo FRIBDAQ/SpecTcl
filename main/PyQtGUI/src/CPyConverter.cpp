@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "dataRetriever.h"
 #include <numpy/arrayobject.h>
 
@@ -39,9 +40,17 @@ CPyConverter::extractInfo(char* speclist)
 }
 
 PyObject*
-CPyConverter::Update()
+CPyConverter::Update(char* hostname, char* port)
 {
+  std::cout << "Inside CPyConverter::Update()" << std::endl;
+  std::cout << "hostname: " << hostname << " port: " << port << std::endl;
+
+  std::string _hostname = hostname;
+  std::string _port = port;  
+  std::cout << "Hostname --> " << _hostname << " Port --> " << _port << std::endl;
+  
   dataRetriever* d = dataRetriever::getInstance();
+  d->SetHostPort(_hostname,_port);
   d->InitShMem();
   spec_shared *p = d->GetShMem();
   

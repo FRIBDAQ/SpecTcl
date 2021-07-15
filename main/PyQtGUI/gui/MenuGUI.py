@@ -21,9 +21,15 @@ class Menu(QWidget):
         def create_menuBox(self):
                 menuBox = QGroupBox("Menu")
 
-                host = os.environ["RESThost"]
-                port = os.environ["RESTport"]
-                
+                try:
+                        host = os.environ["RESThost"]
+                        port = os.environ["RESTport"]
+                except:
+                        os.environ['RESThost'] = "hostname"
+                        os.environ["RESTport"] = "port"
+                        host = os.environ["RESThost"]
+                        port = os.environ["RESTport"]
+                        
                 self.serverLabel = QLabel(self)
                 self.serverLabel.setText('Server:')
                 self.server = QLineEdit(self)

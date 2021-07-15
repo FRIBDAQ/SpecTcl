@@ -2,7 +2,6 @@
 import io
 import sys, os
 sys.path.append(os.getcwd())
-sys.path.append("../Script")
 
 import algo_factory
         
