@@ -83,7 +83,6 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
   
   // Note in the CCUSB the word count is not self inclusive!
 
-
   CParamMapCommand* pMap   = CParamMapCommand::getInstance();
   int               module = 0;
 
@@ -95,56 +94,33 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
   //  that extra word, and therefore we know to unconditionally
   //  skip it.
 
+  unsigned int wordsConsumed = 0;
+
   while (nWords > 0) {
-
-    const CParamMapCommand::ParameterMap* moduleInfo= pMap->getModuleMap(module);
-    int type    = moduleInfo->s_moduleType;
-    int id      = moduleInfo->s_id;
-
-    try {
-
-      // Do some sanity checking here specifically:
-      // - The type must be valid.
-      // - The id must match the id of the next unpacker because 
-      //   all readers must at least put their id in the buffer.
-      //
-      if ((type < 0) || (type >= sizeof(unpackers)/sizeof(CCCUSBPacket*))) {
-	char message[100];
-	sprintf(message, "Module type %d is out of range", type);
-	throw string(message);
-      }
-      CCCUSBPacket* pUnpacker = unpackers[type];
+    for (int i = 0; i < pMap->getMapSize(); i++) {
+      const CParamMapCommand::ParameterMap* moduleInfo= pMap->getModuleMap(module);
+      int type    = moduleInfo->s_moduleType;
+      int id      = moduleInfo->s_id;
+      CCCUSBPacket* pUnpacker = unpackers[type];	
       if (id != *p) {
 	char message[100];
 	sprintf(message, "ID in buffer: %d does not match that of expected unpacker (%d)",
 		id, *p);
 	throw message;
       }
-      
-      int wordsConsumed = pUnpacker->unpack(p, moduleInfo, rEvent);
-      
+      wordsConsumed = pUnpacker->unpack(p, moduleInfo, rEvent);
       p      += wordsConsumed;
       nWords -= wordsConsumed;
+      if (module == pMap->getMapSize()-1 && nWords > 0){
+	cerr << "**WARNING** Event not entirely decoded by unpackers\n";
+	cerr << "            Event will not be histogrammed, proceeding with next event\n";
+	return kfFALSE;
+      }
       module++;
-      
     }
-    catch (string msg) {
-      cerr << "Error unpacking data: " << msg << " Event will be ignored " << endl;
-      return kfFALSE;
-    }
-    catch (const char* msg) {
-      cerr << "Error unpacking data: " << msg << " event will be ignored " << endl;
-      return kfFALSE;
-    }
-    catch (...) {
-      cerr << "Error unpacking data .. unable to determine cause event will be ignored\n";
-      return kfFALSE;
-    }
-    
   }
   
   // Must return true to histogram.
-  
   return kfTRUE;
 }
 
