@@ -43,11 +43,18 @@ package require json
 #  METHODS:
 #    applyGate  - Apply gates to spectra.
 #    applyList   - List gate applications.
+#
 #    attachSource - Attach data source (must still start).
 #    attachList   - Return attachment strings.
+#
 #    sbindAll     - sbind -all
 #    sbindSpectra - sbind spectrum list.
 #    sbindList    - List spectrum bindings.
+#
+#    fitCreate   - Create a new fit.
+#    fitUpdate   - Update a fit.
+#    fitDelete   - Delete a fit.
+#    fitList     - List fits.
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -102,6 +109,7 @@ snit::type SpecTclRestClient {
         }
         
         set rawData [http::data $token]
+        #puts $rawData;      # Uncomment to debug reply errors.
         set parseOk [catch {
             set json [json::json2dict $rawData]
         } msg]
@@ -223,5 +231,55 @@ snit::type SpecTclRestClient {
         
         return [dict get $result detail]
     }
+    #-------------------------------------------------------------------------
+    # fit command jackets.
     
+    ##
+    # fitCreate
+    #    Create a new fit object.
+    #
+    # @param name = fit name.
+    # @param spectrum - fit spectrum.
+    # @param low, high - Channel fit limits.
+    # @param ftype - fit type.
+    #
+    method fitCreate {name spectrum low high ftype} {
+        $self _request [$self _makeUrl fit/create [dict create             \
+            name $name spectrum $spectrum low $low high $high              \
+            type $ftype                                                     \
+        ]]
+    }
+    ##
+    # fitUpdate
+    #    Update the paramters of fits that match the pattern.
+    #
+    # @param pattern - glob pattern to match the fit names update.
+    #
+    method fitUpdate {{pattern *}} {
+        $self _request [$self _makeUrl fit/update [dict create pattern $pattern]]
+    }
+    ##
+    #  fitDelete
+    #   Delete a single fit
+    # @param name  - Name of the fit to delete.
+    #
+    method fitDelete {name} {
+        $self _request [$self _makeUrl fit/delete [dict create name $name]]
+    }
+    ##
+    # fitList
+    #    List information about fits.
+    #    list of dicts containing name - fit name, spectrum -spectrum name.
+    #    type -fit type, low, high -fit limits and parameter - a dict specific
+    #    to the fit type that contains the fit parameters.
+    #
+    # @param pattern - glob pattern. Fits with names that match this are in the
+    #         result.
+    #
+    method fitList {{pattern *}} {
+        set json [$self _request [$self _makeUrl fit/list [dict create pattern $pattern]]]
+        
+        return [dict get $json detail]
+        
+    }
 }

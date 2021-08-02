@@ -1722,6 +1722,166 @@ http://host:port/sbind/list<optional>?pattern=glob</optional>
                 </para>
             </section>
         </section>
-
+        <section>
+            <title>Accessing the fit command (new in 5.5)</title>
+            <para>
+                The <literal>/spectcl/fit</literal> domain provides
+                access to the SpecTcl <command>fit</command> command.
+                <command>fit</command> provides you with the ability to
+                fit spectra to arbitrary functions.  The built-in
+                <literal>linear</literal> and <literal>gaussian</literal>
+                fit types are provided and the programming manual describes
+                how to extend the set of fits that are provided by this
+                command.
+            </para>
+            <para>
+                The URL below:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/create?name=fitname&amp;spectrum=specname&amp;low=lochan&amp;high=hichan&amp;type=fittype
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides the capability to create new fits (<command>fit create</command>).
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name to be associated with the fit.  This will be used
+                        when referring to the fit in the future.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        The spectrum on which the fit is to be computed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low, high</literal></term>
+                   <listitem>
+                       <para>
+                        The <emphasis>channel</emphasis> coordinates over which
+                        the fit is to be computed.  At present, the fit is done
+                        in channel coordinates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        The type of the fit to perform.  The built in fit types
+                        are <literal>linear</literal> and <literal>gaussian</literal>
+                        which have pretty obvious meanings.  Applications may
+                        extend this set of functions.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The URL
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/update<optional>?pattern=glob</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides the ability to update the set of fits whose names
+                match the glob pattern in the query parameter <literal>pattern</literal>.
+                As spectra accumulate, fit data will be outdated. This allows
+                the fit information to be recomputed to match current data.
+            </para>
+            <para>
+                If the pattern is not provided it defaults to <literal>*</literal>
+            </para>
+            <para>
+                The URL
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/delete?name=fitname                    
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                provides the ability to delete the fit object named after the
+                contents of the query parameter <literal>name</literal>.  Once
+                deleted, the fit cannot be recovered.
+            </para>
+            <para>
+                URLs of the form
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/list?pattern=glob
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Allows you to get information about the fits whose names
+                match the <literal>pattern</literal> query parameter.  The
+                pattern is treated as a glob pattern and, if not supplied,
+                defaults to <literal>*</literal>
+            </para>
+            <para>
+                The result is a <literal>detail</literal> attribute that is an
+                array. Each element of the array is an object that
+                describes a matching fit. The
+                atributes of these objects are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the fit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum the fit is computed on.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        Type of the fit being computed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low, high</literal></term>
+                   <listitem>
+                       <para>
+                        Fit limits in spectrum channel coordinates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal></term>
+                   <listitem>
+                       <para>
+                        An object that contains the fit parameters.
+                        The attributes of this object will depend on the actual
+                        fit type.  Likely there will always be a
+                        <literal>chisquare</literal> attribute that describes the
+                        goodness of fit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>
