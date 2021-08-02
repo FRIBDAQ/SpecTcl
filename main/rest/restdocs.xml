@@ -1503,7 +1503,7 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/list
             </section>
         </section>
         <section>
-            <title>Attaching data sources</title>
+            <title>Attaching data sources (New in 5.5)</title>
             <para>
                 The SpecTcl <command>attach</command> command can be
                 accessed using the <literal>/spectcl/attach</literal> URL
@@ -1628,6 +1628,99 @@ http://host:port/spectcl/apply/apply?type=srctype&amp;source=src<optional>&amp;s
                 that is the filename for <literal>File:</literal> and the
                 command on the other end of the <literal>Pipe:</literal>.
             </para>
+        </section>
+        <section>
+            <title>Binding Spectra to Display Memory (new in 5.5)</title>
+            <para>
+                The <literal>/sbind</literal> domain provides access to the
+                <command>sbind</command> SpecTcl command.  This there are three
+                subdomains:
+            </para>
+            <section>
+                <title>/sbind/all</title>
+                <para>
+                    URLs of the form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port:/sbind/all
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Bind all spectra to display  memory.  Nothing of value is
+                    returned in the  <literal>detail</literal> field of the
+                    reply data.
+                </para>
+            </section>
+            <section>
+                <title>/sbind/sbind</title>
+                <para>
+                    URL's of the following form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/sbind/spectrum?spectrum=name1<optional>&amp;spectrum=name2...</optional>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Bind all spectra named in all instances of the
+                    <literal>spectrum</literal> query parameter to display
+                    memory. Nothing of use is returned in the
+                    <literal>detail</literal> part of the JSON reply data.
+                </para>
+            </section>
+            <section>
+                <title>/sbin/list</title>
+                <para>
+                    URL's of the form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/sbind/list<optional>?pattern=glob</optional>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Return information about the bindings of spectra that
+                    match the <literal>pattern</literal> query parameter interpreted
+                    as a glob spectrum name match string.  If omitted the
+                    pattern matched defaults to <literal>*</literal>
+                    which matches all spectra.
+                </para>
+                <para>
+                    The <literal>detail</literal> attribute of the JSON returned
+                    data is an array of objects with the following attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                       <term><literal>spectrumid</literal></term>
+                       <listitem>
+                           <para>
+                            The id of the bound spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>name</literal></term>
+                       <listitem>
+                           <para>
+                            The name of the bound spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>binding</literal></term>
+                       <listitem>
+                           <para>
+                            The shared memory binding id.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    Note that spectra which are not bound but match the
+                    pattern will not appear in the array.
+                </para>
+            </section>
         </section>
 
     </chapter>

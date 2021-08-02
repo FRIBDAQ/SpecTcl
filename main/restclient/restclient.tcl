@@ -45,12 +45,15 @@ package require json
 #    applyList   - List gate applications.
 #    attachSource - Attach data source (must still start).
 #    attachList   - Return attachment strings.
+#    sbindAll     - sbind -all
+#    sbindSpectra - sbind spectrum list.
+#    sbindList    - List spectrum bindings.
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
     
-    variable domain /spectcl
+    variable domain spectcl
     
     constructor args {
         $self configurelist $args
@@ -71,7 +74,6 @@ snit::type SpecTclRestClient {
     method _makeUrl {subdomain query} {
         set querypart [http::formatQuery {*}$query]
         set url http://$options(-host):$options(-port)/$domain/$subdomain?$querypart
-        
         return $url
     }
     ##
@@ -111,6 +113,7 @@ snit::type SpecTclRestClient {
         if {$parseOk} {
             error "JSON Parse Failed: $msg : $::errorInfo"
         }
+
         set status [dict get $json status]
         if {$status ne "OK"} {
             error "Request failed by SpecTcl: $status :  [dict get $json detail]"
@@ -121,6 +124,7 @@ snit::type SpecTclRestClient {
         return $json
     }
         
+    
     
     
     #---------------------------------------------------------------------------
@@ -143,7 +147,7 @@ snit::type SpecTclRestClient {
         
         foreach spectrum $spectra {
             dict set query spectrum $spectrum
-            $self _request [$self _makeUrl /apply/apply $query]
+            $self _request [$self _makeUrl apply/apply $query]
         }
     }
     ##
@@ -155,7 +159,7 @@ snit::type SpecTclRestClient {
     #
     method applyList {{pattern *}} {
         set query [dict create pattern $pattern]
-        set json [$self _request [$self _makeUrl /apply/list $query]]
+        set json [$self _request [$self _makeUrl apply/list $query]]
         return [dict get $json detail]
     }
     #--------------------------------------------------------------------------
@@ -171,14 +175,52 @@ snit::type SpecTclRestClient {
     #
     method attachSource {stype source {size 8192} {format ring}} {
         set query [dict create type $stype source $source size $size format $format]
-        $self _request [$self _makeUrl /attach/attach $query]
+        $self _request [$self _makeUrl attach/attach $query]
     }
     ##
     # attachList
     # @return string that describes the current attachment:
     #
     method attachList {} {
-        set result [$self _request [$self _makeUrl /attach/list [dict create]]]
+        set result [$self _request [$self _makeUrl attach/list [dict create]]]
+        return [dict get $result detail]
+    }
+    #-------------------------------------------------------------------------
+    #  Sbind command jackets.
+    
+    ##
+    # sbindAll
+    #   Sbind all spectra.
+    #
+    method sbindAll {} {
+        $self _request [$self _makeUrl sbind/all [dict create]]
+    }
+    
+    ##
+    # sbindSpectra
+    #
+    #  Sbind a list of spectra.
+    #  
+    # @param spectra - the spectra to bind.
+    #
+    method sbindSpectra {spectra} {
+        set qparams [list]
+        foreach spectrum $spectra {
+            lappend qparams  spectrum $spectrum
+        }
+        $self _request [$self _makeUrl sbind/sbind $qparams]
+    }
+    ##
+    # sbindList
+    #   Return a list of the bindings.
+    #
+    # @param pattern - glob pattern to limit the spectra looked at.
+    # @return list of dicts containing spectrumid - the id of the spectrum,
+    #                 name - name of the spectrum and -binding -the binding id.
+    #
+    method sbindList {{pattern *}} {
+        set result [$self _request [$self _makeUrl sbind/list [dict create pattern $pattern]]]
+        
         return [dict get $result detail]
     }
     
