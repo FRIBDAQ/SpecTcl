@@ -1502,7 +1502,133 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/list
                 </informalexample>
             </section>
         </section>
-        
+        <section>
+            <title>Attaching data sources</title>
+            <para>
+                The SpecTcl <command>attach</command> command can be
+                accessed using the <literal>/spectcl/attach</literal> URL
+                domain.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/apply/apply?type=srctype&amp;source=src<optional>&amp;size=bsize&amp;format=fmt</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Attaches a new data source to SpecTcl.  Query parameters are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        The type of data source. Currently this is
+                        one of <literal>file</literal> to read data from a
+                        file or <literal>pipe</literal> to read data from a
+                        program on the other end of a pipe. 
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>source</literal></term>
+                   <listitem>
+                       <para>
+                        The source string expected by the
+                        <command>attach</command> command for the specified
+                        source type.  For <literal>file</literal> data sources,
+                        this is just the path to the file to read. Note that
+                        since SpecTcl's directory is not known it's recommended
+                        the full path be provided.  For <literal>pipe</literal>
+                        data sources this is the full command string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>size</literal></term>
+                   <listitem>
+                       <para>
+                        Optional query parameter that, if supplied, sets the
+                        blocking factor for reads from the data source.
+                        This defaults to <literal>8192</literal>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal></term>
+                   <listitem>
+                       <para>
+                        Optional query parameter that, if supplied, sets
+                        the data format.  Acceptable values are:
+                       </para>
+                       <variablelist>
+                        <varlistentry>
+                           <term><literal>ring</literal></term>
+                           <listitem>
+                               <para>
+                                The data are ring items, see, however
+                                the <literal>/spectcl/ringformat</literal>
+                                domain to select the version of ring items.
+                                This is the default value
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>nscl</literal></term>
+                           <listitem>
+                               <para>
+                                Data are fixed length
+                                8192 byte buffers from NSCLDAQ
+                                before version 10.0
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>jumbo</literal></term>
+                           <listitem>
+                               <para>
+                                Data are fixed length buffers longer than
+                                128K bytes from NSCLDAQ prior to version 10.0.
+                                This was used for some MoNA experiments
+                                that took trace data and therefore needed
+                                longer buffers.  The difference is an extension
+                                to the 16 bit used blocksize (in 16 bit words) that
+                                supports these sizes.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>filter</literal></term>
+                           <listitem>
+                               <para>
+                                The data are XDR filter data. Note that
+                                SpecTcl must have been configured to
+                                analyze filter data.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                       </variablelist>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Note that attaching does not imply starting data analysis.
+                That requires using the <literal>/spectcl/start</literal>
+                request.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+ http://host:port/spectcl/apply/list                   
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>detail</literal> part of the JSON returned
+                is the of the form <literal>SourceType: string</literal>
+                where <literal>SourceType:</literal> is either <literal>File</literal>
+                or <literal>Pipe</literal> and the string is the data source string,
+                that is the filename for <literal>File:</literal> and the
+                command on the other end of the <literal>Pipe:</literal>.
+            </para>
+        </section>
 
     </chapter>
 </book>

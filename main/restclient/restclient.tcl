@@ -42,7 +42,9 @@ package require json
 #
 #  METHODS:
 #    applyGate  - Apply gates to spectra.
-#    applyList   - 
+#    applyList   - List gate applications.
+#    attachSource - Attach data source (must still start).
+#    attachList   - Return attachment strings.
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -109,8 +111,9 @@ snit::type SpecTclRestClient {
         if {$parseOk} {
             error "JSON Parse Failed: $msg : $::errorInfo"
         }
-        if {[dict get $json status] ne "OK"} {
-            error "Request failed by SpecTcl: [dict get $json detail]"
+        set status [dict get $json status]
+        if {$status ne "OK"} {
+            error "Request failed by SpecTcl: $status :  [dict get $json detail]"
         }
         
         # Success return what interests the caller.
@@ -155,6 +158,28 @@ snit::type SpecTclRestClient {
         set json [$self _request [$self _makeUrl /apply/list $query]]
         return [dict get $json detail]
     }
+    #--------------------------------------------------------------------------
+    # Attach command jackets.
     
+    ##
+    # attachSource
+    #   Attach a data source.
+    # @param stype   - 'pipe' or 'file'
+    # @param source - Data source specification (e.g. filename for type == 'file').
+    # @param size  - optional blocking factor - defaults to 8192.
+    # @param format - Optional data format defaults to ring
+    #
+    method attachSource {stype source {size 8192} {format ring}} {
+        set query [dict create type $stype source $source size $size format $format]
+        $self _request [$self _makeUrl /attach/attach $query]
+    }
+    ##
+    # attachList
+    # @return string that describes the current attachment:
+    #
+    method attachList {} {
+        set result [$self _request [$self _makeUrl /attach/list [dict create]]]
+        return [dict get $result detail]
+    }
     
 }
