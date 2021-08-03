@@ -1975,5 +1975,55 @@ http://host:port/spectcl/fold/remove?spectrum=spectrum-name
                 of the reply is returned on success.  
             </para>
         </section>
+        <section>
+            <title>Accessing the channel command (new in 5.5)</title>
+            <para>
+                Spectrum channel values can be inspected or set using this interface
+                Note that the spectrum contents interface may be a more
+                performant method to get bulk spectrum information.
+            </para>
+            <para>
+                URLS of the type below can set the value of a spectrum channel:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                    <command>
+http://host:port/spectcl/channel/set?spectrum=name&amp;xchannel=x&amp;value=value<optional>&amp;ychannel=y</optional>
+                    </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>spectrum</literal> query parameter specifies
+                the name of the spectrum to operate on.
+                <literal>xchannel</literal> specifies the x channel number.
+                If the spectrum selected is a 2-d spectrum,
+                <literal>ychannel</literal> is needed to  specify the y channel.
+                Regardless, <literal>value</literal> specifies the value
+                to stuff into that spectrum channel.
+            </para>
+            <para>
+                Note that the <emphasis>channel</emphasis> coordinates are
+                specified, not real coordinates.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/channel/get?spectrum=name&amp;xchannel=x<optional>&amp;ychannel=y</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                URLs of the form above, return the value of a channel of a spectrum
+                in the <literal>detail</literal> attribute of the reply object.
+                The query values <literal>spectrum</literal> and
+                <literal>xchannel</literal> specify the spectrum name and
+                x channel to fetch. If the spectrum is 2d, an additional
+                <literal>ychannel</literal> query parameter is required to
+                specify the y channel.
+            </para>
+            <para>
+                Note again, that the <literal>xchannel</literal> and
+                <literal>ychannel</literal> coordinates are in spectrum coordinate
+                units not real coordinates.
+            </para>
+        </section>
     </chapter>
 </book>

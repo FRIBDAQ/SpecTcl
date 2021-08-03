@@ -60,6 +60,9 @@ package require json
 #    foldList    - List folds.
 #    foldRemove  - Unfold a spectrum.
 #
+#    channelSet  - Set a spectrum channel value.
+#    channelGet  - Retrieve a spectrum channel value.
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -125,17 +128,18 @@ snit::type SpecTclRestClient {
         if {$parseOk} {
             error "JSON Parse Failed: $msg : $::errorInfo"
         }
-
-        set status [dict get $json status]
-        if {$status ne "OK"} {
-            error "Request failed by SpecTcl: $status :  [dict get $json detail]"
-        }
         # Debugging here - if there's no detail then likely we have  a
         # server error - let's throw an error with the rawdData as the message:
         #
         if {![dict exists $json status ]} {
             error "SpecTcl Server error: $rawData"
         }
+        
+        set status [dict get $json status]
+        if {$status ne "OK"} {
+            error "Request failed by SpecTcl: $status :  [dict get $json detail]"
+        }
+        
         
         # Success return what interests the caller.
         
@@ -334,4 +338,48 @@ snit::type SpecTclRestClient {
     method foldRemove {spectrum} {
         $self _request [$self _makeUrl fold/remove [dict create spectrum $spectrum]]
     }
+    #-------------------------------------------------------------------------
+    # jackets channel set/get.
+    #
+    #  Note we freely use that -1 is an invalid channel coordinate.
+    #
+    
+    ##
+    # channelGet
+    #  Return the value of a channel
+    #
+    # @param spectrum  - name of a spectrum.
+    # @param xchannel  - x channel value
+    # @param ychannel  - optional y channel value (only for 2d spectra).
+    #
+    method channelGet {spectrum xchannel {ychannel -1}} {
+        
+        set qparams [dict create spectrum $spectrum xchannel $xchannel]
+        if {$ychannel != -1} {
+            dict set qparams ychannel $ychannel
+        }
+        
+        set info [$self _request [$self _makeUrl channel/get $qparams]]
+        return [dict get $info detail]
+    }
+    ##
+    # channelSet
+    #   Set the value of a channel
+    #
+    # @param spectrum  - name of spectrum.
+    # @param value     - value to set.
+    # @param xchannel  - xchannel to set.
+    # @param ychannel  - optional (only needed if spectrum is 2d) y channel.
+    #
+    method channelSet {spectrum value xchannel {ychannel -1}} {
+        set qparams \
+            [dict create spectrum $spectrum value $value xchannel $xchannel]
+        if {$ychannel != -1} {
+            dict set qparams ychannel $ychannel
+        }
+        
+        $self _request [$self _makeUrl channel/set $qparams]
+    }
+        
+    
 }
