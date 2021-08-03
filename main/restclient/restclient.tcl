@@ -63,6 +63,10 @@ package require json
 #    channelSet  - Set a spectrum channel value.
 #    channelGet  - Retrieve a spectrum channel value.
 #
+#    spectrumClear  - Clear spectrum.
+#    spectrumClearAll - Clear all spectra.
+#
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -380,6 +384,23 @@ snit::type SpecTclRestClient {
         
         $self _request [$self _makeUrl channel/set $qparams]
     }
-        
+    #--------------------------------------------------------------------------
+    # clear jackets.. these spectcl/spectrum/zero
+    
+    ##
+    # clearSpectrum
+    #    clear the contents of one spectrum (actually the name can be a glob pattern)
+    #
+    # @param name  - name of the spectrum to clear.
+    #
+    method spectrumClear {name} {
+        $self _request [$self _makeUrl spectrum/zero [dict create pattern $name]]
+    }
+    ##
+    # spectrumClearAll
+    #
+    method spectrumClearAll {} {
+        return [$self spectrumClear *]
+    }
     
 }

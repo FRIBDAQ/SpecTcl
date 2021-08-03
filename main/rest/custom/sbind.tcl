@@ -36,6 +36,7 @@ Direct_Url /spectcl/sbind  SpecTcl_sbind
 #
 #
 proc SpecTcl_sbind/all {} {
+    set ::SpecTcl_sbind/all aplication/json
     #
     #  This could fail if, e.g. the memory region is too small.
     #
@@ -57,6 +58,7 @@ proc SpecTcl_sbind/all {} {
 # @param  args - the key value pairs.
 #
 proc SpecTcl_sbind/sbind {args} {
+    set ::SpecTcl_sbind/sbind aplication/json
     set spectra [dict get [::SpecTcl::_marshallDict $args] spectrum]
     
     set status [catch {
@@ -80,7 +82,7 @@ proc SpecTcl_sbind/sbind {args} {
 #  - binding    - binding id.
 #
 proc SpecTcl_sbind/list {{pattern *}} {
-
+    set ::SpecTcl_sbind/list aplication/json
     set raw [sbind -list $pattern];   # I don't think this can fail.
     
     set bindingList [list]

@@ -47,6 +47,7 @@ Direct_Url /spectcl/channel SpecTcl_channel
 # @param  ychannel - Y channnel to set (optional use only if 2d).
 # @param  value    - value to set
 proc SpecTcl_channel/set {args} {
+    set ::SpecTcl_channel/set application/json
     set paramDict [SpecTcl::_marshallDict $args]
     
     set spectrum [dict get $paramDict spectrum]
@@ -82,6 +83,7 @@ proc SpecTcl_channel/set {args} {
 #  The detail is the value of the channel.
 #
 proc SpecTcl_channel/get {args} {
+    set ::SpecTcl_channel/get application/json
     set paramDict [SpecTcl::_marshallDict $args]
     set spectrum [dict get $paramDict spectrum]
     set xchannel [dict get $paramDict xchannel]

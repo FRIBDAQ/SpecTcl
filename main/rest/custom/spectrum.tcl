@@ -12,6 +12,21 @@ namespace eval ::SpecTcl {};	#  for local procs.
 
 Direct_Url /spectcl/spectrum  SpecTcl_Spectrum
 
+##
+# _matchSpectra
+#    match spectrum names that matcha pattern.
+#
+# @param pattern - the pattern.
+# @return list - Possibly empty list of spectra that match the pattern.
+#
+proc _matchSpectra {pattern} {
+    set result [list]
+    foreach spectrum [spectrum -list $pattern] {
+        lappend result [lindex $spectrum 1]
+    }
+    
+    return $result
+}
 
 ##
 # List the spectra that match the specified pattern
@@ -223,7 +238,10 @@ proc SpecTcl_Spectrum/contents {{name ""}} {
 #
 proc SpecTcl_Spectrum/zero {{pattern *}} {
     set ::SpecTcl_Spectrum/zero application/json
-    clear $pattern
+    set spectrumList [_matchSpectra $pattern]
+    if {[llength $spectrumList] > 0} {
+        clear  {*}$spectrumList
+    }
     return [::SpecTcl::_returnObject]
 }			   
 				

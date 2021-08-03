@@ -76,7 +76,7 @@ proc _fitToObject {fit} {
 # @param type   - Fit type e.g. 'gaussian'.
 #
 proc SpecTcl_fit/create {name spectrum low high type} {
-
+    set ::SpecTcl_fit/create  application/json
     set status [catch {
         fit create $name $spectrum $low $high $type
     } msg]
@@ -94,6 +94,7 @@ proc SpecTcl_fit/create {name spectrum low high type} {
 # @param pattern - optional glob pattern "*" is the default which matches all.
 #
 proc SpecTcl_fit/update {{pattern *}} {
+    set ::SpecTcl_fit/update  application/json
     set status [catch {
         fit update $pattern
     } msg]
@@ -110,6 +111,7 @@ proc SpecTcl_fit/update {{pattern *}} {
 # @param name
 #
 proc SpecTcl_fit/delete {name} {
+    set ::SpecTcl_fit/delete  application/json
     set status [catch {
         fit delete $name
     } msg]
@@ -136,7 +138,7 @@ proc SpecTcl_fit/delete {name} {
 # @param pattern - glob pattern whose matches are the fits that will be listed.
 #
 proc SpecTcl_fit/list {{pattern *}} {
-
+    set ::SpecTcl_fit/list  application/json
     set status [catch {
         fit list $pattern
     } msg]

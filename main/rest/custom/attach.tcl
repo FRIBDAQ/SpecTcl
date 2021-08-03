@@ -45,6 +45,7 @@ Direct_Url /spectcl/attach SpecTcl_Attach
 # See, however SpecTcl_Attach/list.
 #
 proc SpecTcl_Attach/attach {type source {size 8192} {format {ring}}} {
+    set ::SpecTcl_Attach/attach aplication/json
     set typesw -$type
     
     # Note that source can be many words.
@@ -63,6 +64,7 @@ proc SpecTcl_Attach/attach {type source {size 8192} {format {ring}}} {
 #    return the attachment string as the details:
 #
 proc SpecTcl_Attach/list {} {
+    set ::SpecTcl_Attach/list aplication/json
     SpecTcl::_returnObject OK [json::write string [attach -list]]
 }
 

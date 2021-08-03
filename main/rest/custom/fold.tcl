@@ -36,6 +36,7 @@ Direct_Url /spectcl/fold SpecTcl_fold
 # @param spectrum - one or more occurences of spectra.
 #
 proc SpecTcl_fold/apply {args} {
+    set ::SpecTcl_fold/apply application/json
     set params [SpecTcl::_marshallDict $args]
     set gate [dict get $params gate]
     set spectra [dict get $params spectrum]
@@ -60,6 +61,7 @@ proc SpecTcl_fold/apply {args} {
 #   -  gate     - Name of the gate folded onthe spectrum.
 #
 proc SpecTcl_fold/list {{pattern *}} {
+    set ::SpecTcl_fold/list application/json
     set status [catch {
         fold -list $pattern
     } data]
@@ -84,6 +86,7 @@ proc SpecTcl_fold/list {{pattern *}} {
 # @param spectrum - name of the spectrum to unfold.
 #
 proc SpecTcl_fold/remove {spectrum} {
+    set ::SpecTcl_fold/remove application/json
     set status [catch {
         fold -remove  $spectrum
     } msg]
