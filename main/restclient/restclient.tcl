@@ -68,6 +68,8 @@ package require json
 #
 #    spectrumProject - Project a 2d spectrum.
 #
+#    spectrumStatistics - Get spectrum oveflow/underflow statistics
+#
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -425,5 +427,19 @@ snit::type SpecTclRestClient {
         }
         $self _request [$self _makeUrl project $qdict]
     }
+    #--------------------------------------------------------------------------
+    # specstats jacket.
+    #
     
+    ##
+    # spectrumStatistics
+    #   @param pattern  - the glob pattern matching spectrum names we want
+    #                     stats for.
+    #   @return list of dicts containing name, underflows and overflows keys.
+    #
+    method spectrumStatistics {{pattern  *}} {
+        set info [$self _request [$self _makeUrl specstats [dict \
+            create pattern $pattern]]]
+        return [dict get $info detail]
+    }
 }

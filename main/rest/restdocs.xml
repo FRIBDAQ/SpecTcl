@@ -2098,5 +2098,55 @@ http://host:port/spectcl/project?snapshot=1|2&amp;source=specname&amp;newname=ne
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+            <title>Spectrum Underflow and Overflow Statistics (new in 5.5)</title>
+            <para>
+                URLs of the form:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/specstats<optional>?pattern=globname-pattern</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Return the overflow and underflow statistics for the spectra
+                whose names match the optional <literal>pattern</literal>
+                query parameter.  If that pattern is not supplied it defaults
+                to <literal>*</literal> returning information about all spectra.
+            </para>
+            <para>
+                The <literal>detail</literal> attribute of the returned JSON object
+                is an array of objects that have the attributes:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum being described.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>underflows</literal></term>
+                   <listitem>
+                       <para>
+                        Array of underflow counters.  If a 1-d spectrum this is
+                        a single element.  For 2-d spectra this is a two element
+                        array containing x and y axis undeflowas in that order.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>overflows</literal></term>
+                   <listitem>
+                       <para>
+                        Same as for <literal>undeflows</literal> but the array
+                        contain overflow counter(s).
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>
