@@ -1883,5 +1883,97 @@ http://host:port/spectcl/fit/list?pattern=glob
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+            <title>REST interface for the fold command (new in 5.5)</title>
+            <para>
+                The fold command has three sub opterations that:
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                       Fold a list of gamma spectra on a gamma gate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Remove a fold from a gamma spectrum .
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      List the folded spectra (that match a glob pattern). 
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                The URL below applies folds to spectra:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/apply?gate=gammagate&amp;spectrum=specname1<optional>&amp;spectrum=specname2...</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <parameter>gate</parameter> query parameter specifies a gate
+                which must be a gamma gate.  One or more <parameter>spectrum</parameter>
+                query parameters specify the spectra to be folded with that gate.
+            </para>
+            <para>
+                the <literal>spectcl/fold/apply</literal> URLs do not return
+                anything useful other than the status.
+            </para>
+            <para>
+                The URL below lists folded spectra that match the <literal>pattern</literal>
+                query parameter (treated as a glob pattern).  If the
+                <literal>pattern</literal> query parameter is not supplied, it
+                defaults to <literal>*</literal>
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/list<optional>?pattern=globpattern</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                It is important to note that the pattern matches
+                <emphasis>spectra</emphasis> not gates.  The <literal>detail</literal>
+                part of the return data is an array of JSON objects. Each
+                object has the following attributes:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        Name of a folded spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the gate used to fold the spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Spectra without folds will not be listed in the array.
+            </para>
+            <para>
+                The following URL is used to unfold a spectrum:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/remove?spectrum=spectrum-name
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>spectrum</literal> query parameter specifies
+                the name of the spectrum from which to remove the fold.
+                Nothing useful other than the <literal>status</literal> attribute
+                of the reply is returned on success.  
+            </para>
+        </section>
     </chapter>
 </book>
