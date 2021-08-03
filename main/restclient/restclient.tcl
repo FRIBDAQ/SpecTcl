@@ -66,6 +66,8 @@ package require json
 #    spectrumClear  - Clear spectrum.
 #    spectrumClearAll - Clear all spectra.
 #
+#    spectrumProject - Project a 2d spectrum.
+#
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -401,6 +403,27 @@ snit::type SpecTclRestClient {
     #
     method spectrumClearAll {} {
         return [$self spectrumClear *]
+    }
+    #-------------------------------------------------------------------------
+    # project command jacket.
+    
+    ##
+    # spectrumProject
+    #
+    # @param old - old spectrum name.
+    # @param new  - new spectrum name.
+    # @param direction - Projection direction x|y.
+    # @param snapshot - Boolean snapshot flag.
+    # @param contour - If provided only the part within the contour is projected.
+    #
+    method spectrumProject {old new direction snapshot {contour ""} } {
+        set qdict [dict create \
+            snapshot $snapshot source $old newname $new direction $direction
+        ]
+        if {$contour ne ""} {
+            dict set qdict contour $contour
+        }
+        $self _request [$self _makeUrl project $qdict]
     }
     
 }

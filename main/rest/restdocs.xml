@@ -2025,5 +2025,78 @@ http://host:port/spectcl/channel/get?spectrum=name&amp;xchannel=x<optional>&amp;
                 units not real coordinates.
             </para>
         </section>
+        <section>
+            <title>Projecting spectra (new in 5.5)</title>
+            <para>
+                The REST interface supports spectrum projection:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/project?snapshot=1|2&amp;source=specname&amp;newname=newspecname&amp;direction=x|y<optional>&amp;contour=contourname</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                URLS of this form project an existing spectrum onto one of the
+                axes creating an new spectrum.  The query parameters are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>snapshot</literal></term>
+                   <listitem>
+                       <para>
+                        This is a boolean value.  If nonzero, the projected spectrum
+                        will not increment, it's a snapshot of the projection in time.
+                        If <literal>0</literal>, as new data arrive, the projected
+                        spectrum will increment just like any other.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>source</literal></term>
+                   <listitem>
+                       <para>
+                        Specifies the name of the spectrum to project.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>newname</literal></term>
+                   <listitem>
+                       <para>
+                        Specifies the name of the new projected spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>direction</literal></term>
+                   <listitem>
+                       <para>
+                        Either <literal>x</literal> or <literal>y</literal>
+                        identifying the axis onto which the spectrum is projected.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>contour</literal></term>
+                   <listitem>
+                       <para>
+                        Optional.  If specified, this is a contour that must have
+                        been displayable on the <literal>source</literal> spectrum.
+                        The projected spectrum is initially populated only with counts
+                        that are within that contour. Furthermore, if the projected
+                        spectrum is not a snapshot spectrum, it is gated on that contour
+                        (initially) so that the projection remains faithful as
+                        new data arrive.
+                       </para>
+                       <para>
+                        Note that there is nothing to stop a user from
+                        applying a different gate later however, in that case,
+                        clearly the spectrum will not increment in a manner that
+                        is faithful to the original projection.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>
