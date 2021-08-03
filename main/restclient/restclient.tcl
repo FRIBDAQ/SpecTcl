@@ -56,6 +56,10 @@ package require json
 #    fitDelete   - Delete a fit.
 #    fitList     - List fits.
 #
+#    foldApply   - Apply a gamma gate as a fold to a spectrum.
+#    foldList    - List folds.
+#    foldRemove  - Unfold a spectrum.
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -109,7 +113,7 @@ snit::type SpecTclRestClient {
         }
         
         set rawData [http::data $token]
-        #puts $rawData;      # Uncomment to debug reply errors.
+        # puts $rawData;      # Uncomment to debug reply errors.
         set parseOk [catch {
             set json [json::json2dict $rawData]
         } msg]
@@ -126,14 +130,31 @@ snit::type SpecTclRestClient {
         if {$status ne "OK"} {
             error "Request failed by SpecTcl: $status :  [dict get $json detail]"
         }
+        # Debugging here - if there's no detail then likely we have  a
+        # server error - let's throw an error with the rawdData as the message:
+        #
+        if {![dict exists $json status ]} {
+            error "SpecTcl Server error: $rawData"
+        }
         
         # Success return what interests the caller.
         
         return $json
     }
-        
-    
-    
+    ##
+    #  _listToQueryList
+    #    Given a query parameter name and a list of items,
+    #    returns  list of parameter-name item1 paramter-name item2...
+    # @param queryArg - name of the query parameter.
+    # @param items    - items to put into the list.
+    #
+    proc _listToQueryList {queryArg items} {
+        set result [list]
+        foreach item $items {
+            lappend result $queryArg $item
+        }
+        return $result
+    }
     
     #---------------------------------------------------------------------------
     #
@@ -212,10 +233,8 @@ snit::type SpecTclRestClient {
     # @param spectra - the spectra to bind.
     #
     method sbindSpectra {spectra} {
-        set qparams [list]
-        foreach spectrum $spectra {
-            lappend qparams  spectrum $spectrum
-        }
+        set qparams [_listToQueryList  spectrum $spectra]
+        
         $self _request [$self _makeUrl sbind/sbind $qparams]
     }
     ##
@@ -281,5 +300,38 @@ snit::type SpecTclRestClient {
         
         return [dict get $json detail]
         
+    }
+    #--------------------------------------------------------------------------
+    # fold command jackets.
+    #
+    
+    ##
+    # foldApply
+    #    Apply a fold to one or more spectra.
+    # @param gate  - name of the gate to apply the fold to.
+    # @param spectra - list of spectra to fold with that gate.
+    #
+    method foldApply {gate spectra} {
+        set queryList [list gate $gate {*}[_listToQueryList spectrum $spectra]]
+        $self _request [$self _makeUrl fold/apply $queryList]
+    }
+    ##
+    # foldList
+    #    List folds  on spectra that match the pattern
+    # @param pattern - only spectra that match this optional glob pattern are
+    #                  listed.  Defaults to * which matches all spectra.
+    #
+    method foldList {{pattern *}} {
+        set info [$self _request [$self _makeUrl fold/list [dict create pattern $pattern]]]
+        return [dict get $info detail]
+    }
+    ##
+    # foldRemove
+    #   Remove a fold from a spectrum.
+    #
+    # @param spectrum  - name of spectrum to unfold.
+    #
+    method foldRemove {spectrum} {
+        $self _request [$self _makeUrl fold/remove [dict create spectrum $spectrum]]
     }
 }
