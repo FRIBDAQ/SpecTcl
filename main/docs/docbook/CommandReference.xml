@@ -1603,7 +1603,7 @@ specstats <replaceable>?pattern?</replaceable>
     <refsynopsisdiv>
         <cmdsynopsis>
             <command>
-treeparameter <option>-create</option> <replaceable>name low high units</replaceable>
+treeparameter <option>-create</option> <replaceable>name low high bins units</replaceable>
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
@@ -1692,7 +1692,7 @@ treeparameter <option>-version</option>
                 <term>
                 <cmdsynopsis>
                     <command>
-treeparameter <option>-create</option> <replaceable>name low high units</replaceable>
+treeparameter <option>-create</option> <replaceable>name low high bins units</replaceable>
                     </command>
                 </cmdsynopsis>
                 </term>
