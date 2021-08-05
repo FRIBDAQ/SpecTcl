@@ -562,6 +562,105 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter
                     </para>
                 </formalpara>
             </section>
+            <section>
+               <title>create</title>
+               <para>
+                Provides direct access to the SpecTcl
+                <command>treeparameter -create</command> command.
+                This command can create a new parameter if there is no existing
+                parameter. The REST interface returns nothing. It accepts the
+                following query parameters:
+               </para>
+               <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Name of the new treeparameter.  If there isn't an underlying
+                        parameter with this name it will be created.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum low limit for this parameter
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum high limit for this parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>bins</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum binning for this parameter
+                        given for its recommended low and high values.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional defaults to "")</term>
+                   <listitem>
+                       <para>
+                        Units of measure of the parameter
+                       </para>
+                    </listitem>
+                </varlistentry>
+               </variablelist>
+            </section>
+            <section>
+               <title>listnew</title>
+               <para>
+                Lists tree parameter that have been created by
+                <command>treeparameter -create</command> note these can be
+                created by local commands (from scripts e.g.) of from REST
+                requests that can come from any client
+               </para>
+               <para>
+                On successful completion, the <literal>detail</literal>
+                attribute will be an array of strings that are the
+                created tree parameters.
+               </para>
+            </section>
+            <section>
+               <title>check</title>
+               <para>
+                Returns the state of a tree parameter check flag.
+                The required query parameter <literal>name</literal>
+                is the name of the tree parameter to operate on.
+               </para>
+               <para>
+                The check flag indicates if a tree parameter has been
+                created or modified since SpecTcl started or since the
+                flag was cleared.  It can be  used to reduce the amount of
+                information that needs to be written to saved settings files
+                in the event there are a large number of tree parameter
+                definitions.
+               </para>
+            </section>
+            <section>
+               <title>uncheck</title>
+               <para>
+                Clears the check flag of the treeparameter whose name is the
+                <literal>name</literal> query parameter.
+               </para>
+            </section>
+            <section>
+               <title>version</title>
+               <para>
+                The <literal>detail</literal> attribute of the response
+                to this request is the treeparameter implementation version.
+                This is a string, not a number.
+               </para>
+            </section>
         </section>
         <section>
             <title>spectrum requests</title>

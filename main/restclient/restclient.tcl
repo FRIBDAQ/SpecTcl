@@ -70,6 +70,17 @@ package require json
 #
 #    spectrumStatistics - Get spectrum oveflow/underflow statistics
 #
+#    treeparameterCreate
+#    treeparameterList
+#    treeparameterListNew
+#    treeparameterSet
+#    treeparameterSetInc
+#    treeparameterSetBins
+#    treeparameterSetSetUnits
+#    treeparameterSetLimits
+#    treeparameterCheck
+#    treeparameterUncheck
+#    treeparameterVersion
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -441,5 +452,176 @@ snit::type SpecTclRestClient {
         set info [$self _request [$self _makeUrl specstats [dict \
             create pattern $pattern]]]
         return [dict get $info detail]
+    }
+    #-------------------------------------------------------------------------
+    # treeparameter jackets
+    
+    ##
+    # treeparameterCreate
+    #   Make a new tree parameter.
+    # @param name - name of the parameter.
+    # @param low  - Low limit
+    # @param high  - High limit.
+    # @param bins  - number of recommended bins.
+    # @param units - optional units (defaults to "").
+    # No useful return value.
+    #
+    method treeparameterCreate {name low high bins {units ""}} {
+        set qparams [dict create \
+            name $name low $low high $high bins $bins units $units \
+        ]
+        $self _request  [$self _makeUrl /parameter/create $qparams]
+    }
+    ##
+    #    treeparameterList
+    #   List the tree parameters.
+    # @param filter - GLOB filter on the names of the tree parameters listed.
+    #    note that this defaults to * which lists all of them.
+    #
+    # @return list of dicts each dict descrbing a tree parameter with the keys:
+    #    - name   - name of a parameter.
+    #    - bins   - number of bins.
+    #    - low    - Low limit.
+    #    - high   - high limt.
+    #    - units  - unts.
+    #
+    # @note the REST interface returns all parameter not just the tree parameters.
+    #      we filter the non-tree parameters out.
+    #
+    method treeparameterList {{filter *}} {
+        set raw [$self _request [$self _makeUrl                   \
+            /parameter/list [dict create filter $filter]             \
+        ]]
+        set result [list]
+        foreach param [dict get $raw detail] {
+            if {[dict exists $param bins]} {
+                lappend result $param;              # it's a tree parameter.
+            }
+        }
+        
+        return $result
+        
+    }
+    ##
+    #    treeparameterListNew
+    #   Returns the list of tree parameters that were created via
+    #    treeparameter -create by any means.
+    # @return list of strings.
+    #
+    method treeparameterListNew {} {
+        set raw [$self _request [$self _makeUrl /parameter/listnew [dict create]]]
+        return [dict get $raw detail]
+    }
+    ##
+    #    treeparameterSet
+    #  Sets new values for all aspects of a tree parameter (treeparameter -set).
+    #
+    # @param name - name of the parameter.
+    # @param bins - Suggested binning.
+    # @param low  - Suggested low limit.
+    # @param high - Suggested high limit.
+    # @param units - optional units (defaults to "").
+    #
+    #  Nothing useful is returned.
+    #
+    method treeparameterSet {name bins low high {units ""} } {
+        set pdict [dict create\
+            name $name bins $bins low $low high $high units $units \
+        ]
+        $self _request [$self _makeUrl /parameter/edit $pdict]
+    }   
+    ##
+    #    treeparameterSetInc
+    #  Modify the increment of a parameter.  This requires some fancy footwork
+    #  as the inc is derived from low, high and bins and is
+    #   (high-low)/bins  We're going to set only bins  so bins = |(high-low)/inc|
+    # @param name  - name of the parameter.
+    # @param newinc  - New channel increment.
+    #
+    method treeparameterSetInc {name newinc} {
+        set current [$self treeparameterList $name]
+        if {[llength $current] ==1 } {
+            set info [lindex $current 0]
+            set low [dict get $info low]
+            set high [dict get $info hi]
+            set bins [dict get $info bins]
+            set newbins [expr int(abs(($high-$low)/$newinc) + 0.5)]; #rounded.
+            $self _request [$self _makeUrl \
+                /parameter/edit [dict create name $name bins $newbins]  \
+            ]
+        } else {
+            error "$name is not an unambiguous tree parameter name."
+        }
+    }
+    ##
+    #    treeparameterSetBins
+    # Set the number of bins in a tree parameter.
+    #
+    # @param name - name of the parameter.
+    # @param newbins - new bins value.
+    #
+    method treeparameterSetBins {name newbins} {
+        set qdict [dict create name $name bins $newbins]
+        $self _request [$self _makeUrl /parameter/edit $qdict]
+    }
+    ##
+    #    treeparameterSetUnits
+    #     Change the units of a tree parameter.  Note that currently there's
+    #     no way to remove units (set them to an empty string), since an empty
+    #     units string will just not change anything.
+    #
+    # @param name - name of the parameter.
+    # @param units -Units name
+    #
+    method treeparameterSetUnits {name units} {
+        if {$units eq ""} {
+            error "Setting units name to '' is not supported"
+        }
+        set qdict [dict create name $name units $units]
+        $self _request [$self _makeUrl /parameter/edit $qdict]
+    }
+    ##
+    #    treeparameterSetLimits
+    #    set the limit meta data on a tree parameter.
+    #
+    # @param name - name of the parameter.
+    # @param low  - low limit.
+    # @param high  - high limit.
+    #
+    method treeparameterSetLimits {name low high} {
+        set qdict [dict create name $name low $low high $high]
+        $self _request [$self _makeUrl /parameter/edit $qdict]
+    }
+    ##
+    #    treeparameterCheck
+    #  Return the tree parameter check flag for a single tree parameter.
+    #  this is set if anybody changed the tree parameter definition since
+    #  the program started.
+    #
+    # @param name - name to check
+    #
+    method treeparameterCheck {name} {
+        set data [$self _request [$self _makeUrl /parameter/check \
+                [dict create name $name]]]
+        return [dict get $data detail]
+    }
+    ##
+    #    treeparameterUncheck
+    #  uncheck a tree paramter modification flag
+    #
+    # @param name - name to uncheck.
+    #
+    method treeparameterUncheck {name} {
+        $self _request [$self _makeUrl /parameter/uncheck [dict create name $name]]
+    }
+    #    treeparameterVersion
+    #
+    #  Return the tree parameter version string.
+    #
+    # @return string.
+    #
+    method treeparameterVersion {} {
+        set data [$self _request [$self _makeUrl /parameter/version [dict create]]]
+        return [dict get $data detail]
     }
 }

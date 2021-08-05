@@ -36,26 +36,26 @@ proc SpecTcl_Parameter/list {{filter *}} {
     set json {}
     set jsonArray [list]
     foreach parameter $rawParameters {
-	set name [lindex $parameter 0]
-	set id   [lindex $parameter 1]
-	set itemList [list name [json::write  string $name] id $id]
-
-	# If there's a corresponding tree paramter add
-	# its items to the itemList:
-
-	set treeparam [treeparameter -list $name]
-	if {[llength $treeparam] > 0} {
-	    set treeparam [lindex $treeparam 0]
-	    lappend itemList bins [lindex $treeparam 1]
-	    lappend itemList low  [lindex $treeparam 2]
-	    lappend itemList hi   [lindex $treeparam 3]
-	    lappend itemList units [json::write string [lindex $treeparam 5]]
-	}
-
-	# Encode the JSON object.
-
-	lappend jsonArray [json::write object  {*}$itemList]
-	
+        set name [lindex $parameter 0]
+        set id   [lindex $parameter 1]
+        set itemList [list name [json::write  string $name] id $id]
+    
+        # If there's a corresponding tree paramter add
+        # its items to the itemList:
+    
+        set treeparam [treeparameter -list $name]
+        if {[llength $treeparam] > 0} {
+            set treeparam [lindex $treeparam 0]
+            lappend itemList bins [lindex $treeparam 1]
+            lappend itemList low  [lindex $treeparam 2]
+            lappend itemList hi   [lindex $treeparam 3]
+            lappend itemList units [json::write string [lindex $treeparam 5]]
+        }
+    
+        # Encode the JSON object.
+    
+        lappend jsonArray [json::write object  {*}$itemList]
+        
     }
     return [::SpecTcl::_returnObject "OK" [json::write array  {*}$jsonArray]]
 
@@ -119,12 +119,12 @@ proc SpecTcl_Parameter/edit {{name ""} {bins ""} {low ""} {high ""} {units ""}} 
     #  These can be mechanically done:
     #
     foreach newitem {newbins newunits} olditem {oldbins oldunits} subcommand {-setbins -setunit} {
-	if {[set $newitem] != [set $olditem]} {
-	    if {[catch {treeparameter $subcommand $name [set $newitem]} msg]} {
-		return [::SpecTcl::_returnObject "command failed" [json::write string $msg]]
-	    }
-
-	}
+        if {[set $newitem] != [set $olditem]} {
+            if {[catch {treeparameter $subcommand $name [set $newitem]} msg]} {
+            return [::SpecTcl::_returnObject "command failed" [json::write string $msg]]
+            }
+    
+        }
     }
     return [::SpecTcl::_returnObject]
 
@@ -173,6 +173,111 @@ proc SpecTcl_Parameter/promote {{name ""} {low ""} {high ""} {bins ""} {units ""
 
     if {[catch {treeparameter -create $name $low $high $bins $units} msg]} {
 	return [::SpecTcl::_returnObject "command failed"  [json::write string $msg]]
-    }
+    } 
     return [SpecTcl::_returnObject]
+    
+}
+#-------------------- new  in 5.5 ---------------------------------------------
+##
+# SpecTcl_Parameter/create
+#
+# Create a new tree parameter.
+# @param name - name of the parameter.
+# @param low  - Parameter low limit.
+# @param high - High limit.
+# @param bins - number of recommended bins.
+# @param units - parameter units.
+#
+#  This differs from /promot in that it will, if necessary create the underlying
+#  parameter.
+#
+proc SpecTcl_Parameter/create {name low high bins {units ""}} {
+
+    set ::SpecTcl_Parameter/create application/json
+    
+    set status [catch {
+        treeparameter -create $name $low $high $bins $units
+    } msg]
+    if {$status} {
+        ::SpecTcl::_returnObject "'treeparameter -create' failed: " [json::write string $msg]
+    } else {
+        ::SpecTcl::_returnObject
+    }
+}
+##
+# SpecTcl_Parameter/listnew
+#    List the parameters created by treeparameter -create.
+# The returned value detail is an array of strings (tree parameter names).
+#
+proc SpecTcl_Parameter/listnew { } {
+    set ::SpecTcl_Parameter/listnew application/json
+    
+    set status [catch {treeparameter -listnew} result]
+    if {$status} {
+        return [SpecTcl::_returnObject \
+            "'treeparameter -listnew' failed"   \
+            [json::write string $result]    \
+        ]
+    }
+    set names [list]
+    foreach item $result {
+        lappend names [json::write string $item]
+    }
+    return [SpecTcl::_returnObject OK [json::write array {*}$names]]
+                
+}
+##
+# SpecTcl_Parameter/check
+#  Return the check flag from the given parameter as detail.
+#
+# @param name - name of the parameter we want.
+#
+proc SpecTcl_Parameter/check {name} {
+    set ::SpecTcl_Parameter/check application/json
+    set status [catch {
+        treeparameter -check $name
+    } result]
+    if {$status } {
+        return [SpecTcl::_returnObject \
+            "'treeparameter -check failed: " [json::write string $result]
+        ]
+    }
+    SpecTcl::_returnObject OK $result   ;   # an integer.
+}
+##
+# SpecTcl_Parameter/uncheck
+#    Unsets the check flag from a parameter.
+#
+# @param name - name of the parameter to uncheck.
+#
+proc SpecTcl_Parameter/uncheck {name} {
+    set ::SpecTcl_Parameter/uncheck application/json
+    
+    set status [catch {
+        treeparameter -uncheck $name
+    } msg]
+    if {$status} {
+        return [SpecTcl::_returnObject \
+            "'treeparameter -uncheck failed: " [json::write string $msg]
+        ]
+    }
+    SpecTcl::_returnObject OK
+}
+##
+# SpecTcl_Parameter/version
+#
+#   Return the curren tree paramter version string.
+#
+proc SpecTcl_Parameter/version { } {
+    set SpecTcl_Parameter/version application/json
+    
+    set status [catch {
+        treeparameter -version
+    } v]
+    if {$status} {
+        return [SpecTcl::_returnObject "'treeparameter -version failed: "] \
+            [json::write string $v]                                      \
+        ]
+    }
+    SpecTcl::_returnObject OK [json::write string $v]
 }
