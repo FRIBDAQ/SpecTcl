@@ -2247,5 +2247,102 @@ http://host:port/specstats<optional>?pattern=globname-pattern</optional>
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+           <title>Access to the treeevariable command (new in 5.5)</title>
+           <para>
+            URLs of the following form list the tree variables:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treeparameter/list
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned JSON object
+            is an array of objects.  Each object describes a tree variable
+            and has the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the treevariable.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>value</literal></term>
+               <listitem>
+                   <para>
+                    Current value of the treevariable.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>units</literal></term>
+               <listitem>
+                   <para>
+                    Units of measure of the tree variable.  Note that if this
+                    is an empty string the variable should be assumed to be
+                    unitless.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            Tree variable values may be changed as well as their units:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treeparameter/set?name=varname&amp;value=newvalue&amp;units=newunits
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Note that the units are not optional just as they are not optional for
+            the underlying SpecTcl <command>treevariable -set</command> command.
+           </para>
+           <para>
+            Treevariables have a flag that indicates if they have been modified
+            in the life of the SpecTcl run.  This flag is normally used to
+            limit the amount of information that must be saved in files that
+            capture the SpecTcl analysis state.  This flag can be interrogated:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/check?name=varname                
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned JSON object
+            is <literal>0</literal> if the variable has not been changed and
+            <literal>1</literal> if it has.
+           </para>
+           <para>
+            It is possible for user interfaces to directly set the changed flag
+            above.  This is done with URLS of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/setchanged?name=varname
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Finally, there are cases where it's important to fire Tcl traces
+            associated with tree variables.  This can be done as follows:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/firetraces<optional>?pattern=glob-pattern</optional>
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            For these URL's, <replaceable>glob-pattern</replaceable> is
+            a GLOB pattern used to filter which traces are fired. Only variables
+            whose names match that pattern will have their traces fired.
+            Note that if not supplied the pattern defaults to <literal>*</literal>
+            which matches all variable names.
+           </para>
+        </section>
     </chapter>
 </book>

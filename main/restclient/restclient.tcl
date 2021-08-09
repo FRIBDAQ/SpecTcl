@@ -82,6 +82,12 @@ package require json
 #    treeparameterUncheck
 #    treeparameterVersion
 #
+#    treevariableList
+#    treevariableSet
+#    treeVariableCheck
+#    treeVariableSetChanged
+#    treeVariableFireTraces
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -623,5 +629,66 @@ snit::type SpecTclRestClient {
     method treeparameterVersion {} {
         set data [$self _request [$self _makeUrl /parameter/version [dict create]]]
         return [dict get $data detail]
+    }
+    #-------------------------------------------------------------------------
+    #  treevariable command jackets.
+    
+    ##
+    #    treevariableList
+    #  Returns a list of dicts where each dict describes a tree variable.
+    #  the dicts have the keys name, value and units with obvious meanings.
+    #
+    method treevariableList {} {
+        set info [$self _request [$self _makeUrl /treevariable/list [dict create]]]
+    
+        return [dict get $info detail]
+    }
+    ##
+    #    treevariableSet
+    #      Set value and units of a tree variable.
+    #
+    # @param name - name of the variable.
+    # @param value - new value.
+    # @param units - new units.
+    #
+    method treevariableSet {name value units} {
+        set qdict [dict create                                            \
+            name $name value $value units $units                         \
+        ]
+        $self _request [$self _makeUrl treevariable/set $qdict]
+    }
+    ##
+    #    treevariableCheck
+    #  Returned the changed flag
+    # @param name -name of the variable.
+    #
+    method treevariableCheck {name} {
+        set info [
+            $self _request [$self _makeUrl treevariable/check [dict create name $name]] \
+        ] 
+        return [dict get $info detail]
+    }
+    ##
+    #    treevariableSetChanged
+    #   Set the changed flag of a variable.
+    # @param name - treevariable name.
+    #
+    method treevariableSetChanged {name} {
+        $self _request [$self _makeUrl treevariable/setchanged [dict create name $name]]
+    }
+        
+    
+    #    treeVariableFireTraces
+    #
+    # Fire any traces associated with a tree variable.  Note the traces are
+    # fired in the server not the client.  This can cause some interesting
+    # issues with porting UIs to work remotely that must be handled by the
+    # next layer of software.
+    #
+    # @param pattern - name to match that filters the set of traces fired.
+    #
+    # 
+    method treevariableFireTraces {{pattern *}} {
+        $self _request [$self _makeUrl treevariable/firetraces [dict create]]
     }
 }
