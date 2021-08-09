@@ -88,6 +88,15 @@ package require json
 #    treeVariableSetChanged
 #    treeVariableFireTraces
 #
+#    filterCreate
+#    filterDelete
+#    filterEnable
+#    filterDisable
+#    filterRegate
+#    filterFile
+#    filterList
+#    filterFormat
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -691,4 +700,113 @@ snit::type SpecTclRestClient {
     method treevariableFireTraces {{pattern *}} {
         $self _request [$self _makeUrl treevariable/firetraces [dict create]]
     }
+    #------------------------------------------------------------------------
+    #  Filter command jackets
+    #
+
+    ##
+    #    filterCreate
+    #  Create a new filter.
+    # @param name - filter name.
+    # @param gate - filter gate.
+    # @param parameters - List of paramete names to write in events in the
+    #              output file.
+    # @return - nothing useful
+    #
+    method filterCreate {name gate parameters} {
+        dict set qDict name $name
+        dict set qDict gate $gate
+        lappend qDict {*}[_listToQueryList parameter $parameters]
+        
+        
+        
+        $self _request [$self _makeUrl filter/new $qDict]
+    }
+    ##
+    #    filterDelete
+    #  Deletes an existin filter.
+    #
+    # @param name -filter name.
+    #
+    method filterDelete {name} {
+        $self _request [$self _makeUrl filter/delete [dict create name $name]]
+    }
+    ##
+    #    filterEnable
+    #   Enable an existing filter.
+    # @param name -the filter name.
+    #
+    method filterEnable {name} {
+        $self _request [$self _makeUrl  filter/enable [dict create name $name]]
+    }
+    ##
+    #    filterDisable
+    #  Disable an existing filter.
+    # @param name - name of existing filter,.
+    #
+    method filterDisable {name} {
+        $self _request [$self _makeUrl filter/disable [dict create name $name]]
+    }
+    ##
+    #    filterRegate
+    # Change the gate that's applied to a filter.
+    #
+    # @param name - filter name.
+    # @param gate - Filter gate.
+    #
+    method filterRegate {name gate} {
+        $self _request [$self _makeUrl \
+            filter/regate [dict create name $name gate $gate] \
+        ]
+    }
+    ##
+    #    filterFile
+    # Set the output file of a filter.
+    #
+    # @param name  - filter name.
+    # @param path  - Filename path. Note that this is interpreted in the
+    #               context of this server and must be writable by this process,
+    #               not the client.  As such it is recommended to use full path
+    #               names.
+    #
+    method filterFile {name path} {
+        $self _request [$self _makeUrl filter/file [dict create                     \
+            name $name file $path                                       \
+        ]]
+    }
+    ##
+    #    filterList
+    #  List the filters.
+    #
+    # @param pattern - optional GLOB pattern  that restricts the set of
+    #      filters listed to those that match it. Defaults to '*' if not
+    #      provided, which matches everything.
+    # @return list of dicts - each dict describes a filter and contains the
+    #         following keys:
+    #         - name -the filter name.
+    #         - gate - the filter gate name.
+    #         - file - The filter output file (empty string if there isn't one).
+    #         - parameters - list of parameters written for each event.
+    #         - enabled - "enabled" or "disabled" depending on the enable status.
+    #         - format - format string (normally 'xdr').
+    #
+    method filterList {{pattern *}} {
+        set info [$self _request [$self _makeUrl  \
+            filter/list [dict create pattern $pattern]] \
+        ]
+        return [dict get $info detail]
+    }
+        
+    
+    #    filterFormat
+    #  Set the filter file format.
+    #
+    # @param name - filter name.
+    # @param format - format string.
+    #
+    method filterFormat {name format} {
+        set qparams [dict create name $name format $format]
+        $self _request [$self _makeUrl filter/format $qparams]
+    }
+
 }

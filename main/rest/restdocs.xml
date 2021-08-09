@@ -2344,5 +2344,187 @@ http://host:port/spectcl/treevariable/firetraces<optional>?pattern=glob-pattern<
             which matches all variable names.
            </para>
         </section>
+        <section>
+           <title>Accessing the filter command (New in 5.5</title>
+           <para>
+            Filters can be created using URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/new?name=filtername&amp;gate=gatename&amp;parameter=p1<optional>&amp;parameter=p2...</optional>
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            In this URL, the query parameters are:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    The name of the filter to create.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>gate</literal></term>
+               <listitem>
+                   <para>
+                    Specifies the name of a gate that will determine which
+                    events are output by the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameter</literal></term>
+               <listitem>
+                   <para>
+                    Each occurance of this query parameter specifies the
+                    name of a parameter that will be written to the filter output.
+                    Note that neither the server nor SpecTcl check for name uniqueness,
+                    it is therefore possible, although pathalogical, to output
+                    the same parameter in an event more than once.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            To delete a filter use URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/delete?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The query parameter <literal>name</literal> specifies the name of
+            the filter to delete.  If the filter is enabled it is first disabled which
+            results in a properly terinated file.
+           </para>
+           <para>
+            Filters can be enabled using URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/enable?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Where the query parameter <literal>name</literal>
+            specifies the name of the filter to enable.
+           </para>
+           <para>
+            Similarly:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/disable?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Disables the filter specified by the <literal>name</literal>
+            query parameter.
+           </para>
+           <para>
+            URLs of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+                <command>
+http://host:port/spectcl/name?name=filtername&amp;file=path
+                </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Specify the output file for the filter.
+            <literal>name</literal> specifies the filter name and
+            <literal>path</literal> the filter output file path. Note that
+            SpecTcl is writing the filter file and therefore the
+            <literal>path</literal> is interpreted as a path in the context of
+            the server not the client.  Furthermore, the <literal>path</literal>
+            value must specify a file that can be written by SpecTcl (not the
+            client).
+           </para>
+           <para>
+            Urls of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/list
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Returns, for the <literal>detail</literal> part of the JSON
+            returned object an array of objects.  Each object will
+            describe a single filter and contains the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>gate</literal></term>
+               <listitem>
+                   <para>
+                    Name of the gate applied to the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>file</literal></term>
+               <listitem>
+                   <para>
+                    Name of the output file to which the filter writes.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameters</literal></term>
+               <listitem>
+                   <para>
+                    An array of parameter names written to the output file
+                    for each event that passes the gate.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>enabled</literal></term>
+               <listitem>
+                   <para>
+                    If the filter is enabled, this attribute has the value
+                    <literal>enabled</literal> otherwise
+                    <literal>disabled</literal>.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>format</literal></term>
+               <listitem>
+                   <para>
+                    Contains the format string e.g. <literal>xdr</literal>.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            The format of the filter output can be extended.  URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/format?name=filtername&amp;format=format
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Specify the format of a filter.  <literal>name</literal>
+            specifies the filter name and <literal>format</literal>
+            the format type string.
+           </para>
+        </section>
+        
     </chapter>
 </book>
