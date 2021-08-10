@@ -94,7 +94,7 @@ proc SpecTcl_Gate/list {{pattern *}} {
 
 	if {$type in [list em am nm]} {
 	    lappend fieldList parameters [::SpecTcl::_jsonStringArray [lindex $description 0]]
-	    lappend fieldList value    [lindex $description 1]
+	    lappend fieldList value    [format %d [lindex $description 1]]
 	}
 
 	# Build the final gate objects item and append it:
@@ -185,7 +185,7 @@ proc SpecTcl_Gate/edit {args} {
     # of our stack:
     
     if {$type eq "%2B"} { set type +}
-
+	
     # Should only be one name, and type:
 
     if {[llength $name] > 1} {
@@ -223,27 +223,28 @@ proc SpecTcl_Gate/edit {args} {
             return [::SpecTcl::_returnObject "bad parameter" \
                 [json::write string "c2band gate must have two contours [join $gates \", \"]"]]
         }
-        set command [list gate $name $type {*}$gates]
-        
+		
+        set command [list gate $name $type $gates]
+
     # bands and contours.
 
     } elseif {$type in [list b c]} {
-	#
-	# Need an x/y parameter as well as x/y points and the x/y point lists must match in length.
-	#
-	set missingKey [::SpecTcl::_missingKey $queryParams [list xparameter yparameter]]
-	if {$missingKey ne ""} {
-	    return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
-	}
-	set xparam [dict get $queryParams xparameter]
-	set yparam [dict get $queryParams yparameter]
-	set coordinates [::SpecTcl::_marshallXYPoints $queryParams]
-	if {[llength $coordinates] < $::SpecTcl::minGateXYPoints($type)} {
-	    return [::SpecTcl::_returnObject "insufficient points" [json::write string $coordinates]]
-	}
-	set command [list gate $name $type [list $xparam $yparam $coordinates]]
-	
-    # Bit mask gates.
+		#
+		# Need an x/y parameter as well as x/y points and the x/y point lists must match in length.
+		#
+		set missingKey [::SpecTcl::_missingKey $queryParams [list xparameter yparameter]]
+		if {$missingKey ne ""} {
+			return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
+		}
+		set xparam [dict get $queryParams xparameter]
+		set yparam [dict get $queryParams yparameter]
+		set coordinates [::SpecTcl::_marshallXYPoints $queryParams]
+		if {[llength $coordinates] < $::SpecTcl::minGateXYPoints($type)} {
+			return [::SpecTcl::_returnObject "insufficient points" [json::write string $coordinates]]
+		}
+		set command [list gate $name $type [list $xparam $yparam $coordinates]]
+		
+	# Bit mask gates.
     } elseif {$type in [list em am nm]} {
 	# We need a parameter and a value:
 
@@ -251,54 +252,53 @@ proc SpecTcl_Gate/edit {args} {
 	if {$missingKey ne ""} {
 	    return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
 	}
-	set parameter [dict get $queryParams parameter]
-	set value     [dict get $queryParams value]
-	set command [list gate $name $type [list $parameter $value]]
-
+		set parameter [dict get $queryParams parameter]
+		set value     [dict get $queryParams value]
+		set command [list gate $name $type [list $parameter $value]]
 
     # Slice gate:
     } elseif {$type eq "s"} {
-	set missingKey [::SpecTcl::_missingKey $queryParams [list parameter low high]]
-	if {$missingKey ne ""} {
-	    return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
-	}
-	set parameter [dict get $queryParams parameter]
-	set low       [dict get $queryParams  low]
-	set high     [dict get $queryParams high]
-	set command [list gate $name $type [list $parameter [list $low $high]]]
+		set missingKey [::SpecTcl::_missingKey $queryParams [list parameter low high]]
+		if {$missingKey ne ""} {
+			return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
+		}
+		set parameter [dict get $queryParams parameter]
+		set low       [dict get $queryParams  low]
+		set high     [dict get $queryParams high]
+		set command [list gate $name $type [list $parameter [list $low $high]]]
 
     # Gamm 2d gates:
      
     } elseif {$type in [list gb gc]} {
-	set missingKey [::SpecTcl::_missingKey $queryParams [list parameter]]
-	if {$missingKey ne ""} {
-	    return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
-	}
+		set missingKey [::SpecTcl::_missingKey $queryParams [list parameter]]
+		if {$missingKey ne ""} {
+			return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
+		}
+	
+		set parameters [dict get $queryParams parameter]
+		set coordinates [::SpecTcl::_marshallXYPoints $queryParams]
+		if {[llength $coordinates] < $::SpecTcl::minGateXYPoints($type)} {
+			return [::SpecTcl::_returnObject "insufficent points" [json::write string $coordinates]]
+		}
 
-	set parameters [dict get $queryParams parameter]
-	set coordinates [::SpecTcl::_marshallXYPoints $queryParams]
-	if {[llength $coordinates] < $::SpecTcl::minGateXYPoints($type)} {
-	    return [::SpecTcl::_returnObject "insufficent points" [json::write string $coordinates]]
-	}
-
-	set command [list gate $name $type [list $coordinates $parameters]]
+		set command [list gate $name $type [list $coordinates $parameters]]
     
     # Gamma slice.
     } elseif {$type in [list gs]} {
-	# Gamma slices will use multiple parameters and low/high as the parameter order is unimportant.
-	#
-	set missingKey [::SpecTcl::_missingKey $queryParams [list parameter low high]]
-	if {$missingKey ne ""} {
-	    return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
-	}
-	set params [dict get $queryParams parameter]
-	set low    [dict get $queryParams low]
-	set high   [dict get $queryParams high]
-
-	set command [list gate $name $type [list [list $low $high] $params]]
-
-
-    # Unrecognized gate type:
+		# Gamma slices will use multiple parameters and low/high as the parameter order is unimportant.
+		#
+		set missingKey [::SpecTcl::_missingKey $queryParams [list parameter low high]]
+		if {$missingKey ne ""} {
+			return [::SpecTcl::_returnObject "missing parameter" [json::write string $missingKey]]
+		}
+		set params [dict get $queryParams parameter]
+		set low    [dict get $queryParams low]
+		set high   [dict get $queryParams high]
+	
+		set command [list gate $name $type [list [list $low $high] $params]]
+	
+	
+		# Unrecognized gate type:
 
     } else {
         return [::SpecTcl::_returnObject "bad parameter" [json::write string "Invalid gate type: $type"]]
@@ -418,34 +418,17 @@ proc ::SpecTcl::_returnObject {{status OK} {detail ""}} {
 # @return list of {x y} sublists.
 #
 proc ::SpecTcl::_marshallXYPoints {dict} {
-    set xcoords [dict filter $dict key xcoord(*)]
-    set ycoords [dict filter $dict key ycoord(*)]
+	
+    set xcoords [dict get $dict xcoord]
+    set ycoords [dict get $dict ycoord]
 
-    # Turn these dicts into xcoord/ycoord arrays:
-
-    array set xcoord [list]
-    array set ycoord [list]
-    dict for [list key value] $xcoords  {
-	set $key $value
-    }
-    dict for [list key value] $ycoords  {
-	set $key $value
-    }
-
-    #  Indices number from 0:
-    
-    set index 0
-    set coords [list]
-
-
-    while {1} {
-	if {([array names xcoord $index] ne "") && ([array names ycoord $index] ne "")} {
-	    lappend coords [list $xcoord($index) $ycoord($index)] 
-	} else {
-	    break;		# exit loop when we run out of one or the other coordinates.
+    # Turn these lists into xy pairs:
+	
+	set coords [list]
+	set n [expr {min([llength $xcoords], [llength $ycoords])}]
+	for {set i 0} {$i < $n} {incr i} {
+		lappend coords [list [lindex $xcoords $i] [lindex $ycoords $i]]		
 	}
-	incr index
-    }
-
+    
     return $coords
 }
