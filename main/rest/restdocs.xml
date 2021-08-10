@@ -2525,6 +2525,116 @@ http://host:port/spectcl/filter/format?name=filtername&amp;format=format
             the format type string.
            </para>
         </section>
-        
+        <section>
+            <title>Accessing the integrate command (new in 5.5)</title>
+            <para>
+                There are essentially three forms of the integrate command and
+                these are reflected in three URL/query combinations.
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      It is possible to integrate the interior of a gate on any
+                      spectrum on which it is displayable:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;gate=gate-name
+                    </command></cmdsynopsis>
+                   </informalexample>
+                   <para>
+                    In this form, the query parameter <literal>spectrum</literal>
+                    is the name of the spectrum on which to do the integration and
+                    <literal>gate</literal>'s value is the name of the gate
+                    within which to integrate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      It is possible to integrate a 1-d spectrum within some
+                      explicit area of interest provided in spectrum world coordinates.
+                      This is done with a URL of the form:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;low=low-limit&amp;high=high-limit
+                    </command></cmdsynopsis> 
+                   </informalexample>
+                   <para>
+                    As before the <literal>spectrum</literal> parameter is the
+                    name of the spectrum to integrate.
+                    <literal>low</literal> and <literal>high</literal> represent
+                    the low and high limits, in world coordinates, of the
+                    region of interest to integrate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      It is also possible to integrate a spectrum within an
+                      arbitrary polygonal region of interest.  The interior of
+                      the polygon is defined using the same odd crossing algorithm
+                      used to determine the interior of SpecTcl contours;  for any
+                      point, if a line drawn in any direction crosses an odd number
+                      of edges of the polygon, the point is in the gate interior.
+                   </para>
+                   <para>
+                    The format of the URL to integrate a 2-d spectrum is:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;xcoord=x1...&amp;ycoord=y1...
+                    </command></cmdsynopsis>
+                   </informalexample>
+                   <para>
+                    The coordinates of the polygon are given by the
+                    <literal>xcoord</literal> and <literal>ycoord</literal>
+                    values.  These are given in world coordinates and
+                    there must be at least three <literal>xcoord</literal>,
+                    <literal>ycoord</literal> pairs.  The
+                    X/Y coordinates are created from ordered pairs of
+                    occurences of the <literal>xcoord</literal> and
+                    <literal>ycoord</literal> query parameter.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                Regardless of how the integration is specified, the <literal>detail</literal>
+                field of a successful completion is an object with the following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>centroid</literal></term>
+                   <listitem>
+                       <para>
+                        The world coordinates of the integration's centroid.  For
+                        a 1-d Spectrum, this is a single value.  For a 2-d
+                        spectrum, this is a 2 element array containing, in order,
+                        the x and y coordinates of the centroid.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>counts</literal></term>
+                   <listitem>
+                       <para>
+                        Contains the number of counts inside the region of interest.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>fwhm</literal></term>
+                   <listitem>
+                       <para>
+                        The full width at half maximum of the peak (assumed to
+                        be gaussian peak shape). For a 1-d spectrum, this is
+                        just a single number.  For a 2-d spectrum, this will be
+                        a 2 element array that contains the x and y extents of
+                        the FWHM in order.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>

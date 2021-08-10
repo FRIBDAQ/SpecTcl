@@ -104,6 +104,8 @@ package require json
 #    gateCreateMask
 #    gateCreateCompound
 #
+#    integrate
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -971,4 +973,47 @@ snit::type SpecTclRestClient {
         
         $self _request [$self _makeUrl gate/edit $qdict]
     }
+    #----------------------------------------------------------------------------
+    # integrate REST command jacket.
+    
+    ##
+    # integrate
+    #   Because of the flexibility of the integrate REST/command, we're a bit
+    #   creative in how we do this:
+    #
+    # @param name - spectrum name.
+    # @param roi  - Region of interest.  This must be expressed either as:
+    #          - gate - gate name.
+    #          - low, high - low/high limits of a 1d spectrum.
+    #          - xcoord/ycoord - point list of 2-d ROI.
+    #
+    # @return dict containing:
+    #    -  centroid - one or two elements centroid coordinates.
+    #    -  fwhm     - one or two elements FWHM extents.
+    #    -  counts   - number of counts in the ROI
+    #
+    method integrate {name roi} {
+        # how we handle the ROI depends on whether or not it has x/y coords:
+        
+        
+        if {[dict exists $roi xcoord]} {
+            set querydict [dict create spectrum $name]
+            if {![dict exists $roi ycoord]} {
+                error "integrate - xcoords require ycoords"
+            }
+            lappend querydict {*}[_listToQueryList xcoord [dict get $roi xcoord]]
+            lappend querydict {*}[_listToQueryList ycoord [dict get $roi ycoord]]
+        } else {
+            set querydict [dict merge [dict create spectrum $name] $roi]
+        }
+        puts $querydict
+        set info [$self _request [$self _makeUrl integrate $querydict]]
+        return [dict get $info detail]
+    }
+        
+    
+        
+    
+        
+    
 }
