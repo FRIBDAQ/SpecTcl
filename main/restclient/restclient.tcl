@@ -97,6 +97,13 @@ package require json
 #    filterList
 #    filterFormat
 #
+#    gateList
+#    gateDelete
+#    gateCreateSimple1D
+#    gateCreateSimple2D
+#    gateCreateMask
+#    gateCreateCompound
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -160,7 +167,7 @@ snit::type SpecTclRestClient {
         #  json:
         
         if {$parseOk} {
-            error "JSON Parse Failed: $msg : $::errorInfo"
+            error "JSON Parse Failed: $msg : $::errorInfo : $rawData"
         }
         # Debugging here - if there's no detail then likely we have  a
         # server error - let's throw an error with the rawdData as the message:
@@ -236,12 +243,12 @@ snit::type SpecTclRestClient {
     # attachSource
     #   Attach a data source.
     # @param stype   - 'pipe' or 'file'
-    # @param source - Data source specification (e.g. filename for type == 'file').
+    # @param source - Data source specification (e.g. filename for gatetype == 'file').
     # @param size  - optional blocking factor - defaults to 8192.
     # @param format - Optional data format defaults to ring
     #
     method attachSource {stype source {size 8192} {format ring}} {
-        set query [dict create type $stype source $source size $size format $format]
+        set query [dict create gatetype $stype source $source size $size format $format]
         $self _request [$self _makeUrl attach/attach $query]
     }
     ##
@@ -298,12 +305,12 @@ snit::type SpecTclRestClient {
     # @param name = fit name.
     # @param spectrum - fit spectrum.
     # @param low, high - Channel fit limits.
-    # @param ftype - fit type.
+    # @param ftype - fit gatetype.
     #
     method fitCreate {name spectrum low high ftype} {
         $self _request [$self _makeUrl fit/create [dict create             \
             name $name spectrum $spectrum low $low high $high              \
-            type $ftype                                                     \
+            gatetype $ftype                                                     \
         ]]
     }
     ##
@@ -327,8 +334,8 @@ snit::type SpecTclRestClient {
     # fitList
     #    List information about fits.
     #    list of dicts containing name - fit name, spectrum -spectrum name.
-    #    type -fit type, low, high -fit limits and parameter - a dict specific
-    #    to the fit type that contains the fit parameters.
+    #    gatetype -fit gatetype, low, high -fit limits and parameter - a dict specific
+    #    to the fit gatetype that contains the fit parameters.
     #
     # @param pattern - glob pattern. Fits with names that match this are in the
     #         result.
@@ -808,5 +815,160 @@ snit::type SpecTclRestClient {
         set qparams [dict create name $name format $format]
         $self _request [$self _makeUrl filter/format $qparams]
     }
+    #---------------------------------------------------------------------------
+    # gates Wrappers.
+    #
 
+    ##    
+    #    gateList
+    #  Provide a list of all the gates whose names match a glob pattern.
+    #
+    #  @param pattern - the glob pattern (optional defaults to *)
+    #  @return list of dicts.  The dicts have some fixed (ominpresent) keys and
+    #          others that depend on the gate gatetype:
+    #          -  name - gate name.
+    #          -  SpecTcl Gate gatetype.
+    #          -  gates dependent gate names if compound gate gatetype (*, +, -)
+    #          -  parameters - Parameters needed by the gate if gatetype
+    #             s,c,b,c2band, gs, gb, gc, em am nm
+    #          -  points list of points, each point is an x/y pair. Present for
+    #             2-d simple gates of gatetype: c, b, c2band, gb, gc
+    #          -  low  - Low limit in 1d gates like (s, gs).
+    #          -  high - high limit of 1d gates (s,gs)
+    #           - value - mask value of mask gates (em, am, nm).
+    #
+    method gateList {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            gate/list [dict create pattern $pattern] \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #    gateDelete
+    #  Deletes a gate. The gate isn't actually deleted because we don't know how
+    #  to handle dependencies.  What actually happens is that the gate is turned
+    #  into a false gate.
+    #    Potential depenencies include membership in the gate lst of a compound
+    #    gate and application to spectra.
+    #
+    # @param name - name of the gate.
+    #
+    method gateDelete {name} {
+        $self _request [$self _makeUrl gate/delete [dict create name $name]]
+    }
+    ##
+    #    gateCreateSimple1D
+    #  Create a simple 1d gate.  This must be of gatetype s, or gs.   It can have
+    #  one (s) or more parameters.
+    #
+    # @param name -name of the gate - if the gate already exists this gate definition
+    #     will replace it.
+    # @param gatetype - gate gatetype must be gs, or s, or an error will be raised.
+    # @param parameters - list of gate parameters must only be one if $gatetype eq "s"
+    # @param low  low limit of gate
+    # @param high high limit of gate.
+    #
+    method gateCreateSimple1D {name gatetype parameters low high} {
+        if {$gatetype ni [list s gs]} {
+            error "The only gate gatetypes gateCreateSimple allows are 's' and 'gs'"
+        }
+        if {($gatetype eq "s") && ([llength $parameters] != 1)} {
+            error "gateCreateSimple - slice gates must have only one parameter"
+        }
+        # Build the query parameter dict.
+        
+        set qparams [dict create                                   \
+            name $name type $gatetype low $low high $high              \
+        ]
+        lappend qparams {*}[_listToQueryList parameter $parameters]
+        
+        $self _request [$self _makeUrl gate/edit $qparams]
+        
+    }
+    ##
+    #    gateCreateSimple2D
+    #  Create a simple 2d gate.
+    #
+    # @param name -gate name.  If existing the existing gate will be replaced.
+    # @param gatetype - Gate gatetype must be: b,c, gb, gc
+    # @param xparameters - list of parameters on the x axis (1 if b,c).
+    # @param yparameters - list of parameters on the y axis (1 if b,c).
+    # @param xcoords      - Gate x-coordinates.
+    # @param ycoords      - gate y-coordinates.
+    # @note for gc, gb, the parameters can all be in xparameters yparametesrs or
+    #      spread across them if desired.
+    #
+    method gateCreateSimple2D {name gatetype xparameters yparameters xcoords ycoords} {
+        
+        #  Error checking:
+        
+        if {$gatetype ni [list b c gb gc]} {
+            error "gateCreateSimple2D requires a gatetype that is 'b', 'c', 'gb' or 'gc'"
+        }
+        
+        if {($gatetype in [list b c]) &&
+            (([llength $xparameters] != 1) || ([llength $yparameters] != 1))} {
+            error "gateCreasteSimple2D gate gatetype $gatetype only allows one x and y parameter"
+        }
+        #  Now build the query dict:
+        
+        set qparams [dict create name $name type $gatetype]
+        if {$type in "b c"} {
+            lappend qparams {*}[_listToQueryList xparameter $xparameters]
+            lappend qparams {*}[_listToQueryList yparameter $yparameters]    
+        } else {
+            lappend qparams {*}[_listToQueryList parameter $xparameters]
+            lappend qparams {*}[_listToQueryList parameter $yparameters]
+        }
+        lappend qparams {*}[_listToQueryList xcoord $xcoords]
+        lappend qparams {*}[_listToQueryList ycoord $ycoords]
+        
+        puts $qparams
+        
+        $self _request [$self _makeUrl gate/edit $qparams]
+    }
+    ##
+    #    gateCreateMask
+    #  Create a mask gate.
+    #
+    # @param name -name of the gate.
+    # @param gatetype -type of gate, must be one of em, am, nm.
+    # @param parameter - the gate parameter.
+    # @param mask      - The mask value.
+    #
+    method gateCreateMask {name gatetype parameter mask} {
+        if {$gatetype ni [list em am nm]} {
+            error "gateCreateMask gatetype must be 'em', 'am' or 'nm'"
+        }
+        $self _request [$self _makeUrl                               \
+            gate/edit                                                \
+            [dict create name $name type $gatetype parameter $parameter \
+            value $mask]                                             \
+        ]
+    }
+    ##
+    #    gateCreateCompound
+    # Create a compound gate, that is, a gate that depends on other gates.
+    #
+    # @param name  - Name of the gate.
+    # @param gatetype  - gate gatetype, one of + - * c2band
+    # @param gates - The gates the compound gate depends on.
+    #
+    method gateCreateCompound {name gatetype gates} {
+        # Error Checking:
+        
+        if {$gatetype ni [list + - * c2band]} {
+            error "gateCreateCompound gatetype must be one of '+', '-', '*', 'c2band'"
+        }
+        if {($gatetype eq "c2band") && ([llenght $gates] != 2)} {
+            error "gateCreateCompound 'c2band' must only have 2 gates."
+        }
+        if {($gatetype eq "-") && ([llength $gates] != 1)} {
+            error "gateCreateCompound '-' must only have one gate"
+        }
+        set qdict [dict create name $name type $gatetype]
+        lappend qdict {*}[_listToQueryList gate $gates]
+        
+        $self _request [$self _makeUrl gate/edit $qdict]
+    }
 }
