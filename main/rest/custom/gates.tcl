@@ -154,9 +154,9 @@ proc SpecTcl_Gate/delete {{name ""}} {
 #
 # @param name - Name of the gate. - mandatory
 # @param type - gate type.        - mandatory
-# @param gate - list of gates this gate depends on - type specific *,+,-,c2and
+# @param gate - list of gates this gate depends on - type specific *,+,-,c2band
 # @param [x|y]parameter - list of parameters this gate is on  - type specific : b,c,gb,gc,gs,s,em,am,nm
-# @param [x|y]coord(i) - list of x/y coordinates this gate is on b,c,gb,bc
+# @param [x|y]coord(i) - list of x/y coordinates this gate is on b,c,gb,gc
 # @param value  - Value for e.g. mask gates.
 # @param low,high - Low/high limit for slices.
 #
