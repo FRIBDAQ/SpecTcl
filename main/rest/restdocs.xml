@@ -3004,5 +3004,25 @@ http://host:port/spectcl/sread?filename=fname<optional>&amp;format=fmt&amp;snaps
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+           <title>Access the ringformat command (new in 5.5)</title>
+           <para>
+            The ringformat command can be accessed via URLs of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/ringformat?major=majvsn<optional>&amp;minor=minor</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>major</literal> query parameter sets the major version,
+            while the  <literal>minor</literal> sets the minor version.  Note
+            that the <literal>minor</literal> version defaults to 0 which,
+            since the format of ring items is not allowed to change within a
+            major version of NSCLDAQ is normally correct.
+           </para>
+        </section>
     </chapter>
 </book>

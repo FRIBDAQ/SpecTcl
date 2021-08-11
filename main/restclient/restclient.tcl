@@ -116,6 +116,8 @@ package require json
 #
 #   sread
 #
+#   ringformat
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -255,12 +257,12 @@ snit::type SpecTclRestClient {
     # attachSource
     #   Attach a data source.
     # @param stype   - 'pipe' or 'file'
-    # @param source - Data source specification (e.g. filename for gatetype == 'file').
+    # @param source - Data source specification (e.g. filename for stype 'file').
     # @param size  - optional blocking factor - defaults to 8192.
     # @param format - Optional data format defaults to ring
     #
     method attachSource {stype source {size 8192} {format ring}} {
-        set query [dict create gatetype $stype source $source size $size format $format]
+        set query [dict create type $stype source $source size $size format $format]
         $self _request [$self _makeUrl attach/attach $query]
     }
     ##
@@ -1132,6 +1134,19 @@ snit::type SpecTclRestClient {
         
         $self _request [$self _makeUrl sread $opts]
     }
-        
+    #--------------------------------------------------------------------------0
+    # jacket ringformat command.
+    
+    ##
+    # ringformat
+    #    Set the ringbuffer format.
+    # @param major - major version.
+    # @param minor - minor version (defaults to 0).
+    #
+    method ringformat {major {minor 0}} {
+        $self _request [$self _makeUrl /ringformat                        \
+            [dict create major $major minor $minor]                       \
+        ]
+    }
     
 }
