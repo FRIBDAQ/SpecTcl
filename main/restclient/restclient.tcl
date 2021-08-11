@@ -106,6 +106,10 @@ package require json
 #
 #    integrate
 #
+#    parameterNew
+#    parameterDelete
+#    parameterList
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1010,10 +1014,62 @@ snit::type SpecTclRestClient {
         set info [$self _request [$self _makeUrl integrate $querydict]]
         return [dict get $info detail]
     }
+    ##
+    #    parameterNew
+    # Create a new parameter raw parameter (using the parameter command):
+    #  @param name -name of the parameter.
+    #  @param id - parameter number.
+    #  @param metadata - Dict containing parameter metadata:
+    #     - resolution - # bits of resolution.
+    #     - low        - Parameter low limit (requires high and units).
+    #     - high       - Parameter high limit (requires low and units).
+    #     - units     - Units of measure string.
+    #
+    method parameterNew {name number metadata} {
+        set pdict [dict merge [dict create name $name number $number] $metadata]
+        puts $pdict
+        $self _request [$self _makeUrl rawparameter/new $pdict]
+        
+    }
+    ##
+    #    parameterDelete
+    #  Delete a parameter.
+    #   @param name - optional parameter name make it an empty string if you
+    #                 want to specify the id.
+    #   @param id   - optional parameter id.
+    #
+    method parameterDelete {{name {}} {id {}}} {
+        if {$name ne ""} {
+            set pdict [dict create name $name]
+        } elseif {$id ne ""} {
+            set pdict [dict create id $id]
+        } else {
+            error "parameterDelete needs either a name or an id."
+        }
+        $self _request [$self _makeUrl rawparameter/delete $pdict]
+    }
+    ##
+    #    parameterList
+    #  List the parameters either by providing a pattern to match the
+    #  names  or an id
+    #
+    # @param pattern - match this pattern to names. set to "" if you want to specify ids.
+    # @param id      - id to request.
+    #
+    method parameterList {{pattern *} {id {}}} {
+        if {$pattern ne ""} {
+            set pdict [dict create pattern $pattern]
+        } elseif {$id ne ""} {
+            set pdict [dict create id $id]
+        } else {
+            error "Either a pattern or id is required"
+        }
+        puts $pdict
+        set info [$self _request [$self _makeUrl rawparameter/list $pdict]]
+        return [dict get $info detail]
+    }
         
     
-        
-    
-        
+   
     
 }

@@ -2636,5 +2636,206 @@ http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;xcoord=x1...&amp;y
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+            <title>Accessing the SpecTcl parameter command (new in 5.4)</title>
+            <para>
+                The <literal>/spectcl/parameter</literal> domain of URLS actuall
+                gives access (mostly) to the SpecTcl <command>treeparameter</command>
+                command.  The set of URLs described in this section provide
+                access to the raw <command>parameter</command> command. Note that
+                while this command is not much used, it is part of the
+                SpecTcl command set and therefore a comprehensive REST interface
+                must support it.
+            </para>
+            <para>
+                URL's of the form
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/new?name=pname&amp;number=id<optional>&amp;resolution=bits&amp;low=l&amp;high=hi&amp;units=units</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provide support for creating a new parameter definition.  A
+                parameter definition makes a correspondence between a name and
+                a slot in the <classname>CEvent</classname> pseudo array that
+                the SpecTcl event processing pipeline fills in.  Additional
+                metadata can be provided for documentation purposes.
+                As such there are required parameters and optional parameters
+                and some optional parameters are coupled, in the sense that
+                they require other optional parameters to be present as well.
+                
+            </para>
+            <para>
+                The query parameters mean:    
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (required)</term>
+                   <listitem>
+                       <para>
+                        Name of the parameter.  This name must be unique.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>number</literal> (required)</term>
+                   <listitem>
+                       <para>
+                        The parameter id.  This value must also be unique.
+                        It specifies the slot in the <classname>CEvent</classname>
+                        object in which that parameter will be placed by the
+                        event processing pipeline.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Units of measure of the parameter (metadata). This
+                        value is not interpreted by SpecTcl but is associated
+                        with the parameter definition.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>resolution</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Provides the number of bits of resolution the
+                        parameter has.  This is most useful for
+                        paramters that come from the hardware.  SpecTcl
+                        does not interpret this value.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (optional but...)</term>
+                   <listitem>
+                       <para>
+                        Assumed low limit of the parameter values.  This also
+                        requires <literal>resolution</literal>,
+                        <literal>high</literal> and <literal>units</literal>
+                        be present.  This value is not interpreted by SpecTcl
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (optional but...</term>
+                   <listitem>
+                       <para>
+                        THe assumed high limit of parameter values.  This
+                        also requries <literal>resolution</literal>,
+                        <literal>low</literal> and <literal>units</literal> be present.
+                        This value is not interpreted by SpecTcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Once created, a parameter may be deleted using URLs of the following
+                form:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/delete?name=pname
+                </command></cmdsynopsis>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/delete?id=pid
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                As you can see there are two alternative forms. The first form
+                uses the <literal>name</literal> to specify the name of the
+                parameter to delete while the second form, uses the
+                <literal>id</literal> to specify the parameter id
+                (<classname>CEvent</classname> slot) of the parameter to
+                delete.
+            </para>
+            <para>
+                Finally, the parameters and their attrubutes can be listed
+                using one of the two URL forms below:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/list?pattern=glob-pattern
+                </command></cmdsynopsis>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/rawparameter/list?id=pid
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The first form lists the parameter sthat match the
+                <literal>glob-pattern</literal> provided to the
+                <literal>pattern</literal> query parameter while the
+                second form provides only the parameter with the
+                parameter id given by the <literal>id</literal>
+                query parameter.
+            </para>
+            <para>
+                The <literal>detail</literal> attribute of the returned JSON
+                contains an array of objects. Each object describes one parameter.
+                Some of the attributes of these objects are present in all
+                elements but the presence or absence of others depends on how
+                the parameter was defined.  The attributes are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (always present)</term>
+                   <listitem>
+                       <para>
+                        Name of the parameter being described.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>id</literal> (always present)</term>
+                   <listitem>
+                       <para>
+                        Id (<classname>CEvent</classname> slot) of the parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>resolution</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the resolution of the parameter was
+                        specified, this is that resolution.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the parameter low limit was specified,
+                        this is that low limit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Ony present if the parameter high limit was specified,
+                        this is that high limit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the parameter units of measure were
+                        specified.  The units of measure string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>
