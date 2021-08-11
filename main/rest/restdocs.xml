@@ -2933,5 +2933,76 @@ http://host:port/spectcl/pseudo/delete?name=pseudo-name
             remains defined.
            </para>
         </section>
+        <section>
+            <title>Access to the sread command (new in 5.5)</title>
+            <para>
+                The <command>sread</command> command supports reading spectra
+                from file. This is done using the following URL form
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/sread?filename=fname<optional>&amp;format=fmt&amp;snapshot=flag&amp;replace=flag&amp;bind=flag</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                With the exception of <literal>filename</literal>, the
+                query parameters are all optional:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>filename</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the file to be read.  note that the filename
+                        will be interpreted by SpecTcl not the client.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal></term>
+                   <listitem>
+                       <para>
+                        Format of the file.  This defaults to
+                        <literal>ascii</literal>  which is the best format.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>snapshot</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 1.  If true, the resulting spectrum
+                        will be a snapshot spectrum.  That is it will not be
+                        hooked to the increment logic of SpecTcl. If false,
+                        (0), future events can increment the resulting spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>replace</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 0.  If true (1), the spectrum
+                        read in will replace any spectrum that already exists with
+                        the name of the spectrum in the file.  Otherwise, if necesary,
+                        a new unique spectrum name will be assigned to the
+                        new spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>bind</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 1, which binds the spectrum into the
+                        displayer shared memory region.  If 0, the spectrum
+                        will not be bound to the displayer.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>

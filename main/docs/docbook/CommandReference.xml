@@ -6139,7 +6139,7 @@ version
 </refentry>
 <refentry id='ref.swritecommand'>
     <refmeta>
-        <refentrytitle id='ref.swritecommand.title'>sread</refentrytitle>
+        <refentrytitle id='ref.swritecommand.title'>swrite</refentrytitle>
         <manvolnum>1SpecTcl</manvolnum>
     </refmeta>
     

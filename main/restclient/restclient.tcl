@@ -114,6 +114,8 @@ package require json
 #    pseudoList
 #    pseudoDelete
 #
+#   sread
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1112,5 +1114,24 @@ snit::type SpecTclRestClient {
             pseudo/delete [dict create name $name]           \
         ]
     }
+    #---------------------------------------------------------------------------
+    # jacket around the sread command.
+    
+    ##
+    # sread
+    #    Read a spectrum from file.
+    # @param filename - file to read from.
+    # @param opts  - dict with any or none of the following option keys:
+    #       -   format - file format (defaults to ascii).
+    #       -   snapshot - Flag, true to make a snapshot spectrum (1 by default).
+    #       -   replace  - flag true to replace any existing spectrum (0 by default).
+    #       -   bind     - Bind flag, true by default.
+    #
+    method sread {filename opts} {
+        dict set opts filename $filename
+        
+        $self _request [$self _makeUrl sread $opts]
+    }
+        
     
 }
