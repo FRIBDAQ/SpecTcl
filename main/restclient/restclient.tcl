@@ -110,6 +110,10 @@ package require json
 #    parameterDelete
 #    parameterList
 #
+#    pseudoCreate
+#    pseudoList
+#    pseudoDelete
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1068,8 +1072,45 @@ snit::type SpecTclRestClient {
         set info [$self _request [$self _makeUrl rawparameter/list $pdict]]
         return [dict get $info detail]
     }
-        
+    #---------------------------------------------------------------------------
+    # pseudo command jackets.
     
-   
+    ##
+    #    pseudoCreate
+    # Create a new pseudo parameter
+    #  @param  name -name of the pseudo.
+    #  @param  parameters - parameters the pseudo depends on.
+    #  @param  body       - Computational body of the proc that computes the pseudo.
+    #
+    method pseudoCreate {name parameters body} {
+        set qdict [dict create pseudo $name computation $body]
+        lappend qdict {*}[_listToQueryList parameter $parameters]
+        $self _request [$self _makeUrl pseudo/create $qdict]
+    }
+    ##
+    #    pseudoList
+    #  Produce a list of pseudo parameter definitions.
+    # @param pattern - optional name match glob pattern which defaults to *
+    # @return list of dicts. Each dict describes a pseudo and has the keys:
+    #    -  name  -name of the pseudo.
+    #    -  parameters -  parameters the pseudo depends on.
+    #    -  computation - the body of the proc that computes the pseudo.
+    #
+    method pseudoList {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            pseudo/list [dict create pattern $pattern]  \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #    pseudoDelete
+    #  deletes a pseudo parameter definition.
+    # @param name - name of the pseudo to delete.
+    #
+    method pseudoDelete {name} {
+        $self _request [$self _makeUrl                       \
+            pseudo/delete [dict create name $name]           \
+        ]
+    }
     
 }

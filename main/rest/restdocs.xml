@@ -2837,5 +2837,101 @@ http://host:port/spectcl/rawparameter/list?id=pid
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+           <title>Accessing the pseudo command (new in 5.5)</title>
+           <para>
+            The <command>pseudo</command> command in SpecTcl provides the
+            ability to create a new parameter from existing parameters.
+            The new parameter is computed using a script that is passed to the
+            <command>pseudo</command> command when the parameter is generated.
+            See the documentation of the <command>pseudo</command> command in
+            the SpecTcl command reference.
+           </para>
+           <para>
+            Three URLs provide access to all aspects of the
+            <command>pseudo</command> command:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/psuedo/create?pseudo=pname&amp;body=script&amp;parameter=param1<optional>&amp;parameter=param2...</optional>         
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The new pseudo parameter is given the name in the <literal>pseudo</literal>
+            query parameter.  This parameter must have already been defined.
+            <literal>parameter</literal> defines the parameters the pseudo depends on.
+            The <literal>body</literal> query parameter defines the
+            Tcl script that will compute the pseudo parameter. Again see
+            the SpecTcl command reference for <command>pseudo</command> for
+            information about the parameters that are passed to this script.
+           </para>
+           <para>
+            The properties of any pseudo parameters can be gotten via
+            URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pseudo/list<optional>pattern=glob-pattern</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The return value <literal>detail</literal> attribute is a
+            JSON array where each element is a JSON object that describes
+            one pseudo parameter.  Note that if the optional
+            <literal>pattern</literal> query parameter is provided it is
+            a string with glob wild card characters, and only those pseudos
+            whose names match that pattern will be listed in th array.
+           </para>
+           <para>
+            Each object in the array has the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the pseudo parameter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameters</literal></term>
+               <listitem>
+                   <para>
+                    Array of strings that are the names of the parameters
+                    the pseudo depends on.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>computation</literal></term>
+               <listitem>
+                   <para>
+                    The script that defines the computation that takes the
+                    parameters and from the creates the pseudo.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            Finally pseudo parameters can be deleted using this URL
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pseudo/delete?name=pseudo-name
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>name</literal> query parameter describes the
+            name of the pseudo to delete. Note that the underlying parameter
+            remains defined.
+           </para>
+        </section>
     </chapter>
 </book>
