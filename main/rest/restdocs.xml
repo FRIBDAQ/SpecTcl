@@ -3139,5 +3139,29 @@ http://host:port/spectcl/swrite?file=filename?spectrum=spec1<optional>&amp;spect
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+            <title>Controlling data anlaysis (new in 5.5)</title>
+            <para>
+                Data analysis from the data source can be started or stopped
+                using the following two urls:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/analyze/start
+                   </command>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/analyze/stop
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Note that starting analysis when analysis is running or
+                stopping analysis when analysis is stopped will result
+                in an error return from either of these URLs.
+            </para>
+        </section>
     </chapter>
 </book>

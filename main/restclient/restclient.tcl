@@ -137,6 +137,9 @@ package require json
 #
 #   swrite
 #
+#   start
+#   stop
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -159,7 +162,7 @@ snit::type SpecTclRestClient {
     #                    We'll shimmer that into a list format.
     # @return string - the complete URL.
     #
-    method _makeUrl {subdomain query} {
+    method _makeUrl {subdomain {query {}}} {
         set querypart [http::formatQuery {*}$query]
         set url http://$options(-host):$options(-port)/$domain/$subdomain?$querypart
         return $url
@@ -1357,5 +1360,22 @@ snit::type SpecTclRestClient {
         lappend qdict {*}[_listToQueryList spectrum $spectra]
         
         $self _request [$self _makeUrl swrite $qdict]
+    }
+    #---------------------------------------------------------------------------
+    # analysis control jackets.
+
+    ##    
+    #   start
+    #  Start analyzing from the data source.
+    #
+    method start {} {
+        $self _request [$self _makeUrl analyze/start ]
+    }
+    ##
+    #   stop
+    # stop analysis.
+    #
+    method stop {} {
+        $self _request [$self _makeUrl analyze/stop]
     }
 }
