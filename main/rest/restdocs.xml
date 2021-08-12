@@ -982,6 +982,14 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                     provides the number of bytes required to hold the uncompressed
                     JSON after defation.
                 </para>
+                <para>
+                    With SpecTcl 5.5, the optional query parameter
+                    <literal>compress</literal> (which defaults to in order
+                    to perserve compatibility), can control if compression is
+                    done.  This was done to cater to an error in the
+                    tcl http package that throws a <literal>data error</literal>
+                    in the even the data are binary.
+                </para>
             </section>
             
         </section>
