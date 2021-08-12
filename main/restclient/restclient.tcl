@@ -135,6 +135,8 @@ package require json
 #
 #   version
 #
+#   swrite
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1338,5 +1340,22 @@ snit::type SpecTclRestClient {
     method version {} {
         set vsn [$self _request [$self _makeUrl version [dict create]]]
         return [dict get $vsn detail]
+    }
+    #-------------------------------------------------------------------------
+    # swrite command jacket.
+    
+    ##
+    # swrite
+    #   Write spectra to file.
+    #
+    # @param filename - name of the file to write.
+    # @param spectra - names of spectra to write.
+    # @param format  - optional format that defaults to ascii.
+    #
+    method swrite {filename spectra {format ascii}} {
+        set qdict [dict create file $filename format $format]
+        lappend qdict {*}[_listToQueryList spectrum $spectra]
+        
+        $self _request [$self _makeUrl swrite $qdict]
     }
 }

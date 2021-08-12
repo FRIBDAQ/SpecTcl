@@ -3090,5 +3090,54 @@ http://host:port/spectcl/ungate?name=name1<optional>&amp;name=name2...</optional
             of the <literal>name</literal> query parameter.
            </para>
         </section>
+        <section>
+            <title>Accessing the swrite command (new on 5.5)</title>
+            <para>
+                The <command>swrite</command> REST interface can be used
+                to write spectrum files on request from clients.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/swrite?file=filename?spectrum=spec1<optional>&amp;spectrum=spec2...&amp;format=fmtname</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>file</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Path to the file to write.  Remember this file is written
+                        by SpecTcl and therefore the file path must not only be
+                        as SpecTcl would see it but a file writable by
+                        SpecTcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal> (mandatory, can be multiple)</term>
+                   <listitem>
+                       <para>
+                        Each occurence of this query parameter names a spectrum
+                        to be written to file. At least one spectrum must be
+                        specified.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Specifies the output fie format.  Note that by
+                        default, this is <literal>ascii</literal>.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>
