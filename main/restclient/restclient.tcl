@@ -133,6 +133,8 @@ package require json
 #
 #   ungate
 #
+#   version
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1325,5 +1327,16 @@ snit::type SpecTclRestClient {
     # @param names - list of spectrum names to ungate.
     method ungate {names} {
         $self _request [$self _makeUrl ungate [_listToQueryList name $names]]
+    }
+    #--------------------------------------------------------------------------
+    # version command jacket.
+    
+    ##
+    # version
+    #   @return dict with the keys: major, minor and editlevel
+    #
+    method version {} {
+        set vsn [$self _request [$self _makeUrl version [dict create]]]
+        return [dict get $vsn detail]
     }
 }
