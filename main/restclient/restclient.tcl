@@ -118,7 +118,10 @@ package require json
 #
 #   ringformat
 #
-#    scontents
+#   scontents
+#
+#   shmemkey
+#   shmemsize
 #
 snit::type SpecTclRestClient {
     option -host -default localhost
@@ -1185,4 +1188,38 @@ snit::type SpecTclRestClient {
         ]]
         return [dict get $info detail]
     }
+    #------------------------------------------------------------------------
+    # shared memory info jackets.
+    
+    ##
+    # shmemkey
+    #    Returns the shared memory key.  This can be used in a system local
+    #    to SpecTcl to locate the shared memory region it uses as display
+    #    data.
+    #
+    # @return The SYS-V shared memory key used by spectcl.
+    #
+    method shmemkey {} {
+        set info [$self _request [$self _makeUrl shmem/key [dict create]]]
+        return [dict get $info detail]
+    }
+    ##
+    # shmemsize
+    #    Returns the number of megabytes specified as the
+    #    DisplayMemory size.  This can be  used, in conjunctionwith
+    #    shmemkey to obtain a mapping to the SYS-V shared memory region
+    #    spectcl uses for displayed spectra.
+    #
+    # @return The integer size in megabites.
+    #
+    method shmemsize {} {
+        set info [$self _request [$self _makeUrl shmem/size [dict create]]]
+        return [dict get $info detail]
+                  
+    }
+    
+        
+    
+        
+    
 }
