@@ -123,6 +123,10 @@ package require json
 #   shmemkey
 #   shmemsize
 #
+#   spectrumList
+#   spectrumDelete
+#   spectrumCreate
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1217,6 +1221,65 @@ snit::type SpecTclRestClient {
         return [dict get $info detail]
                   
     }
+    #---------------------------------------------------------------------------
+    # spectrum command jackets.
+    
+    ##
+    #   spectrumList
+    #  List spectra whose names match a pattern.
+    #
+    # @param pattern - The pattern (which can include Glob wildcard characters),
+    #                  this defaults to "*" which matches all spectra.
+    # @return List of dicts that contain:
+    #        -   name - spectrum name.
+    #        -   type - spectrum type.
+    #        -   parameter - list of parameters needed by the spectrum.
+    #        -   axes - List of axis definitions (dict with low, high, bins keys).
+    #        -   chantype - data type of the channel.
+    #
+    method spectrumList {{pattern *}} {
+        set info [$self _request [$self _makeUrl               \
+            spectrum/list [dict create filter $pattern]        \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #   spectrumDelete
+    #   Delete a spectrum that's already defined.
+    #
+    #   @param name -  name of the spectrum to delete.
+    #
+    method spectrumDelete {name} {
+        $self _request [$self _makeUrl spectrum/delete [dict create name $name]]
+    }
+    ##
+    #   spectrumCreate
+    #
+    #  Create a new spectrum.  Some parameters are required but projection
+    #  spectrum (2dmproj) has additional parameter that are in the opts
+    #
+    # @param name - new, unique spectrum name.
+    # @param type - Spectrum type.
+    # @param parameters - list of parameters the spectrum depends on.
+    # @param axes - List of axes
+    # @param opts - Options  These can be:
+    #          -   chantype - the channel data type (defaults to long)
+    #          -   direction - only used in 2dmproj where this is the
+    #                         projection direction.
+    #          -   roigate   - Only used inthe 2dmproj type where this is the
+    #                          gate that defines the region of interest.
+    #
+    method spectrumCreate {name stype parameters axes {opts {}}} {
+        set qparams [dict create \
+            name $name type $stype parameters $parameters axes $axes \
+        ]
+        
+        set qparams [dict merge $qparams $opts]
+        
+        $self _request [$self _makeUrl spectrum/create $qparams]
+    }
+        
+    
     
         
     
