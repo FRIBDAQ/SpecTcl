@@ -127,6 +127,10 @@ package require json
 #   spectrumDelete
 #   spectrumCreate
 #
+#   unbindByName
+#   unbindById
+#   unbindAll
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1278,11 +1282,37 @@ snit::type SpecTclRestClient {
         
         $self _request [$self _makeUrl spectrum/create $qparams]
     }
-        
+    #--------------------------------------------------------------------------
+    #  Jackets for the unbind operations.
     
-    
-        
-    
-        
+    ##
+    #   unbindByName
+    #  Unbind spectra given a list of names.
+    # 
+    # @param names -names of the spectra to unbind.
+    #
+    method unbindByName {names} {
+        $self _request [$self _makeUrl unbind/byname \
+            [_listToQueryList name $names]       \
+        ]
+    }
+    ##
+    #   unbindById
+    #  Unbind a list of spectrum ids.
+    #
+    # @param ids - list of ids to unbind.
+    #
+    method unbindById {ids} {
+        $self _request [$self _makeUrl unbind/byid     \
+            [_listToQueryList id $ids]
+        ]
+    }
+    ##
+    #   unbindAll
+    # unbind all spectra.
+    #
+    method unbindAll {} {
+        $self _request [$self _makeUrl unbind/all [dict create]]
+    }
     
 }

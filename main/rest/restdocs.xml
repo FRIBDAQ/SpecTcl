@@ -3032,5 +3032,45 @@ http://host:port/spectcl/ringformat?major=majvsn<optional>&amp;minor=minor</opti
             major version of NSCLDAQ is normally correct.
            </para>
         </section>
+        <section>
+            <title>Accessing the unbind command (new in 5.5)</title>
+            <para>
+                Three URLs allow you to access the capabilities of the
+                SpecTcl <command>unbind</command>
+                command:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/unbind/byname?name=name1<optional>&amp;name=name2...</optional>                
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds the spectra named by the repeated occurences of the
+                <literal>name</literal> query parameter.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/unbind/byid?id=id1<optional>&amp;id=id2...</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds the spectra whose ids are designated by repeated occurences
+                of the <literal>id</literal> query parameter.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/unbind/all
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds all spectra from the display memory.
+            </para>
+        </section>
     </chapter>
 </book>

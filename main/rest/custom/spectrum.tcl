@@ -123,7 +123,7 @@ proc SpecTcl_Spectrum/delete {{name ""}} {
     # Spectrum must exist:
 
     if {[llength [spectrum -list $name]] == 0} {
-	return [::SpecTcl::_returnObject "not found" [json::write string $name]]
+	return [::SpecTcl::_returnObject "not foUNd" [json::write string $name]]
     }
 
     if {[catch {spectrum -delete $name} msg]} {
