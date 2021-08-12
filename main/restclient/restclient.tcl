@@ -131,6 +131,8 @@ package require json
 #   unbindById
 #   unbindAll
 #
+#   ungate
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1314,5 +1316,14 @@ snit::type SpecTclRestClient {
     method unbindAll {} {
         $self _request [$self _makeUrl unbind/all [dict create]]
     }
+    #-------------------------------------------------------------------------
+    # jackets to the ungate operation.
     
+    ##
+    # ungate
+    #    Ungate one or more spectra.
+    # @param names - list of spectrum names to ungate.
+    method ungate {names} {
+        $self _request [$self _makeUrl ungate [_listToQueryList name $names]]
+    }
 }

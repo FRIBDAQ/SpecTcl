@@ -3072,5 +3072,23 @@ http://host:port/unbind/all
                 Unbinds all spectra from the display memory.
             </para>
         </section>
+        <section>
+           <title>Accessing the ungate command (new in 5.5)</title>
+           <para>
+            The SpecTcl <command>ungate</command> command removes any gate condition
+            from a spectrum.  It can be accessed via the following URL
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/ungate?name=name1<optional>&amp;name=name2...</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Where the spectra to be ungated are specified by repeated occurences
+            of the <literal>name</literal> query parameter.
+           </para>
+        </section>
     </chapter>
 </book>
