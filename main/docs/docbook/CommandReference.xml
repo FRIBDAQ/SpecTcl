@@ -5922,11 +5922,6 @@ unbind <option>-id</option> <replaceable>id1 ?id2...?</replaceable>
 unbind <option>-all</option>
             </command>
         </cmdsynopsis>
-        <cmdsynopsis>
-            <command>
-unbind <option></option> <replaceable>xid1 ?xid2...?</replaceable>   
-            </command>
-        </cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
