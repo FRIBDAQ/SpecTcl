@@ -118,6 +118,8 @@ package require json
 #
 #   ringformat
 #
+#    scontents
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -171,6 +173,14 @@ snit::type SpecTclRestClient {
         }
         
         set rawData [http::data $token]
+        
+        # It's possible this is deflated if e.g. scontents on a 2d spectrum.
+        
+        upvar #0 $token state
+        if {$state(coding) eq "deflate"} {
+            set rawData [zlib inflate $rawData]
+        }
+        
         # puts $rawData;      # Uncomment to debug reply errors.
         set parseOk [catch {
             set json [json::json2dict $rawData]
@@ -319,12 +329,12 @@ snit::type SpecTclRestClient {
     # @param name = fit name.
     # @param spectrum - fit spectrum.
     # @param low, high - Channel fit limits.
-    # @param ftype - fit gatetype.
+    # @param ftype - fit type.
     #
     method fitCreate {name spectrum low high ftype} {
         $self _request [$self _makeUrl fit/create [dict create             \
             name $name spectrum $spectrum low $low high $high              \
-            gatetype $ftype                                                     \
+            type $ftype                                                     \
         ]]
     }
     ##
@@ -348,8 +358,8 @@ snit::type SpecTclRestClient {
     # fitList
     #    List information about fits.
     #    list of dicts containing name - fit name, spectrum -spectrum name.
-    #    gatetype -fit gatetype, low, high -fit limits and parameter - a dict specific
-    #    to the fit gatetype that contains the fit parameters.
+    #    type -fit type, low, high -fit limits and parameter - a dict specific
+    #    to the fit type that contains the fit parameters.
     #
     # @param pattern - glob pattern. Fits with names that match this are in the
     #         result.
@@ -1148,5 +1158,31 @@ snit::type SpecTclRestClient {
             [dict create major $major minor $minor]                       \
         ]
     }
+    #--------------------------------------------------------------------------
+    #  scontents jacket.
+    #
     
+    ##
+    # scontents
+    #    return spectrum contents.
+    # @param name -name of the spectrum.
+    # @return dict containing spectrum contents and metadata.
+    #     The dict has the following keys:
+    #      - xoverflow   - number of overflows on x axis  (or 1d)
+    #      - xunderflow  - number of underflows on x axis (or 1d)
+    #      - yoverflow   - Number of overflows on y axis (2d only)
+    #      - yundeflow   - number of undeflows on y axis.
+    #      - channels    - array of dicts containing nonzero channel data. each dict has:
+    #                 *  x - X channel number (or channel if 1d).
+    #                 *  y - Y channel number (2d)
+    #                 *  v - Value of that channel (will never be zero).
+    # @note  - sadly it seems that tclhttp is not able to handle the deflated data
+    #          raising a 'data error'  Therefore we'll turn off compression.
+    #          which, in large 2d spectra is a performance hit.
+    method scontents {name} {
+        set info [$self _request [$self _makeUrl          \
+            spectrum/contents [dict create name $name compress 0]    \
+        ]]
+        return [dict get $info detail]
+    }
 }

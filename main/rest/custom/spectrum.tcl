@@ -180,6 +180,7 @@ proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {direction ""}
 #  Get spectrum contents
 #  
 #   @param name - spectrum name
+#   @param compress - optional to turn off compression of 2ds.
 #  
 #   @return JSON object on success the details are an array of 
 #        - xchan - Xchannel number
@@ -191,7 +192,7 @@ proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {direction ""}
 #    - missing parameter - name is not supplied.
 #
 
-proc SpecTcl_Spectrum/contents {{name ""}} {
+proc SpecTcl_Spectrum/contents {{name ""} {compress 1}} {
     set ::SpecTcl_Spectrum/contents application/json
 
     if {$name eq ""} {
@@ -228,7 +229,7 @@ proc SpecTcl_Spectrum/contents {{name ""}} {
 
     # Return the appropriate guy:
     
-    return [::SpecTcl::_getSpectrum$dims $name $axes]
+    return [::SpecTcl::_getSpectrum$dims $name $axes $compress]
     
 }
 ##
@@ -253,10 +254,10 @@ proc SpecTcl_Spectrum/zero {{pattern *}} {
 #  Return the contents of a 1-d spectrum as JSON with good status
 #   @param name - spectrum name.
 #   @param axes - axis specifications.
-#
+#   @param compress - ignrored, 1d spectra are always uncompressed.
 #  @return - array of non zero channels, see SpecTcl_Spectrum/contents.
 #
-proc ::SpecTcl::_getSpectrum1 {name axes} {
+proc ::SpecTcl::_getSpectrum1 {name axes compress} {
     set channels [lindex [lindex $axes 0] 2]
     set nonZeroChannels [list]
     for {set c 0} {$c < $channels} {incr c} {
@@ -296,10 +297,11 @@ proc ::SpecTcl::_getSpectrum1 {name axes} {
 #
 # @param name -spectrum name
 # @param axes  spectrum axes
-#
+# @param compress compress results (workaround to deal with tclhttpd unable to
+#        properly read compressed data -- or so it seems).
 #  See SpecTcl_Spectrurm/contents
 #
-proc ::SpecTcl::_getSpectrum2 {name axes} {
+proc ::SpecTcl::_getSpectrum2 {name axes compress} {
     set xchans [lindex [lindex $axes 0 ] 2]
     set ychans [lindex [lindex $axes 1] 2]
 
@@ -309,7 +311,7 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
     #  If the version command is implemented we have an scontents
     #  command which will speed up the channel fetch loop:
     
-    if {[info command version] eq ""} {
+    if {([info command version] eq "") || (!$compress)} {
         for {set y 0} {$y < $ychans} {incr y} {
             for {set x 0} {$x < $xchans} {incr x} {
                 set value [channel -get $name [list $x $y]]
@@ -320,8 +322,18 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
                                                  v $value]
                 }
             }
+            set statistics [lindex [specstats $name] 0]
+            set overs [dict get $statistics overflows]
+            set unders [dict get $statistics underflows]
+            
         }
-        return [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
+        return [::SpecTcl::_returnObject OK  [json::write object      \
+            xoverflow [lindex $overs 0]                               \
+            xunderflow [lindex $unders 0]                              \
+            yoverflow [lindex $overs 1]                               \
+            yunderflow [lindex $unders 1]                             \
+            channels [json::write array {*}$nonZeroChannels]          \
+        ]]
     } else {
         # Note that we also have inflate/deflate:
         package require compress
@@ -350,12 +362,16 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
 			       
 	    }
 	}
-	json::write indented 0
-	json::write aligned  0
+        json::write indented 0
+        json::write aligned  0
         set json [::SpecTcl::_returnObject OK  $data]
-	json::write indented 1
-	json::write aligned 1
-        set jsonGzip [deflate $json]
+        json::write indented 1
+        json::write aligned 1
+        if {[info command zlib] eq ""} {
+            set jsonGzip [deflate $json]
+        } else {
+            set jsonGzip [zlib deflate $json]
+        }
         
         #  Force content encoding -> gzip.
         #
