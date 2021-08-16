@@ -6405,11 +6405,17 @@ rootexec <replaceable>filename</replaceable>
             for execution.  
         </para>
         <para>
-            Note that SpecTcl's initialization order is such that this is
-            supported from within <filename>SpecTclRC.tcl</filename> but
-            <emphasis>not</emphasis> from within
-            <filename>SpecTclInit.tcl</filename>
+            This command is only supported if the <literal>rootinterface</literal>
+            package is loaded in to SpecTcl.  This can be done by
+            adding the following lines to your
+            <filename>SpecTclRC.tcl</filename> script
         </para>
+        <informalexample>
+            <programlisting>
+load $SpecTclHome/lib/libRootInterface.so
+package require rootinterface
+            </programlisting>
+        </informalexample>
     </refsect1>
     <refsect1>
         <title>EXAMPLE</title>
@@ -6466,7 +6472,17 @@ roottree list <replaceable>?tree-name-pattern?</replaceable>
             unpacked parameters.  Root Tree writers act as a
             Event sink, but are linked to an event processor so that they
             are aware when run start/stop records are encountered.
+            It is only available if the <literal>rootinterface</literal>
+            package is loaded.  This can be loaded from
+            your <filename>SpecTclRC.tcl</filename> script by adding the
+            lines:
         </para>
+        <informalexample>
+            <programlisting>
+load $SpecTclHome/lib/libRootInterface.so
+package require rootinterface
+            </programlisting>
+        </informalexample>
         <para>
             The <literal>create</literal> subcommand creates a new
             tree named <parameter>tree-name</parameter> the parameters

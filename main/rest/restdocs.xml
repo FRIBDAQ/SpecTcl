@@ -3163,5 +3163,141 @@ http://host:port/spectcl/analyze/stop
                 in an error return from either of these URLs.
             </para>
         </section>
+        <section>
+            <title>Accessing the roottree command (new in 5.5)</title>
+            <para>
+                Note that <command>roottree</command>
+                is only present in a SpecTcl instances
+                that have loaded the <literal>rootinterface</literal> package
+                loaded.   See the SpecTcl command reference for this command
+            </para>
+            <para>
+                The URLs's for this part of the REST interface allow you
+                to create Root output trees.  These are objects that create
+                CERN ROOT output files with trees that have some subsset of
+                parameters of some subset of events.
+            </para>
+            <para>
+                Note that writing root trees significantly impacts the performance
+                of SpecTcl owing to the poor performance of ROOT file output.
+                Use with caution.
+            </para>
+            <para>
+                To create a new root tree you can use the following URL
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/create?tree=treename&amp;parameter=pattern1<optional>&amp;gate=gatename&amp;parameter=pattern2...</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>tree</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the new root tree object.  This must be unique.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameter</literal> (multiple)</term>
+                   <listitem>
+                       <para>
+                        Each of these parameters specifies a pattern that can have
+                        glob wildcard characters.  The parameters that will be
+                        booked into the tree is set of parameters whose names
+                        match any of the patterns.  
+                       </para>
+                       <para>
+                        At least one pattern is required. 
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        If provided, the value of this parameter is the name
+                        of an existing gate that will determine which events
+                        are placed in the tree.  Only those  events that satisfy
+                        the gate will be bookeed into the tree.
+                       </para>
+                       <para>
+                        If this parameter is not provided,
+                        the built-in <literal>-TRUE-</literal> gate is
+                        used which books all events.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                To delete a tree that's already been created:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/delete?tree=tree-name
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Where <literal>tree</literal> is the name of the tree
+                to delete.
+            </para>
+            <para>
+                To learn which trees have been created and their properties:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/list<optional>pattern=name-pattern</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides a return value who's <literal>detail</literal> lists
+                all of the root tree objects whith  names that match the
+                optional <literal>pattern</literal> query parameter value.  This
+                pattern can contain glob pattern wild card characters.  The
+                <literal>detail</literal> attribute will be an array of
+                objects.  Each object
+                describes one  root tree and will have the following attributes
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>tree</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the tree to create.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal></term>
+                   <listitem>
+                       <para>
+                        Array of parameter name patterns that define the
+                        parameers to book into the tree.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the gate that must be satisfied to  add an event
+                        to the tree.  Note that if there is not one the pre-defined
+                        name
+                        <literal>-TRUE-</literal> will appear here.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>

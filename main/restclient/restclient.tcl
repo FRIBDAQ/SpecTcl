@@ -140,6 +140,10 @@ package require json
 #   start
 #   stop
 #
+#   rootTreeCreate
+#   rootTreeDelete
+#   rootTreeList
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1377,5 +1381,54 @@ snit::type SpecTclRestClient {
     #
     method stop {} {
         $self _request [$self _makeUrl analyze/stop]
+    }
+    #---------------------------------------------------------------------------
+    #  roottree command jackets.
+    #
+    
+    ##
+    #   rootTreeCreate
+    #  Create a new root tree.
+    # @param name  - Name of the tree.
+    # @param parameterPatterns - list of parameter patterns
+    # @param gate  - Optional gate that conditionalizes events booked into the
+    #                tree.
+    #
+    method rootTreeCreate {name parameterPatterns {gate ""}} {
+        set qdict [dict create tree $name]
+        lappend qdict {*}[_listToQueryList parameter $parameterPatterns]
+        if {$gate ne ""} {
+            lappend qdict gate $gate
+        }
+        $self _request [$self _makeUrl roottree/create $qdict]
+    }
+    ##
+    #   rootTreeDelete
+    #  Delete an existing root tree.
+    #
+    # @param name - name of the tree to delete.
+    #
+    method rootTreeDelete {name} {
+        $self _request [$self _makeUrl                            \
+            roottree/delete [dict create tree $name]             \
+        ]
+    }
+    ##
+    #   rootTreeList
+    # List the properties of all of the defined root trees.
+    #
+    # @param pattern - optional pattern matching the names of the trees to list
+    #                  defaults to * which matches all trees.
+    # @return list of dicts that define the trees. Each dict has the keys:
+    #     -   tree - name of the tree.
+    #     -   parameters - list of parameter patterns that determine what's
+    #     -   gate     - The name of the gate that conditionalizes the
+    #                    booking of events into the tree.
+    #
+    method rootTreeList  {{pattern *}} {
+        set info [$self _request [$self _makeUrl          \
+            roottree/list [dict create pattern $pattern]] \
+        ]
+        return [dict get $info detail]
     }
 }
