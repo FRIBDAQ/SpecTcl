@@ -159,6 +159,8 @@ package require json
 #   evbAdd
 #   evbList
 #
+#   command
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1600,5 +1602,17 @@ snit::type SpecTclRestClient {
         ]
         return [dict get $result detail]
     }
-
+    #-------------------------------------------------------------------------
+    
+    ##
+    # command
+    #   execute an arbitrary commnd.
+    # @param cmd - command test
+    # @return - what the command returns.
+    #
+    method command {cmd} {
+        set info [$self _request [$self _makeUrl script [dict create command $cmd]]]
+        
+        return [dict get $info detail]
+    }
 }

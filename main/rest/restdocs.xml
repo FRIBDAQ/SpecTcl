@@ -3706,5 +3706,60 @@ http://host:port/spectcl/evbunpack/list<optional>pattern=<replaceable>name-patte
                 attribute of the returned object as an array of strings.
             </para>
         </section>
+        <section>
+            <title>Excuting arbitrary commands in SpecTcl (new in 5.5)</title>
+            <para>
+                This is intended to support access to user defined SpecTcl commands.
+                The REST interface, however arbitrary commands and scripts can
+                be run in the interpreter using this interface:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/script/command=<replaceable>tcl-command</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                This runs the Tcl script that is the value of the query parameter
+                <literal>command</literal> at the global level of the
+            </para>
+            <para>
+                The result of the command is returned in the
+                <literal>detail</literal> of the returned object.  If the command
+                raised an error, the <literal>status</literal> attribute of the
+                returned object will be <literal>ERROR</literal>  and the
+                <literal>detail</literal> field of the returned data will
+                have the error message raised as its value.
+            </para>
+            <para>
+                SpecTcl interpreter. <parameter>tcl-command</parameter> need
+                not be a simple script. For example, if tcl-command's value is:
+            </para>
+            <informalexample>
+                <programlisting>
+ {
+    set result [list]
+    foreach s [parameter -list] {
+        lappend result [lindex $s 0]
+    }
+    set result
+}
+
+                </programlisting>
+            </informalexample>
+            <para>
+                The <literal>detail</literal> field of a request with this as the
+                <literal>command</literal> value will contain a Tcl list
+                (not JSON array) containing the names of all parameters.
+            </para>
+            <para>
+                A very important point is that the server does no interpretation
+                of the script's returned values.  This is fine for Tcl clients
+                but may be difficult to deal with properly for clients in other
+                languages or in programs that cannot embed a Tcl interpreter to
+                parse the results.
+            </para>
+        </section>
     </chapter>
 </book>
