@@ -155,6 +155,10 @@ package require json
 #   pmanClear
 #   pmanCLone
 #
+#   evbCreate
+#   evbAdd
+#   evbList
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1553,6 +1557,48 @@ snit::type SpecTclRestClient {
     method pmanClone {source new} {
         set qdict [dict create source $source new $new]
         $self _request [$self _makeUrl pman/clone $qdict]
+    }
+    #-------------------------------------------------------------------------
+    #  evbunpack command jacket.
+    #
+    
+    ##
+    #   evbCreate
+    #  Create an event builder unpacker.
+    # @param name - name for the unpacker.
+    # @param frequency - timestamp clock in MHz.
+    # @param basename - Base name of the tree parameters created for diagnostics.
+    #
+    method evbCreate {name frequency basename} {
+        set qparams [dict create                                \
+            name $name frequency $frequency basename $basename   \
+        ]
+        $self _request [$self _makeUrl evbunpack/create $qparams]
+    }
+    ##
+    #   evbAdd
+    #   Add an event processing pipeline to process a source.
+    #
+    # @param name    - name of the event built event processor.
+    # @param source  - Id of the source it processes.
+    # @param pipe    - Name of the pipe to process data from that source.
+    #
+    method evbAdd {name source pipe} {
+        set qdict [dict create name $name source $source pipe $pipe]
+        $self _request [$self _makeUrl evbunpack/add $qdict]
+    }
+    ##
+    #   evbList
+    #  List the currently defined event builder event processor.s
+    #
+    # @param pattern - Optional glob pattern limiting the responses.
+    # @return list of event processor names for event built data.
+    #
+    method evbList {{pattern *}} {
+        set result [$self _request [$self _makeUrl \
+            evbunpack/list [dict create pattern $pattern]] \
+        ]
+        return [dict get $result detail]
     }
 
 }

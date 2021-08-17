@@ -3542,5 +3542,169 @@ http://host:port/spectcl/pman/clone?source=<replaceable>old-pipename</replaceabl
                 all of the pipeline elements the original one had in the same order.
             </para>
         </section>
+        <section>
+            <title>Accessing the evbunpack command (new in 5.5)</title>
+            <para>
+                Inreasingly experimental setups are made up of independent
+                detector subsystems.  The NSCLDAQ event builder is then used
+                to stitch together coincident event fragments into full
+                experiment events.
+            </para>
+            <para>
+                It is convenient for the developer of each detector subsystem to
+                indpendently build a software ecosystem to support their subsystem.
+                It is equally convenient for the experiment integrator to be able
+                to leverage parts of that ecosystem.  Specifically, each
+                detector subsystem may have a well developed set of event
+                processors for SpecTcl, and it would be very good to be
+                able to drop those into a SpecTcl built to analyze the event built
+                data.
+            </para>
+            <para>
+                The <command>evpunpack</command> command leverages event processing
+                pipline support and internal SpecTcl classes to help do just that.
+                Specifically, you can create event processors programmatically from
+                registered event processing pipelines that are capable of
+                unpacking data from the event builder.
+            </para>
+            <para>
+                URLs of the following form, 
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evpunpack/create?name=evpname&amp;frequencey=mhz&amp;basename=treeparams;
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Create a new unpacker for event builder data. The following
+                are all mandatory query parameters:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the new event unpacker.  This will be registered
+                        with the pipeline manager and, therefore, can participate
+                        in pipelines created by that command/REST interface.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>frequency</literal></term>
+                   <listitem>
+                       <para>
+                        The frequency of the event builder timestamp in MHz.
+                        This is used to provide an elapsed run time that can
+                        be used in creating diagnostic spectra from the
+                        parameters the processor automatically creates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>basename</literal></term>
+                   <listitem>
+                       <para>
+                        The base name of the set of parameters the processor
+                        makes.  For each event, the event processor fills in
+                        several diagnostic parameters in addition to any the
+                        pipelines attached to it produce:
+                       </para>
+                       <variablelist>
+                        <varlistentry>
+                           <term><varname>basename.event_no</varname></term>
+                           <listitem>
+                               <para>
+                                The event number.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.run_time</varname></term>
+                           <listitem>
+                               <para>
+                                Elapsed run time based on the timestamp and
+                                frequency, in seconds.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.sources</varname></term>
+                           <listitem>
+                               <para>
+                                Number of fragments in an event.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.unrecognized_source</varname></term>
+                           <listitem>
+                               <para>
+                                Number of sources in the event for which no
+                                event processing pipeline was registered.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.n_present</varname></term>
+                           <listitem>
+                               <para>
+                                Flag to indicate source n was present.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                       </variablelist>
+                       <para>
+                        The intent of these parameters is to provide support
+                        for several standard event builder diagnostic spectra.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evbunpack/add?name=evbname&amp;source=sourceid&amp;pipe=pipe-name
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Registers an event processing pipeline (either programmatically
+                created or created using the pman command/REST interface) to
+                process the event fragments from a specific event source.
+                The data presented to the event processor is the same as if it
+                were seeing data from a system that only took data from that
+                subsystem. 
+            </para>
+            <para>
+                The mandatory query parameter <literal>name</literal> is the
+                name of the event processor being created.
+                the mandatory query parameter <literal>source</literal> is the
+                source id of the data that we are teaching it to process and
+                <literal>pipe</literal> specifies the name of an event processing
+                pipeline that will be invoked to process the data from
+                fragments from the source.
+            </para>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evbunpack/list<optional>pattern=<replaceable>name-pattern</replaceable></optional>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                List the names of event processors that have been created via this
+                command.  This is returned in the <literal>detail</literal>
+                attribute of the returned object as an array of strings.
+            </para>
+        </section>
     </chapter>
 </book>
