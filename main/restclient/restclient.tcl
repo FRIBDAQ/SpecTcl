@@ -144,6 +144,17 @@ package require json
 #   rootTreeDelete
 #   rootTreeList
 #
+#   pmanCreate
+#   pmanList
+#   pmanCurrent
+#   pmanListAll
+#   pmanListEventProcessors
+#   pmanUse
+#   pmanAdd
+#   pmanRemove
+#   pmanClear
+#   pmanCLone
+#
 snit::type SpecTclRestClient {
     option -host -default localhost
     option -port -default 8080
@@ -1431,4 +1442,117 @@ snit::type SpecTclRestClient {
         ]
         return [dict get $info detail]
     }
+    #----------------------------------------------------------------------------
+    # pman command jackets:
+
+    ##        
+    #   pmanCreate
+    #  Create a new, empty pipeline.
+    #
+    # @param name - name of the new pipeline
+    #
+    method pmanCreate {name} {
+        $self _request [$self _makeUrl pman/create [dict create name $name]]
+    }
+    ##
+    #   pmanList
+    #  List the pipelines that match the GLOB pattern supplied.
+    # @param pattern - optional matching pattern, defaults to * which matches
+    #                  everything.
+    #
+    method pmanList {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            pman/ls [dict create pattern $pattern] \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #   pmanCurrent
+    # Provide information about the current pipeline.
+    # returns a 2 element list that constists of the pipeline name and
+    # the list of event processors it has.
+    #
+    method pmanCurrent {} {
+        set info [$self _request [$self _makeUrl pman/current [dict create]]]
+        return [dict get $info detail]
+    }
+    ##
+    #   pmanListAll
+    #  List all the event processors that match the pattern.
+    #
+    # @param pattern - pattern to match, defaults to *
+    # @return list of pipeline definitions as described in pmanCurrent.
+    #
+    method pmanListAll {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            pman/lsall [dict create pattern $pattern]] \
+        ]
+        return [dict get $info detail]
+    }
+    ##
+    #   pmanListEventProcessors
+    # List the names of matching event processors.
+    #
+    # @param pattern - pattern to match.
+    # @return list of event processor names.
+    #
+    method pmanListEventProcessors {{pattern *}} {
+        set info [$self _request [$self _makeUrl \
+            pman/lsevp [dict create pattern $pattern] \
+        ]]
+        return [dict get $info detail]
+    }
+    ##
+    #   pmanUse
+    #  Choose an event procesing pipeline.
+    # @param pipeline - name of the pipeline.
+    #
+    method pmanUse {pipeline} {
+        $self _request [$self _makeUrl pman/use [dict create name $pipeline]]
+    }
+    ##
+    #   pmanAdd
+    #  add an event processor to the end of a processing pipeline.
+    #
+    # @param pipeline  - name of the pipeline.
+    # @param processor -name of the processor.
+    #
+    method pmanAdd {pipeline processor} {
+        set qdict [dict create pipeline $pipeline processor $processor]
+        $self _request [$self _makeUrl pman/add $qdict]
+    }
+    ##
+    #   pmanRemove
+    #  Remove an event processor from a pipeline.
+    #
+    # @param pipeline - name of the pipeline.
+    # @param processorr - event processor to remove.
+    #
+    method pmanRemove {pipeline processor} {
+        set qdict [dict create pipeline $pipeline processor $processor]
+        $self _request [$self _makeUrl pman/rm $qdict]
+    }
+    ##
+    #   pmanClear
+    # Remove all event processors from a pipeline
+    #
+    # @param pipeline - name of the pipeline
+    #
+    method pmanClear {pipeline} {
+        $self _request [$self _makeUrl \
+            pman/clear [dict create pipeline $pipeline] \
+        ]
+    }
+    ##
+    #   pmanCLone
+    # Duplicate an event processor.
+    #
+    # @param source - processor to duplicate.
+    # @param new    - new event processor to make.
+    #
+    method pmanClone {source new} {
+        set qdict [dict create source $source new $new]
+        $self _request [$self _makeUrl pman/clone $qdict]
+    }
+
 }

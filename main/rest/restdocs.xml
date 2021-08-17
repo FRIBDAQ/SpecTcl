@@ -3299,5 +3299,248 @@ http://host:port/spectcl/roottree/list<optional>pattern=name-pattern</optional>
                 </varlistentry>
             </variablelist>
         </section>
+        <section>
+           <title>Accessing the pman comman (new in 5.5)</title>
+           <para>
+            The SpecTcl <command>pman</command> command allows users of
+            SpecTcl to dynamically control the data analysis pipeline that
+            turns raw data into parameters that can be histogrammed.  The SpecTcl
+            programming reference and SpecTcl programming guide describe how to
+            set up event processors to make use of this capability.
+           </para>
+           <para>
+            The base command is a command ensemble with quite a few sub-commands
+            and therefore, there are quite a few URL forms dedicated to this
+            capability.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pman/create?name=<replaceable>pipeline-name</replaceable>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Create a new empty analysis pipeline. The name of the new pipeline
+            is the value of the <literal>name</literal> query parameter.
+            Before being useful, the
+            pipeline must be filled with event processors.  To be used, the
+            pipeline must also be made the current pipeline.  These capabilities
+            are exposed as well.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pman/ls
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            is an array of strings that provide the names of all
+            data analysis pipelines.
+           </para>
+           <para>
+            URLS as shown below:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/current
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Return as the <literal>detail</literal> attribute of the returned object,
+            describes the current processor.  Note that when
+            SpecTcl starts, a pipeline named <literal>default</literal> is
+            created and event processors created/registered in the traditional manner are
+            inserted into it.   The initial event processor pipeline, unless
+            programmatically specified otherwise is the <literal>default</literal>
+            pipeline.
+           </para>
+           <para>
+            <literal>detail</literal> is an object with the attributes
+            <literal>name</literal> that is the name of the pipeline and
+            <literal>processors</literal> which is an array of the event processors
+            in that pipeline in the order in which they will be executed.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/lsall<optional>?pattern=<replaceable>name-pattern</replaceable></optional>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Lists the pipelines and their event processors.  The optional
+            <literal>pattern</literal> query parameter allows you to provide a
+            pattern that can contain glob wildcard characters.  If provided,
+            only pipeline whose name match the pattern are listed.
+            If <literal>pattern</literal> is not provided it defaults to
+            <literal>*</literal> which matches all pipeline names.
+           </para>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            is an array of objects.  Each object describes a single pipeline and
+            has the attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the pipeline being described.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>processors</literal></term>
+               <listitem>
+                   <para>
+                    Array of strings of event processor names that are in the pipeline.
+                    These are indexed in the order in which they execute if the
+                    pipeline runs.
+                    See below for how to ad event processors to pipelines.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            URLs of the following format:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/lsevp<optional>?pattern=<replaceable>name-pattern</replaceable></optional>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Allows the client to learn about the event processors that have been
+            registered for use with the pipeline management system.  Event processors
+            can be registered in two ways:  
+           </para>
+           <orderedlist>
+            <listitem>
+               <para>
+                  Statically at run time by compiled code linked into the user's
+                  tailored SpecTcl
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Dynamically at run time by loading a shared object.
+               </para>
+            </listitem>
+           </orderedlist>
+           <para>
+            If the <literal>pattern</literal> query parameter is supplied,
+            its value is a <parameter>name-pattern</parameter> that restricts
+            the set of proccessors interrogated.  The <parameter>name-pattern</parameter>
+            can contain Glob wild card characters.  If not provided,
+            <literal>pattern</literal> defaults to <literal>*</literal>
+            which matches all event processor names.
+           </para>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            contains an array of strings.  Each string is the name of an
+            event processor that matches the <literal>pattern</literal> value.
+           </para>
+           <para>
+            URLs of the form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/use?name=<replaceable>pipeline-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Changes the current event processing pipeline used by SpecTcl
+            to process events.  The value of the <literal>name</literal>
+            mandatory query parameter is the name of an existing event processing
+            pipeline to make current.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/add?pipeline=<replaceable>pipe-name</replaceable>&amp;processor=<replaceable>evp-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Add an existing event processor to the end of an existing processing
+            pipeline.  The mandatory <literal>pipeline</literal> query
+            parameter specifies the name of the event processing pipeline.
+            The mandatory <literal>processor</literal> query parameter
+            specifies the name of the event processor to append to that pipeline.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/rm?pipeline=<replaceable>pipe-name</replaceable>&amp;processor=<replaceable>evp-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Remove an event processor from a processing pipeline.
+            The mandatory <literal>pipeline</literal> query parameter specifies the
+            name of the pipeline and the mandatory
+            <literal>processor</literal> query parameter specifies the name of
+            the event processor to remove.
+           </para>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/pman/clear?pipeline=<replaceable>pipe-name</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Removes all event processors from the pipeline specified by the
+                mandatory <literal>pipeline</literal> query parameter.
+                The pipeline continues to exist. 
+            </para>
+            <para>
+                Often it's useful to create a new event processing pipeline by
+                adding new event processors from an existing pipeline.
+                Urls of the form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/pman/clone?source=<replaceable>old-pipename</replaceable>&amp;new=<replaceable>new-pipename</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Create a copy of an existing event processing pipeline.
+                The mandatory <literal>source</literal> query parameter is the name
+                of an existing pipeline to copy. The <literal>new</literal>
+                mandatory query parameter is the name of the new pipline that
+                will be created by this operation.  The new pipeline will have
+                all of the pipeline elements the original one had in the same order.
+            </para>
+        </section>
     </chapter>
 </book>
