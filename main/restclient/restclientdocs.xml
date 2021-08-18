@@ -1,0 +1,1201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl REST client packages (New in 5.5)</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>August 18, 2021</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+       <title>Introduction</title>
+       <para>
+        Beginning with SpecTcl 5.5, SpecTcl almost fully encapsulates all of its
+        commands with a REST interface.  This allows applications external
+        to SpecTcl to fully control it.  The intent is to allow SpecTcl to
+        run headless in the background, persistenty under the NSCLDAQ
+        experiment manager.    This supports a persistent analysis engine
+        indpenedeent of the users logged in to run the experiment.
+       </para>
+        <para>
+            The SpecTcl REST support packages are divided into four
+            packages:
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                   <literal>SpecTclRESTClient</literal> is a low level
+                   client package that provides TCL script access to all REST
+                   interfaces.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  <literal>SpecTclRESTCommands</literal> simulates SpecTcl commands
+                  for REST clients.  This package aids in porting existing SpecTcl
+                  user interface scripts to run as REST clients.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  <literal>SpecTclRESTLookup</literal>  can only be used in the
+                  context of a running experiment.  It assumes SpecTcl is running
+                  under the NSCLDAQ Manager as a service advertised with the
+                  NSCLDAQ port manager and, if possible, provides a client
+                  object (as defined in <literal>SpecTclRESTClient</literal>).
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  <literal>SpecTclRESTService</literal> can be used in
+                  <filename>SpecTclInit.tcl</filename>
+                  for SpecTcl run under the NSCLDAQ manager
+                  to register a servicename for the REST server and communicate
+                  the allocated port to the REST server startup.
+               </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            The remainder of this document both describes and provides reference
+            information for these packages.
+        </para>
+    </chapter>
+    <chapter>
+       <title>SpecTclRESTClient package</title>
+       <para>
+        This package provides a simple REST client for SpecTcl once it's service
+        port is known.
+       </para>
+       <para>
+        To use it:
+       </para>
+       <orderedlist>
+        <listitem>
+           <para>
+              Include the package in your program using <command>package require</command>,
+              note that you may need to extend the package search path
+              to include the package library for the version of SpecTcl
+              you are using.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Instantiate a <classname>SpecTclRestClient</classname> object.
+              To do this you must know the host in which SpecTcl is running
+              and the port on which its REST server is listening for connections.
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Call methods in the instantiated
+              <classname>SpecTclRestClient</classname> object to perform
+              REST operations. Note that each method will connect to
+              the server, make a request, obtain the results and close the
+              connection.   Peristent sockets are not used.
+           </para>
+        </listitem>
+       </orderedlist>
+       <para>
+        The program below shows how to obtain and output a list of all of the
+        spectrum names for spectra defined in the server SpecTcl.
+       </para>
+       <example>
+        <title>Sample SpecTcl REST client using SpecTclRESTClient</title>
+        <programlisting>
+package require SpecTclRESTClient             <co id='ex.client.package' />
+                                              
+set port 8080                                 <co id='ex.client.serverinfo' />
+set host genesis.nscl.msu.edu
+
+SpecTclRestClient c -host $host -port $port   <co id='ex.client.construct' />
+set spectraInfo [c spectrumList]              <co id='ex.client.fetch' />
+foreach spectrum $spectraInfo {
+    puts [dict get $spectrum name]            <co id='ex.client.output' />
+}
+c destroy                                     <co id='ex.client.destroy' />
+
+
+        </programlisting>
+       </example>
+       <calloutlist>
+        <callout arearefs='ex.client.package' >
+            <para>
+                This includes the code for the <literal>SpecTclRESTClient</literal>
+                library package in the script.  It may be necessary to extend the
+                TCL Library search path to include the <filename>TclLibs</filename>
+                directory within the SpecTcl installation you are using.
+            </para>
+            <para>
+                This can be done within the script by using
+                <command>lappend</command> to add that directory to the
+                <varname>auto_path</varname> gloal variable or
+                by defining the <varname>TCLLIBPATH</varname> environment
+                variable to be a space separated list of library directories
+                to add to the search path. 
+            </para>
+            <para>
+                Note that the environment variable method can be done on the
+                command line e.g.
+                <command>TCLLIBPATH=/usr/opt/spectcl/5.5-000 tclsh</command>
+                defines the environment variable only for that run of the
+                <command>tclsh</command> command.
+            </para>
+        </callout>
+        <callout arearefs='ex.client.serverinfo' >
+            <para>
+                For the purposes of this simple test program, we define the
+                host in which the SpecTcl we want to talk to is in and
+                the port on which its REST server is listening as
+                hard coded variable values.
+            </para>
+        </callout>
+        <callout arearefs='ex.client.construct' >
+            <para>
+                This constructs a new instance of a
+                <classname>SpecTclRestClient</classname> object.  The first
+                parameter is the object name or the special string
+                <literal>%AUTO%</literal> to get a unique name installed.
+                The command returns the name of the new command ensemble in any
+                event.
+            </para>
+            <para>
+                The <option>-host</option> option allows you to provide a
+                host on which the server (SpecTcl) is running and
+                <option>-port</option> provides the port to which the
+                connection will be made.  This must be the port on which
+                SpecTcl is listening.
+            </para>
+        </callout>
+        <callout arearefs='ex.client.fetch' >
+            <para>
+                The object constructed above becomes a new command ensemble.
+                Methods are invoked via subcommands.  This line uses the
+                <methodname>spectrumList</methodname> method to ask the
+                client object to interact with SpecTcl on the
+                configured <option>-host</option> and <option>-port</option>
+                to get a list of all spectra and their properties.  Essentially,
+                this does a remote execution of <command>spectrum -list</command>
+                in SpecTcl and returns information from that command.
+            </para>
+            <para>
+                The information returned by this method is a list of dicts,
+                one for each spectrum.  Each dict has the following keys:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        SpecTcl Spectrum type code.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameter</literal></term>
+                   <listitem>
+                       <para>
+                        List of parameter needed by the spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>axes</literal></term>
+                   <listitem>
+                       <para>
+                        List of axis definitions (this is a list of dicts
+                        with the keys <literal>low</literal>,
+                        <literal>high</literal> and <literal>bins</literal>).
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>chantype</literal></term>
+                   <listitem>
+                       <para>
+                        Data type for each channel.  This can be one of
+                        <literal>long</literal>, <literal>word</literal>
+                        or <literal>byte</literal>.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </callout>
+        <callout arearefs='ex.client.output' >
+            <para>
+                This <command>foreach</command> loop iterates over the
+                list of dicts, fetches the <literal>name</literal>
+                from each and outputs it to stdout.
+            </para>
+        </callout>
+        <callout arearefs='ex.client.destroy' >
+            <para>
+                Destroys the client object we created.   This releases any
+                resources consumed by that object.  In a simple program like this,
+                when the next action is to exit the script, it's not actually
+                necessary to destroy the object. In  a more complex
+                script, it's always a good idea to dispose of resources
+                you no longer need.
+            </para>
+        </callout>
+    </calloutlist>
+        <section>
+            <title>SpecTclRESTClient reference page</title>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>SpecTclRESTClient</refentrytitle>
+                  <manvolnum>3tcl</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>SpecTclRESTCient</refname>
+                  <refpurpose>SpecTcl REST client package</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+    package require SpecTclRESTClient
+    
+    set client [SpecTclRestClient client-spec ?options...?]
+    $client configure option value ?...?
+    set value [$client cget option]
+    
+    $client applyGate gatename spectra
+    $client applyList ?pattern?
+    
+    $client attachSource source-type source-spec ?size ?format??
+    $client attachList
+    
+    $client sbindAll
+    $client sbind spectra
+    $client sbindList ?pattern?
+    
+    $client fitCreate name spectrum low high fit-type
+    $client fitUpdate ?pattern?
+    $client fitDelete fit-name
+    $client fitList ?pattern?
+    
+    $cilent foldApply gate spectra
+    $client foldList ?pattern?
+    $client foldRemove spectrum
+    
+    $client channelGet spectrum xchannel ?ychannel?
+    $client channelSet spectrum value xchannel ?ychannel?
+    
+    $client spectrumClear
+    $client spectrumClearAll
+    $client spectrumProject existing new direction snapshot ?contour?
+    $client spectrumStatistics ?pattern?
+    
+    $client treeparameterCreate name low high bins ?units?
+    $client treeparameterList ?pattern?
+    $client treeparameterListNew
+    $client treeparameterSet name bins low high ?units?
+    $client treeparameterSetInc name newinc
+    $client treeparameterSetBins name newbins
+    $client treeparameterSetUnits name units
+    $client treeparameterSetLimits name low high
+    $client treeparameterCheck name
+    $client treeparameterUncheck name
+    
+    $client treeparameterVersion
+    $client treevariableList
+    $client treevariableSet name value units
+    $client treevariableCheck name
+    $client treevariableSetChanged name
+    $client treevariableFireTraces ?pattern?
+    
+    $client filterCreate name gate parameters
+    $client filterDelete name
+    $client filterEnable name
+    $client filterDisable name
+    $client filterRegate name gate
+    $client filterFile name path
+    $client filterList ?pattern?
+    $client filterFormat name format
+    
+    $client gateList ?pattern?
+    $client gateDelete name
+    $client gateCreateSimple1D name type parameters low high
+    $client gateCreateSimple2D name type xparameterse yparameters xcoords ycoords
+    $client gateCreateMask name type parameter mask
+    $client gateCreateCompound name type gates
+    
+    $client integrate name roi
+    $client parameterNew name number metadata
+    $client parameterDelete name ?id?
+    $client parameterList pattern ?id?
+    
+    $client pseudoCreate name parameters body
+    $client pseudoList ?pattern?
+    $client pseudoDelete name
+    
+    $client sread filename options
+    
+    $client ringformat major ?minor?
+    
+    $client scontents name
+    
+    $client shmemkey
+    $client shmemsize
+    
+    $client spectrumList ?pattern?
+    $client spectrumCreate name type parameters axes ?options?
+    
+    $client unbindByName names
+    $client unbindById ids
+    $client unbindAll
+    
+    $client version
+    
+    $client swrite filename spectra ?format?
+    
+    $client start
+    $client stop
+    
+    $client rootTreeCreate name parameterPatterns ?gate?
+    $client rootTreeDelete name
+    $client rootTreeList ?pattern?
+    
+    $client pmanCreate name
+    $client pmanList ?pattern?
+    $client pmanCurrent
+    $client pmanListAll ?pattern?
+    $client pmanListEventProcessors ?pattern?
+    $client pmanUse name
+    $client pmanAdd pipeline-name processor-name
+    $client pmanRemovfe pipeline-name processor-name
+    $client pmanClear name
+    $client pmanClone existing-name new-name
+    
+    $client evbCreate name frequency basename
+    $client evbadd    name source pipe-name
+    $client evbList   ?pattern?
+    
+    $client command arbitrary-tcl-command
+    
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                         <title>DESCRIPTION</title>
+                      <para>
+                        This package provides low level client access to the SpecTcl REST
+                        server available in SpecTcl 5.5 and later.
+                        Instantiating an object creates a new command ensemble.
+                        Subcommands perform specific REST transactions.
+                      </para>
+                      
+                </refsect1>
+                <refsect1>
+                    <title>OPTIONS</title>
+                    <para>
+                        The following two options are used to configure the
+                        connections the instantiated client objects use.
+                        Since connections are made for every transaction, by
+                        nature, these options are dynamic.
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term><option>-host</option></term>
+                           <listitem>
+                               <para>
+                                The DNS hostname or IP address of the system
+                                that will be connected to for REST transactions
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>-port</literal></term>
+                           <listitem>
+                               <para>
+                                The port number that will be conneted to for REST
+                                transactions.  A SpecTcl REST server must be
+                                listening for connections on that port in the
+                                system specified by <option>-host</option>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </refsect1>
+                <refsect1>
+                    <title>METHODS</title>
+                    <para>
+                        Instantiated objects are command ensembles.  Each subcommand
+                        of the ensemble can be thought of as an object method.
+                        Two standard methods: <methodname>configure</methodname>
+                        and <methodname>cget</methodname> allow users of
+                        the object to configure the connection parameters of
+                        the object.  Since each method that performs a REST
+                        operation connects with the server each operation, the
+                        configuration is fully dynamic.
+                    </para>
+                    <para>
+                        The methods supported by the client objects are divided
+                        into categories which will be described in different
+                        subsections.
+                    </para>
+                    <refsect2>
+                        <title>Conditions and gates</title>
+                        <para>
+                            These methods create and manipulate gates and their
+                            application as conditions on spectra.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>applyGate</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>gatename</parameter>
+                                   </methodparam>
+                                   <methodparam>
+                                       <type></type><parameter>spectra</parameter>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Applies a single gate, specified by
+                                    <parameter>gatename</parameter> to all of the
+                                    spectra named in the Tcl list of
+                                    spectrum names in <parameter>spectra</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>applyList</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>pattern</parameter>
+                                       <modifier>(optional)</modifier>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Produces a list of gate applications.
+                                    If <parameter>pattern</parameter> is
+                                    provided, it is a pattern against which spectrum
+                                    names are matched.  The pattern can include
+                                    glob (filesystem type) wildcard characters such as
+                                    <literal>*</literal> and <literal>?</literal>.
+                                   </para>
+                                   <para>
+                                    The returned value is a list of dicts.
+                                    Each dict has the keys
+                                    <literal>spectrum</literal>, the name of a
+                                    spectrumand <literal>gate</literal>, the
+                                    name of the gate applied to that spectrum.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Data Source and Analysis Control</title>
+                        <para>
+                            These methods control the data source that SpecTcl
+                            analyzes data from as well as when analysis occurs.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>attachSource</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>sourceType</parameter>
+                                   </methodparam>
+                                   <methodparam>
+                                       <type></type><parameter>sourceSpec</parameter>
+                                   </methodparam>
+                                   <methodparam>
+                                       <type></type><parameter>size</parameter>
+                                       <modifier>(optional)</modifier>
+                                   </methodparam>
+                                   <methodparam>
+                                       <type></type><parameter>format</parameter>
+                                       <modifier>(optional)</modifier>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Attaches a new data source to SpecTcl.
+                                    If an existing source is attached, any analysis
+                                    underway from it is stopped and the data source
+                                    is detached.
+                                   </para>
+                                   <para>
+                                    The <parameter>sourceType</parameter> determines
+                                    the type of data source and the meaning of the
+                                    <parameter>sourceSpec</parameter> parameter.
+                                    Legal values are either
+                                    <literal>pipe</literal> or <literal>file</literal>.
+                                   </para>
+                                   <para>
+                                    For <literal>pipe</literal> data sources,
+                                    <parameter>sourceSpec</parameter> is a
+                                    command string that provides data to its
+                                    stdout, which is on the other end of a pipe
+                                    SpecTcl reads.  For <literal>file</literal>
+                                    the data source is a file and the
+                                    <parameter>sourceSpec</parameter> is the name
+                                    of the event file.  Note the filename path
+                                    is interpreted inthe context of SpecTcl's
+                                    Tcl interpreter.
+                                   </para>
+                                   <para>
+                                    If supplied, the <parameter>size</parameter>
+                                    parameter supplies the size of the reads that
+                                    SpecTcl will perform from the data source.
+                                    <parameter>format</parameter> supplies a format
+                                    parameter.   Unless you are analyzing very old
+                                    data, the default <literal>ring</literal>
+                                    format is correct.  Other legal values are
+                                    <literal>nscl</literal> for the old 8k
+                                    NSCLDAQ (pre 10.0) buffer format.  Or
+                                    <literal>jumbo</literal> for big buffered
+                                    NSCLDAQ 8.0 or earlier data.  In either
+                                    case, the <parameter>size</parameter>
+                                    must be the same as the size of the buffer.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>attachList</methodname>
+                                   <void />
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Returns a string that describes what
+                                    SpecTcl is attached to as a data source.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Display Memory Control</title>
+                        <para>
+                            SpecTcl maintains an arbitrary set of spectra.  Of these,
+                            some or all may be stored in  a shared memory segment
+                            that provides high performance, low latency access
+                            to spectrum data by display programs.  These
+                            methods control which spectra are in display memory and
+                            which are local to SpecTcl.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>sbindAll</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Attempts to bind all defined spectra into the
+                                    shared display memory.  If this fails (due
+                                    to a shared memory too small to hold them all
+                                    and their descriptions), an error is raised.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>sbindSpectra</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectra</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Attempts to bind several spectra to the
+                                    display shared memory.  The <parameter>spectra</parameter>
+                                    parameter is a Tcl list of spectrumnames.
+                                    If the bind fails, an error is raised.
+                                    Typically the bind fails because the
+                                    shared memory region is not large enough
+                                    to hold all of the additional spectra.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>sbindList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list that describes which spectra
+                                    are bound to the display memory.  If
+                                    <parameter>pattern</parameter> is supplied,
+                                    it must match the bound spectrum name to be
+                                    included inthe output list.  If not supplied,
+                                    the <parameter>pattern</parameter> defaults to
+                                    <literal>*</literal> which matches all bindings.
+                                   </para>
+                                   <para>
+                                    The return value is a list of dicts. Each dict
+                                    describes a binding of a spectrum to shared
+                                    memory. Each dict has the keys:
+                                    <literal>spectrum</literal> which is the
+                                    name of a spectrum and <literal>binding</literal>
+                                    which is the Xamine  binding id.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Fitting</title>
+                        <para>
+                            SpecTcl boasts an extensible fitting subsystem with
+                            two built in fits (linear and gaussian sitting
+                            on a linear background).  The methods in this section
+                            provide access to that subsystem.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>fitCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>fitname</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>spectrumname</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>lowChannel</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>highChannel</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>fitType</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new fit object named
+                                    <parameter>fitname</parameter> that fits
+                                    the data in the spectrum
+                                    <parameter>spectrumname</parameter>
+                                    between the <parameter>lowChannel</parameter>
+                                    and <parameter>highChannel</parameter>
+                                    parameter limits.
+                                   </para>
+                                   <para>
+                                    The fit type is specified by <parameter>fitType</parameter>
+                                    The built in fits types are 
+                                    <literal>linear</literal> and
+                                    <literal>gaussian</literal>.  Other fit types
+                                    may be implemented and registered by the
+                                    specific SpecTcl that's running the REST server.
+                                    Since the <parameter>fitType</parameter>
+                                    parameter is interpreted in that SpecTcl,
+                                    these fit types become automatically available
+                                    to REST clients.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>fitUpdate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Since spectrum data are not, in general, static,
+                                    they evolve as more data area analyzed, it's
+                                    reasonable to assume that fit parameters will
+                                    not be static either.  This
+                                    method recomputes the fit parameters for each
+                                    fit whose name matches
+                                    <parameter>pattern</parameter>.  If
+                                    <parameter>pattern</parameter> is not supplied,
+                                    it defaults to <literal>*</literal>, which
+                                    matches all fits.
+                                   </para>
+                                   <para>
+                                    See <methodname>fitList</methodname> to
+                                    get the current set of fit parameters.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>fitDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>fitname</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the fit named
+                                    <parameter>fitname</parameter> releasing
+                                    all resources associated with that object.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>fitList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Produces a list of fit information.
+                                    The elements of the list must have fit names
+                                    that match the <parameter>pattern</parameter>.
+                                    If <parameter>pattern</parameter> is not provided
+                                    it defaults to <literal>*</literal> which
+                                    matches all fit names.
+                                   </para>
+                                   <para>
+                                    The result is a list of dicts where each
+                                    element of the list describes one fit object
+                                    and has the followiung keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the fit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>spectrum</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the spectrum being fit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>type</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Type of fit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Low channel limit over which the fit
+                                            is computed.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>high</literal></term>
+                                       <listitem>
+                                           <para>
+                                            High channel limit over which the
+                                            fit is computed.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameters</literal></term>
+                                       <listitem>
+                                           <para>
+                                            A dict of fit parameter names and
+                                            their values.  The actual parameter
+                                            names will vary depending on the
+                                            fit type.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Fold methods</title>
+                        <para>
+                            Folds are a technique used in gamma spectroscopy to remove
+                            an existing peak from a spectrum as well as uncorrelated
+                            peaks.  The idea in SpecTcl is to set a gate as a fold
+                            on a gamma spectrum.  Such spectra increment parameter
+                            sets that don't make that gate.  Applying the same gate
+                            as a condition on the spectrum requires, further,
+                            that only parameters that coincide with those in the
+                            fold, other than those that satisfy the fold,
+                            increment the spectrum.
+                        </para>
+                        <para>
+                            The following methods provide access to SpecTcl's
+                            folding implementation.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>foldApply</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>gate</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>spectra</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Applies the gate <parameter>gate</parameter>
+                                    as a fold to the spectra named by the list
+                                    <parameter>spectra.</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>foldList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns information about the folds on spectra
+                                    that match the <parameter>pattern</parameter>.
+                                    If no <parameter>pattern</parameter> is
+                                    supplied, it defaults to <literal>* </literal>
+                                    which matches all spectra.
+                                   </para>
+                                   <para>
+                                    The result is a list of dicts. Each dict describes
+                                    a spectrum with an applied fold and has the keys:
+                                    <literal>spectrum</literal> - name of the spectrum
+                                    and <literal>gate</literal> name of the
+                                    gate that's applied as a fold to that spectrum.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>foldRemove</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectrum</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Removes any fold that might be applied to the
+                                    <parameter>specrum</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Accessing spectrum contents</title>
+                        <para>
+                            Several SpecTcl commands allow script to acces
+                            spectrum contents.  These are documented in this
+                            section.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>channelGet</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectrum</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>xchannel</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>ychannel</parameter>
+                                      <modifier>(Only for 2d spectra).</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the value of a channel in the spectrum
+                                    <parameter>spectrum.</parameter>
+                                    <parameter>xchannel</parameter> always must be
+                                    supplied and is either the 1d channel number
+                                    to be accessed or the x coordinate of the channel
+                                    if a 2d spectrum.  2d Spectra require an additional
+                                    <parameter>ychannel</parameter> to specify the
+                                    y coordinate of th channel to be fetched.
+                                   </para>
+                                   <para>
+                                    On success, the result is an integer value that
+                                    is the current value of the requested spetrum
+                                    channel.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>channelSet</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectrum</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>value</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>xchannel</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>ychannel</parameter>
+                                      <modifier>(Only for 2d spectra).</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets the value of the specified channel
+                                    in <parameter>spectrum</parameter> to
+                                    <parameter>value</parameter>.  The
+                                    <parameter>xchannel</parameter> and
+                                    <parameter>ychannel</parameter> parameters
+                                    have the same meaning and requirements as in
+                                    <methodname>channelGet</methodname>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumClear</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectrum</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Clears the spectrum named <parameter>spectrum</parameter>.
+                                    By clear we mean that all channels in that
+                                    spectrum are set to <literal>0</literal>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumClearAll</methodname>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                      Zeroes all channels in all spectra.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumStatistics</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    In addition to channel values, Spectra, maintain
+                                    over and undeflow counters, indicating when
+                                    an event would have caused an increment off
+                                    either end of that spectrum.
+                                   </para>
+                                   <para>
+                                    This method returns the statistics of spectra
+                                    whose name match <parameter>pattern</parameter>.
+                                    If <parameter>pattern</parameter> is not provided
+                                    it defaults to <literal>*</literal> which
+                                    matches all spectrum names.
+                                   </para>
+                                   <para>
+                                    The returned value is a list of dicts. The
+                                    dicts contain the keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the spectrum whose statistics
+                                            are in this dict.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>underflows</literal></term>
+                                       <listitem>
+                                           <para>
+                                            For 1d spectra, this is a single value
+                                            that represents the number of times an
+                                            increment would have occured past the
+                                            left edge of the specturm.  
+                                           </para>
+                                           <para>
+                                            For 2d spectra this is a two element list
+                                            where the first element is as above
+                                            and the second element is the number
+                                            of times an event would have incremented
+                                            below the bottom edge of the spectrum.
+                                            Clearly there can be events that incremenbt
+                                            bothof these counters.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>overflows</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Similarly to <literal>undeflows</literal>
+                                            but for events that would increment
+                                            to the right of the spectrum limits and,
+                                            for 2d spectra above the top of the
+                                            spectrum.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Spectrum  Management</title>
+                        <para>
+                            Spectra in SpecTcl are dynamic entities.  They can be
+                            created at any time, deleted at any time.  They can
+                            have gates applied to them at any time.
+                        </para>
+                        <para>
+                            The methods described in this section provide access
+                            to SpecTcl commands that manipulate the set of SpecTcl
+                            spectra.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumProject</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>oldName</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newName</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>direction</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>snapshot</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gate</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new spectrum from an existing 2-d
+                                    spectrum.  The initial contents of the
+                                    new spectrum (named <parameter>newName</parameter>)
+                                    are created by summing channels either vertically
+                                    or horizontally  from the existing spectrum
+                                    named <parameter>oldName</parameter>.
+                                   </para>
+                                   <para>
+                                    <parameter>direction</parameter>
+                                    determines the axis onto which the projection is
+                                    performed.  If <literal>x</literal> y channels
+                                    are summed to produce a single  channel.
+                                    If <literal>y</literal>, X channels are summed
+                                    to produce a single channel.
+                                   </para>
+                                   <para>
+                                    If <parameter>snapshot</parameter>, a flag,
+                                    is zero, once <parameter>newName</parameter>
+                                    is created it is hooked into the histogramming
+                                    system so that new events can increment
+                                    that spectrum. If non-zero, this is not done,
+                                    creating a snapshot projection that never updates.
+                                   </para>
+                                   <para>
+                                    If <parameter>contour</parameter> is provided it
+                                    must be the name of a contour gate that,
+                                    if <parameter>snapshot</parameter> is
+                                    <literal>0</literal> will be applied to the
+                                    <parameter>newName</parameter> spectrum.
+                                    Furthermore, only the channels in
+                                    <parameter>oldName</parameter> that are inside
+                                    that contour are used to populate the initial
+                                    values of <parameter>newName</parameter>.
+                                   </para>
+                                   <para>
+                                    The spectrum is entered into SpecTcl spectrum
+                                    name dictionary, regardless and can, therefore
+                                    be used wherever a spetrum name can be used
+                                    both in this API and in SpecTcl's commands.
+                                    Note that initially, the spectrum is not
+                                    bound into the display memory but that can
+                                    be accomplished via <methodname>sbindSpectra</methodname>
+                                    if desired or locally via the
+                                    <command>sbind</command> command.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Parameter access.</title>
+                        <para></para>
+                    </refsect2>
+                </refsect1>
+            </refentry>
+        </section>
+       
+    </chapter>
+</book>

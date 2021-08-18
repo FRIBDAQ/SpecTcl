@@ -430,6 +430,8 @@ snit::type SpecTclRestClient {
     #    List folds  on spectra that match the pattern
     # @param pattern - only spectra that match this optional glob pattern are
     #                  listed.  Defaults to * which matches all spectra.
+    # @return list of dicts which contain spectrum (a spectrum name) and
+    #         gate the folding gate.
     #
     method foldList {{pattern *}} {
         set info [$self _request [$self _makeUrl fold/list [dict create pattern $pattern]]]
