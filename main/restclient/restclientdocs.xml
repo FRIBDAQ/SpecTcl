@@ -506,6 +506,23 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </para>
                                 </listitem>
                             </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>ungate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>spectra</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Removes all gates from the spectra named in the
+                                    list <parameter>spectra</parameter>,
+                                    replacing the applied gates with a
+                                    <literal>T</literal> gate.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
                     </refsect2>
                     <refsect2>
@@ -594,6 +611,69 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </para>
                                 </listitem>
                             </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>ringformat</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>major</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>minor</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    When attaching a data source in ring buffer
+                                    format, it's necessary to specify a format version.
+                                    This is because the payload format of the
+                                    ringbuffers has evolved with time.
+                                    Once you have attached a ring data source, you can
+                                    use this method to specify the format of the
+                                    ring buffers.  The <parameter>major</parameter>
+                                    parameter is the major version number and
+                                    currently can be <literal>10</literal> for
+                                    NSCLDAQ10 and <literal>11</literal> currently
+                                    for NSCLDAQ11 and higher.
+                                   </para>
+                                   <para>
+                                    The optional <parameter>minor</parameter>
+                                    parameter allows you to specify a minor verson.
+                                    If not specified, this defaults to
+                                    <literal>0</literal> which is normally
+                                    acceptable because data formats are not
+                                    allowed to change within a major version as
+                                    a rule.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>start</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Starts analyzing data from the current data
+                                    source.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>stop</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Stops analyzing data from the current
+                                    data source.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
                     </refsect2>
                     <refsect2>
@@ -668,6 +748,52 @@ c destroy                                     <co id='ex.client.destroy' />
                                     <literal>spectrum</literal> which is the
                                     name of a spectrum and <literal>binding</literal>
                                     which is the Xamine  binding id.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>unbindByName</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>names</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Unbinds the spectra listed by name
+                                    in <parameter>names</parameter>
+                                    (a list) from display memory. Note that
+                                    this does not impact the contents of the
+                                    spectra.  The spectrum contents are copied
+                                    into private SpecTcl memory.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>unbindById</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>ids</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Unbinds a list of spectra by spectrum
+                                    id from display memory.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>unbindAll</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Unbinds all spectra from display memory.
                                    </para>
                                 </listitem>
                             </varlistentry>
@@ -1102,6 +1228,76 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </variablelist>
                                 </listitem>
                             </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>scontents</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the complete contents of the
+                                    spectrum <parameter>name</parameter>.
+                                    The spectrum contents are returned as
+                                    a dict with the keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>xoverflow</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The number of X axis (or 1d) overflows
+                                            since the last time the spectrum
+                                            was cleared.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>yoverflow</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Only present for 2d spectra, the number
+                                            of overflows on the y axis.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>xunderflow</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The number of X axis (or 1d) undeflows
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>yunderflow</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The number of Y axis (only  present for
+                                            2d spectra) underflows.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>channels</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Spectrum channel data. This is a list
+                                            of dicts, one for each nonzero channel
+                                            that contain:
+                                            <literal>x</literal>, the X channel or
+                                            1d channel, <literal>Y</literal> the
+                                            Y channel for 2d spectra only and
+                                            <literal>v</literal> the value at the
+                                            specified channel.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
                     </refsect2>
                     <refsect2>
@@ -1187,11 +1383,1889 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </para>
                                 </listitem>
                             </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns information about spectrum definitions
+                                    for spectra with names that match
+                                    <parameter>pattern</parameter>.  If the
+                                    optional <parameter>pattern</parameter>
+                                    parameter is not supplied it defaults to
+                                    <literal>*</literal> which matches all
+                                    spectrum names.
+                                   </para>
+                                   <para>
+                                    The returned value is a list of dicts. Each
+                                    dict describes one spectrum and contains the
+                                    following keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Spectrum name 
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>type</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Spectrum type code. See
+                                            the SpecTcl command reference
+                                            <command>spectrum</command> for
+                                            legal spectrum types.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameter</literal></term>
+                                       <listitem>
+                                           <para>
+                                            List of parameter names the spectrum
+                                            needs.  The spectrum type tells how to
+                                            interpret these.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>axes</literal></term>
+                                       <listitem>
+                                           <para>
+                                            A list of one or two axis definitions.
+                                            Each axis definition is a dict with the
+                                            keys <literal>low</literal>,
+                                            <literal>high</literal> and
+                                            <literal>bins</literal> with obvious
+                                            meanings.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>chantype</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Channel data type this is currently one
+                                            of  <literal>long</literal>.
+                                            <literal>word</literal> or
+                                            <literal>byte</literal>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes a spectrum named <parameter>name</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>spectrumCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>type</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>parameters</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>axes</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>options</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new spectrum <parameter>name</parameter>
+                                    with the type <parameter>type</parameter>.
+                                    The spectrum uses <parameter>parameters</parameter>
+                                    in a manner that is type dependent.
+                                    The <parameter>axes</parameter> parameter is a list
+                                    of one (1-d) or 2 (2-d) axis definitions.
+                                    Each axis is a three element low, high,
+                                    bins list.
+                                   </para>
+                                   <para>
+                                    <parameter>options</parameter> is a dict
+                                    (that can be empty). which provides additional
+                                    spectrum options and the ability of some
+                                    spectra to be unusual.
+                                   </para>
+                                   <para>
+                                    The keys the method uses are:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>chantype</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Channel type.  One of
+                                            <literal>long</literal>,
+                                            <literal>short</literal> or
+                                            <literal>byte</literal>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>direction</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Only used if the type is
+                                            <literal>2dproj</literal>,
+                                            this specifies the direction of the
+                                            projection.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>roigate</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Only used for <literal>2dproj</literal>,
+                                            This is the gate that specifies the
+                                            region projected.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
                         </variablelist>
                     </refsect2>
                     <refsect2>
                         <title>Parameter access.</title>
-                        <para></para>
+                        <para>
+                            SpecTcl has two levels of parameter definition.  Raw
+                            parameters make a correspondence between a slot in
+                            the <classname>CEvent</classname> object that
+                            the event processing pipeline fills in and a parameter
+                            name.  This is the oldest and most primitive type of SpecTcl
+                            parameter.
+                        </para>
+                        <para>
+                            The second level of parameter definition was originally
+                            developed by Daniel Bazin and provides additional
+                            metadata about the tree parameter that can be used
+                            to suggest how to build spectra using those parameters.
+                            Furthermore, treeparameter creation automatically creates
+                            an underlying primitive parameter allocatin an
+                            unused slot.  Finally the <classname>CTreeParameter</classname>
+                            and <classname>CTreeParameterArray</classname>
+                            classes available to event processors allows event
+                            processors to be written without referencing specific
+                            slots in the <classname>CEvent</classname> object.
+                        </para>
+                        <para>
+                            This set of client methods provide support for
+                            manipulating both tree parameters and low level
+                            primitive parameters.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>low</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>high</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>bins</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>units</parameter>
+                                      <modifier>optional</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new tree parameter bound to the
+                                    primitive parameter <parameter>name</parameter>.
+                                    The parameter is assumed to run between
+                                    <parameter>low</parameter> and
+                                    <parameter>high</parameter> (double precision
+                                    floating point parameters) and has sufficient
+                                    resolution to allow for a histogram axis to have
+                                    <parameter>bins</parameter> bins.
+                                    The optional <parameter>units</parameter>
+                                    parameter provides units of measure.
+                                   </para>
+                                   <para>
+                                    Use cases for creating tree parameters at script
+                                    level include wanting to wrap an existing
+                                    primitive parameter (used in the event processors
+                                    as a primitive parameter) in the metadata
+                                    that tree parameters have.  Furthermore,
+                                    a treeparameter may be created at script level
+                                    to allow it to be computed at script level
+                                    as a <command>psuedo</command> parameter.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>optional</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts that describe
+                                    the tree parameters
+                                    with names that match the
+                                    <parameter>pattern</parameter>.
+                                    <parameter>pattern</parameter> can include glob
+                                    wild card characters and is optional.  If
+                                    not supplied, it defaults to <literal>*</literal>
+                                    which matches all tree parameters.
+                                   </para>
+                                   <para>
+                                    The dicts in the list contain the following
+                                    keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The parameter name.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>bins</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Suggested axis binning
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Suggested axis low limit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>high</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Suggested axis high limit.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Units of measure.  THis will be an
+                                            empty string if none have been
+                                            specified for the tree parameter.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterNew</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of the tree parameter names
+                                    that have been programmtically created.
+                                    Note this includes those created by the
+                                    <methodname>treeparameterCreate</methodname>
+                                    method or other client software, as well
+                                    as those  created locally via SpecTcl's
+                                    <command>treeparameter-create</command>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterSet</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>bins</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>low</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>high</parameter>
+                                  </methodparam>
+                                  
+                                  <methodparam>
+                                      <type></type><parameter>units</parameter>
+                                      <modifier>optional</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets new values for all of the metadata
+                                    associated with the tree parameter
+                                    <parameter>name</parameter>.  See
+                                    <methodname>treeparameterCreate</methodname>
+                                    for a description of the parameters.
+                                   </para>
+                                   <para>
+                                    Note that this only affects the metadata
+                                    associated with the tree parameter. Spectra
+                                    using the parameter are no modified in
+                                    any way.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterSetInc</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newInc</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Provides a new channel width for the tree
+                                    parameter <parameter>name</parameter>.  This recomputes the
+                                    bins metadata given the width, low and high
+                                    limits in the existing metadata so that each
+                                    bin has the width <parameter>newInc</parameter>
+                                   </para>
+                                   <para>
+                                    Note again, this only affects the metadata
+                                    in the tree parameter.  No spectra that depend
+                                    on the tree parameter are modified.
+                                   </para>
+                                   <para>
+                                    See <methodname>treeparameterSeteBins</methodname>
+                                    below for a more direct way to change the binning,
+                                    though sometimes you really want control over
+                                    the channel width...e.g. if the units are
+                                    <literal>cm</literal> you might want sufficient
+                                    bins so that each channel is 1mm wide.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>treeparameterSetBins</methodname>
+                                   <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newBins</parameter>
+                                  </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Sets the number of recommended bins for
+                                    the tree parameter <parameter>name</parameter>
+                                    to be <parameter>newBins</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterSetUnits</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newUnits</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets the treeparameter <parameter>name</parameter>
+                                    units of measure to <parameter>newUnits</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterSetLimits</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newLow</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>newHign</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets new low (<parameter>newLow</parameter>)
+                                    and new high (<parameter>newHigh</parameter>)
+                                    limits for the metadata
+                                    associated with <parameter>name</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterCheck</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Tree parameters know if their definitions
+                                    have been modified.  This method checks
+                                    <parameter>name</parameter> and returns a boolean
+                                    true value if <parameter>name</parameter>'s
+                                    was modified
+                                   </para>
+                                   <para>
+                                    The use case for this method is to reduce
+                                    the information a program has to write to
+                                    a saved settings file.  Since in general,
+                                    tree parameters are created programmatically
+                                    in the C++ code, the only tree parameters that
+                                    need to be written are those with the change
+                                    flag set and those created at script  level.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treeparameterUnCheck</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Clears the flag that's returned by
+                                    <methodname>treeparameterCheck</methodname>.
+                                    A suitable smart user interface could do this
+                                    if, e.g. the tree parameter's metadata, having
+                                    been modified, is reset to its original
+                                    condition.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>treeparameterVersion</methodname>
+                                    <void />
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Returns the version string for the tree
+                                    parameters subsystem.  The intent of this
+                                    is to allow the tree parameter system to
+                                    have additional capabilities with time.
+                                    Knowing the version at which a capability
+                                    was added would allow the application developer
+                                    to use this interface to determine if specific
+                                    capabilities are available.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>parameterNew</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>number</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>metadata</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new primitive
+                                    parameter; <parameter>name</parameter>
+                                    bound to slot <parameter>number</parameter>
+                                    in the <classname>CEvent</classname>
+                                    object filled out by the data analysis pipeline.
+                                   </para>
+                                   <para>
+                                    <parameter>metadata</parameter> is a dict
+                                    that's used to pass a varying set of optional
+                                    metadata about the parameter.  It can be
+                                    an empty dict, in which case, the parameter
+                                    has no metadata
+                                   </para>
+                                   <para>
+                                    Keys used by this method are:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>resolution</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Optional number of bits of resolution
+                                            the parameter covers.  This
+                                            provides a range of parameters most
+                                            suited for a value that comes from
+                                            some device like a digitizer.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Low limit value of the parameter.  Requires
+                                            <literal>high</literal> and
+                                            <literal>units</literal> also be present.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>high</literal></term>
+                                       <listitem>
+                                           <para>
+                                            High limit on the parameter. Requires
+                                            that <literal>low</literal> and
+                                            <literal>units</literal> also be present.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Units of measure string. No other
+                                            keys are required.  Note that units of
+                                            measure can be an empty string if
+                                            needed.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>parameterDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>id</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the primitive parameter
+                                    <parameter>name</parameter>.  If the
+                                    <parameter>name</parameter> is an empty
+                                    string the <parameter>id</parameter>
+                                    parameter is then required and specifies
+                                    the number of the parameter to delete.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type>parameterList</type>
+                                  <methodname></methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>id</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a list of the definitions whose
+                                    parameter names match the
+                                    <parameter>pattern</parameter>. If
+                                    <parameter>pattern</parameter> is not
+                                    supplied it defaults to <literal>*</literal>
+                                    matching all parameters.
+                                   </para>
+                                   <para>
+                                    If <parameter>pattern</parameter>is an empty
+                                    string <parameter>id</parameter> is required
+                                    and is the parameter number of the parameter
+                                    to list.
+                                   </para>
+                                   <para>
+                                    The result is a list of dicts that contain
+                                    the following keys.  Note that metadata
+                                    that has not been specified will be returned
+                                    as empty strings.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The parameter name
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>id</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Th parameter number (id).
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>resolution</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Parameter resolution in bits if
+                                            supplied.
+                                           </para>
+                                           
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low, high</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Parameter value limits if supplied.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Parameter units of measure, if supplied.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Tree variable methods</title>
+                        <para>
+                            Parallel to the <literal>treeparameter</literal>
+                            subsystem is a <literal>treevariable</literal>
+                            subsystem.  These are jackets for Tcl variables in
+                            SpecTcl that contain floating point values and are both easy to access from C++
+                            code  via the <classname>CTreeVariable</classname>
+                            and have additional metadata.
+                        </para>
+                        <para>
+                            This section of the manpage describes the
+                            methods that manipulate tree variables over the
+                            REST interface.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treevariableList</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Lists all tree variables and their metadata.
+                                    This returns a list of dicts.   Each dict describes
+                                     a tree variable and contains the following
+                                     keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the tree variable.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>value</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Current tree variable value.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>units</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Units of measure metadata that's
+                                            associated with the tree variable.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treevariableSet</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>value</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>units</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Modifies a tree variable and its metadata.
+                                    <parameter>name</parameter> specifies the
+                                    treevariable to modify while <parameter>value</parameter>
+                                    is the new value assigned to that variable
+                                    and <parameter>units</parameter> a new
+                                    units of measure metadata.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treevariableCheck</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Check the changed flag of the tree variable
+                                    <parameter>name</parameter>.
+                                    This flag is set automatically if a tree variable
+                                    value/metadata are modified.  In addition,
+                                    <methodname>treevariableSetChanged</methodname>
+                                    can set this flag.
+                                   </para>
+                                   <para>
+                                    As with the check flag for tree parameters,
+                                    the intent is to allow user interface authors
+                                    to reduce the amount of data written to saved
+                                    settings file.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>treevariableSetChanged</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>name</parameter>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Sets the tree variable changed flag for
+                                    <parameter>name</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>treevariableFireTraces</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Tcl supports tracing variable chagnes.  If
+                                    a variable is modified at script level, traces
+                                    automatically fire, if, however variables bound
+                                    to memory are modified by modifying that
+                                    memory, traces need to be manually fired.
+                                   </para>
+                                   <para>
+                                    This is needed if a <classname>CTreevariable</classname>
+                                    instance if assigned a value by C++ code.
+                                   </para>
+                                   <para>
+                                    This method programmatically fires any needed
+                                    variable traces for tree variables
+                                    that match the optional <parameter>pattern</parameter>
+                                    argument.  If <parameter>pattern</parameter>
+                                    is not provided, it default to
+                                    <literal>*</literal> which matches all tree
+                                    variables.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Filter manipulation methods</title>
+                        <para>
+                            Filter are SpecTcl entities that live on the
+                            histogramming pipeline.  They can write a subset of
+                            events with a subset of parameters to output files.
+                            Usually filter files are written such that
+                            reading data from filter files is much faster
+                            than reading data from event files with a similar
+                            number of events.
+                        </para>
+                        <para>
+                            Filter file formats are extensible.  See the
+                            SpecTcl programming reference.  The client methods
+                            for manipulating filters are:
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gate</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>parameters</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new filter object. <parameter>name</parameter>
+                                    is the name that's associated with that object.
+                                    <parameter>gate</parameter> specifies the
+                                    filter's gate.  Only events that satisfy that
+                                    gate will be written to the filter output
+                                    file.  Note that you can use a <literal>T</literal>
+                                    gate to write all events.
+                                   </para>
+                                   <para>
+                                    <parameter>parameters</parameter> specifies
+                                    the list of parameter names that determines
+                                    which parameters are written to the output file
+                                    for each event that satisfies the filter's
+                                    gate.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the filter object
+                                    <parameter>name</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterEnable</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Enables the filter  <parameter>name</parameter>
+                                    to write data.  Note that the filter must first
+                                    be given an output file.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterDisable</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Disables the filter <parameter>name</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterRegate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gate</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Changes the gate that determines which
+                                    events are written from filter
+                                    <parameter>name</parameter> to
+                                    <parameter>gate</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterFile</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>path</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets the file for filter <parameter>name</parameter>
+                                    to <parameter>path</parameter>.  This determines
+                                    where the filter, when enabled, will write
+                                    data.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of dicts describing filters
+                                    whose names match <parameter>pattern</parameter>.
+                                    If the optional <parameter>pattern</parameter>
+                                    command is not provided it defaults to
+                                    <literal>*</literal> which matches all
+                                    filter names.
+                                   </para>
+                                   <para>
+                                    Each dict in the list describes a filter and
+                                    contains the following keys:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The name of the filter described
+                                            by this dict.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>gate</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The gate that filters events for
+                                            this filter.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>file</literal></term>
+                                       <listitem>
+                                           <para>
+                                            The output file to which this
+                                            filter writes data.  This is an
+                                            empty string if not yet set.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameters</literal></term>
+                                       <listitem>
+                                           <para>
+                                            List of parameter nams of the parameters
+                                            that will be written to the filter
+                                            file for each event that satisfies
+                                            the filter's gate.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>format</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Format of the filter file. SpecTcl
+                                            comes with a built-in format
+                                            <literal>xdr</literal> but this
+                                            can be extended programmatically
+                                            in the specific tailored SpecTcl
+                                            that's being run.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>filterFormat</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>format</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Sets the filter format for <parameter>name</parameter>
+                                    to be <parameter>format</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Gate manipulation methods</title>
+                        <para>
+                            One of SpecTcl's strengths is its ability to conditionalize
+                            the increment of spectra on events that satisfy
+                            a condition.  SpecTcl refers to these conditions
+                            as gates.  Gates are applied to spectra to perform
+                            this conditionalization.
+                        </para>
+                        <para>
+                            SpecTcl provides a rich set of gates that will
+                            not all be described here. See the
+                            SpecTcl command reference.  This section
+                            describes the methods that can create and manipulate
+                            gates.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>gateList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Produces a list that contains descriptions
+                                    of the gates whose names match the
+                                    <parameter>pattern</parameter>.  If
+                                    <parameter>pattern</parameter> is not
+                                    provided, it defaults to <literal>*</literal>
+                                    which matches all names.
+                                   </para>
+                                   <para>
+                                    The contents of the list are dicts. Some dict
+                                    keys are always present while the presence of
+                                    others depends on the gate type.
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>name</literal> (always)</term>
+                                       <listitem>
+                                           <para>
+                                            Name of the gate.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>type</literal> (always)</term>
+                                       <listitem>
+                                           <para>
+                                            The SpecTcl gate type code. See
+                                            the SpecTcl Command Reference
+                                            discussion of the <command>gate</command>
+                                            command.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>gates</literal>
+                                       (+,*,- gates only)
+                                       </term>
+                                       <listitem>
+                                           <para>
+                                            List of gates the gate depends on.
+                                            Note that for a <literal>-</literal>
+                                            gate there will only ever be a single
+                                            dependent gate.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>parameters</literal>
+                                       (s,c,b,c2vband,gs,gb,gc,em,am,nm gates only)</term>
+                                       <listitem>
+                                           <para>
+                                            List of the parameters the gate
+                                            depends on.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>points</literal>
+                                       (c,b,c2band,gb,gc only)</term>
+                                       <listitem>
+                                           <para>
+                                            A list of points that define a
+                                            2d gate.  The points are a list
+                                            of 2 element sublists where the first
+                                            element of each sublist is an x
+                                            coordinate and the second the y.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>low</literal>, <literal>high
+                                       (s,gs only)</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Low and High limits of 1-d gates.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>value</literal>
+                                       (em,am,nm only)</term>
+                                       <listitem>
+                                           <para>
+                                            Mask value for the mask gates.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>gateDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the gate <parameter>name</parameter>.
+                                    Note that SpecTcl never actually deletes gates
+                                    as that produces ill defined results for gate
+                                    dependencies.  Instead deleted gates
+                                    are turned into False gates (type <literal>F</literal>).
+                                    This has well defined effects on gate dependencies.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>gaeCreateSimple1D</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gatetype</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>parameters</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>low</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>high</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a simple 1-d gate.  The gate will
+                                    be called <parameter>name</parameter> and
+                                    has a type <parameter>gatetype</parameter>.
+                                    <parameter>parameters</parameter> is a list of
+                                    the parameter names the gate depends on.
+                                    <parameter>low</parameter> and
+                                    <parameter>high</parameter> are the limits of the
+                                    gate.
+                                   </para>
+                                   <para>
+                                    THe only valid gate types are
+                                    <literal>s</literal> and <literal>gs</literal>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>gateCreateSimple2D</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gatetype</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>xparameters</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>yparameters</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>xcoords</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>ycoords</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a simple 2d gate <parameter>name</parameter>.
+                                    The gate type is <parameter>gatetype</parameter>
+                                    and must be one of
+                                    <literal>b,c,gb,gc</literal>.
+                                    <parameter>xparameters</parameter> and
+                                    <parameter>yparameters</parameter> specify
+                                    the list of parameter names on the X and Y axis
+                                    of the gate.  Note that for gamma 2-d gates,
+                                    it does not matter which parameters are in
+                                    which list and, in fact, all parameters could
+                                    just be in one of the two lists.
+                                   </para>
+                                    <para>
+                                        The coordinates of the gate figure
+                                        are corresponding elements of the
+                                        <parameter>xcoords</parameter> and
+                                        <parameter>ycoords</parameter> parameters.
+                                        For example, the first point is
+                                        ([lindex $xcoords 0], [lindex $ycoords 0]).
+                                        etc.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                   <methodsynopsis>
+                                       <type></type>
+                                       <methodname>gateCreateMask</methodname>
+                                       <methodparam>
+                                           <type></type><parameter>name</parameter>
+                                       </methodparam>
+                                       <methodparam>
+                                           <type></type><parameter>gatetype</parameter>
+                                       </methodparam>
+                                       <methodparam>
+                                           <type></type><parameter>parameter</parameter>
+                                       </methodparam>
+                                       <methodparam>
+                                           <type></type><parameter>mask</parameter>
+                                       </methodparam>
+                                    </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Creates a mask gate <parameter>name</parameter>.
+                                    The gate type (<parameter>gatetype</parameter>),
+                                    must be one of <literal>am, em, nm</literal>.
+                                    The gate is checked on the parameter
+                                    <parameter>parameter</parameter> using the
+                                    mask <parameter>mask</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>gateCreateCompound</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gatetype</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gates</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a compound gate.  These are gates
+                                    that depend on other gates.
+                                    <parameter>name</parameter> will be the name
+                                    of the new gate which will have the
+                                    gate type <parameter>gatetype</parameter>.
+                                    The <parameter>gatetype</parameter> msut
+                                    be one of <literal>+,*,c2band,-</literal>.
+                                   </para>
+                                   <para>
+                                    <parameter>gates</parameter> is a list of
+                                    the names of the gate this gate depends on.
+                                    <literal>c2band</literal> gate must only have
+                                    two dependent gates and they must be type
+                                    <literal>b</literal>.  Similarly
+                                    <literal>-</literal> gates must only have
+                                    one gate although it can be of any type.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Miscelaneous Methods</title>
+                        <para>
+                            The methods described in this section don't fit into
+                            any nice categories.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>integrate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>roi</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Performs an integration in a spectrum,
+                                    <parameter>name</parameter>, within
+                                    some region of interest, <parameter>roi</parameter>.
+                                   </para>
+                                   <para>
+                                    The Region of Intrest <parameter>roi</parameter>
+                                    can have several forms.  It can be the
+                                    name of a gate within which the integration
+                                    will take place, or, if the spectrum is
+                                    one dimensional, a pair of numbers that are the
+                                    low and high limits of integration or,
+                                    if the spectrum is two dimensional,
+                                    a list of x/y pairs that describe contour.
+                                   </para>
+                                   <para>
+                                    Regions of interest that are not gates
+                                    must be expressed in parameter coordinates,
+                                    not spectrum channels and the integration
+                                    takes place in that coordinate system.
+                                    </para>
+                                    <para>
+                                        The integration returns a dict.
+                                        The <literal>centriod</literal> key
+                                        provides the centroid of the integration
+                                        as either a single value or a list of
+                                        two values, depending on spectrum
+                                        dimensionality.  The
+                                        <literal>fwhm</literal> key provides the
+                                        full width at half maximum under the assumption
+                                        the integration is over a gaussian shaped
+                                        peak.  It too is either a single
+                                        value or two values, depending on
+                                        spectrum dimensionality.
+                                        The <literal>counts</literal> key
+                                        provides the number of counts in the
+                                        region of integration.
+                                    </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pseudoCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>parameters</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>body</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a puedo parameter.
+                                    <parameter>name</parameter> is the name of
+                                    an as yet unused parameter.
+                                    <parameter>parameters</parameter> are the
+                                    names of the parameters needed to compute
+                                    the pseudo and  <parameter>body</parameter>
+                                    is the script body  used to compute the
+                                    parameter.  For more information, see the SpecTcl
+                                    command reference guide for the
+                                    <command>pseudo</command> command.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pseudoList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list of descriptions of pseudo
+                                    parameters whose names match
+                                    <parameter>pattern</parameter>.  If
+                                    <parameter>pattern</parameter> is not supplied,
+                                    it defaults to <literal>*</literal>
+                                    which matches everything.
+                                   </para>
+                                   <para>
+                                    The result is a list of dicts with the keys:
+                                    <literal>name</literal> containing the name
+                                    of the pseudo parameter, <literal>parameters</literal>
+                                    containing a list of the parameter names
+                                    needed to compute the pseudo and
+                                    <literal>body</literal>, the script body
+                                    needed to compute the pseudo value for each
+                                    event.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pseudoDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the computation that produces
+                                    the value for the pseudo parameter
+                                    <parameter>name</parameter>.  The
+                                    parameter is still defind and a new
+                                    <methodname>pseudoCreate</methodname>
+                                    method call can specify it.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>sread</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>filename</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>options</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Reads one spectrum from the file
+                                    <parameter>filename</parameter>.  What is done
+                                    with that spectrum depeds on the
+                                    (potentially empty) dict
+                                    <parameter>options</parameter>.
+                                    Note that in SpecTcl normally a file descriptor
+                                    can be used as the source of the file, this cannot
+                                    be acommplished in the client.  See, however,
+                                    <methodname>command</methodname>.
+                                   </para>
+                                   <para>
+                                    THe <parameter>options</parameter> dict
+                                    can have the following keys; all of which
+                                    have reasonable defaults:
+                                   </para>
+                                   <variablelist>
+                                    <varlistentry>
+                                       <term><literal>format</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Format of the data file.  Defaults to
+                                            <literal>ascii</literal>.  The set
+                                            of formats is extensible, however
+                                            the built in formats are
+                                            <literal>ascii</literal> and
+                                            <literal>binary</literal>.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>snapshot</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Boolean that, if 1, (the default)
+                                            does not attempt to hook the histogram
+                                            read in to the histogrammer but, instead,
+                                            creates a snapshot (frozen) spectrum.
+                                            If 0, the spectrum will, if possible,
+                                            be hooked to the histogrammer and increment
+                                            as additional data are processed.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>replace</literal></term>
+                                       <listitem>
+                                           <para>
+                                            If nonzero, and a spectrum with the
+                                            name specified in the file exists, the
+                                            existing spectrum is replaced.  If
+                                            zero, the default, a new spectrum name will
+                                            be derived.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>bind</literal></term>
+                                       <listitem>
+                                           <para>
+                                            If nonzero (the default), the
+                                            spectrum will be bound into display
+                                            memory.  If zero, it will not
+                                            (it can be later bound of course).
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
+                                   </variablelist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>swrite</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>filename</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>spectra</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>format</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Write the spectra named in
+                                    <parameter>spectra</parameter> to file
+                                    named by <parameter>filename</parameter>.
+                                    The <parameter>format</parameter> parameter
+                                    specifies the file format and defaults to
+                                    <literal>ascii</literal> if not supplied.
+                                    SpecTcl has two built in spectrum
+                                    file formats; <literal>ascii</literal>, which
+                                    is most commonly used and
+                                    <literal>binary</literal>, which hardly
+                                    anyone uses.  Additionally the SpecTcl file format
+                                    can be extended at the C++ level.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>shmkey</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the key of the SYSV shared memory
+                                    region
+                                    that SpecTcl is using for display  memory.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>shmsize</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the number of
+                                    <varname>DisplayMegabytes</varname>
+                                    used by SpecTcl for its shared memory region.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>version</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the SpecTcl version as a dict
+                                    containing the keys
+                                    <literal>major</literal>,
+                                    <literal>minor</literal> and
+                                    <literal>editlevel</literal>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>rootTreeCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>parameterPatterns</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>gate</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Note that this requires the
+                                    <literal>rootinterface</literal> package be
+                                    pulled into SpecTcl.  Creates a new Root
+                                    tree that gets populated by successive data
+                                    and written to file.
+                                   </para>
+                                   <para>
+                                    Root Trees are similar to SpecTcl Filters but
+                                    have the format of CERN Root trees and are
+                                    aware of changes in run state.
+                                   </para>
+                                   <para>
+                                    <parameter>name</parameter> is the name of the
+                                    root tree.  <parameter>parameterPatterns</parameter>
+                                    specifies a set of patterns that determine the
+                                    parameters that are written to the tree.
+                                    Finally, if supplied, <parameter>gate</parameter>
+                                    specifies the name of a gate. Only events that
+                                    pass the gate get added to the file.
+                                   </para>
+                                   <para>
+                                    Note that the <parameter>parameterPatterns</parameter>
+                                    is applied statically.  That is if subsequently
+                                    a new parameter is created that matches one
+                                    of the patterns, it is not added to the tree.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>rootTreeDelete</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Deletes the root tree <parameter>name</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>rootTreeList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Lists the properties of trees who's name
+                                    matches <parameter>pattern</parameter>.
+                                    If that <parameter>pattern</parameter>
+                                    is not provided, it defaults to
+                                    <literal>*</literal> matching all trees.
+                                   </para>
+                                   <para>
+                                    The returned value is a list of dicts. Each
+                                    dict describes a tree using the keys
+                                    <literal>tree</literal> - the name of the
+                                    tree, <literal>parameters</literal> the
+                                    list of parameter patterns and
+                                    <literal>gate</literal> the gate (could
+                                    be an empty string).
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Dynamic Pipeline Management</title>
+                        <para>
+                            Prior to SpecTcl 5.0, the data anlaysis pipeline that
+                            transforms raw data into unpacked parameters was
+                            defined at the C++ level and there was little native
+                            support for dynamically modifying the pipeline.
+                        </para>
+                        <para>
+                            In SpecTcl 5.0, the <command>pman</command>
+                            command allows users to compose pipelines from
+                            event processors that have been registered and
+                            to select which of the pipelines is active at any
+                            given time.
+                        </para>
+                        <para>
+                            This section describes methods that provide
+                            client access to this capability through the
+                            SpecTcl REST server.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new empty analysis pipeline.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Lists the names of the pipelines that
+                                    have been defined and match the
+                                    optional <parameter>pattern</parameter>.
+                                    If <parameter>pattern</parameter> is not
+                                    supplied, then it defaults to
+                                    <literal>*</literal> matching all names.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanCurrent</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a dict that describes the current
+                                    pipeline. Keys are
+                                    <literal>name</literal>, the pipeline name,
+                                    and <literal>processors</literal>, the
+                                    oredered list of event processors in the
+                                    pipeline.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanListAll</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns information about piplines with names
+                                    that match the <parameter>pattern</parameter>.
+                                    This defaults to <literal>*</literal> if
+                                    not provided.
+                                   </para>
+                                   <para>
+                                    The return value is a list of dicts.  Each
+                                    dict describes a pipeline who's name
+                                    matches the pattern. Each dict has the same
+                                    format as the dict returned from
+                                    <methodname>pmanCurrent</methodname>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
                     </refsect2>
                 </refsect1>
             </refentry>

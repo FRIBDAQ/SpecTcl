@@ -894,7 +894,7 @@ snit::type SpecTclRestClient {
     #  @return list of dicts.  The dicts have some fixed (ominpresent) keys and
     #          others that depend on the gate gatetype:
     #          -  name - gate name.
-    #          -  SpecTcl Gate gatetype.
+    #          -  type - SpecTcl Gate gatetype.
     #          -  gates dependent gate names if compound gate gatetype (*, +, -)
     #          -  parameters - Parameters needed by the gate if gatetype
     #             s,c,b,c2band, gs, gb, gc, em am nm
@@ -1214,7 +1214,7 @@ snit::type SpecTclRestClient {
     #      - xoverflow   - number of overflows on x axis  (or 1d)
     #      - xunderflow  - number of underflows on x axis (or 1d)
     #      - yoverflow   - Number of overflows on y axis (2d only)
-    #      - yundeflow   - number of undeflows on y axis.
+    #      - yunderflow   - number of undeflows on y axis.
     #      - channels    - array of dicts containing nonzero channel data. each dict has:
     #                 *  x - X channel number (or channel if 1d).
     #                 *  y - Y channel number (2d)
@@ -1246,7 +1246,7 @@ snit::type SpecTclRestClient {
     ##
     # shmemsize
     #    Returns the number of megabytes specified as the
-    #    DisplayMemory size.  This can be  used, in conjunctionwith
+    #    DisplayMemory size.  This can be  used, in conjunction with
     #    shmemkey to obtain a mapping to the SYS-V shared memory region
     #    spectcl uses for displayed spectra.
     #
@@ -1477,8 +1477,8 @@ snit::type SpecTclRestClient {
     ##
     #   pmanCurrent
     # Provide information about the current pipeline.
-    # returns a 2 element list that constists of the pipeline name and
-    # the list of event processors it has.
+    # returns a dict containng name - the name of the pipeline and
+    #   processors the ordered list of event processors in the pipeline.
     #
     method pmanCurrent {} {
         set info [$self _request [$self _makeUrl pman/current [dict create]]]
