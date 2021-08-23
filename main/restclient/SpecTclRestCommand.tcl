@@ -205,4 +205,34 @@ proc attach {args} {
     
     error "Missing data source specification."
 }
-
+#------------------------------------------------------------------------------
+# sbind
+#   Simulate the sbind command.  Forms:
+#  sbind -all
+#  sbind -list
+#  sbind spectrum...
+#
+proc sbind {args} {
+    if {[llength $args] == 0} {
+        error "'sbind' command requires parameters"
+    }
+    set opt [lindex $args 0]
+    if {$opt eq "-all"} {
+        return [$SpecTclRestCommand::client sbindAll]
+    } elseif {$opt eq "-list"} {
+        set pattern *
+        if {[llength $args] > 1} {
+            set pattern [lindex $args 1]
+        }
+        set rawInfo [$SpecTclRestCommand::client sbindList $pattern]
+        set  result [list]
+        foreach sb $rawInfo {
+            lappend result [list                                        \
+                [dict get $sb spectrumid] [dict get $sb name] [dict get $sb binding] \
+            ]
+        }
+        return $result
+    } else {
+        return [$SpecTclRestCommand::client sbindSpectra $args]
+    }
+}
