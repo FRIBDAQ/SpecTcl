@@ -39,7 +39,7 @@ Direct_Url /spectcl/fit SpecTcl_fit
 proc _propListToDict {props} {
     set result [dict create]
     foreach property $props {
-        dict set result [lindex $property 0] [lindex $property 1]
+        dict set result [lindex $property 0] [json::write string [lindex $property 1]]
     }
     return $result
 }
@@ -59,7 +59,7 @@ proc _fitToObject {fit} {
     set hi           [lindex [lindex $fit 3] 1]
     set parameters [json::write object {*}[_propListToDict [lindex $fit 4]]]
     return [json::write object name [json::write string $fitName]   \
-            spectrum [json::write string  spectrumName]              \
+            spectrum [json::write string  $spectrumName]              \
             type [json::write string  $fitType]                      \
             low $low high $hi parameters $parameters                 \
     ]
@@ -152,6 +152,24 @@ proc SpecTcl_fit/list {{pattern *}} {
         SpecTcl::_returnObject "OK" [json::write array {*}$resultList]
     }
     
+}
+##
+# SpecTcl_fit/proc
+#   Return the proc name associated with a fit.
+# @param name - name of the fit.
+#
+proc SpecTcl_fit/proc {name} {
+    set ::SpecTcl_fit/proc application/json
+    
+    set status [catch {
+        fit proc $name
+    } info]
+    if {$status} {
+        return [SpecTcl::_returnObject "'fit proc' command failed" \
+            [json::write string $info]                             \
+        ]
+    }
+    return [SpecTcl::_returnObject OK [json::write string $info]]
 }
 
     

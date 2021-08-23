@@ -236,3 +236,78 @@ proc sbind {args} {
         return [$SpecTclRestCommand::client sbindSpectra $args]
     }
 }
+#----------------------------------------------------------------------------
+# Fit is a command ensemble and, therefore implemented as one:
+#
+
+namespace eval fit {
+    namespace ensemble create
+    namespace export create update delete list proc
+    
+    ##
+    # fit::create
+    #   Create a new fit.
+    # @param name - name of the fit.
+    # @param spectrum - spectrum name.
+    # @param low, high - fit area of interest limits.
+    # @param ftype - fit type.
+    #
+    proc create {name spectrum low high ftype} {
+        return [$::SpecTclRestCommand::client fitCreate $name $spectrum $low $high $ftype]
+    }
+    ##
+    # fit::update
+    #
+    #   Update some fits.
+    # @param pattern - patter of fits to update.
+    #
+    proc update {{pattern *}} {
+        return [$::SpecTclRestCommand::client fitUpdate $pattern]
+    }
+    ##
+    # fit::delete
+    #    Delete a fit.
+    #
+    # @param name name of the fit to delete.
+    #
+    proc delete {name} {
+        return [$::SpecTclRestCommand::client fitDelete $name]
+    }
+    ##
+    # fit::list
+    #  List the fit results.
+    #
+    # @param pattern - pattern of fit names to match
+    # @return list as described in the SpecTcl command reference guide.
+    #
+    proc list {{pattern *}} {
+         
+        set raw [$::SpecTclRestCommand::client fitList $pattern]
+        
+        set result [::list]
+        
+        foreach fit $raw {
+        
+            set name [dict get $fit name]
+            set spectrum [dict get $fit spectrum]
+            set type    [dict get $fit type]
+            set low     [dict get $fit low]
+            set high    [dict get $fit high]
+            set params [::list]
+            dict for {key value} [dict get $fit parameters] {
+                lappend params [::list $key $value]
+            }
+            lappend result [::list $name $spectrum $type [::list $low $high] $params]
+        }
+        
+        return $result
+    }
+    ##
+    # fit::proc
+    #  @param fit name.
+    # @return procedure definiton to compute the fit.
+    #
+    proc proc {name} {
+        return [$::SpecTclRestCommand::client fitProc $name]
+    }
+}

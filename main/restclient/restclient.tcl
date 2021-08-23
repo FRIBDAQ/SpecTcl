@@ -232,7 +232,7 @@ snit::type SpecTclRestClient {
         #  json:
         
         if {$parseOk} {
-            error "JSON Parse Failed: $msg : $::errorInfo : $rawData"
+            error "JSON Parse Failed: $msg : $::errorInfo : {$rawData}"
         }
         # Debugging here - if there's no detail then likely we have  a
         # server error - let's throw an error with the rawdData as the message:
@@ -411,6 +411,19 @@ snit::type SpecTclRestClient {
         return [dict get $json detail]
         
     }
+    ##
+    # fitProc
+    #   Return a proc that can evaluate a fit.
+    #
+    # @param name - name of the fit.
+    #
+    # @return    - String definition of the proc
+    #
+    method fitProc {name} {
+        set result [$self _request [$self _makeUrl fit/proc [dict create name $name]]]
+        return [dict get $result detail]
+    }
+        
     #--------------------------------------------------------------------------
     # fold command jackets.
     #
