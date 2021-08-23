@@ -2635,7 +2635,7 @@ c destroy                                     <co id='ex.client.destroy' />
                             <varlistentry>
                                <term><methodsynopsis>
                                   <type></type>
-                                  <methodname>gaeCreateSimple1D</methodname>
+                                  <methodname>gateCreateSimple1D</methodname>
                                   <methodparam>
                                       <type></type><parameter>name</parameter>
                                   </methodparam>
@@ -2785,6 +2785,342 @@ c destroy                                     <co id='ex.client.destroy' />
                         </variablelist>
                     </refsect2>
                     <refsect2>
+                        <title>Dynamic Pipeline Management</title>
+                        <para>
+                            Prior to SpecTcl 5.0, the data anlaysis pipeline that
+                            transforms raw data into unpacked parameters was
+                            defined at the C++ level and there was little native
+                            support for dynamically modifying the pipeline.
+                        </para>
+                        <para>
+                            In SpecTcl 5.0, the <command>pman</command>
+                            command allows users to compose pipelines from
+                            event processors that have been registered and
+                            to select which of the pipelines is active at any
+                            given time.
+                        </para>
+                        <para>
+                            This section describes methods that provide
+                            client access to this capability through the
+                            SpecTcl REST server.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new empty analysis pipeline.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Lists the names of the pipelines that
+                                    have been defined and match the
+                                    optional <parameter>pattern</parameter>.
+                                    If <parameter>pattern</parameter> is not
+                                    supplied, then it defaults to
+                                    <literal>*</literal> matching all names.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanCurrent</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a dict that describes the current
+                                    pipeline. Keys are
+                                    <literal>name</literal>, the pipeline name,
+                                    and <literal>processors</literal>, the
+                                    oredered list of event processors in the
+                                    pipeline.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanListAll</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns information about piplines with names
+                                    that match the <parameter>pattern</parameter>.
+                                    This defaults to <literal>*</literal> if
+                                    not provided.
+                                   </para>
+                                   <para>
+                                    The return value is a list of dicts.  Each
+                                    dict describes a pipeline who's name
+                                    matches the pattern. Each dict has the same
+                                    format as the dict returned from
+                                    <methodname>pmanCurrent</methodname>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanListEventProcessors</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns a list names
+                                    of the registered event processors.
+                                    Registered event processors are the processors
+                                    that can be strung together in event processing
+                                    pipelines.  If <parameter>pattern</parameter>
+                                    is provided only the event processors with
+                                    names matching <parameter>pattern</parameter>
+                                    (with glob wild-card characters) are listed.
+                                    If not supplied <parameter>pattern</parameter>
+                                    defaults to <literal>*</literal> which
+                                    matches all processor names.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanUse</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pipeline</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Tells SpecTcl to use the named
+                                    <parameter>pipeline</parameter> as the current
+                                    event processing pipeline.  Starting with the
+                                    next event received, SpecTcl will use the name
+                                    <parameter>pipeline</parameter> to extract
+                                    parameters from the raw event data.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanAdd</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pipeline</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>processor</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Adds <parameter>processor</parameter>, an
+                                    event processor registered with the pipeline
+                                    manager to the end of the event processing
+                                    pipeline named <parameter>pipeline</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanRemove</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pipeline</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>processor</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Removes the event processor named
+                                    <parameter>processor</parameter> from the
+                                    event processing pipeline named
+                                    <parameter>pipeline</parameter>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanClear</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pipeline</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Removes all event processors fromt he processing
+                                    pipeline named <parameter>pipeline</parameter>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>pmanClone</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>source</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>new</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a  new processing pipeline named
+                                    <parameter>new</parameter> that is
+                                    a copy of the pipeline named <parameter>source</parameter>.
+                                    Once created, the processors in the two pipelines
+                                    can diverge by using the pipeline editing
+                                    facilities either documented above or in
+                                    direct SpecTcl command execution.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
+                        <title>Event Built Data</title>
+                        <para>
+                            Increasingly complex experiments are built out of
+                            quasi-independent detector subsystems that are
+                            coordinated by a common time base.  The NSCLDAQ
+                            event builder assembles events that are coincident
+                            within some time window and ships them downstream
+                            in the experiment's data flow.
+                        </para>
+                        <para>
+                            This set of functions supports building an
+                            event processor that associates an event processing
+                            pipeline (see previous section) with data from
+                            each expected source in the built events.  This
+                            allows the initial raw event unpacking stage
+                            of event processing to be built from the standard
+                            software that is used by the developers/maintainers
+                            of each
+                            detector subsystem.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>evbCreate</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>frequency</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>basename</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Creates a new event processnar <parameter>name</parameter>
+                                    that can be configured to analyze event built
+                                    data.  The new event processor will automatically
+                                    build several diagnostic parameters whose
+                                    base names will be <parameter>basename</parameter>.
+                                    These diagnistic parameter support the creation
+                                    of typical event builder diagnostic spectra
+                                    that can be used to monitor the synchronization
+                                    of the various data sources.
+                                   </para>
+                                   <para>
+                                    One of the diagnostic parameters is the timestamp
+                                    calibrated to double precision floating point
+                                    seconds.  This supports diagnostic spectra
+                                    that show time evolution (e.g. the time difference
+                                    between fragments from data source pairs as
+                                    it evolves int time should be unchanging).
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>evbAdd</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>name</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>source</parameter>
+                                  </methodparam>
+                                  <methodparam>
+                                      <type></type><parameter>pipeline</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Associates an event processing pipeline
+                                    <parameter>pipe</parameter>
+                                    (see the previous subsection) with an
+                                    event source id <parameter>source</parameter> in an event builder event
+                                    processor <parameter>name</parameter>.
+                                    If the event processor is given an event built
+                                    event to analyze, the pipeline will be activated
+                                    to analyze data from that source id if it is
+                                    encounted in that event.
+                                   </para>
+                                   <para>
+                                    The idea is that several calls to this method
+                                    build up an event processor capable of analyzing
+                                    data from all expected data sources
+                                    using the event processing pipline that is normally
+                                    used for each event source were it run by itself.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                             <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>evbList</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>pattern</parameter>
+                                      <modifier>(optional)</modifier>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Lists the event processor names that have been
+                                    created.  Only names that match the
+                                    optional <parameter>pattern</parameter>
+                                    argument are listed.  If <parameter>pattern</parameter>
+                                    is not supplied, it defaults to <literal>*</literal>.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+
+                    </refsect2>
+                    <refsect2>
                         <title>Miscelaneous Methods</title>
                         <para>
                             The methods described in this section don't fit into
@@ -2809,7 +3145,7 @@ c destroy                                     <co id='ex.client.destroy' />
                                     some region of interest, <parameter>roi</parameter>.
                                    </para>
                                    <para>
-                                    The Region of Intrest <parameter>roi</parameter>
+                                    The Region of Interest <parameter>roi</parameter>
                                     can have several forms.  It can be the
                                     name of a gate within which the integration
                                     will take place, or, if the spectrum is
@@ -3166,107 +3502,38 @@ c destroy                                     <co id='ex.client.destroy' />
                                    </para>
                                 </listitem>
                             </varlistentry>
-                        </variablelist>
-                    </refsect2>
-                    <refsect2>
-                        <title>Dynamic Pipeline Management</title>
-                        <para>
-                            Prior to SpecTcl 5.0, the data anlaysis pipeline that
-                            transforms raw data into unpacked parameters was
-                            defined at the C++ level and there was little native
-                            support for dynamically modifying the pipeline.
-                        </para>
-                        <para>
-                            In SpecTcl 5.0, the <command>pman</command>
-                            command allows users to compose pipelines from
-                            event processors that have been registered and
-                            to select which of the pipelines is active at any
-                            given time.
-                        </para>
-                        <para>
-                            This section describes methods that provide
-                            client access to this capability through the
-                            SpecTcl REST server.
-                        </para>
-                        <variablelist>
                             <varlistentry>
                                <term><methodsynopsis>
                                   <type></type>
-                                  <methodname>pmanCreate</methodname>
+                                  <methodname>command</methodname>
                                   <methodparam>
-                                      <type></type><parameter>name</parameter>
+                                      <type></type><parameter>script</parameter>
                                   </methodparam>
                                </methodsynopsis></term>
                                <listitem>
                                    <para>
-                                    Creates a new empty analysis pipeline.
-                                   </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                               <term><methodsynopsis>
-                                  <type></type>
-                                  <methodname>pmanList</methodname>
-                                  <methodparam>
-                                      <type></type><parameter>pattern</parameter>
-                                      <modifier>(optional)</modifier>
-                                  </methodparam>
-                               </methodsynopsis></term>
-                               <listitem>
-                                   <para>
-                                    Lists the names of the pipelines that
-                                    have been defined and match the
-                                    optional <parameter>pattern</parameter>.
-                                    If <parameter>pattern</parameter> is not
-                                    supplied, then it defaults to
-                                    <literal>*</literal> matching all names.
-                                   </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                               <term><methodsynopsis>
-                                  <type></type>
-                                  <methodname>pmanCurrent</methodname>
-                                  <void />
-                               </methodsynopsis></term>
-                               <listitem>
-                                   <para>
-                                    Returns a dict that describes the current
-                                    pipeline. Keys are
-                                    <literal>name</literal>, the pipeline name,
-                                    and <literal>processors</literal>, the
-                                    oredered list of event processors in the
-                                    pipeline.
-                                   </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                               <term><methodsynopsis>
-                                  <type></type>
-                                  <methodname>pmanListAll</methodname>
-                                  <methodparam>
-                                      <type></type><parameter>pattern</parameter>
-                                      <modifier>(optional)</modifier>
-                                  </methodparam>
-                               </methodsynopsis></term>
-                               <listitem>
-                                   <para>
-                                    Returns information about piplines with names
-                                    that match the <parameter>pattern</parameter>.
-                                    This defaults to <literal>*</literal> if
-                                    not provided.
-                                   </para>
-                                   <para>
-                                    The return value is a list of dicts.  Each
-                                    dict describes a pipeline who's name
-                                    matches the pattern. Each dict has the same
-                                    format as the dict returned from
-                                    <methodname>pmanCurrent</methodname>
+                                    Executes an arbitrary command,
+                                    <parameter>script</parameter> in the
+                                    SpecTcl server.   This allows for access
+                                    to user defined commands and other client needs
+                                    that have not been foreseen.
                                    </para>
                                 </listitem>
                             </varlistentry>
                         </variablelist>
                     </refsect2>
+
+                </refsect1>
+                <refsect1>
+                    <title>OMISSIONS</title>
+                    <para>
+                        There is no REST access to the
+                        <command>rootexec</command> command as the most common
+                        use case is to pop up a <classname>TBrowser</classname>
+                        to allow ROOT interaction with the spectrum data and,
+                        that could only pop up on any X-11 DISPLAY connection
+                        of the SpecTcl server, not the client.
+                    </para>
                 </refsect1>
             </refentry>
         </section>
