@@ -160,5 +160,49 @@ proc apply {args} {
         return [$SpecTclRestCommand::client applyGate $gate $spectra]
     }
 }
-
+#------------------------------------------------------------------------------
+#
+# attach
+#   Simulate the attach command in terms of the REST interface.
+#
+# @param args -parameter arguments.
+# @return - what SpecTcl would have - for the most part.
+#
+#     
+proc attach {args} {
+    if {[llength $args] ==0} {
+        error "'attach' command requires parameters"
+    }
+    set stype bad
+    set size 8192
+    set format ring
+    
+    for {set i 0} {$i < [llength $args]} {incr i} {
+        set optname [lindex $args $i]
+        if {$optname eq "-pipe"} {
+            set stype pipe
+        } elseif {$optname eq "-file"} {
+            set stype file
+        } elseif {$optname eq "-size"} {
+            incr i
+            set size [lindex $args $i]
+        } elseif {$optname eq "-format"} {
+            incr i
+            set format [lindex $args $i]
+        } elseif {$optname eq "-list"} {
+            return [$SpecTclRestCommand::client attachList]
+        } elseif {[string index $optname 0] eq "-"} {
+            error "Unrecognized option $optname"
+        } else {
+            # This, and the rest are the data source:
+            
+            return [$SpecTclRestCommand::client attachSource \
+                $stype [lrange $args $i end] $size $format         \
+            ]       
+        }
+    }
+    # If we get here there's nos ource spec:
+    
+    error "Missing data source specification."
+}
 
