@@ -27,8 +27,6 @@ using namespace std;
 static const uint32_t ALL_TYPEMASK(0xc0000000);
 static const uint32_t ALL_TYPESHFT(30);
 
-
-				     
 static const uint32_t TYPE_HEADER(1);
 static const uint32_t TYPE_DATA(0);
 static const uint32_t TYPE_TRAILER(3);
@@ -40,8 +38,7 @@ static const uint32_t HDR_IDMASK(0xff0000);
 static const uint32_t HDR_IDSHFT(16);
 
 // Fields in the data words:
-
-static const uint32_t DATA_SUBHDRMASK(0x3fe00000);
+static const uint32_t DATA_SUBHDRMASK(0x3f800000);
 static const uint32_t DATA_CHANNEL   (0x04000000);
 static const uint32_t DATA_EXTSTAMP  (0x04800000);
 
@@ -145,20 +142,13 @@ CMTDC32Unpacker::operator()(CEvent&                       rEvent,
       // Need to handle extended timestamp?
     } else {
       // bad datum of some sort.
-      std::cerr << "Invalid MTDC32 word seen in unpacker: " << 
-	std::hex << datum << " ignoring and hoping for the best\n";
+      std::cerr << "Invalid MTDC32 dummy word seen in unpacker: " << std::hex << datum << " ignoring. It's all good move along!\n";
     }
     datum   = getLong(event, offset);
     longsRead++;
     offset += 2;
-
   }
-    if (datum == 0) {
-      // Fill word
-    longsRead++;
-    offset += 2;
-    datum = getLong(event,  offset);
-  }
+  
   // The datum should be the trailer and be equal to 3
   // then save the count field as parameter 32.
 
