@@ -36,7 +36,7 @@ package require SpecTclRESTClient
 #  initialization operations:
 
 namespace eval SpecTclRestCommand {
-    variable client
+    variable client ""
 }
 #==============================================================================
 # Private utilities.
@@ -309,5 +309,44 @@ namespace eval fit {
     #
     proc proc {name} {
         return [$::SpecTclRestCommand::client fitProc $name]
+    }
+}
+#-------------------------------------------------------------------------------
+# Fold command - again a command ensemble.
+
+namespace  eval fold {
+    namespace export -apply -list -remove
+    namespace ensemble create
+    ##
+    # -apply
+    #   Apply a new fold.
+    #
+    # @param gate
+    # @param args - the spectra to apply the fold to.\
+    #
+    proc -apply {gate args} {
+        return [$::SpecTclRestCommand::client foldApply $gate $args]
+    }
+    ##
+    # -list
+    #    List the folds
+    #
+    # @param pattern - optional spectrum name match pattern.
+    #
+    proc -list {{pattern *}} {
+        set rawInfo [$::SpecTclRestCommand::client foldList $pattern]
+        set result [list]
+        foreach fold $rawInfo {
+            lappend result [list [dict get $fold spectrum ] [dict get $fold gate]]
+        }
+        return $result
+    }
+    ##
+    # -remove
+    #   Remove the fold from a spectrum.
+    # @param spectrum
+    #
+    proc -remove {spectrum} {
+        return [$::SpecTclRestCommand::client foldRemove $spectrum]
     }
 }
