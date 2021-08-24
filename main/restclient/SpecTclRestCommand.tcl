@@ -404,4 +404,42 @@ proc clear {args} {
         }
     }
 }
+#-------------------------------------------------------------------------------
+# Project command simulation.
+#
+
+##
+# project
+#   Simulate the project command.  There are sevral forms of this:
+#   - project source new {x | y} ?contour?
+#   - project -snapshot source new {x | y} ?contour?
+#   - project -nosnapshot source new {x | y} ?contour?
+#   
+proc project {args} {
+    set snap 0;               # Default is no snapshot.
+    if {[llength $args] < 3} {
+        error "Project ??-no?snapshot? source new direction"
+    }
+    set option [lindex $args 0]
+    if {[string index $option 0] eq "-"} {
+        
+        set args [lrange $args 1 end]
+        if {$option eq "-snapshot"} {
+            set snap 1
+        } elseif {$option eq "-nosnapshot"} {
+            set snap 0
+        } else {
+            error "invalid 'project' option $option"
+        }
+    }
+    #  Args -?no?snapshot should now have been stripped if present.
+    
+    set source [lindex $args 0]
+    set new    [lindex $args 1]
+    set direction [lindex $args 2]
+    set contour [lindex $args 3] ;    # Empty string if not present
+    
+    return [$::SpecTclRestCommand::client spectrumProject \
+        $source $new $direction $snap $contour]
+}
 
