@@ -350,3 +350,31 @@ namespace  eval fold {
         return [$::SpecTclRestCommand::client foldRemove $spectrum]
     }
 }
+#-------------------------------------------------------------------------------
+# Channel command - a namespace ensemble.
+
+namespace eval channel {
+    namespace export -get -set
+    namespace ensemble create
+    
+    ##
+    # -get
+    #    Retrieve the value of a channel.
+    # @param name -spectrum name.
+    # @param indices - channel indices.
+    #
+    proc -get {name indices} {
+        return [$::SpecTclRestCommand::client channelGet $name {*}$indices]
+    }
+    ##
+    # -set
+    #   Change the value of a channel.
+    #
+    # @param name  - spectrum name.
+    # @param indices - channel indices.
+    # @param value   - new value.
+    #
+    proc -set {name indices value} {
+        return [$::SpecTclRestCommand::client channelSet $name $value {*}$indices]
+    }
+}
