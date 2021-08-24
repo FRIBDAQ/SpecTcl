@@ -584,7 +584,7 @@ snit::type SpecTclRestClient {
     #    - name   - name of a parameter.
     #    - bins   - number of bins.
     #    - low    - Low limit.
-    #    - high   - high limt.
+    #    - hi     - high limt.
     #    - units  - unts.
     #
     # @note the REST interface returns all parameter not just the tree parameters.

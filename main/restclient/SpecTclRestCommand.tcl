@@ -20,7 +20,7 @@ exec tclsh "$0" ${1+"$@"}
 
 
 ##
-# @file  SpecTclRestCommands.tcl
+# @file  SpecTclRestCommand.tcl
 # @brief Simulate SpecTcl commands using the REST interface.
 # @author Ron Fox <fox@nscl.msu.edu>
 #
@@ -28,7 +28,7 @@ exec tclsh "$0" ${1+"$@"}
 
 
 
-package provide SpecTclRestCommands 1.0
+package provide SpecTclRestCommand 1.0
 package require SpecTclRESTClient
 
 ##
@@ -42,7 +42,19 @@ namespace eval SpecTclRestCommand {
 # Private utilities.
 
 ##
-# SpecTclRestClient::_gateDictToDef
+# SpecTclRestCommand::_computeWidth
+#   Given a tree parameter definition dict returns the bin width
+# @param p - tree parameter dict from a list given by treeparamterList
+# @return double - bin width.
+#
+proc SpecTclRestCommand::_computeWidth {p} {
+    set low [dict get $p low]
+    set high [dict get $p hi]
+    set bins [dict get $p bins]
+    return [expr {abs($high - $low)/double($bins)}]
+}
+##
+# SpecTclRestCommand::_gateDictToDef
 #   Turn the dict for a gate that comes back from gateList into
 #   a gate definition as SpecTcl native gate -list command might return.
 # @param gate  - The gate dict describing the gate.
@@ -73,7 +85,7 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
     } elseif {$gtype in [list am em nm]} {
         lappend result [dict get $gate parameters] [dict get $gate value]
     } else {
-        puts "Unrecognized gate type: $gtype"
+        error "Unrecognized gate type: $gtype"
     }
     
     return $result  
@@ -123,7 +135,7 @@ proc SpecTclRestCommand::_getAppliedGateInfo {info} {
 # @param port - Port the REST server is listening on.
 #
 proc SpecTclRestCommand::initialize {host port} {
-    set SpecTclRestCommand::client [SpecTclRestClient \
+    set SpecTclRestCommand::client [SpecTclRestClient\
         %AUTO% -host $host -port $port          \
     ]
 }
@@ -418,7 +430,7 @@ proc clear {args} {
 proc project {args} {
     set snap 0;               # Default is no snapshot.
     if {[llength $args] < 3} {
-        error "Project ??-no?snapshot? source new direction"
+        error "Project ??-no?snapshot? source new direction ?gate?"
     }
     set option [lindex $args 0]
     if {[string index $option 0] eq "-"} {
@@ -442,4 +454,150 @@ proc project {args} {
     return [$::SpecTclRestCommand::client spectrumProject \
         $source $new $direction $snap $contour]
 }
+#-----------------------------------------------------------------------------
+# specstats
+#    Get spectrum statistics.
 
+##
+# specstats
+#    Simulate the spectrum statistics command.
+#
+# @param pattern - optional spectrum name pattern.
+#
+proc specstats { {pattern *} } {
+    return [$::SpecTclRestCommand::client spectrumStatistics $pattern]
+}
+#-----------------------------------------------------------------------------
+# treeparameter - can be a command ensemble
+#
+
+namespace eval treeparameter {
+    namespace export -create -list -listnew -set -setinc -setbins -setunit \
+        -setlimits -check -uncheck -version
+    namespace ensemble create
+    
+    ##
+    # -create
+    #    Create a new tree parameter.
+    #
+    # @param name -name of the parameter.
+    # @param low  -low limit.
+    # @param high - high limit.
+    # @param bins - axis binning
+    # @param units - units of measure.
+    #
+    proc -create {name low high bins units} {
+        return [$::SpecTclRestCommand::client treeparameterCreate \
+            $name $low $high $bins $units \
+        ]
+    }
+    ##
+    # -list
+    #     List the tree parameter properties.
+    #
+    # @param pattern - name match pattern.
+    #
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client treeparameterList $pattern]
+        
+        set result [list]
+        foreach p $raw {
+            lappend result [list                                        \
+                [dict get $p name]  [dict get $p bins] [dict get $p low] \
+                [dict get $p hi] [::SpecTclRestCommand::_computeWidth $p] [dict get $p units] \
+            ]
+        }
+        return $result
+    }
+    ##
+    # -listnew
+    #    List new tree parameters.
+    #
+    proc -listnew { } {
+        return [$::SpecTclRestCommand::client treeparameterListNew]
+    }
+    ##
+    # -set
+    #   Set new characteristics  a tree parameter.
+    #H
+    # @note we ignore the value of inc as it's presumably a function of low, high
+    #       and bins - this behaves differently than the native treeparameter command
+    #       which requires inc to be reasonablly correct given those three
+    #       characteristics.
+    #
+    proc -set {name bins low high inc units} {
+        return [$::SpecTclRestCommand::client treeparameterSet  \
+            $name $bins $low $high $units                      \
+        ]
+    }
+    ##
+    # -setinc
+    #   Set the increment - which actually computes and sets the bin width.
+    # @param name  Tree parameter name
+    # @param inc   Floating point bin width.
+    #
+    proc -setinc {name inc} {
+        return [$::SpecTclRestCommand::client treeparameterSetInc $name $inc]
+    }
+    ##
+    # -setbins
+    #
+    #   Set the number of bins to put between low and high.
+    #
+    # @param name - treeparamteer name.
+    # @param bins  - Desired bins.
+    #
+    proc -setbins {name bins} {
+        return [$::SpecTclRestCommand::client treeparameterSetBins $name $bins]
+    }
+    ##
+    # -setunit
+    #   Set the a tree parameter's units of measure.
+    #
+    # @param name  - tree parameter name
+    # @param units - new units of measure.
+    proc -setunit {name units} {
+        return [$::SpecTclRestCommand::client treeparameterSetUnits $name $units]
+    }
+    ##
+    # -setlimits
+    #   Sets new tree parameter low/high limits.
+    #
+    # @param name - name of the tree parameter.
+    # @param low  - new low limit.
+    # @param high - new high limit.
+    #
+    proc -setlimits {name low high} {
+        return [$::SpecTclRestCommand::client treeparameterSetLimits \
+            $name $low $high \
+        ]
+    }
+    ##
+    # -check
+    #    Return a tree parameter check flag.
+    #
+    # @param name - tree parameter name.
+    # @return boolean.
+    #
+    proc -check {name} {
+        return [$::SpecTclRestCommand::client treeparameterCheck $name]
+    }
+    ##
+    # -uncheck
+    #    Reset a tree parameter's check flag.
+    #
+    # @param name - tree parameter name.
+    #
+    proc -uncheck {name} {
+        return [$::SpecTclRestCommand::client treeparameterUncheck $name]
+    }
+    ##
+    # -version
+    #    Return the version of a tree parameter.
+    #
+    # @param name - name of the tree parameter.
+    #
+    proc -version {name} {
+        return [$::SpecTclRestCommand::client treeparameterVersion]
+    }
+}
