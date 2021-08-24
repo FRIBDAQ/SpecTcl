@@ -601,3 +601,77 @@ namespace eval treeparameter {
         return [$::SpecTclRestCommand::client treeparameterVersion]
     }
 }
+#-------------------------------------------------------------------------------
+# Treevariable - namespace ensemble.
+#
+#  *UNIMPLEMENTED* - For now we do not implement the ability to set
+#                    variables directly via the Tcl set command.
+#                    this is theoretically possible using variable traces.
+#
+namespace eval treevariable {
+    namespace export -list -set -check -setchanged -firetraces
+    namespace ensemble create
+    
+    ##
+    # -list
+    #    Produce list of variables.
+    # @param pattern - optional matching pattern.
+    # @return list of lists sublists describe a variable with name, value, units, in that
+    #         order.
+    #
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client treevariableList]
+        set result [list]
+        
+        foreach v $raw {
+            set name [dict get $v name]
+            if {[string match $pattern $name]} {;     #Cient side pattern filter.
+                set value [dict get $v value]
+                set units [dict get $v units]
+                lappend result [list $name $value $units]
+            }
+        }
+        
+        return $result
+    }
+    ##
+    # -set
+    #   Set new value and units to a tree parameter.
+    # @param name
+    # @param value
+    # @param units
+    #
+    proc -set {name value units} {
+        return [$::SpecTclRestCommand::client treevariableSet $name $value $units]
+    }
+    ##
+    # -check
+    #    Return the changef flag.
+    #
+    # @param name - treevariable name.
+    # @return boolean.
+    #
+    proc -check {name} {
+        return [$::SpecTclRestCommand::client treevariableCheck $name]
+    }
+    ##
+    # -setchanged
+    #   Set a variables changed flag.
+    #
+    # @param name -name of the variable.
+    #
+    proc -setchanged {name} {
+        return [$::SpecTclRestCommand::client treevariableSetChanged $name]
+    }
+    ##
+    # -firetraces
+    #   Fire the traces on tree variables that match a pattern.
+    # @param pattern -  variables name patter on which traces are fired.
+    # @note *UNSUPPORTED* getting traces fired in the client. In theory this
+    #       _could_ be done with shadowed variables but we'll see how needed it
+    #        is
+    #
+    proc -firetraces {{pattern *}} {
+        return [$::SpecTclRestCommand::client treevariableFireTraces $pattern]
+    }
+}
