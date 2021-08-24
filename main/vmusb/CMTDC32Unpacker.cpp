@@ -38,6 +38,9 @@ static const uint32_t HDR_IDMASK(0xff0000);
 static const uint32_t HDR_IDSHFT(16);
 
 // Fields in the data words:
+static const uint32_t DATA_SUBHDRMASK(0x3f800000);
+static const uint32_t DATA_CHANNEL   (0x04000000);
+static const uint32_t DATA_EXTSTAMP  (0x04800000);
 
 static const uint32_t DATA_VALUEMASK(0xffff);
 static const uint32_t DATA_CHANNELMASK(0x3f0000);
@@ -126,13 +129,20 @@ CMTDC32Unpacker::operator()(CEvent&                       rEvent,
   offset += 2;
   // datum has to be equal to TYPE_DATA = 0
   while (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_DATA) {
-    int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
-    int value   = datum & DATA_VALUEMASK;
-    int id      = pMap->map[channel];
-    if (verbose)
-      std::cout << "Channel: " << channel << " with value: " << value << std::endl;
-    if (id != -1) {
-      rEvent[id] = value;
+    if ((datum & DATA_SUBHDRMASK) == DATA_CHANNEL){
+      int channel = (datum & DATA_CHANNELMASK) >> DATA_CHANNELSHFT;
+      int value   = datum & DATA_VALUEMASK;
+      int id      = pMap->map[channel];
+      if (verbose)
+	std::cout << "Channel: " << channel << " with value: " << value << std::endl;
+      if (id != -1) {
+	rEvent[id] = value;
+      }
+    } else if ((datum & DATA_SUBHDRMASK) == DATA_EXTSTAMP) {
+      // Need to handle extended timestamp?
+    } else {
+      // bad datum of some sort.
+      std::cerr << "Invalid MTDC32 dummy word seen in unpacker: " << std::hex << datum << " ignoring. It's all good move along!\n";
     }
     datum   = getLong(event, offset);
     longsRead++;
