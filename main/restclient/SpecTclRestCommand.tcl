@@ -646,7 +646,7 @@ namespace eval treevariable {
     }
     ##
     # -check
-    #    Return the changef flag.
+    #    Return the changed flag.
     #
     # @param name - treevariable name.
     # @return boolean.
@@ -674,4 +674,103 @@ namespace eval treevariable {
     proc -firetraces {{pattern *}} {
         return [$::SpecTclRestCommand::client treevariableFireTraces $pattern]
     }
+}
+#------------------------------------------------------------------------------
+# filter namespace ensemble.
+
+namespace eval filter {
+    namespace export -new -delete -enable -disable -regate -file -list -format
+    namespace ensemble create
+    
+    ##
+    # -new
+    #    Create a new filter.
+    # @param name - filter name.
+    # @param gate  - filter gate.
+    # @param params - List of parameters
+    #
+    proc -new {name gate params} {
+        return [$::SpecTclRestCommand::client filterCreate $name $gate $params ]
+    }
+    ##
+    # -delete
+    #    Delete a filter by name.
+    #
+    # @param name -the filter to delete.
+    #
+    proc -delete {name} {
+        return [$::SpecTclRestCommand::client filterDelete $name]
+    }
+    ##
+    # -enable
+    #    Enable a filter to record data.
+    #
+    # @param name name of the filte.r
+    #
+    proc -enable {name} {
+        return [$::SpecTclRestCommand::client filterEnable $name]
+    }
+    ##
+    # -disable
+    #   Disable a filter by name
+    # @param name - filter name.
+    #
+    proc -disable {name} {
+        return [$::SpecTclRestCommand::client filterDisable $name]
+    }
+    ##
+    # -regate
+    #    Change the gate that conditionalizes a filter's output.
+    # @param name - filtername.
+    # @param newgate -new gate name.
+    #
+    proc -regate {name newgate} {
+        return [$::SpecTclRestCommand::client filterRegate $name $newgate]
+    }
+    ##
+    # -file
+    #   Set the output file of a filter.
+    #
+    # @param name - filter name.
+    # @param path - file path that will be interpreted within SpecTcl.
+    #
+    # @note *UNIMPLEMENTED* - the ability to write files interpreted within the
+    #    client - this is problematic as the client could be a different usr
+    #     than SpecTcl.
+    proc -file {name path} {
+        return [$::SpecTclRestCommand::client filterFile $name $path]
+    }
+    ##
+    # -list
+    #   Provides the information about exsting filters the native filter -list
+    #   command provide.s
+    #
+    # @param pattern - filter name matching glob pattern.#
+    # @return list of lists - see filter -list in the command reference.
+    #
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client filterList $pattern]
+        set result [list]
+        foreach f $raw {
+            lappend result [list                                          \
+                [dict get $f name] [dict get $f gate] [dict get $f file] \
+                [dict get $f parameters] [dict get $f enabled]           \
+                [dict get $f format]                                     \
+            ]
+        }
+        return $result
+    }
+    ##
+    # -format
+    #    Set a new output format for a filter.
+    #
+    # @param name - filter name.
+    # @param format - new format name.
+    #
+    proc -format {name format} {
+        return [$::SpecTclRestCommand::client filterFormat $name $format]
+    }
+        
+    
+    
 }
