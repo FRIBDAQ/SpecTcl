@@ -378,3 +378,30 @@ namespace eval channel {
         return [$::SpecTclRestCommand::client channelSet $name $value {*}$indices]
     }
 }
+#-------------------------------------------------------------------------------
+#  Simulate clear - not that as of now, clear -id is deprecated.  We'll
+#  see if anyone actually uses it because we're not implementing it -- for now.
+#  - if we need to later we can get the spectrum list and figure out the names
+#    to clear  -- later.
+
+##
+# clear
+#   Simulate the SpecTcl clear command in terms of the REST API. Forms:
+#   -   clear -all   - Clears all spectra.
+#   -   clear name1 name2 ... - clears the named spectra.
+#    -  clear -id id1 id2... - clears spectra by id - not *UNIMPLEMENTED*
+#
+proc clear {args} {
+    if {[llength $args] == 0} {
+        error "'clear' command requires arguments."
+    }
+    set option [lindex $args 0]
+    if {$option eq "-all"} {
+        return [$::SpecTclRestCommand::client spectrumClearAll]
+    } else {
+        foreach name $args {
+            $::SpecTclRestCommand::client spectrumClear $name
+        }
+    }
+}
+
