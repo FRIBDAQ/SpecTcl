@@ -975,8 +975,8 @@ snit::type SpecTclRestClient {
     # @param yparameters - list of parameters on the y axis (1 if b,c).
     # @param xcoords      - Gate x-coordinates.
     # @param ycoords      - gate y-coordinates.
-    # @note for gc, gb, the parameters can all be in xparameters yparametesrs or
-    #      spread across them if desired.
+    # @note for gc, gb, the parameters must all be in xparameters and the yparameters
+    #                       are ignored.
     #
     method gateCreateSimple2D {name gatetype xparameters yparameters xcoords ycoords} {
         
@@ -993,17 +993,15 @@ snit::type SpecTclRestClient {
         #  Now build the query dict:
         
         set qparams [dict create name $name type $gatetype]
-        if {$type in "b c"} {
+        if {$gatetype in "b c"} {
             lappend qparams {*}[_listToQueryList xparameter $xparameters]
             lappend qparams {*}[_listToQueryList yparameter $yparameters]    
         } else {
             lappend qparams {*}[_listToQueryList parameter $xparameters]
-            lappend qparams {*}[_listToQueryList parameter $yparameters]
         }
         lappend qparams {*}[_listToQueryList xcoord $xcoords]
         lappend qparams {*}[_listToQueryList ycoord $ycoords]
         
-        puts $qparams
         
         $self _request [$self _makeUrl gate/edit $qparams]
     }
