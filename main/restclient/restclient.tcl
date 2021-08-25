@@ -1100,7 +1100,6 @@ snit::type SpecTclRestClient {
     #
     method parameterNew {name number metadata} {
         set pdict [dict merge [dict create name $name number $number] $metadata]
-        puts $pdict
         $self _request [$self _makeUrl rawparameter/new $pdict]
         
     }
@@ -1137,7 +1136,6 @@ snit::type SpecTclRestClient {
         } else {
             error "Either a pattern or id is required"
         }
-        puts $pdict
         set info [$self _request [$self _makeUrl rawparameter/list $pdict]]
         return [dict get $info detail]
     }

@@ -48,9 +48,9 @@ Direct_Url /spectcl/rawparameter SpecTcl_rawparameter
 proc SpecTcl_rawparameter/new {args} {
     set ::SpecTcl_rawparameter/new application/json
     
-    puts $args
+    
     set qdict [SpecTcl::_marshallDict $args]
-    puts $qdict
+    
     
     # Name and number are required:
     
@@ -66,7 +66,6 @@ proc SpecTcl_rawparameter/new {args} {
     dict unset qdict name
     dict unset qdict number
     
-    puts $qdict
     
     set keys [dict keys $qdict]
     set command [list]
