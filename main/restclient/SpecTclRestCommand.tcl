@@ -30,6 +30,7 @@ exec tclsh "$0" ${1+"$@"}
 
 package provide SpecTclRestCommand 1.0
 package require SpecTclRESTClient
+package require json::write
 
 ##
 #  The commands require a client object.  This has to be set with an
@@ -40,6 +41,42 @@ namespace eval SpecTclRestCommand {
 }
 #==============================================================================
 # Private utilities.
+
+##
+# SpecTclRestCommand::_scontentsToJson
+#   Converts the list of dicts that represent channel data to Json encoding.
+# @param raw list of dicts containing x, optionally y and v.
+# @return list of objects with the same attributes.
+#
+proc SpecTclRestCommand::_scontentsToJson {raw} {
+    set objects [list]
+    foreach chan $raw {
+        lappend objects [json::write object {*}$chan]
+    }
+    return [json::write array {*}$objects]
+}
+##
+# SpecTclRestCommand::_scontentsToList
+#    Takes the list of dicts the scontents REST interface returns as channel
+#     data and converts it into the native scontents format.
+#
+# @param raw - the list of dicts.
+# @return list - of two or 3 element sublists.
+#
+proc SpecTclRestCommand::_scontentsToList {raw} {
+    set result [list]
+    
+    foreach d $raw {
+        set sublist [dict get $d x]
+        if {[dict exists $d y]} {
+            lappend sublist [dict get $d y]
+        }
+        lappend sublist [dict get $d v]
+        lappend result $sublist
+    }
+    
+    return $result
+}
 
 ##
 #SpecTclRestCommand::_computeParameterMetadata
@@ -1181,3 +1218,35 @@ proc ringformat {version} {
     set v [split $version .]
     return [$::SpecTclRestCommand::client ringformat {*}$v]
 }  
+#----------------------------------------------------------------------------
+# scontents simulation.
+#
+
+##
+# scontents
+#    We support scontents spectrum name or scontents -json spectrum name.
+#
+# @param args - either name of a spectrum or -json name of a spectrum.
+#
+proc scontents {args} {
+    set json 0;            # Assume it's just Tcl format.
+    if {[llength $args] == 1} {
+        set name $args
+    } elseif {[llength $args] == 2} {
+        if {[lindex $args 0] ne "-json"}  {
+            error "scontents only accepts a -json optional option"
+        }
+        set json 1
+        set name [lindex $args 1]
+    } else {
+        error "Too many command line parameter for scontents"
+    }
+    set raw [dict get [$::SpecTclRestCommand::client scontents $name] channels]
+    
+    
+    if {$json} {
+        return [::SpecTclRestCommand::_scontentsToJson $raw ]
+    }  else {
+        return [::SpecTclRestCommand::_scontentsToList $raw]
+    }
+}
