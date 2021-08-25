@@ -1168,4 +1168,16 @@ proc sread {args} {
     
     
 }
-    
+#-----------------------------------------------------------------------------
+#  ringformat simulator.
+
+##
+# ringformat
+#    Simulate the ring format command in terms of the REST API.
+#
+# @param version major.minor version format.
+#
+proc ringformat {version} {
+    set v [split $version .]
+    return [$::SpecTclRestCommand::client ringformat {*}$v]
+}  
