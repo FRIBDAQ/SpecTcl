@@ -66,6 +66,22 @@ proc SpecTclRestCommand::_computeWidth {p} {
     return [expr {abs($high - $low)/double($bins)}]
 }
 ##
+# SpecTclRestCommand::_ptDictsToPts
+#   Turn a list of point dictionaries (x,y keys) into a list of x/y pairs.
+#
+# @param pts - list of point dicts.
+# @return list of pairs.
+#
+proc SpecTclRestCommand::_ptDictsToPts {pts} {
+    set result [list]
+    
+    foreach p $pts {
+        lappend result [list [dict get $p x]  [dict get $p y]]
+    }
+    
+    return $result
+}
+##
 # SpecTclRestCommand::_gateDictToDef
 #   Turn the dict for a gate that comes back from gateList into
 #   a gate definition as SpecTcl native gate -list command might return.
@@ -83,9 +99,12 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
     } elseif {$gtype in [list F T]} {
         lappend result [list]
     } elseif {$gtype in [list gb gc]} {
-        lappend result [dict get $gate points] [dict get $gate parameters]
+        lappend result \
+            [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]] \
+            [dict get $gate parameters]
     } elseif {$gtype in [list b c]} {
-        lappend result [dict get $gate parameters] [dict get $gate points]
+        lappend result [dict get $gate parameters] \
+            [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]]
     } elseif {$gtype in [list s] } {
         lappend result \
             [dict get $gate parameters] \
@@ -95,7 +114,8 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
             [list [dict get $gate low] [dict get $gate high]] \
             [dict get $gate parameters]
     } elseif {$gtype in [list am em nm]} {
-        lappend result [dict get $gate parameters] [dict get $gate value]
+        lappend result \
+            [dict get $gate parameters] [format 0x%x [dict get $gate value]]
     } else {
         error "Unrecognized gate type: $gtype"
     }
@@ -825,9 +845,11 @@ namespace eval gate {
                 set xparameters [lindex $description 0]
                 set yparameters [lindex $description 1]
             }
+           
+        
             return [$::SpecTclRestCommand::client gateCreateSimple2D       \
-                name $gtype                                                 \
-                $xparameter $yparameters                                    \
+                $name $gtype                                                 \
+                $xparameters $yparameters                                    \
                 [::SpecTclRestCommand::_lselect $points 0]                  \
                 [::SpecTclRestCommand::_lselect $points 1]                  \
             ]
@@ -836,7 +858,9 @@ namespace eval gate {
                 $name $gtype [lindex $description 0] [lindex $description 1] \
             ]
         } elseif {$gtype in [list + - * c2band]} {
-            return [$::SpecTclRestCommand::client gateCreateCompound $gtype $description]
+            return [$::SpecTclRestCommand::client gateCreateCompound \
+                $name $gtype $description  \
+            ]
         } else {
             error "$gtype creation is not implemented."
         }
@@ -871,7 +895,8 @@ namespace eval gate {
         error "This version of SpecTclCommands does not implement gate -trace (yet)"
     }
 }
-proc SpecTclRestCommand::_gateCreate {ns name type description} {
-    return [list gate::-new $name $type $description]
+proc SpecTclRestCommand::_gateCreate {ns name args} {
+    
+    return [list -new $name]
 }
 namespace ensemble configure gate -unknown SpecTclRestCommand::_gateCreate

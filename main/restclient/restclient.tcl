@@ -998,6 +998,7 @@ snit::type SpecTclRestClient {
             lappend qparams {*}[_listToQueryList yparameter $yparameters]    
         } else {
             lappend qparams {*}[_listToQueryList parameter $xparameters]
+            lappend qparams {*}[_listToQueryList parameter $yparameters]; # just in case
         }
         lappend qparams {*}[_listToQueryList xcoord $xcoords]
         lappend qparams {*}[_listToQueryList ycoord $ycoords]
