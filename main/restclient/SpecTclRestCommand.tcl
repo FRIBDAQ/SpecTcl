@@ -40,7 +40,19 @@ namespace eval SpecTclRestCommand {
 }
 #==============================================================================
 # Private utilities.
-
+##
+# SpecTclRestCommand::_lselect
+#   Create a list from one element in each sublist of a list.
+# @param l    - list.
+# @param index - index to select from the sub lists.
+#
+proc SpecTclRestCommand::_lselect {l index} {
+    set result [list]
+    foreach e $l {
+        lappend result [lindex $e $index]
+    }
+    return $result
+}
 ##
 # SpecTclRestCommand::_computeWidth
 #   Given a tree parameter definition dict returns the bin width
@@ -770,7 +782,96 @@ namespace eval filter {
     proc -format {name format} {
         return [$::SpecTclRestCommand::client filterFormat $name $format]
     }
-        
-    
-    
 }
+#-----------------------------------------------------------------------------
+# Gate namespace ensemble - we use unknown to trampoline into the
+#      create.
+# !UNIMPLEMENTED! gate -list -byid
+# !UNIMPLEMENTED! gate -trace
+#
+namespace eval gate {
+    namespace export -new -list -delete -trace
+    namespace ensemble create
+    
+    ##
+    # -new
+    #   Create a new gate.
+    #
+    # @param name -name of the new or edited gate.
+    # @param gtype - Gate type.
+    # @param description - gate description string.
+    # !UNIMPLEMENTED T and F gates I think.
+    proc -new {name gtype description} {
+        # The specific thing we do depends on the gate type:
+        
+        if {$gtype in [list s gs]} {
+            if {$gtype eq "gs"} {
+                set parameter [lindex $description 1]
+                set limits    [lindex $description 0]
+            } else {
+                set parameter [lindex $description 0]
+                set limits   [lindex $description 1]
+            }
+            return [$::SpecTclRestCommand::client gateCreateSimple1D  \
+                $name $gtype $parameter [lindex $limits 0] [lindex $limits 1] \
+            ]
+        } elseif {$gtype in [list c b  gc gb]} {
+            if {$gtype in [list gc gb]} {
+                set points [lindex $description 0]
+                set xparameters [lindex $description 1]
+                set yparameters [list]
+            } else {
+                set points [lindex $description 2]
+                set xparameters [lindex $description 0]
+                set yparameters [lindex $description 1]
+            }
+            return [$::SpecTclRestCommand::client gateCreateSimple2D       \
+                name $gtype                                                 \
+                $xparameter $yparameters                                    \
+                [::SpecTclRestCommand::_lselect $points 0]                  \
+                [::SpecTclRestCommand::_lselect $points 1]                  \
+            ]
+        } elseif {$gtype in [list am em nm]} {
+            return [$::SpecTclRestCommand::client gateCreateMask         \
+                $name $gtype [lindex $description 0] [lindex $description 1] \
+            ]
+        } elseif {$gtype in [list + - * c2band]} {
+            return [$::SpecTclRestCommand::client gateCreateCompound $gtype $description]
+        } else {
+            error "$gtype creation is not implemented."
+        }
+    }
+    ##
+    # -list
+    #   List gate definitions... we have the handy _gateDictToDef utility to
+    #   help us out
+    # @param pattern - name matching pattern.
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client gateList $pattern]
+        set result [list]
+        foreach gate $raw {
+            lappend result [::SpecTclRestCommand::_gateDictToDef $gate]
+        }
+        return $result
+    }
+    ##
+    # -delete
+    #   Delete the named gate
+    #
+    # @param name -name of the gate to delete.
+    # @note *UNIMPLEMENTED* -id  option.
+    #   
+    proc -delete {name} {
+        return [$::SpecTclRestCommand::client gateDelete $name]
+    }
+    ##
+    # -trace
+    #   gate -trace is unimplemented
+    proc -trace {args} {
+        error "This version of SpecTclCommands does not implement gate -trace (yet)"
+    }
+}
+proc SpecTclRestCommand::_gateCreate {ns name type description} {
+    return [list gate::-new $name $type $description]
+}
+namespace ensemble configure gate -unknown SpecTclRestCommand::_gateCreate
