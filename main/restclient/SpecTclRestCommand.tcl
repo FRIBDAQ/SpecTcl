@@ -42,6 +42,24 @@ namespace eval SpecTclRestCommand {
 #==============================================================================
 # Private utilities.
 
+
+##
+# ::SpecTclRestCommand::_axesDictToAxesList
+# Transform a list of axis dicts to a list of axis specifications.
+#
+# @param axes  - list of axis dicts.
+# @return list of lists.
+#
+proc ::SpecTclRestCommand::_axesDictToAxesList {axes} {
+    set result [list]
+    foreach axis $axes {
+        lappend result [list                                        \
+            [dict get $axis low] [dict get $axis high] [dict get $axis bins] \
+        ]
+    }
+    return $result
+}
+
 ##
 # SpecTclRestCommand::_scontentsToJson
 #   Converts the list of dicts that represent channel data to Json encoding.
@@ -1268,3 +1286,98 @@ proc shmemkey { } {
 proc shmemsize { } {
     return [$::SpecTclRestCommand::client shmemsize]
 }
+#------------------------------------------------------------------------------
+# spectrum command simulation in a namespace ensemble.
+#
+# !UNIMPLEMENTED! spectrum -trace
+# !UNIMPLEMENTED! -byid on spectrum -list
+# !UNIMPLEMENTED! -list -id
+# !UNIMPLEMENTED! -delete -id.
+# !UNIMPLEMENTED -showgate
+
+namespace eval spectrum {
+    namespace export -new -list -delete -trace
+    namespace ensemble create
+    
+    ##
+    # -new
+    #    Create a new spectrum.
+    #
+    # @oaram name - new spectrum name.
+    # @param type - new spectrum type
+    # @param parameters - parameters
+    # @param axes axis specifications.
+    # @param data type - defaults to long.
+    # @return string  - spectrum name.
+    proc -new {name type parameters axes {datatype long}} {
+        $::SpecTclRestCommand::client spectrumCreate \
+            $name $type $parameters $axes [dict create chantype $datatype]
+        return $name
+    }
+    ##
+    # -list
+    # list spectrum
+    #
+    # @param pattern - pattern of spectrum names to match
+    # @return list of spectrum definitions as described in the SpecTcl
+    #         command reference
+    # @note - all ids are zero.
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client spectrumList $pattern]
+        
+        set result [list]
+        foreach s $raw {
+            lappend result  [list                                              \
+                0 [dict get $s name] [dict get $s type]                        \
+                [dict get $s parameters]                                       \
+                [::SpecTclRestCommand::_axesDictToAxesList [dict get $s axes]]  \
+                [dict get $s chantype]                                         \
+            ]
+        }
+        return $result
+    }
+    ##
+    # -delete
+    #    Delete spectra. This can take either -all or name1...
+    #  @param args - remainder of the command line.
+    #   
+    proc -delete {args} { 
+        if {([llength $args] == 1) && ($args eq "-all")} {
+            set names [list]
+            foreach s [$::SpecTclRestCommand::client spectrumList] {
+                lappend names [dict get $s name]
+            }
+        } elseif {[llength $args] > 0} {
+            set names $args
+        } else {
+            error "spectrum -delete needs parameters"
+        }
+        puts $names
+        foreach name $names {
+            puts "deleting $name"
+            $::SpecTclRestCommand::client spectrumDelete $name
+        }
+    }
+    ##
+    # -trace
+    #   Unimplemented stub for spectrum -trace
+    #
+    # @param what - what to do add or delete.
+    # @param script - script to add or remove.
+    proc -trace {what {script ""}} {
+        error "spectrum -trace is not implemented"
+    }
+}
+##
+# SpecTclRestCommand::_createSpectrum
+#   Is the unknown subcommand of the spectrum namespace ensemble.
+#   It supports spectrum creation by omitting the -new flag.
+#
+# @param ns - namespace (spectrum).
+# @param name - name of spectrum being created.
+# @param args  - remaining arguments.
+#
+proc SpecTclRestCommand::_createSpectrum {ns name args} {
+    return [list -new $name]
+}
+namespace ensemble configure spectrum -unknown SpecTclRestCommand::_createSpectrum
