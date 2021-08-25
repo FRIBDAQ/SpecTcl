@@ -40,6 +40,51 @@ namespace eval SpecTclRestCommand {
 }
 #==============================================================================
 # Private utilities.
+
+##
+#SpecTclRestCommand::_computeParameterMetadata
+#   Compute the parameter metadata from the remaining stuff.
+# @param args - remainder of parameter -new after the id.
+# @return dict - Contains the metadata expected by the REST parameterNew method.
+#
+proc SpecTclRestCommand::_computeParameterMetadata {args} {
+    set metadata [dict create]
+    
+    
+    if {[llength $args] == 1} {
+        if {[string is integer -strict $args]} {
+            dict set metadata resolution $args
+        } else {
+            dict set metadata units $args
+        }
+    } elseif {[llength $args] == 2} {
+        dict set metadata resolution [lindex $args 0]
+        set rangeunits [lindex $args 1]
+        dict set metadata low [lindex $rangeunits 0]
+        dict set metadata high [lindex $rangeunits 1]
+        dict set metadata units [lindex $rangeunits 2]
+    } else {
+        error "Parameter metadata specification is invalid $args"
+    }
+    
+    return $metadata
+}
+
+##
+# SpecTclRestCommand::_dictGetIfExists
+#    Returns a dict value or "" if it does not exist.
+#
+# @param dict - dict variable.
+# @param args - Key structure.
+#
+proc SpecTclRestCommand::_dictGetIfExists {dict args} {
+    if {[dict exists $dict {*}$args]} {
+        return [dict get $dict {*}$args]
+    } else {
+        return ""
+    }
+}
+
 ##
 # SpecTclRestCommand::_lselect
 #   Create a list from one element in each sublist of a list.
@@ -942,3 +987,76 @@ proc integrate {name roi} {
         [dict get $raw fwhm]                                                 \
     ]
 }
+#------------------------------------------------------------------------------
+# Simulate parameter command - a namespace ensemble with unknown handler is used.
+# !UNIMPLEMENTED! -byid list parameter - note this is supported by the REST interface.
+# !UNIMPLEMENTED! -id on delete command. - note this is supported by the REST interface.
+
+namespace eval parameter {
+    namespace export -new -list -delete
+    namespace ensemble create
+    ##
+    # -new
+    #   Create a new parameter.
+    #
+    # @param name the new parameter.
+    # @param id   The id of the new parameter.
+    # @param args This can have four forms:
+    #        -   Empty list -no metadata.
+    #        -  single element list containing an integer resolution
+    #        -  single element list containing units
+    #        -   Two element list containing resolution, and low,high,units list.
+    # @return string - parameter name on success.
+    #
+    proc -new {name id args} {
+        set metadata [SpecTclRestCommand::_computeParameterMetadata {*}$args]
+        $::SpecTclRestCommand::client parameterNew $name $id $metadata
+        return $name
+    }
+    ##
+    # -list
+    #   List parameters whose names match  a pattern.
+    #
+    # @param pattern - glob pattern defaults to * matchng everything.
+    # @return see SpecTcl command reference for parameter command
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client parameterList $pattern]
+        set result [list]
+
+        foreach p $raw {
+            
+            lappend result [list [dict get $p name] [dict get $p id]           \
+            [SpecTclRestCommand::_dictGetIfExists $p  resolution]  \
+            [list                                                              \
+                [SpecTclRestCommand::_dictGetIfExists $p  low]         \
+                [SpecTclRestCommand::_dictGetIfExists $p  high]        \
+                [SpecTclRestCommand::_dictGetIfExists $p units]   \
+            ]]
+        }
+        
+        return $result
+    }
+    ##
+    # -delete
+    #    Deletes a parameter.
+    #
+    # @param name -name of the parameter to delete.
+    #
+    proc -delete {name} {
+        return [$::SpecTclRestCommand::client parameterDelete $name]    
+    }
+}
+##
+# SpecTclRestCommand::_parameterCreate
+#    This is the unknown handler of the parameter namespace ensemble.
+#    It relays to parameter -new in order to allow that option to be
+#    omitted when createing a parameter definition.
+#
+# @param ns - namespace name (::parameter)
+# @param name - The subcommand is actually the parameter name.
+# @param args - The remaining command words.
+#
+proc SpecTclRestCommand::_parameterCreate {ns name args} {
+    return [list -new $name]
+}
+namespace ensemble configure parameter -unknown SpecTclRestCommand::_parameterCreate
