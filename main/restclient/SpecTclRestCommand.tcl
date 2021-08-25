@@ -1117,3 +1117,55 @@ proc SpecTclRestCommand::_createPseudo {ns name args} {
     return [list -new $name]
 }
 namespace ensemble configure pseudo -unknown SpecTclRestCommand::_createPseudo
+
+#-------------------------------------------------------------------------------
+# Simulate the sread command via REST.
+
+##
+# sread
+#   Read a spectrum in from file.
+# @param args - the command line parameter. See the SpecTcl
+#               command reference to see the possible forms.
+# @note the filename is interpreted in the SpecTcl process.
+#   -  file names are paths as seen by SpecTcl
+#   -   file descriptors are those in SpecTcl and can only be gotten via
+#       a call to command opening the file.
+#
+proc sread {args} {
+    if {[llength $args] == 0} {
+        error "sread requires parameters"
+    }
+    set filename [lindex $args end];    # Always last.
+    set options [lrange $args 0 end-1]
+    
+    set optDict [dict create]
+    
+    # Process options.  -format has a parameter so we need to do as below:
+    
+    for {set i 0} {$i < [llength $options]} {incr i} {
+        set option [lindex $options $i]
+        if {$option eq "-format"} {
+            incr i
+            dict set optDict format [lindex $options $i]
+        } elseif {$option eq "-snapshot"} {
+            dict set optDict snapshot 1
+        } elseif {$option eq "-nosnapshot"} {
+            dict set optDict snapshot 0
+        } elseif {$option eq "-replace"} {
+            dict set optDict replace 1
+        } elseif {$option eq "-noreplace"} {
+            dict set optDict replace 0
+        } elseif {$option eq "-bind"} {
+            dict set optDict bind 1
+        } elseif {$option eq "-nobind"} {
+            dict set optDict bind 0
+        } else {
+            "$option  is an unrecognized sbind option."
+        }
+    }
+        
+    return [$::SpecTclRestCommand::client sread $filename $optDict]
+    
+    
+}
+    
