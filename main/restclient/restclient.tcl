@@ -1040,7 +1040,7 @@ snit::type SpecTclRestClient {
         if {$gatetype ni [list + - * c2band]} {
             error "gateCreateCompound gatetype must be one of '+', '-', '*', 'c2band'"
         }
-        if {($gatetype eq "c2band") && ([llenght $gates] != 2)} {
+        if {($gatetype eq "c2band") && ([llength $gates] != 2)} {
             error "gateCreateCompound 'c2band' must only have 2 gates."
         }
         if {($gatetype eq "-") && ([llength $gates] != 1)} {
