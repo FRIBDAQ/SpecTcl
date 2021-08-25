@@ -1083,7 +1083,7 @@ snit::type SpecTclRestClient {
         } else {
             set querydict [dict merge [dict create spectrum $name] $roi]
         }
-        puts $querydict
+    
         set info [$self _request [$self _makeUrl integrate $querydict]]
         return [dict get $info detail]
     }

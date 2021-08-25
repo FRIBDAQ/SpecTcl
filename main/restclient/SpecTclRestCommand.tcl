@@ -895,8 +895,50 @@ namespace eval gate {
         error "This version of SpecTclCommands does not implement gate -trace (yet)"
     }
 }
+##
+# SpecTclRestCommand::_gateCreate
+#    This is registered as an unknown processor for the gate namespace.
+#    Doing this supports creation of gates with or without the -new option on
+#    the gate command.  All we do is relay to gate::-new.
+#
 proc SpecTclRestCommand::_gateCreate {ns name args} {
     
     return [list -new $name]
 }
 namespace ensemble configure gate -unknown SpecTclRestCommand::_gateCreate
+#-------------------------------------------------------------------------------
+#  Simulate the integrate command.
+#
+
+##
+# integrate
+#    Get SpecTcl to integrate a region of interest (gate or coordinates)
+#    And return the values to the user.
+#
+# @param name  spectrum name.
+# @param roi   Area of interest specification which canbe any of:
+#       -   A gate name that could be displayed on the spectrum.
+#       -   For a 1d spectrum a low/high limit pair.
+#       -   For a 2d spectrum a list of points.
+# @return - see integrate in the SpecTcl command reference.
+#
+proc integrate {name roi} {
+    set restROI [dict create]
+    
+    if {[llength $roi] == 1} {
+        dict set restROI gate $roi
+    } elseif {[llength $roi] == 2} {
+        dict set restROI low [lindex $roi 0]
+        dict set restROI high [lindex $roi 1]
+    } else {
+        dict set restROI  xcoord [::SpecTclRestCommand::_lselect $roi 0]
+        dict set restROI  ycoord [::SpecTclRestCommand::_lselect $roi 1]
+    }
+    
+    set raw [$::SpecTclRestCommand::client integrate $name $restROI]
+    
+    return [list                                                             \
+        [dict get $raw centroid]  [dict get $raw counts]                     \
+        [dict get $raw fwhm]                                                 \
+    ]
+}
