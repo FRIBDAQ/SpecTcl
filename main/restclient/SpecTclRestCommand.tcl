@@ -1060,3 +1060,60 @@ proc SpecTclRestCommand::_parameterCreate {ns name args} {
     return [list -new $name]
 }
 namespace ensemble configure parameter -unknown SpecTclRestCommand::_parameterCreate
+
+#------------------------------------------------------------------------------
+#  pseudo command simulation as namespace ensemble.
+#  Note the -new option does not really exist in the SpeTcl command set
+#  (I think) but adding it makes using a namespace ensemble possible via a
+#  redirecting unknown handler.
+#
+namespace eval pseudo {
+    namespace export -new -list -delete
+    namespace ensemble create
+    
+    ##
+    # -new
+    #    Create a new pseudo parameter that depends on existing raw parameters
+    #
+    # @param name - pseudo parameter being created the parameter must already
+    #               be defined.
+    # @param parameters - the names of existing parameters the pseudo depends on.
+    # @param body - Tcl script body that computes the pseudo.
+    #
+    proc -new {name parameters body} {
+        return [$::SpecTclRestCommand::client pseudoCreate $name $parameters $body]
+    }
+    ##
+    # -list
+    #    Return a list of pseudo definitions.
+    #
+    # @param pattern - pattern that specifies which psuedos will be listed.
+    # @return list - see SpecTcl command reference page on pseudo.
+    #
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client pseudoList $pattern]
+        set result [list]
+        
+        foreach p $raw {
+            lappend result [list                                      \
+                [dict get $p name] [dict get $p parameters]           \
+                [dict get $p computation]                             \
+            ]
+        }
+        
+        return $result
+    }
+    ##
+    # -delete
+    #    Delete each pseudo parameter named in the argument list.
+    #
+    proc -delete {args} {
+        foreach name $args {
+            $::SpecTclRestCommand::client pseudoDelete $name
+        }
+    }
+}
+proc SpecTclRestCommand::_createPseudo {ns name args} {
+    return [list -new $name]
+}
+namespace ensemble configure pseudo -unknown SpecTclRestCommand::_createPseudo
