@@ -1250,3 +1250,21 @@ proc scontents {args} {
         return [::SpecTclRestCommand::_scontentsToList $raw]
     }
 }
+#-------------------------------------------------------------------------------
+# shared memory access.
+
+##
+# shmkey
+#   Return the shared memory key.
+# @return string
+#
+proc shmemkey { } {
+    return [$::SpecTclRestCommand::client shmemkey]
+}
+##
+# shmsize
+#   @return integer size of shared memory in bytes.
+#
+proc shmemsize { } {
+    return [$::SpecTclRestCommand::client shmemsize]
+}

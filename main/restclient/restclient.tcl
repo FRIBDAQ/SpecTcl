@@ -1260,7 +1260,7 @@ snit::type SpecTclRestClient {
     #    shmemkey to obtain a mapping to the SYS-V shared memory region
     #    spectcl uses for displayed spectra.
     #
-    # @return The integer size in megabites.
+    # @return The integer size in bytes.
     #
     method shmemsize {} {
         set info [$self _request [$self _makeUrl shmem/size [dict create]]]
