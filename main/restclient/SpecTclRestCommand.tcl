@@ -1453,3 +1453,37 @@ proc version { } {
     set raw [$::SpecTclRestCommand::client version]
     return [dict get $raw major].[dict get $raw minor]-[dict get $raw editlevel]
 }
+#-----------------------------------------------------------------------------
+# swrite simulation
+##
+# swrite
+#   Forms allowed are swrite -format fmt names... and swrite names...
+#
+# @param args - the arguments.
+#
+proc swrite {args} {
+    set format ascii
+    if {[llength $args] > 2} {
+        set option [lindex $args 0]
+        if {$option eq "-format"} {
+            # Require at least 3 parameters.
+            
+            if {[llength $args < 4]} {
+                error "swrite -format must have at least a format, file and spectrum"
+            } else {
+                set format [lindex $args 1]
+                set filename [lindex $args 2]
+                set names [lrange $args 3 end]
+            }
+        } else {
+            set filename [lindex $args 0]
+            set names    [lrange $ags 1 end]
+        }
+    } elseif {[llength $args] == 2} {
+        set filename [lindex $args 0]
+        set names    [lindex $args 1]
+    } else {
+        error "swrite needs at least a filename and a spectrum."
+    }
+    return [$::SpecTclRestCommand::client $swrite $filename $names $format]
+}
