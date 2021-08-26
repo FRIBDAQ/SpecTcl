@@ -282,6 +282,14 @@ proc SpecTclRestCommand::initialize {host port} {
         %AUTO% -host $host -port $port          \
     ]
 }
+##
+# SpecTclRestCommand::shutdown
+#   Destroy the client object.
+#
+proc SpecTclRestCommand::shutdown { } {
+    $::SpecTclRestCommand::client destroy
+    set ::SpecTclRestCommand::client ""
+}
 
 #------------------------------------------------------------------------------
 #
@@ -1664,4 +1672,42 @@ namespace eval pman {
         return [$::SpecTclRestCommand::client pmanClone $existing $new]
     }
     
+}
+#------------------------------------------------------------------------------
+# namespace ensemble to simulate the evbunpack command.
+
+namespace eval evbunpack {
+    namespace export create addprocessor list
+    namespace ensemble create
+    
+    ##
+    # create
+    #   Create a new event builder unpacker.
+    #
+    # @param name - name of the unpacker.
+    # @param freq - MHz of the clock.
+    # @param base - basename of the diagnostics parameters.
+    #
+    proc create {name freq base} {
+        return [$::SpecTclRestCommand::client evbCreate $name $freq $base]
+    }
+    ##
+    # addprocessor
+    #   Assign a pipeline to unpack data from a specific source id.
+    # @param name - processor name.
+    # @param sid   - source id.
+    # @param pipe - pipeline to use.
+    #
+    proc addprocessor {name sid pipe} {
+        return [$::SpecTclRestCommand::client evbAdd $name $sid $pipe]
+    }
+    ##
+    # list
+    #   List the names of the evb processors.
+    #
+    # @param pattern - names must match this pattern.
+    #
+    proc list {{pattern *}} {
+        return [$::SpecTclRestCommand::client evbList $pattern]
+    }
 }
