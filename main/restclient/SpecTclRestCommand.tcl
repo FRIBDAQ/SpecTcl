@@ -1440,3 +1440,16 @@ namespace ensemble configure unbind -unknown SpecTclRestCommand::_unbindByName
 proc ungate {args} {
     return [$::SpecTclRestCommand::client ungate $args]
 }
+
+#--------------------------------------------------------------------------------
+# version command
+
+##
+# version
+#   Return the SpecTcl Version.
+# @return string - the version string.
+#
+proc version { } {
+    set raw [$::SpecTclRestCommand::client version]
+    return [dict get $raw major].[dict get $raw minor]-[dict get $raw editlevel]
+}
