@@ -1381,3 +1381,49 @@ proc SpecTclRestCommand::_createSpectrum {ns name args} {
     return [list -new $name]
 }
 namespace ensemble configure spectrum -unknown SpecTclRestCommand::_createSpectrum
+#----------------------------------------------------------------------------
+# namespace ensemble that implements the unbind command.
+# !UNIMPLEMENTED! passing a list of xids not spetrum names
+
+namespace eval unbind {
+    namespace export unbind -id -all
+    namespace ensemble create
+    
+    ##
+    # unbind
+    #   Unbind a list of spectra.
+    #
+    # @param args - the list of names.
+    #
+    proc unbind {args} {
+        return  [$::SpecTclRestCommand::client unbindByName $args]
+    }
+    ##
+    # Unbind by ids:
+    # @param args -the ids.
+    #
+    proc -id {args} {
+        return [$::SpecTclRestCommand::client unbindById $args]   
+    }
+    ##
+    # Unbind all spectra.
+    #
+    proc -all {} {
+        return [$::SpecTclRestCommand::client unbindAll]   
+    }
+    
+}
+##
+# SpecTclRestCommand::_unbindByName
+#
+# Unknown subcommand handler for unbind.
+#
+# @param ns    - namespace
+# @param name1 - first name (subcommand).
+# @param args  - remaining parameters (optionally more names).
+#
+proc SpecTclRestCommand::_unbindByName {ns name1 args} {
+    return [list unbind $name1]
+}
+namespace ensemble configure unbind -unknown SpecTclRestCommand::_unbindByName
+
