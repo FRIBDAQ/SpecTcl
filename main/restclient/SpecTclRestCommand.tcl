@@ -1504,3 +1504,55 @@ proc start { } {
 proc stop {} {
     return [$::SpecTclRestCommand::client stop]
 }
+#-----------------------------------------------------------------------------
+#  Roottree command ensemble.
+
+namespace eval roottree {
+    namespace export create delete list
+    #
+    #  The map below avoids conflicts between roottree::list and ::list
+    #
+    namespace ensemble create -map [dict create list _list create create delete delete]
+    
+    ##
+    # create
+    #   Create a new root tree
+    # @param name - tree name.
+    # @param patterns -list of parameter patterns.
+    # @param gate - optional gate that determines which events get written to
+    #                  the tree.
+    #
+    proc create {name patterns {gate {}}} {
+        return [$::SpecTclRestCommand::client rootTreeCreate $name $patterns $gate]
+    }
+    ##
+    # delete
+    #   Delete the named tree.
+    #
+    # @param name - name of the tree to remove.
+    #
+    proc delete {name} {
+        return [$::SpecTclRestCommand::client rootTreeDelete $name]
+    }
+    ##
+    # list
+    #   List the root trees that match the optional (defaults to *)
+    #   pattern.
+    #
+    # @param pattern - pattern tree must match.
+    #
+    proc _list { {pattern *}} {
+        set raw [$::SpecTclRestCommand::client rootTreeList $pattern]
+        set result [list]
+        
+        foreach tree $raw {
+            lappend result [list                                             \
+                [dict get $tree tree] [dict get $tree parameters]           \
+                [dict get $tree gate]                                       \
+            ]
+        }
+        
+        return $result
+    }
+    
+}
