@@ -1487,3 +1487,20 @@ proc swrite {args} {
     }
     return [$::SpecTclRestCommand::client $swrite $filename $names $format]
 }
+#----------------------------------------------------------------------------
+# analysis control commands  (start, stop)
+
+##
+# start
+#   Start analysis from the source.
+#
+proc start { } {
+    return [$::SpecTclRestCommand::client start]
+}
+##
+# stop
+#   Stop analysis from the source.
+#
+proc stop {} {
+    return [$::SpecTclRestCommand::client stop]
+}
