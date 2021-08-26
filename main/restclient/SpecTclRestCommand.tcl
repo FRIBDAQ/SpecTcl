@@ -239,12 +239,13 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
 # @param info back from the pply command which is a list of dicts containing
 #     spectrum - name of a spectrum.
 #     gate     - name of the gate.
-# @note the -TRUE- gate is special.
+# @note the -TRUE- gate is special as is -Ungated-
 #
 proc SpecTclRestCommand::_getAppliedGateInfo {info} {
     set gates [$::SpecTclRestCommand::client gateList]
     array set gateDefs [list]
     set gateDefs(-TRUE-) [list -TRUE- 0 T [list]];   # Special true gate.
+    set gateDefs(-Ungated-) [list -Ungated- 0 T [list]]
     foreach gate $gates {
         set name [dict get $gate name]
         set gateDefs($name) [SpecTclRestCommand::_gateDictToDef $gate]
@@ -1427,3 +1428,15 @@ proc SpecTclRestCommand::_unbindByName {ns name1 args} {
 }
 namespace ensemble configure unbind -unknown SpecTclRestCommand::_unbindByName
 
+#---------------------------------------------------------------------------
+# ungate command.
+
+##
+# ungate
+#    Ungate a list of spectra via REST.
+#
+# @param args - list of spectra to ungate.
+#
+proc ungate {args} {
+    return [$::SpecTclRestCommand::client ungate $args]
+}
