@@ -42,6 +42,16 @@ namespace eval SpecTclRestCommand {
 #==============================================================================
 # Private utilities.
 
+##
+# ::SpecTclRestCommand::_pipeDictToList
+#   Convert a pipeline dict to the list representation.
+#
+#  @param d  - pipeline dict deswcription
+#  @return list name, processors.
+#
+proc ::SpecTclRestCommand::_pipeDictToList {d} {
+    return [list [dict get $d name] [dict get $d processors]]
+}
 
 ##
 # ::SpecTclRestCommand::_axesDictToAxesList
@@ -1553,6 +1563,105 @@ namespace eval roottree {
         }
         
         return $result
+    }
+    
+}
+#------------------------------------------------------------------------------
+# pman command namespace ensemble.
+#
+
+namespace eval pman {
+    namespace export mk ls current ls-all ls-evp use add rm clear clone
+    namespace ensemble create
+    
+    ##
+    # mk
+    #   Create a new pipeline.
+    # @param name - pipeline name.
+    #
+    proc mk {name} {
+        return [$::SpecTclRestCommand::client pmanCreate $name]
+    }
+    ##
+    # ls
+    #   List names of the pipelines.
+    #
+    proc ls {{pattern *}} {
+        return [$::SpecTclRestCommand::client pmanList $pattern]
+    }
+    ##
+    # current
+    #   Provide the name and processors in the current pipeline.
+    #
+    proc current { } {
+        set raw [$::SpecTclRestCommand::client pmanCurrent]
+        return [::SpecTclRestCommand::_pipeDictToList $raw]
+    }
+    ##
+    # ls-all
+    #   List all pipelines and their details.
+    #
+    proc ls-all {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client pmanListAll $pattern]
+        set result [list]
+        foreach pipe $raw {
+            lappend result [::SpecTclRestCommand::_pipeDictToList $pipe]
+        }
+        return $result
+    }
+    ##
+    # ls-evp
+    #   List names of event processors.
+    #
+    # @param pattern - pattern to match.
+    #
+    proc ls-evp {{pattern *}} {
+        return [$::SpecTclRestCommand::client pmanListEventProcessors]
+    }
+    ##
+    # use
+    #   Selects a current event processing pipeline.
+    #
+    # @param name - name to use.
+    #
+    proc use {name} {
+        return [$::SpecTclRestCommand::client pmanUse $name]
+    }
+    ##
+    # add
+    #   Add an event processor to the end of a pipeline.
+    # @param pipe  - pipeline name.
+    # @Param processor - event processor name.
+    #
+    proc add {pipe processor} {
+        return [$::SpecTclRestCommand::client pmanAdd $pipe $processor]
+    }
+    ##
+    # rm
+    #   Remove an event processor from a pipeline.
+    #
+    # @param pipe - name of the pipeline.
+    # @param processor - name of the event processor to remove.
+    #
+    proc rm {pipe processor} {
+        return [$::SpecTclRestCommand::client pmanRemove $pipe $processor]
+    }
+    ##
+    # clear
+    #   Empty a pipeline of all processors.
+    #
+    proc clear {pipe} {
+        return [$::SpecTclRestCommand::client pmanClear $pipe]
+    }
+    ##
+    # clone
+    #   Make a copy of an event processor pipeline
+    #
+    # @param existing - name of existing pipe
+    # @param new      - name of the new pipe.
+    #
+    proc clone {existing new} {
+        return [$::SpecTclRestCommand::client pmanClone $existing $new]
     }
     
 }
