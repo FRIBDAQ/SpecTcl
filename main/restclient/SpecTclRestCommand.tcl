@@ -210,22 +210,22 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
         lappend result [list]
     } elseif {$gtype in [list gb gc]} {
         lappend result \
-            [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]] \
-            [dict get $gate parameters]
+            [list [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]] \
+            [dict get $gate parameters]]
     } elseif {$gtype in [list b c]} {
-        lappend result [dict get $gate parameters] \
-            [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]]
+        lappend result [list [dict get $gate parameters] \
+            {*}[SpecTclRestCommand::_ptDictsToPts [dict get $gate points]]]
     } elseif {$gtype in [list s] } {
         lappend result \
-            [dict get $gate parameters] \
-            [list [dict get $gate low] [dict get $gate high]]
+            [list [dict get $gate parameters] \
+            [list [dict get $gate low] [dict get $gate high]]]
     } elseif {$gtype in [list gs]} {
         lappend result \
-            [list [dict get $gate low] [dict get $gate high]] \
-            [dict get $gate parameters]
+            [list [list [dict get $gate low] [dict get $gate high]] \
+            [dict get $gate parameters]]
     } elseif {$gtype in [list am em nm]} {
         lappend result \
-            [dict get $gate parameters] [format 0x%x [dict get $gate value]]
+            [list [dict get $gate parameters] [format 0x%x [dict get $gate value]]]
     } else {
         error "Unrecognized gate type: $gtype"
     }
@@ -302,7 +302,7 @@ proc SpecTclRestCommand::shutdown { } {
 # @parm args - the command parameters.
 # @note - yes we know this masks the apply command.
 #
-proc apply {args} {
+proc applygate {args} {
     if {[llength $args] < 1} {
         error "'apply' command requires parameters"
     }
@@ -1009,9 +1009,9 @@ namespace eval gate {
     }
     ##
     # -trace
-    #   gate -trace is unimplemented
+    #   gate -trace is unimplemented but silent
     proc -trace {args} {
-        error "This version of SpecTclCommands does not implement gate -trace (yet)"
+
     }
 }
 ##
@@ -1312,8 +1312,7 @@ proc shmemsize { } {
 # !UNIMPLEMENTED! -byid on spectrum -list
 # !UNIMPLEMENTED! -list -id
 # !UNIMPLEMENTED! -delete -id.
-# !UNIMPLEMENTED -showgate
-
+#
 namespace eval spectrum {
     namespace export -new -list -delete -trace
     namespace ensemble create
@@ -1406,7 +1405,7 @@ namespace eval spectrum {
     # @param what - what to do add or delete.
     # @param script - script to add or remove.
     proc -trace {what {script ""}} {
-        error "spectrum -trace is not implemented"
+        
     }
 }
 ##
