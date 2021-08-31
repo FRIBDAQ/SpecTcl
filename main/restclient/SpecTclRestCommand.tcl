@@ -128,6 +128,8 @@ proc SpecTclRestCommand::_computeParameterMetadata {args} {
         dict set metadata low [lindex $rangeunits 0]
         dict set metadata high [lindex $rangeunits 1]
         dict set metadata units [lindex $rangeunits 2]
+    } elseif {[llength $args] == 0} {
+        # Nothing to do.
     } else {
         error "Parameter metadata specification is invalid $args"
     }
@@ -302,7 +304,7 @@ proc SpecTclRestCommand::shutdown { } {
 # @parm args - the command parameters.
 # @note - yes we know this masks the apply command.
 #
-proc applygate {args} {
+proc apply {args} {
     if {[llength $args] < 1} {
         error "'apply' command requires parameters"
     }
@@ -1065,9 +1067,9 @@ proc integrate {name roi} {
 # Simulate parameter command - a namespace ensemble with unknown handler is used.
 # !UNIMPLEMENTED! -byid list parameter - note this is supported by the REST interface.
 # !UNIMPLEMENTED! -id on delete command. - note this is supported by the REST interface.
-
+# !UNIMPLEMENTED! -trace
 namespace eval parameter {
-    namespace export -new -list -delete
+    namespace export -new -list -delete -trace
     namespace ensemble create
     ##
     # -new
@@ -1119,6 +1121,10 @@ namespace eval parameter {
     proc -delete {name} {
         return [$::SpecTclRestCommand::client parameterDelete $name]    
     }
+    ##
+    # -trace -unimplemented.
+    #
+    proc -trace {args} {}
 }
 ##
 # SpecTclRestCommand::_parameterCreate
@@ -1131,6 +1137,7 @@ namespace eval parameter {
 # @param args - The remaining command words.
 #
 proc SpecTclRestCommand::_parameterCreate {ns name args} {
+    puts "Relay $ns $name $args"
     return [list -new $name]
 }
 namespace ensemble configure parameter -unknown SpecTclRestCommand::_parameterCreate
