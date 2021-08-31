@@ -260,7 +260,7 @@ c destroy                                     <co id='ex.client.destroy' />
             <refentry>
                <refmeta>
                   <refentrytitle>SpecTclRESTClient</refentrytitle>
-                  <manvolnum>3tcl</manvolnum>
+                  <manvolnum>3spectcl</manvolnum>
                </refmeta>
                <refnamediv>
                   <refname>SpecTclRESTCient</refname>
@@ -3534,6 +3534,209 @@ c destroy                                     <co id='ex.client.destroy' />
                         that could only pop up on any X-11 DISPLAY connection
                         of the SpecTcl server, not the client.
                     </para>
+                </refsect1>
+            </refentry>
+            <refentry>
+               <refmeta>
+                  <refentrytitle>SpecTclRestCommand</refentrytitle>
+                  <manvolnum>3spectcl</manvolnum>
+               </refmeta>
+               <refnamediv>
+                  <refname>SpecTclRestCommand</refname>
+                  <refpurpose>3spectcl</refpurpose>
+                </refnamediv>
+                <refsynopsisdiv>
+                    <programlisting>
+package require SpecTclRestCommand
+
+SpecTclRestCommand::initialize spectcl-host spectcl-port
+                    </programlisting>
+                </refsynopsisdiv>
+                <refsect1>
+                         <title>DESCRIPTION</title>
+                      <para>
+                        This package, which is in the <filename>TclLibs</filename>
+                        directory tree of the SpecTcl installation beginning
+                        with SpecTcl 5.5, provides most of the SpecTcl commands
+                        in terms of the SpecTcl REST client interface.  The
+                        intent is to allow existing SpecTcl Graphical User
+                        interfaces to run as REST clients should SpecTcl
+                        be run "headless" under the NSCLDAQ  manager.
+                      </para>
+                      <para>
+                        Assuming the GUI makes use of none of the
+                        unimplemented features described in
+                        <literal>DIFFERENCES</literal> below, the only requirements
+                        are that a framing script be run that
+                      </para>
+                      <orderedlist>
+                        <listitem>
+                           <para>
+                              Includes the package via
+                              <command>package require</command> as
+                              shown in the synopsis (note that this, in turn
+                              will require that the SpecTcl
+                              <filename>TcLLibs</filename> directory be
+                              included in the package search path).
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              Initialize access to the REST interface by
+                              invoking
+                              <command>SpecTclRestCommand::initilialize</command>.
+                              This command takes, as parameters, the host on which
+                              the SpecTcl providing the REST interface and
+                              the port on which that REST interface is listening
+                              for connections.
+                           </para>
+                        </listitem>
+                      </orderedlist>
+                      <para>
+                        While not strictly necessary, the REST client used
+                        can be destroyed by calling
+                        <command>SpecTclRestCommand::shutdown</command>,
+                        which takes no command parameters.  One use case for this
+                        is an application which interacts with more than one
+                        SpecTcl REST server through this package.  Such an
+                        application can invoke
+                        <command>SpecTclRestCommand::shutdown</command> followed
+                        by <command>SpecTclRestCommand::initialize</command>
+                        to switch REST servers.
+                      </para>
+                      <para>
+                        Note, as is usual for REST clients, no persistent
+                        connection is formed with the server.  The client
+                        forms a connection for each command and closes that
+                        connection once the server has returned any information
+                        that command returns.
+                      </para>
+                </refsect1>
+                <refsect1>
+                    <title>DIFFERENCES</title>
+                    <para>
+                        The command implemented are not 100% compatible with
+                        SpecTcl.  This section describes the differences
+                        between the native command set and the
+                        commands provided by this package.
+                    </para>
+                    <formalpara>
+                        <title>Additions</title>
+                        <para>
+                            The need to initialize and the ability to
+                            shutdown REST access have been documented in
+                            <literal>DESCRIPTION</literal>  above.
+                        </para>
+                    </formalpara>
+                    <para>
+                        An additional command
+                        <command>execCommand</command> passes its single argument
+                        as a command string to be  executed by the
+                        SpecTcl Tcl interpreter.  One use case for this is
+                        to open a file and obtain its file discriptor for
+                        later use with, e.g. <command>sread</command> or
+                        <command>swrite</command>.  A second use is to
+                        form the basis of user written facades to support any
+                        commands that have been added to SpecTcl.
+                        Finally, it's possible to use this command to reduce
+                        the number of requests needed to perform,
+                        what otherwise might be, time consuming requests.
+                    </para>
+                    <para>
+                        <command>execCommand</command> returns any
+                        result the requested command might return.
+                    </para>
+                    <formalpara>
+                        <title>Omissions</title>
+                        <para>
+                            There are command features that have not
+                            been fully implemented.  In most cases these
+                            are not heavily used commands or features.
+                            If one or more of these causes problems, please
+                            report your needs.
+                        </para>
+                    </formalpara>
+                    <itemizedlist>
+                        <listitem>
+                           <para>
+                              The <command>rootexec</command> is not supported
+                              because normally this is used to access the
+                              graphical user interface of Root (e.g. pop up
+                              a <classname>TBrowser</classname>), and REST
+                              server SpecTcl's may not have access to a
+                              display.
+                           </para>
+                           <para>
+                            Note that the <command>execommand</command>
+                            can be used if you need to run a macro that does not
+                            require Root's graphics.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>gate -list</command>'s
+                              <option>-byid</option> option is not implemented.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>gate -trace</command>  is not implemented
+                              as this might require a persistent interface.
+                              Note that if there is a burning need for this,
+                              a polling scheme could potentially support this
+                              command.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>gate ?-new?</command>, gate creation, does
+                              support the creation of
+                              <literal>T</literal> or <literal>F</literal>
+                              gates.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>parameter -list</command>
+                              <option>-byid</option> is not supported.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>parameter -delete</command>
+                              <option>-id</option> is not supported.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>spectrum -trace</command> is unimplemented
+                              for the same reasons <command>gate -trace</command>
+                              is unimplemented.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                               <command>spectrum -list</command>  does not
+                               implement the <option>-byid</option> and
+                               the <option>-id</option>  options.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>spectrum -delete</command>
+                              does not implement the <option>-id</option>
+                              option.
+                           </para>
+                        </listitem>
+                        <listitem>
+                           <para>
+                              <command>unbind</command>  does not implement
+                              passing a list of Xamine mapping ids
+                              (xids) to be unbound.
+                           </para>
+                        </listitem>
+                    </itemizedlist>
+                    
                 </refsect1>
             </refentry>
         </section>

@@ -46,7 +46,7 @@ proc _matchSpectra {pattern} {
 proc SpecTcl_Spectrum/list {{filter *}} {
     set ::SpecTcl_Spectrum/list "application/json"
 
-    set spectra [spectrum -list $filter]
+    set spectra [spectrum -list -showgate $filter]
 
     set spectrumDefinitionArray [list]
 
@@ -56,6 +56,7 @@ proc SpecTcl_Spectrum/list {{filter *}} {
         set params [lindex $spectrum 3]
         set axes  [lindex $spectrum 4]
         set chantype [lindex $spectrum  5]
+        set gate [lindex $spectrum 6]
     
     
         ## The axes are an array of 
@@ -78,7 +79,8 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 type [json::write string $type] \
                 parameters $parameterArray      \
                 axes [json::write array {*}$axisArray] \
-                chantype [json::write string $chantype]]
+                chantype [json::write string $chantype] \
+                gate [json::write string $gate]] 
                 
         } else {
             set parameterList [lindex $params 0]
@@ -95,6 +97,7 @@ proc SpecTcl_Spectrum/list {{filter *}} {
                 chantype [json::write string $chantype]         \
                 projection [json::write string $direction]      \
                 roigates $gateArray                             \
+                gate [json::write string $gate]                 \
             ]
         }
 					 

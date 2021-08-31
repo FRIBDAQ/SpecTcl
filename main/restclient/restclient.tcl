@@ -1282,6 +1282,7 @@ snit::type SpecTclRestClient {
     #        -   parameter - list of parameters needed by the spectrum.
     #        -   axes - List of axis definitions (dict with low, high, bins keys).
     #        -   chantype - data type of the channel.
+    #        -   gate  - Name of the gate that's applied to the spectrum.
     #
     method spectrumList {{pattern *}} {
         set info [$self _request [$self _makeUrl               \

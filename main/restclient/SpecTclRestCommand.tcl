@@ -1341,17 +1341,39 @@ namespace eval spectrum {
     # @return list of spectrum definitions as described in the SpecTcl
     #         command reference
     # @note - all ids are zero.
-    proc -list {{pattern *}} {
+    proc -list {args} {
+        set pattern *;               # Default pattern.
+        set showgates 0
+        if {[llength $args] == 1} {
+            set pattern [lindex $args 0]
+            if {$pattern eq "-showgate"} {
+                set showgates 1
+                set pattern *
+            }
+        } elseif {[llength $args] == 2} {
+            set option [lindex $args 0]
+            set pattern [lindex $args 1]      
+            if {$option ne "-showgate"} {
+                error "Unrecognized option $option - only -showgate is allowwed"
+            }
+            set showgates 1
+        } elseif {[llength $args] > 2} {
+            error "Too many arguments to spectrum -list"
+        }
         set raw [$::SpecTclRestCommand::client spectrumList $pattern]
         
         set result [list]
         foreach s $raw {
-            lappend result  [list                                              \
+            set item [list                                              \
                 0 [dict get $s name] [dict get $s type]                        \
                 [dict get $s parameters]                                       \
                 [::SpecTclRestCommand::_axesDictToAxesList [dict get $s axes]]  \
                 [dict get $s chantype]                                         \
             ]
+            if {$showgates} {
+                lappend item [dict get $s gate]
+            }
+            lappend result $item
         }
         return $result
     }
@@ -1710,4 +1732,14 @@ namespace eval evbunpack {
     proc list {{pattern *}} {
         return [$::SpecTclRestCommand::client evbList $pattern]
     }
+}
+##
+# command
+#   Execute a command in the server.
+#
+# @param cmd - the command.
+# @return command's results.
+#
+proc execCommand {cmd} {
+    return [$::SpecTclRestCommand::client command $cmd]
 }
