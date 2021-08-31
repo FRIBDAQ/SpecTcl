@@ -1742,3 +1742,28 @@ namespace eval evbunpack {
 proc execCommand {cmd} {
     return [$::SpecTclRestCommand::client command $cmd]
 }
+##
+# updateVariables
+#    Update the SpecTcl globals from the server:
+#
+proc updateVariables { } {
+    set varDict [$::SpecTclRestCommand::client getVars]
+    dict for {name value} $varDict {
+        set ::$name $value
+    }
+        
+    
+}
+    
+##
+# maintainVariables
+#    Periodically updates the variables
+#    Requires an event loop.
+# @param seconds - seconds between updates.
+#
+proc maintainVariables {seconds} {
+    set ms [expr {$seconds * 1000}]
+    
+    updateVariables
+    after $ms maintainVariables $seconds
+}

@@ -1628,4 +1628,11 @@ snit::type SpecTclRestClient {
         
         return [dict get $info detail]
     }
+    ##
+    # getVars
+    #   Return the SpecTcl variables dict.
+    #
+    method getVars { } {
+        return [dict get [$self _request [$self _makeUrl shmem/variables]] detail]
+    }
 }
