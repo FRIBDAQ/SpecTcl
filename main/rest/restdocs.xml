@@ -742,7 +742,17 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                             </para>
                         </listitem>
                     </varlistentry>
-                    
+                    <varlistentry>
+                       <term><literal>gate</literal></term>
+                       <listitem>
+                           <para>
+                            The gate applied to the spectrum.  Note that all
+                            spectra have gates applied.  They start out with the
+                            special <literal>-T-</literal> gate applied which is
+                            a true gate.
+                           </para>
+                        </listitem>
+                    </varlistentry>
                 </variablelist>
             </section>
             <section>

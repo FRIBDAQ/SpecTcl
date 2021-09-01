@@ -1461,6 +1461,14 @@ c destroy                                     <co id='ex.client.destroy' />
                                            </para>
                                         </listitem>
                                     </varlistentry>
+                                    <varlistentry>
+                                       <term><literal>gate</literal></term>
+                                       <listitem>
+                                           <para>
+                                            Name of the gate applied to the spectrum.
+                                           </para>
+                                        </listitem>
+                                    </varlistentry>
                                    </variablelist>
                                 </listitem>
                             </varlistentry>
@@ -3646,6 +3654,86 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                         <command>execCommand</command> returns any
                         result the requested command might return.
                     </para>
+                    <para>
+                        SpectTcl maintains several global variables that user
+                        interfaces may depend on. Two commands are provided to
+                        maintain the same variables in the client side.
+                        The <command>execCommand</command> interface can be used
+                        by authors of client software to maintain additional variables.
+                    </para>
+                    <para>
+                        <command>updateVariables</command> fetches the contents of
+                        those variables and updates  identically named
+                        client side global variables
+                        with their values.
+                    </para>
+                    <para>
+                        <command>maintainVariables</command> requires the services
+                        of the event loop.  It periodically runs
+                        <command>updateVariables</command>.  Its single
+                        command line parameter is the number of seconds between
+                        update requests.  Note that the REST server is written
+                        so that a single client request updates all variables.
+                    </para>
+                    <para>
+                        Here is a list of the variables that
+                        <command>updateVariables</command> will update:
+                    </para>
+                    <variablelist>
+                        <varlistentry>
+                           <term><varname>DisplayMegabytes</varname></term>
+                           <listitem>
+                               <para>
+                                The number of megabytes of display shared
+                                memory requested (normally modified from
+                                the defaut in <filename>SpecTclInit.tcl</filename>)
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>Statistics</varname></term>
+                           <listitem>
+                               <para>
+                                Array containing some SpecTcl statistics.  The
+                                indices of this array are:
+                               </para>
+                               <variablelist>
+                                <varlistentry>
+                                   <term>EventsAccepted</term>
+                                   <listitem>
+                                       <para>
+                                        Number of events accepted by the
+                                        event processing pipeline (that is
+                                        the number that returned
+                                        <literal>kfTRUE</literal>).
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                   <term>EventsAcceptedThisRun</term>
+                                   <listitem>
+                                       <para>
+                                        Number of events that were accepted
+                                        since the most recent begin run.
+                                       </para>
+                                    </listitem>
+                                </varlistentry>
+                               </variablelist>
+                            </listitem>
+                        </varlistentry>
+                        
+                        OnlineState
+                        EventListSize
+                        ParameterCount
+                        SpecTclHome
+                        LastSequence
+                        RunNumber
+                        RunState
+                        DisplayType
+                        BuffersAnalyzed
+                        RunTitle
+
+                    </variablelist>
                     <formalpara>
                         <title>Omissions</title>
                         <para>

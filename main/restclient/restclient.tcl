@@ -1635,4 +1635,47 @@ snit::type SpecTclRestClient {
     method getVars { } {
         return [dict get [$self _request [$self _makeUrl shmem/variables]] detail]
     }
+    #-------------------------------------------------------------------------
+    # traces are handled a bit strangely because normally they are
+    # server side events.. We establish an interest in traces,
+    # poll for them and then end our interest.
+    #
+    
+    ##
+    # traceEstablish
+    #   Establish an interest in traces.
+    #
+    # @param retention - maxiumum # seconds traces are kept in our trace buffer.
+    # @return integer  - Token to use in done and fetch.
+    #
+    method traceEstablish  {retention} {
+        return [dict get [$self _request [$self _makeUrl          \
+            trace/establish [dict create retention $retention]]]  \
+        detail]
+    }
+    ##
+    # traceDone
+    #   Stop buffering of traces on our behalf by the server.
+    #
+    # @param token - Token that identifies us - return value from traceEstablish.
+    #
+    method traceDone {token} {
+        $self _request [$self _makeUrl trace/done [dict create token $token]]
+    }
+    ##
+    # traceFetch
+    #    Fetch traces that fired since the last fetch or since we established
+    #    our interest in traces.
+    #
+    # @param token - the client token returned from traceEstablish
+    # @return dict with the keys parameter, spectrum, gate.  Each of these
+    #         is a list of strings.  The strings are the parameters of the
+    #         trace.
+    #
+    method traceFetch {token} {
+        return [dict get [$self _request [$self _makeUrl             \
+            trace/fetch [dict create token $token ]]] \
+            detail                                                   \
+        ]
+    }
 }
