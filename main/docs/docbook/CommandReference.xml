@@ -3949,6 +3949,16 @@ parameter -delete
     <arg><option>-id</option> <replaceable>id</replaceable></arg>
 </group>
         </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+parameter <option>-trace</option> <replaceable>script</replaceable>
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+parameter <option>-untrace</option> <replaceable>script</replaceable>
+            </command>
+        </cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -3988,7 +3998,7 @@ parameter -delete
     <refsect1>
         <title>OPTIONS</title>
         <para>
-            The first option on the <command>paramter</command> command is like
+            The first option on the <command>parameter</command> command is like
             a command ensemble keyword.  It selects the operation the
             <command>paramter</command> command will perform.  This section
             will explore those options:
@@ -4240,6 +4250,35 @@ parameter ?<option>-new</option>? <replaceable>name id ?units?</replaceable>
                         <option>-id</option> is supplied, then <parameter>id</parameter>
                         is the id of the parameter whose definition is deleted.
                     </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><cmdsynopsis>
+                <command>parameter <option>-trace</option> <replaceable>script</replaceable></command>
+               </cmdsynopsis></term>
+               <listitem>
+                   <para>
+                    Establishes <parameter>script</parameter> as a trace
+                    on the parameter dictionary.  The script will be invoked
+                    when parameters are added or deleted.  The script will
+                    be passed two parameters.  The first is the text
+                    <literal>add</literal> or <literal>delete</literal>
+                    which describes the action that was performed on the
+                    parameter dictionary.  The second the name of the
+                    parameter for which that action was performed.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><cmdsynopsis>
+                <command>
+parameter <option>-untrace</option> <replaceable>script</replaceable>
+                </command>
+               </cmdsynopsis></term>
+               <listitem>
+                   <para>
+                    Removes the indicated trace script.
+                   </para>
                 </listitem>
             </varlistentry>
         </variablelist>
