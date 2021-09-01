@@ -42,12 +42,16 @@ CPyConverter::extractInfo(char* speclist)
 PyObject*
 CPyConverter::Update(char* hostname, char* port)
 {
-  std::cout << "Inside CPyConverter::Update()" << std::endl;
-  std::cout << "hostname: " << hostname << " port: " << port << std::endl;
-
+  if (debug){
+    std::cout << "Inside CPyConverter::Update()" << std::endl;
+    std::cout << "hostname: " << hostname << " port: " << port << std::endl;
+  }
+  
   std::string _hostname = hostname;
   std::string _port = port;  
-  std::cout << "Hostname --> " << _hostname << " Port --> " << _port << std::endl;
+
+  if (debug)
+    std::cout << "Hostname --> " << _hostname << " Port --> " << _port << std::endl;
   
   dataRetriever* d = dataRetriever::getInstance();
   d->SetHostPort(_hostname,_port);

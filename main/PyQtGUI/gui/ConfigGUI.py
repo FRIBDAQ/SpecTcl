@@ -139,7 +139,7 @@ class Configuration(QWidget):
         self.jup_stop = QPushButton("Stop", self)                
         self.jup_df_label = QLabel("Saving dataframe to")
         self.jup_df_filename = QLineEdit()
-        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".bz2"
+        filename = "df-"+time.strftime("%Y%m%d-%H%M%S")+".csv"
         self.jup_df_filename.setText(filename)
         
         self.jup_start.setStyleSheet("background-color:#3CB371;")
