@@ -3721,18 +3721,126 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                                </variablelist>
                             </listitem>
                         </varlistentry>
-                        
-                        OnlineState
-                        EventListSize
-                        ParameterCount
-                        SpecTclHome
-                        LastSequence
-                        RunNumber
-                        RunState
-                        DisplayType
-                        BuffersAnalyzed
-                        RunTitle
-
+                        <varlistentry>
+                           <term><literal>OnlineState</literal></term>
+                           <listitem>
+                               <para>
+                                Online state of the program.  I believe this is
+                                set nonzero by some scripts that use
+                                <command>attach -pipe</command> to attach to
+                                the NSCLDAQ data connector.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>EventListSize</literal></term>
+                           <listitem>
+                               <para>
+                                Number of events batched up by the event processing
+                                pipline for processing by the analysis (histogramming)
+                                pipeline.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>ParameterCount</literal></term>
+                           <listitem>
+                               <para>
+                                Initial size of the <classname>CEvent</classname>
+                                'arrays' when they are created.  Note they expand
+                                as needed and are recycled so this parameter is
+                                less critical than it used to be.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>SpecTclHome</literal></term>
+                           <listitem>
+                               <para>
+                                The top level directory of the SpecTcl installation
+                                the server was built against.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>LastSequence</literal></term>
+                           <listitem>
+                               <para>
+                                For NSCLDAQ-8 and earlier data this is the
+                                sequence number of the most recent buffer
+                                of data seen.  For NSCLDAQ-10 and later this is
+                                filled in from trigger statistics
+                                ring items to be
+                                the number of event triggered ring items that
+                                were produced as of the last trigger statistics
+                                ring item.  This is used by some GUIs to
+                                compute the approximate fraction of data
+                                SpecTcl has analyzed.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>RunNumber</literal></term>
+                           <listitem>
+                               <para>
+                                For data acquisition systems that have a run
+                                number that can be extracted from their
+                                data, this is the run number of the data source
+                                most recently opened.  Note that if SpecTcl
+                                is attached to an online data source this may
+                                not update until the beginning of the next run.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>RunState</literal></term>
+                           <listitem>
+                               <para>
+                                This is the state of any current run that's being
+                                analyzed.  It's most useful when analyzing
+                                online data.  It can take the values:
+                                <literal>Active</literal>, <literal>Halted</literal>,
+                                and <literal>Paused</literal>.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>DisplayType</literal></term>
+                           <listitem>
+                               <para>
+                                Type of displayer used by SpecTcl.
+                                This is taken from the <filename>SpecTclInit.tcl</filename>
+                                file unless the default <literal>xamine</literal>
+                                is not overidden.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>BuffersAnalyzed</literal></term>
+                           <listitem>
+                               <para>
+                                For NSCLDAQ 8 and earlier this is the number of
+                                buffers SpecTcl has analyzed.  For NSCLDAQ11, this is
+                                the number of physics event ring items that have
+                                been analyzed.  Ths, in conjunction with
+                                <literal>LastSequence</literal> are used by
+                                GUIs to compute the fraction of the data
+                                SpecTcl has analyzed in the online environment.
+                                Note that there are no longer any online NSCLDAQ-8
+                                systems.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>RunTitle</literal></term>
+                           <listitem>
+                               <para>
+                                For data from DAQ systems with titles associated
+                                with their runs, this is the title of the most
+                                recently attached data source.
+                               </para>
+                            </listitem>
+                        </varlistentry>
                     </variablelist>
                     <formalpara>
                         <title>Omissions</title>
