@@ -388,6 +388,12 @@ c destroy                                     <co id='ex.client.destroy' />
     
     $client command arbitrary-tcl-command
     
+    $client getVars
+    
+    $client traceEstablish retention
+    $client traceDone $token
+    $client traceFetch $token
+    
                     </programlisting>
                 </refsynopsisdiv>
                 <refsect1>
@@ -3129,6 +3135,126 @@ c destroy                                     <co id='ex.client.destroy' />
 
                     </refsect2>
                     <refsect2>
+                        <title>Tracing</title>
+                        <para>
+                            SpecTcl supports establishing traces on changes
+                            tot he parameter, gate and spectrum dictionaries.
+                            Traces for a REST client/server environment are
+                            problematic  because the REST protocol does not have
+                            a mechanism for the server to request an action by the
+                            on its own.
+                        </para>
+                        <para>
+                            The methods below allow the server to buffer traces
+                            on  behalf of an interested client which can the fetch
+                            accumulated traces.
+                        </para>
+                        <variablelist>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>traceEstablish</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>retention</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Establishes client interest in traces.
+                                    The <parameter>retention</parameter>
+                                    parameter specifies the minimum amount of time
+                                     trace information will be retained for this
+                                     client in seconds.  If traces are fetched
+                                     periodically, this should be some small multiple
+                                     of the time between fetches.
+                                   </para>
+                                   <para>
+                                    The return value from this method is an integer
+                                    token value that represents this client in the
+                                    server's trace buffering subsystem.
+                                    It should be used in calls to
+                                    <methodname>traceDone</methodname>
+                                    and <methodname>traceFetch</methodname>
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>traceDone</methodname>
+                                  <methodparam>
+                                      <type></type><parameter>token</parameter>
+                                  </methodparam>
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    This method indicates the client no longer
+                                    needs the server to buffer traces on its
+                                    behalf.
+                                    The <parameter>token</parameter> parameter
+                                    to this method should be the token returned
+                                    from <methodname>traceEstablish</methodname>.
+                                   </para>
+                                   <para>
+                                    Once successfully completed, the
+                                    <parameter>token</parameter> is no longer
+                                    valid.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term>
+                                <methodsynopsis>
+                                   <type></type>
+                                   <methodname>traceFetch</methodname>
+                                   <methodparam>
+                                       <type></type><parameter>token</parameter>
+                                   </methodparam>
+                                </methodsynopsis>
+                               </term>
+                               <listitem>
+                                   <para>
+                                    Fetches the traces buffered since the last
+                                    call to <methodname>traceFetch</methodname>.
+                                    The traces are returned as a dict with
+                                    three attributes.  The contents of each
+                                    attributs are a list in which each list element
+                                    describes a trace.
+                                   </para>
+                                   <para>
+                                    The <literal>parameter</literal>
+                                    attribute contains the parameter traces.
+                                    The first element of each list is the text
+                                    <literal>add</literal> or
+                                    <literal>delete</literal> indicating the
+                                    what happened.  THe second element is the
+                                    name of the parameter that was either
+                                    added or deleted.
+                                   </para>
+                                   <para>
+                                    The
+                                    <literal>gate</literal> attribute contains the
+                                    gate traces.  The first element of each list
+                                    is the text <literal>add</literal>,
+                                    <literal>delete</literal> or
+                                    <literal>changed</literal> indicating
+                                    why the trace fired.  The second element of
+                                    the list is the name of the affected gate.
+                                   </para>
+                                   <para>
+                                    The <literal>spectrum</literal> attribute
+                                    contains spectrum traces.  The first element
+                                    of each list is the text
+                                    <literal>add</literal> or <literal>delete</literal>
+                                    indicating the operation that fired the trace.
+                                    The second element of each list is the name
+                                    of the parameter that was affected.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </refsect2>
+                    <refsect2>
                         <title>Miscelaneous Methods</title>
                         <para>
                             The methods described in this section don't fit into
@@ -3525,6 +3651,22 @@ c destroy                                     <co id='ex.client.destroy' />
                                     SpecTcl server.   This allows for access
                                     to user defined commands and other client needs
                                     that have not been foreseen.
+                                   </para>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                               <term><methodsynopsis>
+                                  <type></type>
+                                  <methodname>getVars</methodname>
+                                  <void />
+                               </methodsynopsis></term>
+                               <listitem>
+                                   <para>
+                                    Returns the values of some variables
+                                    maintained by the server.  The result is
+                                    a dict whose keys are the names of those
+                                    variables and whose values are the values of
+                                    the variable specified in the key.
                                    </para>
                                 </listitem>
                             </varlistentry>
@@ -3935,6 +4077,7 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                     
                 </refsect1>
             </refentry>
+            
         </section>
        
     </chapter>
