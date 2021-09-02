@@ -38,6 +38,19 @@ package require json::write
 
 namespace eval SpecTclRestCommand {
     variable client ""
+    variable traceToken [list]
+    variable traceAfterId [list]
+    variable varsAfterId  [list]
+    
+    #  Variables associated with traces.
+    
+    variable tracePollInterval  2;   # Seconds between polls to get new traces.
+    variable parameterTraces [list]
+    variable spectrumAddTraces [list]
+    variable spectrumDeleteTraces [list]
+    variable gateAddTrace [list]
+    variable gateDeleteTrace [list]
+    variable gateChangedTrace [list]
 }
 #==============================================================================
 # Private utilities.
@@ -270,6 +283,104 @@ proc SpecTclRestCommand::_getAppliedGateInfo {info} {
     }
     return $result
 }
+#------------------------------------------------------------------------
+#  Trace handling.
+#
+
+##
+# SpecTclRestCommand::_pollTraces
+#   Periodically called to poll for new traces and dispatch them to
+#   the appropriate trace handlers (if any).
+#
+proc SpecTclRestCommand::_pollTraces {} {
+    
+    set traces [$::SpecTclRestCommand::client        \
+        traceFetch $SpecTclRestCommand::traceToken   \
+    ]
+    
+    set dstatus [catch {
+    foreach trace [dict get $traces parameter] {
+        foreach script $SpecTclRestCommand::parameterTraces {
+            uplevel #0 $script $trace
+        }
+    }
+    # While only one gate trace is allowed, doing what we're about to do
+    # a. Supports multiple in the future.
+    # b. Handles the case where there's no trace set easily.
+    
+ 
+    foreach trace [dict get $traces gate] {
+        set action [lindex $trace 0]
+        set args [lrange $trace 1 end]
+        
+        if {$action eq "add"} {
+            
+            foreach script $::SpecTclRestCommand::gateAddTrace {
+                uplevel #0 $script $args
+            }
+        } elseif {$action eq "delete"} {
+        
+            foreach script $::SpecTclRestCommand::gateDeleteTrace {
+                uplevel #0 $script $args
+            }
+            
+        } elseif {$action eq "changed"} {
+        
+            foreach script $SpecTclRestCommand::gateChangedTrace {
+                uplevel #0 $script $args
+            }
+        } else {
+            error "gate trace has an invalid action $action : $trace"
+        }
+    }
+    
+    foreach trace [dict get $traces spectrum] {
+        set action [lindex $trace 0]
+        set args   [lrange $trace 1 end]
+        if {$action eq "add"} {
+            foreach script $SpecTclRestCommand::spectrumAddTraces {
+                uplevel #0 $script $args
+            }
+        } elseif {$action eq "delete"} {
+            foreach script $SpecTclRestCommand::spectrumDeleteTraces {
+                uplevel #0 $script $args
+            }
+        } else {
+            error "spectrum trace action in valid $action : $trace"
+        }
+    }
+    } msg]
+    if {$dstatus} {
+        puts "$msg $::errorInfo"
+    }
+    set reschedule [expr {$SpecTclRestCommand::tracePollInterval*1000}]
+    
+    set SpecTclRestCommand::traceAfterId \
+        [after  $reschedule SpecTclRestCommand::_pollTraces]
+}
+##
+# SpecTclRestCommand::_startTraceMonitoring
+#    If trace monitoring has not yet been set up, set it up.
+#
+# @note that SpecTclRestCommand::tracePollInterval dynamically controls
+#      the polling interval and that we set the retention time to
+#      100*what it is now - and that's not modifiable currently.
+#
+#
+proc SpecTclRestCommand::_startTraceMonitoring { } {
+    
+    #
+    #  If there's already a trace token we don't need to set this up.
+    if {$SpecTclRestCommand::traceToken eq ""} {
+        set retention [expr {$SpecTclRestCommand::tracePollInterval * 100}]
+        set SpecTclRestCommand::traceToken [$SpecTclRestCommand::client \
+            traceEstablish $retention                                   \
+        ]
+        
+        SpecTclRestCommand::_pollTraces
+        
+    }
+}
 #==============================================================================
 # Public entries.
 ##
@@ -289,6 +400,16 @@ proc SpecTclRestCommand::initialize {host port} {
 #   Destroy the client object.
 #
 proc SpecTclRestCommand::shutdown { } {
+    if {$SpecTclRestCommand::traceAfterId != [list]} {
+        $SpecTclRestCommand::client traceDone $SpecTclRestCommand::traceToken
+        after cancel $SpecTclRestCommand::traceAfterId
+        set SpecTclRestCommand::traceAfterId [list]
+    }
+    if {$SpecTclRestCommand::varsAfterId != [list]} {
+        after cancel $SpecTclRestCommand::varsAfterId
+        set SpecTclRestCommand::varsAfterId [list]
+    }
+    set ::SpecTclRestCommand::traceToken [list]
     $::SpecTclRestCommand::client destroy
     set ::SpecTclRestCommand::client ""
 }
@@ -304,7 +425,7 @@ proc SpecTclRestCommand::shutdown { } {
 # @parm args - the command parameters.
 # @note - yes we know this masks the apply command.
 #
-proc apply {args} {
+proc applygate {args} {
     if {[llength $args] < 1} {
         error "'apply' command requires parameters"
     }
@@ -1012,8 +1133,48 @@ namespace eval gate {
     ##
     # -trace
     #   gate -trace is unimplemented but silent
+    # @param type - trace type: add, delete, change
+    # @param script - optional - the new gate trace of that type.
+    # @note that we must use args because there's a difference between
+    #       supplying no script and supplying an empty one.
+    # @return any prior trace of that type.
     proc -trace {args} {
-
+        if {[llength $args] == 0} {
+            error "gate -trace requires a trace type (add delete change)"
+        }
+        if {[llength $args] > 2} {
+            error "gate -trace too many arguments"
+        }
+        
+        set traceType [lindex $args 0]
+        set haveScript 0
+        
+        set script [list]
+        if {[llength $args] == 2} {
+            set haveScript 1
+            set script [lindex $args 1]
+        }
+        
+        if {$traceType eq "add"} {
+            set varname SpecTclRestCommand::gateAddTrace
+        } elseif {$traceType eq "delete" } {
+            set varname SpecTclRestCommand::gateDeleteTrace
+        } elseif {$traceType eq "change" } {
+            set varname SpecTclRestCommand::gateChangedTrace
+        } else {
+            error "gate -trace $traceType is not a valid trace type."
+        }
+        
+        set prior [set $varname];     # Prior trace name.
+        if {$haveScript} {
+            set $varname $script
+        }
+        
+        # Set up trace processing if it's not going yet.
+        
+        SpecTclRestCommand::_startTraceMonitoring
+        
+        return $prior
     }
 }
 ##
@@ -1069,7 +1230,7 @@ proc integrate {name roi} {
 # !UNIMPLEMENTED! -id on delete command. - note this is supported by the REST interface.
 # !UNIMPLEMENTED! -trace
 namespace eval parameter {
-    namespace export -new -list -delete -trace
+    namespace export -new -list -delete -trace -untrace
     namespace ensemble create
     ##
     # -new
@@ -1122,9 +1283,40 @@ namespace eval parameter {
         return [$::SpecTclRestCommand::client parameterDelete $name]    
     }
     ##
-    # -trace -unimplemented.
+    # -trace
+    #    Just append the script to the list of parameter trace scripts:
+    #    SpecTclRestCommand::parameter
     #
-    proc -trace {args} {}
+    # @param script -the trace script
+    proc -trace {script} {
+        lappend SpecTclRestCommand::parameterTraces $script
+        
+        SpecTclRestCommand::_startTraceMonitoring
+    }
+    ##
+    # -untrace
+    #    Remove a specific trace from the traces.
+    #    -  If there are more than one matching scripts only the oldest one
+    #       is removed.
+    #    -  If there is no matching script this call silently does nothing.
+    #
+    # @param script - the script to remove.
+    #
+    proc -untrace {script} {
+        set i 0
+        foreach s $SpecTclRestCommand::parameterTraces {
+            if {$s eq $script} {
+                
+                set SpecTclRestCommand::parameterTraces [lreplace \
+                    $SpecTclRestCommand::parameterTraces $i $i     \
+                ]
+                
+                break
+            }
+            incr i
+        }
+    }
+
 }
 ##
 # SpecTclRestCommand::_parameterCreate
@@ -1137,7 +1329,7 @@ namespace eval parameter {
 # @param args - The remaining command words.
 #
 proc SpecTclRestCommand::_parameterCreate {ns name args} {
-    puts "Relay $ns $name $args"
+    
     return [list -new $name]
 }
 namespace ensemble configure parameter -unknown SpecTclRestCommand::_parameterCreate
@@ -1399,9 +1591,9 @@ namespace eval spectrum {
         } else {
             error "spectrum -delete needs parameters"
         }
-        puts $names
+        
         foreach name $names {
-            puts "deleting $name"
+            
             $::SpecTclRestCommand::client spectrumDelete $name
         }
     }
@@ -1772,5 +1964,5 @@ proc maintainVariables {seconds} {
     set ms [expr {$seconds * 1000}]
     
     updateVariables
-    after $ms maintainVariables $seconds
+    set SpecTclRestCommand::varsAfterId [after $ms maintainVariables $seconds]
 }

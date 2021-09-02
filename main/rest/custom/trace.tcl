@@ -303,8 +303,7 @@ proc SpecTcl_trace/fetch {token} {
     set ::RestTrace::traceBuffers($token) [list]
     
     #  Process the traces..
-    
-    puts $traces
+
     
     foreach trace $traces {
         set type [dict get $trace type]
