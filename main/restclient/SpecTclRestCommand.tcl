@@ -1049,7 +1049,6 @@ namespace eval filter {
 # Gate namespace ensemble - we use unknown to trampoline into the
 #      create.
 # !UNIMPLEMENTED! gate -list -byid
-# !UNIMPLEMENTED! gate -trace
 #
 namespace eval gate {
     namespace export -new -list -delete -trace
@@ -1228,7 +1227,7 @@ proc integrate {name roi} {
 # Simulate parameter command - a namespace ensemble with unknown handler is used.
 # !UNIMPLEMENTED! -byid list parameter - note this is supported by the REST interface.
 # !UNIMPLEMENTED! -id on delete command. - note this is supported by the REST interface.
-# !UNIMPLEMENTED! -trace
+#
 namespace eval parameter {
     namespace export -new -list -delete -trace -untrace
     namespace ensemble create
@@ -1507,7 +1506,7 @@ proc shmemsize { } {
 #------------------------------------------------------------------------------
 # spectrum command simulation in a namespace ensemble.
 #
-# !UNIMPLEMENTED! spectrum -trace
+
 # !UNIMPLEMENTED! -byid on spectrum -list
 # !UNIMPLEMENTED! -list -id
 # !UNIMPLEMENTED! -delete -id.
@@ -1599,12 +1598,35 @@ namespace eval spectrum {
     }
     ##
     # -trace
-    #   Unimplemented stub for spectrum -trace
+    #   Implement traces in termsof the trace poll system.
+    #   
     #
     # @param what - what to do add or delete.
     # @param script - script to add or remove.
-    proc -trace {what {script ""}} {
+    # @return the prior value of the supplied trace.
+    #
+    proc -trace {what args} {
+        set haveScript 0
+        set script  [list]
+        if {[llength $args] != 0} {
+            set script $args
+            set haveScript 1
+        }
         
+        if {$what eq "add"} {
+            set scriptVar SpecTclRestCommand::spectrumAddTraces
+            
+        } elseif {$what eq "delete"} {
+            set scriptVar SpecTclRestCommand::spectrumDeleteTraces
+        } else {
+            error "spectrum -trace invalid trace type $what"
+        }
+        set prior [set $scriptVar]
+        if {$haveScript} {
+            set $scriptVar $script
+        }
+        SpecTclRestCommand::_startTraceMonitoring
+        return $prior
     }
 }
 ##
