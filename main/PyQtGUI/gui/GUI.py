@@ -953,8 +953,9 @@ class MainWindow(QMainWindow):
             self.isCluster = False
 
             self.createDf()
-        except Exception as e:
-            #print(e)
+        #except Exception as e:
+        #    print(e)
+        except:
             QMessageBox.about(self, "Warning", "The rest interface for SpecTcl was not started...")
 
     # get parameter count

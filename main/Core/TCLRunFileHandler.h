@@ -48,7 +48,7 @@ class CTCLRunFileHandler  : public CTCLIdleProcess
 
 public:
   CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun);
-   ~ CTCLRunFileHandler ( ) { }       //Destructor
+  ~ CTCLRunFileHandler ( ) { };       //Destructor
 	
 			//Copy constructor [illegal]
 private:
