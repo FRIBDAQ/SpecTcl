@@ -351,7 +351,7 @@ proc SpecTclRestCommand::_pollTraces {} {
     }
     } msg]
     if {$dstatus} {
-        puts "$msg $::errorInfo"
+        puts "trace poll error: $msg"
     }
     set reschedule [expr {$SpecTclRestCommand::tracePollInterval*1000}]
     
@@ -1131,13 +1131,14 @@ namespace eval gate {
     }
     ##
     # -trace
-    #   gate -trace is unimplemented but silent
+    #   manipulate gate traces 
     # @param type - trace type: add, delete, change
     # @param script - optional - the new gate trace of that type.
     # @note that we must use args because there's a difference between
     #       supplying no script and supplying an empty one.
     # @return any prior trace of that type.
     proc -trace {args} {
+        
         if {[llength $args] == 0} {
             error "gate -trace requires a trace type (add delete change)"
         }
@@ -1166,7 +1167,8 @@ namespace eval gate {
         
         set prior [set $varname];     # Prior trace name.
         if {$haveScript} {
-            set $varname $script
+            
+            set $varname [list $script]
         }
         
         # Set up trace processing if it's not going yet.
@@ -1288,7 +1290,7 @@ namespace eval parameter {
     #
     # @param script -the trace script
     proc -trace {script} {
-        lappend SpecTclRestCommand::parameterTraces $script
+        lappend SpecTclRestCommand::parameterTraces [list $script]
         
         SpecTclRestCommand::_startTraceMonitoring
     }
@@ -1623,7 +1625,7 @@ namespace eval spectrum {
         }
         set prior [set $scriptVar]
         if {$haveScript} {
-            set $scriptVar $script
+            set $scriptVar [list $script]
         }
         SpecTclRestCommand::_startTraceMonitoring
         return $prior
