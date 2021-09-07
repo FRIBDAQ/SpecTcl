@@ -68,11 +68,12 @@ class CXamine : public CDisplay
 {
     std::unique_ptr<CXamineShMemDisplayImpl> m_pImpl;
     std::shared_ptr<CXamineSharedMemory>     m_pMemory;
+    bool  m_runXamine;
 
 public:
   // Constructors:
 
-  CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem);
+  CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem, bool runXamine = true);
   virtual ~CXamine ();       //Destructor
 
 				// Copy Constructor.

@@ -2,13 +2,19 @@
 
 #include "GateContainer.h"
 #include "Spectrum.h"
+#include "Xamineplus.h"
 
 // Functions for CNullDisplayCreator
 //////////////////////////////////////////////////////////////////////////
 
+CNullDisplayCreator::CNullDisplayCreator() :
+    m_pSharedMem()
+{}
+
 CNullDisplay* CNullDisplayCreator::create()
 {
-    return new CNullDisplay();
+    return
+        reinterpret_cast<CNullDisplay*>(new CXamine(m_pSharedMem, false));   // Xamine without the process.
 }
 
 // Functions for CNullDisplay

@@ -50,17 +50,16 @@ CSharedMemoryKeyCommand::operator ()(CTCLInterpreter& interp,
 
     auto pDisplay = pDisplayInterface->getCurrentDisplay();
 
-    if (dynamic_cast<CNullDisplay*>(pDisplay) == nullptr) {
-        CTCLObject result;
 
-        char key[256];
-        Xamine_GetMemoryName(key);
-        result = key;
+    CTCLObject result;
 
-        interp.setResult(result);
+    char key[256];
+    Xamine_GetMemoryName(key);
+    result = key;
 
-        status = TCL_OK;
-    }
+    interp.setResult(result);
+
+    status = TCL_OK;
 
     return status;
 }

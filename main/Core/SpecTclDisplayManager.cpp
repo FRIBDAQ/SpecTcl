@@ -37,7 +37,7 @@ CSpecTclDisplayInterface::CSpecTclDisplayInterface()
     getFactory().addCreator("spectra",
                             *(new Spectra::CSpectraLocalDisplayCreator()));
 #endif
-    createDisplay("none", "null");
-    setCurrentDisplay("none");
+    createDisplay("_XXXXXdummyXXXX_", "null");
+    setCurrentDisplay("_XXXXXdummyXXXX_");     // Hopefully  nobody will guess this.
 
 }

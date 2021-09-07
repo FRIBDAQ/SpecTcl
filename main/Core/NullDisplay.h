@@ -21,6 +21,9 @@
 
 #include "Display.h"
 #include "DisplayFactory.h"
+#include "XamineSharedMemory.h"
+#include <memory>
+
 
 
 /*!
@@ -74,7 +77,13 @@ public:
 
 class CNullDisplayCreator : public CDisplayCreator
 {
+private:
+    std::shared_ptr<CXamineSharedMemory> m_pSharedMem;
+public:
+    CNullDisplayCreator();
     CNullDisplay* create();
+    void setSharedMemory(std::shared_ptr<CXamineSharedMemory> pShMem) { m_pSharedMem = pShMem; }
+    std::weak_ptr<CXamineSharedMemory> getDisplayBytes() const { return m_pSharedMem; }
 };
 
 #endif // NULLDISPLAY_H

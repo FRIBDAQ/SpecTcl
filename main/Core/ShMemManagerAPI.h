@@ -24,7 +24,7 @@ class ShMemManagerAPI {
   // ctor, dtor for ShMemManagerAPI
   ShMemManagerAPI(){}; 
   ShMemManagerAPI(ShMemManagerAPI const&){}; 
-  ShMemManagerAPI& operator=(ShMemManagerAPI const&){};
+  ShMemManagerAPI& operator=(ShMemManagerAPI const&){ return *this; };
 
   // Core of ShMemManagerAPI
   static ShMemManagerAPI* m_pInstance;
