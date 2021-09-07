@@ -1603,7 +1603,7 @@ specstats <replaceable>?pattern?</replaceable>
     <refsynopsisdiv>
         <cmdsynopsis>
             <command>
-treeparameter <option>-create</option> <replaceable>name low high units</replaceable>
+treeparameter <option>-create</option> <replaceable>name low high bins units</replaceable>
             </command>
         </cmdsynopsis>
         <cmdsynopsis>
@@ -1692,7 +1692,7 @@ treeparameter <option>-version</option>
                 <term>
                 <cmdsynopsis>
                     <command>
-treeparameter <option>-create</option> <replaceable>name low high units</replaceable>
+treeparameter <option>-create</option> <replaceable>name low high bins units</replaceable>
                     </command>
                 </cmdsynopsis>
                 </term>
@@ -3949,6 +3949,16 @@ parameter -delete
     <arg><option>-id</option> <replaceable>id</replaceable></arg>
 </group>
         </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+parameter <option>-trace</option> <replaceable>script</replaceable>
+            </command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>
+parameter <option>-untrace</option> <replaceable>script</replaceable>
+            </command>
+        </cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -3988,7 +3998,7 @@ parameter -delete
     <refsect1>
         <title>OPTIONS</title>
         <para>
-            The first option on the <command>paramter</command> command is like
+            The first option on the <command>parameter</command> command is like
             a command ensemble keyword.  It selects the operation the
             <command>paramter</command> command will perform.  This section
             will explore those options:
@@ -4240,6 +4250,35 @@ parameter ?<option>-new</option>? <replaceable>name id ?units?</replaceable>
                         <option>-id</option> is supplied, then <parameter>id</parameter>
                         is the id of the parameter whose definition is deleted.
                     </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><cmdsynopsis>
+                <command>parameter <option>-trace</option> <replaceable>script</replaceable></command>
+               </cmdsynopsis></term>
+               <listitem>
+                   <para>
+                    Establishes <parameter>script</parameter> as a trace
+                    on the parameter dictionary.  The script will be invoked
+                    when parameters are added or deleted.  The script will
+                    be passed two parameters.  The first is the text
+                    <literal>add</literal> or <literal>delete</literal>
+                    which describes the action that was performed on the
+                    parameter dictionary.  The second the name of the
+                    parameter for which that action was performed.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><cmdsynopsis>
+                <command>
+parameter <option>-untrace</option> <replaceable>script</replaceable>
+                </command>
+               </cmdsynopsis></term>
+               <listitem>
+                   <para>
+                    Removes the indicated trace script.
+                   </para>
                 </listitem>
             </varlistentry>
         </variablelist>
@@ -5922,11 +5961,6 @@ unbind <option>-id</option> <replaceable>id1 ?id2...?</replaceable>
 unbind <option>-all</option>
             </command>
         </cmdsynopsis>
-        <cmdsynopsis>
-            <command>
-unbind <option></option> <replaceable>xid1 ?xid2...?</replaceable>   
-            </command>
-        </cmdsynopsis>
     </refsynopsisdiv>
     
     <refsect1>
@@ -6139,7 +6173,7 @@ version
 </refentry>
 <refentry id='ref.swritecommand'>
     <refmeta>
-        <refentrytitle id='ref.swritecommand.title'>sread</refentrytitle>
+        <refentrytitle id='ref.swritecommand.title'>swrite</refentrytitle>
         <manvolnum>1SpecTcl</manvolnum>
     </refmeta>
     
@@ -6410,11 +6444,17 @@ rootexec <replaceable>filename</replaceable>
             for execution.  
         </para>
         <para>
-            Note that SpecTcl's initialization order is such that this is
-            supported from within <filename>SpecTclRC.tcl</filename> but
-            <emphasis>not</emphasis> from within
-            <filename>SpecTclInit.tcl</filename>
+            This command is only supported if the <literal>rootinterface</literal>
+            package is loaded in to SpecTcl.  This can be done by
+            adding the following lines to your
+            <filename>SpecTclRC.tcl</filename> script
         </para>
+        <informalexample>
+            <programlisting>
+load $SpecTclHome/lib/libRootInterface.so
+package require rootinterface
+            </programlisting>
+        </informalexample>
     </refsect1>
     <refsect1>
         <title>EXAMPLE</title>
@@ -6471,7 +6511,17 @@ roottree list <replaceable>?tree-name-pattern?</replaceable>
             unpacked parameters.  Root Tree writers act as a
             Event sink, but are linked to an event processor so that they
             are aware when run start/stop records are encountered.
+            It is only available if the <literal>rootinterface</literal>
+            package is loaded.  This can be loaded from
+            your <filename>SpecTclRC.tcl</filename> script by adding the
+            lines:
         </para>
+        <informalexample>
+            <programlisting>
+load $SpecTclHome/lib/libRootInterface.so
+package require rootinterface
+            </programlisting>
+        </informalexample>
         <para>
             The <literal>create</literal> subcommand creates a new
             tree named <parameter>tree-name</parameter> the parameters

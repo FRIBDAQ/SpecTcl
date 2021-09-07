@@ -48,3 +48,25 @@ proc SpecTcl_Memory/size {} {
 
   return [::SpecTcl::_returnObject OK [json::write string [shmemsize]] ]
 }
+
+##
+# SpecTcl_Memory/variables
+#    Return a set of SpecTcl variables.
+#
+#
+proc SpecTcl_Memory/variables { } {
+    set ::SpecTcl_Memory/variables application/json
+    
+    set vars [list]
+    foreach var [list DisplayMegabytes  OnlineState EventListSize \
+                ParameterCount SpecTclHome LastSequence RunNumber     \
+                RunState DisplayType BuffersAnalyzed RunTitle] {
+      lappend vars $var [json::write string [set ::$var]]
+    }
+    foreach index [array names ::Statistics] {
+      lappend vars Statistics($index) [json::write string $::Statistics($index)]
+    }
+        
+    
+    return [::SpecTcl::_returnObject OK [json::write object {*}$vars]]
+}

@@ -43,6 +43,7 @@ Direct_Url /spectcl/version SpecTcl_version
 #      - editlevel - Edit level of the version (edit above).
 #
 proc SpecTcl_version {} {
+    set ::SpecTcl_version application/json
     if {![catch version msg]} {
         set vsn $msg
     } else {

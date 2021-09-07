@@ -60,7 +60,7 @@ proc SpecTcl_Apply/apply {{gate ""}  {spectrum ""} } {
 # SpecTcl_Apply/list
 #
 # list gate applications.  The details part of the gate contains an array
-# named "applications"  Each element of that array is an object with the
+#  Each element of that array is an object with the
 # attributes:
 #    *   spectrum - name of the spectrum.
 #    *   gate     - name of the applied gate.

@@ -562,6 +562,105 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter
                     </para>
                 </formalpara>
             </section>
+            <section>
+               <title>create</title>
+               <para>
+                Provides direct access to the SpecTcl
+                <command>treeparameter -create</command> command.
+                This command can create a new parameter if there is no existing
+                parameter. The REST interface returns nothing. It accepts the
+                following query parameters:
+               </para>
+               <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Name of the new treeparameter.  If there isn't an underlying
+                        parameter with this name it will be created.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum low limit for this parameter
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum high limit for this parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>bins</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Suggested spectrum binning for this parameter
+                        given for its recommended low and high values.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional defaults to "")</term>
+                   <listitem>
+                       <para>
+                        Units of measure of the parameter
+                       </para>
+                    </listitem>
+                </varlistentry>
+               </variablelist>
+            </section>
+            <section>
+               <title>listnew</title>
+               <para>
+                Lists tree parameter that have been created by
+                <command>treeparameter -create</command> note these can be
+                created by local commands (from scripts e.g.) of from REST
+                requests that can come from any client
+               </para>
+               <para>
+                On successful completion, the <literal>detail</literal>
+                attribute will be an array of strings that are the
+                created tree parameters.
+               </para>
+            </section>
+            <section>
+               <title>check</title>
+               <para>
+                Returns the state of a tree parameter check flag.
+                The required query parameter <literal>name</literal>
+                is the name of the tree parameter to operate on.
+               </para>
+               <para>
+                The check flag indicates if a tree parameter has been
+                created or modified since SpecTcl started or since the
+                flag was cleared.  It can be  used to reduce the amount of
+                information that needs to be written to saved settings files
+                in the event there are a large number of tree parameter
+                definitions.
+               </para>
+            </section>
+            <section>
+               <title>uncheck</title>
+               <para>
+                Clears the check flag of the treeparameter whose name is the
+                <literal>name</literal> query parameter.
+               </para>
+            </section>
+            <section>
+               <title>version</title>
+               <para>
+                The <literal>detail</literal> attribute of the response
+                to this request is the treeparameter implementation version.
+                This is a string, not a number.
+               </para>
+            </section>
         </section>
         <section>
             <title>spectrum requests</title>
@@ -643,7 +742,17 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                             </para>
                         </listitem>
                     </varlistentry>
-                    
+                    <varlistentry>
+                       <term><literal>gate</literal></term>
+                       <listitem>
+                           <para>
+                            The gate applied to the spectrum.  Note that all
+                            spectra have gates applied.  They start out with the
+                            special <literal>-T-</literal> gate applied which is
+                            a true gate.
+                           </para>
+                        </listitem>
+                    </varlistentry>
                 </variablelist>
             </section>
             <section>
@@ -882,6 +991,14 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum
                     case the special header <literal>Uncompressed-Length</literal>
                     provides the number of bytes required to hold the uncompressed
                     JSON after defation.
+                </para>
+                <para>
+                    With SpecTcl 5.5, the optional query parameter
+                    <literal>compress</literal> (which defaults to in order
+                    to perserve compatibility), can control if compression is
+                    done.  This was done to cater to an error in the
+                    tcl http package that throws a <literal>data error</literal>
+                    in the even the data are binary.
                 </para>
             </section>
             
@@ -1502,7 +1619,2312 @@ http://<replaceable>host.name:port-num</replaceable>/spectcl/apply/list
                 </informalexample>
             </section>
         </section>
-        
+        <section>
+            <title>Attaching data sources (New in 5.5)</title>
+            <para>
+                The SpecTcl <command>attach</command> command can be
+                accessed using the <literal>/spectcl/attach</literal> URL
+                domain.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/apply/apply?type=srctype&amp;source=src<optional>&amp;size=bsize&amp;format=fmt</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Attaches a new data source to SpecTcl.  Query parameters are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        The type of data source. Currently this is
+                        one of <literal>file</literal> to read data from a
+                        file or <literal>pipe</literal> to read data from a
+                        program on the other end of a pipe. 
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>source</literal></term>
+                   <listitem>
+                       <para>
+                        The source string expected by the
+                        <command>attach</command> command for the specified
+                        source type.  For <literal>file</literal> data sources,
+                        this is just the path to the file to read. Note that
+                        since SpecTcl's directory is not known it's recommended
+                        the full path be provided.  For <literal>pipe</literal>
+                        data sources this is the full command string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>size</literal></term>
+                   <listitem>
+                       <para>
+                        Optional query parameter that, if supplied, sets the
+                        blocking factor for reads from the data source.
+                        This defaults to <literal>8192</literal>
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal></term>
+                   <listitem>
+                       <para>
+                        Optional query parameter that, if supplied, sets
+                        the data format.  Acceptable values are:
+                       </para>
+                       <variablelist>
+                        <varlistentry>
+                           <term><literal>ring</literal></term>
+                           <listitem>
+                               <para>
+                                The data are ring items, see, however
+                                the <literal>/spectcl/ringformat</literal>
+                                domain to select the version of ring items.
+                                This is the default value
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>nscl</literal></term>
+                           <listitem>
+                               <para>
+                                Data are fixed length
+                                8192 byte buffers from NSCLDAQ
+                                before version 10.0
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>jumbo</literal></term>
+                           <listitem>
+                               <para>
+                                Data are fixed length buffers longer than
+                                128K bytes from NSCLDAQ prior to version 10.0.
+                                This was used for some MoNA experiments
+                                that took trace data and therefore needed
+                                longer buffers.  The difference is an extension
+                                to the 16 bit used blocksize (in 16 bit words) that
+                                supports these sizes.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><literal>filter</literal></term>
+                           <listitem>
+                               <para>
+                                The data are XDR filter data. Note that
+                                SpecTcl must have been configured to
+                                analyze filter data.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                       </variablelist>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Note that attaching does not imply starting data analysis.
+                That requires using the <literal>/spectcl/start</literal>
+                request.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+ http://host:port/spectcl/apply/list                   
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>detail</literal> part of the JSON returned
+                is the of the form <literal>SourceType: string</literal>
+                where <literal>SourceType:</literal> is either <literal>File</literal>
+                or <literal>Pipe</literal> and the string is the data source string,
+                that is the filename for <literal>File:</literal> and the
+                command on the other end of the <literal>Pipe:</literal>.
+            </para>
+        </section>
+        <section>
+            <title>Binding Spectra to Display Memory (new in 5.5)</title>
+            <para>
+                The <literal>/sbind</literal> domain provides access to the
+                <command>sbind</command> SpecTcl command.  This there are three
+                subdomains:
+            </para>
+            <section>
+                <title>/sbind/all</title>
+                <para>
+                    URLs of the form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port:/sbind/all
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Bind all spectra to display  memory.  Nothing of value is
+                    returned in the  <literal>detail</literal> field of the
+                    reply data.
+                </para>
+            </section>
+            <section>
+                <title>/sbind/sbind</title>
+                <para>
+                    URL's of the following form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/sbind/spectrum?spectrum=name1<optional>&amp;spectrum=name2...</optional>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Bind all spectra named in all instances of the
+                    <literal>spectrum</literal> query parameter to display
+                    memory. Nothing of use is returned in the
+                    <literal>detail</literal> part of the JSON reply data.
+                </para>
+            </section>
+            <section>
+                <title>/sbin/list</title>
+                <para>
+                    URL's of the form:
+                </para>
+                <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/sbind/list<optional>?pattern=glob</optional>
+                    </command></cmdsynopsis>
+                </informalexample>
+                <para>
+                    Return information about the bindings of spectra that
+                    match the <literal>pattern</literal> query parameter interpreted
+                    as a glob spectrum name match string.  If omitted the
+                    pattern matched defaults to <literal>*</literal>
+                    which matches all spectra.
+                </para>
+                <para>
+                    The <literal>detail</literal> attribute of the JSON returned
+                    data is an array of objects with the following attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                       <term><literal>spectrumid</literal></term>
+                       <listitem>
+                           <para>
+                            The id of the bound spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>name</literal></term>
+                       <listitem>
+                           <para>
+                            The name of the bound spectrum.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                       <term><literal>binding</literal></term>
+                       <listitem>
+                           <para>
+                            The shared memory binding id.
+                           </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                    Note that spectra which are not bound but match the
+                    pattern will not appear in the array.
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Accessing the fit command (new in 5.5)</title>
+            <para>
+                The <literal>/spectcl/fit</literal> domain provides
+                access to the SpecTcl <command>fit</command> command.
+                <command>fit</command> provides you with the ability to
+                fit spectra to arbitrary functions.  The built-in
+                <literal>linear</literal> and <literal>gaussian</literal>
+                fit types are provided and the programming manual describes
+                how to extend the set of fits that are provided by this
+                command.
+            </para>
+            <para>
+                The URL below:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/create?name=fitname&amp;spectrum=specname&amp;low=lochan&amp;high=hichan&amp;type=fittype
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides the capability to create new fits (<command>fit create</command>).
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name to be associated with the fit.  This will be used
+                        when referring to the fit in the future.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        The spectrum on which the fit is to be computed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low, high</literal></term>
+                   <listitem>
+                       <para>
+                        The <emphasis>channel</emphasis> coordinates over which
+                        the fit is to be computed.  At present, the fit is done
+                        in channel coordinates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        The type of the fit to perform.  The built in fit types
+                        are <literal>linear</literal> and <literal>gaussian</literal>
+                        which have pretty obvious meanings.  Applications may
+                        extend this set of functions.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                The URL
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/update<optional>?pattern=glob</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides the ability to update the set of fits whose names
+                match the glob pattern in the query parameter <literal>pattern</literal>.
+                As spectra accumulate, fit data will be outdated. This allows
+                the fit information to be recomputed to match current data.
+            </para>
+            <para>
+                If the pattern is not provided it defaults to <literal>*</literal>
+            </para>
+            <para>
+                The URL
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/delete?name=fitname                    
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                provides the ability to delete the fit object named after the
+                contents of the query parameter <literal>name</literal>.  Once
+                deleted, the fit cannot be recovered.
+            </para>
+            <para>
+                URLs of the form
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fit/list?pattern=glob
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Allows you to get information about the fits whose names
+                match the <literal>pattern</literal> query parameter.  The
+                pattern is treated as a glob pattern and, if not supplied,
+                defaults to <literal>*</literal>
+            </para>
+            <para>
+                The result is a <literal>detail</literal> attribute that is an
+                array. Each element of the array is an object that
+                describes a matching fit. The
+                atributes of these objects are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the fit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum the fit is computed on.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>type</literal></term>
+                   <listitem>
+                       <para>
+                        Type of the fit being computed.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low, high</literal></term>
+                   <listitem>
+                       <para>
+                        Fit limits in spectrum channel coordinates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal></term>
+                   <listitem>
+                       <para>
+                        An object that contains the fit parameters.
+                        The attributes of this object will depend on the actual
+                        fit type.  Likely there will always be a
+                        <literal>chisquare</literal> attribute that describes the
+                        goodness of fit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>REST interface for the fold command (new in 5.5)</title>
+            <para>
+                The fold command has three sub opterations that:
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                       Fold a list of gamma spectra on a gamma gate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Remove a fold from a gamma spectrum .
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      List the folded spectra (that match a glob pattern). 
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                The URL below applies folds to spectra:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/apply?gate=gammagate&amp;spectrum=specname1<optional>&amp;spectrum=specname2...</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <parameter>gate</parameter> query parameter specifies a gate
+                which must be a gamma gate.  One or more <parameter>spectrum</parameter>
+                query parameters specify the spectra to be folded with that gate.
+            </para>
+            <para>
+                the <literal>spectcl/fold/apply</literal> URLs do not return
+                anything useful other than the status.
+            </para>
+            <para>
+                The URL below lists folded spectra that match the <literal>pattern</literal>
+                query parameter (treated as a glob pattern).  If the
+                <literal>pattern</literal> query parameter is not supplied, it
+                defaults to <literal>*</literal>
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/list<optional>?pattern=globpattern</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                It is important to note that the pattern matches
+                <emphasis>spectra</emphasis> not gates.  The <literal>detail</literal>
+                part of the return data is an array of JSON objects. Each
+                object has the following attributes:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        Name of a folded spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the gate used to fold the spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Spectra without folds will not be listed in the array.
+            </para>
+            <para>
+                The following URL is used to unfold a spectrum:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/fold/remove?spectrum=spectrum-name
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>spectrum</literal> query parameter specifies
+                the name of the spectrum from which to remove the fold.
+                Nothing useful other than the <literal>status</literal> attribute
+                of the reply is returned on success.  
+            </para>
+        </section>
+        <section>
+            <title>Accessing the channel command (new in 5.5)</title>
+            <para>
+                Spectrum channel values can be inspected or set using this interface
+                Note that the spectrum contents interface may be a more
+                performant method to get bulk spectrum information.
+            </para>
+            <para>
+                URLS of the type below can set the value of a spectrum channel:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                    <command>
+http://host:port/spectcl/channel/set?spectrum=name&amp;xchannel=x&amp;value=value<optional>&amp;ychannel=y</optional>
+                    </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>spectrum</literal> query parameter specifies
+                the name of the spectrum to operate on.
+                <literal>xchannel</literal> specifies the x channel number.
+                If the spectrum selected is a 2-d spectrum,
+                <literal>ychannel</literal> is needed to  specify the y channel.
+                Regardless, <literal>value</literal> specifies the value
+                to stuff into that spectrum channel.
+            </para>
+            <para>
+                Note that the <emphasis>channel</emphasis> coordinates are
+                specified, not real coordinates.
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/channel/get?spectrum=name&amp;xchannel=x<optional>&amp;ychannel=y</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                URLs of the form above, return the value of a channel of a spectrum
+                in the <literal>detail</literal> attribute of the reply object.
+                The query values <literal>spectrum</literal> and
+                <literal>xchannel</literal> specify the spectrum name and
+                x channel to fetch. If the spectrum is 2d, an additional
+                <literal>ychannel</literal> query parameter is required to
+                specify the y channel.
+            </para>
+            <para>
+                Note again, that the <literal>xchannel</literal> and
+                <literal>ychannel</literal> coordinates are in spectrum coordinate
+                units not real coordinates.
+            </para>
+        </section>
+        <section>
+            <title>Projecting spectra (new in 5.5)</title>
+            <para>
+                The REST interface supports spectrum projection:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/project?snapshot=1|2&amp;source=specname&amp;newname=newspecname&amp;direction=x|y<optional>&amp;contour=contourname</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                URLS of this form project an existing spectrum onto one of the
+                axes creating an new spectrum.  The query parameters are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>snapshot</literal></term>
+                   <listitem>
+                       <para>
+                        This is a boolean value.  If nonzero, the projected spectrum
+                        will not increment, it's a snapshot of the projection in time.
+                        If <literal>0</literal>, as new data arrive, the projected
+                        spectrum will increment just like any other.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>source</literal></term>
+                   <listitem>
+                       <para>
+                        Specifies the name of the spectrum to project.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>newname</literal></term>
+                   <listitem>
+                       <para>
+                        Specifies the name of the new projected spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>direction</literal></term>
+                   <listitem>
+                       <para>
+                        Either <literal>x</literal> or <literal>y</literal>
+                        identifying the axis onto which the spectrum is projected.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>contour</literal></term>
+                   <listitem>
+                       <para>
+                        Optional.  If specified, this is a contour that must have
+                        been displayable on the <literal>source</literal> spectrum.
+                        The projected spectrum is initially populated only with counts
+                        that are within that contour. Furthermore, if the projected
+                        spectrum is not a snapshot spectrum, it is gated on that contour
+                        (initially) so that the projection remains faithful as
+                        new data arrive.
+                       </para>
+                       <para>
+                        Note that there is nothing to stop a user from
+                        applying a different gate later however, in that case,
+                        clearly the spectrum will not increment in a manner that
+                        is faithful to the original projection.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Spectrum Underflow and Overflow Statistics (new in 5.5)</title>
+            <para>
+                URLs of the form:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/specstats<optional>?pattern=globname-pattern</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Return the overflow and underflow statistics for the spectra
+                whose names match the optional <literal>pattern</literal>
+                query parameter.  If that pattern is not supplied it defaults
+                to <literal>*</literal> returning information about all spectra.
+            </para>
+            <para>
+                The <literal>detail</literal> attribute of the returned JSON object
+                is an array of objects that have the attributes:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the spectrum being described.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>underflows</literal></term>
+                   <listitem>
+                       <para>
+                        Array of underflow counters.  If a 1-d spectrum this is
+                        a single element.  For 2-d spectra this is a two element
+                        array containing x and y axis undeflowas in that order.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>overflows</literal></term>
+                   <listitem>
+                       <para>
+                        Same as for <literal>undeflows</literal> but the array
+                        contain overflow counter(s).
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+           <title>Access to the treeevariable command (new in 5.5)</title>
+           <para>
+            URLs of the following form list the tree variables:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treeparameter/list
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned JSON object
+            is an array of objects.  Each object describes a tree variable
+            and has the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the treevariable.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>value</literal></term>
+               <listitem>
+                   <para>
+                    Current value of the treevariable.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>units</literal></term>
+               <listitem>
+                   <para>
+                    Units of measure of the tree variable.  Note that if this
+                    is an empty string the variable should be assumed to be
+                    unitless.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            Tree variable values may be changed as well as their units:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treeparameter/set?name=varname&amp;value=newvalue&amp;units=newunits
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Note that the units are not optional just as they are not optional for
+            the underlying SpecTcl <command>treevariable -set</command> command.
+           </para>
+           <para>
+            Treevariables have a flag that indicates if they have been modified
+            in the life of the SpecTcl run.  This flag is normally used to
+            limit the amount of information that must be saved in files that
+            capture the SpecTcl analysis state.  This flag can be interrogated:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/check?name=varname                
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned JSON object
+            is <literal>0</literal> if the variable has not been changed and
+            <literal>1</literal> if it has.
+           </para>
+           <para>
+            It is possible for user interfaces to directly set the changed flag
+            above.  This is done with URLS of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/setchanged?name=varname
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Finally, there are cases where it's important to fire Tcl traces
+            associated with tree variables.  This can be done as follows:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/treevariable/firetraces<optional>?pattern=glob-pattern</optional>
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            For these URL's, <replaceable>glob-pattern</replaceable> is
+            a GLOB pattern used to filter which traces are fired. Only variables
+            whose names match that pattern will have their traces fired.
+            Note that if not supplied the pattern defaults to <literal>*</literal>
+            which matches all variable names.
+           </para>
+        </section>
+        <section>
+           <title>Accessing the filter command (New in 5.5</title>
+           <para>
+            Filters can be created using URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/new?name=filtername&amp;gate=gatename&amp;parameter=p1<optional>&amp;parameter=p2...</optional>
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            In this URL, the query parameters are:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    The name of the filter to create.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>gate</literal></term>
+               <listitem>
+                   <para>
+                    Specifies the name of a gate that will determine which
+                    events are output by the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameter</literal></term>
+               <listitem>
+                   <para>
+                    Each occurance of this query parameter specifies the
+                    name of a parameter that will be written to the filter output.
+                    Note that neither the server nor SpecTcl check for name uniqueness,
+                    it is therefore possible, although pathalogical, to output
+                    the same parameter in an event more than once.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            To delete a filter use URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/delete?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            The query parameter <literal>name</literal> specifies the name of
+            the filter to delete.  If the filter is enabled it is first disabled which
+            results in a properly terinated file.
+           </para>
+           <para>
+            Filters can be enabled using URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/enable?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Where the query parameter <literal>name</literal>
+            specifies the name of the filter to enable.
+           </para>
+           <para>
+            Similarly:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/disable?name=filtername
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Disables the filter specified by the <literal>name</literal>
+            query parameter.
+           </para>
+           <para>
+            URLs of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+                <command>
+http://host:port/spectcl/name?name=filtername&amp;file=path
+                </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Specify the output file for the filter.
+            <literal>name</literal> specifies the filter name and
+            <literal>path</literal> the filter output file path. Note that
+            SpecTcl is writing the filter file and therefore the
+            <literal>path</literal> is interpreted as a path in the context of
+            the server not the client.  Furthermore, the <literal>path</literal>
+            value must specify a file that can be written by SpecTcl (not the
+            client).
+           </para>
+           <para>
+            Urls of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/list
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Returns, for the <literal>detail</literal> part of the JSON
+            returned object an array of objects.  Each object will
+            describe a single filter and contains the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>gate</literal></term>
+               <listitem>
+                   <para>
+                    Name of the gate applied to the filter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>file</literal></term>
+               <listitem>
+                   <para>
+                    Name of the output file to which the filter writes.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameters</literal></term>
+               <listitem>
+                   <para>
+                    An array of parameter names written to the output file
+                    for each event that passes the gate.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>enabled</literal></term>
+               <listitem>
+                   <para>
+                    If the filter is enabled, this attribute has the value
+                    <literal>enabled</literal> otherwise
+                    <literal>disabled</literal>.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>format</literal></term>
+               <listitem>
+                   <para>
+                    Contains the format string e.g. <literal>xdr</literal>.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            The format of the filter output can be extended.  URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis><command>
+http://host:port/spectcl/filter/format?name=filtername&amp;format=format
+            </command></cmdsynopsis>
+           </informalexample>
+           <para>
+            Specify the format of a filter.  <literal>name</literal>
+            specifies the filter name and <literal>format</literal>
+            the format type string.
+           </para>
+        </section>
+        <section>
+            <title>Accessing the integrate command (new in 5.5)</title>
+            <para>
+                There are essentially three forms of the integrate command and
+                these are reflected in three URL/query combinations.
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      It is possible to integrate the interior of a gate on any
+                      spectrum on which it is displayable:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;gate=gate-name
+                    </command></cmdsynopsis>
+                   </informalexample>
+                   <para>
+                    In this form, the query parameter <literal>spectrum</literal>
+                    is the name of the spectrum on which to do the integration and
+                    <literal>gate</literal>'s value is the name of the gate
+                    within which to integrate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      It is possible to integrate a 1-d spectrum within some
+                      explicit area of interest provided in spectrum world coordinates.
+                      This is done with a URL of the form:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;low=low-limit&amp;high=high-limit
+                    </command></cmdsynopsis> 
+                   </informalexample>
+                   <para>
+                    As before the <literal>spectrum</literal> parameter is the
+                    name of the spectrum to integrate.
+                    <literal>low</literal> and <literal>high</literal> represent
+                    the low and high limits, in world coordinates, of the
+                    region of interest to integrate.
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      It is also possible to integrate a spectrum within an
+                      arbitrary polygonal region of interest.  The interior of
+                      the polygon is defined using the same odd crossing algorithm
+                      used to determine the interior of SpecTcl contours;  for any
+                      point, if a line drawn in any direction crosses an odd number
+                      of edges of the polygon, the point is in the gate interior.
+                   </para>
+                   <para>
+                    The format of the URL to integrate a 2-d spectrum is:
+                   </para>
+                   <informalexample>
+                    <cmdsynopsis><command>
+http://host:port/spectcl/integrate?spectrum=spectrum-name&amp;xcoord=x1...&amp;ycoord=y1...
+                    </command></cmdsynopsis>
+                   </informalexample>
+                   <para>
+                    The coordinates of the polygon are given by the
+                    <literal>xcoord</literal> and <literal>ycoord</literal>
+                    values.  These are given in world coordinates and
+                    there must be at least three <literal>xcoord</literal>,
+                    <literal>ycoord</literal> pairs.  The
+                    X/Y coordinates are created from ordered pairs of
+                    occurences of the <literal>xcoord</literal> and
+                    <literal>ycoord</literal> query parameter.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                Regardless of how the integration is specified, the <literal>detail</literal>
+                field of a successful completion is an object with the following
+                fields:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>centroid</literal></term>
+                   <listitem>
+                       <para>
+                        The world coordinates of the integration's centroid.  For
+                        a 1-d Spectrum, this is a single value.  For a 2-d
+                        spectrum, this is a 2 element array containing, in order,
+                        the x and y coordinates of the centroid.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>counts</literal></term>
+                   <listitem>
+                       <para>
+                        Contains the number of counts inside the region of interest.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>fwhm</literal></term>
+                   <listitem>
+                       <para>
+                        The full width at half maximum of the peak (assumed to
+                        be gaussian peak shape). For a 1-d spectrum, this is
+                        just a single number.  For a 2-d spectrum, this will be
+                        a 2 element array that contains the x and y extents of
+                        the FWHM in order.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Accessing the SpecTcl parameter command (new in 5.4)</title>
+            <para>
+                The <literal>/spectcl/parameter</literal> domain of URLS actuall
+                gives access (mostly) to the SpecTcl <command>treeparameter</command>
+                command.  The set of URLs described in this section provide
+                access to the raw <command>parameter</command> command. Note that
+                while this command is not much used, it is part of the
+                SpecTcl command set and therefore a comprehensive REST interface
+                must support it.
+            </para>
+            <para>
+                URL's of the form
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/new?name=pname&amp;number=id<optional>&amp;resolution=bits&amp;low=l&amp;high=hi&amp;units=units</optional>
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                Provide support for creating a new parameter definition.  A
+                parameter definition makes a correspondence between a name and
+                a slot in the <classname>CEvent</classname> pseudo array that
+                the SpecTcl event processing pipeline fills in.  Additional
+                metadata can be provided for documentation purposes.
+                As such there are required parameters and optional parameters
+                and some optional parameters are coupled, in the sense that
+                they require other optional parameters to be present as well.
+                
+            </para>
+            <para>
+                The query parameters mean:    
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (required)</term>
+                   <listitem>
+                       <para>
+                        Name of the parameter.  This name must be unique.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>number</literal> (required)</term>
+                   <listitem>
+                       <para>
+                        The parameter id.  This value must also be unique.
+                        It specifies the slot in the <classname>CEvent</classname>
+                        object in which that parameter will be placed by the
+                        event processing pipeline.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Units of measure of the parameter (metadata). This
+                        value is not interpreted by SpecTcl but is associated
+                        with the parameter definition.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>resolution</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Provides the number of bits of resolution the
+                        parameter has.  This is most useful for
+                        paramters that come from the hardware.  SpecTcl
+                        does not interpret this value.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (optional but...)</term>
+                   <listitem>
+                       <para>
+                        Assumed low limit of the parameter values.  This also
+                        requires <literal>resolution</literal>,
+                        <literal>high</literal> and <literal>units</literal>
+                        be present.  This value is not interpreted by SpecTcl
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (optional but...</term>
+                   <listitem>
+                       <para>
+                        THe assumed high limit of parameter values.  This
+                        also requries <literal>resolution</literal>,
+                        <literal>low</literal> and <literal>units</literal> be present.
+                        This value is not interpreted by SpecTcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Once created, a parameter may be deleted using URLs of the following
+                form:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/delete?name=pname
+                </command></cmdsynopsis>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/delete?id=pid
+                </command></cmdsynopsis>
+            </informalexample>
+            <para>
+                As you can see there are two alternative forms. The first form
+                uses the <literal>name</literal> to specify the name of the
+                parameter to delete while the second form, uses the
+                <literal>id</literal> to specify the parameter id
+                (<classname>CEvent</classname> slot) of the parameter to
+                delete.
+            </para>
+            <para>
+                Finally, the parameters and their attrubutes can be listed
+                using one of the two URL forms below:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://host:port/spectcl/rawparameter/list?pattern=glob-pattern
+                </command></cmdsynopsis>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/rawparameter/list?id=pid
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The first form lists the parameter sthat match the
+                <literal>glob-pattern</literal> provided to the
+                <literal>pattern</literal> query parameter while the
+                second form provides only the parameter with the
+                parameter id given by the <literal>id</literal>
+                query parameter.
+            </para>
+            <para>
+                The <literal>detail</literal> attribute of the returned JSON
+                contains an array of objects. Each object describes one parameter.
+                Some of the attributes of these objects are present in all
+                elements but the presence or absence of others depends on how
+                the parameter was defined.  The attributes are:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal> (always present)</term>
+                   <listitem>
+                       <para>
+                        Name of the parameter being described.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>id</literal> (always present)</term>
+                   <listitem>
+                       <para>
+                        Id (<classname>CEvent</classname> slot) of the parameter.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>resolution</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the resolution of the parameter was
+                        specified, this is that resolution.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>low</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the parameter low limit was specified,
+                        this is that low limit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>high</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Ony present if the parameter high limit was specified,
+                        this is that high limit.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>units</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Only present if the parameter units of measure were
+                        specified.  The units of measure string.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+           <title>Accessing the pseudo command (new in 5.5)</title>
+           <para>
+            The <command>pseudo</command> command in SpecTcl provides the
+            ability to create a new parameter from existing parameters.
+            The new parameter is computed using a script that is passed to the
+            <command>pseudo</command> command when the parameter is generated.
+            See the documentation of the <command>pseudo</command> command in
+            the SpecTcl command reference.
+           </para>
+           <para>
+            Three URLs provide access to all aspects of the
+            <command>pseudo</command> command:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/psuedo/create?pseudo=pname&amp;body=script&amp;parameter=param1<optional>&amp;parameter=param2...</optional>         
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The new pseudo parameter is given the name in the <literal>pseudo</literal>
+            query parameter.  This parameter must have already been defined.
+            <literal>parameter</literal> defines the parameters the pseudo depends on.
+            The <literal>body</literal> query parameter defines the
+            Tcl script that will compute the pseudo parameter. Again see
+            the SpecTcl command reference for <command>pseudo</command> for
+            information about the parameters that are passed to this script.
+           </para>
+           <para>
+            The properties of any pseudo parameters can be gotten via
+            URLs of the form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pseudo/list<optional>pattern=glob-pattern</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The return value <literal>detail</literal> attribute is a
+            JSON array where each element is a JSON object that describes
+            one pseudo parameter.  Note that if the optional
+            <literal>pattern</literal> query parameter is provided it is
+            a string with glob wild card characters, and only those pseudos
+            whose names match that pattern will be listed in th array.
+           </para>
+           <para>
+            Each object in the array has the following attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the pseudo parameter.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>parameters</literal></term>
+               <listitem>
+                   <para>
+                    Array of strings that are the names of the parameters
+                    the pseudo depends on.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>computation</literal></term>
+               <listitem>
+                   <para>
+                    The script that defines the computation that takes the
+                    parameters and from the creates the pseudo.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            Finally pseudo parameters can be deleted using this URL
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pseudo/delete?name=pseudo-name
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>name</literal> query parameter describes the
+            name of the pseudo to delete. Note that the underlying parameter
+            remains defined.
+           </para>
+        </section>
+        <section>
+            <title>Access to the sread command (new in 5.5)</title>
+            <para>
+                The <command>sread</command> command supports reading spectra
+                from file. This is done using the following URL form
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/sread?filename=fname<optional>&amp;format=fmt&amp;snapshot=flag&amp;replace=flag&amp;bind=flag</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                With the exception of <literal>filename</literal>, the
+                query parameters are all optional:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>filename</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the file to be read.  note that the filename
+                        will be interpreted by SpecTcl not the client.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal></term>
+                   <listitem>
+                       <para>
+                        Format of the file.  This defaults to
+                        <literal>ascii</literal>  which is the best format.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>snapshot</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 1.  If true, the resulting spectrum
+                        will be a snapshot spectrum.  That is it will not be
+                        hooked to the increment logic of SpecTcl. If false,
+                        (0), future events can increment the resulting spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>replace</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 0.  If true (1), the spectrum
+                        read in will replace any spectrum that already exists with
+                        the name of the spectrum in the file.  Otherwise, if necesary,
+                        a new unique spectrum name will be assigned to the
+                        new spectrum.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>bind</literal></term>
+                   <listitem>
+                       <para>
+                        By default this is 1, which binds the spectrum into the
+                        displayer shared memory region.  If 0, the spectrum
+                        will not be bound to the displayer.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+           <title>Access the ringformat command (new in 5.5)</title>
+           <para>
+            The ringformat command can be accessed via URLs of the form
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/ringformat?major=majvsn<optional>&amp;minor=minor</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>major</literal> query parameter sets the major version,
+            while the  <literal>minor</literal> sets the minor version.  Note
+            that the <literal>minor</literal> version defaults to 0 which,
+            since the format of ring items is not allowed to change within a
+            major version of NSCLDAQ is normally correct.
+           </para>
+        </section>
+        <section>
+            <title>Accessing the unbind command (new in 5.5)</title>
+            <para>
+                Three URLs allow you to access the capabilities of the
+                SpecTcl <command>unbind</command>
+                command:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/unbind/byname?name=name1<optional>&amp;name=name2...</optional>                
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds the spectra named by the repeated occurences of the
+                <literal>name</literal> query parameter.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/unbind/byid?id=id1<optional>&amp;id=id2...</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds the spectra whose ids are designated by repeated occurences
+                of the <literal>id</literal> query parameter.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/unbind/all
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Unbinds all spectra from the display memory.
+            </para>
+        </section>
+        <section>
+           <title>Accessing the ungate command (new in 5.5)</title>
+           <para>
+            The SpecTcl <command>ungate</command> command removes any gate condition
+            from a spectrum.  It can be accessed via the following URL
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/ungate?name=name1<optional>&amp;name=name2...</optional>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Where the spectra to be ungated are specified by repeated occurences
+            of the <literal>name</literal> query parameter.
+           </para>
+        </section>
+        <section>
+            <title>Accessing the swrite command (new on 5.5)</title>
+            <para>
+                The <command>swrite</command> REST interface can be used
+                to write spectrum files on request from clients.
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/swrite?file=filename?spectrum=spec1<optional>&amp;spectrum=spec2...&amp;format=fmtname</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>file</literal> (mandatory)</term>
+                   <listitem>
+                       <para>
+                        Path to the file to write.  Remember this file is written
+                        by SpecTcl and therefore the file path must not only be
+                        as SpecTcl would see it but a file writable by
+                        SpecTcl.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal> (mandatory, can be multiple)</term>
+                   <listitem>
+                       <para>
+                        Each occurence of this query parameter names a spectrum
+                        to be written to file. At least one spectrum must be
+                        specified.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>format</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        Specifies the output fie format.  Note that by
+                        default, this is <literal>ascii</literal>.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Controlling data anlaysis (new in 5.5)</title>
+            <para>
+                Data analysis from the data source can be started or stopped
+                using the following two urls:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/analyze/start
+                   </command>
+                </cmdsynopsis>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/analyze/stop
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Note that starting analysis when analysis is running or
+                stopping analysis when analysis is stopped will result
+                in an error return from either of these URLs.
+            </para>
+        </section>
+        <section>
+            <title>Accessing the roottree command (new in 5.5)</title>
+            <para>
+                Note that <command>roottree</command>
+                is only present in a SpecTcl instances
+                that have loaded the <literal>rootinterface</literal> package
+                loaded.   See the SpecTcl command reference for this command
+            </para>
+            <para>
+                The URLs's for this part of the REST interface allow you
+                to create Root output trees.  These are objects that create
+                CERN ROOT output files with trees that have some subsset of
+                parameters of some subset of events.
+            </para>
+            <para>
+                Note that writing root trees significantly impacts the performance
+                of SpecTcl owing to the poor performance of ROOT file output.
+                Use with caution.
+            </para>
+            <para>
+                To create a new root tree you can use the following URL
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/create?tree=treename&amp;parameter=pattern1<optional>&amp;gate=gatename&amp;parameter=pattern2...</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The query parameters are as follows:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>tree</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the new root tree object.  This must be unique.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameter</literal> (multiple)</term>
+                   <listitem>
+                       <para>
+                        Each of these parameters specifies a pattern that can have
+                        glob wildcard characters.  The parameters that will be
+                        booked into the tree is set of parameters whose names
+                        match any of the patterns.  
+                       </para>
+                       <para>
+                        At least one pattern is required. 
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal> (optional)</term>
+                   <listitem>
+                       <para>
+                        If provided, the value of this parameter is the name
+                        of an existing gate that will determine which events
+                        are placed in the tree.  Only those  events that satisfy
+                        the gate will be bookeed into the tree.
+                       </para>
+                       <para>
+                        If this parameter is not provided,
+                        the built-in <literal>-TRUE-</literal> gate is
+                        used which books all events.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                To delete a tree that's already been created:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/delete?tree=tree-name
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Where <literal>tree</literal> is the name of the tree
+                to delete.
+            </para>
+            <para>
+                To learn which trees have been created and their properties:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/roottree/list<optional>pattern=name-pattern</optional>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Provides a return value who's <literal>detail</literal> lists
+                all of the root tree objects whith  names that match the
+                optional <literal>pattern</literal> query parameter value.  This
+                pattern can contain glob pattern wild card characters.  The
+                <literal>detail</literal> attribute will be an array of
+                objects.  Each object
+                describes one  root tree and will have the following attributes
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>tree</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the tree to create.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>parameters</literal></term>
+                   <listitem>
+                       <para>
+                        Array of parameter name patterns that define the
+                        parameers to book into the tree.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the gate that must be satisfied to  add an event
+                        to the tree.  Note that if there is not one the pre-defined
+                        name
+                        <literal>-TRUE-</literal> will appear here.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+           <title>Accessing the pman comman (new in 5.5)</title>
+           <para>
+            The SpecTcl <command>pman</command> command allows users of
+            SpecTcl to dynamically control the data analysis pipeline that
+            turns raw data into parameters that can be histogrammed.  The SpecTcl
+            programming reference and SpecTcl programming guide describe how to
+            set up event processors to make use of this capability.
+           </para>
+           <para>
+            The base command is a command ensemble with quite a few sub-commands
+            and therefore, there are quite a few URL forms dedicated to this
+            capability.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pman/create?name=<replaceable>pipeline-name</replaceable>
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            Create a new empty analysis pipeline. The name of the new pipeline
+            is the value of the <literal>name</literal> query parameter.
+            Before being useful, the
+            pipeline must be filled with event processors.  To be used, the
+            pipeline must also be made the current pipeline.  These capabilities
+            are exposed as well.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+            <cmdsynopsis>
+               <command>
+http://host:port/spectcl/pman/ls
+               </command>
+            </cmdsynopsis>
+           </informalexample>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            is an array of strings that provide the names of all
+            data analysis pipelines.
+           </para>
+           <para>
+            URLS as shown below:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/current
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Return as the <literal>detail</literal> attribute of the returned object,
+            describes the current processor.  Note that when
+            SpecTcl starts, a pipeline named <literal>default</literal> is
+            created and event processors created/registered in the traditional manner are
+            inserted into it.   The initial event processor pipeline, unless
+            programmatically specified otherwise is the <literal>default</literal>
+            pipeline.
+           </para>
+           <para>
+            <literal>detail</literal> is an object with the attributes
+            <literal>name</literal> that is the name of the pipeline and
+            <literal>processors</literal> which is an array of the event processors
+            in that pipeline in the order in which they will be executed.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/lsall<optional>?pattern=<replaceable>name-pattern</replaceable></optional>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Lists the pipelines and their event processors.  The optional
+            <literal>pattern</literal> query parameter allows you to provide a
+            pattern that can contain glob wildcard characters.  If provided,
+            only pipeline whose name match the pattern are listed.
+            If <literal>pattern</literal> is not provided it defaults to
+            <literal>*</literal> which matches all pipeline names.
+           </para>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            is an array of objects.  Each object describes a single pipeline and
+            has the attributes:
+           </para>
+           <variablelist>
+            <varlistentry>
+               <term><literal>name</literal></term>
+               <listitem>
+                   <para>
+                    Name of the pipeline being described.
+                   </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+               <term><literal>processors</literal></term>
+               <listitem>
+                   <para>
+                    Array of strings of event processor names that are in the pipeline.
+                    These are indexed in the order in which they execute if the
+                    pipeline runs.
+                    See below for how to ad event processors to pipelines.
+                   </para>
+                </listitem>
+            </varlistentry>
+           </variablelist>
+           <para>
+            URLs of the following format:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/lsevp<optional>?pattern=<replaceable>name-pattern</replaceable></optional>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Allows the client to learn about the event processors that have been
+            registered for use with the pipeline management system.  Event processors
+            can be registered in two ways:  
+           </para>
+           <orderedlist>
+            <listitem>
+               <para>
+                  Statically at run time by compiled code linked into the user's
+                  tailored SpecTcl
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Dynamically at run time by loading a shared object.
+               </para>
+            </listitem>
+           </orderedlist>
+           <para>
+            If the <literal>pattern</literal> query parameter is supplied,
+            its value is a <parameter>name-pattern</parameter> that restricts
+            the set of proccessors interrogated.  The <parameter>name-pattern</parameter>
+            can contain Glob wild card characters.  If not provided,
+            <literal>pattern</literal> defaults to <literal>*</literal>
+            which matches all event processor names.
+           </para>
+           <para>
+            The <literal>detail</literal> attribute of the returned object
+            contains an array of strings.  Each string is the name of an
+            event processor that matches the <literal>pattern</literal> value.
+           </para>
+           <para>
+            URLs of the form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/use?name=<replaceable>pipeline-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Changes the current event processing pipeline used by SpecTcl
+            to process events.  The value of the <literal>name</literal>
+            mandatory query parameter is the name of an existing event processing
+            pipeline to make current.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/add?pipeline=<replaceable>pipe-name</replaceable>&amp;processor=<replaceable>evp-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Add an existing event processor to the end of an existing processing
+            pipeline.  The mandatory <literal>pipeline</literal> query
+            parameter specifies the name of the event processing pipeline.
+            The mandatory <literal>processor</literal> query parameter
+            specifies the name of the event processor to append to that pipeline.
+           </para>
+           <para>
+            URLs of the following form:
+           </para>
+           <informalexample>
+              <cmdsynopsis>
+                 <command>
+http://host:port/spectcl/pman/rm?pipeline=<replaceable>pipe-name</replaceable>&amp;processor=<replaceable>evp-name</replaceable>
+                  </command>
+              </cmdsynopsis>
+           </informalexample>
+           <para>
+            Remove an event processor from a processing pipeline.
+            The mandatory <literal>pipeline</literal> query parameter specifies the
+            name of the pipeline and the mandatory
+            <literal>processor</literal> query parameter specifies the name of
+            the event processor to remove.
+           </para>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/pman/clear?pipeline=<replaceable>pipe-name</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Removes all event processors from the pipeline specified by the
+                mandatory <literal>pipeline</literal> query parameter.
+                The pipeline continues to exist. 
+            </para>
+            <para>
+                Often it's useful to create a new event processing pipeline by
+                adding new event processors from an existing pipeline.
+                Urls of the form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/pman/clone?source=<replaceable>old-pipename</replaceable>&amp;new=<replaceable>new-pipename</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Create a copy of an existing event processing pipeline.
+                The mandatory <literal>source</literal> query parameter is the name
+                of an existing pipeline to copy. The <literal>new</literal>
+                mandatory query parameter is the name of the new pipline that
+                will be created by this operation.  The new pipeline will have
+                all of the pipeline elements the original one had in the same order.
+            </para>
+        </section>
+        <section>
+            <title>Accessing the evbunpack command (new in 5.5)</title>
+            <para>
+                Inreasingly experimental setups are made up of independent
+                detector subsystems.  The NSCLDAQ event builder is then used
+                to stitch together coincident event fragments into full
+                experiment events.
+            </para>
+            <para>
+                It is convenient for the developer of each detector subsystem to
+                indpendently build a software ecosystem to support their subsystem.
+                It is equally convenient for the experiment integrator to be able
+                to leverage parts of that ecosystem.  Specifically, each
+                detector subsystem may have a well developed set of event
+                processors for SpecTcl, and it would be very good to be
+                able to drop those into a SpecTcl built to analyze the event built
+                data.
+            </para>
+            <para>
+                The <command>evpunpack</command> command leverages event processing
+                pipline support and internal SpecTcl classes to help do just that.
+                Specifically, you can create event processors programmatically from
+                registered event processing pipelines that are capable of
+                unpacking data from the event builder.
+            </para>
+            <para>
+                URLs of the following form, 
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evpunpack/create?name=evpname&amp;frequencey=mhz&amp;basename=treeparams;
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Create a new unpacker for event builder data. The following
+                are all mandatory query parameters:
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>name</literal></term>
+                   <listitem>
+                       <para>
+                        Name of the new event unpacker.  This will be registered
+                        with the pipeline manager and, therefore, can participate
+                        in pipelines created by that command/REST interface.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>frequency</literal></term>
+                   <listitem>
+                       <para>
+                        The frequency of the event builder timestamp in MHz.
+                        This is used to provide an elapsed run time that can
+                        be used in creating diagnostic spectra from the
+                        parameters the processor automatically creates.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>basename</literal></term>
+                   <listitem>
+                       <para>
+                        The base name of the set of parameters the processor
+                        makes.  For each event, the event processor fills in
+                        several diagnostic parameters in addition to any the
+                        pipelines attached to it produce:
+                       </para>
+                       <variablelist>
+                        <varlistentry>
+                           <term><varname>basename.event_no</varname></term>
+                           <listitem>
+                               <para>
+                                The event number.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.run_time</varname></term>
+                           <listitem>
+                               <para>
+                                Elapsed run time based on the timestamp and
+                                frequency, in seconds.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.sources</varname></term>
+                           <listitem>
+                               <para>
+                                Number of fragments in an event.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.unrecognized_source</varname></term>
+                           <listitem>
+                               <para>
+                                Number of sources in the event for which no
+                                event processing pipeline was registered.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                           <term><varname>basename.n_present</varname></term>
+                           <listitem>
+                               <para>
+                                Flag to indicate source n was present.
+                               </para>
+                            </listitem>
+                        </varlistentry>
+                       </variablelist>
+                       <para>
+                        The intent of these parameters is to provide support
+                        for several standard event builder diagnostic spectra.
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evbunpack/add?name=evbname&amp;source=sourceid&amp;pipe=pipe-name
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                Registers an event processing pipeline (either programmatically
+                created or created using the pman command/REST interface) to
+                process the event fragments from a specific event source.
+                The data presented to the event processor is the same as if it
+                were seeing data from a system that only took data from that
+                subsystem. 
+            </para>
+            <para>
+                The mandatory query parameter <literal>name</literal> is the
+                name of the event processor being created.
+                the mandatory query parameter <literal>source</literal> is the
+                source id of the data that we are teaching it to process and
+                <literal>pipe</literal> specifies the name of an event processing
+                pipeline that will be invoked to process the data from
+                fragments from the source.
+            </para>
+            <para>
+                URLs of the following form:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/evbunpack/list<optional>pattern=<replaceable>name-pattern</replaceable></optional>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                List the names of event processors that have been created via this
+                command.  This is returned in the <literal>detail</literal>
+                attribute of the returned object as an array of strings.
+            </para>
+        </section>
+        <section>
+            <title>Excuting arbitrary commands in SpecTcl (new in 5.5)</title>
+            <para>
+                This is intended to support access to user defined SpecTcl commands.
+                The REST interface, however arbitrary commands and scripts can
+                be run in the interpreter using this interface:
+            </para>
+            <informalexample>
+               <cmdsynopsis>
+                  <command>
+http://host:port/spectcl/script/command=<replaceable>tcl-command</replaceable>
+                   </command>
+               </cmdsynopsis>
+            </informalexample>
+            <para>
+                This runs the Tcl script that is the value of the query parameter
+                <literal>command</literal> at the global level of the
+            </para>
+            <para>
+                The result of the command is returned in the
+                <literal>detail</literal> of the returned object.  If the command
+                raised an error, the <literal>status</literal> attribute of the
+                returned object will be <literal>ERROR</literal>  and the
+                <literal>detail</literal> field of the returned data will
+                have the error message raised as its value.
+            </para>
+            <para>
+                SpecTcl interpreter. <parameter>tcl-command</parameter> need
+                not be a simple script. For example, if tcl-command's value is:
+            </para>
+            <informalexample>
+                <programlisting>
+ {
+    set result [list]
+    foreach s [parameter -list] {
+        lappend result [lindex $s 0]
+    }
+    set result
+}
 
+                </programlisting>
+            </informalexample>
+            <para>
+                The <literal>detail</literal> field of a request with this as the
+                <literal>command</literal> value will contain a Tcl list
+                (not JSON array) containing the names of all parameters.
+            </para>
+            <para>
+                A very important point is that the server does no interpretation
+                of the script's returned values.  This is fine for Tcl clients
+                but may be difficult to deal with properly for clients in other
+                languages or in programs that cannot embed a Tcl interpreter to
+                parse the results.
+            </para>
+        </section>
+        <section>
+            <title>Traces (New in 5.5).</title>
+            <para>
+                Traces are a mechanism to allow SpecTcl scripts to be informed
+                of changes to the parameter, spectrum and gate dictionaries.
+                As SpecTcl's analysis configuration is dynamic there are use cases,
+                which will not be described here, for actively informing a script of
+                changes in these objects.
+            </para>
+            <para>
+                Tracing is problematic for REST interfaces.  Specifically, the
+                REST models is that the client makes a request, and the server
+                fulfils it.  Fully implementation of tracing would require the
+                server to initiate an operation in the client, rather than the
+                other way around.
+            </para>
+            <para>
+                What <emphasis>can</emphasis> be done and what the SpecTcl
+                REST server does do, is establish its own traces for all things
+                that are tracable in the SpecTcl command extensions.
+                Actual traces can be buffered for clients which then can poll for
+                them and use the results of those polls client-side.
+            </para>
+            <para>
+                All of this requires that:
+            </para>
+            <orderedlist>
+                <listitem>
+                   <para>
+                      A client expresses an interest in traces and the
+                      server provides a token that associates that interest with
+                      its internal data structures (trace buffers).
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      Periodically, the client can poll the server to get the
+                      traces that fired since the last poll.s
+                   </para>
+                </listitem>
+                <listitem>
+                   <para>
+                      The client expresses that it is no longer interested in
+                      traces causing the server to remove any trace buffers
+                      and other data associated with that client.
+                   </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                It is possible that a client exits without shutting down its
+                interest in traces.  Therefore, when interest is established,
+                the client must specify a retention period for data in the trace
+                buffer.  As new traces are fired, any old data are removed from
+                the trace buffer associated with a client.  This prevents the
+                storage required by zombie clients from growing without bounds.
+            </para>
+            <para>
+                URL's of the form:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/trace/establish?retention=<replaceable>seconds</replaceable>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Inform the REST server that the client will be interested in
+                trace data.  The <parameter>retention</parameter> query parameters
+                is the minimum number of seconds the server should retain trace
+                data on behalf of that specific client.  On success,
+                the <literal>detail</literal> attribute of the response is an
+                integer token that should be used in future calls involving the
+                trace subsystem.
+            </para>
+            <para>
+                Once the application no longer requires trace information, or
+                as it is cleaning up for exit, a request to URLs of the form:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/trace/done?token=<replaceable>token-value</replaceable>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                Query parameter <parameter>token</parameter> should have, as its
+                value, the token returned from the
+                <literal>spectcl/trace/establish</literal> operation that expressed
+                interest in traces.
+            </para>
+            <para>
+                To poll a trace, use URLs of the form:
+            </para>
+            <informalexample>
+                <cmdsynopsis>
+                   <command>
+http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable>
+                   </command>
+                </cmdsynopsis>
+            </informalexample>
+            <para>
+                The <literal>detail</literal> attribute of the returned JSON will
+                 will be an object.  Each attribute represents a trace type and
+                 each of those attributes will, in turn have a value that is an
+                 array.
+            </para>
+            <variablelist>
+                <varlistentry>
+                   <term><literal>parameter</literal></term>
+                   <listitem>
+                       <para>
+                        The value of this attribute is an array.
+                        Each element of the array describes a parameter trace.
+                        Each element
+                        is the Tcl list that contains the operation that fired the trace
+                        (<literal>add</literal> or <literal>delete</literal>).
+                        followed by the trace parameters that SpecTcl provides
+                        <command>parameter -trace</command> handlers (the nane
+                        of the parameter that was added or deleted).
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>gate</literal></term>
+                   <listitem>
+                       <para>
+                        The value of this attribute is an array.
+                        Each array element describes a gate trace.
+                        The array elements
+                        are a Tcl list where the first element of the list is the
+                        gate trace operation <literal>add</literal>,
+                        <literal>delete</literal> or <literal>change</literal>
+                        that describes the operation that fired the trace and
+                        the remainder are the parameters that are passed to the
+                        local trace handler.
+                       </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                   <term><literal>spectrum</literal></term>
+                   <listitem>
+                       <para>
+                        The value of this attribute is an array.  Each element
+                        of the array describes a spectrum trace.  The elemnts
+                        are Tcl lists.  The first element of that list is the
+                        operation, <literal>add</literal> or <literal>delete</literal>
+                        that fired the trace while the remainder are trace parameter(s)
+                        passed to the trace handler by SpecTcl
+                       </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
     </chapter>
 </book>

@@ -95,7 +95,7 @@ proc GenerateTreeVariableMenu {parent command} {
 		$parent.root add cascade -label $e -menu $parent.root.$e \
 		-background lightyellow -activebackground yellow
 	}
-	bind $parent.root <Motion> "%W postcascade @%y"		
+	bind $parent.root <Motion> [list after 100 %W postcascade @%y]
 	$parent configure -menu $parent.root
 }
 
@@ -135,7 +135,7 @@ proc GenerateTreeVariableMenus {member item parent command} {
 		bind $parent.$item <Leave> CancelScrollMenu
 	}
 # Allows to cascade submenus without having to click on the item
-	bind $parent.$item <Motion> "%W postcascade @%y"
+	bind $parent.$item <Motion> [list after 100 %W postcascade @%y]
 }	
 
 proc ScrollVariableMenu {wmenu member command} {
