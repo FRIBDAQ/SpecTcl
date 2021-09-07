@@ -179,7 +179,7 @@ snit::widgetadaptor treeMenu {
 	
 		if {([llength $cascades] > 0) && $options(-pullright)} {
 			bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
-			bind $menu <Motion> +[list $cascmenu postcascade @%y]
+			bind $menu <Motion> +[list after 100 $cascmenu postcascade @%y]
 			
 		}
 

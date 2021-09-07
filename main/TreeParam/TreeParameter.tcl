@@ -121,7 +121,7 @@ proc GenerateTreeMenu {parent command} {
 		$parent.root add cascade -label $e -menu $parent.root.$e \
 		-background lightyellow -activebackground yellow
 	}
-	bind $parent.root <Motion> "%W postcascade @%y"		
+	bind $parent.root <Motion> [list after 100 %W postcascade @%y]
 	$parent configure -menu $parent.root
 }
 
@@ -161,7 +161,7 @@ proc GenerateTreeMenus {member item parent command} {
 		bind $parent.$item <Leave> CancelScrollMenu
 	}
 # Allows to cascade submenus without having to click on the item
-	bind $parent.$item <Motion> "%W postcascade @%y"
+	bind $parent.$item <Motion> [list after 100 %W postcascade @%y]
 }	
 
 proc CancelScrollMenu {} {
@@ -284,7 +284,7 @@ proc GenerateTreePseudoMenu {parent command} {
 		GenerateTreePseudoMenus $e $e "$parent.root" $command
 		"$parent.root" add cascade -label $e -menu "$parent.root.$e"
 	}
-	bind "$parent.root" <Motion> "%W postcascade @%y"		
+	bind "$parent.root" <Motion> [list after 100 %W postcascade @%y]
 	$parent configure -menu "$parent.root"
 }
 
@@ -309,6 +309,6 @@ proc GenerateTreePseudoMenus {member item parent command} {
 	set str $member
 	"$parent.$item" add command -label "Pseudo..." -command "$command $str"
 # Allows to cascade submenus without having to click on the item
-	bind "$parent.$item" <Motion> "%W postcascade @%y"
+	bind "$parent.$item" <Motion> [list after 100 %W postcascade @%y]
 }	
 
