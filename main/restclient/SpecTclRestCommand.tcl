@@ -425,7 +425,7 @@ proc SpecTclRestCommand::shutdown { } {
 # @parm args - the command parameters.
 # @note - yes we know this masks the apply command.
 #
-proc applygate {args} {
+proc apply {args} {
     if {[llength $args] < 1} {
         error "'apply' command requires parameters"
     }
