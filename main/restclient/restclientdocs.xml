@@ -4016,15 +4016,7 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                               <option>-byid</option> option is not implemented.
                            </para>
                         </listitem>
-                        <listitem>
-                           <para>
-                              <command>gate -trace</command>  is not implemented
-                              as this might require a persistent interface.
-                              Note that if there is a burning need for this,
-                              a polling scheme could potentially support this
-                              command.
-                           </para>
-                        </listitem>
+                        
                         <listitem>
                            <para>
                               <command>gate ?-new?</command>, gate creation, does
@@ -4045,13 +4037,7 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                               <option>-id</option> is not supported.
                            </para>
                         </listitem>
-                        <listitem>
-                           <para>
-                              <command>spectrum -trace</command> is unimplemented
-                              for the same reasons <command>gate -trace</command>
-                              is unimplemented.
-                           </para>
-                        </listitem>
+                        
                         <listitem>
                            <para>
                                <command>spectrum -list</command>  does not
@@ -4074,7 +4060,123 @@ SpecTclRestCommand::initialize spectcl-host spectcl-port
                            </para>
                         </listitem>
                     </itemizedlist>
-                    
+                    <refsect2>
+                        <title>Tracing implementation</title>
+                        <para>
+                            The SpecTcl command set provides scripts with the
+                            ability to establish and remove traces which invoke
+                            scripts when significant events occur in the parameter,
+                            spectrum and gate dictionaries.  This section provide
+                            implementation note on the implementation of traces
+                            in this package.
+                        </para>
+                        <para>
+                            The idea of traces is not well supported by REST.
+                            Specifically, the expectation of REST is that the client
+                            drives all interaction between client and server via
+                            explicit HTTP requests.  A direct implementation of traces,
+                            on the other hand, would require the server to make
+                            requests for action on the part of the client for
+                            every trace that fired.
+                        </para>
+                        <para>
+                            That leaves implementation of traces to polling on the
+                            client's behalf.  Automated polling requires an
+                            event loop to dispatch the poll procedure.  In
+                            practice, this is is not a restriction as the primary
+                            use case of this package and tracing is to maintain
+                            a GUI that, in the past, ran directly within
+                            SpecTcl itself and Tk scripts, by their nature run
+                            the event loop.
+                        </para>
+                        <para>
+                            There are two choices about how to implement trace
+                            polling:
+                        </para>
+                        <itemizedlist>
+                            <listitem>
+                               <para>
+                                  Poll the contents of all of the traced
+                                  dictionaries, compute differencese and dispatch
+                                  changes based on those differences.
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  Provide mechsnisms in the server to buffer
+                                  traces themselves and poll the actual
+                                  traces.
+                               </para>
+                            </listitem>
+                        </itemizedlist>
+                        <para>
+                            As there ae SpecTcl cases with thousands of parameters
+                            and spectra, the first alternative can be expensive.
+                            Therefore SpecTcl's REST server provides the second
+                            alternative.  
+                        </para>
+                        <para>
+                            On the first attempt to interact with traces,
+                            the <literal>SpecTclRestCommand</literal> package
+                            expresses interest in traces to the server, which,
+                            begins server side trace buffering.  It also
+                            initiates periodic trace polling.  The trace poll
+                            proc dispatches appropriate traces to any established
+                            trace scripts in a manner that is compatible
+                            with what SpecTcl itself provided.
+                        </para>
+                        <para>
+                            This implies that:
+                        </para>
+                        <itemizedlist>
+                            <listitem>
+                               <para>
+                                  Scripts making use of tracing must enter the
+                                  event loop in a manner that allows the
+                                  trace polling proc to execute periodically,
+                                  or at least significantly more often than the
+                                  value of
+                                  <varname>::SpecTclRestCommand::tracePollInterval*100</varname>
+                                  at the time the first tracing operation was
+                                  done by the script.
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                  There is a latency between the event that
+                                  actually would fire the trace and the trace
+                                  being fired in the client script.  This
+                                  latency is determined by the periodicity of the
+                                  polling proc which, by default is executed
+                                  <literal>2</literal> seconds.  The number of
+                                  seconds between polls is determined by the
+                                  variable
+                                  <varname>::SpecTclRestCommand::tracePollInterval</varname>.
+                               </para>
+                               <para>
+                                Scripts can set this variable but, since its
+                                value also determines the server side trace
+                                retention period (100*::<varname>SpecTclRestCommand::tracePollInterval</varname>)
+                                at the time the first trace operation is performed
+                                by the client script), it's recommended to set
+                                this value early, during script initialization.
+                               </para>
+                            </listitem>
+                            <listitem>
+                               <para>
+                                   If a script exits without executing
+                                   <function>SpecTclRestCommand::shutdown</function>,
+                                   the server will continue to buffer traces
+                                   for the script.  Note that normally this is
+                                   not an awful problem as the retention period
+                                   will prevent the trace buffer from growing
+                                   without bounds and at some point, SpecTcl's
+                                   parameter, spectrum and gate dictionaries
+                                   converge to a final, static state.
+                               </para>
+                            </listitem>
+                        </itemizedlist>
+                    </refsect2>
                 </refsect1>
             </refentry>
             
