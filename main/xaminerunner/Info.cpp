@@ -22,6 +22,14 @@
 #include "Info.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
+#include <Exception.h>
+#include <ErrnoException.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <tcl.h>
+#include <limits.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // GetHostCommand implementation.
@@ -104,4 +112,117 @@ GetPortCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
         return TCL_ERROR;
     }
     return TCL_OK;
+}
+///////////////////////////////////////////////////////////////////////////////
+// IsLocalCommand
+
+/**
+ * IsLocalCommand constructor
+ *   @param interp - interpreter on which the command was registered.
+ */
+IsLocalCommand::IsLocalCommand(CTCLInterpreter& interp) :
+    CTCLObjectProcessor(interp, "Xamine::isLocal", kfTRUE)
+{}
+
+                    
+/**
+ * IsLocalCommand destructor.
+ */
+IsLocalCommand::~IsLocalCommand()
+{
+    
+}
+/**
+ * operator()
+ *    - Ensure we have the right number of command parameters.
+ *    - extract the host name as a std::string object.
+ *    - Determine if it's local.
+ */
+int IsLocalCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    try {
+        requireExactly(objv, 2, "Incorrect number of command parameters");
+        std::string host = objv[1];
+        interp.setResult(Tcl_NewIntObj(local(host) ? 1 : 0));
+    }
+    catch (std::string msg) {
+        interp.setResult(msg);
+        return TCL_ERROR;
+    }
+    catch (CException & e) {
+        interp.setResult(e.ReasonText());
+        return TCL_ERROR;
+    }
+    catch (...) {
+        interp.setResult("Unanticipated exception type");
+        return TCL_ERROR;
+    }
+    
+    return TCL_OK;
+}
+
+/**
+ * @param host - some arbitrary host name.
+ * @return bool - true if the host is the same as the local host.
+ */
+bool
+IsLocalCommand::local(std::string host)
+{
+     // Check for explicit localhost:
+
+  if (host == std::string("localhost")) return true;
+
+
+  // Create the fqdn of the local host:
+  // TODO: Error handling from gethostname and getaddrinfo
+  //
+  char hostname[HOST_NAME_MAX+1];
+  gethostname(hostname, sizeof(hostname));
+
+  if (host == std::string(hostname)) {
+    return true;
+  }
+  std::string fqhostname = getfqdn(hostname);
+
+
+  // If the host has no periods append the domain name from
+  // fqhostname.
+
+  if (host.find(".") == std::string::npos) {
+
+    // locate the start of the domain name in
+    // fqhostname..and append the domain to the host:
+
+    size_t domainStartsAt = fqhostname.find(".");
+    if (domainStartsAt != std::string::npos) {
+      host += fqhostname.substr(domainStartsAt);
+    }
+  }
+
+  return host == fqhostname;
+
+}
+/**
+ * given a host name return the fully qualified version of it.
+ *
+ * @param host - the host to do this for.
+ * @return std::string fully qualified host name.
+ */
+std::string
+IsLocalCommand::getfqdn(const char* host)
+{
+    struct addrinfo  hints = {AI_CANONNAME | AI_V4MAPPED | AI_ADDRCONFIG,
+                            AF_UNSPEC, 0, 0,
+                            0, NULL, NULL, NULL};
+
+  struct addrinfo* hostInfo;
+  if (getaddrinfo(host, NULL, &hints, &hostInfo) < 0) {
+    throw CErrnoException("getaddrinfo failed");
+  }
+
+  std::string fqhostname(hostInfo->ai_canonname);
+  freeaddrinfo(hostInfo);
+
+  return fqhostname;
+
 }

@@ -59,6 +59,9 @@ public:
     IsLocalCommand(CTCLInterpreter& interp);
     virtual ~IsLocalCommand();
     int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+private:
+    bool local(std::string host);
+    std::string getfqdn(const char* host);
 };
 
 

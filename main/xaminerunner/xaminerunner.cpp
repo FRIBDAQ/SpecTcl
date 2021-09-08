@@ -65,6 +65,7 @@ static int AppInit(Tcl_Interp* pInterp)
     
     new GetHostCommand(*pOInterp, parsed.host_arg);
     new GetPortCommand(*pOInterp, parsed.port_arg);
+    new IsLocalCommand(*pOInterp);
     
     return TCL_OK;
 
