@@ -301,7 +301,7 @@ proc SpecTclRestCommand::_pollTraces {} {
     set dstatus [catch {
     foreach trace [dict get $traces parameter] {
         foreach script $SpecTclRestCommand::parameterTraces {
-            uplevel #0 $script $trace
+            uplevel #0 [concat $script $trace]
         }
     }
     # While only one gate trace is allowed, doing what we're about to do
@@ -316,18 +316,19 @@ proc SpecTclRestCommand::_pollTraces {} {
         if {$action eq "add"} {
             
             foreach script $::SpecTclRestCommand::gateAddTrace {
-                uplevel #0 $script $args
+                uplevel #0 [concat $script $args]
             }
         } elseif {$action eq "delete"} {
         
             foreach script $::SpecTclRestCommand::gateDeleteTrace {
-                uplevel #0 $script $args
+                uplevel #0 [concat $script $args]
             }
             
         } elseif {$action eq "changed"} {
-        
+
             foreach script $SpecTclRestCommand::gateChangedTrace {
-                uplevel #0 $script $args
+                
+                uplevel #0 [concat $script $args]
             }
         } else {
             error "gate trace has an invalid action $action : $trace"
@@ -339,11 +340,11 @@ proc SpecTclRestCommand::_pollTraces {} {
         set args   [lrange $trace 1 end]
         if {$action eq "add"} {
             foreach script $SpecTclRestCommand::spectrumAddTraces {
-                uplevel #0 $script $args
+                uplevel #0  [concat script $args]
             }
         } elseif {$action eq "delete"} {
             foreach script $SpecTclRestCommand::spectrumDeleteTraces {
-                uplevel #0 $script $args
+                uplevel #0 [concat $script $args]
             }
         } else {
             error "spectrum trace action in valid $action : $trace"
@@ -351,7 +352,7 @@ proc SpecTclRestCommand::_pollTraces {} {
     }
     } msg]
     if {$dstatus} {
-        puts "trace poll error: $msg"
+        # puts "trace poll error: $msg"
     }
     set reschedule [expr {$SpecTclRestCommand::tracePollInterval*1000}]
     
@@ -1138,7 +1139,7 @@ namespace eval gate {
     #       supplying no script and supplying an empty one.
     # @return any prior trace of that type.
     proc -trace {args} {
-        
+    
         if {[llength $args] == 0} {
             error "gate -trace requires a trace type (add delete change)"
         }
@@ -1167,8 +1168,9 @@ namespace eval gate {
         
         set prior [set $varname];     # Prior trace name.
         if {$haveScript} {
+            set $varname [list]
             
-            set $varname [list $script]
+            lappend $varname $script;  # Supports future multi trace.
         }
         
         # Set up trace processing if it's not going yet.
