@@ -51,7 +51,57 @@ GetHostCommand::~GetHostCommand()
 int
 GetHostCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
 {
-    requireExactly(objv, 1, "No additional command parameters accepted by getInfo");
-    interp.setResult(m_host);
+    try {
+        requireExactly(objv, 1, "No additional command parameters accepted by getInfo");
+        interp.setResult(m_host);
+    } catch (std::string msg) {
+        interp.setResult(msg);
+        return TCL_ERROR;
+    }
+    catch (...) {
+        interp.setResult("Unanticipated exception type");
+        return TCL_ERROR;
+    }
+    return TCL_OK;
+}
+///////////////////////////////////////////////////////////////////////////////
+// GetPortCommand
+
+/**
+ * GetPortCommand constructor
+ *   @param interp - interpreter on which the command is being registered.
+ *   @param port   - stringified port (could be a service).
+ */
+GetPortCommand::GetPortCommand(CTCLInterpreter& interp, const char* port) :
+    CTCLObjectProcessor(interp, "Xamine::getPort", kfTRUE),
+    m_port(port)
+{}
+
+/**
+ * GetPortCommand - destructor.
+ */
+GetPortCommand::~GetPortCommand()
+{}
+
+/**
+ * operator()
+ *  - ensure there are no command line parameters.
+ *  - Return the m_port value.
+ */
+int
+GetPortCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    try {
+        requireExactly(objv, 1, "Incorrect number of command parameters");
+        interp.setResult(m_port);
+    }
+    catch (std::string msg) {
+        interp.setResult(msg);
+        return TCL_ERROR;
+    }
+    catch (...) {
+        interp.setResult("Unanticipated exeption type");
+        return TCL_ERROR;
+    }
     return TCL_OK;
 }
