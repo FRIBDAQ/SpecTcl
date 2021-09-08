@@ -67,13 +67,15 @@ CTKRunControl::Start()
   CRunControl::Start();		// Update the internal state variables.
 
   ShMemManagerAPI* api = ShMemManagerAPI::getInstance();
-  
+  api->CreateThread();
+  /*
   try {
     api->JoinThread();
   }
   catch (...) {
-    api->CreateThread();
+
   }
+  */
 }
 
 //////////////////////////////////////////////////////////////////////////
