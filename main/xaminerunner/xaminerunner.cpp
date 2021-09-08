@@ -27,8 +27,14 @@
  */
 #include <tcl.h>
 
-#include "TCLInterpreter.h"
+#include <TCLInterpreter.h>
 #include "cmdline.h"
+
+#include "Info.h"
+
+// Put the parsed command junk here.
+
+static struct gengetopt_args_info parsed;
 
 /**
  * Application initialization.
@@ -51,6 +57,13 @@ static int AppInit(Tcl_Interp* pInterp)
         pInterp, Tcl_NewStringObj("tcl_rcFilename", -1), NULL,
         Tcl_NewStringObj("~/.tclshrc", -1), TCL_GLOBAL_ONLY
     );
+    // Create the Xamine namespace:
+    
+    if (!Tcl_CreateNamespace(pInterp, "Xamine", nullptr, nullptr)) {
+        return TCL_ERROR;
+    }
+    
+    new GetHostCommand(*pOInterp, parsed.host_arg);
     
     return TCL_OK;
 
@@ -58,9 +71,7 @@ static int AppInit(Tcl_Interp* pInterp)
 
 //----------------------------------------------------------------------------
 // Entry point.
-// Put the parsed command junk here.
 
-static struct gengetopt_args_info parsed;
 
 /**
  * main

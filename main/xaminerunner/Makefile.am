@@ -12,7 +12,8 @@ cmdline.c cmdline.h: @srcdir@/xamineRunnerOptions.ggo
 
 bin_PROGRAMS=xaminerunner
 
-xaminerunner_SOURCES=cmdline.c xaminerunner.cpp cmdline.h
+xaminerunner_SOURCES=cmdline.c xaminerunner.cpp cmdline.h \
+	Info.h Info.cpp
 xaminerunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@
 xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@
 
