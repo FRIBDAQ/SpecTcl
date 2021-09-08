@@ -64,7 +64,7 @@ int f77xamine_alive_();
 void Xamine_GetMemoryName(char *namebuffer);
 void f77xamine_getmemoryname_(char *namebuffer, int maxlen);
 
-int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr);
+int Xamine_MapMemory(char *name, int specbytes, volatile Xamine_shared **ptr);
 int f77xamine_mapmemory_(char *name, int *specbytes,
 			 volatile Xamine_shared **ptr, int namesize);
 
