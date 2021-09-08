@@ -1,0 +1,7 @@
+package "xaminerunner"
+version "1.0"
+
+purpose "Attach Xamine to SpecTcl Shared memory, local or remote"
+
+option "host" H "Host SpecTcl is running in" string optional default="localhost"
+option "port" P "Port/service SpecTcl REST is listening on" string optional default="8080"
