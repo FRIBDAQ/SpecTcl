@@ -60,6 +60,8 @@ TclXamine::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         std::string sub = objv[1];
         if (sub == "genenv") {
             genenv(interp, objv);
+        } else if (sub == "start") {
+                start(interp, objv);
         } else {
             std::string msg = "Unrecognized subcommand: " ;
             msg += sub;
@@ -104,5 +106,19 @@ TclXamine::genenv(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     
     if (!Xamine_genenv(name.c_str(), size)) {
         throw CErrnoException("Unable to set up Xamine environment variables");
+    }
+}
+/**
+ * start
+ *    Start Xamine - no more parameters.
+ *  @param interp - interpreter running the command.
+ *  @param objv   - Command words.
+ */
+void
+TclXamine::start(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 2, "Xamkine::Xamine start");
+    if (!Xamine_Start()) {
+        throw CErrnoException("Unable to start Xamine");
     }
 }
