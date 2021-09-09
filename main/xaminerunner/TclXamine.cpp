@@ -23,6 +23,7 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
+#include <ErrnoException.h>
 #include <string>
 #include <client.h>
 #include <stdexcept>
@@ -57,6 +58,13 @@ TclXamine::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     try {
         requireAtLeast(objv, 2, "Requires at least a subcommand");
         std::string sub = objv[1];
+        if (sub == "genenv") {
+            genenv(interp, objv);
+        } else {
+            std::string msg = "Unrecognized subcommand: " ;
+            msg += sub;
+            throw std::string(msg);
+        }
     }
     catch (std::string msg) {
         interp.setResult(msg);
@@ -75,4 +83,26 @@ TclXamine::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         return TCL_ERROR;
     }
     return TCL_OK;
+}
+///////////////////////////////////////////////////////////////////////////////
+// Subcommand execution methods.  These all report errors via exceptions.
+
+/**
+ * genenv
+ *   Sets up the Xamine environment variables.  Parameters are the shared memory
+ *   key and size.  Note that on failure, Xamine_genenv is assumed to leave
+ *   an errno with the proper values.
+ *  @param interp - interpreter running the command.
+ *  @param objv   - Command words.
+ */
+void
+TclXamine::genenv(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 4, "Xamine::Xamine genenv shmemname spectrumbytes");
+    std::string name = objv[2];
+    int         size = objv[3];
+    
+    if (!Xamine_genenv(name.c_str(), size)) {
+        throw CErrnoException("Unable to set up Xamine environment variables");
+    }
 }
