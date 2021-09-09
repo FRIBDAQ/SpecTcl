@@ -31,6 +31,7 @@
 #include "cmdline.h"
 
 #include "Info.h"
+#include "TclXamine.h"
 
 const char* TclLibPath=SPECTCL_TCLLIBS;
 
@@ -89,6 +90,7 @@ static int AppInit(Tcl_Interp* pInterp)
     new GetHostCommand(*pOInterp, parsed.host_arg);
     new GetPortCommand(*pOInterp, parsed.port_arg);
     new IsLocalCommand(*pOInterp);
+    new TclXamine(*pOInterp);
     
     return TCL_OK;
 

@@ -30,9 +30,13 @@ install-exec-local:
 bin_PROGRAMS=xaminerunner
 
 xaminerunner_SOURCES=cmdline.c xaminerunner.cpp cmdline.h \
-	Info.h Info.cpp
+	Info.h Info.cpp   \
+	TclXamine.h TclXamine.cpp
 xaminerunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
-	-DSPECTCL_TCLLIBS="\"$(SPECTCL_TCLLIBS)\""
-xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@
+	-DSPECTCL_TCLLIBS="\"$(SPECTCL_TCLLIBS)\"" -I@top_srcdir@/Display
+xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
+	@top_builddir@/Display/libXamine.la
+
+xaminerunner_LDFAGS=-Wl,-rpath=@prefix@/lib
 
 EXTRA_DIST = xamineRunnerOptions.ggo $(TCLPACKAGE_FILES)
