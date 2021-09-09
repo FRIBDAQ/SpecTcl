@@ -217,7 +217,7 @@ void Xamine_clearStatistics(unsigned nSpetrum);
 
 /*   For the Xamine start */
 
-int genenv(const char* name, int specbytes);
+int Xamine_genenv(const char* name, int specbytes);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }
