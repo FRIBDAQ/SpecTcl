@@ -32,6 +32,8 @@
 
 #include "Info.h"
 
+const char* TclLibPath=SPECTCL_TCLLIBS;
+
 // Put the parsed command junk here.
 
 static struct gengetopt_args_info parsed;
@@ -57,6 +59,27 @@ static int AppInit(Tcl_Interp* pInterp)
         pInterp, Tcl_NewStringObj("tcl_rcFilename", -1), NULL,
         Tcl_NewStringObj("~/.tclshrc", -1), TCL_GLOBAL_ONLY
     );
+    // Add the SpecTcl Library path to auto_path:
+    
+    Tcl_Obj* autopath = Tcl_ObjGetVar2(
+        pInterp, Tcl_NewStringObj("auto_path", -1), NULL, TCL_GLOBAL_ONLY
+    );
+    if (!autopath) {
+        pOInterp->setResult("Cant' read auto_path to include SpecTcl directories");
+        return TCL_ERROR;
+    }
+    int status = Tcl_ListObjAppendElement(
+        pInterp, autopath, Tcl_NewStringObj(TclLibPath, -1)
+    );
+    if (status != TCL_OK) {
+        pOInterp->setResult("Failed to lappend Tcl Library path to auto_path");
+    }
+    Tcl_ObjSetVar2(
+        pInterp, Tcl_NewStringObj("auto_path", -1), NULL, autopath,
+        TCL_GLOBAL_ONLY
+    );
+    
+    
     // Create the Xamine namespace:
     
     if (!Tcl_CreateNamespace(pInterp, "Xamine", nullptr, nullptr)) {
