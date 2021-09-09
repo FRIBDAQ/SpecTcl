@@ -30,14 +30,17 @@ Program composition:
    
    getHost - get Xamine Host.
    getPort - get Xamine Port.
+   initRest - Initialize the REST client interface.
    isLocal - Determines if a host is local or remote.
-   getLocalMemory - Get name of local memory - either directly Xamine or clone.
+   getLocalMemory - Get name of local memory
+   getClonedMemory - Get name of cloned memory (starting cloner if needed).
    genXamineEnv - generate the Xamine environment variables.
    start   - Start Xamine.
    stop    - Stop Xamine.
    addGate - Add a new gate to a spectrum.
    removeGate - Remove a spectrum gate.
    setGateHandler - Establish a handler script for a new gate.
+   startClonerIfNeeded - if the cloner is not running, start it.
   
     Note that starting Xamine starts a thread that polls for gates and, if a
     gate has been received will invoke and optional gate handler script (if
