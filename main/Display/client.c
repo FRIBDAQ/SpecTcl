@@ -346,7 +346,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 **    True    - Success
 **    False   - Failure
 */
-int genenv(char *name, int specbytes)
+int genenv(const char *name, int specbytes)
 {
   /* Allocate persistent storage for the strings */
 
