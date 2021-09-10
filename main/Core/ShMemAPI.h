@@ -41,7 +41,7 @@ class ShMemAPI
  public: 
 
   static ShMemAPI* getInstance();
-  static void* publisher_task(void *arg);  
+  static void* server_task(void *arg);  
 
   static inline uint64_t hrDiff(const timespec& end, const timespec& start)
   {

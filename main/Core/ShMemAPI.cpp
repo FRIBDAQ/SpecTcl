@@ -28,13 +28,15 @@
 #include <buftypes.h>
 #include "ShMemAPI.h"
 #include "ShMemManagerAPI.h"
+#include "zmsg.hpp"
 #include <stdio.h>
 #include <time.h>
 #include <thread>
+#include <sstream>
+#include <vector>
 
 bool debug = true;
 ShMemAPI* ShMemAPI::m_pInstance = 0;
-#define SUBS 1
 
 ShMemAPI::ShMemAPI()
 {
@@ -52,51 +54,36 @@ ShMemAPI::getInstance()
     m_pInstance = new ShMemAPI();
   }
   // Regardless return it to the caller.
-  return m_pInstance;
-  
+  return m_pInstance;  
 }
 
 void*
-ShMemAPI::publisher_task(void* arg)
+ShMemAPI::server_task(void* arg)
 {
   zmq::context_t context(1);
-  zmq::socket_t publisher(context, ZMQ_PUB);  
-
-  int sndhwm = 0;
-  publisher.setsockopt(ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
-  publisher.bind("tcp://*:5678");  
-
-  // socket to receive signals
-  zmq::socket_t syncservice(context, ZMQ_REP);
-  syncservice.bind("tcp://*:1234");
-
-  int subs = 0;
-  while (subs < SUBS) {
-    // wait for synch request
-    std::string req = s_recv(syncservice);
-    std::cout << "Request of synch received -> " << req << std::endl;
-    // send synch reply
-    s_send(syncservice, "Connected");
-    subs++;
-  }
-
-  std::cout << "Done synchronizing" << std::endl;
-  std::cout << "Start sending..." << std::endl;
+  zmq::socket_t server(context, ZMQ_REP);
+  server.bind("tcp://*:5555");
   
-  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  auto s = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
-  std::chrono::system_clock::time_point next_full_second = std::chrono::system_clock::time_point(++s);
-  
-  auto interval = std::chrono::seconds(1); // or milliseconds(500) 
-  auto wait_until = next_full_second;
-
-  while (1){
-    std::this_thread::sleep_until(wait_until);
-    std::string msg = "Tie beccate sto porcoddio";
-    s_send(publisher, msg);	
+  int cycles = 0;
+  while (1) {
+    std::string request = s_recv (server);
+    cycles++;
     
-    wait_until += interval;
+    // Simulate various problems, after a few cycles
+    /*
+    if (cycles > 3 && within (3) == 0) {
+      std::cout << "I: simulating a crash" << std::endl;
+      break;
+    }
+    else
+      if (cycles > 3 && within (3) == 0) {
+	std::cout << "I: simulating CPU overload" << std::endl;
+	sleep (2);
+      }
+    */
+    std::cout << "I: normal request (" << request << ")" << std::endl;
+    sleep (1); // Do some heavy work
+    s_send (server, request);
   }
-  
   return NULL;
 }

@@ -50,8 +50,8 @@ ShMemManagerAPI::CreateThread()
 {
   // Creating publisher task
   if (debug)
-    std::cout << "Setting up publisher..." << std::endl; 
-  pthread_create(&server, nullptr, ShMemAPI::publisher_task,  (void*)ShMemManagerAPI::getInstance()->getContext());  
+    std::cout << "Setting up server and publisher..." << std::endl; 
+  pthread_create(&server, nullptr, ShMemAPI::server_task,  (void*)ShMemManagerAPI::getInstance()->getContext());    
 
   if (debug)
     std::cout << "...Done! " << std::endl;
