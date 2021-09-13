@@ -39,6 +39,7 @@ Program composition:
    stop    - Stop Xamine.
    addGate - Add a new gate to a spectrum.
    removeGate - Remove a spectrum gate.
+   pollGate   - Poll for a gate.
    setGateHandler - Establish a handler script for a new gate.
    startClonerIfNeeded - if the cloner is not running, start it.
   

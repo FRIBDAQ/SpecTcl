@@ -31,7 +31,9 @@ bin_PROGRAMS=xaminerunner
 
 xaminerunner_SOURCES=cmdline.c xaminerunner.cpp cmdline.h \
 	Info.h Info.cpp   \
-	TclXamine.h TclXamine.cpp
+	TclXamine.h TclXamine.cpp \
+	XamineGateHandlers.h XamineGateHandlers.cpp
+
 xaminerunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
 	-DSPECTCL_TCLLIBS="\"$(SPECTCL_TCLLIBS)\"" -I@top_srcdir@/Display
 xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
