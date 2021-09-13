@@ -35,8 +35,10 @@ xaminerunner_SOURCES=cmdline.c xaminerunner.cpp cmdline.h \
 	XamineGateHandlers.h XamineGateHandlers.cpp
 
 xaminerunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @ROOT_CFLAGS@ \
-	-DSPECTCL_TCLLIBS="\"$(SPECTCL_TCLLIBS)\"" -I@top_srcdir@/Display
+	-DSPECTCL_TCLLIBS="\"$(SPECTCL_TCLLIBS)\"" -I@top_srcdir@/Display \
+	-I@top_srcdir@/Utility
 xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
+	@top_builddir@/Utility/libUtilities.la \
 	@top_builddir@/Display/libXamine.la
 
 xaminerunner_LDFAGS=-Wl,-rpath=@prefix@/lib

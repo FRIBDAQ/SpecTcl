@@ -32,6 +32,7 @@
 
 #include "Info.h"
 #include "TclXamine.h"
+#include "XamineGateHandlers.h"
 
 const char* TclLibPath=SPECTCL_TCLLIBS;
 
@@ -91,6 +92,7 @@ static int AppInit(Tcl_Interp* pInterp)
     new GetPortCommand(*pOInterp, parsed.port_arg);
     new IsLocalCommand(*pOInterp);
     new TclXamine(*pOInterp);
+    new XamineGateHandler(*pOInterp);
     
     return TCL_OK;
 

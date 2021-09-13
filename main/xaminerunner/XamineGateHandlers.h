@@ -55,12 +55,17 @@ public:
         handler        m_myHandler;
         Tcl_ThreadId   m_myThread;
         bool           m_keepRunning;
+        XamineGateHandler* m_pGate;
     public:
-        PollThread(Tcl_ThreadId interp, handler pHandler);
+        PollThread(
+            Tcl_ThreadId interp, XamineGateHandler* pGates, handler pHandler
+        );
         ~PollThread();
         void operator()();
         void stop();
-        static PollThread* start(Tcl_ThreadId interp, handler pHandler);
+        static PollThread* start(
+            Tcl_ThreadId interp, XamineGateHandler* pGates, handler pHandler
+        );
         static Tcl_ThreadCreateType threadEntry(ClientData pClientData);
     };
 private:
@@ -87,7 +92,11 @@ private:
 private:
     static int EventHandler(Tcl_Event* pEvent, int flags);
     void   eventToDict(
-        CTCLInterpreter& interp, CTCLObject* result, msg_XamineEvent& event
+        CTCLInterpreter& interp, CTCLObject& result, msg_XamineEvent& event
+    );
+    std::string grobjType(grobj_type type);
+    void formatPoints(
+        CTCLInterpreter& interp, CTCLObject& obj, int npts, msg_point* points
     );
 };
 
