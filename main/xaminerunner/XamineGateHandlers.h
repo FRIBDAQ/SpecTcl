@@ -46,11 +46,14 @@ class XamineGateHandler : public CTCLObjectProcessor
 private:
     // Define the polling thread class.
     //
+public:
     class PollThread {
     public:
-        typedef int (*handler)(Tcl_Event* pEvent);
+        typedef int (*handler)(Tcl_Event* pEvent, int flags);
     private:
         Tcl_ThreadId   m_interpreterThread;
+        handler        m_myHandler;
+        Tcl_ThreadId   m_myThread;
         bool           m_keepRunning;
     public:
         PollThread(Tcl_ThreadId interp, handler pHandler);
@@ -58,6 +61,7 @@ private:
         void operator()();
         void stop();
         static PollThread* start(Tcl_ThreadId interp, handler pHandler);
+        static Tcl_ThreadCreateType threadEntry(ClientData pClientData);
     };
 private:
     //
