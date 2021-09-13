@@ -123,6 +123,7 @@ XamineGateHandler::PollThread::operator()()
             Tcl_ThreadQueueEvent(
                 m_interpreterThread, &(pEvent->s_event), TCL_QUEUE_TAIL
             );
+            Tcl_ThreadAlert(m_interpreterThread);
             pEvent = allocEvent(m_pGate, m_myHandler);
             
         } else if (status < 0) {
@@ -250,6 +251,15 @@ XamineGateHandler::operator()(
         std::string sub(objv[1]);
         if (sub == "poll") {
             poll(interp, objv);
+        } else if (sub == "startPolling") {
+            startPolling(interp, objv);    
+        } else if (sub == "stopPolling") {
+            stopPolling(interp, objv);
+        } else if (sub == "isPolling") {
+            isPolling(interp, objv);
+        } else if (sub == "setHandler") {
+            setHandler(interp, objv);
+
         } else {
             std::string msg = "Invalid subcommand : ";
             msg += sub;
@@ -303,9 +313,119 @@ XamineGateHandler::poll(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
     }
     // If here the poll timed out...and we're all set.
 }
-
+/**
+ * startPolling
+ *    Begin the poll thread.
+ *  @note if we detect there's already a poll thread, we toss an error.
+ */
+void
+XamineGateHandler::startPolling(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "Xamine::gate startPolling : No addtional command parameters");
+    if (m_pPoller) {
+        throw std::runtime_error("Xamine::gate startPolling - poll thread already running");
+    }
+    m_pPoller = PollThread::start(Tcl_GetCurrentThread(), this, EventHandler);
+}
+/**
+ * stopPolling
+ *    Ask the polling thread to exit and join on it.
+ *   @note throws an exception if the poll thread is not running.
+ */
+void
+XamineGateHandler::stopPolling(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "Xamine::gate stopPolling - no additional command parameters");
+    if (!m_pPoller) {
+        throw std::runtime_error("Xamine::gate stopPolling - poll thread not running");
+    }
+    m_pPoller->stop();
+    m_pPoller = nullptr;
+}
+/**
+ * isPolling
+ *  sets the result to true if polling is active.
+ */
+void
+XamineGateHandler::isPolling(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 2, "Xamine::gate isPolling - no additional command parameters");
+    if (m_pPoller) {
+        interp.setResult("1");
+    } else {
+        interp.setResult("0");
+    }
+}
+/**
+ * setHandler
+ *    Set a new handler script.  The old handler script, if any is returned as the
+ *    value.
+ *    @note the handler can be set even if the poll loop is not (yet) active.
+ */
+void
+XamineGateHandler::setHandler(
+    CTCLInterpreter& interp, std::vector<CTCLObject>& objv
+)
+{
+    requireExactly(objv, 3, "Xamine::gate setHandler handler-script");
+    if (m_pHandlerScript) {
+        interp.setResult(*m_pHandlerScript);
+    }
+    delete m_pHandlerScript;
+    m_pHandlerScript = nullptr;
+    std::string script = objv[2];
+    if (script != "") {
+        m_pHandlerScript = new CTCLObject;
+        m_pHandlerScript->Bind(interp);
+        *m_pHandlerScript = objv[2].getObject();
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 // Private utilities.
+
+/**
+ * EventHandler
+ *
+ *   Called by the event loop when the event loop gets an event queued by the
+ *   PollThread.
+ * @param pEvent - Actually a pointer to a XamineTclEvent
+ * @param flags   - Event loop flags (ignored).
+ * @return int - 1 to retire the event and free it.
+ * @note this is a static method.
+ */
+int
+XamineGateHandler::EventHandler(Tcl_Event* pEvent, int flags)
+{
+    pXamineTclEvent pXEvent = reinterpret_cast<pXamineTclEvent>(pEvent);
+    XamineGateHandler& gateObject(*(pXEvent->s_pObject));
+    msg_XamineEvent& evt(pXEvent->s_xamineEventInfo);
+    
+    // Only worth doing something if there's a handler script:
+    
+    if (gateObject.m_pHandlerScript) {
+        
+        // We only process gates:
+        
+        if (evt.event == Gate) {
+            CTCLInterpreter& interp(*(gateObject.getInterpreter()));
+            CTCLObject dict;
+            dict.Bind(interp);
+            gateObject.eventToDict(interp, dict, evt);
+            
+            CTCLObject cmd = gateObject.m_pHandlerScript->clone();
+            cmd.Bind(interp);
+            cmd += dict;
+            cmd();
+        }
+    }
+    return 1;
+}
 
 /**
  * eventToDict
