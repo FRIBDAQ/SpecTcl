@@ -439,6 +439,7 @@ XamineGateHandler::EventHandler(Tcl_Event* pEvent, int flags)
  *
  * We build a dict with the keys:
  *     -   spectrum    - Xamine spectrum binding id.
+ *     -   id          - Graphical object id.
  *     -   type        - Type of graphical object
  *     -   name        - object name "" if no name.
  *     -   points      - list of {x y} point pairs.
@@ -451,6 +452,7 @@ XamineGateHandler::eventToDict(
     if (event.event == Gate) {
         msg_object& gate(event.data.gate);
         Tcl::DictPut(interp, result, "spectrum", static_cast<int>(gate.spectrum));
+        Tcl::DictPut(interp, result, "id", static_cast<int>(gate.id));
         Tcl::DictPut(
             interp, result, "type", grobjType(gate.type).c_str()
         );
