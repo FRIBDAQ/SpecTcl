@@ -132,12 +132,10 @@ proc Xamine::XamineGateToSpecTclGate {gatedef} {
     set xGateType [dict get $gatedef type]
     if {$xGateType eq "cut"} {
         Xamine::_XamineCutToSpecTclGate $gatedef $spectrumDef
-    } elseif {$xGateType eq "band"} {
-        
-    } elseif {$xGateType eq "contour"} {
-        
+    } elseif {$xGateType in [list "contour" "band"]} {
+        Xamine:_Xamine2DGateToSpecTclGate $gatedef $spectrumDef
     } else {
-        error "Urecognized Xamine gate type: $xGateType"
+        # Ignore all other types - silently.
     }
 }
 
@@ -180,6 +178,25 @@ proc Xamine::_channelToParam1  {pt axis} {
     return [expr {$chan*($ahi - $alow)/$chans + $alow}]
 }
 ##
+# Xamine::_channelToParam2
+#    Convert a 2d point from spectrum channel coords to axis coords.
+#
+# @param xypoint
+# @param xaxis
+# @param yaxis
+# @return xypoint
+#
+proc Xamine::_channelToParam2 {xypoint xaxis yaxis} {
+    set x [lindex $xypoint 0]
+    set y [lindex $xypoint 1]
+    
+    set xconv [Xamine::_channelToParam1 [list $x 0] $xaxis]
+    set yconv [Xamine::_channelToParam1 [list $y 0] $yaxis]
+    
+    return [list $xconv $yconv]
+}
+
+##
 # Xamine::_XamineCutToSpecTclGate
 #   If the spectrum was a 1 spectrum then this is a slice (s) gate
 #   If the spectrum was a g1 spectrum this is a gamma slice (gs) gate.
@@ -220,4 +237,85 @@ proc Xamine::_XamineCutToSpecTclGate {gateDef specDef} {
     $Xamine::restClient gateCreateSimple1D \
         [dict get $gateDef name] $gateType [dict get $specDef parameters] $low $hi
     
+}
+##
+# Xamine:_Xamine2DGateToSpecTclGate
+#   Turn a 2d gate into a SpecTcl gate:
+#   -   If Spectrum type is 2 band->b, contour -> c
+#   -   If Spectrum type is g2 or gd  we're going to make a gb or gc
+#   -   If Spectrum type is m2 - we need to make a gate for each parameter pair
+#       and an OR gate to finish things off.
+# @param gDef   - Gate definition dict.
+# @param sDef   - Spectrum Definition dict.
+#
+proc Xamine:_Xamine2DGateToSpecTclGate {gDef sDef} {
+    #  The base type is b or c..to which we may prepend g if this is a gamma
+    #  gate.
+    set status [catch {
+    
+    set gtype [dict get $gDef type]
+    if {$gtype eq "contour"} {
+        set gatetype c
+    } else {
+        set gatetype b
+    }
+    
+    #  Everything else depends now on the spectrum type - note there are some
+    #  spectrum types we need to ignroe
+    
+    set stype [dict get $sDef type]
+    if {$stype in [list 2 g2 m2 gd]} {
+        if {$stype in [list g2 gd]} {
+            set gatetype g$gatetype
+        }
+        #  Convert the points.
+        
+    
+        set xpoints [list]
+        set ypoints [list]
+        set xaxis [lindex [dict get $sDef axes] 0]
+        set yaxis [lindex [dict get $sDef axes] 1]
+        foreach pt [dict get $gDef points] {
+            set point [Xamine::_channelToParam2 $pt $xaxis $yaxis]
+            lappend xpoints [lindex $point 0]
+            lappend ypoints [lindex $point 1]
+        }
+        # The parameters depend on spectrum type:
+        
+        if {$stype in [list 2 gd]} {
+            set xparameters [lindex [dict get $sDef parameters] 0]
+            set yparameters [lindex [dict get $sDef parameters] 1]
+            
+            $Xamine::restClient gateCreateSimple2D \
+                [dict get $gDef name] $gatetype $xparameters $yparameters \
+                $xpoints $ypoints
+        } elseif {$stype eq  "g2" } {
+            set xparameters [dict get $sDef parameters]
+            set yparameters [list]
+            $Xamine::restClient gateCreateSimple2D \
+                [dict get $gDef name] $gatetype $xparameters $yparameters \
+                $xpoints $ypoints
+        } elseif {$stype eq "m2"} {
+            #  For each parameter pair, we need a constituent gate of an
+            # or gate the constituents are named
+            #   _constituent_[dict get $gDef  name]_nn
+            #
+            set cnum 0
+            set basename _constituent_[dict get $gDef name]_
+            set constituents [list]
+            foreach {xpar ypar} [dict get $sDef parameters] {
+                set gateName $basename[incr cnum]
+                $Xamine::restClient gateCreateSimple2D \
+                    $gateName $gatetype $xpar $ypar $xpoints $ypoints
+                lappend constituents $gateName
+            }
+            $Xamine::restClient gateCreateCompound [dict get $gDef name] + $constituents
+        }
+        
+    }
+    } msg]
+    if {$status} {
+        puts stderr "$msg : $::errorInfo"
+    }
+    #  Just ignore combinations that are not possible.
 }
