@@ -74,7 +74,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 
 
 int Xamine_EnterGate(int spec, int id, Xamine_gatetype type,
-		     char *name,
+		     const char *name,
 		     int npts, Xamine_point *pts);
 int f77xamine_entergate_(int *spec, int *id, Xamine_gatetype *type, 
 			 char *name, int *npts, Xamine_point *pts);
