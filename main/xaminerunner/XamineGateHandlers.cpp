@@ -259,7 +259,8 @@ XamineGateHandler::operator()(
             isPolling(interp, objv);
         } else if (sub == "setHandler") {
             setHandler(interp, objv);
-
+        } else if (sub == "add") {
+            add(interp, objv);
         } else {
             std::string msg = "Invalid subcommand : ";
             msg += sub;
@@ -385,6 +386,57 @@ XamineGateHandler::setHandler(
         m_pHandlerScript->Bind(interp);
         *m_pHandlerScript = objv[2].getObject();
     }
+}
+/**
+ * add
+ *    Add a new gate to Xamine.  The form of this command is:
+ *    Xamine::gate add specid gateid gatetype name points
+ *
+ * Where:
+ *  -   specid  - is the *XAMINE* spectrum id.  This is the binding id +1
+ *  -   gateid  - is a unique per spectrum gate id.
+ *  -   gatetype - is the type of gate: 'cut' 'band' 'contour'
+ *  -   name    - Is the name to give to the gate.
+ *  -   points  - is a list of {x y} points.  Note that for a cut this must be
+ *                2 points and only the X coordinates are important.
+ *                The point coordinate system is the spectrum >channel> coordinates
+ *                not the world coordinates.
+ */
+void
+XamineGateHandler::add(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 7, "Xamine::gate add specid gateid gatetype name points");
+    int specid = objv[2];
+    int gateid = objv[3];
+    std::string gateName = objv[5];
+    
+    // Figure out the gate type:
+    
+    std::string gateTypeStr = objv[4];
+    Xamine_gatetype gateType;
+    if (gateTypeStr == "cut") {
+        gateType = cut_1d;
+    } else if (gateTypeStr == "band") {
+        gateType = band;
+    } else if (gateTypeStr == "contour") {
+        gateType = contour_2d;
+    } else {
+        std::string msg = "Invalid gate type string: ";
+        msg += gateTypeStr;
+        throw std::runtime_error(msg);
+    }
+    
+    // Marshall the points:
+    
+    Xamine_point points [GROBJ_MAXPTS];
+    int nPts = marshallPoints(interp, points, objv[6]);
+    
+    if (Xamine_EnterGate(
+        specid, gateid, gateType, gateName.c_str(), nPts, points
+    )) {
+        throw CErrnoException("Unable to enter a gate in Xamine");
+    }
+    
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Private utilities.
@@ -534,4 +586,37 @@ XamineGateHandler::formatPoints(
         item += y;
         obj += item;
     }
+}
+/**
+ * marshallPoints
+ *   @param interp - interpreter being used to figure out the points.
+ *   @param poitns - Array of Xamine_points into which the points will be put.
+ *   @param ptsObj - Object containing a list of {x y} points.
+ *   @return int - number of points in ptsObj
+ *   @note We don't care how many points there are but:
+ *       -   Each element of ptsObj must be a two element sublist or we throw.
+ *       -   Each element of each sublist must be representable as an integer or
+ *           we throw (technically CTCLObject throws).
+ */
+int
+XamineGateHandler::marshallPoints(
+    CTCLInterpreter& interp, Xamine_point* points, CTCLObject& ptsObj
+)
+{
+    int npts = ptsObj.llength();
+    for (int i = 0; i < npts; i++) {
+        CTCLObject point = ptsObj.lindex(i);
+        point.Bind(interp);
+        if (point.llength() != 2) {
+            throw std::runtime_error("Invalid point in marshallPoints");    
+        }
+        
+        int x = point.lindex(0);         // These will throw if
+        int y = point.lindex(1);         // the objects can't be represented as ints.
+        
+        points[i].x = x;
+        points[i].y = y;
+    }
+    
+    return npts;
 }

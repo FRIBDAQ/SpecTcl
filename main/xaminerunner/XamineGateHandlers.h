@@ -98,6 +98,9 @@ private:
     void formatPoints(
         CTCLInterpreter& interp, CTCLObject& obj, int npts, msg_point* points
     );
+    int marshallPoints(
+        CTCLInterpreter& interp, Xamine_point* points, CTCLObject& ptsObj
+    );
 };
 
 #endif
