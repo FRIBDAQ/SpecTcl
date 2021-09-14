@@ -36,13 +36,14 @@ if {[array names env DAQTCLLIBS] ne ""} {
 }
 
 namespace eval Xamine {
-    variable restClient  [list]     # Rest client.
+    variable restClient  [list];     # Rest client.
     variable haveDAQ
     if {[info command portAllocator] ne ""} {
         set haveDAQ 1
     } else {
         set haveDAQ 0
     }
+    variable gateId 0  ;    # Xamine gate id number serial.
 }
 
 ##
@@ -101,4 +102,122 @@ proc Xamine::getLocalMemory { } {
 
     return [list $key $size]
 }
+
     
+##
+# Xamine::XamineGateToSpecTclGate
+#   Given an Xamine gate as input, turns it into a SpecTcl gate which is
+#   entered via the REST interface.
+#   Here's a sketch of what must be done:
+#   -  Figure out the SpecTcl spectrum on which the gate was accepted.
+#   -  Based on the spectrum and gate types figure out the type of
+#      SpecTcl Gate.
+#   - Based on the spectrum axis definitions, translate the points into
+#     parameter coordinates.
+#   - Use the SpecTcl REST interface to enter the gate into Xmaine.
+#
+# @param  gateDef - Xamine gate definition dict.
+# @note The Xamine spectrum id is 1 + the SpecTcl binding id.
+#
+proc Xamine::XamineGateToSpecTclGate {gatedef} {
+    
+    # Get the matching SpecTcl Spectrum definition dict:
+    
+    set bindingId [expr {[dict get $gatedef spectrum] - 1}]
+    set spectrumDef [Xamine::_getSpectrumByBindingId $bindingId]
+    
+    # There are three gate types:  cut, contour and band. We'll handle each
+    # in its own utility:
+    
+    set xGateType [dict get $gatedef type]
+    if {$xGateType eq "cut"} {
+        Xamine::_XamineCutToSpecTclGate $gatedef $spectrumDef
+    } elseif {$xGateType eq "band"} {
+        
+    } elseif {$xGateType eq "contour"} {
+        
+    } else {
+        error "Urecognized Xamine gate type: $xGateType"
+    }
+}
+
+#------------------------------------------------------------------------------
+# 'private' utilities.
+
+
+##
+# Xamine::_getSpectrumByBindingId
+#    Given a binding id get the SpecTcl spectrum definition:
+#
+# @param id - binding id.
+#
+proc Xamine::_getSpectrumByBindingId {id} {
+    set bindings [$Xamine::restClient sbindList]
+    #
+    #  Note by definition there will be a match:
+    #
+    foreach binding $bindings {
+        if {$id eq [dict get $binding binding]} {
+            break
+        }
+    }
+    return [lindex [$Xamine::restClient spectrumList [dict get $binding name]] 0]
+}
+##
+# Xamine::_channelToParam1
+#  Convert a 1-d point in channel coordinates to axis coordinates.
+#
+# @param pt  - x/y point.
+# @param axis - axis definition dict.
+# @return double - Axis coordinate of X of pt.
+#
+proc Xamine::_channelToParam1  {pt axis} {
+    set chan [lindex $pt 0]
+    set alow [dict get $axis low]
+    set ahi  [dict get $axis high]
+    set chans [dict get $axis bins]
+    
+    return [expr {$chan*($ahi - $alow)/$chans + $alow}]
+}
+##
+# Xamine::_XamineCutToSpecTclGate
+#   If the spectrum was a 1 spectrum then this is a slice (s) gate
+#   If the spectrum was a g1 spectrum this is a gamma slice (gs) gate.
+#   Regardless, there's one axis and we use that to convert the points which
+#   can then be used in gateCreateSimple1D.
+#
+# @param gateDef - Xamine gate definition.
+# @param specDef - SpecTcl Spectrum on which the gate was accepted.
+#
+proc Xamine::_XamineCutToSpecTclGate {gateDef specDef} {
+    
+    #  Figure out gType - the SpecTcl gate type:
+    
+    set specType [dict get $specDef type]
+    if {$specType eq "1"} {
+        set gateType s
+    } elseif {$specType eq "g1"} {
+        set gateType gs
+    } else {
+        error "Unrecognized spectrum type: $specType"
+    }
+    # Convert the points to low/high
+    
+    set axes [dict get $specDef axes]
+    set axis [lindex $axes 0]
+    set gatePoints [dict get $gateDef points]
+    
+    set specGatePoints [list]
+    foreach point $gatePoints {
+        lappend specGatePoints [Xamine::_channelToParam1 $point $axis]
+    }
+    # Figure the slice olmits.
+    
+    set pts [join $specGatePoints ,]
+    set low [expr min($pts)]
+    set hi  [expr max($pts)]
+    
+    $Xamine::restClient gateCreateSimple1D \
+        [dict get $gateDef name] $gateType [dict get $specDef parameters] $low $hi
+    
+}
