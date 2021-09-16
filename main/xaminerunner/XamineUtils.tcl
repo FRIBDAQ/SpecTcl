@@ -173,7 +173,7 @@ proc Xamine::SpecTclGatesToXamineGates {gateDefs} {
             }
         }
     }
-    parray gatesByParameters
+    
     # Now make an array of spectrum defs indexed by name for the bindings->def lookup.
     
     set spectra [$Xamine::restClient spectrumList]
@@ -665,7 +665,7 @@ proc Xamine::_addGate {gate spec binding} {
         Xamine::gate add   \
             $xid $Xamine::gateId cut  \
             [dict get $gate name] [list [list $low 0] [list $high 0]]
-        lappend displayedGate([dict get $gate name]) [list $xid $Xamine::gateId]
+        lappend Xamine::displayedGates([dict get $gate name]) [list $xid $Xamine::gateId cut]
         
         return
     }
@@ -687,10 +687,9 @@ proc Xamine::_addGate {gate spec binding} {
         Xamine::gate add \
             $xid $Xamine::gateId $xgtype   \
                 [dict get $gate name] $points
-        lappend displayedGate([dict get $gate name]) [list $xid $Xamine::gateId]
+        lappend Xamine::displayedGates([dict get $gate name]) [list $xid $Xamine::gateId $xgtype]
             
     }
-    
 
 }
 

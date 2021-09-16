@@ -261,6 +261,8 @@ XamineGateHandler::operator()(
             setHandler(interp, objv);
         } else if (sub == "add") {
             add(interp, objv);
+        } else if (sub == "remove") {
+            remove(interp, objv);
         } else {
             std::string msg = "Invalid subcommand : ";
             msg += sub;
@@ -437,6 +439,35 @@ XamineGateHandler::add(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
         throw CErrnoException("Unable to enter a gate in Xamine");
     }
     
+}
+/**
+ * remove
+ *    Remove a gate from Xamine.
+ *    Xamine::gate remove specid gateid gatetype
+ */
+void
+XamineGateHandler::remove(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+    requireExactly(objv, 5, "Xamine::gate remove specid gateid gate-type");
+    int specid = objv[2];
+    int gateid = objv[3];
+    std::string strType = objv[4];
+    Xamine_gatetype gType;
+    if (strType == "cut")  {
+        gType = cut_1d;
+    } else if (strType == "contour") {
+        gType = contour_2d;
+    } else if (strType== "band") {
+        gType = band;
+    } else {
+        std::string msg("Invalid gate type string: ");
+        msg += strType;
+        throw std::runtime_error(msg);
+    }
+    
+    if (Xamine_RemoveGate(specid, gateid, gType)) {
+        throw std::runtime_error("Failed to add gate to Xamine");
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Private utilities.
