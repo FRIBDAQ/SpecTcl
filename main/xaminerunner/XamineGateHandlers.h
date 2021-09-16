@@ -40,6 +40,7 @@ class CTCLObject;
  *     -  sethandler   : set the gate handler that is called when a gate has been
  *                      gotten from the event driven polling thread.
  *     -  add          : Add a new gate to Xamine.
+ *     -  remove       : Remove a gate from Xamine.
 */
 class XamineGateHandler : public CTCLObjectProcessor
 {
@@ -87,6 +88,7 @@ private:
     void isPolling(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void setHandler(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     void add(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+    void remove(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
     
     // Utilities:
 private:
