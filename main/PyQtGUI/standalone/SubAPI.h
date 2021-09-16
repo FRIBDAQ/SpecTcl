@@ -25,11 +25,6 @@
 
 extern bool debug;
 
-struct arg_struct {
-  int thread_id;
-  zmq::context_t* thread_ctx;
-};
-
 class SubAPI
 {
  private:
@@ -43,4 +38,8 @@ class SubAPI
   static SubAPI* getInstance();
   static void* subscriber_task(void *arg);  
 
+  static void CreateLocalShMem(unsigned int size);
+  static void SetLocalShMem();
+  void DestroyLocalShMem();
+  
 };

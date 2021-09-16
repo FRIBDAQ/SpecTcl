@@ -25,11 +25,6 @@
 
 extern bool debug;
 
-struct arg_struct {
-  int thread_id;
-  zmq::context_t* thread_ctx;
-};
-
 class ShMemAPI
 {
  private:
@@ -39,7 +34,7 @@ class ShMemAPI
   virtual ~ShMemAPI();
   
  public: 
-
+  
   static ShMemAPI* getInstance();
   static void* server_task(void *arg);  
 

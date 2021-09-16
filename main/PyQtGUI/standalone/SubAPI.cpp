@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <limits>
 #include <chrono>
+#include <cstdint>
 #include "SubAPI.h"
 #include "SubManagerAPI.h"
 #include <sstream>
@@ -32,8 +33,15 @@
 #define REQUEST_TIMEOUT     10000    //  msecs, (> 1000!)
 #define REQUEST_RETRIES     99       //  Before we abandon
 
+bool isShMem = false;
 bool debug = true;
 SubAPI* SubAPI::m_pInstance = 0;
+
+struct Data
+{
+  int a;
+  int arr[3];
+};
 
 SubAPI::SubAPI()
 {
@@ -54,6 +62,18 @@ SubAPI::getInstance()
   return m_pInstance;
   
 }
+
+void
+SubAPI::CreateLocalShMem(unsigned int size)
+{}
+
+void
+SubAPI::SetLocalShMem()
+{}
+
+void
+SubAPI::DestroyLocalShMem()
+{}
 
 static zmq::socket_t*
 s_client_socket (zmq::context_t & context)
@@ -89,19 +109,37 @@ SubAPI::subscriber_task(void* arg)
 	  //  Poll socket for a reply, with timeout
 	  std::vector<zmq::pollitem_t> items = {{static_cast<void *>(*client), 0, ZMQ_POLLIN, 0}};
 	  zmq::poll (&items[0], 1, REQUEST_TIMEOUT);
-	  
+
+	  unsigned int size;
 	  //  If we got a reply, process it
 	  if (items[0].revents & ZMQ_POLLIN) {
-	    //  We got a reply from the server, must match sequence
-	    std::string reply = s_recv (*client);
-	    if (atoi (reply.c_str ()) == sequence) {
-	      std::cout << "I: server replied OK (" << reply << ")" << std::endl;
-	      retries_left = REQUEST_RETRIES;
-	      expect_reply = false;
-	    }
-	    else {
-	      std::cout << "E: malformed reply from server: " << reply << std::endl;
-	    }
+	    //  We got a reply from the server, should be size+memory copy
+	    size = std::stoi(s_recv(*client));
+	    if (debug)
+	      std::cout << "Size of the shared memory -> " << size << std::endl;
+
+	    // Create shared memory if doesn't exist
+	    if (!isShMem)
+	      SubAPI::CreateLocalShMem(size);
+
+	    zmq::message_t shmemData;
+	    client->recv(&shmemData);
+
+	    // Content of the test shared memory
+	    struct Data* pData =
+	      reinterpret_cast<struct Data*>(shmemData.data());
+
+	    if (debug)
+	      std::cout << pData->a << " " << pData->arr[0] <<
+		" " << pData->arr[1] <<
+		" " << pData->arr[2] << std::endl;
+
+	    // Copy shared memory from message to local machine 
+	    /* ... */
+	    SubAPI::SetLocalShMem();
+	    
+	    retries_left = REQUEST_RETRIES;
+	    expect_reply = false;
 	  }
 	  else
             if (--retries_left == 0) {

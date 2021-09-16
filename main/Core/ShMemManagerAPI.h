@@ -18,6 +18,19 @@
 #include <iostream>
 #include <zmq.hpp>
 
+struct Data
+{
+  int a;
+  int arr[3];
+};
+
+struct arg_struct {
+  unsigned int shmem_size;
+  struct Data* shmem_data;
+  zmq::context_t* ctx;
+};
+
+
 class ShMemManagerAPI {
 
  private:
@@ -29,7 +42,12 @@ class ShMemManagerAPI {
   // Core of ShMemManagerAPI
   static ShMemManagerAPI* m_pInstance;
   static zmq::context_t* m_pContextSingleton;
+
+  int shm_id;
+  struct arg_struct* args;
   
+  unsigned int p_size;
+  struct Data *p_shmem;  // test shmem
   pthread_t server;
 
  public:
@@ -38,7 +56,13 @@ class ShMemManagerAPI {
   static ShMemManagerAPI* getInstance();
   static zmq::context_t*  getContext();
 
-  void CreateShMem(); // Create shared memory
+  int CreateTestShMem(); // Create test shared memory
+  struct Data * GetShMem(); // Returns the test shmem
+
+  void CopyShMem(/* */); // Copy shared memory  
+  void SetSizeShMeM(unsigned int size); // Set shared memory size for hoisting 
+  unsigned int GetSizeShMeM(); // Get shared memory size for hoisting 
+
   void CreateThread(); // Create publisher thread
   void JoinThread(); // Join publisher thread
   void DetachThread(); // Detach publisher thread  

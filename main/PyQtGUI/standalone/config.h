@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,9 +11,12 @@
 #include <cstdint>
 #include <errno.h>
 
+class CutiePieConfig;
+
 class CutiePieConfig {
 
 private:  
+    
   std::string homedir;
   std::string filename;
   
@@ -18,6 +24,9 @@ private:
   std::string userscript;
   
 public:
+  CutiePieConfig();
+  ~CutiePieConfig();
+
   bool dirExist();
   bool fileExist();
   void dirCreate();
@@ -27,3 +36,5 @@ public:
   std::string getUserScriptDir();  
   
 };
+
+#endif

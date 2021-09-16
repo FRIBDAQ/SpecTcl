@@ -57,11 +57,34 @@ ShMemAPI::getInstance()
   return m_pInstance;  
 }
 
+void
+freeData(void* pData, void* pHint)
+{
+  free(pData);
+}
+
+static void
+sendData(zmq::socket_t& sock, unsigned int size, const struct Data& data)
+{
+  s_sendmore(sock, std::to_string(size));
+  size_t const dataSize = sizeof(data);
+
+  struct Data* shmemData = reinterpret_cast<struct Data*>(malloc(dataSize));
+  *shmemData = data;
+
+  zmq::message_t dataShMem(shmemData, dataSize, freeData);
+  sock.send(dataShMem, 0);
+}
+
 void*
 ShMemAPI::server_task(void* arg)
 {
-  zmq::context_t context(1);
-  zmq::socket_t server(context, ZMQ_REP);
+  struct arg_struct* a = (struct arg_struct*)(arg); 
+  unsigned int size = (long)a->shmem_size;
+  struct Data* data = (struct Data*)a->shmem_data;  
+  zmq::context_t * context = static_cast<zmq::context_t*>(a->ctx);
+
+  zmq::socket_t server(*context, ZMQ_REP);  
   server.bind("tcp://*:5555");
   
   int cycles = 0;
@@ -81,9 +104,12 @@ ShMemAPI::server_task(void* arg)
 	sleep (2);
       }
     */
-    std::cout << "I: normal request (" << request << ")" << std::endl;
-    sleep (1); // Do some heavy work
-    s_send (server, request);
+    if (debug)
+      std::cout << "I: normal request (" << request << ")" << "...sending shmem " << std::endl;
+    sleep (1); // set time for updating shmem (this may be pass as parameter from qtpy)
+    sendData(server, size, *data);
+    
   }
+
   return NULL;
 }
