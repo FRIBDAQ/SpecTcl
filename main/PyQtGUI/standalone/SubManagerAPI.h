@@ -24,7 +24,7 @@ class SubManagerAPI {
   // ctor, dtor for SubscriberManagerAPI
   SubManagerAPI(){}; 
   SubManagerAPI(SubManagerAPI const&){}; 
-  SubManagerAPI& operator=(SubManagerAPI const&){};
+  SubManagerAPI& operator=(SubManagerAPI const&){return *this;};
   
   // Core of SubscriberManagerAPI
   static SubManagerAPI* m_pInstance;
