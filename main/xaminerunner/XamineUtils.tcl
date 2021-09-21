@@ -46,6 +46,8 @@ namespace eval Xamine {
     variable gateId 0  ;    # Xamine gate id number serial.
     variable displayedGates;  # Info on the gate ids assigned to the displayed gates
     array set displayedGates [list]
+    
+    variable traceToken [list]
 }
 
 ##
@@ -204,7 +206,39 @@ proc Xamine::SpecTclGatesToXamineGates {gateDefs} {
         }
     }
 }
+##
+# Xamine::connectGates
+#    Call this once at the beginning of your script execution:
+#    *   All gates are listed and entered, if appropriate, to Xamine.
+#    *   Gate traces are extablished and the gate trace handler
+#        is used to  modyf the Xamine thread.
+#    *   An Xamine gate handler is established and used to update SpecTcl's
+#        understanding of gates.
+# When this is all done:
+#   * Xamine will have apprpriate initial gates displayed.
+#   * New Xamine gates will automatically be reflected into SpecTcl
+#   * Changes to SpecTcl gates will automatically be reflected in the set of
+#     gates displayed by Xamine.
+#
+proc Xamine::connectGates { } {
     
+    # Populate the initial gates in Xamine
+    
+    set initialGates [$Xamine::restClient gateList]
+    Xamine::SpecTclGatesToXamineGates $initialGates
+    
+    # Establish gate traces to maintain Xamine Gates:
+    
+    set Xamine::traceToken [$Xamine::restClient traceEstablish 10]
+    Xamine::_processSpecTclGateTraces
+    
+    #  Establish an event handler for new Xamine gates:
+    
+    Xamine::gate startPolling
+    Xamine::gate setHandler Xamine::_processXamineGates
+        
+    
+}
 #------------------------------------------------------------------------------
 # 'private' utilities.
 
@@ -693,3 +727,91 @@ proc Xamine::_addGate {gate spec binding} {
 
 }
 
+##
+# Xamine::_addNewGate
+#    Given a new SpecTcl gate, gets is information and adds it to Xamine:
+#
+# @param name - name of new gate.
+#
+proc Xamine::_addNewgate {name} {
+    set defs [$Xamine::restClient gateList $name]
+    if {[llength $defs] > 0} {
+       Xamine::SpecTclGatesToXamineGates $defs
+    }
+}
+##
+# Xamine::_deleteExistingGate
+#    Delete an existing gate from Xamine
+#
+# @param name -name of the gate.
+# @note the item describing this gate in Xamine::displayedGates is removed.
+#
+proc Xamine::_deleteExistingGate {name} {
+    if {[array names Xamine::displayedGates $name] eq $name} {
+        set xamineGateDef $Xamine::displayedGates($name)
+        set spectrumId [lindex $xamineGateDef 0]
+        set gateId     [lindex $xamineGateDef 1]
+        set type       [lindex $xamineGateDef 2]
+        
+        Xamine::gate remove $spectrumId $gateId $type
+        
+        array unset Xamine::displayedGates $name
+    }
+}
+#----------------------------------------------------------------------------
+#  Event handlers:
+#
+
+##
+# Xamine::_processSpecTclGateTraces
+#   Called periodically to fetch and process SpecTcl traces.  In this
+#   implementaiton we only care about gate traces, hence the name.
+#
+proc Xamine::_processSpecTclGateTraces { } {
+    set traces [$::Xamine::restClient traceFetch $Xamine::traceToken]
+    
+    foreach gate [dict get $traces gate] {
+
+        set type [lindex $gate 0]
+        set name [lindex $gate 1]
+        
+        #  Adding a new gate:
+        
+        if {$type eq "add"} {
+            Xamine::_addNewgate $name
+        }
+        
+        #  Deleting an existing gate,
+        
+        if {$type eq "delete"} {
+            Xamine::_deleteExistingGate $name
+        }
+        
+        # Changing an existing gate.
+        
+        if {$type eq "changed"} {
+            Xamine::_deleteExistingGate $name
+            Xamine::_addNewgate $name
+        }
+    }
+    
+    
+    #  Reschedule
+    
+    after 1000 Xamine::_processSpecTclGateTraces
+}
+##
+# Xamine::_processXamineGates
+#    Called whenever an Xamine gate was queued to its IPC
+#
+# @param def - dictionary that describes the gate:
+#     - spectrum - Xamine binding id of the spectrum on which the gate was set.
+#     - id       - Graphical object id .
+#     - type     - Type of object (e.g. cut).
+#     - name     - Object name.
+#     - points   - List of X/Y points in the gate.
+#
+proc Xamine::_processXamineGates {def} {
+
+    Xamine::XamineGateToSpecTclGate $def
+}
