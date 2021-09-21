@@ -748,13 +748,21 @@ proc Xamine::_addNewgate {name} {
 #
 proc Xamine::_deleteExistingGate {name} {
     if {[array names Xamine::displayedGates $name] eq $name} {
-        set xamineGateDef $Xamine::displayedGates($name)
-        set spectrumId [lindex $xamineGateDef 0]
-        set gateId     [lindex $xamineGateDef 1]
-        set type       [lindex $xamineGateDef 2]
+        set xamineGateDefs $Xamine::displayedGates($name)
         
-        Xamine::gate remove $spectrumId $gateId $type
+        # xamineGateDefs is a list because a gate can be displayed on more than
+        # one Xamine Spectrum .
         
+        foreach xamineGateDef $xamineGateDefs {
+            
+            set spectrumId [lindex $xamineGateDef 0]
+            set gateId     [lindex $xamineGateDef 1]
+            set type       [lindex $xamineGateDef 2]
+            
+            
+            
+            Xamine::gate remove $spectrumId $gateId $type
+        }    
         array unset Xamine::displayedGates $name
     }
 }
