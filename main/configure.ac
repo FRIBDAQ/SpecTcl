@@ -964,5 +964,6 @@ AC_OUTPUT(Makefile
 	  PyQtGUI/test/Makefile
 	  PyQtGUI/standalone/Makefile
 	  restclient/Makefile
+	  xaminerunner/Makefile
 	  )
           

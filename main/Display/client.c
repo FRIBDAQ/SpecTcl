@@ -346,7 +346,8 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 **    True    - Success
 **    False   - Failure
 */
-int genenv(char *name, int specbytes)
+
+static int genenv(const char *name, int specbytes)
 {
   /* Allocate persistent storage for the strings */
 
@@ -376,7 +377,13 @@ int genenv(char *name, int specbytes)
   }
   return 1;
 }
+int
+Xamine_genenv(const char* name, int specbytes)
+{
+  return genenv(name, specbytes);
+}
 
+
 /*
 ** Functional Description:
 **    Xamine_CreateSharedMemory:
