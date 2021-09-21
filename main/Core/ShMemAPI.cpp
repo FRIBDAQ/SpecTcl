@@ -28,7 +28,6 @@
 #include <buftypes.h>
 #include "ShMemAPI.h"
 #include "ShMemManagerAPI.h"
-#include "zmsg.hpp"
 #include <stdio.h>
 #include <time.h>
 #include <thread>
