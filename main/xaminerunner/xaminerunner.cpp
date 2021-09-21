@@ -33,6 +33,9 @@
 #include "Info.h"
 #include "TclXamine.h"
 #include "XamineGateHandlers.h"
+#include <string>
+#include <iostream>
+#include <Exception.h>
 
 const char* TclLibPath=SPECTCL_TCLLIBS;
 
@@ -93,6 +96,19 @@ static int AppInit(Tcl_Interp* pInterp)
     new IsLocalCommand(*pOInterp);
     new TclXamine(*pOInterp);
     new XamineGateHandler(*pOInterp);
+ 
+    // source bindir/xaminerunner.tcl  bindir is assumed to be
+    //  TclLibPath../bin
+    
+    std::string startScript = TclLibPath;
+    startScript += "/../bin/xaminerunner.tcl";
+    try {
+        pOInterp->EvalFile(startScript);
+    }
+    catch (CException& e) {
+        std::cerr << "Failed to run " << startScript << " " << e.ReasonText()
+            << std::endl;
+    }
     
     return TCL_OK;
 

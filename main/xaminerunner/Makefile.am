@@ -23,6 +23,7 @@ install-exec-local:
 		$(INSTALL_SCRIPT) @srcdir@/$$f $(PACKAGE_DESTDIR); \
 	done
 	echo pkg_mkIndex -verbose $(PACKAGE_DESTDIR) "*.tcl" | $(TCLSH)
+	$(INSTALL_SCRIPT) xaminerunner.tcl @bindir@
 
 # The xaminerunne program.
 
@@ -43,4 +44,4 @@ xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
 
 xaminerunner_LDFAGS=-Wl,-rpath=@prefix@/lib
 
-EXTRA_DIST = xamineRunnerOptions.ggo $(TCLPACKAGE_FILES)
+EXTRA_DIST = xamineRunnerOptions.ggo $(TCLPACKAGE_FILES) xaminerunner.tcl
