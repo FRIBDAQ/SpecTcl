@@ -212,7 +212,7 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
 	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
 	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
-	CAENEventProcessor.cpp
+	CAENEventProcessor.cpp CRemoteCommand.cpp CRemoteCommand.h
 
 # TapeCommand.h removed
 
