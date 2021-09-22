@@ -1992,3 +1992,11 @@ proc maintainVariables {seconds} {
     updateVariables
     set SpecTclRestCommand::varsAfterId [after $ms maintainVariables $seconds]
 }
+
+##
+# isRemote
+#   @return 1 indicating the script is running as a REST client.
+#
+proc isRemote { } {
+    return 1
+}
