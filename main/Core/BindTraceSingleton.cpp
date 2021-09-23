@@ -22,6 +22,7 @@
 #include "BindTraceSingleton.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
+
 #include <stdexcept>
 
 // The singleton instance pointer:
@@ -106,13 +107,17 @@ BindTraceSingleton::removeUnbindTrace(CTCLObject& script)
  * @param interp - interpreteter that runs the traces.
  * @param name   - Name of spectrum being sbound.
  * @param id     - Xamine id into which the binding happened.
+ * @throw CTCLException - if one of the traces errors.
+ * @note if a trace script errors trace processing ends with that
+ *       script.
  */
 void
 BindTraceSingleton::invokeSbind(
    CTCLInterpreter& interp, CTCLObject& name, CTCLObject& id
 )
 {
-    invoke(m_sbindTraces, interp, name, id);    
+   
+   invoke(m_sbindTraces, interp, name, id);    
 }
 /**
  * invokeUnbind
