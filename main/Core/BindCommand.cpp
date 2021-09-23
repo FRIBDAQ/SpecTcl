@@ -318,13 +318,13 @@ CBindCommand::Trace(
 {
   // Validate the argument count:
   
-  if (nArgs != 3) {
+  if (nArgs != 2) {
     Usage(rResult);
     return TCL_ERROR;
   }
   CTCLObject scriptStem;
   scriptStem.Bind(rInterp);
-  scriptStem = pArgs[2];
+  scriptStem = pArgs[1];
   
   // Get the trace singleton and add the script stem:
   
@@ -354,7 +354,7 @@ CBindCommand::Untrace(
 {
   // Validate the argument count.
   
-  if (nArgs != 3) {
+  if (nArgs != 2) {
     Usage(rResult);
     return TCL_ERROR;
   }
@@ -362,7 +362,7 @@ CBindCommand::Untrace(
   
   CTCLObject scriptStem;
   scriptStem.Bind(rInterp);
-  scriptStem = pArgs[2];
+  scriptStem = pArgs[1];
   
   // Get the singleton and try to unregister this script:
   

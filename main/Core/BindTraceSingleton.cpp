@@ -175,6 +175,7 @@ BindTraceSingleton::remove(std::list<CTCLObject*>& cbs, CTCLObject& script)
             found = true;
             delete *p;
             cbs.erase(p);
+            break;          // must break as erase breaks the iterator.
         }
     }
     if (!found) {
