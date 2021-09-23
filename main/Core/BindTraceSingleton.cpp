@@ -201,7 +201,15 @@ BindTraceSingleton::invoke(
     for (auto& stem : callbacks) {
         CTCLObject script;
         script.Bind(interp);
-        script += *stem;
+   
+        // Build the script fromt he words in stem and the additional parameters:
+        
+        for (int i =0; i < stem->llength(); i++) {
+         CTCLObject word = stem->lindex(i);
+         word.Bind(interp);
+         script += word;
+        }
+
         script += spectrumName;
         script += xamineId;
         
