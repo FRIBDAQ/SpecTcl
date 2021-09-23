@@ -125,7 +125,9 @@ BindTraceSingleton::invokeSbind(
  * @param interp - interpreteter that runs the traces.
  * @param name   - Name of spectrum being unbound.
  * @param id     - Xamine id from which the spectrum is being unbound.
- * 
+ * @throw CTCLException - if one of the traces errors.
+ * @note if a trace script errors trace processing ends with that
+ *       script.
  */
 void
 BindTraceSingleton::invokeUnbind(
@@ -202,7 +204,8 @@ BindTraceSingleton::invoke(
         script += spectrumName;
         script += xamineId;
         
-        script();
+        std::string strScript = script;
+        interp.GlobalEval(strScript);
     }
     
 }
