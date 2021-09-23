@@ -237,16 +237,16 @@ CPyQt::setInfo(CSpectrum &rSpectrum, std::string name)
   m_pMemory->setInfo(rSpectrum, name);
 }
 
-void
+UInt_t
 CPyQt::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
-  m_pMemory->addSpectrum(rSpectrum, rSorter);
+  return m_pMemory->addSpectrum(rSpectrum, rSorter);
 }
 
-void
+UInt_t
 CPyQt::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
 {
-  m_pMemory->removeSpectrum(rSpectrum, rSorter);
+  return m_pMemory->removeSpectrum(rSpectrum, rSorter);
 }
 
 /////////////////////////////////////////////////////////////////////////////

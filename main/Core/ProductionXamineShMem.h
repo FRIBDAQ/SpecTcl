@@ -161,7 +161,7 @@ public:
      *
      *
      */
-    void removeSpectrum(UInt_t slot, CSpectrum& rSpectrum);
+    UInt_t removeSpectrum(UInt_t slot, CSpectrum& rSpectrum);
 
     /*!
      * \brief Index operator for looking up a spectrum by slot number

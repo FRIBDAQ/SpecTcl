@@ -99,8 +99,8 @@ public:
   void stop ()  ;
   void restart();
 
-  void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-  void removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter);
+  UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+  UInt_t removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter);
   SpectrumContainer getBoundSpectra() const;
 
   void addFit(CSpectrumFit& fit);

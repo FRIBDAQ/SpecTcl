@@ -170,9 +170,15 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 Int_t 
 CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 {
-  CSpectrumPackage &rPack = (CSpectrumPackage&)(getMyPackage());
-
-  return rPack.BindAll(rResult);
+  try {
+    CSpectrumPackage &rPack = (CSpectrumPackage&)(getMyPackage());
+  
+    return rPack.BindAll(rResult);
+  }
+  catch (std::exception& e) {
+    rResult = e.what();
+    return TCL_ERROR;
+  }
 }
 
 
@@ -195,13 +201,18 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //    TCL_ERROR   if some could not be bound.
   //
 
-
-  std::vector<std::string> vNames;
-  CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
-
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-  return rPack.BindList(rResult, vNames);
+  try {
+    std::vector<std::string> vNames;
+    CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
+  
+    CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  
+    return rPack.BindList(rResult, vNames);
+  }
+  catch (std::exception & e) {
+    rResult = e.what();
+    return TCL_ERROR;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

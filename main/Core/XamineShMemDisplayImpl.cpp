@@ -181,7 +181,7 @@ CXamineShMemDisplayImpl::setInfo(string info, UInt_t slot)
 
 //
 //
-void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     // allocate the shared memory slot and swap out the storage for the spectrum
     UInt_t slot = m_pMemory->addSpectrum(rSpectrum, rSorter);
@@ -194,6 +194,7 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
     string title = createTitle(rSpectrum, m_pMemory->getTitleSize(), rSorter);
     m_pMemory->setInfo(title, slot);
 
+    return slot;
 }
 
 /*!
@@ -203,7 +204,7 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
  *
  *  This needs to remove the spectrum but also the gates associated with it.
  */
-void CXamineShMemDisplayImpl::removeSpectrum(
+UInt_t CXamineShMemDisplayImpl::removeSpectrum(
     CSpectrum &rSpectrum, CHistogrammer& rSorter
 )
 {
@@ -213,6 +214,7 @@ void CXamineShMemDisplayImpl::removeSpectrum(
         m_pMemory->removeSpectrum(slot, rSpectrum);
         m_boundSpectra.at(slot) = NULL;
     }
+    return slot;
 }
 
 
@@ -224,7 +226,7 @@ void CXamineShMemDisplayImpl::removeSpectrum(
 //  Operation Type:
 //     mutator
 //
-void CXamineShMemDisplayImpl::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) {
+UInt_t CXamineShMemDisplayImpl::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) {
   // Unbinds the spectrum which is
   // attached to the specified Displayer spectrum number.
   //
@@ -232,7 +234,7 @@ void CXamineShMemDisplayImpl::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum)
   //    UInt_t nSpec:
   //       Display spectrum id to unbind.
 
-    m_pMemory->removeSpectrum(nSpec, rSpectrum);
+    return m_pMemory->removeSpectrum(nSpec, rSpectrum);
 }
 
 /**

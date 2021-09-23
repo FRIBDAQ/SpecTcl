@@ -126,7 +126,7 @@ public:
      * \param rSorter   - the histogrammer to gain access to parameter, gate, spectrum dicts
      *
      */
-    virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
+    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
 
     /*!
      * \brief removeSpectrum
@@ -140,7 +140,7 @@ public:
      *
      * \todo Get rid of any need for the first version of this.
      */
-    virtual void removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
+    virtual UInt_t removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
 
     /*!
      * \brief spectrumExists

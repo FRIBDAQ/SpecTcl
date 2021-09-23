@@ -807,9 +807,9 @@ CXamine::setInfo(CSpectrum &rSpectrum, std::string name)
 
 
   */
-void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
-    m_pImpl->addSpectrum(rSpectrum, rSorter);
+    UInt_t slot = m_pImpl->addSpectrum(rSpectrum, rSorter);
 
     CXamineGateFactory factory(m_pMemory.get());
 
@@ -841,9 +841,10 @@ void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
         createTitle(rSpectrum, getTitleSize(), rSorter);
     setInfo(rSpectrum, infoString);
     
+    return slot;
 }
 
-void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
+UInt_t CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
 {
     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
 
@@ -851,7 +852,7 @@ void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
         // missing spectrum is not an error. at the end of the day, the user's
         // goal of getting ridding of the spectrum is accomplished. there is
         // no spectrum left
-        return;
+        return 0xffffffff;
     }
 
     
@@ -882,6 +883,7 @@ void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
         }
     }
     m_pImpl->removeSpectrum(rSpectrum, rSorter);
+    return slot;
 }
 
 GateType_t CXamine::mapGateType(const std::string& type)
