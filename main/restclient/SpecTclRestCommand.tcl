@@ -51,6 +51,8 @@ namespace eval SpecTclRestCommand {
     variable gateAddTrace [list]
     variable gateDeleteTrace [list]
     variable gateChangedTrace [list]
+    variable sbindTraces [list]
+    variable unbindTraces [list]
 }
 #==============================================================================
 # Private utilities.
@@ -350,6 +352,24 @@ proc SpecTclRestCommand::_pollTraces {} {
             error "spectrum trace action in valid $action : $trace"
         }
     }
+    
+    foreach trace [dict get $traces binding] {
+        set params [dict get $trace parameters]
+        set what [lindex $params 0]
+        set params [lrange $params 1 end]
+        
+        if {$what eq "add"} {
+            foreach tracer $::SpecTclRestCommand::sbindTraces {
+                uplevel #0 {*}$tracer {*}$params
+            }
+        } elseif {$what eq "remove"} {
+            foreach tracer $::SpecTclRestCommand::unbindTraces {
+                uplevel #0 {*}$tracer {*} $params
+            }
+        } else {
+            
+        }
+    }
     } msg]
     if {$dstatus} {
         # puts "trace poll error: $msg"
@@ -497,6 +517,8 @@ proc attach {args} {
 #   Simulate the sbind command.  Forms:
 #  sbind -all
 #  sbind -list
+#  sbind -trace
+#  sbind -untrace
 #  sbind spectrum...
 #
 proc sbind {args} {
@@ -517,6 +539,24 @@ proc sbind {args} {
             lappend result [list                                        \
                 [dict get $sb spectrumid] [dict get $sb name] [dict get $sb binding] \
             ]
+        } elseif {$opt eq "-trace"} {
+            if {[llength $args] != 2} {
+                error "sbind -trace takes a script and only a script."
+            }
+            lappend $sbindTraces [lindex $args 1]
+            SpecTclRestCommand::_startTraceMonitoring
+        } elseif {$opt eq "-untrace"} {
+            if {[llength $args] != 2} {
+                error "sbind -untrace takes only a script"
+            }
+            set script [lindex $args 0]
+            set index [lsearch -exact $SpecTclRestCommand::sbindTraces $script]
+            if {$index < 0} {
+                error  "sbind -untrace no script '$script' is bound"
+            } else {
+                set SpecTclRestCommand::sbindTraces \
+                    [lreplace $SpecTclRestCommand::sbindTraces $index $indes]
+            }
         }
         return $result
     } else {
@@ -1675,6 +1715,27 @@ namespace eval unbind {
     #
     proc -all {} {
         return [$::SpecTclRestCommand::client unbindAll]   
+    }
+    ##
+    # -trace
+    # Add a trace script
+    #
+    proc -trace {script} {
+        lappend SpecTclRestCommand::unbindTraces $script
+        SpecTclRestCommand::_startTraceMonitoring
+    }
+    ##
+    # -untrace
+    #    Remove a trace script.
+    #
+    proc -untrace {script} {
+        set index [lsearch -exact $SpecTclRestCommand::unbindTraces $script]
+        if {$index < 0} {
+            error "unbind -trace no trace script '$script' to unbind"
+        } else {
+            set SpecTclRestCommand::unbindTraces \
+                [lreplace $SpecTclRestComand::unbindTraces $index $index]
+        }
     }
     
 }

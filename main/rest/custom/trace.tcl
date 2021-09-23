@@ -241,6 +241,16 @@ proc RestTrace::gateChangeTrace {args} {
 }
 
 ##
+# Handle binding traces:
+#
+proc RestTrace::binding {args} {
+    set traceDict [dict create                                   \
+        time [clock seconds] type binding parameter $args        \
+    ]
+    RestTrace::buferTrace $traceDict
+}
+
+##
 #  Establish the traces - Note that this happens before the SpecTcl commands
 #  have been added (evidently). Therefore we dispatch it from the event loop.
 #
@@ -252,6 +262,13 @@ after 100 {
     set RestTrace::priorGateAdd [gate -trace add RestTrace::gateAddTrace]
     set RestTrace::priorGateDelete [gate -trace delete RestTrace::gateDeleteTrace]
     set RestTrace::priorGateChange [gate -trace change RestTrace::gateChangeTrace]
+    
+    # Sbind traces if available:
+    
+    if {[versionGe 5.5]} {
+        sbind -trace [list RestTrace::binding add]
+        unbind -trace [list RestTrace::binding remove]
+    }
 }
 
 
@@ -297,7 +314,9 @@ proc SpecTcl_trace/done {token} {
 proc SpecTcl_trace/fetch {token} {
     set ::SpecTcl_trace/fetch application/json
     
-    set result [dict create parameter [list] spectrum [list] gate [list]]
+    set result [dict create \
+        parameter [list] spectrum [list] gate [list] binding [list] \
+    ]
     set traces $::RestTrace::traceBuffers($token)
     
     set ::RestTrace::traceBuffers($token) [list]
@@ -316,6 +335,7 @@ proc SpecTcl_trace/fetch {token} {
     dict set result parameter [json::write array {*}[dict get $result parameter]]
     dict set result spectrum  [json::write array {*}[dict get $result spectrum]]
     dict set result gate      [json::write array {*}[dict get $result gate]]
+    dict set result binding   [json::write array {*}[dict get $result binding]]
     
     return [SpecTcl::_returnObject OK                                     \
         [json::write object  {*}$result]                                  \
