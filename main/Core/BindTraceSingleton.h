@@ -34,8 +34,12 @@ private:
 private:
     std::list<CTCLObject*> m_sbindTraces;
     std::list<CTCLObject*> m_unbindTraces;
+    
+    // Prevent breaking the singleton-ness.
 private:
     BindTraceSingleton();
+    BindTraceSingleton(const BindTraceSingleton& rhs);
+    BindTraceSingleton& operator=(const BindTraceSingleton& rhs);
 public:
     static BindTraceSingleton& getInstance();
     
