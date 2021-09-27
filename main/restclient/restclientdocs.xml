@@ -3250,6 +3250,17 @@ c destroy                                     <co id='ex.client.destroy' />
                                     The second element of each list is the name
                                     of the parameter that was affected.
                                    </para>
+				   <para>
+				     Finally the <literal>bindings</literal>
+				     attribute provides sbind and unbind trace
+				     information.  The first element of each
+				     list is the type of trace
+				     <literal>add</literal> or
+				     <literal>remove</literal>  The second
+				     element the name of the affected spectrum
+				     and the last, the binding id (spectrum
+				     slot) affected/allocated.
+				   </para>
                                 </listitem>
                             </varlistentry>
                         </variablelist>
