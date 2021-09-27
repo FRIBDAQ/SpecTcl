@@ -3924,6 +3924,23 @@ http://host:port/spectcl/trace/fetch/token=<replaceable>token-value</replaceable
                        </para>
                     </listitem>
                 </varlistentry>
+                <varlistentry>
+                   <term><literal>binding</literal></term>
+                   <listitem>
+                       <para>
+                        The value of this attribute is an array. Each element
+                        of the array describes a change in shared memory
+                        binding status and is, itself, a three element array.
+                        The elements of the array are, in order ether the
+                        text <literal>add</literal> or <literal>remove</literal>
+                        indicating if the remaining elements describe a spectrum
+                        being added or removed from shared memory, the name of the
+                        affected spectrum and the Xamine id, or binding slot,
+                        that was allocated to the spectrum or from which the
+                        spectrum was removed.
+                       </para>
+                    </listitem>
+                </varlistentry>
             </variablelist>
         </section>
     </chapter>
