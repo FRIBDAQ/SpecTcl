@@ -300,6 +300,8 @@ proc SpecTclRestCommand::_pollTraces {} {
         traceFetch $SpecTclRestCommand::traceToken   \
     ]
     
+    #puts "Trace $traces"
+    
     set dstatus [catch {
     foreach trace [dict get $traces parameter] {
         foreach script $SpecTclRestCommand::parameterTraces {
@@ -352,11 +354,10 @@ proc SpecTclRestCommand::_pollTraces {} {
             error "spectrum trace action in valid $action : $trace"
         }
     }
-    
+     
     foreach trace [dict get $traces binding] {
-        set params [dict get $trace parameters]
-        set what [lindex $params 0]
-        set params [lrange $params 1 end]
+        set what [lindex $trace 0]
+        set params [lrange $trace 1 end]
         
         if {$what eq "add"} {
             foreach tracer $::SpecTclRestCommand::sbindTraces {
@@ -364,20 +365,24 @@ proc SpecTclRestCommand::_pollTraces {} {
             }
         } elseif {$what eq "remove"} {
             foreach tracer $::SpecTclRestCommand::unbindTraces {
-                uplevel #0 {*}$tracer {*} $params
+                uplevel #0 {*}$tracer {*}$params
             }
         } else {
             
         }
+        
     }
+    
     } msg]
     if {$dstatus} {
-        # puts "trace poll error: $msg"
+         # puts "trace poll error: $msg"
     }
     set reschedule [expr {$SpecTclRestCommand::tracePollInterval*1000}]
     
     set SpecTclRestCommand::traceAfterId \
         [after  $reschedule SpecTclRestCommand::_pollTraces]
+    
+    
 }
 ##
 # SpecTclRestCommand::_startTraceMonitoring
@@ -539,26 +544,28 @@ proc sbind {args} {
             lappend result [list                                        \
                 [dict get $sb spectrumid] [dict get $sb name] [dict get $sb binding] \
             ]
-        } elseif {$opt eq "-trace"} {
-            if {[llength $args] != 2} {
-                error "sbind -trace takes a script and only a script."
-            }
-            lappend $sbindTraces [lindex $args 1]
-            SpecTclRestCommand::_startTraceMonitoring
-        } elseif {$opt eq "-untrace"} {
-            if {[llength $args] != 2} {
-                error "sbind -untrace takes only a script"
-            }
-            set script [lindex $args 0]
-            set index [lsearch -exact $SpecTclRestCommand::sbindTraces $script]
-            if {$index < 0} {
-                error  "sbind -untrace no script '$script' is bound"
-            } else {
-                set SpecTclRestCommand::sbindTraces \
-                    [lreplace $SpecTclRestCommand::sbindTraces $index $indes]
-            }
         }
         return $result
+    } elseif {$opt eq "-trace"} {
+        
+        if {[llength $args] != 2} {
+            error "sbind -trace takes a script and only a script."
+        }
+        lappend SpecTclRestCommand::sbindTraces [lindex $args 1]
+        SpecTclRestCommand::_startTraceMonitoring
+    } elseif {$opt eq "-untrace"} {
+        if {[llength $args] != 2} {
+            error "sbind -untrace takes only a script"
+        }
+        set script [lindex $args 0]
+        set index [lsearch -exact $SpecTclRestCommand::sbindTraces $script]
+        if {$index < 0} {
+            error  "sbind -untrace no script '$script' is bound"
+        } else {
+            set SpecTclRestCommand::sbindTraces \
+                [lreplace $SpecTclRestCommand::sbindTraces $index $indes]
+        }
+        
     } else {
         return [$SpecTclRestCommand::client sbindSpectra $args]
     }
@@ -1691,7 +1698,7 @@ namespace ensemble configure spectrum -unknown SpecTclRestCommand::_createSpectr
 # !UNIMPLEMENTED! passing a list of xids not spetrum names
 
 namespace eval unbind {
-    namespace export unbind -id -all
+    namespace export unbind -id -all -trace -untrace
     namespace ensemble create
     
     ##
@@ -1721,6 +1728,7 @@ namespace eval unbind {
     # Add a trace script
     #
     proc -trace {script} {
+        
         lappend SpecTclRestCommand::unbindTraces $script
         SpecTclRestCommand::_startTraceMonitoring
     }

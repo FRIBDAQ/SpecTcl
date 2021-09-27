@@ -161,6 +161,34 @@ proc RestTrace::bufferTrace {item} {
     RestTrace::prune $time
 }
 
+##
+# versionGe
+#   Given a version string determines if the current SpecTcl version
+#   is at least that
+#
+# @param version - version string e.g. "5.5" - edit level is ignored.
+# @return bool.
+#
+proc versionGe {version} {
+    set splitVersion [split $version .-]
+    set major [lindex $splitVersion 0]
+    set minor [lindex $splitVersion 1]
+    
+    set actualVersion [version]
+    set splitActual [split $actualVersion .-]
+    set amajor [lindex $splitActual 0]
+    set aminor [lindex $splitActual 1]
+    
+    if {$amajor > $major} {
+        return 1
+    }
+    if {($amajor == $major) && ($aminor >= $minor)} {
+        return 1
+    }
+    
+    return 0
+    
+}
 #-------------------------------------------------------------------------------
 #
 
@@ -244,10 +272,12 @@ proc RestTrace::gateChangeTrace {args} {
 # Handle binding traces:
 #
 proc RestTrace::binding {args} {
+    
     set traceDict [dict create                                   \
-        time [clock seconds] type binding parameter $args        \
+        time [clock seconds] type binding parameters $args        \
     ]
-    RestTrace::buferTrace $traceDict
+    RestTrace::bufferTrace $traceDict
+    
 }
 
 ##
@@ -336,6 +366,7 @@ proc SpecTcl_trace/fetch {token} {
     dict set result spectrum  [json::write array {*}[dict get $result spectrum]]
     dict set result gate      [json::write array {*}[dict get $result gate]]
     dict set result binding   [json::write array {*}[dict get $result binding]]
+    
     
     return [SpecTcl::_returnObject OK                                     \
         [json::write object  {*}$result]                                  \
