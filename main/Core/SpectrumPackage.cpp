@@ -2413,16 +2413,24 @@ CSpectrumPackage::removeBinding(CSpectrum& spec, CHistogrammer& hist)
   CDisplayInterface* pDispInterface = pApi->GetDisplayInterface();
   CDisplay* pDisplay                = pDispInterface->getCurrentDisplay();
   
-  UInt_t id = pDisplay->removeSpectrum(spec, hist);
+  int id = pDisplay->removeSpectrum(spec, hist);
   
-  CTCLInterpreter* pInterp = getInterpreter();
-  CTCLObject      objName;
-  CTCLObject      objId;
-  objName.Bind(*pInterp);
-  objId.Bind(*pInterp);
-  objName = name;
-  objId  = static_cast<int>(id);
+
   
-  BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
-  traceContainer.invokeUnbind(*pInterp, objName, objId);
+  
+  // Note that if asked to unbind a spectrum that's not sbound,
+  // as can happen in unbind -all, id is -1 so the condition below
+  // prevents a spurious trace in that case.
+  
+  if (id >= 0) {
+    CTCLInterpreter* pInterp = getInterpreter();
+    CTCLObject      objName;
+    CTCLObject      objId;
+    objName.Bind(*pInterp);
+    objId.Bind(*pInterp);
+    objName = name;
+    objId  = id;
+    BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
+    traceContainer.invokeUnbind(*pInterp, objName, objId);
+  }
 }
