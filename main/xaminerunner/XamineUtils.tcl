@@ -47,6 +47,13 @@ namespace eval Xamine {
     variable displayedGates;  # Info on the gate ids assigned to the displayed gates
     array set displayedGates [list]
     
+    # See comments on Xamine::_removeDisplayedGates
+    
+    variable gatesDeletePending
+    array set gatesDeletePending [list]
+        
+    
+    
     variable traceToken [list]
 }
 
@@ -167,14 +174,8 @@ proc Xamine::XamineGateToSpecTclGate {gatedef} {
 #        procedures.
 # 
 proc Xamine::SpecTclGatesToXamineGates {gateDefs} {
-    array set gatesByParameters [list]
-    foreach gate $gateDefs {
-        if {[dict get $gate type] in [list s gs b gb c gc]} {
-            foreach parameter [dict get $gate parameters] {
-                lappend gatesByParameters($parameter) $gate
-            }
-        }
-    }
+    array set gatesByParameters [Xamine::_filterToDisplayableGates $gateDefs]
+    
     
     # Now make an array of spectrum defs indexed by name for the bindings->def lookup.
     
@@ -766,6 +767,145 @@ proc Xamine::_deleteExistingGate {name} {
         array unset Xamine::displayedGates $name
     }
 }
+##
+# Xamine::_removeDisplayedGates
+#   Remove the gates formerly displayed on the xamine ID spectrum
+#   xid from the displayed gates list.
+#   This is normally called when a spectrum is unbound from that slot.
+#
+# So this is a bit more complex than you might think - locate the gate and
+# tell Xamine to get rid of it but -- by this time, the spectrum the gate
+# belongs to has been unbound and the remove operation will fail because of that.
+# What we therefore do is put the gates that are displayed on that spectrum
+# into Xamine::gatesDeletePending array indexd by XID.  When the spectrum is
+# rebound, we will delete the appropriate gates prior to installing new ones.
+#
+# @param xid - Xamine Spectrum ID.  This is the first element of every
+#              Xamine::displayedGates item.
+# @note we're helped by the fact that a gate will only display on a spectrum once.
+#       so once we find an xid match and remove it, we can go to the next
+#       Xamine::displayedGate element.
+#
+proc Xamine::_removeDisplayedGates {xid} {
+    foreach gateName [array names ::Xamine::displayedGates] {
+        set index 0
+        foreach instance $::Xamine::displayedGates($gateName) {
+            set displayedSpectrum [lindex $instance 0]
+
+            if {$xid == $displayedSpectrum} {
+                lappend Xamine::gatesDeletePending($xid) $instance
+                set Xamine::displayedGates($gateName) [lreplace      \
+                    $Xamine::displayedGates($gateName) $index $index \
+                ]
+                
+            }
+            incr index
+        }
+        if {[llength $::Xamine::displayedGates($gateName)] == 0} {
+            array unset Xamine::displayedGates $gateName
+        }
+    }
+    
+}
+##
+# Xamine::_processNewBindings
+#    Called to handle new Spectrum bindings. For each spectrum we need to see
+#    If any gates are displayable and, if so, display them.
+#
+# @param newBindings - list of 2 element sublists that contain name/xid pairs.
+#
+proc Xamine::_processNewBindings {newBindings} {
+    # Foreach new spectrum, check each gate and, if it can be displayed on it,
+    # display it.  The logic of this is very similar to that of
+    # Xamine::SpecTclGatesToXamineGates an the implementation has resulted in
+    # quite a bit of refactoring:
+    
+    # Convert newBindings into a form that looks a bit like the
+    # sbindList format...but the Spectrum id is never used so we plunk in 0.
+    # This loop is also a good time to delete any gates pending deletion for
+    # the new bindings
+    
+    
+    set mungedBindings [list]
+
+    
+    foreach binding $newBindings {
+        set xid [lindex $binding 1]
+        if {[array names Xamine::gatesDeletePending $xid] == $xid} {
+            foreach gate $Xamine::gatesDeletePending($xid) {
+                set gid [lindex $gate 1]
+                set type [lindex $gate 2]
+                
+                Xamine::gate remove $xid $gid $type
+            }
+            array unset Xamine::gatesDeletePending $xid
+        }
+        
+        lappend mungedBindings [dict create \
+            spectrumid 0 name [lindex $binding 0]   \
+            binding [expr {[lindex $binding 1] -1}]  \
+        ]
+    }
+    
+    
+    #  Get the gates, reduced to those that can be displayed on any spectrum.
+    
+    set gates [$Xamine::restClient gateList]
+    array set gatesByParameter [Xamine::_filterToDisplayableGates $gates]
+    
+    
+    #  Iterate over the bound spectra figouring out if we can display
+    #  any gate in that spectrum and, if so, display it.
+    #  The assumption here is that there are not going to be that many new
+    #  bindings other than one massive whap.
+    #
+    foreach binding $mungedBindings {
+        set spectrumDef [lindex \
+           [$Xamine::restClient spectrumList [dict get $binding name]] 0 \
+        ]
+        
+        set firstPar    [lindex [dict get $spectrumDef parameters] 0]
+        if {[array names gatesByParameter $firstPar] ne ""} {
+            set candidateGates $gatesByParameter($firstPar)
+            foreach g  $candidateGates {
+                if {[Xamine::_displayableGate $g $spectrumDef]} {
+                    Xamine::_addGate $g $spectrumDef $binding
+                }
+            }
+        }
+        
+    }
+    
+    
+}
+
+##
+# Xamine::_filterToDisplayableGates
+#
+#   Given a set of gates returns a list usable in array set to create a
+#   gates list indexed by first parameter of only  the gates that can be
+#   displayed somewhere.
+#
+# @param gateDefs
+# @return list of two element pairs where the first element is the first
+#         parameter of the gate and the second the list of gates definitions
+#         that require/rely on that parameter.
+#
+#
+proc Xamine::_filterToDisplayableGates {gateDefs} {
+    array set result [list]
+    foreach gate $gateDefs {
+        if {[dict get $gate type] in [list s gs b gb c gc]} {
+            foreach parameter [dict get $gate parameters] {
+                lappend result($parameter) $gate
+            }
+        }
+    }
+    return [array get result]
+}
+
+##
+# 
 #----------------------------------------------------------------------------
 #  Event handlers:
 #
@@ -777,6 +917,8 @@ proc Xamine::_deleteExistingGate {name} {
 #
 proc Xamine::_processSpecTclGateTraces { } {
     set traces [$::Xamine::restClient traceFetch $Xamine::traceToken]
+    
+    # Changes in the gate dictionary 
     
     foreach gate [dict get $traces gate] {
 
@@ -802,7 +944,30 @@ proc Xamine::_processSpecTclGateTraces { } {
             Xamine::_addNewgate $name
         }
     }
+    #  Less obvious - changes in the set of spectra that are bound to the
+    #  shared memory must also be monitored.  Specifically;
+    #  - Unbinding requires any gates in the displayed  gates that was on that
+    #    binding to be removed.
+    #  - Binding requires figuring out and displaying any gates that
+    #    need to be displayed on the newly bound spectrum.
+    #
+    set newBindings [list]
     
+    foreach bindingChange [dict get $traces binding] {
+        set what [lindex $bindingChange 0]
+        set name [lindex $bindingChange 1]
+        set xid  [lindex $bindingChange 2]
+        incr xid;   # there's a +1 between spectcl and Xamine.
+        
+        if {$what eq "add"} {
+            lappend newBindings [list $name $xid]
+        } elseif {$what eq "remove"} {
+            Xamine::_removeDisplayedGates $xid
+        }
+    }
+    if {[llength $newBindings] > 0} {
+        Xamine::_processNewBindings $newBindings
+    }
     
     #  Reschedule
     
