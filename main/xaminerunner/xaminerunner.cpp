@@ -36,6 +36,7 @@
 #include <string>
 #include <iostream>
 #include <Exception.h>
+#include <unistd.h>
 
 const char* TclLibPath=SPECTCL_TCLLIBS;
 
@@ -93,6 +94,18 @@ static int AppInit(Tcl_Interp* pInterp)
     
     new GetHostCommand(*pOInterp, parsed.host_arg);
     new GetPortCommand(*pOInterp, parsed.port_arg);
+    
+    // The user passed into to GetUserCommand is
+    //  -  The command line --user value if present or
+    //  -  the output of getlogin if not.
+    
+    if (parsed.user_given) {
+        
+        new GetUserCommand(*pOInterp, parsed.user_arg);
+    } else {
+        new GetUserCommand(*pOInterp, getlogin());
+    }
+    
     new IsLocalCommand(*pOInterp);
     new TclXamine(*pOInterp);
     new XamineGateHandler(*pOInterp);

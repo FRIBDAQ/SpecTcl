@@ -11,7 +11,7 @@ if {[Xamine::isLocal $host]} {
 
     # Local SpecTcl
     
-    Xamine::initRestClient $host  [Xamine::getPort]
+    Xamine::initRestClient $host  [Xamine::getPort] [Xamine::getUser]
     
     set m [Xamine::getLocalMemory]
     Xamine::Xamine genenv [lindex $m 0] [lindex $m 1]

@@ -51,6 +51,19 @@ public:
 };
 
 /**
+ * getUser  - command to get the user to look up if a managed port.
+ */
+class GetUserCommand : public CTCLObjectProcessor
+{
+ private:
+    std::string m_username;
+public:
+    GetUserCommand(CTCLInterpreter& interp, const char* user);
+    virtual ~GetUserCommand();
+    int operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv);
+};
+
+/**
  * IsLocalCommand
  *   Determine if a host (IP or DNS) is local.
  */

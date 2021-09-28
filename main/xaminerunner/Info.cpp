@@ -113,6 +113,51 @@ GetPortCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& obj
     }
     return TCL_OK;
 }
+//////////////////////////////////////////////////////////////////////////////
+// GetUserCommand
+
+/**
+ * GetUserCommand -- constructor
+ *  @param interp -interpreter we're registering on
+ *  @param user   - name of the user to return.
+ */
+GetUserCommand::GetUserCommand(CTCLInterpreter& interp, const char* user) :
+  CTCLObjectProcessor(interp, "Xamine::getUser", kfTRUE),
+  m_username(user)
+  {}
+/**
+ * GetUserCommand - destructor
+ */
+GetUserCommand::~GetUserCommand()
+{}
+
+/**
+ * operator()
+ *    Returns the username we were constructed with as the result
+ * @param interp - interpreter running the command.
+ * @param objv  - Command words - there canbe only one.
+ * @return int   - TCL_OK on normal or TCL_ERROR on failure.
+ */
+int
+GetUserCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& objv)
+{
+  
+  try {
+      requireExactly(objv, 1, "Incorrect number of command parameters");
+      interp.setResult(m_username);
+  }
+  catch (std::string msg) {
+      interp.setResult(msg);
+      return TCL_ERROR;
+  }
+  catch (...) {
+      interp.setResult("Unanticipated exeption type");
+      return TCL_ERROR;
+  }
+  return TCL_OK;
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // IsLocalCommand
 
