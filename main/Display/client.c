@@ -282,7 +282,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   memcpy(&key, name, sizeof(key));
 
   memid = shmget(key, size,
- 	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR); /* Owner rd/wr */
+ 	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); /* Owner rd/wr everyone else, read only.*/
   if(memid == -1) {
     return 0;
   }
