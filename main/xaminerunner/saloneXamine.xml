@@ -61,8 +61,8 @@
             </listitem>
         </itemizedlist>
     </chapter>
-    <chapter>
-       <title>Preparing Headless SpecTcl</title>
+    <chapter id='ch.headless'>
+       <title id='ch.headless.title'>Preparing Headless SpecTcl</title>
        <para>
         In order to run headless SpecTcl you must:
        </para>
@@ -128,7 +128,10 @@ set DisplayType none
             the standard <filename>SpecTclRC.tcl</filename> should be
             removed and replaced with a very minimal set of commands that
             do not require the Tk package.  You can, in fact, remove
-            <filename>SpecTclRC.tcl</filename> completely in many cases.
+            <filename>SpecTclRC.tcl</filename> completely in many cases, or use
+            a SpecTclRC.tcl that sources a saved definition file and
+            invokes <command>sbind -all</command> to bind spectra into the
+            Display shared memory region.
         </para>
        </formalpara>
        <para>
@@ -346,7 +349,7 @@ wm withdraw .                                    <co id='ex.treegui.withdraw' />
                 name of the host we're connecing with.
             </para>
         </callout>
-        <callout arearefs='ex.treegui.noserve' >
+        <callout arearefs='ex.treegui.noserver' >
             <para>
                 If no matching service can be found the return value from
                 <literal>$mgr findServer</literal> will be an empty string.
@@ -431,13 +434,312 @@ wm withdraw .                                    <co id='ex.treegui.withdraw' />
        <example>
         <title>xaminerunner Command Synopsis</title>
         <cmdsynopsis><command>
-xaminerunner --host=hostname --port=portno-or-service
+xaminerunner <option>--host</option>=<replaceable>hostname</replaceable>
+    <option>--port</option>=<replaceable>portno-or-service</replaceable>
+    <optional><option>--user</option>=<replaceable>SpecTcl-username</replaceable></optional>
         </command></cmdsynopsis>
        </example>
+       <para>
+        When run it connects to the specified SpecTcl, as described above
+        and starts Xamine.  The program options determine which SpecTcl it
+        connects to:
+       </para>
+       <variablelist>
+        <varlistentry>
+           <term><option>--host</option>=<replaceable>hostname</replaceable></term>
+           <listitem>
+               <para>
+                Name of the host in which SpecTcl is running.  In the future,
+                a shared memory mirroring subsystem will be available to support
+                running Xamine in systems remote from the system running SpecTcl.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><option>--port</option>=<replaceable>port-or-service</replaceable></term>
+           <listitem>
+               <para>
+                This can be either the number of the port on which SpecTcl's
+                REST server is accepting connections or the name of a service
+                SpecTcl is advertising for it REST server with the NSCLDAQ port
+                manager.  To use service names, the NSCLDAQ environment variables
+                must have been defined.
+               </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+           <term><option>--user</option>=<replaceable>SpecTcl-username</replaceable></term>
+           <listitem>
+               <para>
+                This option is only relevant if <option>--port</option> is an
+                advertised NSCLDAQ service name.  NSCLDAQ service names are
+                qualified by the username of the creating process.  The
+                <option>--user</option> value allows you to specify which
+                under which user SpecTcl was run.  This is relevant in an
+                experiment that is using the NSLDAQ program manager where there
+                is no experiment acccount and SpecTcl is run by the user that started
+                the manager but may need Xamine run by other users in the
+                experiment's collaboration.
+               </para>
+               <para>
+                If not
+                specified, the value of <option>--user</option> will be the
+                user running the <application>xaminerunner</application> program.
+               </para>
+            </listitem>
+        </varlistentry>
+       </variablelist>
     </chapter>
     <chapter>
        <title>Tips and Techniques for the Experiment Manager</title>
        <para>
+        In this chapter:
        </para>
+       <itemizedlist>
+        <listitem>
+           <para>
+              We will describe two ways to run SpecTcl under the program manager. 
+           </para>
+        </listitem>
+        <listitem>
+           <para>
+              Describe how to attache a displayer to SpecTcl when it is
+              run inside the persistent containers the program manager uses.
+           </para>
+        </listitem>
+       </itemizedlist>
+       <section>
+        <title>Running SpecTcl Under the Experiment Manager</title>
+        <para>
+            When run under the experiment manager, you must run SpecTcl
+            headless.  We recommend creating a directory with the
+            <filename>SpecTclInit.tcl</filename> described in
+            <link linkend='ch.headless' endterm='ch.headless.title' />.
+            The <filename>SpecTclRC.tcl</filename> should simply source a
+            configuration file and execute <command>sbind -all</command>.
+            This will create the spectra, gates and applications needed to
+            run SpecTcl.   Note that the SpecTcl executable
+            does not have to live in this
+            directory, it could live in a directory suited to run interactively.
+        </para>
+        <para>
+            Having created a directory which will be current when SpecTcl is run
+            headless, you have two choices for how to run SpecTcl:
+        </para>
+        <itemizedlist>
+            <listitem>
+               <para>
+                  The first,
+                    which is in keeping with normal experiment manager procedures is to
+                    run SpecTcl in a container that's managed by the experiment manager.
+                    This has the advantage of being simple, but the disadvantage that the
+                    SYS-V IPC namespace of persistent containers is isolated from the
+                    environment of the base system.  This means that the display shared memory
+                    region created by SpecTcl is not visible to programs not running
+                    under that persistent container.   This makes connecting
+                    displayers to SpecTcl problematic.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Secondly you can arrange for the program manager to run
+                  SpecTcl in a transient container.  This takes a bit more setup
+                  work when defining SpecTcl to the manager but has the advantage
+                  that the SYS-V namespace of a transient container is
+                  shared with that of the host system.  This makes connecting
+                  displayers to SpecTcl simpler.
+               </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            We will describe both schemes in this section and let you chose
+            which is best.  The next section will describe how to connect displayers
+            to SpecTcl running in persistent containers and the limitations of
+            that scheme.  In both cases, we assume you've prepared a directory in
+            which to run the headless SpecTcl as described above.
+        </para>
+        <para>
+            Note that in all cases, SpecTcl should be part of a sequence that's run
+            when the experiment is booted.  This ensures that SpecTcl is always
+            active and can always be asked to analyze data.  Your
+            <filename>SpecTclRC.tcl </filename> can also contain commands to
+            connect SpecTcl to the ringbuffer from which it will analyze data and
+            to begin analysis, if you are confident that ringbuffer while have
+            been made prior to running SpecTcl.
+        </para>
+        <section>
+           <title>Running SpecTcl in a Persistent Container</title>
+           <para>
+            The term persistent container refers to a container that has been
+            started via <command>singularity instance start</command> and
+            can be given programs to run via
+            <command>singularity run</command>.
+           </para>
+           <para>
+            When a program is configured to run in a container for the manager,
+            the manager maintains a persistent container in the target host and
+            requests singularity to run the program in that persistent container.
+            Persistent containers can be thought of as a light-weight virtual
+            machine in the sense that certain operating system objects are
+            separated from the host system.
+           </para>
+           <para>
+            To run SpecTcl in a persistent container, configure it in the
+            program editor as follows:
+           </para>
+           <itemizedlist>
+            <listitem>
+               <para>
+                  Give SpecTcl a program name like <literal>SpecTcl</literal> 
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Choose a host in which SpecTcl will run.  Your public key
+                  must be installed in <filename>~/.ssh/authorized_keys</filename>
+                  for that host.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                   For a Working Directory, select the directory in which you've
+                   prepared the <filename>SpecTclInit.tcl</filename> and
+                   <filename>SpecTclRC.tcl</filename> script for headless
+                   SpecTcl.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  For program file, select where the SpecTcl image you want
+                  to run lives in the filesystem of the container you'll run it in.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Select the container you want SpecTcl to run in. 
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Typically the program type for SpecTcl is <literal>Persistent</literal>
+                  indicating that while SpecTcl is expected to run for the duration
+                  of the experiment, it is not critical if it does not.
+               </para>
+            </listitem>
+           </itemizedlist>
+           <para>
+            With respect to running Xamine, or another displayer, the consequence
+            of running SpecTcl within a persistent container are that its display
+            shared memory is not visible in the host system.  This is because
+            persistent containers have a separate, independent namespace in
+            which SYS-V ipcs are named.
+           </para>
+        </section>
+        <section>
+           <title>Running SpecTcl in a Transitory Container</title>
+           <para>
+            The term transitory container refers to a container that runs for the
+            duration of a command or an interactive shell.  These containers
+            have the same name space for process ids and SYS-V IPCs as the
+            host system.   As such, attaching a displayer to them is much  simpler.
+           </para>
+           <para>
+            To configure SpecTcl to run in a transitory container, we take advantage
+            of the fact that the <literal>pProgram file:</literal> specified in
+            the program configuration editor is, in fact a command.  Since the
+            singularity options are position sensitive, however, it's safe to use
+            the <literal>Program file</literal>  entry itself to specify the complete
+            command line.
+           </para>
+           <para>
+            In the discussion below assume that
+            <replaceable>image-name</replaceable> is the path to the singularity
+            image and <replaceable>spectcl</replaceable> is the path (within the
+            host system) to the SpecTcl executable.  Assume the version of NSCLDAQ
+             you are using is <replaceable>x.y-nnn</replaceable>, and that
+             <replaceable>/usr/opt/opt-env</replaceable> contains the directory
+             tree for the /usr/opt to be visible in the container.
+           </para>
+           <orderedlist>
+            <listitem>
+               <para>
+                   Create a script to run SpecTcl in the directory in which the
+                   <filename>SpecTclRC.tcl</filename> and
+                   <filename>SpecTclInit.tcl</filename> scripts are for your
+                   headless SpecTcl.  Name it <filename>start.bash</filename>.
+                   The script shoud look like:
+               </para>
+               <informalexample>
+                <programlisting>
+#!/bin/bash
+source /usr/opt/daq/x.y-nnn/daqsetup.bash
+spectcl
+
+                </programlisting>
+            </informalexample>
+            </listitem>
+            <listitem>
+               <para>
+                  Choose a name for the program to be used in the manager
+                  (e.g. <literal>SpecTcl</literal>).
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Choose a host in which SpecTcl will run.  Your
+                  <filename>~/.ssh/authorized_keys</filename> file must have
+                  your public key in that host.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  Put the path to the directory with your headless SpecTcl
+                  scriptsin the host system in the <literal>Working Directory</literal>
+                  entry.
+               </para>
+            </listitem>
+            <listitem>
+               <para>
+                  For <literal>Program File</literal> use
+                  <command>singularity exec --bind /usr/opt/opt-env:/usr/opt image-name start.bash</command>
+               </para>
+            </listitem>
+           </orderedlist>
+           
+        </section>
+       </section>
+       <section>
+        <title>Displayers and SpecTcl in a persistent container.</title>
+        <para>
+            SpecTcl running in a persistent container imposes some restriction
+            on how a displayer can be attached to it, at least until we get
+            a shared memory mirroring program running.  Specifically, due to the
+            SYS-V IPC namespace separation, the displayer must be run in the
+            same container as SpecTcl.  Since persistent containers are
+            specific and only visible to the user that starts them, this also
+            implies that ony the user that started the DAQ Manager can
+            attache a displayer to a SpecTcl within that container.
+        </para>
+        <para>
+            Suppose that a container named <literal>buster</literal> in the
+            local system is being used to run SpecTcl, and that its
+            advertised REST service is <literal>SpecTcl_REST</literal>.
+            Suppose there's an environment variable defined SPECTCLROOT
+            which is the top  level directory of the SpecTcl installation
+            tree as it appears within that container:
+        </para>
+        <informalexample>
+            <programlisting>
+singularity run instance://buster $SPECTCLROOT/xaminerunner --host localhost --port SpecTcl_REST
+            </programlisting>
+        </informalexample>
+        <para>
+            Executed in the host environment,
+            will run the <application>xaminerunner</application> program in that persistent
+            container (the <literal>instance://</literal> syntax means that our
+            container is a persistent instance of a container named
+            <literal>buster</literal>).
+        </para>
+       </section>
     </chapter>
 </book>
