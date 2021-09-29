@@ -15,6 +15,7 @@
 
 dataRetriever* dataRetriever::m_pInstance = NULL;
 static int memsize;
+bool dbg = false;
 
 dataRetriever*
 dataRetriever::getInstance()
@@ -28,8 +29,10 @@ dataRetriever::getInstance()
 void
 dataRetriever::SetHostPort(std::string host, std::string port)
 {
-  std::cout << "Inside dataRetriever::SetHostPort()" << std::endl;
-  std::cout << host << "," << port << std::endl;  
+  if (dbg) {
+      std::cout << "Inside dataRetriever::SetHostPort()" << std::endl;
+      std::cout << host << "," << port << std::endl;  
+    }
   _hostname = host;
   _port = port;
 }
@@ -37,8 +40,10 @@ dataRetriever::SetHostPort(std::string host, std::string port)
 void
 dataRetriever::InitShMem()
 {
-  std::cout << "Inside dataRetriever::InitShMem()" << std::endl;
-  std::cout << _hostname << "," << _port << std::endl;  
+  if (dbg) {
+    std::cout << "Inside dataRetriever::InitShMem()" << std::endl;
+    std::cout << _hostname << "," << _port << std::endl;  
+  }
   
   std::array<char, 512> buffer;
   std::string filename, tmp;
@@ -50,7 +55,9 @@ dataRetriever::InitShMem()
     command += filename+" "+_hostname+" "+_port;
   else
     command += filename;  
-  std::cout << "command --> " << command << std::endl;
+  if (dbg) {
+    std::cout << "command --> " << command << std::endl;
+  }
   FILE* pipe = popen(command.c_str(), "r");
 
   if (!pipe)

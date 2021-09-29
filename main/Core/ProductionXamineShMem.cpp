@@ -273,7 +273,7 @@ UInt_t CProductionXamineShMem::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &
 }
 
 
-void CProductionXamineShMem::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
+UInt_t CProductionXamineShMem::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 {
     // Unbinds the spectrum which is
     // attached to the specified Displayer spectrum number.
@@ -314,8 +314,9 @@ void CProductionXamineShMem::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
                                 kfTRUE);
       m_DisplayBindings[nSpec] = "";
       freeSpectrum(nSpec);
-
+			return nSpec;
     }
+		return 0xffffffff;                         // NO matching spectrum.
 }
 
 

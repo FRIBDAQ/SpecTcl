@@ -40,6 +40,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <tk.h>
 #include <stdio.h>
 
+#include "ShMemManagerAPI.h"
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -71,7 +73,6 @@ CTCLRunFileHandler::CTCLRunFileHandler(CTCLInterpreter* pInterp,
   snprintf(sDwell, sizeof(sDwell), "%d", nCurrentDwell);
   Dwell.Set(sDwell);
 }        
-
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -113,3 +114,4 @@ CTCLRunFileHandler::operator()()
   }
 
 }
+

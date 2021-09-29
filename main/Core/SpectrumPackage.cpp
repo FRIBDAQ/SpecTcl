@@ -53,8 +53,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <RangeError.h>
 #include <ErrnoException.h>
 #include <DictionaryException.h>
-// #include <Spectrum1DL.h>   // I think these are obsolete.
-// #include <Spectrum2DW.h>
 #include <SnapshotSpectrum.h>
 #include <Parameter.h>
 #include <TCLInterpreter.h>
@@ -78,9 +76,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <stdexcept>
 
-#ifdef HAVE_STD_NAMESPACE
+
 using namespace std;
-#endif
+
+#include "BindTraceSingleton.h"
 
 
 // Static member attributes.
@@ -755,7 +754,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
     try {
       CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
       if (pDisplay) {
-	makeBinding(*pSpec, *api.GetHistogrammer());
+        makeBinding(*pSpec, *api.GetHistogrammer());
       }
     }
     catch (CException& rExcept) {
@@ -932,14 +931,13 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
 
   SpecTcl* pApi                     = SpecTcl::getInstance();
   CHistogrammer* pSorter            = pApi->GetHistogrammer();
-  CDisplayInterface* pDispInterface = pApi->GetDisplayInterface();
-  CDisplay* pDisplay                = pDispInterface->getCurrentDisplay();
+  
 
   for(auto p=rvNames.begin(), end=rvNames.end(); p != end; p++) {
     try {
         CSpectrum* pSpectrum = pSorter->FindSpectrum(*p);
         if (pSpectrum) {
-            pDisplay->removeSpectrum(*pSpectrum, *pSorter);
+            removeBinding(*pSpectrum, *pSorter);
         } else {
             throw CDictionaryException(CDictionaryException::knNoSuchKey,
                                        "unbinding spectrum by name", *p);
@@ -1009,9 +1007,9 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   //
   for(auto p=rvIds.begin(), end=rvIds.end(); p != end; p++) {
     try {
-          CSpectrum* pSpectrum = m_pHistogrammer->FindSpectrum(*p);
+          CSpectrum* pSpectrum = pSorter->FindSpectrum(*p);
           if (pSpectrum) {
-              pDisplay->removeSpectrum(*pSpectrum, *pSorter);
+              removeBinding(*pSpectrum, *pSorter);
           } else {
               throw CDictionaryException(CDictionaryException::knNoSuchId,
                                          "unbinding spectrum by id", *p);
@@ -1036,45 +1034,7 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
 
   return (Failed ? TCL_ERROR : TCL_OK);
 }
-////////////////////////////////////////////////////////////////////////////
-////
-////  Function:
-////    Int_t UnbindXidList ( CTCLResult& rResult, std::vector<UInt_t>& rvXids )
-////  Operation Type:
-////     Interface
-////
-//Int_t
-//CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
-//				std::vector<UInt_t>& rvXids)
-//{
-//// Unbinds a set of spectra given their
-//// bindings id.
-////
-//// Formal Parameters:
-////     CTCLResult&    rResult:
-////            Result string of the command.
-////     std::vector<UInt_t>   rvXids
-////             Ident of the spectrum in the displayer.
-////  Returns:
-////        TCL_OK           - All unbinds were done.
-////        TCL_ERROR   - Some unbinds failed.
-////                                   see the BindList functions
-////                                   for the form of the result.
 
-//  // Actually, since unbinding a bad Xid is just an no-op this must work:
-
-//  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-
-//  std::vector<UInt_t>::iterator p = rvXids.begin();
-//  for(; p != rvXids.end(); p++) {
-//    CSpectrum* pSpectrum = pDisplay->getSpectrum(*p);
-//    if (pSpectrum) {
-//        pDisplay->removeSpectrum(*p, *pSpectrum);
-//    }
-//  }
-//  return TCL_OK;
-
-//}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1096,6 +1056,7 @@ CSpectrumPackage::UnbindAll()
   for(auto p = m_pHistogrammer->SpectrumBegin();
            p != m_pHistogrammer->SpectrumEnd(); p++) {
       try {
+          removeBinding(*(p->second), *pSorter);
           pDisplay->removeSpectrum(*(p->second), *pSorter);
       }
       catch(CException& rException) { } // Some spectra will not be bound.
@@ -2413,11 +2374,63 @@ CSpectrumPackage::makeBinding(CSpectrum& spec, CHistogrammer& hist)
       CSpectrum* pBoundSpec = spectra[i];
       if(pBoundSpec) {
           if(name == pBoundSpec->getName())
-	    return;                     // Duplicate binding.
+            return;                     // Duplicate binding.
       }
   }
   // This isn't bound yet so add it:
 
-  pDisplay->addSpectrum(spec, hist);
+  UInt_t binding = pDisplay->addSpectrum(spec, hist);
+  BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
+  CTCLObject objName;
+  CTCLObject objId;
+  CTCLInterpreter* pInterp = getInterpreter();
+  objName.Bind(*pInterp);
+  objId.Bind(*pInterp);
+  objName = name;
+  objId   = static_cast<int>(binding);
+  try {
+    traceContainer.invokeSbind(*pInterp, objName, objId);
+  }
+  catch (CException & e) {
+    std::string msg("Error in firing a trace for sbind: ");
+    msg += e.ReasonText();
+    throw std::runtime_error(msg);
+  }
 
+}
+/**
+ * removeBinding
+ *     Remove a binding from the displayer and fire the traces associated
+ *     with unbind.
+ *  @param spec - spectrum to unbind.
+ *  @param hist - Histogrammer.
+ */
+void
+CSpectrumPackage::removeBinding(CSpectrum& spec, CHistogrammer& hist)
+{
+  std::string name = spec.getName();
+  SpecTcl* pApi    = SpecTcl::getInstance();
+  CDisplayInterface* pDispInterface = pApi->GetDisplayInterface();
+  CDisplay* pDisplay                = pDispInterface->getCurrentDisplay();
+  
+  int id = pDisplay->removeSpectrum(spec, hist);
+  
+
+  
+  
+  // Note that if asked to unbind a spectrum that's not sbound,
+  // as can happen in unbind -all, id is -1 so the condition below
+  // prevents a spurious trace in that case.
+  
+  if (id >= 0) {
+    CTCLInterpreter* pInterp = getInterpreter();
+    CTCLObject      objName;
+    CTCLObject      objId;
+    objName.Bind(*pInterp);
+    objId.Bind(*pInterp);
+    objName = name;
+    objId  = id;
+    BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
+    traceContainer.invokeUnbind(*pInterp, objName, objId);
+  }
 }

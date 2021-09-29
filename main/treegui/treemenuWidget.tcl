@@ -171,6 +171,7 @@ snit::widgetadaptor treeMenu {
 				if {[info globals ScrollRate] eq "ScrollRate"} {
 					$cascmenu configure -scrolltimer $::ScrollRate
 				}
+                bind $menu <Motion> +[list after idle $cascmenu postcascade @%y]
 			}
 		}
 		# If there are cascades we must
@@ -178,9 +179,7 @@ snit::widgetadaptor treeMenu {
 		# - posts any cascade near the pointer.
 	
 		if {([llength $cascades] > 0) && $options(-pullright)} {
-			bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
-			bind $menu <Motion> +[list $cascmenu postcascade @%y]
-			
+                bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
 		}
 
     }
@@ -193,9 +192,9 @@ snit::widgetadaptor treeMenu {
     # @param prefixes       - The prefixes used to populate the children.
     #
     method buildCascades {cascades names prefixes} {
-	foreach cascade $cascades prefix $prefixes {
-	    $self buildSubMenus $cascade $names $prefix
-	}
+        foreach cascade $cascades prefix $prefixes {
+            $self buildSubMenus $cascade $names $prefix
+        }
     }
 
 }

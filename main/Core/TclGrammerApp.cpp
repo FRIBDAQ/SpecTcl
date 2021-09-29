@@ -54,6 +54,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpectraLocalDisplay.h"
 #include "XamineEventHandler.h"
 #include "PyQtDisplay.h"
+#include "NullDisplay.h"
 
 #include "SpecTcl.h"
 
@@ -78,6 +79,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "CPipelineCommand.h"
 #include "CUnpackEvbCommand.h"
+
+#include "CRemoteCommand.h"
 
 #include "ProductionXamineShMem.h"
 #include "CHttpdServer.h"
@@ -554,10 +557,20 @@ void CTclGrammerApp::CreateDisplays()
     } else {
         throw std::runtime_error("Failed to cast to a CSpectraLocalDisplayCreator");
     }
-#endif    
+#endif
+
+    // Null displayer also needs shared memory  to support remote access:
+    
+    pCreator = gpDisplayInterface->getFactory().getCreator("null");
+    CNullDisplayCreator* pNCreator = dynamic_cast<CNullDisplayCreator*>(pCreator);
+    if (pNCreator) {
+      pNCreator->setSharedMemory(pShMem);
+    }
+    
     // Create the displays so they can chosen.
     m_pDisplayInterface->createDisplay("xamine",  "xamine");
     m_pDisplayInterface->createDisplay("batch",   "null");
+    m_pDisplayInterface->createDisplay("none", "null");
     m_pDisplayInterface->createDisplay("qtpy",   "qtpy");    
 #ifdef USE_SPECTRA    
     m_pDisplayInterface->createDisplay("spectra", "spectra");
@@ -598,7 +611,7 @@ void CTclGrammerApp::SelectDisplayer(UInt_t n, CHistogrammer& rh)
   std::cerr << "    Warning - Deprecated method used               \n\n";
   std::cerr << "  Your application class calls SelectDisplayer     \n";
   std::cerr << "  Providing two parameters (size and histogrammer  \n";
-  std::cerr << "  This method is obsolete and may be removed laster \n";
+  std::cerr << "  This method is obsolete and may be removed later \n";
   std::cerr << "  replace it with 'SelectDisplayer();'              \n";
   std::cerr << "  This most likely is in CMySpecTclApp::SelectDisplayer \n";
   std::cerr << "----------------------------------------------------\n";
@@ -823,6 +836,8 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   cerr << "pman - analysis pipeline manager (c) 2018 Written by Giordano Cerizza\n";
   new CUnpackEvbCommand(rInterp);
   cerr << "evbunpack - Event built data unpacking manager (c) 2018 written by Ron Fox\n";
+  
+  new CRemoteCommand(rInterp);
   
   cerr.flush();
 }

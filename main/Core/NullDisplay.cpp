@@ -2,13 +2,19 @@
 
 #include "GateContainer.h"
 #include "Spectrum.h"
+#include "Xamineplus.h"
 
 // Functions for CNullDisplayCreator
 //////////////////////////////////////////////////////////////////////////
 
+CNullDisplayCreator::CNullDisplayCreator() :
+    m_pSharedMem()
+{}
+
 CNullDisplay* CNullDisplayCreator::create()
 {
-    return new CNullDisplay();
+    return
+        reinterpret_cast<CNullDisplay*>(new CXamine(m_pSharedMem, false));   // Xamine without the process.
 }
 
 // Functions for CNullDisplay
@@ -38,10 +44,10 @@ void CNullDisplay::stop() {}
 bool CNullDisplay::isAlive() { return true;}
 void CNullDisplay::restart() {}
 
-void CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
-{}
+UInt_t CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+{return 0;}
 
-void CNullDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter) {}
+UInt_t CNullDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter) {return 0;}
 
 void CNullDisplay::addFit(CSpectrumFit &fit) {}
 void CNullDisplay::deleteFit(CSpectrumFit &fit) {}

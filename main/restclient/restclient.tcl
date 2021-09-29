@@ -975,8 +975,8 @@ snit::type SpecTclRestClient {
     # @param yparameters - list of parameters on the y axis (1 if b,c).
     # @param xcoords      - Gate x-coordinates.
     # @param ycoords      - gate y-coordinates.
-    # @note for gc, gb, the parameters can all be in xparameters yparametesrs or
-    #      spread across them if desired.
+    # @note for gc, gb, the parameters must all be in xparameters and the yparameters
+    #                       are ignored.
     #
     method gateCreateSimple2D {name gatetype xparameters yparameters xcoords ycoords} {
         
@@ -993,17 +993,16 @@ snit::type SpecTclRestClient {
         #  Now build the query dict:
         
         set qparams [dict create name $name type $gatetype]
-        if {$type in "b c"} {
+        if {$gatetype in "b c"} {
             lappend qparams {*}[_listToQueryList xparameter $xparameters]
             lappend qparams {*}[_listToQueryList yparameter $yparameters]    
         } else {
             lappend qparams {*}[_listToQueryList parameter $xparameters]
-            lappend qparams {*}[_listToQueryList parameter $yparameters]
+            lappend qparams {*}[_listToQueryList parameter $yparameters]; # just in case
         }
         lappend qparams {*}[_listToQueryList xcoord $xcoords]
         lappend qparams {*}[_listToQueryList ycoord $ycoords]
         
-        puts $qparams
         
         $self _request [$self _makeUrl gate/edit $qparams]
     }
@@ -1084,7 +1083,7 @@ snit::type SpecTclRestClient {
         } else {
             set querydict [dict merge [dict create spectrum $name] $roi]
         }
-        puts $querydict
+    
         set info [$self _request [$self _makeUrl integrate $querydict]]
         return [dict get $info detail]
     }
@@ -1101,7 +1100,6 @@ snit::type SpecTclRestClient {
     #
     method parameterNew {name number metadata} {
         set pdict [dict merge [dict create name $name number $number] $metadata]
-        puts $pdict
         $self _request [$self _makeUrl rawparameter/new $pdict]
         
     }
@@ -1138,7 +1136,6 @@ snit::type SpecTclRestClient {
         } else {
             error "Either a pattern or id is required"
         }
-        puts $pdict
         set info [$self _request [$self _makeUrl rawparameter/list $pdict]]
         return [dict get $info detail]
     }
@@ -1263,7 +1260,7 @@ snit::type SpecTclRestClient {
     #    shmemkey to obtain a mapping to the SYS-V shared memory region
     #    spectcl uses for displayed spectra.
     #
-    # @return The integer size in megabites.
+    # @return The integer size in bytes.
     #
     method shmemsize {} {
         set info [$self _request [$self _makeUrl shmem/size [dict create]]]
@@ -1285,6 +1282,7 @@ snit::type SpecTclRestClient {
     #        -   parameter - list of parameters needed by the spectrum.
     #        -   axes - List of axis definitions (dict with low, high, bins keys).
     #        -   chantype - data type of the channel.
+    #        -   gate  - Name of the gate that's applied to the spectrum.
     #
     method spectrumList {{pattern *}} {
         set info [$self _request [$self _makeUrl               \
@@ -1629,5 +1627,55 @@ snit::type SpecTclRestClient {
         set info [$self _request [$self _makeUrl script [dict create command $cmd]]]
         
         return [dict get $info detail]
+    }
+    ##
+    # getVars
+    #   Return the SpecTcl variables dict.
+    #
+    method getVars { } {
+        return [dict get [$self _request [$self _makeUrl shmem/variables]] detail]
+    }
+    #-------------------------------------------------------------------------
+    # traces are handled a bit strangely because normally they are
+    # server side events.. We establish an interest in traces,
+    # poll for them and then end our interest.
+    #
+    
+    ##
+    # traceEstablish
+    #   Establish an interest in traces.
+    #
+    # @param retention - maxiumum # seconds traces are kept in our trace buffer.
+    # @return integer  - Token to use in done and fetch.
+    #
+    method traceEstablish  {retention} {
+        return [dict get [$self _request [$self _makeUrl          \
+            trace/establish [dict create retention $retention]]]  \
+        detail]
+    }
+    ##
+    # traceDone
+    #   Stop buffering of traces on our behalf by the server.
+    #
+    # @param token - Token that identifies us - return value from traceEstablish.
+    #
+    method traceDone {token} {
+        $self _request [$self _makeUrl trace/done [dict create token $token]]
+    }
+    ##
+    # traceFetch
+    #    Fetch traces that fired since the last fetch or since we established
+    #    our interest in traces.
+    #
+    # @param token - the client token returned from traceEstablish
+    # @return dict with the keys parameter, spectrum, gate.  Each of these
+    #         is a list of strings.  The strings are the parameters of the
+    #         trace.
+    #
+    method traceFetch {token} {
+        return [dict get [$self _request [$self _makeUrl             \
+            trace/fetch [dict create token $token ]]] \
+            detail                                                   \
+        ]
     }
 }

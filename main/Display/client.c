@@ -282,7 +282,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   memcpy(&key, name, sizeof(key));
 
   memid = shmget(key, size,
- 	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR); /* Owner rd/wr */
+ 	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); /* Owner rd/wr everyone else, read only.*/
   if(memid == -1) {
     return 0;
   }
@@ -346,7 +346,8 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 **    True    - Success
 **    False   - Failure
 */
-int genenv(char *name, int specbytes)
+
+static int genenv(const char *name, int specbytes)
 {
   /* Allocate persistent storage for the strings */
 
@@ -376,7 +377,13 @@ int genenv(char *name, int specbytes)
   }
   return 1;
 }
+int
+Xamine_genenv(const char* name, int specbytes)
+{
+  return genenv(name, specbytes);
+}
 
+
 /*
 ** Functional Description:
 **    Xamine_CreateSharedMemory:

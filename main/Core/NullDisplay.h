@@ -21,6 +21,9 @@
 
 #include "Display.h"
 #include "DisplayFactory.h"
+#include "XamineSharedMemory.h"
+#include <memory>
+
 
 
 /*!
@@ -44,8 +47,8 @@ public:
     virtual bool isAlive();
     virtual void restart();
 
-    virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-    virtual void   removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    virtual UInt_t removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
@@ -74,7 +77,13 @@ public:
 
 class CNullDisplayCreator : public CDisplayCreator
 {
+private:
+    std::shared_ptr<CXamineSharedMemory> m_pSharedMem;
+public:
+    CNullDisplayCreator();
     CNullDisplay* create();
+    void setSharedMemory(std::shared_ptr<CXamineSharedMemory> pShMem) { m_pSharedMem = pShMem; }
+    std::weak_ptr<CXamineSharedMemory> getDisplayBytes() const { return m_pSharedMem; }
 };
 
 #endif // NULLDISPLAY_H

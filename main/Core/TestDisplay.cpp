@@ -63,14 +63,16 @@ void CTestDisplay::stop() { m_alive = false; }
 bool CTestDisplay::isAlive() { return m_alive;}
 void CTestDisplay::restart() { m_alive = true; }
 
-void CTestDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer&)
+UInt_t CTestDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer&)
 {
     m_boundSpectra.insert(&rSpectrum);
+    return 0;
 }
 
-void CTestDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CTestDisplay::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     m_boundSpectra.erase(&rSpectrum);
+    return 0;
 }
 
 void CTestDisplay::addFit(CSpectrumFit &fit) {

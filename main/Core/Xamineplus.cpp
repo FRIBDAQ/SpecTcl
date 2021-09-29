@@ -150,15 +150,17 @@ extern   int            Xamine_newgates;  // fd for events.
 // Operation Type:
 //    Parameterized Constructor.
 //
-CXamine::CXamine(std::shared_ptr<CXamineSharedMemory> pSharedMem)
+CXamine::CXamine(std::shared_ptr<CXamineSharedMemory> pSharedMem, bool runXamine)
     : m_pImpl(),
-      m_pMemory(pSharedMem)
+      m_pMemory(pSharedMem),
+      m_runXamine(runXamine)
 {
     m_pImpl.reset(new CXamineShMemDisplayImpl(pSharedMem));
 }
 
 CXamine::CXamine (const CXamine& aCXamine ) :
-   m_pImpl()
+   m_pImpl(),
+   m_runXamine(aCXamine.m_runXamine)
 {
     // get the weak_ptr
     auto pShMem = aCXamine.getSharedMemory();
@@ -184,8 +186,8 @@ bool
 CXamine::isAlive() 
 {
 // Returns kfTRUE if Xamine is still alive.
-
-  return (Xamine_Alive() ? true : false);
+ 
+  return m_runXamine ? (Xamine_Alive() ? true : false) : true;
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -200,11 +202,12 @@ CXamine::start()
 {
 // Starts the autonomous display subsystem.
 
-  if(!Xamine_Start()) {
-    perror("Xamine failed to start!! ");
-    exit(errno);
-  }
-
+ if (m_runXamine) {
+   if(!Xamine_Start()) {
+     perror("Xamine failed to start!! ");
+     exit(errno);
+   }
+ }
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -218,22 +221,26 @@ CXamine::stop()
 {
 // Stops the autonomous display subsystem.
 
-  if (!Xamine_Stop()) {
-    perror("Xamine failed to stop!!");
-    exit(errno);
-  }
-
+ if(m_runXamine) {
+    if (!Xamine_Stop()) {
+      perror("Xamine failed to stop!!");
+      exit(errno);
+    }
+ }
 }
 ////////////////////////////////////////////////////////////
 //
 void CXamine::restart()
 {
-  Xamine_Closepipes();
-//  m_pMemory->detach();
-//  m_pMemory->attach();
-  m_pImpl->detach();
-  m_pImpl->attach();
-  start();
+ if (m_runXamine) {
+     Xamine_Closepipes();
+    
+   //  m_pMemory->detach();
+   //  m_pMemory->attach();
+     m_pImpl->detach();
+     m_pImpl->attach();
+     start();
+ }
 }
 
 
@@ -253,15 +260,20 @@ void
 CXamine::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
 //    m_pImpl->addGate(rSpectrum, rGate);
-    CXamineGateFactory factory(m_pMemory.get());
-    unique_ptr<CXamineGate> pDisplayed(factory.fromSpecTclGate(rSpectrum, rGate));
-    if (pDisplayed)
-        m_pMemory->addGate(*pDisplayed);
+
+ if(m_runXamine) {
+      CXamineGateFactory factory(m_pMemory.get());
+      unique_ptr<CXamineGate> pDisplayed(factory.fromSpecTclGate(rSpectrum, rGate));
+      if (pDisplayed  && m_runXamine) {
+          m_pMemory->addGate(*pDisplayed);
+      }
+ }
 }
 
 void
 CXamine::removeGate(CGateContainer& rGate)
 {
+ 
     for (auto& pSpectrum : m_pImpl->getBoundSpectra()) {
         removeGate(*pSpectrum, rGate);
     }
@@ -270,19 +282,21 @@ CXamine::removeGate(CGateContainer& rGate)
 void
 CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 {
-    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
-    if (slot < 0) {
-        // absent spectrum is not an error
-        return;
-    }
-
-    try {
-        
-        m_pMemory->removeGate(slot, rGate.getNumber());
-
-    } catch (...) {
-        // ignore errors
-    }
+  if (m_runXamine) {
+     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
+     if (slot < 0) {
+         // absent spectrum is not an error
+         return;
+     }
+ 
+     try {
+         
+         m_pMemory->removeGate(slot, rGate.getNumber());
+ 
+     } catch (...) {
+         // ignore errors
+     }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -321,23 +335,24 @@ CXamine::EnterPeakMarker(UInt_t nSpectrum,
 //            Width of the marker.
 //
 
-  int nStatus = Xamine_EnterPeakMarker(nSpectrum+1, nId,
-				       (char*)(rsName.c_str()), fCentroid, fWidth);
-  if(nStatus < 0) {
-    msg_object msg;
-    msg.spectrum = nSpectrum;
-    msg.id       = nId;
-    msg.type     = Xamine_cut1d; // A bit dishonest.. kludge for now.
-    msg.hasname  = kfTRUE;
-    memset(msg.name, 0, sizeof(grobj_name));
-    strncpy(msg.name, rsName.c_str(), sizeof(grobj_name)-1);
-    msg.npts        = 2;
-    msg.points[0].x = (int)fCentroid;
-    msg.points[1].x = (int)fWidth;
-    ThrowGateStatus(nStatus, CXamineGate(msg),
-		    "CXamine::EnterPeakMarker - Entering the marker");
+  if (m_runXamine) {
+      int nStatus = Xamine_EnterPeakMarker(nSpectrum+1, nId,
+               (char*)(rsName.c_str()), fCentroid, fWidth);
+      if(nStatus < 0) {
+        msg_object msg;
+        msg.spectrum = nSpectrum;
+        msg.id       = nId;
+        msg.type     = Xamine_cut1d; // A bit dishonest.. kludge for now.
+        msg.hasname  = kfTRUE;
+        memset(msg.name, 0, sizeof(grobj_name));
+        strncpy(msg.name, rsName.c_str(), sizeof(grobj_name)-1);
+        msg.npts        = 2;
+        msg.points[0].x = (int)fCentroid;
+        msg.points[1].x = (int)fWidth;
+        ThrowGateStatus(nStatus, CXamineGate(msg),
+          "CXamine::EnterPeakMarker - Entering the marker");
+      }
   }
-
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -792,31 +807,33 @@ CXamine::setInfo(CSpectrum &rSpectrum, std::string name)
 
 
   */
-void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
-    m_pImpl->addSpectrum(rSpectrum, rSorter);
+    UInt_t slot = m_pImpl->addSpectrum(rSpectrum, rSorter);
 
     CXamineGateFactory factory(m_pMemory.get());
 
-    for( auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter) ) {
-
-        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, gate);
-        if(pXgate) m_pMemory->addGate(*pXgate);
-        delete pXgate;
-    }
-
-    // same for the fitlines:
-    //
-    CFitDictionary& dict(CFitDictionary::getInstance());
-    CFitDictionary::iterator pf = dict.begin();
-
-    while (pf != dict.end()) {
-        CSpectrumFit* pFit = pf->second;
-        if (pFit->getName() == rSpectrum.getName()) {
-            m_pMemory->addFit(*pFit);		// not very efficient, but doesn't need to be
-        }
-        pf++;
-    }
+    if (m_runXamine) {
+         for( auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter) ) {
+     
+             CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, gate);
+             if(pXgate) m_pMemory->addGate(*pXgate);
+             delete pXgate;
+         }
+     
+         // same for the fitlines:
+         //
+         CFitDictionary& dict(CFitDictionary::getInstance());
+         CFitDictionary::iterator pf = dict.begin();
+     
+         while (pf != dict.end()) {
+             CSpectrumFit* pFit = pf->second;
+             if (pFit->getName() == rSpectrum.getName()) {
+                 m_pMemory->addFit(*pFit);		// not very efficient, but doesn't need to be
+             }
+             pf++;
+         }
+     }
     // Now since our title is better than the implementation's get the title
     // and set it as the info. (see: daqdev/SpecTcl#381)
     
@@ -824,9 +841,10 @@ void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
         createTitle(rSpectrum, getTitleSize(), rSorter);
     setInfo(rSpectrum, infoString);
     
+    return slot;
 }
 
-void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
+UInt_t CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
 {
     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
 
@@ -834,34 +852,38 @@ void CXamine::removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter)
         // missing spectrum is not an error. at the end of the day, the user's
         // goal of getting ridding of the spectrum is accomplished. there is
         // no spectrum left
-        return;
+        return 0xffffffff;
     }
 
+    
     // Remove all of the display gates for this spectrum
-    for (auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter)) {
-        try {
-            GateType_t xamineGateType = mapGateType(gate->Type());
-            if (xamineGateType != kgUnSpecified) {
-                m_pMemory->removeGate(slot, gate.getNumber(), xamineGateType);
+    
+    if (m_runXamine) {
+        for (auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter)) {
+            try {
+                GateType_t xamineGateType = mapGateType(gate->Type());
+                if (xamineGateType != kgUnSpecified) {
+                    m_pMemory->removeGate(slot, gate.getNumber(), xamineGateType);
+                }
+            } catch (...) {
+                std::cout << "caught an error" << std::endl;
             }
-        } catch (...) {
-            std::cout << "caught an error" << std::endl;
+        }
+    
+        // remove all of the displayable fits associated with this spectrum
+        CFitDictionary& dict(CFitDictionary::getInstance());
+        CFitDictionary::iterator pf = dict.begin();
+    
+        while (pf != dict.end()) {
+            CSpectrumFit* pFit = pf->second;
+            if (pFit->getName() == rSpectrum.getName()) {
+                m_pMemory->deleteFit(*pFit);		// not very efficient, but doesn't need to be
+            }
+            pf++;
         }
     }
-
-    // remove all of the displayable fits associated with this spectrum
-    CFitDictionary& dict(CFitDictionary::getInstance());
-    CFitDictionary::iterator pf = dict.begin();
-
-    while (pf != dict.end()) {
-        CSpectrumFit* pFit = pf->second;
-        if (pFit->getName() == rSpectrum.getName()) {
-            m_pMemory->deleteFit(*pFit);		// not very efficient, but doesn't need to be
-        }
-        pf++;
-    }
-
     m_pImpl->removeSpectrum(rSpectrum, rSorter);
+    return slot;
 }
 
 GateType_t CXamine::mapGateType(const std::string& type)

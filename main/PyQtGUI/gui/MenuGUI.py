@@ -56,11 +56,30 @@ class Menu(QWidget):
                 layout.addWidget(self.configButton)
                 layout.addWidget(self.saveButton)
                 layout.addWidget(self.loadButton)
-
-                layout.addStretch(1)
                 
-                menuBox.setLayout(layout)
+                layout.addStretch(1)
+
+                vlayout = QVBoxLayout()
+                hl1 = QHBoxLayout()
+                hl1.addWidget(self.serverLabel)
+                hl1.addWidget(self.server)                
+                hl1.addWidget(self.exitButton)
+                hl1.addWidget(self.updateButton)
+                hl1.addWidget(self.configButton)
+                hl1.addWidget(self.saveButton)
+                hl1.addWidget(self.loadButton)
+                hl1.addStretch(1)
+                hl2 = QHBoxLayout()                
+                hl2.addWidget(self.slider_label)
+                hl2.addWidget(self.slider)
+
+                vlayout.addLayout(hl1)
+                vlayout.addLayout(hl2)                
+
+                # menuBox.setLayout(layout)
+                menuBox.setLayout(vlayout)
                 menuBox.setMaximumHeight(100)
+                
                 
                 return menuBox
                                                                                                                                                                                                              

@@ -64,7 +64,7 @@ int f77xamine_alive_();
 void Xamine_GetMemoryName(char *namebuffer);
 void f77xamine_getmemoryname_(char *namebuffer, int maxlen);
 
-int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr);
+int Xamine_MapMemory(char *name, int specbytes, volatile Xamine_shared **ptr);
 int f77xamine_mapmemory_(char *name, int *specbytes,
 			 volatile Xamine_shared **ptr, int namesize);
 
@@ -74,7 +74,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 
 
 int Xamine_EnterGate(int spec, int id, Xamine_gatetype type,
-		     char *name,
+		     const char *name,
 		     int npts, Xamine_point *pts);
 int f77xamine_entergate_(int *spec, int *id, Xamine_gatetype *type, 
 			 char *name, int *npts, Xamine_point *pts);
@@ -214,6 +214,10 @@ int Xamine_EnterFitline(int nSpectrum,  int nId, char* szName,
 void Xamine_setOverflow(unsigned nSpectrum, int axis, unsigned value);
 void Xamine_setUnderflow(unsigned nSpectrum, int axis, unsigned value);
 void Xamine_clearStatistics(unsigned nSpetrum);
+
+/*   For the Xamine start */
+
+int Xamine_genenv(const char* name, int specbytes);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }

@@ -761,7 +761,7 @@ Xamine_RemoveGate(int spec, int id, Xamine_gatetype ntype)
 **   for failures.
 */
 int
-Xamine_EnterGate(int spec, int id, Xamine_gatetype type, char *name,
+Xamine_EnterGate(int spec, int id, Xamine_gatetype type, const char *name,
 		 int npts, Xamine_point *pts)
 {
   struct msg_command  cmd = { Enter };

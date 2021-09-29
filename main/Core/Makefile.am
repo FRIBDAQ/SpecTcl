@@ -73,13 +73,13 @@ DisplayInterface_INCLUDES =  Display.h \
 Events_SRC = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \
 	RunControl.cpp TCLRunFileHandler.cpp TKRunControl.cpp EventSink.cpp \
-	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp
+	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp DopeVector.cpp ShMemManagerAPI.cpp ShMemAPI.cpp
 
 Events_INCLUDES = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
-	NSCLJumboBufferDecoder.h DopeVector.h
+	NSCLJumboBufferDecoder.h DopeVector.h ShMemManagerAPI.h ShMemAPI.h zhelpers.hpp
 
 # Removed TapeException.cpp, Tapefile
 
@@ -212,7 +212,8 @@ TclGrammerApp_SRC =  StopRun.cpp StartRun.cpp \
 	CEventBuilderEventProcessor.cpp CPipelineCommand.cpp \
 	CPipelineEventProcessor.cpp CUnpackEvbCommand.cpp \
 	CAENHit.cpp CAENModuleHits.cpp CAENParser.cpp CAENParameterMap.cpp \
-	CAENEventProcessor.cpp
+	CAENEventProcessor.cpp CRemoteCommand.cpp CRemoteCommand.h \
+	BindTraceSingleton.cpp BindTraceSingleton.h
 
 # TapeCommand.h removed
 

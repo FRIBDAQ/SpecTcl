@@ -68,11 +68,12 @@ class CXamine : public CDisplay
 {
     std::unique_ptr<CXamineShMemDisplayImpl> m_pImpl;
     std::shared_ptr<CXamineSharedMemory>     m_pMemory;
+    bool  m_runXamine;
 
 public:
   // Constructors:
 
-  CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem);
+  CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem, bool runXamine = true);
   virtual ~CXamine ();       //Destructor
 
 				// Copy Constructor.
@@ -98,8 +99,8 @@ public:
   void stop ()  ;
   void restart();
 
-  void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-  void removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter);
+  UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+  UInt_t removeSpectrum(CSpectrum &rSpectrum, CHistogrammer& rSorter);
   SpectrumContainer getBoundSpectra() const;
 
   void addFit(CSpectrumFit& fit);

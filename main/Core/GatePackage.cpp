@@ -193,7 +193,7 @@ CTCLString CGatePackage::ListGates(const char* pattern)
   CTCLString Gates;
   CGateDictionaryIterator gi = api.GateBegin();
   while(gi != api.GateEnd()) {
-    const char* name = (&((*gi).second))->getName().c_str();
+    const char* name = gi->first.c_str();
     if ( Tcl_StringMatch(name, pattern))
     {
       Gates.AppendElement(GateToString(&((*gi).second)));

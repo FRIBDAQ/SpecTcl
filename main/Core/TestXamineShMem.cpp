@@ -61,7 +61,7 @@ UInt_t CTestXamineShMem::addSpectrum(CSpectrum& spec, CHistogrammer& sorter) {
     return bs.s_slot;
 }
 
-void CTestXamineShMem::removeSpectrum(UInt_t slot, CSpectrum& ) {}
+UInt_t CTestXamineShMem::removeSpectrum(UInt_t slot, CSpectrum& ) {return 0;}
 
 
 DisplayBindings CTestXamineShMem::getDisplayBindings() const {

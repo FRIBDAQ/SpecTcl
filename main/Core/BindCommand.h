@@ -55,7 +55,8 @@ public:			// Internal class definitions:
     keId,
     keAll,
     keList,
-//    keXid,
+    keTrace,
+    keUntrace,
     keNotSwitch
   };
 
@@ -95,6 +96,15 @@ public:
 		const char* pattern);
   Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
+  Int_t Trace(
+      CTCLInterpreter& rInterp, CTCLResult& rResult,
+		  int nArgs, char* pArgs[]
+  );
+  Int_t Untrace(
+      CTCLInterpreter& rInterp, CTCLResult& rResult,
+      int nArgs, char* pArgs[]
+  );
+  
   // Protected member functions:
 
 protected:

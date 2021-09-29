@@ -58,9 +58,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <vector>
 #include <string.h>
 
-#ifdef HAVE_STD_NAMESPACE
+#include "BindTraceSingleton.h"
+#include <TCLObject.h>
+#include <stdexcept>
+
+
 using namespace std;
-#endif
 
 // Static Data:
 
@@ -73,8 +76,9 @@ static const SwitchTableEntry Switches[] = {
   { "-new",  CBindCommand::keNew },
   { "-id",   CBindCommand::keId },
   { "-all",  CBindCommand::keAll },
-    { "-list", CBindCommand::keList }//,
-//  { "-xid",  CBindCommand::keXid }
+    { "-list", CBindCommand::keList },
+    { "-trace", CBindCommand::keTrace},
+    {"-untrace", CBindCommand::keUntrace}
 };
 
 static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
@@ -146,7 +150,10 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
     return BindByName(rInterp, rResult, nArgs, pArgs);
-
+  case keTrace:
+    return Trace(rInterp, rResult, nArgs, pArgs);
+  case keUntrace:
+    return Untrace(rInterp, rResult, nArgs, pArgs);
   default:			// Switch not allowed or unrecognized.
     Usage(rResult);
     return TCL_ERROR;
@@ -163,9 +170,15 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 Int_t 
 CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 {
-  CSpectrumPackage &rPack = (CSpectrumPackage&)(getMyPackage());
-
-  return rPack.BindAll(rResult);
+  try {
+    CSpectrumPackage &rPack = (CSpectrumPackage&)(getMyPackage());
+  
+    return rPack.BindAll(rResult);
+  }
+  catch (std::exception& e) {
+    rResult = e.what();
+    return TCL_ERROR;
+  }
 }
 
 
@@ -188,13 +201,18 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //    TCL_ERROR   if some could not be bound.
   //
 
-
-  std::vector<std::string> vNames;
-  CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
-
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-  return rPack.BindList(rResult, vNames);
+  try {
+    std::vector<std::string> vNames;
+    CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
+  
+    CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+  
+    return rPack.BindList(rResult, vNames);
+  }
+  catch (std::exception & e) {
+    rResult = e.what();
+    return TCL_ERROR;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -294,6 +312,80 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   return rPack.ListBindings(rResult, vNames);
 }
+/**
+ * Trace
+ *    Add a new trace to the sbind traces.
+ *    - There must be exactly 3 arguments, sbind, -trace, and the script stem.
+ *    - Locate the bind trace singleton.
+ *    - Encapsulate the script stem in a CTCLOBject and
+ *    - Add it as a sbinding trace.
+ *  @return Int_t - TCL_OK On success, TCL_ERROR on failure.
+ */
+Int_t
+CBindCommand::Trace(
+  CTCLInterpreter& rInterp, CTCLResult& rResult,
+	int nArgs, char* pArgs[]
+)
+{
+  // Validate the argument count:
+  
+  if (nArgs != 2) {
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+  CTCLObject scriptStem;
+  scriptStem.Bind(rInterp);
+  scriptStem = pArgs[1];
+  
+  // Get the trace singleton and add the script stem:
+  
+  BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
+  traceContainer.addSbindTrace(rInterp, scriptStem);
+  
+  // Return success:
+  
+  return TCL_OK;
+}
+/**
+ * Untrace
+ *    Remove an sbindings trace:
+ *    - Ensure there are three parameters: sbind, -untrace, script-stem.
+ *    - Convert the script-stem into a CTCLObject.
+ *    - Get the trace container singleton and remove the script object.
+ *  @return  int TCL_OK on success, TCL_ERROR on failure
+ *  @note The untrace operation in the singleton will report errors via
+ *        an std::exception...we'll catch that and convert it to an
+ *        interpreter result and TCL_ERROR return.
+ */
+Int_t
+CBindCommand::Untrace(
+  CTCLInterpreter& rInterp, CTCLResult& rResult,
+	int nArgs, char* pArgs[]
+)
+{
+  // Validate the argument count.
+  
+  if (nArgs != 2) {
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+  // Pull the script stem into an object:
+  
+  CTCLObject scriptStem;
+  scriptStem.Bind(rInterp);
+  scriptStem = pArgs[1];
+  
+  // Get the singleton and try to unregister this script:
+  
+  try {
+    BindTraceSingleton& traceContainer(BindTraceSingleton::getInstance());
+    traceContainer.removeSbindTrace(scriptStem);
+  } catch (std::exception& e) {
+    rResult = e.what();
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -329,9 +421,13 @@ CBindCommand::Usage(CTCLResult& rResult)
   rResult += "   sbind -all\n";
   rResult += "   sbind -list\n";
   rResult += "   sbind -list name1 [name2 ...]\n";
+  rResult += "   sbind -trace script-stem\n";
+  rResult += "   sbing -untrace script-stem\n";
   rResult += "\n sbind adds a spectrum or a list of spectra \n";
   rResult += " to the display. It also can be used to list bound\n";
   rResult += " spectra by name.";
+  rResult += "  With SpecTcl 5.5, the ability to add and remove traces to sbind\n";
+  rResult += "  has been added with the -trace and -untrace options.\n";
   rResult += "NOTE: The bind command is a Tk command that binds gui events\n";
   rResult += "      to tcl procedures\n";
 }

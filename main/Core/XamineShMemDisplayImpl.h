@@ -126,7 +126,7 @@ public:
      * The associated gates are then added to the shared memory as well as the
      * fits.
      */
-    void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
 
     /*!
      * \brief Remove the spectrum from shared memory
@@ -137,14 +137,14 @@ public:
      * If the spectrum is bound, it is removed using the removeSpectrum
      * method of the shared memory object we are dealing with.
      */
-    void removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
+    UInt_t removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
 
     /*!
      * \brief Remove the spectrum from shared memory
      *
      * \param rSpectrum     referenece to the spectrum
      */
-    void removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
+    UInt_t removeSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
 
     /*!
      * \brief Retrieve the list of spectra that are bound to the shared memory

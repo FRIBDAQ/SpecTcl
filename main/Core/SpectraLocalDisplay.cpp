@@ -189,16 +189,16 @@ SpectrumContainer CSpectraLocalDisplay::getBoundSpectra() const
 
 //
 //
-void CSpectraLocalDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CSpectraLocalDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
-    m_pMemory->addSpectrum(rSpectrum, rSorter);
+    return m_pMemory->addSpectrum(rSpectrum, rSorter);
 }
 
 //
 //
-void CSpectraLocalDisplay::removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter)
+UInt_t CSpectraLocalDisplay::removeSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter)
 {
-    m_pMemory->removeSpectrum(rSpectrum, rSorter);
+    return m_pMemory->removeSpectrum(rSpectrum, rSorter);
 }
 
 //

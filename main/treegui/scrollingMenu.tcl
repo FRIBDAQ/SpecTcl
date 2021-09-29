@@ -123,8 +123,8 @@ snit::widgetadaptor scrollingMenu  {
     method _checkEmpty {} {
         if {$itemCount == 0} {
             after 500 $win unpost;              #Schedule the unpost.
-            tk_messageBox -type ok -icon warning -title {Empty menu} \
-                -message "Pull down menu has no items to choose from"
+            #tk_messageBox -type ok -icon warning -title {Empty menu} \
+            #    -message "Pull down menu has no items to choose from"
         }
     }
     

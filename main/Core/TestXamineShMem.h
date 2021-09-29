@@ -72,7 +72,7 @@ public:
     virtual size_t getSize() const;
 
     virtual UInt_t addSpectrum(CSpectrum& , CHistogrammer& );
-    virtual void removeSpectrum(UInt_t slot, CSpectrum& );
+    virtual UInt_t removeSpectrum(UInt_t slot, CSpectrum& );
     
     virtual DisplayBindings getDisplayBindings() const;
 

@@ -6,6 +6,6 @@ install-exec-hook:
 	$(INSTALL_SCRIPT) @srcdir@/restclient.tcl @prefix@/TclLibs/restclient
 	$(INSTALL_SCRIPT) @srcdir@/SpecTclRestCommand.tcl \
 			@prefix@/TclLibs/restclient
-	echo pkg_mkIndex @prefix@/TclLibs/restclient "*.tcl" | @TCLSH@
+	echo pkg_mkIndex -verbose  @prefix@/TclLibs/restclient "*.tcl" | @TCLSH@
 	$(MKDIR_P) @prefix@/share/restclient
 	$(HTMLDOCBOOK) -o @prefix@/share/restclient @srcdir@/restclientdocs.xml

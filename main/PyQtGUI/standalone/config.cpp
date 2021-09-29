@@ -1,5 +1,13 @@
 #include "config.h"
 
+CutiePieConfig::CutiePieConfig()
+{
+}
+
+CutiePieConfig::~CutiePieConfig()
+{
+}
+
 bool
 CutiePieConfig::dirExist()
 {

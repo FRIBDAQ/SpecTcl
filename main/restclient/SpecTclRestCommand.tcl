@@ -30,6 +30,7 @@ exec tclsh "$0" ${1+"$@"}
 
 package provide SpecTclRestCommand 1.0
 package require SpecTclRESTClient
+package require json::write
 
 ##
 #  The commands require a client object.  This has to be set with an
@@ -37,9 +38,135 @@ package require SpecTclRESTClient
 
 namespace eval SpecTclRestCommand {
     variable client ""
+    variable traceToken [list]
+    variable traceAfterId [list]
+    variable varsAfterId  [list]
+    
+    #  Variables associated with traces.
+    
+    variable tracePollInterval  2;   # Seconds between polls to get new traces.
+    variable parameterTraces [list]
+    variable spectrumAddTraces [list]
+    variable spectrumDeleteTraces [list]
+    variable gateAddTrace [list]
+    variable gateDeleteTrace [list]
+    variable gateChangedTrace [list]
+    variable sbindTraces [list]
+    variable unbindTraces [list]
 }
 #==============================================================================
 # Private utilities.
+
+##
+# ::SpecTclRestCommand::_pipeDictToList
+#   Convert a pipeline dict to the list representation.
+#
+#  @param d  - pipeline dict deswcription
+#  @return list name, processors.
+#
+proc ::SpecTclRestCommand::_pipeDictToList {d} {
+    return [list [dict get $d name] [dict get $d processors]]
+}
+
+##
+# ::SpecTclRestCommand::_axesDictToAxesList
+# Transform a list of axis dicts to a list of axis specifications.
+#
+# @param axes  - list of axis dicts.
+# @return list of lists.
+#
+proc ::SpecTclRestCommand::_axesDictToAxesList {axes} {
+    set result [list]
+    foreach axis $axes {
+        lappend result [list                                        \
+            [dict get $axis low] [dict get $axis high] [dict get $axis bins] \
+        ]
+    }
+    return $result
+}
+
+##
+# SpecTclRestCommand::_scontentsToJson
+#   Converts the list of dicts that represent channel data to Json encoding.
+# @param raw list of dicts containing x, optionally y and v.
+# @return list of objects with the same attributes.
+#
+proc SpecTclRestCommand::_scontentsToJson {raw} {
+    set objects [list]
+    foreach chan $raw {
+        lappend objects [json::write object {*}$chan]
+    }
+    return [json::write array {*}$objects]
+}
+##
+# SpecTclRestCommand::_scontentsToList
+#    Takes the list of dicts the scontents REST interface returns as channel
+#     data and converts it into the native scontents format.
+#
+# @param raw - the list of dicts.
+# @return list - of two or 3 element sublists.
+#
+proc SpecTclRestCommand::_scontentsToList {raw} {
+    set result [list]
+    
+    foreach d $raw {
+        set sublist [dict get $d x]
+        if {[dict exists $d y]} {
+            lappend sublist [dict get $d y]
+        }
+        lappend sublist [dict get $d v]
+        lappend result $sublist
+    }
+    
+    return $result
+}
+
+##
+#SpecTclRestCommand::_computeParameterMetadata
+#   Compute the parameter metadata from the remaining stuff.
+# @param args - remainder of parameter -new after the id.
+# @return dict - Contains the metadata expected by the REST parameterNew method.
+#
+proc SpecTclRestCommand::_computeParameterMetadata {args} {
+    set metadata [dict create]
+    
+    
+    if {[llength $args] == 1} {
+        if {[string is integer -strict $args]} {
+            dict set metadata resolution $args
+        } else {
+            dict set metadata units $args
+        }
+    } elseif {[llength $args] == 2} {
+        dict set metadata resolution [lindex $args 0]
+        set rangeunits [lindex $args 1]
+        dict set metadata low [lindex $rangeunits 0]
+        dict set metadata high [lindex $rangeunits 1]
+        dict set metadata units [lindex $rangeunits 2]
+    } elseif {[llength $args] == 0} {
+        # Nothing to do.
+    } else {
+        error "Parameter metadata specification is invalid $args"
+    }
+    
+    return $metadata
+}
+
+##
+# SpecTclRestCommand::_dictGetIfExists
+#    Returns a dict value or "" if it does not exist.
+#
+# @param dict - dict variable.
+# @param args - Key structure.
+#
+proc SpecTclRestCommand::_dictGetIfExists {dict args} {
+    if {[dict exists $dict {*}$args]} {
+        return [dict get $dict {*}$args]
+    } else {
+        return ""
+    }
+}
+
 ##
 # SpecTclRestCommand::_lselect
 #   Create a list from one element in each sublist of a list.
@@ -66,6 +193,22 @@ proc SpecTclRestCommand::_computeWidth {p} {
     return [expr {abs($high - $low)/double($bins)}]
 }
 ##
+# SpecTclRestCommand::_ptDictsToPts
+#   Turn a list of point dictionaries (x,y keys) into a list of x/y pairs.
+#
+# @param pts - list of point dicts.
+# @return list of pairs.
+#
+proc SpecTclRestCommand::_ptDictsToPts {pts} {
+    set result [list]
+    
+    foreach p $pts {
+        lappend result [list [dict get $p x]  [dict get $p y]]
+    }
+    
+    return $result
+}
+##
 # SpecTclRestCommand::_gateDictToDef
 #   Turn the dict for a gate that comes back from gateList into
 #   a gate definition as SpecTcl native gate -list command might return.
@@ -83,19 +226,23 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
     } elseif {$gtype in [list F T]} {
         lappend result [list]
     } elseif {$gtype in [list gb gc]} {
-        lappend result [dict get $gate points] [dict get $gate parameters]
+        lappend result \
+            [list [SpecTclRestCommand::_ptDictsToPts [dict get $gate points]] \
+            [dict get $gate parameters]]
     } elseif {$gtype in [list b c]} {
-        lappend result [dict get $gate parameters] [dict get $gate points]
+        lappend result [list [dict get $gate parameters] \
+            {*}[SpecTclRestCommand::_ptDictsToPts [dict get $gate points]]]
     } elseif {$gtype in [list s] } {
         lappend result \
-            [dict get $gate parameters] \
-            [list [dict get $gate low] [dict get $gate high]]
+            [list [dict get $gate parameters] \
+            [list [dict get $gate low] [dict get $gate high]]]
     } elseif {$gtype in [list gs]} {
         lappend result \
-            [list [dict get $gate low] [dict get $gate high]] \
-            [dict get $gate parameters]
+            [list [list [dict get $gate low] [dict get $gate high]] \
+            [dict get $gate parameters]]
     } elseif {$gtype in [list am em nm]} {
-        lappend result [dict get $gate parameters] [dict get $gate value]
+        lappend result \
+            [list [dict get $gate parameters] [format 0x%x [dict get $gate value]]]
     } else {
         error "Unrecognized gate type: $gtype"
     }
@@ -119,12 +266,13 @@ proc SpecTclRestCommand::_gateDictToDef {gate} {
 # @param info back from the pply command which is a list of dicts containing
 #     spectrum - name of a spectrum.
 #     gate     - name of the gate.
-# @note the -TRUE- gate is special.
+# @note the -TRUE- gate is special as is -Ungated-
 #
 proc SpecTclRestCommand::_getAppliedGateInfo {info} {
     set gates [$::SpecTclRestCommand::client gateList]
     array set gateDefs [list]
     set gateDefs(-TRUE-) [list -TRUE- 0 T [list]];   # Special true gate.
+    set gateDefs(-Ungated-) [list -Ungated- 0 T [list]]
     foreach gate $gates {
         set name [dict get $gate name]
         set gateDefs($name) [SpecTclRestCommand::_gateDictToDef $gate]
@@ -136,6 +284,128 @@ proc SpecTclRestCommand::_getAppliedGateInfo {info} {
         lappend result [list $spectrumName $gateDefs($gateName)]
     }
     return $result
+}
+#------------------------------------------------------------------------
+#  Trace handling.
+#
+
+##
+# SpecTclRestCommand::_pollTraces
+#   Periodically called to poll for new traces and dispatch them to
+#   the appropriate trace handlers (if any).
+#
+proc SpecTclRestCommand::_pollTraces {} {
+    
+    set traces [$::SpecTclRestCommand::client        \
+        traceFetch $SpecTclRestCommand::traceToken   \
+    ]
+    
+    #puts "Trace $traces"
+    
+    set dstatus [catch {
+    foreach trace [dict get $traces parameter] {
+        foreach script $SpecTclRestCommand::parameterTraces {
+            uplevel #0 [concat $script $trace]
+        }
+    }
+    # While only one gate trace is allowed, doing what we're about to do
+    # a. Supports multiple in the future.
+    # b. Handles the case where there's no trace set easily.
+    
+ 
+    foreach trace [dict get $traces gate] {
+        set action [lindex $trace 0]
+        set args [lrange $trace 1 end]
+        
+        if {$action eq "add"} {
+            
+            foreach script $::SpecTclRestCommand::gateAddTrace {
+                uplevel #0 [concat $script $args]
+            }
+        } elseif {$action eq "delete"} {
+        
+            foreach script $::SpecTclRestCommand::gateDeleteTrace {
+                uplevel #0 [concat $script $args]
+            }
+            
+        } elseif {$action eq "changed"} {
+
+            foreach script $SpecTclRestCommand::gateChangedTrace {
+                
+                uplevel #0 [concat $script $args]
+            }
+        } else {
+            error "gate trace has an invalid action $action : $trace"
+        }
+    }
+    
+    foreach trace [dict get $traces spectrum] {
+        set action [lindex $trace 0]
+        set args   [lrange $trace 1 end]
+        if {$action eq "add"} {
+            foreach script $SpecTclRestCommand::spectrumAddTraces {
+                uplevel #0  [concat script $args]
+            }
+        } elseif {$action eq "delete"} {
+            foreach script $SpecTclRestCommand::spectrumDeleteTraces {
+                uplevel #0 [concat $script $args]
+            }
+        } else {
+            error "spectrum trace action in valid $action : $trace"
+        }
+    }
+     
+    foreach trace [dict get $traces binding] {
+        set what [lindex $trace 0]
+        set params [lrange $trace 1 end]
+        
+        if {$what eq "add"} {
+            foreach tracer $::SpecTclRestCommand::sbindTraces {
+                uplevel #0 {*}$tracer {*}$params
+            }
+        } elseif {$what eq "remove"} {
+            foreach tracer $::SpecTclRestCommand::unbindTraces {
+                uplevel #0 {*}$tracer {*}$params
+            }
+        } else {
+            
+        }
+        
+    }
+    
+    } msg]
+    if {$dstatus} {
+         # puts "trace poll error: $msg"
+    }
+    set reschedule [expr {$SpecTclRestCommand::tracePollInterval*1000}]
+    
+    set SpecTclRestCommand::traceAfterId \
+        [after  $reschedule SpecTclRestCommand::_pollTraces]
+    
+    
+}
+##
+# SpecTclRestCommand::_startTraceMonitoring
+#    If trace monitoring has not yet been set up, set it up.
+#
+# @note that SpecTclRestCommand::tracePollInterval dynamically controls
+#      the polling interval and that we set the retention time to
+#      100*what it is now - and that's not modifiable currently.
+#
+#
+proc SpecTclRestCommand::_startTraceMonitoring { } {
+    
+    #
+    #  If there's already a trace token we don't need to set this up.
+    if {$SpecTclRestCommand::traceToken eq ""} {
+        set retention [expr {$SpecTclRestCommand::tracePollInterval * 100}]
+        set SpecTclRestCommand::traceToken [$SpecTclRestCommand::client \
+            traceEstablish $retention                                   \
+        ]
+        
+        SpecTclRestCommand::_pollTraces
+        
+    }
 }
 #==============================================================================
 # Public entries.
@@ -150,6 +420,24 @@ proc SpecTclRestCommand::initialize {host port} {
     set SpecTclRestCommand::client [SpecTclRestClient\
         %AUTO% -host $host -port $port          \
     ]
+}
+##
+# SpecTclRestCommand::shutdown
+#   Destroy the client object.
+#
+proc SpecTclRestCommand::shutdown { } {
+    if {$SpecTclRestCommand::traceAfterId != [list]} {
+        $SpecTclRestCommand::client traceDone $SpecTclRestCommand::traceToken
+        after cancel $SpecTclRestCommand::traceAfterId
+        set SpecTclRestCommand::traceAfterId [list]
+    }
+    if {$SpecTclRestCommand::varsAfterId != [list]} {
+        after cancel $SpecTclRestCommand::varsAfterId
+        set SpecTclRestCommand::varsAfterId [list]
+    }
+    set ::SpecTclRestCommand::traceToken [list]
+    $::SpecTclRestCommand::client destroy
+    set ::SpecTclRestCommand::client ""
 }
 
 #------------------------------------------------------------------------------
@@ -234,6 +522,8 @@ proc attach {args} {
 #   Simulate the sbind command.  Forms:
 #  sbind -all
 #  sbind -list
+#  sbind -trace
+#  sbind -untrace
 #  sbind spectrum...
 #
 proc sbind {args} {
@@ -256,6 +546,26 @@ proc sbind {args} {
             ]
         }
         return $result
+    } elseif {$opt eq "-trace"} {
+        
+        if {[llength $args] != 2} {
+            error "sbind -trace takes a script and only a script."
+        }
+        lappend SpecTclRestCommand::sbindTraces [lindex $args 1]
+        SpecTclRestCommand::_startTraceMonitoring
+    } elseif {$opt eq "-untrace"} {
+        if {[llength $args] != 2} {
+            error "sbind -untrace takes only a script"
+        }
+        set script [lindex $args 0]
+        set index [lsearch -exact $SpecTclRestCommand::sbindTraces $script]
+        if {$index < 0} {
+            error  "sbind -untrace no script '$script' is bound"
+        } else {
+            set SpecTclRestCommand::sbindTraces \
+                [lreplace $SpecTclRestCommand::sbindTraces $index $indes]
+        }
+        
     } else {
         return [$SpecTclRestCommand::client sbindSpectra $args]
     }
@@ -787,7 +1097,6 @@ namespace eval filter {
 # Gate namespace ensemble - we use unknown to trampoline into the
 #      create.
 # !UNIMPLEMENTED! gate -list -byid
-# !UNIMPLEMENTED! gate -trace
 #
 namespace eval gate {
     namespace export -new -list -delete -trace
@@ -825,9 +1134,11 @@ namespace eval gate {
                 set xparameters [lindex $description 0]
                 set yparameters [lindex $description 1]
             }
+           
+        
             return [$::SpecTclRestCommand::client gateCreateSimple2D       \
-                name $gtype                                                 \
-                $xparameter $yparameters                                    \
+                $name $gtype                                                 \
+                $xparameters $yparameters                                    \
                 [::SpecTclRestCommand::_lselect $points 0]                  \
                 [::SpecTclRestCommand::_lselect $points 1]                  \
             ]
@@ -836,7 +1147,9 @@ namespace eval gate {
                 $name $gtype [lindex $description 0] [lindex $description 1] \
             ]
         } elseif {$gtype in [list + - * c2band]} {
-            return [$::SpecTclRestCommand::client gateCreateCompound $gtype $description]
+            return [$::SpecTclRestCommand::client gateCreateCompound \
+                $name $gtype $description  \
+            ]
         } else {
             error "$gtype creation is not implemented."
         }
@@ -866,12 +1179,893 @@ namespace eval gate {
     }
     ##
     # -trace
-    #   gate -trace is unimplemented
+    #   manipulate gate traces 
+    # @param type - trace type: add, delete, change
+    # @param script - optional - the new gate trace of that type.
+    # @note that we must use args because there's a difference between
+    #       supplying no script and supplying an empty one.
+    # @return any prior trace of that type.
     proc -trace {args} {
-        error "This version of SpecTclCommands does not implement gate -trace (yet)"
+    
+        if {[llength $args] == 0} {
+            error "gate -trace requires a trace type (add delete change)"
+        }
+        if {[llength $args] > 2} {
+            error "gate -trace too many arguments"
+        }
+        
+        set traceType [lindex $args 0]
+        set haveScript 0
+        
+        set script [list]
+        if {[llength $args] == 2} {
+            set haveScript 1
+            set script [lindex $args 1]
+        }
+        
+        if {$traceType eq "add"} {
+            set varname SpecTclRestCommand::gateAddTrace
+        } elseif {$traceType eq "delete" } {
+            set varname SpecTclRestCommand::gateDeleteTrace
+        } elseif {$traceType eq "change" } {
+            set varname SpecTclRestCommand::gateChangedTrace
+        } else {
+            error "gate -trace $traceType is not a valid trace type."
+        }
+        
+        set prior [set $varname];     # Prior trace name.
+        if {$haveScript} {
+            set $varname [list]
+            
+            lappend $varname $script;  # Supports future multi trace.
+        }
+        
+        # Set up trace processing if it's not going yet.
+        
+        SpecTclRestCommand::_startTraceMonitoring
+        
+        return $prior
     }
 }
-proc SpecTclRestCommand::_gateCreate {ns name type description} {
-    return [list gate::-new $name $type $description]
+##
+# SpecTclRestCommand::_gateCreate
+#    This is registered as an unknown processor for the gate namespace.
+#    Doing this supports creation of gates with or without the -new option on
+#    the gate command.  All we do is relay to gate::-new.
+#
+proc SpecTclRestCommand::_gateCreate {ns name args} {
+    
+    return [list -new $name]
 }
 namespace ensemble configure gate -unknown SpecTclRestCommand::_gateCreate
+#-------------------------------------------------------------------------------
+#  Simulate the integrate command.
+#
+
+##
+# integrate
+#    Get SpecTcl to integrate a region of interest (gate or coordinates)
+#    And return the values to the user.
+#
+# @param name  spectrum name.
+# @param roi   Area of interest specification which canbe any of:
+#       -   A gate name that could be displayed on the spectrum.
+#       -   For a 1d spectrum a low/high limit pair.
+#       -   For a 2d spectrum a list of points.
+# @return - see integrate in the SpecTcl command reference.
+#
+proc integrate {name roi} {
+    set restROI [dict create]
+    
+    if {[llength $roi] == 1} {
+        dict set restROI gate $roi
+    } elseif {[llength $roi] == 2} {
+        dict set restROI low [lindex $roi 0]
+        dict set restROI high [lindex $roi 1]
+    } else {
+        dict set restROI  xcoord [::SpecTclRestCommand::_lselect $roi 0]
+        dict set restROI  ycoord [::SpecTclRestCommand::_lselect $roi 1]
+    }
+    
+    set raw [$::SpecTclRestCommand::client integrate $name $restROI]
+    
+    return [list                                                             \
+        [dict get $raw centroid]  [dict get $raw counts]                     \
+        [dict get $raw fwhm]                                                 \
+    ]
+}
+#------------------------------------------------------------------------------
+# Simulate parameter command - a namespace ensemble with unknown handler is used.
+# !UNIMPLEMENTED! -byid list parameter - note this is supported by the REST interface.
+# !UNIMPLEMENTED! -id on delete command. - note this is supported by the REST interface.
+#
+namespace eval parameter {
+    namespace export -new -list -delete -trace -untrace
+    namespace ensemble create
+    ##
+    # -new
+    #   Create a new parameter.
+    #
+    # @param name the new parameter.
+    # @param id   The id of the new parameter.
+    # @param args This can have four forms:
+    #        -   Empty list -no metadata.
+    #        -  single element list containing an integer resolution
+    #        -  single element list containing units
+    #        -   Two element list containing resolution, and low,high,units list.
+    # @return string - parameter name on success.
+    #
+    proc -new {name id args} {
+        set metadata [SpecTclRestCommand::_computeParameterMetadata {*}$args]
+        $::SpecTclRestCommand::client parameterNew $name $id $metadata
+        return $name
+    }
+    ##
+    # -list
+    #   List parameters whose names match  a pattern.
+    #
+    # @param pattern - glob pattern defaults to * matchng everything.
+    # @return see SpecTcl command reference for parameter command
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client parameterList $pattern]
+        set result [list]
+
+        foreach p $raw {
+            
+            lappend result [list [dict get $p name] [dict get $p id]           \
+            [SpecTclRestCommand::_dictGetIfExists $p  resolution]  \
+            [list                                                              \
+                [SpecTclRestCommand::_dictGetIfExists $p  low]         \
+                [SpecTclRestCommand::_dictGetIfExists $p  high]        \
+                [SpecTclRestCommand::_dictGetIfExists $p units]   \
+            ]]
+        }
+        
+        return $result
+    }
+    ##
+    # -delete
+    #    Deletes a parameter.
+    #
+    # @param name -name of the parameter to delete.
+    #
+    proc -delete {name} {
+        return [$::SpecTclRestCommand::client parameterDelete $name]    
+    }
+    ##
+    # -trace
+    #    Just append the script to the list of parameter trace scripts:
+    #    SpecTclRestCommand::parameter
+    #
+    # @param script -the trace script
+    proc -trace {script} {
+        lappend SpecTclRestCommand::parameterTraces [list $script]
+        
+        SpecTclRestCommand::_startTraceMonitoring
+    }
+    ##
+    # -untrace
+    #    Remove a specific trace from the traces.
+    #    -  If there are more than one matching scripts only the oldest one
+    #       is removed.
+    #    -  If there is no matching script this call silently does nothing.
+    #
+    # @param script - the script to remove.
+    #
+    proc -untrace {script} {
+        set i 0
+        foreach s $SpecTclRestCommand::parameterTraces {
+            if {$s eq $script} {
+                
+                set SpecTclRestCommand::parameterTraces [lreplace \
+                    $SpecTclRestCommand::parameterTraces $i $i     \
+                ]
+                
+                break
+            }
+            incr i
+        }
+    }
+
+}
+##
+# SpecTclRestCommand::_parameterCreate
+#    This is the unknown handler of the parameter namespace ensemble.
+#    It relays to parameter -new in order to allow that option to be
+#    omitted when createing a parameter definition.
+#
+# @param ns - namespace name (::parameter)
+# @param name - The subcommand is actually the parameter name.
+# @param args - The remaining command words.
+#
+proc SpecTclRestCommand::_parameterCreate {ns name args} {
+    
+    return [list -new $name]
+}
+namespace ensemble configure parameter -unknown SpecTclRestCommand::_parameterCreate
+
+#------------------------------------------------------------------------------
+#  pseudo command simulation as namespace ensemble.
+#  Note the -new option does not really exist in the SpeTcl command set
+#  (I think) but adding it makes using a namespace ensemble possible via a
+#  redirecting unknown handler.
+#
+namespace eval pseudo {
+    namespace export -new -list -delete
+    namespace ensemble create
+    
+    ##
+    # -new
+    #    Create a new pseudo parameter that depends on existing raw parameters
+    #
+    # @param name - pseudo parameter being created the parameter must already
+    #               be defined.
+    # @param parameters - the names of existing parameters the pseudo depends on.
+    # @param body - Tcl script body that computes the pseudo.
+    #
+    proc -new {name parameters body} {
+        return [$::SpecTclRestCommand::client pseudoCreate $name $parameters $body]
+    }
+    ##
+    # -list
+    #    Return a list of pseudo definitions.
+    #
+    # @param pattern - pattern that specifies which psuedos will be listed.
+    # @return list - see SpecTcl command reference page on pseudo.
+    #
+    proc -list {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client pseudoList $pattern]
+        set result [list]
+        
+        foreach p $raw {
+            lappend result [list                                      \
+                [dict get $p name] [dict get $p parameters]           \
+                [dict get $p computation]                             \
+            ]
+        }
+        
+        return $result
+    }
+    ##
+    # -delete
+    #    Delete each pseudo parameter named in the argument list.
+    #
+    proc -delete {args} {
+        foreach name $args {
+            $::SpecTclRestCommand::client pseudoDelete $name
+        }
+    }
+}
+proc SpecTclRestCommand::_createPseudo {ns name args} {
+    return [list -new $name]
+}
+namespace ensemble configure pseudo -unknown SpecTclRestCommand::_createPseudo
+
+#-------------------------------------------------------------------------------
+# Simulate the sread command via REST.
+
+##
+# sread
+#   Read a spectrum in from file.
+# @param args - the command line parameter. See the SpecTcl
+#               command reference to see the possible forms.
+# @note the filename is interpreted in the SpecTcl process.
+#   -  file names are paths as seen by SpecTcl
+#   -   file descriptors are those in SpecTcl and can only be gotten via
+#       a call to command opening the file.
+#
+proc sread {args} {
+    if {[llength $args] == 0} {
+        error "sread requires parameters"
+    }
+    set filename [lindex $args end];    # Always last.
+    set options [lrange $args 0 end-1]
+    
+    set optDict [dict create]
+    
+    # Process options.  -format has a parameter so we need to do as below:
+    
+    for {set i 0} {$i < [llength $options]} {incr i} {
+        set option [lindex $options $i]
+        if {$option eq "-format"} {
+            incr i
+            dict set optDict format [lindex $options $i]
+        } elseif {$option eq "-snapshot"} {
+            dict set optDict snapshot 1
+        } elseif {$option eq "-nosnapshot"} {
+            dict set optDict snapshot 0
+        } elseif {$option eq "-replace"} {
+            dict set optDict replace 1
+        } elseif {$option eq "-noreplace"} {
+            dict set optDict replace 0
+        } elseif {$option eq "-bind"} {
+            dict set optDict bind 1
+        } elseif {$option eq "-nobind"} {
+            dict set optDict bind 0
+        } else {
+            "$option  is an unrecognized sbind option."
+        }
+    }
+        
+    return [$::SpecTclRestCommand::client sread $filename $optDict]
+    
+    
+}
+#-----------------------------------------------------------------------------
+#  ringformat simulator.
+
+##
+# ringformat
+#    Simulate the ring format command in terms of the REST API.
+#
+# @param version major.minor version format.
+#
+proc ringformat {version} {
+    set v [split $version .]
+    return [$::SpecTclRestCommand::client ringformat {*}$v]
+}  
+#----------------------------------------------------------------------------
+# scontents simulation.
+#
+
+##
+# scontents
+#    We support scontents spectrum name or scontents -json spectrum name.
+#
+# @param args - either name of a spectrum or -json name of a spectrum.
+#
+proc scontents {args} {
+    set json 0;            # Assume it's just Tcl format.
+    if {[llength $args] == 1} {
+        set name $args
+    } elseif {[llength $args] == 2} {
+        if {[lindex $args 0] ne "-json"}  {
+            error "scontents only accepts a -json optional option"
+        }
+        set json 1
+        set name [lindex $args 1]
+    } else {
+        error "Too many command line parameter for scontents"
+    }
+    set raw [dict get [$::SpecTclRestCommand::client scontents $name] channels]
+    
+    
+    if {$json} {
+        return [::SpecTclRestCommand::_scontentsToJson $raw ]
+    }  else {
+        return [::SpecTclRestCommand::_scontentsToList $raw]
+    }
+}
+#-------------------------------------------------------------------------------
+# shared memory access.
+
+##
+# shmkey
+#   Return the shared memory key.
+# @return string
+#
+proc shmemkey { } {
+    return [$::SpecTclRestCommand::client shmemkey]
+}
+##
+# shmsize
+#   @return integer size of shared memory in bytes.
+#
+proc shmemsize { } {
+    return [$::SpecTclRestCommand::client shmemsize]
+}
+#------------------------------------------------------------------------------
+# spectrum command simulation in a namespace ensemble.
+#
+
+# !UNIMPLEMENTED! -byid on spectrum -list
+# !UNIMPLEMENTED! -list -id
+# !UNIMPLEMENTED! -delete -id.
+#
+namespace eval spectrum {
+    namespace export -new -list -delete -trace
+    namespace ensemble create
+    
+    ##
+    # -new
+    #    Create a new spectrum.
+    #
+    # @oaram name - new spectrum name.
+    # @param type - new spectrum type
+    # @param parameters - parameters
+    # @param axes axis specifications.
+    # @param data type - defaults to long.
+    # @return string  - spectrum name.
+    proc -new {name type parameters axes {datatype long}} {
+        $::SpecTclRestCommand::client spectrumCreate \
+            $name $type $parameters $axes [dict create chantype $datatype]
+        return $name
+    }
+    ##
+    # -list
+    # list spectrum
+    #
+    # @param pattern - pattern of spectrum names to match
+    # @return list of spectrum definitions as described in the SpecTcl
+    #         command reference
+    # @note - all ids are zero.
+    proc -list {args} {
+        set pattern *;               # Default pattern.
+        set showgates 0
+        if {[llength $args] == 1} {
+            set pattern [lindex $args 0]
+            if {$pattern eq "-showgate"} {
+                set showgates 1
+                set pattern *
+            }
+        } elseif {[llength $args] == 2} {
+            set option [lindex $args 0]
+            set pattern [lindex $args 1]      
+            if {$option ne "-showgate"} {
+                error "Unrecognized option $option - only -showgate is allowwed"
+            }
+            set showgates 1
+        } elseif {[llength $args] > 2} {
+            error "Too many arguments to spectrum -list"
+        }
+        set raw [$::SpecTclRestCommand::client spectrumList $pattern]
+        
+        set result [list]
+        foreach s $raw {
+            set item [list                                              \
+                0 [dict get $s name] [dict get $s type]                        \
+                [dict get $s parameters]                                       \
+                [::SpecTclRestCommand::_axesDictToAxesList [dict get $s axes]]  \
+                [dict get $s chantype]                                         \
+            ]
+            if {$showgates} {
+                lappend item [dict get $s gate]
+            }
+            lappend result $item
+        }
+        return $result
+    }
+    ##
+    # -delete
+    #    Delete spectra. This can take either -all or name1...
+    #  @param args - remainder of the command line.
+    #   
+    proc -delete {args} { 
+        if {([llength $args] == 1) && ($args eq "-all")} {
+            set names [list]
+            foreach s [$::SpecTclRestCommand::client spectrumList] {
+                lappend names [dict get $s name]
+            }
+        } elseif {[llength $args] > 0} {
+            set names $args
+        } else {
+            error "spectrum -delete needs parameters"
+        }
+        
+        foreach name $names {
+            
+            $::SpecTclRestCommand::client spectrumDelete $name
+        }
+    }
+    ##
+    # -trace
+    #   Implement traces in termsof the trace poll system.
+    #   
+    #
+    # @param what - what to do add or delete.
+    # @param script - script to add or remove.
+    # @return the prior value of the supplied trace.
+    #
+    proc -trace {what args} {
+        set haveScript 0
+        set script  [list]
+        if {[llength $args] != 0} {
+            set script $args
+            set haveScript 1
+        }
+        
+        if {$what eq "add"} {
+            set scriptVar SpecTclRestCommand::spectrumAddTraces
+            
+        } elseif {$what eq "delete"} {
+            set scriptVar SpecTclRestCommand::spectrumDeleteTraces
+        } else {
+            error "spectrum -trace invalid trace type $what"
+        }
+        set prior [set $scriptVar]
+        if {$haveScript} {
+            set $scriptVar [list $script]
+        }
+        SpecTclRestCommand::_startTraceMonitoring
+        return $prior
+    }
+}
+##
+# SpecTclRestCommand::_createSpectrum
+#   Is the unknown subcommand of the spectrum namespace ensemble.
+#   It supports spectrum creation by omitting the -new flag.
+#
+# @param ns - namespace (spectrum).
+# @param name - name of spectrum being created.
+# @param args  - remaining arguments.
+#
+proc SpecTclRestCommand::_createSpectrum {ns name args} {
+    return [list -new $name]
+}
+namespace ensemble configure spectrum -unknown SpecTclRestCommand::_createSpectrum
+#----------------------------------------------------------------------------
+# namespace ensemble that implements the unbind command.
+# !UNIMPLEMENTED! passing a list of xids not spetrum names
+
+namespace eval unbind {
+    namespace export unbind -id -all -trace -untrace
+    namespace ensemble create
+    
+    ##
+    # unbind
+    #   Unbind a list of spectra.
+    #
+    # @param args - the list of names.
+    #
+    proc unbind {args} {
+        return  [$::SpecTclRestCommand::client unbindByName $args]
+    }
+    ##
+    # Unbind by ids:
+    # @param args -the ids.
+    #
+    proc -id {args} {
+        return [$::SpecTclRestCommand::client unbindById $args]   
+    }
+    ##
+    # Unbind all spectra.
+    #
+    proc -all {} {
+        return [$::SpecTclRestCommand::client unbindAll]   
+    }
+    ##
+    # -trace
+    # Add a trace script
+    #
+    proc -trace {script} {
+        
+        lappend SpecTclRestCommand::unbindTraces $script
+        SpecTclRestCommand::_startTraceMonitoring
+    }
+    ##
+    # -untrace
+    #    Remove a trace script.
+    #
+    proc -untrace {script} {
+        set index [lsearch -exact $SpecTclRestCommand::unbindTraces $script]
+        if {$index < 0} {
+            error "unbind -trace no trace script '$script' to unbind"
+        } else {
+            set SpecTclRestCommand::unbindTraces \
+                [lreplace $SpecTclRestComand::unbindTraces $index $index]
+        }
+    }
+    
+}
+##
+# SpecTclRestCommand::_unbindByName
+#
+# Unknown subcommand handler for unbind.
+#
+# @param ns    - namespace
+# @param name1 - first name (subcommand).
+# @param args  - remaining parameters (optionally more names).
+#
+proc SpecTclRestCommand::_unbindByName {ns name1 args} {
+    return [list unbind $name1]
+}
+namespace ensemble configure unbind -unknown SpecTclRestCommand::_unbindByName
+
+#---------------------------------------------------------------------------
+# ungate command.
+
+##
+# ungate
+#    Ungate a list of spectra via REST.
+#
+# @param args - list of spectra to ungate.
+#
+proc ungate {args} {
+    return [$::SpecTclRestCommand::client ungate $args]
+}
+
+#--------------------------------------------------------------------------------
+# version command
+
+##
+# version
+#   Return the SpecTcl Version.
+# @return string - the version string.
+#
+proc version { } {
+    set raw [$::SpecTclRestCommand::client version]
+    return [dict get $raw major].[dict get $raw minor]-[dict get $raw editlevel]
+}
+#-----------------------------------------------------------------------------
+# swrite simulation
+##
+# swrite
+#   Forms allowed are swrite -format fmt names... and swrite names...
+#
+# @param args - the arguments.
+#
+proc swrite {args} {
+    set format ascii
+    if {[llength $args] > 2} {
+        set option [lindex $args 0]
+        if {$option eq "-format"} {
+            # Require at least 3 parameters.
+            
+            if {[llength $args < 4]} {
+                error "swrite -format must have at least a format, file and spectrum"
+            } else {
+                set format [lindex $args 1]
+                set filename [lindex $args 2]
+                set names [lrange $args 3 end]
+            }
+        } else {
+            set filename [lindex $args 0]
+            set names    [lrange $ags 1 end]
+        }
+    } elseif {[llength $args] == 2} {
+        set filename [lindex $args 0]
+        set names    [lindex $args 1]
+    } else {
+        error "swrite needs at least a filename and a spectrum."
+    }
+    return [$::SpecTclRestCommand::client $swrite $filename $names $format]
+}
+#----------------------------------------------------------------------------
+# analysis control commands  (start, stop)
+
+##
+# start
+#   Start analysis from the source.
+#
+proc start { } {
+    return [$::SpecTclRestCommand::client start]
+}
+##
+# stop
+#   Stop analysis from the source.
+#
+proc stop {} {
+    return [$::SpecTclRestCommand::client stop]
+}
+#-----------------------------------------------------------------------------
+#  Roottree command ensemble.
+
+namespace eval roottree {
+    namespace export create delete list
+    #
+    #  The map below avoids conflicts between roottree::list and ::list
+    #
+    namespace ensemble create -map [dict create list _list create create delete delete]
+    
+    ##
+    # create
+    #   Create a new root tree
+    # @param name - tree name.
+    # @param patterns -list of parameter patterns.
+    # @param gate - optional gate that determines which events get written to
+    #                  the tree.
+    #
+    proc create {name patterns {gate {}}} {
+        return [$::SpecTclRestCommand::client rootTreeCreate $name $patterns $gate]
+    }
+    ##
+    # delete
+    #   Delete the named tree.
+    #
+    # @param name - name of the tree to remove.
+    #
+    proc delete {name} {
+        return [$::SpecTclRestCommand::client rootTreeDelete $name]
+    }
+    ##
+    # list
+    #   List the root trees that match the optional (defaults to *)
+    #   pattern.
+    #
+    # @param pattern - pattern tree must match.
+    #
+    proc _list { {pattern *}} {
+        set raw [$::SpecTclRestCommand::client rootTreeList $pattern]
+        set result [list]
+        
+        foreach tree $raw {
+            lappend result [list                                             \
+                [dict get $tree tree] [dict get $tree parameters]           \
+                [dict get $tree gate]                                       \
+            ]
+        }
+        
+        return $result
+    }
+    
+}
+#------------------------------------------------------------------------------
+# pman command namespace ensemble.
+#
+
+namespace eval pman {
+    namespace export mk ls current ls-all ls-evp use add rm clear clone
+    namespace ensemble create
+    
+    ##
+    # mk
+    #   Create a new pipeline.
+    # @param name - pipeline name.
+    #
+    proc mk {name} {
+        return [$::SpecTclRestCommand::client pmanCreate $name]
+    }
+    ##
+    # ls
+    #   List names of the pipelines.
+    #
+    proc ls {{pattern *}} {
+        return [$::SpecTclRestCommand::client pmanList $pattern]
+    }
+    ##
+    # current
+    #   Provide the name and processors in the current pipeline.
+    #
+    proc current { } {
+        set raw [$::SpecTclRestCommand::client pmanCurrent]
+        return [::SpecTclRestCommand::_pipeDictToList $raw]
+    }
+    ##
+    # ls-all
+    #   List all pipelines and their details.
+    #
+    proc ls-all {{pattern *}} {
+        set raw [$::SpecTclRestCommand::client pmanListAll $pattern]
+        set result [list]
+        foreach pipe $raw {
+            lappend result [::SpecTclRestCommand::_pipeDictToList $pipe]
+        }
+        return $result
+    }
+    ##
+    # ls-evp
+    #   List names of event processors.
+    #
+    # @param pattern - pattern to match.
+    #
+    proc ls-evp {{pattern *}} {
+        return [$::SpecTclRestCommand::client pmanListEventProcessors]
+    }
+    ##
+    # use
+    #   Selects a current event processing pipeline.
+    #
+    # @param name - name to use.
+    #
+    proc use {name} {
+        return [$::SpecTclRestCommand::client pmanUse $name]
+    }
+    ##
+    # add
+    #   Add an event processor to the end of a pipeline.
+    # @param pipe  - pipeline name.
+    # @Param processor - event processor name.
+    #
+    proc add {pipe processor} {
+        return [$::SpecTclRestCommand::client pmanAdd $pipe $processor]
+    }
+    ##
+    # rm
+    #   Remove an event processor from a pipeline.
+    #
+    # @param pipe - name of the pipeline.
+    # @param processor - name of the event processor to remove.
+    #
+    proc rm {pipe processor} {
+        return [$::SpecTclRestCommand::client pmanRemove $pipe $processor]
+    }
+    ##
+    # clear
+    #   Empty a pipeline of all processors.
+    #
+    proc clear {pipe} {
+        return [$::SpecTclRestCommand::client pmanClear $pipe]
+    }
+    ##
+    # clone
+    #   Make a copy of an event processor pipeline
+    #
+    # @param existing - name of existing pipe
+    # @param new      - name of the new pipe.
+    #
+    proc clone {existing new} {
+        return [$::SpecTclRestCommand::client pmanClone $existing $new]
+    }
+    
+}
+#------------------------------------------------------------------------------
+# namespace ensemble to simulate the evbunpack command.
+
+namespace eval evbunpack {
+    namespace export create addprocessor list
+    namespace ensemble create
+    
+    ##
+    # create
+    #   Create a new event builder unpacker.
+    #
+    # @param name - name of the unpacker.
+    # @param freq - MHz of the clock.
+    # @param base - basename of the diagnostics parameters.
+    #
+    proc create {name freq base} {
+        return [$::SpecTclRestCommand::client evbCreate $name $freq $base]
+    }
+    ##
+    # addprocessor
+    #   Assign a pipeline to unpack data from a specific source id.
+    # @param name - processor name.
+    # @param sid   - source id.
+    # @param pipe - pipeline to use.
+    #
+    proc addprocessor {name sid pipe} {
+        return [$::SpecTclRestCommand::client evbAdd $name $sid $pipe]
+    }
+    ##
+    # list
+    #   List the names of the evb processors.
+    #
+    # @param pattern - names must match this pattern.
+    #
+    proc list {{pattern *}} {
+        return [$::SpecTclRestCommand::client evbList $pattern]
+    }
+}
+##
+# command
+#   Execute a command in the server.
+#
+# @param cmd - the command.
+# @return command's results.
+#
+proc execCommand {cmd} {
+    return [$::SpecTclRestCommand::client command $cmd]
+}
+##
+# updateVariables
+#    Update the SpecTcl globals from the server:
+#
+proc updateVariables { } {
+    set varDict [$::SpecTclRestCommand::client getVars]
+    dict for {name value} $varDict {
+        set ::$name $value
+    }
+        
+    
+}
+    
+##
+# maintainVariables
+#    Periodically updates the variables
+#    Requires an event loop.
+# @param seconds - seconds between updates.
+#
+proc maintainVariables {seconds} {
+    set ms [expr {$seconds * 1000}]
+    
+    updateVariables
+    set SpecTclRestCommand::varsAfterId [after $ms maintainVariables $seconds]
+}
+
+##
+# isRemote
+#   @return 1 indicating the script is running as a REST client.
+#
+proc isRemote { } {
+    return 1
+}

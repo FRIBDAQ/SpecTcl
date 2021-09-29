@@ -59,9 +59,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <string.h>
 
-#ifdef HAVE_STD_NAMESPACE
+#include "BindTraceSingleton.h"
+#include <TCLObject.h>
+
 using namespace std;
-#endif
 
 
 // Static storage.
@@ -73,8 +74,9 @@ struct SwitchTableEntry {
 
 static const SwitchTableEntry SwitchTable[] = {
   { "-id",   CUnbindCommand::keId },
-  { "-all",  CUnbindCommand::keAll}//,
-//  { "-xid",  CUnbindCommand::keXid}
+  { "-all",  CUnbindCommand::keAll},
+  {"-trace", CUnbindCommand::keTrace},
+	{"-untrace", CUnbindCommand::keUntrace}
 };
 static const UInt_t SwitchTableSize =
                sizeof(SwitchTable)/sizeof(SwitchTableEntry);
@@ -139,16 +141,10 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case keAll:			// -all switch.
     rPack.UnbindAll();
     return TCL_OK;
-
-//  case keXid:			// -xid switch.
-//    nArgs--;
-//    pArgs++;
-//    if(nArgs <= 0) {		// Must supply at least one xid.
-//      Usage(rResult);
-//      return TCL_ERROR;
-//    }
-//    return UnbindByXid(rInterp, rResult, nArgs, pArgs);
-
+	case keTrace:
+		return Trace(rInterp, rResult, nArgs, pArgs);
+	case keUntrace:
+		return Untrace(rInterp, rResult, nArgs, pArgs);
   case keNotSwitch:		// Must be a spectrum name..
     return UnbindByName(rInterp, rResult, nArgs, pArgs);
     
@@ -195,7 +191,7 @@ CUnbindCommand::UnbindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 ////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//      Int_t UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+//      Int_t UnbindById(CTCLInterpreter& rInerp, CTCLResult& rResult, 
 //		          int nArgs, char* pArgs[])
 // Operation Type:
 //    Utility.
@@ -229,45 +225,79 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   return rPack.UnbindList(rResult, vIds);
 }
-///////////////////////////////////////////////////////////////////////////////
-////
-//// Function:
-////   Int_t UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
-////		       int nArgs, char* pArgs[])
-//// Operation Type:
-////   Utility.
-////
-//Int_t
-//CUnbindCommand::UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
-//			    int nArgs, char* pArgs[])
-//{
-//  //  Unbind a set of spectra from the display given their display slot ids.
-//  //
-//  // Formal Paramters:
-//  //    CTCLInterpreter&  rInterp:
-//  //        References the interpreter on which the command runs.
-//  //     CTCLResult&  rResult:
-//  //        References the resutl associated with rInterp.
-//  //      int nArgs:
-//  //        Number of command line parameters.
-//  //     char* pArgs[]:
-//  //        Array of pointers to command line parameters.
-//  //        Must be an array of display slot ids.
-//  // Returns:
-//  //     TCL_OK         - All spectra were unbound.
-//  //     TCL_ERROR - Some or all spectra could not be unbound.
-//  //
-//  std::vector<UInt_t> vIds;
-//  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-//  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
-//    return TCL_ERROR;
-//  }
-
-
-//  return  rPack.UnbindXidList(rResult, vIds);
-
-//}
+/**
+ * Trace
+ *    Adds a trace to the unbind trace list.
+ *    - Ensures we have the right number of parameters.
+ *    - Object wraps the script.
+ *    - Locates the BindTraceSingletonand adds the script as an unbind trace.
+ *  @return Int_t TCL_OK on success, TCL_ERROR on failure.
+ */
+Int_t
+CUnbindCommand::Trace(
+	CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	int nArgs, char* pArgs[]
+)
+{
+	// Check the parameter count.
+	
+	if (nArgs != 2) {
+		Usage(rResult);
+		return TCL_ERROR;
+	}
+	// Object wrap the script.
+	
+	CTCLObject scriptStem;
+	scriptStem.Bind(rInterp);
+	scriptStem = pArgs[1];
+	
+	// Establish the trace:
+	
+	BindTraceSingleton& wrapper(BindTraceSingleton::getInstance());
+	wrapper.addUnbindTrace(rInterp, scriptStem);
+	
+	return TCL_OK;
+}
+/**
+ * Untrace
+ *   Process unbind -untrace.
+ *   - Ensure we have the correct number of  parameters.
+ *   - Object wrap the script
+ *   - LOcate the wrappgin singleton and attempt to remove the script.
+ *  @return Int_t - TCL_OK - success, TCL_ERROR on failure.
+ *  @note the remove method throws an exception of the script is not already
+ *    in the trace list.  We convert that to a TCL_ERROR return.
+ */
+Int_t
+CUnbindCommand::Untrace(
+	CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	int nArgs, char* pArgs[]
+)
+{
+	// Check the parameter count:
+	
+	if (nArgs != 2) {
+		Usage(rResult);
+		return TCL_ERROR;
+	}
+	// Object wrap the script:
+	
+	CTCLObject scriptStem;
+	scriptStem.Bind(rInterp);
+	scriptStem = pArgs[1];
+	
+	// Attempt the removal:
+	
+	try {
+		BindTraceSingleton& wrapper(BindTraceSingleton::getInstance());
+		wrapper.removeUnbindTrace(scriptStem);
+	}
+	catch (std::exception& e) {
+		rResult = e.what();
+		return TCL_ERROR;
+	}
+	return TCL_OK;
+}
 ///////////////////////////////////////////////////////////////////////////
 //
 //  Function:
