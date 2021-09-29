@@ -23,7 +23,7 @@ install-exec-local:
 		$(INSTALL_SCRIPT) @srcdir@/$$f $(PACKAGE_DESTDIR); \
 	done
 	echo pkg_mkIndex -verbose $(PACKAGE_DESTDIR) "*.tcl" | $(TCLSH)
-	$(INSTALL_SCRIPT) xaminerunner.tcl @bindir@
+	$(INSTALL_SCRIPT) @srcdir@/xaminerunner.tcl @bindir@
 	$(HTMLDOCBOOK) -o @datarootdir@/saXamine @srcdir@/saloneXamine.xml
 
 # The xaminerunne program.
@@ -46,4 +46,4 @@ xaminerunner_LDADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @ROOT_LDFLAGS@ \
 xaminerunner_LDFAGS=-Wl,-rpath=@prefix@/lib
 
 EXTRA_DIST = xamineRunnerOptions.ggo $(TCLPACKAGE_FILES) xaminerunner.tcl \
-	saloneXamine.xml
+	saloneXamine.xml XamineUtils.tcl 
