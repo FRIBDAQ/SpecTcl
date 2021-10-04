@@ -66,8 +66,8 @@ CTKRunControl::Start()
   m_FileHandler.Set();
   CRunControl::Start();		// Update the internal state variables.
 
-  ShMemManagerAPI* api = ShMemManagerAPI::getInstance();
-  api->CreateThread();
+  //ShMemManagerAPI* api = ShMemManagerAPI::getInstance();
+  // api->CreateThread();
   /*
   try {
     api->JoinThread();
