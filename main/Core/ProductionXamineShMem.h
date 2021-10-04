@@ -319,6 +319,12 @@ public:
      * \param slot      the spectrum identifier
      */
     void clearStatistics(unsigned slot);
+    /**
+     * Return a pointer to the actual, encapsulated shared memory.
+     *
+     * @return void* - pointer to shared memory.
+     */
+    void* getSharedMemoryPointer();
 
 private:
     Address_t defineSpectrum (CXamineSpectrum& rSpectrum)  ;

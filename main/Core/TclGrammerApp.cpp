@@ -522,7 +522,8 @@ void CTclGrammerApp::CreateDisplays()
     api.SetDisplayInterface(*m_pDisplayInterface);
 
     std::shared_ptr<CXamineSharedMemory> pShMem(new CProductionXamineShMem(m_nDisplaySize*1024*1024));
-
+    gpDisplayMemory = pShMem->getSharedMemoryPointer();
+    
     // Set up the Xamine display to use the appropriate display size
     CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
     CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);

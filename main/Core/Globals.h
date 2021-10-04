@@ -57,5 +57,6 @@ extern CRunControl*        gpRunControl;        // Run controlling object (could
 extern CAnalyzer*          gpAnalyzer;          // Points to event analyzer.
 extern const char*         gpVersion;           // SpecTcl version text.
 extern CDisplayInterface*  gpDisplayInterface;  // Display interface
+extern volatile void*               gpDisplayMemory;     // Display memory.
 
 #endif

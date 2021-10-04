@@ -602,6 +602,14 @@ CProductionXamineShMem::clearStatistics(unsigned slot)
 {
     Xamine_clearStatistics(slot+1);
 }
+/**
+ * getSharedMemoryPointer
+ */
+void*
+CProductionXamineShMem::getSharedMemoryPointer()
+{
+	return reinterpret_cast<void*>(const_cast<Xamine_shared*>(m_pMemory));
+}
 
 
 //////////////////////////////////////////////////////////////////////////

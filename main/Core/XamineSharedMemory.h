@@ -96,6 +96,7 @@ public:
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y) = 0;
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y) = 0;
     virtual void clearStatistics(unsigned slot) = 0;
+    virtual void* getSharedMemoryPointer() { return kpNULL; }
 
 };
 

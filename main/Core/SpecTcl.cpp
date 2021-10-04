@@ -2847,6 +2847,15 @@ SpecTcl::parameterIds(vector<string> names)
   return paramIds;
 }
 /**
+ * getDisplayMemory
+ *    Returns a pointer to the display (Xamine)  shared memory.
+ */
+void*
+SpecTcl::getDisplayMemory()
+{
+  return const_cast<void*>(gpDisplayMemory);
+}
+/**
  * isInitialized
  *   Returns true if we think SpecTcl is fully initialized.
  *   This is the case when the interpreter, the historgrammer, the
